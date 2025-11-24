@@ -61,7 +61,7 @@ public sealed class BallController : MonoBehaviour
         if (nail == null || nail.Instance == null)
             return;
 
-        Instance.OnHitNail(nail.Instance);
+        Instance.OnHitNail(nail.Instance, transform.position);
         nail.Instance.OnHitByBall(Instance);
     }
 

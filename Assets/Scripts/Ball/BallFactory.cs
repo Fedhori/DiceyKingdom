@@ -16,7 +16,7 @@ public sealed class BallFactory : MonoBehaviour
         var ball = Instantiate(ballPrefab, ballParent);
         var controller = ball.GetComponent<BallController>();
         controller.Initialize(ballId);
-        ball.transform.position = new Vector2(Random.Range(-16f, 16f), 500);
+        ball.transform.position = new Vector2(Random.Range(-350f, 350f), 500);
         return controller;
     }
 }

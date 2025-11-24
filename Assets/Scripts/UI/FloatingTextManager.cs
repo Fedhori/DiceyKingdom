@@ -10,23 +10,19 @@ public class FloatingTextManager : MonoBehaviour
     [SerializeField] private GameObject textPrefab;
     [SerializeField] private Canvas parentCanvas;
     [SerializeField] private GameObject container;
-    [SerializeField] private Transform worldSpaceContainer;
 
-    [Header("Defaults")]
-    [SerializeField] private bool defaultWorldSpace = true;
-    [SerializeField] private float worldSpaceHeightOffset = 1.5f;
+    [Header("Screen Space")]
     [SerializeField] private float screenSpaceHeightOffset = 30f;
 
-    [Header("Scaling")]
+    [Header("Scaling (현재 클래스에서는 사용 X, 필요 시 FloatingText 쪽에서 활용)")]
     [SerializeField] private float minFontSize = 8f;
     [SerializeField] private float maxFontSize = 48f;
     [SerializeField] private float minValue = 1f;
     [SerializeField] private float maxValue = 1000f;
 
-    private readonly Queue<FloatingText> screenPool = new Queue<FloatingText>();
-    private readonly Queue<FloatingText> worldPool = new Queue<FloatingText>();
+    readonly Queue<FloatingText> pool = new Queue<FloatingText>();
 
-    private void Awake()
+    void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -36,28 +32,12 @@ public class FloatingTextManager : MonoBehaviour
 
         Instance = this;
     }
-    
-    public void ShowText(string message, Color color, float fontSize, float lifeTime, Vector3 worldPosition, bool? useWorldSpaceOverride = null)
-    {
-        bool useWorldSpace = useWorldSpaceOverride ?? defaultWorldSpace;
-        if (textPrefab == null)
-        {
-            Debug.LogWarning("[FloatingTextManager] textPrefab is not assigned.");
-            return;
-        }
-
-        FloatingText floatingText = GetFromPool(useWorldSpace);
-        if (floatingText == null) return;
-
-        Vector3 startPosition = useWorldSpace
-            ? worldPosition + Vector3.up * worldSpaceHeightOffset
-            : WorldToCanvasPosition(worldPosition) + new Vector3(0f, screenSpaceHeightOffset, 0f);
-
-        floatingText.Bind(message, color, fontSize, lifeTime, startPosition, useWorldSpace,
-            () => ReturnToPool(floatingText, useWorldSpace));
-    }
-
-    public void ShowScreenSpaceText(string message, Color color, float fontSize, float lifeTime, Vector2 anchoredPosition)
+    public void ShowText(
+        string message,
+        Color color,
+        float fontSize,
+        float lifeTime,
+        Vector3 worldPosition)
     {
         if (textPrefab == null)
         {
@@ -65,40 +45,48 @@ public class FloatingTextManager : MonoBehaviour
             return;
         }
 
-        FloatingText floatingText = GetFromPool(false);
-        if (floatingText == null) return;
+        var floatingText = GetFromPool();
+        if (floatingText == null)
+            return;
 
-        floatingText.Bind(message, color, fontSize, lifeTime, anchoredPosition, false,
-            () => ReturnToPool(floatingText, false));
+        Vector3 startPosition =
+            WorldToCanvasPosition(worldPosition) +
+            new Vector3(0f, screenSpaceHeightOffset, 0f);
+        
+        floatingText.Bind(
+            message,
+            color,
+            fontSize,
+            lifeTime,
+            startPosition,
+            () => ReturnToPool(floatingText));
     }
 
-    // public void ShowMoneyText(int amount)
-    // {
-    //     if (UIManager.Instance == null) return;
-    //
-    //     Vector3 worldPos = UIManager.Instance.moneyText.transform.position;
-    //     ShowText($"+${amount}", Colors.Currency, 32f, 2f, worldPos, useWorldSpaceOverride: false);
-    // }
-
-    private FloatingText GetFromPool(bool useWorldSpace)
+    FloatingText GetFromPool()
     {
-        Queue<FloatingText> pool = useWorldSpace ? worldPool : screenPool;
         FloatingText floatingText;
+
         if (pool.Count > 0)
         {
             floatingText = pool.Dequeue();
-            if (floatingText != null) floatingText.gameObject.SetActive(true);
+            if (floatingText != null)
+                floatingText.gameObject.SetActive(true);
         }
         else
         {
-            Transform parent = GetParent(useWorldSpace);
+            Transform parent = GetParent();
             GameObject instance = Instantiate(textPrefab, parent);
             floatingText = instance.GetComponent<FloatingText>();
+
+            if (floatingText == null)
+            {
+                Debug.LogError("[FloatingTextManager] textPrefab has no FloatingText component.");
+                Destroy(instance);
+                return null;
+            }
         }
 
-        if (floatingText == null) return null;
-
-        Transform targetParent = GetParent(useWorldSpace);
+        Transform targetParent = GetParent();
         if (targetParent != null)
             floatingText.transform.SetParent(targetParent, false);
         else
@@ -107,36 +95,34 @@ public class FloatingTextManager : MonoBehaviour
         return floatingText;
     }
 
-    private void ReturnToPool(FloatingText text, bool useWorldSpace)
+    void ReturnToPool(FloatingText text)
     {
-        if (text == null) return;
+        if (text == null)
+            return;
 
         text.gameObject.SetActive(false);
-        Queue<FloatingText> pool = useWorldSpace ? worldPool : screenPool;
         pool.Enqueue(text);
     }
 
-    private Transform GetParent(bool useWorldSpace)
+    Transform GetParent()
     {
-        if (useWorldSpace)
-        {
-            if (worldSpaceContainer != null) return worldSpaceContainer;
-            return null;
-        }
+        if (container != null)
+            return container.transform;
 
-        if (container != null) return container.transform;
-
-        if (parentCanvas != null) return parentCanvas.transform;
+        if (parentCanvas != null)
+            return parentCanvas.transform;
 
         return null;
     }
 
-    private Vector3 WorldToCanvasPosition(Vector3 worldPosition)
+    Vector3 WorldToCanvasPosition(Vector3 worldPosition)
     {
-        if (parentCanvas == null) return worldPosition;
+        if (parentCanvas == null)
+            return worldPosition;
 
-        RectTransform canvasRect = parentCanvas.transform as RectTransform;
-        if (canvasRect == null) return worldPosition;
+        var canvasRect = parentCanvas.transform as RectTransform;
+        if (canvasRect == null)
+            return worldPosition;
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             canvasRect,
@@ -146,17 +132,4 @@ public class FloatingTextManager : MonoBehaviour
 
         return localPoint;
     }
-
-    public float CalculateFontSize(int value)
-    {
-        float clampedValue = Mathf.Max(minValue, value);
-        if (maxValue <= minValue) return minFontSize;
-
-        float logMin = Mathf.Log10(minValue);
-        float logMax = Mathf.Log10(maxValue);
-        float logCurrent = Mathf.Log10(clampedValue);
-        float t = Mathf.InverseLerp(logMin, logMax, logCurrent);
-        return Mathf.Lerp(minFontSize, maxFontSize, t);
-    }
 }
-

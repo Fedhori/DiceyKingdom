@@ -15,7 +15,7 @@ public sealed class BallInstance
         PersonalScore = 0;
     }
 
-    public void OnHitNail(NailInstance nail)
+    public void OnHitNail(NailInstance nail, Vector2 position)
     {
         if (ScoreManager.Instance == null)
         {
@@ -25,7 +25,7 @@ public sealed class BallInstance
 
         var gained = BaseScore;
         PersonalScore += gained;
-        ScoreManager.Instance.AddScore(gained);
+        ScoreManager.Instance.AddScore(gained, position);
     }
 
     public void OnHitBall(BallInstance other)

@@ -256,7 +256,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallManager
   ballPrefab: {fileID: 6712946394271827164, guid: 22f0b2cd85091534b90dbab6ca9639f4, type: 3}
   generatorTransform: {fileID: 0}
-  cycle: 0.5
+  cycle: 0.1
+  spawnCount: 20
 --- !u!114 &509129559
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1100,8 +1101,9 @@ GameObject:
   - component: {fileID: 1265942338}
   - component: {fileID: 1265942341}
   - component: {fileID: 1265942339}
+  - component: {fileID: 1265942342}
   m_Layer: 0
-  m_Name: PointZone
+  m_Name: DeathZone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1116,7 +1118,7 @@ Transform:
   m_GameObject: {fileID: 1265942337}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -490, z: 0}
+  m_LocalPosition: {x: -39.628, y: -704.4468, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1161,12 +1163,12 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 1, y: 1}
-    newSize: {x: 800, y: 100}
+    newSize: {x: 1485.808, y: 314.8935}
     adaptiveTilingThreshold: 0.5
     drawMode: 1
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 800, y: 100}
+  m_Size: {x: 2000, y: 300}
   m_EdgeRadius: 0
 --- !u!212 &1265942341
 SpriteRenderer:
@@ -1220,12 +1222,24 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 800, y: 100}
+  m_Size: {x: 1485.808, y: 314.8935}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1265942342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1265942337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e2fc8df9fa5a374cb9aa0c5791b5469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeathZone
 --- !u!1 &1326511173
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,6 +7,7 @@ public sealed class ScoreManager : MonoBehaviour
     public static ScoreManager Instance { get; private set; }
 
     private int totalScore;
+
     public int TotalScore
     {
         get => totalScore;
@@ -36,11 +37,12 @@ public sealed class ScoreManager : MonoBehaviour
         OnScoreChanged -= UpdateScoreText;
     }
 
-    public void AddScore(int amount)
+    public void AddScore(int amount, Vector2 position)
     {
         if (amount == 0)
             return;
 
+        FloatingTextManager.Instance.ShowText(amount.ToString(), Colors.Legendary, 16f, 1f, position);
         TotalScore += amount;
     }
 

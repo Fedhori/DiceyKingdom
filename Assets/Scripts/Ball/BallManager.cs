@@ -5,9 +5,9 @@ public class BallManager : MonoBehaviour
     [SerializeField] private GameObject ballPrefab;
     [SerializeField] private Transform generatorTransform;
 
-    [SerializeField] private float cycle = 0.5f;
+    [SerializeField] private float cycle = 0.1f;
     private float currentCycle = 0f;
-    private int spawnCount = 10;
+    [SerializeField] private int spawnCount = 20;
     private int currentSpawnCount = 0;
 
     void Update()
