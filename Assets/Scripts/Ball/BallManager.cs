@@ -1,4 +1,3 @@
-using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
 
 public class BallManager : MonoBehaviour
@@ -15,15 +14,12 @@ public class BallManager : MonoBehaviour
     {
         if (currentSpawnCount >= spawnCount)
             return;
-        
+
         if (currentCycle > cycle)
         {
             currentSpawnCount++;
             currentCycle -= cycle;
-            var ball = Instantiate(ballPrefab, generatorTransform.position, Quaternion.identity);
-            ball.transform.position = new Vector2(
-                Random.Range(-350f, 350f),
-                ball.transform.position.y);
+            BallFactory.Instance.SpawnBall("ball.normal");
         }
 
         currentCycle += Time.deltaTime;

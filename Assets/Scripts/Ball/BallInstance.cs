@@ -35,9 +35,5 @@ public sealed class BallInstance
             Debug.LogWarning("[BallInstance] ScoreManager is null.");
             return;
         }
-
-        var gained = BaseScore + other.BaseScore;
-        PersonalScore += gained;
-        ScoreManager.Instance.AddScore(gained);
     }
 }

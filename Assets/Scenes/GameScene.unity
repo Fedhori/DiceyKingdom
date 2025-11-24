@@ -221,6 +221,7 @@ GameObject:
   - component: {fileID: 282995327}
   - component: {fileID: 282995326}
   - component: {fileID: 282995325}
+  - component: {fileID: 282995328}
   m_Layer: 0
   m_Name: Bar (18)
   m_TagString: Untagged
@@ -364,6 +365,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &282995328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 282995323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &509129556
 GameObject:
   m_ObjectHideFlags: 0
@@ -425,6 +438,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallFactory
   ballPrefab: {fileID: 6712946394271827164, guid: 22f0b2cd85091534b90dbab6ca9639f4, type: 3}
+  ballParent: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -574,6 +588,7 @@ GameObject:
   - component: {fileID: 610164552}
   - component: {fileID: 610164551}
   - component: {fileID: 610164550}
+  - component: {fileID: 610164553}
   m_Layer: 0
   m_Name: Bar (6)
   m_TagString: Untagged
@@ -717,6 +732,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &610164553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610164548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &617915109
 GameObject:
   m_ObjectHideFlags: 0
@@ -892,6 +919,7 @@ GameObject:
   - component: {fileID: 675079107}
   - component: {fileID: 675079106}
   - component: {fileID: 675079105}
+  - component: {fileID: 675079108}
   m_Layer: 0
   m_Name: Bar (5)
   m_TagString: Untagged
@@ -1035,6 +1063,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &675079108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 675079103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &684668662
 GameObject:
   m_ObjectHideFlags: 0
@@ -1143,6 +1183,7 @@ GameObject:
   - component: {fileID: 741060856}
   - component: {fileID: 741060855}
   - component: {fileID: 741060854}
+  - component: {fileID: 741060857}
   m_Layer: 0
   m_Name: Bar (15)
   m_TagString: Untagged
@@ -1286,6 +1327,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &741060857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 741060852}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!4 &815665861 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2084582402183828137, guid: d4acf8a657bc03f479704915bf307234, type: 3}
@@ -1303,6 +1356,7 @@ GameObject:
   - component: {fileID: 839213987}
   - component: {fileID: 839213986}
   - component: {fileID: 839213985}
+  - component: {fileID: 839213988}
   m_Layer: 0
   m_Name: Bar (4)
   m_TagString: Untagged
@@ -1446,6 +1500,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &839213988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 839213983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &949083074
 GameObject:
   m_ObjectHideFlags: 0
@@ -1458,6 +1524,7 @@ GameObject:
   - component: {fileID: 949083078}
   - component: {fileID: 949083077}
   - component: {fileID: 949083076}
+  - component: {fileID: 949083079}
   m_Layer: 0
   m_Name: Bar (11)
   m_TagString: Untagged
@@ -1601,6 +1668,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &949083079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 949083074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &1018538855
 GameObject:
   m_ObjectHideFlags: 0
@@ -1720,6 +1799,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a56e308022445e45b3c84f064e0b6f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScoreManager
+  scoreText: {fileID: 1130700143}
 --- !u!1 &1130096490
 GameObject:
   m_ObjectHideFlags: 0
@@ -1885,6 +1965,142 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1130700141
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1130700142}
+  - component: {fileID: 1130700144}
+  - component: {fileID: 1130700143}
+  m_Layer: 5
+  m_Name: ScoreText
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1130700142
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1130700141}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2114596191}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 515}
+  m_SizeDelta: {x: 200, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1130700143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1130700141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: 0
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 746f86218c845bb49a98169d005126fe, type: 2}
+  m_sharedMaterial: {fileID: -8383589127567067901, guid: 746f86218c845bb49a98169d005126fe, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 64
+  m_fontSizeBase: 64
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 1
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1130700144
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1130700141}
+  m_CullTransparentMesh: 1
 --- !u!1 &1238138399
 GameObject:
   m_ObjectHideFlags: 0
@@ -1897,6 +2113,7 @@ GameObject:
   - component: {fileID: 1238138403}
   - component: {fileID: 1238138402}
   - component: {fileID: 1238138401}
+  - component: {fileID: 1238138404}
   m_Layer: 0
   m_Name: Bar (12)
   m_TagString: Untagged
@@ -2040,6 +2257,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1238138404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1238138399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &1265817138
 GameObject:
   m_ObjectHideFlags: 0
@@ -2052,6 +2281,7 @@ GameObject:
   - component: {fileID: 1265817142}
   - component: {fileID: 1265817141}
   - component: {fileID: 1265817140}
+  - component: {fileID: 1265817143}
   m_Layer: 0
   m_Name: Bar (10)
   m_TagString: Untagged
@@ -2195,6 +2425,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1265817143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1265817138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &1265942337
 GameObject:
   m_ObjectHideFlags: 0
@@ -2344,6 +2586,7 @@ GameObject:
   - component: {fileID: 1304388860}
   - component: {fileID: 1304388859}
   - component: {fileID: 1304388858}
+  - component: {fileID: 1304388861}
   m_Layer: 0
   m_Name: Bar (17)
   m_TagString: Untagged
@@ -2487,6 +2730,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1304388861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1304388856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &1304943352
 GameObject:
   m_ObjectHideFlags: 0
@@ -2499,6 +2754,7 @@ GameObject:
   - component: {fileID: 1304943356}
   - component: {fileID: 1304943355}
   - component: {fileID: 1304943354}
+  - component: {fileID: 1304943357}
   m_Layer: 0
   m_Name: Bar (14)
   m_TagString: Untagged
@@ -2642,6 +2898,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1304943357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1304943352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &1326511173
 GameObject:
   m_ObjectHideFlags: 0
@@ -2819,6 +3087,7 @@ GameObject:
   - component: {fileID: 1394356587}
   - component: {fileID: 1394356586}
   - component: {fileID: 1394356585}
+  - component: {fileID: 1394356588}
   m_Layer: 0
   m_Name: Bar (16)
   m_TagString: Untagged
@@ -2962,6 +3231,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1394356588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1394356583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &1435853805
 GameObject:
   m_ObjectHideFlags: 0
@@ -3006,6 +3287,7 @@ GameObject:
   - component: {fileID: 1440880589}
   - component: {fileID: 1440880588}
   - component: {fileID: 1440880587}
+  - component: {fileID: 1440880590}
   m_Layer: 0
   m_Name: Bar (1)
   m_TagString: Untagged
@@ -3149,6 +3431,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1440880590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1440880585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &1488714998
 GameObject:
   m_ObjectHideFlags: 0
@@ -3161,6 +3455,7 @@ GameObject:
   - component: {fileID: 1488715002}
   - component: {fileID: 1488715001}
   - component: {fileID: 1488715000}
+  - component: {fileID: 1488715003}
   m_Layer: 0
   m_Name: Bar (3)
   m_TagString: Untagged
@@ -3304,6 +3599,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1488715003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1488714998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &1521147924
 GameObject:
   m_ObjectHideFlags: 0
@@ -3316,6 +3623,7 @@ GameObject:
   - component: {fileID: 1521147928}
   - component: {fileID: 1521147927}
   - component: {fileID: 1521147926}
+  - component: {fileID: 1521147929}
   m_Layer: 0
   m_Name: Bar (7)
   m_TagString: Untagged
@@ -3459,6 +3767,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1521147929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1521147924}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &1644066638
 GameObject:
   m_ObjectHideFlags: 0
@@ -3509,6 +3829,7 @@ GameObject:
   - component: {fileID: 1668359017}
   - component: {fileID: 1668359016}
   - component: {fileID: 1668359015}
+  - component: {fileID: 1668359018}
   m_Layer: 0
   m_Name: Bar (8)
   m_TagString: Untagged
@@ -3652,6 +3973,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1668359018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1668359013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &1793563251
 GameObject:
   m_ObjectHideFlags: 0
@@ -3864,6 +4197,7 @@ GameObject:
   - component: {fileID: 1869853557}
   - component: {fileID: 1869853556}
   - component: {fileID: 1869853555}
+  - component: {fileID: 1869853558}
   m_Layer: 0
   m_Name: Bar (2)
   m_TagString: Untagged
@@ -4007,6 +4341,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1869853558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1869853553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &1896991523
 GameObject:
   m_ObjectHideFlags: 0
@@ -4019,6 +4365,7 @@ GameObject:
   - component: {fileID: 1896991527}
   - component: {fileID: 1896991526}
   - component: {fileID: 1896991525}
+  - component: {fileID: 1896991528}
   m_Layer: 0
   m_Name: Bar (19)
   m_TagString: Untagged
@@ -4162,6 +4509,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1896991528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1896991523}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &1935668790
 GameObject:
   m_ObjectHideFlags: 0
@@ -4174,6 +4533,7 @@ GameObject:
   - component: {fileID: 1935668794}
   - component: {fileID: 1935668793}
   - component: {fileID: 1935668792}
+  - component: {fileID: 1935668795}
   m_Layer: 0
   m_Name: Bar (9)
   m_TagString: Untagged
@@ -4317,6 +4677,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1935668795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1935668790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &2070544156
 GameObject:
   m_ObjectHideFlags: 0
@@ -4329,6 +4701,7 @@ GameObject:
   - component: {fileID: 2070544160}
   - component: {fileID: 2070544159}
   - component: {fileID: 2070544158}
+  - component: {fileID: 2070544161}
   m_Layer: 0
   m_Name: Bar (13)
   m_TagString: Untagged
@@ -4472,6 +4845,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &2070544161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2070544156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bfb1aef5b6208142a21834e241bee21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NailController
 --- !u!1 &2114596187
 GameObject:
   m_ObjectHideFlags: 0
@@ -4565,7 +4950,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1130700142}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}

@@ -1,21 +1,22 @@
-using System;
 using UnityEngine;
 
 public sealed class BallFactory : MonoBehaviour
 {
     [SerializeField] GameObject ballPrefab;
+    [SerializeField] private Transform ballParent;
     public static BallFactory Instance;
-    
+
     private void Awake()
     {
         Instance = this;
     }
 
-    public BallController SpawnBall(string ballId, Vector2 position)
+    public BallController SpawnBall(string ballId)
     {
-        var obj = Instantiate(ballPrefab, position, Quaternion.identity);
-        var controller = obj.GetComponent<BallController>();
+        var ball = Instantiate(ballPrefab, ballParent);
+        var controller = ball.GetComponent<BallController>();
         controller.Initialize(ballId);
+        ball.transform.position = new Vector2(Random.Range(-350f, 350f), 500);
         return controller;
     }
 }
