@@ -1,0 +1,12 @@
+{
+	"balls": [
+		{
+			"id": "ball.normal",
+			"baseScore": 10
+		},
+		{
+			"id": "ball.bonus",
+			"baseScore": 50
+		}
+	]
+}
