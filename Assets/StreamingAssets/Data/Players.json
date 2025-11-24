@@ -1,0 +1,20 @@
+{
+	"players": [
+		{
+			"id": "player.warrior",
+			"maxHealth": 10,
+			"maxFocus": 5,
+			"maxDiceCount": 5,
+			"startingEquipmentIds": [
+				"equipment.shortsword",
+				"equipment.platearmor",
+				"equipment.dagger"
+			],
+			"diceDeck": [
+				"dice.normal",
+				"dice.normal",
+				"dice.normal"
+			]
+		}
+	]
+}

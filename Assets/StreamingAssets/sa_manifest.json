@@ -1,0 +1,36 @@
+{
+    "appVersion": "1.0",
+    "generatedAt": "2025-11-18 21:33:10",
+    "files": [
+        {
+            "path": "sa_state.json",
+            "size": 70,
+            "md5": "e6c4f26015b2f580a6265fcfa3b9297c"
+        },
+        {
+            "path": "Data/config.JSON",
+            "size": 54,
+            "md5": "56479160046a4c6437af4aee4be82ad5"
+        },
+        {
+            "path": "Data/Enemies.json",
+            "size": 1104,
+            "md5": "c9dfdf1bc942d60917745af405b04166"
+        },
+        {
+            "path": "Data/Equipments.json",
+            "size": 1554,
+            "md5": "3847b376b509d039e4f6f75dc6e02b43"
+        },
+        {
+            "path": "Data/Players.json",
+            "size": 226,
+            "md5": "ea11a871a4133c8988ac359fe55e34cf"
+        },
+        {
+            "path": "Data/Stages.json",
+            "size": 2287,
+            "md5": "1fe9696a976b8e4b2dbfd1713b3deea5"
+        }
+    ]
+}

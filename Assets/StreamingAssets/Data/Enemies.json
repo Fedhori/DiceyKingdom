@@ -1,0 +1,84 @@
+﻿{
+	"enemies": [
+		{
+			"id": "enemy.goblin",
+			"health": 8,
+			"exp": 10,
+
+			"actions": [
+				{
+					"id": "action.clumsyswing",
+					"effects": [
+						{ "type": "Damage", "value": 3 }
+					]
+				},
+				{
+					"id": "action.swing",
+					"effects": [
+						{ "type": "Damage", "value": 5 }
+					]
+				},
+				{
+					"id": "action.crouch",
+					"effects": [
+						{ "type": "Block", "value": 5 }
+					]
+				}
+			],
+
+			"ai": {
+				"type": "WeightedRandom",
+				"entries": [
+					{
+						"actionId": "action.clumsyswing",
+						"weight": 2
+					},
+					{
+						"actionId": "action.swing",
+						"weight": 1
+					},
+					{
+						"actionId": "action.crouch",
+						"weight": 1
+					}
+				]
+			}
+		},
+		{
+			"id": "enemy.ogre",
+			"health": 15,
+			"exp": 20,
+
+			"actions": [
+				{
+					"id": "action.warmup",
+					"effects": [
+						{ "type": "Damage", "value": 4 }
+					]
+				},
+				{
+					"id": "action.strikedown",
+					"effects": [
+						{ "type": "Damage", "value": 7 },
+						{ "type": "Shatter", "value": 1 }
+					]
+				}
+			],
+
+			"ai": {
+				"type": "SequenceLoop",
+				"loopFromIndex": 0,
+				"entries": [
+					{
+						"actionId": "action.warmup",
+						"repeat": 1
+					},
+					{
+						"actionId": "action.strikedown",
+						"repeat": 1
+					}
+				]
+			}
+		}
+	]
+}

@@ -1,0 +1,30 @@
+{
+	"stages": [
+		{
+			"enemyIds": [
+				"enemy.goblin",
+				"enemy.goblin"
+			]
+		},
+		{
+			"enemyIds": [
+				"enemy.goblin",
+				"enemy.goblin",
+				"enemy.goblin"
+			]
+		},
+		{
+			"enemyIds": ["enemy.ogre"]
+		},
+		{
+			"enemyIds": [
+				"enemy.ogre",
+				"enemy.goblin",
+				"enemy.goblin"
+			]
+		},
+		{
+			"enemyIds": ["enemy.ogre", "enemy.ogre"]
+		}
+	]
+}
