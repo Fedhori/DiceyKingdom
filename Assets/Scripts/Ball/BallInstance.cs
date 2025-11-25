@@ -2,13 +2,26 @@ using Data;
 using GameStats;
 using UnityEngine;
 
+public enum CriticalType
+{
+    None,
+    Critical,
+    OverCritical,
+}
+
 public sealed class BallInstance
 {
+    const string CritChanceStatId = "critChance";
+
+    static readonly System.Random LocalRandom = new();
+
     public BallDto BaseDto { get; }
     public string Id => BaseDto.id;
     public int BaseScore => BaseDto.baseScore;
 
     public StatSet Stats { get; }
+
+    public float CritChance => Stats.GetValue(CritChanceStatId);
 
     public int PersonalScore { get; private set; }
 
@@ -18,6 +31,7 @@ public sealed class BallInstance
 
         Stats = new StatSet();
         Stats.SetBase(StatIds.Score, BaseScore);
+        Stats.SetBase(CritChanceStatId, BaseDto.critChance);
 
         PersonalScore = 0;
     }
@@ -36,9 +50,25 @@ public sealed class BallInstance
             return;
         }
 
-        var gained = GetScorePerHit();
+        // 임시. 나중에 크리 보정같은거 들어가면 개선해야함.
+        var criticalType = RollCriticalType();
+        var critMultiplier = 1;
+        switch (criticalType)
+        {
+            case CriticalType.None:
+                critMultiplier = 1;
+                break;
+            case CriticalType.Critical:
+                critMultiplier = 2;
+                break;
+            case CriticalType.OverCritical:
+                critMultiplier = 4;
+                break;
+        }
+
+        var gained = GetScorePerHit() * critMultiplier;
         PersonalScore += gained;
-        ScoreManager.Instance.AddScore(gained, position);
+        ScoreManager.Instance.AddScore(gained, criticalType, position);
     }
 
     public void OnHitBall(BallInstance other)
@@ -50,6 +80,21 @@ public sealed class BallInstance
         }
 
         // 나중에 Ball-Ball 충돌에 따른 스탯 효과 추가 가능
+    }
+
+    public CriticalType RollCriticalType()
+    {
+        float chance = Mathf.Max(0f, CritChance);
+        float overChance = Mathf.Max(0f, chance - 100f);
+        float baseCritChance = Mathf.Min(chance, 100f);
+
+        var rng = GameManager.Instance?.Rng ?? LocalRandom;
+        double roll = rng.NextDouble() * 100.0;
+
+        if (overChance > 0f && roll < overChance)
+            return CriticalType.OverCritical;
+
+        return roll < baseCritChance ? CriticalType.Critical : CriticalType.None;
     }
 
     public void AddTemporaryScoreMultiplier(float ratio, object source)

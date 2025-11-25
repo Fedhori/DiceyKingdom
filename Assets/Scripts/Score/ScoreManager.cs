@@ -12,7 +12,7 @@ public sealed class ScoreManager : MonoBehaviour
     const float MinValue = 10f;
     const float MaxValue = 1000f;
     const float MinFontSize = 16f;
-    const float MaxFontSize = 128f;
+    const float MaxFontSize = 64f;
 
     float GetFontSizeForScore(int score)
     {
@@ -55,13 +55,20 @@ public sealed class ScoreManager : MonoBehaviour
         OnScoreChanged -= UpdateScoreText;
     }
 
-    public void AddScore(int amount, Vector2 position)
+    public void AddScore(int amount, CriticalType criticalType, Vector2 position)
     {
         if (amount == 0)
             return;
 
-        FloatingTextManager.Instance.ShowText(amount.ToString(),
-            Colors.Legendary, GetFontSizeForScore(amount), 1f, position);
+        var color = Colors.GetCriticalColor(criticalType);
+        var postFix = "";
+        if (criticalType == CriticalType.Critical)
+            postFix = "!";
+        else if (criticalType == CriticalType.OverCritical)
+            postFix = "!!";
+
+        FloatingTextManager.Instance.ShowText(amount + postFix,
+            color, GetFontSizeForScore(amount), 1f, position);
         TotalScore += amount;
     }
 

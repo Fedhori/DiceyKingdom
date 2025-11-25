@@ -10,6 +10,7 @@ namespace Data
     {
         public string id;
         public int baseScore;
+        public float critChance;
     }
 
     [Serializable]

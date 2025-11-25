@@ -2,6 +2,10 @@ using UnityEngine;
 
 public static class Colors
 {
+    public static readonly Color NormalScore = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
+    public static readonly Color CritScore = new Color32(0xFF, 0x8A, 0x80, 0xFF);
+    public static readonly Color OverCrit = new Color32(0xFF, 0x17, 0x44, 0xFF);
+    
     public static readonly Color Common = new Color32(0xFF, 0xFF, 0xFF, 0xFF); // #FFFFFF
     public static readonly Color Rare = new Color32(0x3B, 0x82, 0xF6, 0xFF); // #3B82F6
     public static readonly Color RareLight = new Color32(0xB1, 0xCD, 0xFB, 0xFF); // #B1CDFB
@@ -15,4 +19,19 @@ public static class Colors
     public static readonly Color Green = new Color32(0x27, 0xAE, 0x60, 0xFF); // #27AE60 (초록색)
 
     public static readonly Color EnemyRed = new Color32(0xB3, 0x2A, 0x2A, 0xFF);
+
+    public static Color GetCriticalColor(CriticalType criticalType)
+    {
+        switch (criticalType)
+        {
+            case CriticalType.None:
+                return NormalScore;
+            case CriticalType.Critical:
+                return CritScore;
+            case CriticalType.OverCritical:
+                return OverCrit;
+        }
+
+        return NormalScore;
+    }
 }

@@ -2,15 +2,13 @@
 	"balls": [
 		{
 			"id": "ball.normal",
-			"baseScore": 10
-		},
-		{
-			"id": "ball.silver",
-			"baseScore": 30
+			"baseScore": 10,
+			"critChance": 10
 		},
 		{
 			"id": "ball.gold",
-			"baseScore": 100
+			"baseScore": 100,
+			"critChance": 150
 		}
 	]
 }
