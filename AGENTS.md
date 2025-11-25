@@ -29,3 +29,12 @@
 
 - “Goal” 섹션에서 목표를 간결히 요약합니다.
 - 구현/검증 단계에서 필요한 수동 작업이나 테스트 방법이 있으면 명확히 안내합니다.
+
+## Scripts 폴더 구조 메모
+
+- 상위 부트/매니저: `Bootstrap`에서 SaCache 초기화 후 `GameScene` 로드 및 `managersRoot`를 DDoL로 활성화. `GameManager`는 단일톤 RNG/재시작, `InputManager`는 PlayerInput 매핑과 슬롯 액션, 옵션/디버그 콘솔 토글을 중계. `OptionManager`는 옵션 오버레이와 씬별 버튼 표시, `ScoreManager`는 점수 합산과 `FloatingTextManager` 호출을 담당.
+- 데이터·캐시: `Data` 폴더에 SaCache(StreamingAssets→persistent 동기화), `StaticDataManager`(게임 시작 시 Stages/Balls/Pins JSON 로드), DTO/리포지토리(`BallRepository`, `PinRepository`), 공용 컬러/문자열/로컬라이징 유틸, 스프라이트 캐시가 모여 있음. 주요 입력 JSON은 `StreamingAssets/Data/*.json` 기준.
+- 엔티티 계층: `Ball` 폴더는 DTO/Repository/Instance와 `BallFactory`(스폰), `BallController`(물리·충돌), `BallManager`(주기적 생성), `DeathZone`(퇴장 처리)로 분리. `Pin` 폴더도 동일 패턴의 DTO/Repository/Instance와 `PinFactory`(생성), `PinManager`(격자 배치), `PinController`(충돌·히트 이펙트)로 구성.
+- 스테이지: `Stage` 폴더는 `StageDto`/`StageInstance` 자리만 잡혀 있고, 데이터는 `StaticDataManager`가 Stages.json에서 읽어들임.
+- UI 계층: `UI` 루트에 레이아웃/효과(`FixedAspectRatio`, `HoverScale`, `SlidePanelLean`, `PersistentCanvas`), 게이지/숫자/플로팅 텍스트, 토스트/옵션 오버레이, 강조/클릭 캐처 등이 위치. `UI/Modal`(ModalManager, Info/Confirmation), `UI/Tooltip`(TooltipManager/Target/View/Kind/Content)처럼 기능별 하위 폴더로 나뉨.
+- 기타: `Dev/DevCommandManager`는 콘솔 열기 토글과 연동, `Audio/AudioManager`는 오디오 제어용 자리. 구조적으로 `managersRoot`에 여러 매니저가 담겨 씬 전환 간 유지되는 패턴이 고정되어 있음.

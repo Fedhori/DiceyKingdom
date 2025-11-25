@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 
@@ -7,6 +8,23 @@ public sealed class ScoreManager : MonoBehaviour
     public static ScoreManager Instance { get; private set; }
 
     private int totalScore;
+
+    const float MinValue = 10f;
+    const float MaxValue = 1000f;
+    const float MinFontSize = 16f;
+    const float MaxFontSize = 128f;
+
+    float GetFontSizeForScore(int score)
+    {
+        // 점수 범위 밖 안전 처리 (clamp score to range)
+        float value = Mathf.Clamp(score, MinValue, MaxValue);
+
+        // 0~1로 정규화 (normalize to 0~1)
+        float t = Mathf.InverseLerp(MinValue, MaxValue, value);
+
+        // 폰트 크기 보간 (lerp font size)
+        return Mathf.Lerp(MinFontSize, MaxFontSize, t);
+    }
 
     public int TotalScore
     {
@@ -42,7 +60,8 @@ public sealed class ScoreManager : MonoBehaviour
         if (amount == 0)
             return;
 
-        FloatingTextManager.Instance.ShowText(amount.ToString(), Colors.Legendary, 16f, 1f, position);
+        FloatingTextManager.Instance.ShowText(amount.ToString(),
+            Colors.Legendary, GetFontSizeForScore(amount), 1f, position);
         TotalScore += amount;
     }
 

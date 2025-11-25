@@ -168,3 +168,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c31a42d6ba806144a47ae5a0ae9bf66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallController
+  ballSprite: {fileID: 4098678211225629946}

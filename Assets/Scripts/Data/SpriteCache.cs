@@ -24,10 +24,10 @@ public static class SpriteCache
         return sprite;
     }
 
-    public static Sprite GetPlayerSprite(string id)
+    public static Sprite GetBallSprite(string id)
     {
         if (string.IsNullOrEmpty(id)) return null;
-        return Get($"Sprites/Player/{id}");
+        return Get($"Sprites/Ball/{id}");
     }
     
     public static Sprite GetEnemySprite(string id)

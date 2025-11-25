@@ -8,6 +8,8 @@ public sealed class BallController : MonoBehaviour
 
     bool initialized;
 
+    [SerializeField] private SpriteRenderer ballSprite;
+
     public void Initialize(string ballId)
     {
         if (initialized)
@@ -28,6 +30,7 @@ public sealed class BallController : MonoBehaviour
         }
 
         Instance = new BallInstance(dto);
+        ballSprite.sprite = SpriteCache.GetBallSprite(Instance.Id);
         initialized = true;
     }
 

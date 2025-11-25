@@ -19,7 +19,10 @@ public class BallManager : MonoBehaviour
         {
             currentSpawnCount++;
             currentCycle -= cycle;
-            BallFactory.Instance.SpawnBall("ball.normal");
+            if (currentSpawnCount % 10 == 0)
+                BallFactory.Instance.SpawnBall("ball.gold");
+            else
+                BallFactory.Instance.SpawnBall("ball.normal");
         }
 
         currentCycle += Time.deltaTime;
