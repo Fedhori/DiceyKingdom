@@ -5,8 +5,12 @@
 			"baseScore": 10
 		},
 		{
-			"id": "ball.bonus",
-			"baseScore": 50
+			"id": "ball.silver",
+			"baseScore": 30
+		},
+		{
+			"id": "ball.gold",
+			"baseScore": 100
 		}
 	]
 }

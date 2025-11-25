@@ -44,9 +44,9 @@ public sealed class BallController : MonoBehaviour
         if (otherCollider == null)
             return;
 
-        if (otherCollider.TryGetComponent<NailController>(out var nail))
+        if (otherCollider.TryGetComponent<PinController>(out var pin))
         {
-            HandleBallNailCollision(nail, collision);
+            HandleBallPinCollision(pin, collision);
             return;
         }
 
@@ -56,13 +56,14 @@ public sealed class BallController : MonoBehaviour
         }
     }
 
-    void HandleBallNailCollision(NailController nail, Collision2D collision)
+    void HandleBallPinCollision(PinController pin, Collision2D collision)
     {
-        if (nail == null || nail.Instance == null)
+        if (pin == null || pin.Instance == null)
             return;
 
-        Instance.OnHitNail(nail.Instance, transform.position);
-        nail.Instance.OnHitByBall(Instance);
+        Instance.OnHitPin(pin.Instance, transform.position);
+        pin.Instance.OnHitByBall(Instance);
+        pin.PlayHitEffect();
     }
 
     void HandleBallBallCollision(BallController otherBall, Collision2D collision)

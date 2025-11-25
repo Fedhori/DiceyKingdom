@@ -6,44 +6,44 @@ using UnityEngine;
 namespace Data
 {
     [Serializable]
-    public sealed class NailDto
+    public sealed class PinDto
     {
         public string id;
     }
 
     [Serializable]
-    public sealed class NailRoot
+    public sealed class PinRoot
     {
-        public List<NailDto> nails;
+        public List<PinDto> pins;
     }
 
-    public static class NailRepository
+    public static class PinRepository
     {
-        static readonly Dictionary<string, NailDto> map = new();
+        static readonly Dictionary<string, PinDto> map = new();
         static bool initialized;
 
         public static bool IsInitialized => initialized;
-        public static IEnumerable<NailDto> All => map.Values;
+        public static IEnumerable<PinDto> All => map.Values;
 
         public static void InitializeFromJson(string json)
         {
             map.Clear();
 
-            NailRoot root;
+            PinRoot root;
             try
             {
-                root = JsonConvert.DeserializeObject<NailRoot>(json);
+                root = JsonConvert.DeserializeObject<PinRoot>(json);
             }
             catch (Exception e)
             {
-                Debug.LogError($"[NailRepository] Failed to deserialize Nails.json: {e}");
+                Debug.LogError($"[PinRepository] Failed to deserialize Pins.json: {e}");
                 initialized = false;
                 return;
             }
 
-            if (root?.nails != null)
+            if (root?.pins != null)
             {
-                foreach (var dto in root.nails)
+                foreach (var dto in root.pins)
                 {
                     if (dto == null || string.IsNullOrEmpty(dto.id))
                         continue;
@@ -53,14 +53,14 @@ namespace Data
             }
 
             initialized = true;
-            Debug.Log($"[NailRepository] Loaded {map.Count} nail definitions.");
+            Debug.Log($"[PinRepository] Loaded {map.Count} pin definitions.");
         }
 
-        public static bool TryGet(string id, out NailDto dto)
+        public static bool TryGet(string id, out PinDto dto)
         {
             if (!initialized)
             {
-                Debug.LogError("[NailRepository] Not initialized.");
+                Debug.LogError("[PinRepository] Not initialized.");
                 dto = null;
                 return false;
             }
@@ -68,13 +68,13 @@ namespace Data
             return map.TryGetValue(id, out dto);
         }
 
-        public static NailDto GetOrThrow(string id)
+        public static PinDto GetOrThrow(string id)
         {
             if (!initialized)
-                throw new InvalidOperationException("[NailRepository] Not initialized.");
+                throw new InvalidOperationException("[PinRepository] Not initialized.");
 
             if (!map.TryGetValue(id, out var dto) || dto == null)
-                throw new KeyNotFoundException($"[NailRepository] Nail id not found: {id}");
+                throw new KeyNotFoundException($"[PinRepository] Pin id not found: {id}");
 
             return dto;
         }

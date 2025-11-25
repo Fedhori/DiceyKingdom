@@ -28,7 +28,7 @@ public class StaticDataManager : MonoBehaviour
     {
         LoadStage();
         LoadBalls();
-        LoadNails();
+        LoadPins();
     }
 
     void LoadStage()
@@ -81,24 +81,24 @@ public class StaticDataManager : MonoBehaviour
         }
     }
 
-    void LoadNails()
+    void LoadPins()
     {
-        string filePath = Path.Combine("Data", "Nails.json");
+        string filePath = Path.Combine("Data", "Pins.json");
         string json = SaCache.ReadText(filePath);
 
         if (string.IsNullOrEmpty(json))
         {
-            Debug.LogError($"[StaticDataManager] Nails.json not found or empty at: {filePath}");
+            Debug.LogError($"[StaticDataManager] Pins.json not found or empty at: {filePath}");
             return;
         }
 
         try
         {
-            Data.NailRepository.InitializeFromJson(json);
+            Data.PinRepository.InitializeFromJson(json);
         }
         catch (Exception e)
         {
-            Debug.LogError($"[StaticDataManager] Failed to initialize NailRepository from Nails.json: {e}");
+            Debug.LogError($"[StaticDataManager] Failed to initialize PinRepository from Pins.json: {e}");
         }
     }
 }

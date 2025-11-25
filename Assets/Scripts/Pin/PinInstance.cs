@@ -1,13 +1,13 @@
 using Data;
 
-public sealed class NailInstance
+public sealed class PinInstance
 {
-    public NailDto BaseDto { get; }
+    public PinDto BaseDto { get; }
     public string Id => BaseDto.id;
 
     public int HitCount { get; private set; }
 
-    public NailInstance(NailDto dto)
+    public PinInstance(PinDto dto)
     {
         BaseDto = dto;
         HitCount = 0;

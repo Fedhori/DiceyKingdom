@@ -15,7 +15,7 @@ public sealed class BallInstance
         PersonalScore = 0;
     }
 
-    public void OnHitNail(NailInstance nail, Vector2 position)
+    public void OnHitPin(PinInstance pin, Vector2 position)
     {
         if (ScoreManager.Instance == null)
         {
