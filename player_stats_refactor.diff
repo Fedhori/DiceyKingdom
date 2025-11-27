@@ -1,0 +1,469 @@
+diff --git a/Assets/Scripts/Data/BallRepository.cs b/Assets/Scripts/Data/BallRepository.cs
+index 1111111..2222222 100644
+--- a/Assets/Scripts/Data/BallRepository.cs
++++ b/Assets/Scripts/Data/BallRepository.cs
+@@ -1,9 +1,11 @@
+ using System;
+ using System.Collections.Generic;
+ using Newtonsoft.Json;
+ using UnityEngine;
+ 
+ namespace Data
+ {
+     [Serializable]
+     public sealed class BallDto
+     {
+-        public string id;
+-        public int baseScore;
+-        public float critChance = 5f;
+-        public float criticalDamage = 2f;
++        public string id;
++
++        // JSON 필드는 여전히 "baseScore"를 사용.
++        // Balls.json:
++        // { "id": "ball.basic", "baseScore": 10 }
++        [JsonProperty("baseScore")]
++        public float scoreFactor = 1f;
+     }
+ 
+     [Serializable]
+@@ -55,4 +57,4 @@ namespace Data
+ 
+             return dto;
+         }
+-    }
++    }
+diff --git a/Assets/Scripts/GameStats/StatSet.cs b/Assets/Scripts/GameStats/StatSet.cs
+index 3333333..4444444 100644
+--- a/Assets/Scripts/GameStats/StatSet.cs
++++ b/Assets/Scripts/GameStats/StatSet.cs
+@@ -8,11 +8,13 @@ namespace GameStats
+     }
+ 
+     // 선택 사항: 공통 스탯 키 상수 정의용
+     public static class StatIds
+     {
+-        public const string Score = "score";
++        public const string ScoreBase = "scorebase";
++        public const string ScoreMultiplier = "scoremultiplier";
+         public const string CriticalChance = "criticalchance";
+         public const string CriticalDamage = "criticaldamage";
+     }
+ 
+     public sealed class StatModifier
+@@ -164,4 +166,4 @@ namespace GameStats
+             return totalRemoved;
+         }
+     }
+-}
++}
+diff --git a/Assets/Scripts/BallInstance.cs b/Assets/Scripts/BallInstance.cs
+index 5555555..6666666 100644
+--- a/Assets/Scripts/BallInstance.cs
++++ b/Assets/Scripts/BallInstance.cs
+@@ -1,60 +1,55 @@
+ using Data;
+-using GameStats;
+ using UnityEngine;
+ 
+ public enum CriticalType
+ {
+     None,
+     Critical,
+     OverCritical,
+ }
+ 
+ public sealed class BallInstance
+ {
+     static readonly System.Random LocalRandom = new();
+ 
+     public BallDto BaseDto { get; }
+     public string Id => BaseDto.id;
+-    public int BaseScore => BaseDto.baseScore;
+-
+-    public StatSet Stats { get; }
+-
+-    public float CriticalChance => Stats.GetValue(StatIds.CriticalChance);
+-    public float CriticalDamage => Stats.GetValue(StatIds.CriticalDamage);
+-
+-    public int PersonalScore { get; private set; }
++    /// <summary>
++    /// 플레이어의 ScoreBase에 곱해지는 계수.
++    /// Balls.json의 baseScore 값을 그대로 사용.
++    /// </summary>
++    public float ScoreFactor => BaseDto.scoreFactor;
+ 
+     public BallInstance(BallDto dto)
+     {
+         BaseDto = dto ?? throw new System.ArgumentNullException(nameof(dto));
+-
+-        Stats = new StatSet();
+-        Stats.SetBase(StatIds.Score, BaseScore);
+-        Stats.SetBase(StatIds.CriticalChance, BaseDto.critChance);
+-        Stats.SetBase(StatIds.CriticalDamage, BaseDto.criticalDamage);
+-
+-        PersonalScore = 0;
+-    }
+-
+-    int GetScorePerHit()
+-    {
+-        var value = Stats.GetValue(StatIds.Score);
+-        return Mathf.RoundToInt(value);
+     }
+ 
+     public void OnHitPin(PinInstance pin, Vector2 position)
+     {
+         if (ScoreManager.Instance == null)
+         {
+             Debug.LogWarning("[BallInstance] ScoreManager is null.");
+             return;
+         }
+ 
+-        var criticalType = RollCriticalType();
+-        float criticalDamage = GetCriticalDamage(criticalType);
+-
+-        var gained = Mathf.RoundToInt(GetScorePerHit() * criticalDamage);
+-        PersonalScore += gained;
+-        ScoreManager.Instance.AddScore(gained, criticalType, position);
++        var player = PlayerManager.Instance?.Current;
++        if (player == null)
++        {
++            Debug.LogWarning("[BallInstance] PlayerManager.Current is null.");
++            return;
++        }
++
++        var rng = GameManager.Instance?.Rng ?? LocalRandom;
++
++        // 크리티컬 판정과 배율은 Player 스탯에 기반
++        var criticalType = player.RollCriticalType(rng);
++        float criticalDamageFactor = player.GetCriticalDamage(criticalType);
++
++        float baseScore = player.ScoreBase;
++        float scoreMultiplier = player.ScoreMultiplier;
++
++        float rawScore = baseScore * ScoreFactor * scoreMultiplier * criticalDamageFactor;
++        int gained = Mathf.RoundToInt(rawScore);
++
++        ScoreManager.Instance.AddScore(gained, criticalType, position);
+     }
+ 
+     public void OnHitBall(BallInstance other)
+@@ -64,33 +59,6 @@ public sealed class BallInstance
+             Debug.LogWarning("[BallInstance] ScoreManager is null.");
+             return;
+         }
+-
+-        // 나중에 Ball-Ball 충돌에 따른 스탯 효과 추가 가능
+-    }
+-
+-    public CriticalType RollCriticalType()
+-    {
+-        float chance = Mathf.Max(0f, CriticalChance);
+-        float overChance = Mathf.Max(0f, chance - 100f);
+-        float baseCritChance = Mathf.Min(chance, 100f);
+-
+-        var rng = GameManager.Instance?.Rng ?? LocalRandom;
+-        double roll = rng.NextDouble() * 100.0;
+-
+-        if (overChance > 0f && roll < overChance)
+-            return CriticalType.OverCritical;
+-
+-        return roll < baseCritChance ? CriticalType.Critical : CriticalType.None;
+-    }
+-
+-    float GetCriticalDamage(CriticalType criticalType)
+-    {
+-        float normalCrit = Mathf.Max(1f, CriticalDamage);
+-        float overCrit = normalCrit * 2f;
+-
+-        return criticalType switch
+-        {
+-            CriticalType.None => 1f,
+-            CriticalType.Critical => normalCrit,
+-            CriticalType.OverCritical => overCrit,
+-            _ => 1f
+-        };
++        // 나중에 Ball-Ball 충돌에 따른 스탯 효과 추가 가능
+     }
+ }
+diff --git a/Assets/Scripts/PinEffectExecutor.cs b/Assets/Scripts/PinEffectExecutor.cs
+index 7777777..8888888 100644
+--- a/Assets/Scripts/PinEffectExecutor.cs
++++ b/Assets/Scripts/PinEffectExecutor.cs
+@@ -1,11 +1,12 @@
+ using System;
+ using System.Collections.Generic;
+ using Data;
+ using GameStats;
+ using UnityEngine;
+ 
+ public static class PinEffectExecutor
+ {
+     public static void Apply(PinEffectDto dto, BallInstance ball, PinInstance pin)
+     {
+-        if (dto == null || ball == null)
++        var player = PlayerManager.Instance?.Current;
++
++        if (dto == null || player == null)
+             return;
+ 
+         switch (dto.type)
+@@ -16,18 +17,22 @@ public static class PinEffectExecutor
+                 break;
+             
+             default:
+                 Debug.LogWarning($"[PinEffectExecutor] Unsupported effect type: {dto.type}");
+                 break;
+         }
+     }
+ 
+-    static void ApplyStatModifier(PinEffectDto dto, BallInstance ball, PinInstance pin)
++    static void ApplyStatModifier(PinEffectDto dto, PlayerInstance player, PinInstance pin)
+     {
+         var opKind = dto.mode.Equals("Add", StringComparison.OrdinalIgnoreCase)
+             ? StatOpKind.Add
+             : StatOpKind.Mult;
+ 
+         var layer = dto.temporary ? StatLayer.Temporary : StatLayer.Permanent;
+ 
+-        ball.Stats.AddModifier(new StatModifier(
++        player.Stats.AddModifier(new StatModifier(
+             statId: dto.statId,
+             opKind: opKind,
+             value: dto.value,
+             layer: layer,
+             source: pin
+         ));
+     }
+ }
++
+diff --git a/Assets/Scripts/Data/PlayerRepository.cs b/Assets/Scripts/Data/PlayerRepository.cs
+new file mode 100644
+index 0000000..9999999
+--- /dev/null
++++ b/Assets/Scripts/Data/PlayerRepository.cs
+@@ -0,0 +1,86 @@
++using System;
++using System.Collections.Generic;
++using Newtonsoft.Json;
++using UnityEngine;
++
++namespace Data
++{
++    [Serializable]
++    public sealed class PlayerDto
++    {
++        public string id;
++
++        // 플레이어 기본 점수
++        public float scoreBase = 10f;
++        // 전체 점수 배율
++        public float scoreMultiplier = 1f;
++
++        public float critChance = 5f;
++        public float criticalDamage = 2f;
++    }
++
++    [Serializable]
++    public sealed class PlayerRoot
++    {
++        public List<PlayerDto> players;
++    }
++
++    public static class PlayerRepository
++    {
++        static readonly Dictionary<string, PlayerDto> map = new();
++        static bool initialized;
++
++        public static bool IsInitialized => initialized;
++        public static IEnumerable<PlayerDto> All => map.Values;
++
++        public static void InitializeFromJson(string json)
++        {
++            map.Clear();
++
++            PlayerRoot root;
++            try
++            {
++                root = JsonConvert.DeserializeObject<PlayerRoot>(json);
++            }
++            catch (Exception e)
++            {
++                Debug.LogError($"[PlayerRepository] Failed to deserialize Players.json: {e}");
++                initialized = false;
++                return;
++            }
++
++            if (root?.players != null)
++            {
++                foreach (var dto in root.players)
++                {
++                    if (dto == null || string.IsNullOrEmpty(dto.id))
++                        continue;
++
++                    map[dto.id] = dto;
++                }
++            }
++
++            initialized = true;
++        }
++
++        public static bool TryGet(string id, out PlayerDto dto)
++        {
++            if (!initialized)
++            {
++                Debug.LogError("[PlayerRepository] Not initialized.");
++                dto = null;
++                return false;
++            }
++
++            return map.TryGetValue(id, out dto);
++        }
++
++        public static PlayerDto GetOrThrow(string id)
++        {
++            if (!initialized)
++                throw new InvalidOperationException("[PlayerRepository] Not initialized.");
++
++            if (!map.TryGetValue(id, out var dto) || dto == null)
++                throw new KeyNotFoundException($"[PlayerRepository] Player id not found: {id}");
++
++            return dto;
++        }
++    }
++}
+diff --git a/Assets/Scripts/PlayerInstance.cs b/Assets/Scripts/PlayerInstance.cs
+new file mode 100644
+index 0000000..aaaaaaa
+--- /dev/null
++++ b/Assets/Scripts/PlayerInstance.cs
+@@ -0,0 +1,74 @@
++using System;
++using Data;
++using GameStats;
++using UnityEngine;
++
++public sealed class PlayerInstance
++{
++    public PlayerDto BaseDto { get; }
++    public string Id => BaseDto.id;
++
++    public StatSet Stats { get; }
++
++    public float ScoreBase => Stats.GetValue(StatIds.ScoreBase);
++    public float ScoreMultiplier => Stats.GetValue(StatIds.ScoreMultiplier);
++    public float CriticalChance => Stats.GetValue(StatIds.CriticalChance);
++    public float CriticalDamage => Stats.GetValue(StatIds.CriticalDamage);
++
++    public PlayerInstance(PlayerDto dto)
++    {
++        BaseDto = dto ?? throw new ArgumentNullException(nameof(dto));
++
++        Stats = new StatSet();
++        Stats.SetBase(StatIds.ScoreBase, BaseDto.scoreBase);
++        Stats.SetBase(StatIds.ScoreMultiplier, BaseDto.scoreMultiplier);
++        Stats.SetBase(StatIds.CriticalChance, BaseDto.critChance);
++        Stats.SetBase(StatIds.CriticalDamage, BaseDto.criticalDamage);
++    }
++
++    public CriticalType RollCriticalType(System.Random rng)
++    {
++        if (rng == null)
++            rng = new System.Random();
++
++        float chance = Mathf.Max(0f, CriticalChance);
++        float overChance = Mathf.Max(0f, chance - 100f);
++        float baseCritChance = Mathf.Min(chance, 100f);
++
++        double roll = rng.NextDouble() * 100.0;
++
++        if (overChance > 0f && roll < overChance)
++            return CriticalType.OverCritical;
++
++        return roll < baseCritChance ? CriticalType.Critical : CriticalType.None;
++    }
++
++    public float GetCriticalDamage(CriticalType criticalType)
++    {
++        float normalCrit = Mathf.Max(1f, CriticalDamage);
++        float overCrit = normalCrit * 2f;
++
++        switch (criticalType)
++        {
++            case CriticalType.None:
++                return 1f;
++            case CriticalType.Critical:
++                return normalCrit;
++            case CriticalType.OverCritical:
++                return overCrit;
++            default:
++                return 1f;
++        }
++    }
++}
+diff --git a/Assets/Scripts/PlayerManager.cs b/Assets/Scripts/PlayerManager.cs
+new file mode 100644
+index 0000000..bbbbbbb
+--- /dev/null
++++ b/Assets/Scripts/PlayerManager.cs
+@@ -0,0 +1,58 @@
++using System;
++using Data;
++using UnityEngine;
++
++public sealed class PlayerManager : MonoBehaviour
++{
++    public static PlayerManager Instance { get; private set; }
++
++    [SerializeField] string defaultPlayerId = "player.default";
++
++    public PlayerInstance Current { get; private set; }
++
++    void Awake()
++    {
++        if (Instance != null && Instance != this)
++        {
++            Debug.LogWarning("[PlayerManager] Multiple instances detected. Destroying duplicate.");
++            Destroy(gameObject);
++            return;
++        }
++
++        Instance = this;
++
++        if (!PlayerRepository.IsInitialized)
++        {
++            Debug.LogWarning("[PlayerManager] PlayerRepository not initialized. " +
++                             "Call PlayerRepository.InitializeFromJson before creating a player.");
++            return;
++        }
++
++        try
++        {
++            var dto = PlayerRepository.GetOrThrow(defaultPlayerId);
++            Current = new PlayerInstance(dto);
++        }
++        catch (Exception e)
++        {
++            Debug.LogError($"[PlayerManager] Failed to create default player '{defaultPlayerId}': {e}");
++        }
++    }
++
++    public void CreatePlayer(string playerId)
++    {
++        if (!PlayerRepository.IsInitialized)
++        {
++            Debug.LogError("[PlayerManager] Cannot create player. PlayerRepository not initialized.");
++            return;
++        }
++
++        try
++        {
++            var dto = PlayerRepository.GetOrThrow(playerId);
++            Current = new PlayerInstance(dto);
++        }
++        catch (Exception e)
++        {
++            Debug.LogError($"[PlayerManager] Failed to create player '{playerId}': {e}");
++        }
++    }
++}

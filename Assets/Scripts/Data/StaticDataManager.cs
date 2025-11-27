@@ -29,6 +29,7 @@ public class StaticDataManager : MonoBehaviour
         LoadStage();
         LoadBalls();
         LoadPins();
+        LoadPlayers();
     }
 
     void LoadStage()
@@ -57,6 +58,27 @@ public class StaticDataManager : MonoBehaviour
             var stageJson = (JObject)jToken;
             var stage = stageJson.ToObject<StageDto>() ?? new StageDto();
             Stages.Add(stage);
+        }
+    }
+    
+    void LoadPlayers()
+    {
+        string filePath = Path.Combine("Data", "Players.json");
+        string json = SaCache.ReadText(filePath);
+
+        if (string.IsNullOrEmpty(json))
+        {
+            Debug.LogError($"[StaticDataManager] Players.json not found or empty at: {filePath}");
+            return;
+        }
+
+        try
+        {
+            Data.PlayerRepository.InitializeFromJson(json);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[StaticDataManager] Failed to initialize PlayerRepository from Players.json: {e}");
         }
     }
 

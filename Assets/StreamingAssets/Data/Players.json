@@ -2,7 +2,10 @@
 	"players": [
 		{
 			"id": "player.default",
-			"diceDeck": ["ball.basic"]
+			"scoreBase": 10,
+			"scoreMultiplier": 1.0,
+			"critChance": 10.0,
+			"criticalDamage": 2.0
 		}
 	]
 }

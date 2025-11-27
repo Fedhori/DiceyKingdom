@@ -17,14 +17,10 @@ namespace GameStats
     // 선택 사항: 공통 스탯 키 상수 정의용
     public static class StatIds
     {
-        public const string Score = "score";
-        public const string Attack = "attack";
-
-        public const string Defense = "defense";
-
+        public const string ScoreBase = "scorebase";
+        public const string ScoreMultiplier = "scoremultiplier";
         public const string CriticalChance = "criticalchance";
         public const string CriticalDamage = "criticaldamage";
-        // 필요할 때마다 여기 추가해서 코드에서만 사용 (데이터는 그냥 문자열 사용해도 됨)
     }
 
     public sealed class StatModifier
