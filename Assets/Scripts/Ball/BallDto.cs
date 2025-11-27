@@ -56,7 +56,6 @@ namespace Data
             }
 
             initialized = true;
-            Debug.Log($"[BallRepository] Loaded {map.Count} ball definitions.");
         }
 
         public static bool TryGet(string id, out BallDto dto)

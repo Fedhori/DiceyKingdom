@@ -27,7 +27,13 @@ public sealed class DevCommandManager : MonoBehaviour
         open = !startClosed;
 
         // 명령어
-        // Register("EnemyAction", param => { EnemyManager.Instance.ExecuteEnemiesAction(); });
+        Register("spawnpin", param =>
+        {
+            if (param.Length != 3)
+                return;
+            
+            PinFactory.Instance.SpawnPin(param[0], Int32.Parse(param[1]), Int32.Parse(param[2]));
+        });
     }
 
     [Header("Toggle")] public KeyCode toggleKey = KeyCode.BackQuote;

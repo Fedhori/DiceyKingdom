@@ -2,7 +2,7 @@
 	"players": [
 		{
 			"id": "player.default",
-			"diceDeck": ["ball.normal"]
+			"diceDeck": ["ball.basic"]
 		}
 	]
 }

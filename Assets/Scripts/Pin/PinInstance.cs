@@ -7,9 +7,14 @@ public sealed class PinInstance
 
     public int HitCount { get; private set; }
 
-    public PinInstance(PinDto dto)
+    public int Row { get; }
+    public int Column { get; }
+
+    public PinInstance(PinDto dto, int row, int column)
     {
         BaseDto = dto;
+        Row = row;
+        Column = column;
         HitCount = 0;
     }
 

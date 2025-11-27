@@ -53,7 +53,6 @@ namespace Data
             }
 
             initialized = true;
-            Debug.Log($"[PinRepository] Loaded {map.Count} pin definitions.");
         }
 
         public static bool TryGet(string id, out PinDto dto)

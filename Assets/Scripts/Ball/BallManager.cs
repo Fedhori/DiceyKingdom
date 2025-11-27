@@ -22,7 +22,7 @@ public class BallManager : MonoBehaviour
             if (currentSpawnCount % 10 == 0)
                 BallFactory.Instance.SpawnBall("ball.gold");
             else
-                BallFactory.Instance.SpawnBall("ball.normal");
+                BallFactory.Instance.SpawnBall("ball.basic");
         }
 
         currentCycle += Time.deltaTime;

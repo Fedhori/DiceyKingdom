@@ -1,7 +1,7 @@
 {
 	"balls": [
 		{
-			"id": "ball.normal",
+			"id": "ball.basic",
 			"baseScore": 10,
 			"critChance": 10
 		},

@@ -2,6 +2,9 @@
 	"pins": [
 		{
 			"id": "pin.basic"
+		},
+		{
+			"id": "pin.cloverleaf"
 		}
 	]
 }

@@ -12,19 +12,24 @@ public sealed class PinController : MonoBehaviour
     [SerializeField] float hitScaleMultiplier = 1.2f;
     [SerializeField] float growDuration = 0.06f;
     [SerializeField] float shrinkDuration = 0.08f;
-    [SerializeField] private TMP_Text countText;
-    private int count;
+    [SerializeField] TMP_Text countText;
+    int count;
+
+    [SerializeField] SpriteRenderer pinSprite;
 
     bool initialized;
     Vector3 baseScale;
     Coroutine hitRoutine;
+
+    int rowIndex = -1;
+    int columnIndex = -1;
 
     void Awake()
     {
         baseScale = transform.localScale;
     }
 
-    public void Initialize(string pinId)
+    public void Initialize(string pinId, int row, int column)
     {
         if (initialized)
         {
@@ -43,7 +48,15 @@ public sealed class PinController : MonoBehaviour
             return;
         }
 
-        Instance = new PinInstance(dto);
+        Instance = new PinInstance(dto, row, column);
+        pinSprite.sprite = SpriteCache.GetPinSprite(Instance.Id);
+
+        rowIndex = row;
+        columnIndex = column;
+
+        if (PinManager.Instance != null)
+            PinManager.Instance.RegisterPin(this, rowIndex, columnIndex);
+
         initialized = true;
     }
 
@@ -54,7 +67,8 @@ public sealed class PinController : MonoBehaviour
 
         hitRoutine = StartCoroutine(HitScaleRoutine());
         count++;
-        countText.text = count.ToString();
+        if (countText != null)
+            countText.text = count.ToString();
     }
 
     IEnumerator HitScaleRoutine()
@@ -82,5 +96,14 @@ public sealed class PinController : MonoBehaviour
 
         transform.localScale = baseScale;
         hitRoutine = null;
+    }
+
+    void OnDisable()
+    {
+        if (!initialized)
+            return;
+
+        if (PinManager.Instance != null && rowIndex >= 0 && columnIndex >= 0)
+            PinManager.Instance.UnregisterPin(this, rowIndex, columnIndex);
     }
 }

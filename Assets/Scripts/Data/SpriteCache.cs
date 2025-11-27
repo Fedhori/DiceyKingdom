@@ -30,6 +30,12 @@ public static class SpriteCache
         return Get($"Sprites/Ball/{id}");
     }
     
+    public static Sprite GetPinSprite(string id)
+    {
+        if (string.IsNullOrEmpty(id)) return null;
+        return Get($"Sprites/Pin/{id}");
+    }
+    
     public static Sprite GetEnemySprite(string id)
     {
         if (string.IsNullOrEmpty(id)) return null;
