@@ -9,11 +9,7 @@ namespace Data
     public sealed class BallDto
     {
         public string id;
-
-        // JSON 키는 여전히 "baseScore" 를 사용하고,
-        // 코드에서는 scoreFactor 로 해석한다.
-        [JsonProperty("baseScore")]
-        public float scoreFactor = 1f;
+        public float ballScoreMultiplier = 1f;
     }
 
     [Serializable]

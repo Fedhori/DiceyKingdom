@@ -20,7 +20,7 @@
 			"effects": [
 				{
 					"type": "statmodifier",
-					"statId": "criticaldamage",
+					"statId": "criticalmultiplier",
 					"mode": "mul",
 					"value": 0.1,
 					"temporary": true

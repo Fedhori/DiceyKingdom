@@ -15,7 +15,7 @@ public sealed class BallInstance
     public BallDto BaseDto { get; }
     public string Id => BaseDto.id;
 
-    public float ScoreFactor => BaseDto.scoreFactor;
+    public float BallScoreMultiplier => BaseDto.ballScoreMultiplier;
 
     public BallInstance(BallDto dto)
     {
@@ -40,12 +40,11 @@ public sealed class BallInstance
         var rng = GameManager.Instance?.Rng ?? LocalRandom;
 
         var criticalType = player.RollCriticalType(rng);
-        float criticalDamageFactor = player.GetCriticalDamage(criticalType);
+        float criticalMultiplier = player.GetCriticalMultiplier(criticalType);
 
         float baseScore = player.ScoreBase;
-        float scoreMultiplier = player.ScoreMultiplier;
 
-        float rawScore = baseScore * ScoreFactor * scoreMultiplier * criticalDamageFactor;
+        float rawScore = baseScore * BallScoreMultiplier * criticalMultiplier;
         int gained = Mathf.RoundToInt(rawScore);
 
         ScoreManager.Instance.AddScore(gained, criticalType, position);

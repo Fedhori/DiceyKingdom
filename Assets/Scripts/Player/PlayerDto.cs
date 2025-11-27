@@ -11,10 +11,9 @@ namespace Data
         public string id;
 
         public float scoreBase = 10f;
-        public float scoreMultiplier = 1f;
 
         public float critChance = 5f;
-        public float criticalDamage = 2f;
+        public float criticalMultiplier = 2f;
     }
 
     [Serializable]

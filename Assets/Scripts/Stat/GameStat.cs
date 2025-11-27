@@ -15,12 +15,11 @@ namespace GameStats
     }
 
     // 선택 사항: 공통 스탯 키 상수 정의용
-    public static class StatIds
+    public static class PlayerStatIds
     {
-        public const string ScoreBase = "scorebase";
-        public const string ScoreMultiplier = "scoremultiplier";
+        public const string Score = "score";
         public const string CriticalChance = "criticalchance";
-        public const string CriticalDamage = "criticaldamage";
+        public const string CriticalMultiplier = "criticalmultiplier";
     }
 
     public sealed class StatModifier

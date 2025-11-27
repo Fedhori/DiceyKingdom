@@ -2,13 +2,11 @@
 	"balls": [
 		{
 			"id": "ball.basic",
-			"baseScore": 10,
-			"critChance": 100
+			"ballScoreMultiplier": 1
 		},
 		{
 			"id": "ball.gold",
-			"baseScore": 100,
-			"critChance": 150
+			"ballScoreMultiplier": 10
 		}
 	]
 }

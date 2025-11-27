@@ -10,20 +10,18 @@ public sealed class PlayerInstance
 
     public StatSet Stats { get; }
 
-    public float ScoreBase => Stats.GetValue(StatIds.ScoreBase);
-    public float ScoreMultiplier => Stats.GetValue(StatIds.ScoreMultiplier);
-    public float CriticalChance => Stats.GetValue(StatIds.CriticalChance);
-    public float CriticalDamage => Stats.GetValue(StatIds.CriticalDamage);
+    public float ScoreBase => Stats.GetValue(PlayerStatIds.Score);
+    public float CriticalChance => Stats.GetValue(PlayerStatIds.CriticalChance);
+    public float CriticalMultiplier => Stats.GetValue(PlayerStatIds.CriticalMultiplier);
 
     public PlayerInstance(PlayerDto dto)
     {
         BaseDto = dto ?? throw new ArgumentNullException(nameof(dto));
 
         Stats = new StatSet();
-        Stats.SetBase(StatIds.ScoreBase, BaseDto.scoreBase);
-        Stats.SetBase(StatIds.ScoreMultiplier, BaseDto.scoreMultiplier);
-        Stats.SetBase(StatIds.CriticalChance, BaseDto.critChance);
-        Stats.SetBase(StatIds.CriticalDamage, BaseDto.criticalDamage);
+        Stats.SetBase(PlayerStatIds.Score, BaseDto.scoreBase);
+        Stats.SetBase(PlayerStatIds.CriticalChance, BaseDto.critChance);
+        Stats.SetBase(PlayerStatIds.CriticalMultiplier, BaseDto.criticalMultiplier);
     }
 
     public CriticalType RollCriticalType(System.Random rng)
@@ -43,9 +41,9 @@ public sealed class PlayerInstance
         return roll < baseCritChance ? CriticalType.Critical : CriticalType.None;
     }
 
-    public float GetCriticalDamage(CriticalType criticalType)
+    public float GetCriticalMultiplier(CriticalType criticalType)
     {
-        float normalCrit = Mathf.Max(1f, CriticalDamage);
+        float normalCrit = Mathf.Max(1f, CriticalMultiplier);
         float overCrit = normalCrit * 2f;
 
         switch (criticalType)

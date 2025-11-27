@@ -1,5 +1,6 @@
 using System;
 using Data;
+using TMPro;
 using UnityEngine;
 
 public sealed class PlayerManager : MonoBehaviour
@@ -7,6 +8,10 @@ public sealed class PlayerManager : MonoBehaviour
     public static PlayerManager Instance { get; private set; }
 
     [SerializeField] string defaultPlayerId = "player.default";
+
+    [SerializeField] private TMP_Text playerStatText;
+    private float statUIUpdateCycle = 0.1f;
+    private float currentStatUIUpdateCycle = 0f;
 
     public PlayerInstance Current { get; private set; }
 
@@ -30,8 +35,7 @@ public sealed class PlayerManager : MonoBehaviour
 
         try
         {
-            var dto = PlayerRepository.GetOrThrow(defaultPlayerId);
-            Current = new PlayerInstance(dto);
+            CreatePlayer(defaultPlayerId);
         }
         catch (Exception e)
         {
@@ -56,5 +60,21 @@ public sealed class PlayerManager : MonoBehaviour
         {
             Debug.LogError($"[PlayerManager] Failed to create player '{playerId}': {e}");
         }
+    }
+
+    void Update()
+    {
+        currentStatUIUpdateCycle += Time.deltaTime;
+        if (currentStatUIUpdateCycle >= statUIUpdateCycle)
+        {
+            currentStatUIUpdateCycle = 0f;
+            UpdateStatUI();
+        }
+    }
+
+    void UpdateStatUI()
+    {
+        playerStatText.text =
+            $"기본 점수: {Current.ScoreBase}\n크리확률: {Current.CriticalChance}\n크리배율: {Current.CriticalMultiplier}";
     }
 }
