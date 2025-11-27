@@ -14,12 +14,6 @@ public class FloatingTextManager : MonoBehaviour
     [Header("Screen Space")]
     [SerializeField] private float screenSpaceHeightOffset = 30f;
 
-    [Header("Scaling (현재 클래스에서는 사용 X, 필요 시 FloatingText 쪽에서 활용)")]
-    [SerializeField] private float minFontSize = 8f;
-    [SerializeField] private float maxFontSize = 48f;
-    [SerializeField] private float minValue = 1f;
-    [SerializeField] private float maxValue = 1000f;
-
     readonly Queue<FloatingText> pool = new Queue<FloatingText>();
 
     void Awake()

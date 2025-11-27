@@ -6,9 +6,20 @@ using UnityEngine;
 namespace Data
 {
     [Serializable]
+    public sealed class PinEffectDto
+    {
+        public string type;
+        public string statId;
+        public string mode;
+        public float value;
+        public bool temporary;
+    }
+
+    [Serializable]
     public sealed class PinDto
     {
         public string id;
+        public List<PinEffectDto> effects;
     }
 
     [Serializable]

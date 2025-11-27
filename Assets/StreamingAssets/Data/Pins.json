@@ -4,7 +4,16 @@
 			"id": "pin.basic"
 		},
 		{
-			"id": "pin.cloverleaf"
+			"id": "pin.cloverleaf",
+			"effects": [
+				{
+					"type": "statmodifier",
+					"statId": "criticalchance",
+					"mode": "add",
+					"value": 5.0,
+					"temporary": false
+				}
+			]
 		}
 	]
 }

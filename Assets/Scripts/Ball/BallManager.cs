@@ -3,11 +3,10 @@ using UnityEngine;
 public class BallManager : MonoBehaviour
 {
     [SerializeField] private GameObject ballPrefab;
-    [SerializeField] private Transform generatorTransform;
 
-    [SerializeField] private float cycle = 0.1f;
+    private float cycle = 0.1f;
     private float currentCycle = 0f;
-    [SerializeField] private int spawnCount = 20;
+    private int spawnCount = 1;
     private int currentSpawnCount = 0;
 
     void Update()

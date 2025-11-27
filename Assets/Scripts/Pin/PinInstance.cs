@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Data;
 
 public sealed class PinInstance
@@ -10,18 +12,31 @@ public sealed class PinInstance
     public int Row { get; }
     public int Column { get; }
 
+    readonly List<PinEffectDto> effects;
+    public IReadOnlyList<PinEffectDto> Effects => effects;
+
     public PinInstance(PinDto dto, int row, int column)
     {
-        BaseDto = dto;
+        BaseDto = dto ?? throw new ArgumentNullException(nameof(dto));
         Row = row;
         Column = column;
         HitCount = 0;
+
+        effects = dto.effects != null
+            ? new List<PinEffectDto>(dto.effects)
+            : new List<PinEffectDto>();
     }
 
     public void OnHitByBall(BallInstance ball)
     {
         HitCount++;
-        // 나중에 HitCount 기반 파괴/변형 로직 추가 가능
-        // Future: add break/change logic based on HitCount
+
+        if (ball == null || effects.Count == 0)
+            return;
+
+        foreach (var effect in effects)
+        {
+            PinEffectExecutor.Apply(effect, ball, this);
+        }
     }
 }
