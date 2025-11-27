@@ -3,7 +3,7 @@
 		{
 			"id": "ball.basic",
 			"baseScore": 10,
-			"critChance": 10
+			"critChance": 100
 		},
 		{
 			"id": "ball.gold",

@@ -11,7 +11,31 @@
 					"statId": "criticalchance",
 					"mode": "add",
 					"value": 5.0,
-					"temporary": false
+					"temporary": true
+				}
+			]
+		},
+		{
+			"id": "pin.baseballbat",
+			"effects": [
+				{
+					"type": "statmodifier",
+					"statId": "criticaldamage",
+					"mode": "mul",
+					"value": 0.1,
+					"temporary": true
+				}
+			]
+		},
+		{
+			"id": "pin.book",
+			"effects": [
+				{
+					"type": "statmodifier",
+					"statId": "score",
+					"mode": "add",
+					"value": 1,
+					"temporary": true
 				}
 			]
 		}
