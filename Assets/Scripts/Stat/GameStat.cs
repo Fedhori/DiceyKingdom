@@ -21,6 +21,9 @@ namespace GameStats
         public const string Attack = "attack";
 
         public const string Defense = "defense";
+
+        public const string CriticalChance = "criticalchance";
+        public const string CriticalDamage = "criticaldamage";
         // 필요할 때마다 여기 추가해서 코드에서만 사용 (데이터는 그냥 문자열 사용해도 됨)
     }
 

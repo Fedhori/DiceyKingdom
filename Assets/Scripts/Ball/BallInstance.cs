@@ -11,9 +11,6 @@ public enum CriticalType
 
 public sealed class BallInstance
 {
-    const string CritChanceStatId = "critChance";
-    const string CritMultiplierStatId = "critMultiplier";
-
     static readonly System.Random LocalRandom = new();
 
     public BallDto BaseDto { get; }
@@ -22,8 +19,8 @@ public sealed class BallInstance
 
     public StatSet Stats { get; }
 
-    public float CritChance => Stats.GetValue(CritChanceStatId);
-    public float CriticalMultiplier => Stats.GetValue(CritMultiplierStatId);
+    public float CriticalChance => Stats.GetValue(StatIds.CriticalChance);
+    public float CriticalDamage => Stats.GetValue(StatIds.CriticalDamage);
 
     public int PersonalScore { get; private set; }
 
@@ -33,8 +30,8 @@ public sealed class BallInstance
 
         Stats = new StatSet();
         Stats.SetBase(StatIds.Score, BaseScore);
-        Stats.SetBase(CritChanceStatId, BaseDto.critChance);
-        Stats.SetBase(CritMultiplierStatId, BaseDto.criticalMultiplier);
+        Stats.SetBase(StatIds.CriticalChance, BaseDto.critChance);
+        Stats.SetBase(StatIds.CriticalDamage, BaseDto.criticalDamage);
 
         PersonalScore = 0;
     }
@@ -54,9 +51,9 @@ public sealed class BallInstance
         }
 
         var criticalType = RollCriticalType();
-        float critMultiplier = GetCriticalMultiplier(criticalType);
+        float criticalDamage = GetCriticalDamage(criticalType);
 
-        var gained = Mathf.RoundToInt(GetScorePerHit() * critMultiplier);
+        var gained = Mathf.RoundToInt(GetScorePerHit() * criticalDamage);
         PersonalScore += gained;
         ScoreManager.Instance.AddScore(gained, criticalType, position);
     }
@@ -74,7 +71,7 @@ public sealed class BallInstance
 
     public CriticalType RollCriticalType()
     {
-        float chance = Mathf.Max(0f, CritChance);
+        float chance = Mathf.Max(0f, CriticalChance);
         float overChance = Mathf.Max(0f, chance - 100f);
         float baseCritChance = Mathf.Min(chance, 100f);
 
@@ -87,9 +84,9 @@ public sealed class BallInstance
         return roll < baseCritChance ? CriticalType.Critical : CriticalType.None;
     }
 
-    float GetCriticalMultiplier(CriticalType criticalType)
+    float GetCriticalDamage(CriticalType criticalType)
     {
-        float normalCrit = Mathf.Max(1f, CriticalMultiplier);
+        float normalCrit = Mathf.Max(1f, CriticalDamage);
         float overCrit = normalCrit * 2f;
 
         return criticalType switch
@@ -99,37 +96,5 @@ public sealed class BallInstance
             CriticalType.OverCritical => overCrit,
             _ => 1f
         };
-    }
-
-    public void AddTemporaryScoreMultiplier(float ratio, object source)
-    {
-        if (Mathf.Approximately(ratio, 0f))
-            return;
-
-        Stats.AddModifier(new StatModifier(
-            statId: StatIds.Score,
-            opKind: StatOpKind.Mult,
-            value: ratio,
-            layer: StatLayer.Temporary,
-            source: source));
-    }
-
-    public void AddPermanentScoreBonus(int amount, object source)
-    {
-        if (amount == 0)
-            return;
-
-        Stats.AddModifier(new StatModifier(
-            statId: StatIds.Score,
-            opKind: StatOpKind.Add,
-            value: amount,
-            layer: StatLayer.Permanent,
-            source: source));
-    }
-
-    public void RemoveModifiersFromSource(object source)
-    {
-        if (source == null) return;
-        Stats.RemoveModifiers(layer: null, source: source);
     }
 }
