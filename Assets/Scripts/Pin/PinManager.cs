@@ -10,7 +10,7 @@ public class PinManager : MonoBehaviour
     [SerializeField] int columnCount = 5;
     [SerializeField] float pinRadius = 64f;
 
-    string defaultPinId = "pin.baseballbat";
+    string defaultPinId = "pin.basic";
 
     [Header("World Offset (center of grid in world space)")]
     [SerializeField] Vector2 centerOffset = Vector2.zero;
