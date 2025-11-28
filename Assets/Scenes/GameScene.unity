@@ -927,6 +927,7 @@ GameObject:
   - component: {fileID: 684668663}
   - component: {fileID: 684668664}
   - component: {fileID: 684668665}
+  - component: {fileID: 684668666}
   m_Layer: 0
   m_Name: Pin
   m_TagString: Untagged
@@ -977,8 +978,20 @@ MonoBehaviour:
   rowCount: 5
   columnCount: 5
   pinRadius: 64
-  defaultPinId: pin.baseballBat
+  defaultPinId: pin.trashCan
   centerOffset: {x: 0, y: 0}
+--- !u!114 &684668666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 684668662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50bbfb5a33b081b44b82983a6d4514ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PinEffectManager
 --- !u!1 &741026068
 GameObject:
   m_ObjectHideFlags: 0

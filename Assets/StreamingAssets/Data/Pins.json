@@ -38,10 +38,10 @@
 			]
 		},
 		{
-			"id": "pin.ballCollector",
+			"id": "pin.trashCan",
 			"effects": [
 				{
-					"event": "ballDestroyed",
+					"eventId": "ballDestroyed",
 					"type": "modifySelfStat",
 					"statId": "scoreMultiplier",
 					"mode": "add",

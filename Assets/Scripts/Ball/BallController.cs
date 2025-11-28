@@ -1,3 +1,4 @@
+using System;
 using Data;
 using UnityEngine;
 
@@ -32,6 +33,11 @@ public sealed class BallController : MonoBehaviour
         Instance = new BallInstance(dto);
         ballSprite.sprite = SpriteCache.GetBallSprite(Instance.Id);
         initialized = true;
+    }
+
+    public void OnDisable()
+    {
+        PinEffectManager.Instance?.OnBallDestroyed(Instance);
     }
 
     void OnCollisionEnter2D(Collision2D collision)

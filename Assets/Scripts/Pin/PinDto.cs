@@ -8,6 +8,7 @@ namespace Data
     [Serializable]
     public sealed class PinEffectDto
     {
+        public string eventId;
         public string type;
         public string statId;
         public string mode;

@@ -9,7 +9,7 @@ public sealed class PinInstance
     public string Id => BaseDto.id;
 
     public StatSet Stats { get; }
-    
+
     public int HitCount { get; private set; }
 
     public int Row { get; }
@@ -17,7 +17,7 @@ public sealed class PinInstance
 
     readonly List<PinEffectDto> effects;
     public IReadOnlyList<PinEffectDto> Effects => effects;
-    
+
     public float ScoreMultiplier => Stats.GetValue(PinStatIds.ScoreMultiplier);
 
     public PinInstance(PinDto dto, int row, int column)
@@ -30,9 +30,12 @@ public sealed class PinInstance
         effects = dto.effects != null
             ? new List<PinEffectDto>(dto.effects)
             : new List<PinEffectDto>();
-        
+
         Stats = new StatSet();
         Stats.SetBase(PinStatIds.ScoreMultiplier, BaseDto.scoreMultiplier);
+
+        // 여기서 이벤트 기반 효과 등록
+        PinEffectManager.Instance?.RegisterEventEffects(this);
     }
 
     public void OnHitByBall(BallInstance ball)
@@ -44,7 +47,11 @@ public sealed class PinInstance
 
         foreach (var effect in effects)
         {
-            PinEffectExecutor.Apply(effect, ball, this);
+            // event가 지정된 효과는, OnHit 시점에서는 실행하지 않음
+            if (!string.IsNullOrEmpty(effect.eventId))
+                continue;
+
+            PinEffectManager.Instance?.Apply(effect, ball, this);
         }
     }
 }
