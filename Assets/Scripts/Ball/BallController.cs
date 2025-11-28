@@ -89,7 +89,7 @@ public sealed class BallController : MonoBehaviour
         if (pin == null || pin.Instance == null)
             return;
 
-        pin.Instance.OnHitByBall(Instance);
+        pin.Instance.OnHitByBall(Instance, pin.transform.position);
         Instance.OnHitPin(pin.Instance, transform.position);
         pin.PlayHitEffect();
     }

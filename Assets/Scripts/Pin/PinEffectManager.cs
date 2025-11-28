@@ -54,11 +54,11 @@ public class PinEffectManager: MonoBehaviour
 
         foreach (var (pin, dto) in list)
         {  
-            Apply(dto, ball, pin);
+            Apply(dto, ball, pin, Vector2.zero);
         }
     }
     
-    public void Apply(PinEffectDto dto, BallInstance ball, PinInstance pin)
+    public void Apply(PinEffectDto dto, BallInstance ball, PinInstance pin, Vector2 position)
     {
         var player = PlayerManager.Instance?.Current;
 
@@ -82,6 +82,11 @@ public class PinEffectManager: MonoBehaviour
             
             case "increaseSize":
                 ball.PendingSizeFactor = dto.value;
+                break;
+            
+            // TODO - 만약 플레이어쪽의 점수 배율이 생긴다면, 이쪽도 대응해줘야 함!
+            case "addScore":
+                ScoreManager.Instance.AddScore((int)dto.value, CriticalType.None, position);
                 break;
 
             default:

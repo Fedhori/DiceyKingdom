@@ -66,6 +66,15 @@
 					"value": 1.5
 				}
 			]
+		},
+		{
+			"id": "pin.lock",
+			"effects": [
+				{
+					"type": "addScore",
+					"value": 100
+				}
+			]
 		}
 	]
 }

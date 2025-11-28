@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Data;
 using GameStats;
+using UnityEngine;
 
 public sealed class PinInstance
 {
@@ -38,7 +39,7 @@ public sealed class PinInstance
         PinEffectManager.Instance?.RegisterEventEffects(this);
     }
 
-    public void OnHitByBall(BallInstance ball)
+    public void OnHitByBall(BallInstance ball, Vector2 position)
     {
         HitCount++;
 
@@ -51,7 +52,7 @@ public sealed class PinInstance
             if (!string.IsNullOrEmpty(effect.eventId))
                 continue;
 
-            PinEffectManager.Instance?.Apply(effect, ball, this);
+            PinEffectManager.Instance?.Apply(effect, ball, this, position);
         }
     }
 }
