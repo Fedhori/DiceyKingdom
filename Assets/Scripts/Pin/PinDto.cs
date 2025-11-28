@@ -12,7 +12,7 @@ namespace Data
         public string statId;
         public string mode;
         public float value;
-        public bool temporary;
+        public bool temporary = true;
     }
 
     [Serializable]

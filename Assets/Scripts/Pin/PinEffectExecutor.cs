@@ -14,8 +14,8 @@ public static class PinEffectExecutor
 
         switch (dto.type)
         {
-            case "statmodifier":
-                ApplyStatModifier(dto, player, pin);
+            case "modifyPlayerStat":
+                ModifyPlayerStat(dto, player, pin);
                 break;
 
             default:
@@ -24,7 +24,7 @@ public static class PinEffectExecutor
         }
     }
 
-    static void ApplyStatModifier(PinEffectDto dto, PlayerInstance player, PinInstance pin)
+    static void ModifyPlayerStat(PinEffectDto dto, PlayerInstance player, PinInstance pin)
     {
         var opKind = dto.mode.Equals("Add", StringComparison.OrdinalIgnoreCase)
             ? StatOpKind.Add

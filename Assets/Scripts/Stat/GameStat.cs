@@ -10,21 +10,20 @@ namespace GameStats
 
     public enum StatLayer
     {
-        Permanent, // 레벨업, 패시브, 영구 성장 등
-        Temporary, // 버프/디버프, 오라 등
+        Permanent,
+        Temporary,
     }
-
-    // 선택 사항: 공통 스탯 키 상수 정의용
+    
     public static class PlayerStatIds
     {
         public const string Score = "score";
-        public const string CriticalChance = "criticalchance";
-        public const string CriticalMultiplier = "criticalmultiplier";
+        public const string CriticalChance = "criticalChance";
+        public const string CriticalMultiplier = "criticalMultiplier";
     }
 
     public static class PinStatIds
     {
-        public const string ScoreMultiplier = "scoremultiplier";
+        public const string ScoreMultiplier = "scoreMultiplier";
     }
 
     public sealed class StatModifier

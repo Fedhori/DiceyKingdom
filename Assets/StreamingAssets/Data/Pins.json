@@ -2,29 +2,27 @@
 	"pins": [
 		{
 			"id": "pin.basic",
-			"scoremultiplier": 2
+			"scoreMultiplier": 2
 		},
 		{
-			"id": "pin.cloverleaf",
+			"id": "pin.cloverLeaf",
 			"effects": [
 				{
-					"type": "statmodifier",
-					"statId": "criticalchance",
+					"type": "modifyPlayerStat",
+					"statId": "criticalChance",
 					"mode": "add",
-					"value": 5.0,
-					"temporary": true
+					"value": 1.0
 				}
 			]
 		},
 		{
-			"id": "pin.baseballbat",
+			"id": "pin.baseballBat",
 			"effects": [
 				{
-					"type": "statmodifier",
-					"statId": "criticalmultiplier",
+					"type": "modifyPlayerStat",
+					"statId": "criticalMultiplier",
 					"mode": "mul",
-					"value": 0.1,
-					"temporary": true
+					"value": 0.1
 				}
 			]
 		},
@@ -32,13 +30,16 @@
 			"id": "pin.book",
 			"effects": [
 				{
-					"type": "statmodifier",
+					"type": "modifyPlayerStat",
 					"statId": "score",
 					"mode": "add",
-					"value": 1,
-					"temporary": true
+					"value": 1
 				}
 			]
+		},
+		{
+			"id": "pin.ballCollector",
+			"effects": [{}]
 		}
 	]
 }
