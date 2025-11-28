@@ -14,9 +14,18 @@ public sealed class BallController : MonoBehaviour
 
     public void FixedUpdate()
     {
-        if (Instance is { PendingSpeedFactor: not 1f })
+        if (Instance == null)
+            return;
+
+        if (!Mathf.Approximately(Instance.PendingSpeedFactor, 1f))
         {
             ballRigidbody2D.linearVelocity *= Instance.PendingSpeedFactor;
+            Instance.PendingSpeedFactor = 1f;
+        }
+
+        if (!Mathf.Approximately(Instance.PendingSizeFactor, 1f))
+        {
+            transform.localScale = new Vector2(Instance.PendingSizeFactor, Instance.PendingSizeFactor);
             Instance.PendingSpeedFactor = 1f;
         }
     }

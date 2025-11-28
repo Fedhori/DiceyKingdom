@@ -79,6 +79,10 @@ public class PinEffectManager: MonoBehaviour
             case "addVelocity":
                 ball.PendingSpeedFactor = dto.value;
                 break;
+            
+            case "increaseSize":
+                ball.PendingSizeFactor = dto.value;
+                break;
 
             default:
                 Debug.LogWarning($"[PinEffectManager] Unsupported effect type: {dto.type}");

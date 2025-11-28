@@ -50,21 +50,19 @@
 			]
 		},
 		{
-			"id": "pin.book",
-			"effects": [
-				{
-					"type": "modifyPlayerStat",
-					"statId": "score",
-					"mode": "add",
-					"value": 1
-				}
-			]
-		},
-		{
 			"id": "pin.spring",
 			"effects": [
 				{
 					"type": "addVelocity",
+					"value": 1.5
+				}
+			]
+		},
+		{
+			"id": "pin.magnifier",
+			"effects": [
+				{
+					"type": "increaseSize",
 					"value": 1.5
 				}
 			]

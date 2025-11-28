@@ -978,7 +978,7 @@ MonoBehaviour:
   rowCount: 5
   columnCount: 5
   pinRadius: 64
-  defaultPinId: pin.trashCan
+  defaultPinId: pin.magnifier
   centerOffset: {x: 0, y: 0}
 --- !u!114 &684668666
 MonoBehaviour:
