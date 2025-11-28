@@ -44,7 +44,7 @@ public sealed class BallInstance
 
         float baseScore = player.ScoreBase;
 
-        float rawScore = baseScore * BallScoreMultiplier * criticalMultiplier;
+        float rawScore = baseScore * BallScoreMultiplier * pin.ScoreMultiplier * criticalMultiplier;
         int gained = Mathf.RoundToInt(rawScore);
 
         ScoreManager.Instance.AddScore(gained, criticalType, position);

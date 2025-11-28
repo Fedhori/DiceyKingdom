@@ -22,6 +22,11 @@ namespace GameStats
         public const string CriticalMultiplier = "criticalmultiplier";
     }
 
+    public static class PinStatIds
+    {
+        public const string ScoreMultiplier = "scoremultiplier";
+    }
+
     public sealed class StatModifier
     {
         public string StatId { get; }

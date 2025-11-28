@@ -19,6 +19,7 @@ namespace Data
     public sealed class PinDto
     {
         public string id;
+        public float scoreMultiplier = 1f;
         public List<PinEffectDto> effects;
     }
 
