@@ -39,7 +39,15 @@
 		},
 		{
 			"id": "pin.ballCollector",
-			"effects": [{}]
+			"effects": [
+				{
+					"event": "ballDestroyed",
+					"type": "modifySelfStat",
+					"statId": "scoreMultiplier",
+					"mode": "add",
+					"value": 0.1
+				}
+			]
 		}
 	]
 }

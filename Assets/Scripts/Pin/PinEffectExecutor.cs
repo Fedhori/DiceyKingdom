@@ -40,4 +40,21 @@ public static class PinEffectExecutor
             source: pin
         ));
     }
+
+    static void ModifySelfStat(PinEffectDto dto, PinInstance pin)
+    {
+        var opKind = dto.mode.Equals("Add", StringComparison.OrdinalIgnoreCase)
+            ? StatOpKind.Add
+            : StatOpKind.Mult;
+        
+        var layer = dto.temporary ? StatLayer.Temporary : StatLayer.Permanent;
+
+        pin.Stats.AddModifier(new StatModifier(
+            statId: dto.statId,
+            opKind: opKind,
+            value: dto.value,
+            layer: layer,
+            source: pin
+        ));
+    }
 }
