@@ -16,6 +16,8 @@ public sealed class BallInstance
     public string Id => BaseDto.id;
 
     public float BallScoreMultiplier => BaseDto.ballScoreMultiplier;
+    
+    public float PendingSpeedFactor { get; set; } = 1f;
 
     public BallInstance(BallDto dto)
     {

@@ -10,6 +10,16 @@ public sealed class BallController : MonoBehaviour
     bool initialized;
 
     [SerializeField] private SpriteRenderer ballSprite;
+    [SerializeField] private Rigidbody2D ballRigidbody2D;
+
+    public void FixedUpdate()
+    {
+        if (Instance is { PendingSpeedFactor: not 1f })
+        {
+            ballRigidbody2D.linearVelocity *= Instance.PendingSpeedFactor;
+            Instance.PendingSpeedFactor = 1f;
+        }
+    }
 
     public void Initialize(string ballId)
     {

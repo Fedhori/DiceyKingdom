@@ -13,7 +13,8 @@ public class PinEffectManager: MonoBehaviour
         Instance = this;
     }
 
-    // eventId -> 등록된 (pin, effect) 목록
+    // eventId -> 등록된 (pin, effect) 목록.
+    // TODO - 스테이지 초기화 시 이것도 초기화시켜야함~
     readonly Dictionary<string, List<(PinInstance pin, PinEffectDto dto)>> eventMap
         = new();
 
@@ -73,6 +74,10 @@ public class PinEffectManager: MonoBehaviour
 
             case "modifySelfStat":
                 ModifySelfStat(dto, pin);
+                break;
+            
+            case "addVelocity":
+                ball.PendingSpeedFactor = dto.value;
                 break;
 
             default:

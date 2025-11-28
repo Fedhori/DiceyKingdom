@@ -169,3 +169,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallController
   ballSprite: {fileID: 4098678211225629946}
+  ballRigidbody2D: {fileID: 7596754220899415685}
