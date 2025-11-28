@@ -75,6 +75,9 @@ public sealed class PlayerManager : MonoBehaviour
     void UpdateStatUI()
     {
         playerStatText.text =
-            $"기본 점수: {Current.ScoreBase}\n크리확률: {Current.CriticalChance}\n크리배율: {Current.CriticalMultiplier}";
+            $"기본 점수: {Current.ScoreBase}\n" +
+            $"점수 배율: {Current.ScoreMultiplier}\n" +
+            $"크리 확률: {Current.CriticalChance}\n" +
+            $"크리 배율: {Current.CriticalMultiplier}\n";
     }
 }

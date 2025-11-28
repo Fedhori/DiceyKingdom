@@ -45,9 +45,7 @@ public sealed class BallInstance
         var criticalType = player.RollCriticalType(rng);
         float criticalMultiplier = player.GetCriticalMultiplier(criticalType);
 
-        float baseScore = player.ScoreBase;
-
-        float rawScore = baseScore * BallScoreMultiplier * pin.ScoreMultiplier * criticalMultiplier;
+        float rawScore = player.ScoreBase * player.ScoreMultiplier * BallScoreMultiplier * pin.ScoreMultiplier * criticalMultiplier;
         int gained = Mathf.RoundToInt(rawScore);
 
         ScoreManager.Instance.AddScore(gained, criticalType, position);

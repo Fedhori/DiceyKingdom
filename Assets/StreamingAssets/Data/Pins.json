@@ -78,6 +78,18 @@
 		{
 			"id": "pin.megaphone",
 			"scoreMultiplier": 3
+		},
+		{
+			"id": "pin.stock",
+			"hitsToTrigger": 10,
+			"effects": [
+				{
+					"type": "modifyPlayerStat",
+					"statId": "scoreMultiplier",
+					"mode": "add",
+					"value": 1.0
+				}
+			]
 		}
 	]
 }

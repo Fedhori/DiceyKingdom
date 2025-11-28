@@ -11,6 +11,7 @@ public sealed class PlayerInstance
     public StatSet Stats { get; }
 
     public float ScoreBase => Stats.GetValue(PlayerStatIds.Score);
+    public float ScoreMultiplier => Stats.GetValue(PlayerStatIds.ScoreMultiplier);
     public float CriticalChance => Stats.GetValue(PlayerStatIds.CriticalChance);
     public float CriticalMultiplier => Stats.GetValue(PlayerStatIds.CriticalMultiplier);
 
@@ -20,6 +21,7 @@ public sealed class PlayerInstance
 
         Stats = new StatSet();
         Stats.SetBase(PlayerStatIds.Score, BaseDto.scoreBase);
+        Stats.SetBase(PlayerStatIds.ScoreMultiplier, BaseDto.scoreMultiplier);
         Stats.SetBase(PlayerStatIds.CriticalChance, BaseDto.critChance);
         Stats.SetBase(PlayerStatIds.CriticalMultiplier, BaseDto.criticalMultiplier);
     }
