@@ -1,8 +1,7 @@
 {
 	"pins": [
 		{
-			"id": "pin.basic",
-			"scoreMultiplier": 2
+			"id": "pin.basic"
 		},
 		{
 			"id": "pin.cloverLeaf",
@@ -75,6 +74,10 @@
 					"value": 100
 				}
 			]
+		},
+		{
+			"id": "pin.megaphone",
+			"scoreMultiplier": 3
 		}
 	]
 }
