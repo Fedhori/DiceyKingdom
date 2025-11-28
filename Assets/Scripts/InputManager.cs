@@ -141,17 +141,29 @@ public class InputManager : MonoBehaviour
 
     void OnPause()
     {
+        var gsm = GameSpeedManager.Instance;
+        if (gsm == null) return;
+        gsm.IsPaused = !gsm.IsPaused;
     }
 
     void OnFunction1()
     {
+        var gsm = GameSpeedManager.Instance;
+        if (gsm == null) return;
+        gsm.GameSpeed = 1f;
     }
 
     void OnFunction2()
     {
+        var gsm = GameSpeedManager.Instance;
+        if (gsm == null) return;
+        gsm.GameSpeed = 2f;
     }
 
     void OnFunction3()
     {
+        var gsm = GameSpeedManager.Instance;
+        if (gsm == null) return;
+        gsm.GameSpeed = 3f;
     }
 }
