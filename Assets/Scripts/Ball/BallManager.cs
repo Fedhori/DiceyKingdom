@@ -1,19 +1,23 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BallManager : MonoBehaviour
 {
     public static BallManager Instance { get; private set; }
 
-    [SerializeField] private GameObject ballPrefab;
+    [SerializeField] private GameObject ballPrefab; // 현재는 BallFactory가 prefab을 들고 있지만, 인스펙터 용으로 유지
+    [SerializeField] private float cycle = 0.1f;
 
-    private float cycle = 0.1f;
-    private float currentCycle = 0f;
-
-    [SerializeField] private int spawnCount = 20;
-    private int currentSpawnCount = 0;
+    // 이번 라운드에 스폰할 ballId 시퀀스
+    readonly List<string> spawnSequence = new();
+    int nextSpawnIndex = 0;
+    bool isSpawning = false;
 
     // 현재 필드에 살아있는 볼 수
-    private int liveBallCount = 0;
+    int liveBallCount = 0;
+
+    Coroutine spawnCoroutine;
 
     void Awake()
     {
@@ -24,30 +28,105 @@ public class BallManager : MonoBehaviour
         }
 
         Instance = this;
-        // 야매임. 고쳐야 함 ㅋㅋ
-        currentSpawnCount = spawnCount;
     }
 
     // 이번 라운드에서 소환해야 할 볼을 다 뽑았는지 여부
-    private bool AllSpawned => currentSpawnCount >= spawnCount;
+    private bool AllSpawned => !isSpawning && nextSpawnIndex >= spawnSequence.Count;
 
-    void Update()
+    /// <summary>
+    /// 라운드 시작 전, 이번 라운드에서 사용할 스폰 시퀀스를 세팅.
+    /// </summary>
+    public void PrepareSpawnSequence(IReadOnlyList<string> sequence)
     {
-        if (currentSpawnCount >= spawnCount)
-            return;
-
-        currentCycle += Time.deltaTime;
-
-        if (currentCycle > cycle)
+        // 이전 코루틴 정리
+        if (spawnCoroutine != null)
         {
-            currentSpawnCount++;
-            currentCycle -= cycle;
-
-            if (currentSpawnCount % 10 == 0)
-                BallFactory.Instance.SpawnBallById("ball.gold");
-            else
-                BallFactory.Instance.SpawnBallById("ball.basic");
+            StopCoroutine(spawnCoroutine);
+            spawnCoroutine = null;
         }
+
+        spawnSequence.Clear();
+
+        if (sequence != null)
+        {
+            for (int i = 0; i < sequence.Count; i++)
+            {
+                var id = sequence[i];
+                if (string.IsNullOrEmpty(id))
+                    continue;
+
+                spawnSequence.Add(id);
+            }
+        }
+
+        nextSpawnIndex = 0;
+        isSpawning = false;
+    }
+
+    /// <summary>
+    /// 스폰 시작. 시퀀스가 비어 있으면 바로 라운드 종료 판정까지 갈 수 있음.
+    /// </summary>
+    public void StartSpawning()
+    {
+        // 기존 코루틴이 돌고 있으면 정지
+        if (spawnCoroutine != null)
+        {
+            StopCoroutine(spawnCoroutine);
+            spawnCoroutine = null;
+        }
+
+        if (spawnSequence.Count == 0)
+        {
+            isSpawning = false;
+
+            if (liveBallCount == 0)
+            {
+                RoundManager.Instance?.NotifyAllBallsDestroyed();
+            }
+
+            return;
+        }
+
+        isSpawning = true;
+        spawnCoroutine = StartCoroutine(SpawnRoutine());
+    }
+
+    IEnumerator SpawnRoutine()
+    {
+        while (nextSpawnIndex < spawnSequence.Count)
+        {
+            var ballId = spawnSequence[nextSpawnIndex];
+            nextSpawnIndex++;
+
+            BallFactory.Instance.SpawnBallById(ballId);
+
+            yield return new WaitForSeconds(cycle);
+        }
+
+        isSpawning = false;
+        spawnCoroutine = null;
+
+        if (liveBallCount == 0)
+        {
+            RoundManager.Instance?.NotifyAllBallsDestroyed();
+        }
+    }
+
+    /// <summary>
+    /// 라운드 시작 시 초기화.
+    /// </summary>
+    public void ResetForNewRound()
+    {
+        if (spawnCoroutine != null)
+        {
+            StopCoroutine(spawnCoroutine);
+            spawnCoroutine = null;
+        }
+
+        spawnSequence.Clear();
+        nextSpawnIndex = 0;
+        isSpawning = false;
+        liveBallCount = 0;
     }
 
     /// <summary>
@@ -79,11 +158,15 @@ public class BallManager : MonoBehaviour
             RoundManager.Instance?.NotifyAllBallsDestroyed();
         }
     }
-    
-    public void ResetForNewRound()
+
+    void OnDisable()
     {
-        currentSpawnCount = 0;
-        currentCycle = 0f;
-        liveBallCount = 0;
+        if (spawnCoroutine != null)
+        {
+            StopCoroutine(spawnCoroutine);
+            spawnCoroutine = null;
+        }
+
+        isSpawning = false;
     }
 }

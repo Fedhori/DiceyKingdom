@@ -6,6 +6,13 @@ using UnityEngine;
 namespace Data
 {
     [Serializable]
+    public sealed class PlayerBallEntryDto
+    {
+        public string id;
+        public int count;
+    }
+
+    [Serializable]
     public sealed class PlayerDto
     {
         public string id;
@@ -15,6 +22,9 @@ namespace Data
 
         public float critChance = 5f;
         public float criticalMultiplier = 2f;
+
+        // 플레이어가 시작할 때 들고 있는 볼 덱 정의
+        public List<PlayerBallEntryDto> ballDeck;
     }
 
     [Serializable]

@@ -15,6 +15,9 @@ public sealed class PlayerInstance
     public float CriticalChance => Stats.GetValue(PlayerStatIds.CriticalChance);
     public float CriticalMultiplier => Stats.GetValue(PlayerStatIds.CriticalMultiplier);
 
+    // 플레이어가 들고 있는 볼 덱
+    public BallDeck BallDeck { get; }
+
     public PlayerInstance(PlayerDto dto)
     {
         BaseDto = dto ?? throw new ArgumentNullException(nameof(dto));
@@ -24,11 +27,37 @@ public sealed class PlayerInstance
         Stats.SetBase(PlayerStatIds.ScoreMultiplier, BaseDto.scoreMultiplier);
         Stats.SetBase(PlayerStatIds.CriticalChance, BaseDto.critChance);
         Stats.SetBase(PlayerStatIds.CriticalMultiplier, BaseDto.criticalMultiplier);
+
+        BallDeck = new BallDeck();
+
+        if (BaseDto.ballDeck != null)
+        {
+            foreach (var entry in BaseDto.ballDeck)
+            {
+                if (entry == null || string.IsNullOrEmpty(entry.id))
+                    continue;
+
+                var count = Mathf.Max(0, entry.count);
+                if (count <= 0)
+                    continue;
+
+                // 유효하지 않은 ballId는 무시
+                if (!BallRepository.IsInitialized ||
+                    !BallRepository.TryGet(entry.id, out _))
+                {
+                    Debug.LogWarning($"[PlayerInstance] Unknown ball id in deck: {entry.id}");
+                    continue;
+                }
+
+                BallDeck.Add(entry.id, count);
+            }
+        }
     }
-    
+
     public void ResetData()
     {
         Stats.RemoveModifiers(StatLayer.Temporary);
+        // BallDeck은 '빌드' 개념이라 라운드 리셋에 따라 초기화하지 않는다.
     }
 
     public CriticalType RollCriticalType(System.Random rng)
