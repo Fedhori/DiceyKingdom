@@ -37,30 +37,23 @@ public class StaticDataManager : MonoBehaviour
         string filePath = Path.Combine("Data", "Stages.json");
         string json = SaCache.ReadText(filePath);
 
-        var root = JsonConvert.DeserializeObject<JObject>(json);
-        if (root == null)
+        if (string.IsNullOrEmpty(json))
         {
-            Debug.LogError("[StaticDataManager] Failed to parse Stages.json: root object missing.");
-            Stages.Add(new StageDto());
+            Debug.LogError($"[StaticDataManager] Stages.json not found or empty at: {filePath}");
             return;
         }
 
-        JToken stagesToken = root["stages"];
-        if (!(stagesToken is JArray stagesArray))
+        try
         {
-            Debug.LogError("[StaticDataManager] Stages.json missing 'stages' array.");
-            Stages.Add(new StageDto());
-            return;
+            var root = JsonConvert.DeserializeObject<StageRoot>(json);
+            StageRepository.Initialize(root);
         }
-
-        foreach (var jToken in stagesArray)
+        catch (Exception e)
         {
-            var stageJson = (JObject)jToken;
-            var stage = stageJson.ToObject<StageDto>() ?? new StageDto();
-            Stages.Add(stage);
+            Debug.LogError($"[StaticDataManager] Failed to initialize PlayerRepository from Players.json: {e}");
         }
     }
-    
+
     void LoadPlayers()
     {
         string filePath = Path.Combine("Data", "Players.json");

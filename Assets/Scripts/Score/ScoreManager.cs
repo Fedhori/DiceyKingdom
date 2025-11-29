@@ -11,8 +11,8 @@ public sealed class ScoreManager : MonoBehaviour
 
     const float MinValue = 10f;
     const float MaxValue = 10000f;
-    const float MinFontSize = 8f;
-    const float MaxFontSize = 32f;
+    const float MinFontSize = 12f;
+    const float MaxFontSize = 48f;
 
     float GetFontSizeForScore(int score)
     {
