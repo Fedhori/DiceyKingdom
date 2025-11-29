@@ -44,9 +44,9 @@ public class BallManager : MonoBehaviour
             currentCycle -= cycle;
 
             if (currentSpawnCount % 10 == 0)
-                BallFactory.Instance.SpawnBall("ball.gold");
+                BallFactory.Instance.SpawnBallById("ball.gold");
             else
-                BallFactory.Instance.SpawnBall("ball.basic");
+                BallFactory.Instance.SpawnBallById("ball.basic");
         }
     }
 
