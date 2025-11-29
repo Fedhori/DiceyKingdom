@@ -28,7 +28,6 @@ public sealed class RoundManager : MonoBehaviour
 
         // TODO: 여기서 라운드 시작 시 필요한 초기화 수행
         // 예: 볼 스폰, 필드 리셋 등.
-        Debug.Log($"[RoundManager] Start round {roundIndex + 1} of stage {stage.StageIndex + 1}");
     }
 
     /// <summary>

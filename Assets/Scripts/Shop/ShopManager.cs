@@ -28,6 +28,7 @@ public sealed class ShopManager : MonoBehaviour
 
         // TODO: 실제 상점 UI 열기
         Debug.Log($"[ShopManager] Open shop for stage {stage.StageIndex + 1}, before round {nextRoundIndex + 1}");
+        Close();
     }
 
     public void Close()

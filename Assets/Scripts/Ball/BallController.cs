@@ -26,7 +26,7 @@ public sealed class BallController : MonoBehaviour
         if (!Mathf.Approximately(Instance.PendingSizeFactor, 1f))
         {
             transform.localScale = new Vector2(Instance.PendingSizeFactor, Instance.PendingSizeFactor);
-            Instance.PendingSpeedFactor = 1f;
+            Instance.PendingSizeFactor = 1f; // <- 원래 PendingSpeedFactor 리셋하던 버그 수정
         }
     }
 
@@ -43,7 +43,7 @@ public sealed class BallController : MonoBehaviour
         {
             dto = BallRepository.GetOrThrow(ballId);
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             Debug.LogError($"[BallController] Failed to initialize ball {ballId}: {e}");
             return;
@@ -51,12 +51,26 @@ public sealed class BallController : MonoBehaviour
 
         Instance = new BallInstance(dto);
         ballSprite.sprite = SpriteCache.GetBallSprite(Instance.Id);
+
         initialized = true;
+
+        // Initialize가 성공적으로 끝났으니, 이제 활성 볼로 등록
+        BallManager.Instance?.RegisterBall(this);
     }
 
     public void OnDisable()
     {
-        PinEffectManager.Instance?.OnBallDestroyed(Instance);
+        // Instance가 null일 수 있으니 가드
+        if (Instance != null)
+        {
+            PinEffectManager.Instance?.OnBallDestroyed(Instance);
+        }
+
+        // 아직 초기화되지 않은 상태에서 disable될 수도 있으므로 가드
+        if (initialized)
+        {
+            BallManager.Instance?.UnregisterBall(this);
+        }
     }
 
     void OnCollisionEnter2D(Collision2D collision)

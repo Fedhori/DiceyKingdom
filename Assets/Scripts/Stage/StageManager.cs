@@ -49,7 +49,6 @@ public sealed class StageManager : MonoBehaviour
         if (!StageRepository.TryGetByIndex(stageIndex, out var dto))
         {
             Debug.Log("[StageManager] No more stages. Run clear or not defined.");
-            // TODO: 런 클리어 처리 (별도 연출이 필요하면 여기서 분기)
             GameManager.Instance?.RestartGame();
             return;
         }

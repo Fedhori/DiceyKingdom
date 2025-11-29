@@ -28,6 +28,7 @@ public sealed class RewardManager : MonoBehaviour
 
         // TODO: 보상 UI 열기
         Debug.Log($"[RewardManager] Open reward for stage {stageIndex + 1}");
+        Close();
     }
 
     public void Close()

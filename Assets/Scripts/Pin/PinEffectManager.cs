@@ -4,7 +4,7 @@ using Data;
 using GameStats;
 using UnityEngine;
 
-public class PinEffectManager: MonoBehaviour
+public class PinEffectManager : MonoBehaviour
 {
     public static PinEffectManager Instance { get; private set; }
 
@@ -14,7 +14,6 @@ public class PinEffectManager: MonoBehaviour
     }
 
     // eventId -> 등록된 (pin, effect) 목록.
-    // TODO - 스테이지 초기화 시 이것도 초기화시켜야함~
     readonly Dictionary<string, List<(PinInstance pin, PinEffectDto dto)>> eventMap
         = new();
 
@@ -53,11 +52,11 @@ public class PinEffectManager: MonoBehaviour
             return;
 
         foreach (var (pin, dto) in list)
-        {  
+        {
             Apply(dto, ball, pin, Vector2.zero);
         }
     }
-    
+
     public void Apply(PinEffectDto dto, BallInstance ball, PinInstance pin, Vector2 position)
     {
         var player = PlayerManager.Instance?.Current;
@@ -75,18 +74,18 @@ public class PinEffectManager: MonoBehaviour
             case "modifySelfStat":
                 ModifySelfStat(dto, pin);
                 break;
-            
+
             case "addVelocity":
                 ball.PendingSpeedFactor = dto.value;
                 break;
-            
+
             case "increaseSize":
                 ball.PendingSizeFactor = dto.value;
                 break;
-            
-            // TODO - 만약 플레이어쪽의 점수 배율이 생긴다면, 이쪽도 대응해줘야 함!
+
             case "addScore":
-                ScoreManager.Instance.AddScore((int)dto.value, CriticalType.None, position);
+                ScoreManager.Instance.AddScore((int)(dto.value * PlayerManager.Instance.Current.ScoreMultiplier),
+                    CriticalType.None, position);
                 break;
 
             default:
@@ -117,7 +116,7 @@ public class PinEffectManager: MonoBehaviour
         var opKind = dto.mode.Equals("Add", StringComparison.OrdinalIgnoreCase)
             ? StatOpKind.Add
             : StatOpKind.Mult;
-        
+
         var layer = dto.temporary ? StatLayer.Temporary : StatLayer.Permanent;
 
         pin.Stats.AddModifier(new StatModifier(
