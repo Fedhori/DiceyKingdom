@@ -6,7 +6,7 @@ public class BallManager : MonoBehaviour
 
     private float cycle = 0.1f;
     private float currentCycle = 0f;
-    private int spawnCount = 20;
+    [SerializeField] private int spawnCount = 20;
     private int currentSpawnCount = 0;
 
     void Update()

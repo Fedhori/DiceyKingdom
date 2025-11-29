@@ -363,7 +363,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &476950636
 Transform:
   m_ObjectHideFlags: 0
@@ -556,6 +556,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallManager
   ballPrefab: {fileID: 6712946394271827164, guid: 22f0b2cd85091534b90dbab6ca9639f4, type: 3}
+  spawnCount: 100
 --- !u!114 &509129559
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1077,7 +1078,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &918962831
 Transform:
   m_ObjectHideFlags: 0

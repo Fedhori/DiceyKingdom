@@ -1,30 +1,20 @@
 {
 	"stages": [
 		{
-			"enemyIds": [
-				"enemy.goblin",
-				"enemy.goblin"
-			]
+			"id": 1,
+			"needScore": 2000
 		},
 		{
-			"enemyIds": [
-				"enemy.goblin",
-				"enemy.goblin",
-				"enemy.goblin"
-			]
+			"id": 2,
+			"needScore": 5000
 		},
 		{
-			"enemyIds": ["enemy.ogre"]
+			"id": 3,
+			"needScore": 10000
 		},
 		{
-			"enemyIds": [
-				"enemy.ogre",
-				"enemy.goblin",
-				"enemy.goblin"
-			]
-		},
-		{
-			"enemyIds": ["enemy.ogre", "enemy.ogre"]
+			"id": 4,
+			"needScore": 20000
 		}
 	]
 }

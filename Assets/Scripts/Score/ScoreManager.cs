@@ -10,9 +10,9 @@ public sealed class ScoreManager : MonoBehaviour
     private int totalScore;
 
     const float MinValue = 10f;
-    const float MaxValue = 1000f;
-    const float MinFontSize = 16f;
-    const float MaxFontSize = 64f;
+    const float MaxValue = 10000f;
+    const float MinFontSize = 8f;
+    const float MaxFontSize = 32f;
 
     float GetFontSizeForScore(int score)
     {
@@ -67,8 +67,13 @@ public sealed class ScoreManager : MonoBehaviour
         else if (criticalType == CriticalType.OverCritical)
             postFix = "!!";
 
-        FloatingTextManager.Instance.ShowText(amount + postFix,
-            color, GetFontSizeForScore(amount), 1f, position);
+        FloatingTextManager.Instance.ShowText(
+            amount + postFix,
+            color,
+            GetFontSizeForScore(amount),
+            1f,
+            position
+        );
         TotalScore += amount;
     }
 
