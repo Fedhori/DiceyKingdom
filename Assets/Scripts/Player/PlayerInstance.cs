@@ -25,6 +25,11 @@ public sealed class PlayerInstance
         Stats.SetBase(PlayerStatIds.CriticalChance, BaseDto.critChance);
         Stats.SetBase(PlayerStatIds.CriticalMultiplier, BaseDto.criticalMultiplier);
     }
+    
+    public void ResetData()
+    {
+        Stats.RemoveModifiers(StatLayer.Temporary);
+    }
 
     public CriticalType RollCriticalType(System.Random rng)
     {

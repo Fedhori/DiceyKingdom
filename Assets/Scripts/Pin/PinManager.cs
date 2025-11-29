@@ -160,4 +160,28 @@ public class PinManager : MonoBehaviour
         if (rowList[column] == pin)
             rowList[column] = null;
     }
+
+    public void ResetAllPins()
+    {
+        // pinsByRow 전체를 순회하면서, 유효한 핀에 대해 Instance.ResetData() 호출
+        for (int row = 0; row < pinsByRow.Count; row++)
+        {
+            var rowList = pinsByRow[row];
+            if (rowList == null)
+                continue;
+
+            for (int col = 0; col < rowList.Count; col++)
+            {
+                var pin = rowList[col];
+                if (pin == null)
+                    continue;
+
+                // PinController → PinInstance에 ResetData()가 있다고 가정
+                if (pin.Instance != null)
+                {
+                    pin.Instance.ResetData();
+                }
+            }
+        }
+    }
 }

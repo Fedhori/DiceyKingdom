@@ -26,7 +26,6 @@ public sealed class ShopManager : MonoBehaviour
         this.nextRoundIndex = nextRoundIndex;
         isOpen = true;
 
-        // TODO: 실제 상점 UI 열기
         Debug.Log($"[ShopManager] Open shop for stage {stage.StageIndex + 1}, before round {nextRoundIndex + 1}");
         Close();
     }
@@ -37,7 +36,6 @@ public sealed class ShopManager : MonoBehaviour
             return;
 
         isOpen = false;
-        // TODO: 상점 UI 닫기
         Debug.Log("[ShopManager] Close shop");
 
         StageManager.Instance?.HandleShopClosed();

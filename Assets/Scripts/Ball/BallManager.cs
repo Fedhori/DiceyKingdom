@@ -24,6 +24,8 @@ public class BallManager : MonoBehaviour
         }
 
         Instance = this;
+        // 야매임. 고쳐야 함 ㅋㅋ
+        currentSpawnCount = spawnCount;
     }
 
     // 이번 라운드에서 소환해야 할 볼을 다 뽑았는지 여부
@@ -77,14 +79,9 @@ public class BallManager : MonoBehaviour
             RoundManager.Instance?.NotifyAllBallsDestroyed();
         }
     }
-
-    /// <summary>
-    /// 라운드 시작 시, 라운드별 설정을 초기화할 때 사용할 수 있는 헬퍼.
-    /// (원하면 RoundManager에서 호출해서 spawnCount를 바꿀 수 있음)
-    /// </summary>
-    public void ResetForNewRound(int newSpawnCount)
+    
+    public void ResetForNewRound()
     {
-        spawnCount = newSpawnCount;
         currentSpawnCount = 0;
         currentCycle = 0f;
         liveBallCount = 0;

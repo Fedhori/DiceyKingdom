@@ -26,7 +26,6 @@ public sealed class RewardManager : MonoBehaviour
         this.stageIndex = stageIndex;
         isOpen = true;
 
-        // TODO: 보상 UI 열기
         Debug.Log($"[RewardManager] Open reward for stage {stageIndex + 1}");
         Close();
     }
@@ -37,7 +36,6 @@ public sealed class RewardManager : MonoBehaviour
             return;
 
         isOpen = false;
-        // TODO: 보상 UI 닫기
         Debug.Log("[RewardManager] Close reward");
 
         StageManager.Instance?.HandleRewardClosed();

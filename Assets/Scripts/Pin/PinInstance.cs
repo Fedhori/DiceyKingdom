@@ -50,9 +50,10 @@ public sealed class PinInstance
         PinEffectManager.Instance?.RegisterEventEffects(this);
     }
 
-    public void InitializeAfterLink()
+    public void ResetData()
     {
         RemainingHits = BaseDto.hitsToTrigger;
+        Stats.RemoveModifiers(StatLayer.Temporary);
     }
     
     public void OnHitByBall(BallInstance ball, Vector2 position)

@@ -60,7 +60,7 @@ public sealed class PinController : MonoBehaviour
         AttachEvents();
 
         initialized = true;
-        Instance.InitializeAfterLink();
+        Instance.ResetData();
     }
 
     void OnDisable()

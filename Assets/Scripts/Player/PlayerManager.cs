@@ -80,4 +80,9 @@ public sealed class PlayerManager : MonoBehaviour
             $"크리 확률: {Current.CriticalChance}\n" +
             $"크리 배율: {Current.CriticalMultiplier}\n";
     }
+
+    public void ResetPlayer()
+    {
+        Current.ResetData();
+    }
 }

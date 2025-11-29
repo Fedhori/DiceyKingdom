@@ -1,11 +1,13 @@
 // StageManager.cs
 using UnityEngine;
+using UnityEngine.UI;
 
 public sealed class StageManager : MonoBehaviour
 {
     public static StageManager Instance { get; private set; }
 
     [SerializeField] private StageHudView stageHudView;
+    [SerializeField] private Button roundStartButton;
 
     StageInstance currentStage;
     int currentStageIndex;
@@ -59,17 +61,23 @@ public sealed class StageManager : MonoBehaviour
         UpdateHudForStage();
         UpdateHudForRound();
 
-        StartRound();
+        PrepareRound();
     }
 
-    void StartRound()
+    void PrepareRound()
     {
         if (currentStage == null)
         {
-            Debug.LogError("[StageManager] StartRound called with no current stage.");
+            Debug.LogError("[StageManager] PrepareRound called with no current stage.");
             return;
         }
 
+        roundStartButton.gameObject.SetActive(true);
+    }
+
+    public void StartRound()
+    {
+        roundStartButton.gameObject.SetActive(false);
         RoundManager.Instance?.StartRound(currentStage, currentStage.CurrentRoundIndex);
     }
 
@@ -137,7 +145,6 @@ public sealed class StageManager : MonoBehaviour
         else
         {
             Debug.Log("[StageManager] Game Over. NeedScore not reached.");
-            // TODO: GameOverView 등으로 교체 가능
             GameManager.Instance?.RestartGame();
         }
     }
@@ -151,7 +158,7 @@ public sealed class StageManager : MonoBehaviour
             return;
 
         UpdateHudForRound();
-        StartRound();
+        PrepareRound();
     }
 
     /// <summary>
