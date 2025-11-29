@@ -21,7 +21,7 @@ namespace Data
     {
         public string id;
         public float scoreMultiplier = 1f;
-        public int hitsToTrigger = 0;
+        public int hitsToTrigger = -1;
 
         public List<PinEffectDto> effects;
     }

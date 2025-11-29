@@ -81,7 +81,7 @@
 		},
 		{
 			"id": "pin.stock",
-			"hitsToTrigger": 10,
+			"hitsToTrigger": 20,
 			"effects": [
 				{
 					"type": "modifyPlayerStat",

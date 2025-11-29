@@ -8,14 +8,14 @@ public sealed class PinController : MonoBehaviour
 {
     public PinInstance Instance { get; private set; }
 
-    [Header("Hit Scale Effect")]
-    [SerializeField] float hitScaleMultiplier = 1.2f;
+    [Header("Hit Scale Effect")] [SerializeField]
+    float hitScaleMultiplier = 1.2f;
+
     [SerializeField] float growDuration = 0.06f;
     [SerializeField] float shrinkDuration = 0.08f;
-    [SerializeField] TMP_Text countText;
-    int count;
 
     [SerializeField] SpriteRenderer pinSprite;
+    [SerializeField] TMP_Text remainingHitsText;
 
     bool initialized;
     Vector3 baseScale;
@@ -57,7 +57,54 @@ public sealed class PinController : MonoBehaviour
         if (PinManager.Instance != null)
             PinManager.Instance.RegisterPin(this, rowIndex, columnIndex);
 
+        AttachEvents();
+
         initialized = true;
+        Instance.InitializeAfterLink();
+    }
+
+    void OnDisable()
+    {
+        if (!initialized)
+            return;
+
+        if (PinManager.Instance != null && rowIndex >= 0 && columnIndex >= 0)
+            PinManager.Instance.UnregisterPin(this, rowIndex, columnIndex);
+
+        DetachEvents();
+    }
+
+    void AttachEvents()
+    {
+        if (Instance == null)
+        {
+            Debug.LogError($"[PinController] Failed to AttachEvents {name}.");
+            return;
+        }
+
+        Instance.OnRemainingHitsChanged += UpdateRemainingHits;
+    }
+
+    void DetachEvents()
+    {
+        if (Instance == null)
+        {
+            Debug.LogError($"[PinController] Failed to DetachEvents {name}.");
+            return;
+        }
+
+        Instance.OnRemainingHitsChanged -= UpdateRemainingHits;
+    }
+
+    void UpdateRemainingHits(int remainingHits)
+    {
+        if (remainingHits == -1)
+        {
+            remainingHitsText.text = "";
+            return;
+        }
+
+        remainingHitsText.text = remainingHits.ToString();
     }
 
     public void PlayHitEffect()
@@ -66,9 +113,6 @@ public sealed class PinController : MonoBehaviour
             StopCoroutine(hitRoutine);
 
         hitRoutine = StartCoroutine(HitScaleRoutine());
-        count++;
-        if (countText != null)
-            countText.text = count.ToString();
     }
 
     IEnumerator HitScaleRoutine()
@@ -96,14 +140,5 @@ public sealed class PinController : MonoBehaviour
 
         transform.localScale = baseScale;
         hitRoutine = null;
-    }
-
-    void OnDisable()
-    {
-        if (!initialized)
-            return;
-
-        if (PinManager.Instance != null && rowIndex >= 0 && columnIndex >= 0)
-            PinManager.Instance.UnregisterPin(this, rowIndex, columnIndex);
     }
 }
