@@ -26,7 +26,7 @@ public sealed class RewardManager : MonoBehaviour
         this.stageIndex = stageIndex;
         isOpen = true;
 
-        Debug.Log($"[RewardManager] Open reward for stage {stageIndex + 1}");
+        PlayerManager.Instance.Current.BallDeck.Add("ball.basic", 5);
         Close();
     }
 
