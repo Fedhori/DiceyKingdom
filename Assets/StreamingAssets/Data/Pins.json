@@ -1,10 +1,12 @@
 {
 	"pins": [
 		{
-			"id": "pin.basic"
+			"id": "pin.basic",
+			"isNotSell": true
 		},
 		{
 			"id": "pin.cloverLeaf",
+			"price": 10,
 			"effects": [
 				{
 					"type": "modifyPlayerStat",
@@ -16,6 +18,7 @@
 		},
 		{
 			"id": "pin.baseballBat",
+			"price": 10,
 			"effects": [
 				{
 					"type": "modifyPlayerStat",
@@ -27,6 +30,7 @@
 		},
 		{
 			"id": "pin.book",
+			"price": 10,
 			"effects": [
 				{
 					"type": "modifyPlayerStat",
@@ -38,6 +42,7 @@
 		},
 		{
 			"id": "pin.trashCan",
+			"price": 10,
 			"effects": [
 				{
 					"eventId": "ballDestroyed",
@@ -50,6 +55,7 @@
 		},
 		{
 			"id": "pin.spring",
+			"price": 10,
 			"effects": [
 				{
 					"type": "addVelocity",
@@ -59,6 +65,7 @@
 		},
 		{
 			"id": "pin.magnifier",
+			"price": 10,
 			"effects": [
 				{
 					"type": "increaseSize",
@@ -68,6 +75,7 @@
 		},
 		{
 			"id": "pin.lock",
+			"price": 10,
 			"effects": [
 				{
 					"type": "addScore",
@@ -77,11 +85,13 @@
 		},
 		{
 			"id": "pin.megaphone",
+			"price": 10,
 			"scoreMultiplier": 3
 		},
 		{
 			"id": "pin.stock",
 			"hitsToTrigger": 20,
+			"price": 20,
 			"effects": [
 				{
 					"type": "modifyPlayerStat",
