@@ -18,6 +18,11 @@ public sealed class PlayerInstance
     // 플레이어가 들고 있는 볼 덱
     public BallDeck BallDeck { get; }
 
+    // 상점/보상에 사용하는 통화
+    public int Currency { get; private set; }
+
+    public event Action<int> OnCurrencyChanged;
+
     public PlayerInstance(PlayerDto dto)
     {
         BaseDto = dto ?? throw new ArgumentNullException(nameof(dto));
@@ -52,12 +57,16 @@ public sealed class PlayerInstance
                 BallDeck.Add(entry.id, count);
             }
         }
+
+        // 시작 통화 셋업
+        Currency = Mathf.Max(0, BaseDto.startCurrency);
     }
 
     public void ResetData()
     {
+        // 라운드 단위로 날아가는 임시 버프만 초기화
         Stats.RemoveModifiers(StatLayer.Temporary);
-        // BallDeck은 '빌드' 개념이라 라운드 리셋에 따라 초기화하지 않는다.
+        // BallDeck, Currency 등은 런 단위 자원이므로 여기서는 건드리지 않음.
     }
 
     public CriticalType RollCriticalType(System.Random rng)
@@ -93,5 +102,34 @@ public sealed class PlayerInstance
             default:
                 return 1f;
         }
+    }
+
+    public void AddCurrency(int amount)
+    {
+        if (amount == 0)
+            return;
+
+        var newValue = Currency + amount;
+        if (newValue < 0)
+            newValue = 0;
+
+        if (newValue == Currency)
+            return;
+
+        Currency = newValue;
+        OnCurrencyChanged?.Invoke(Currency);
+    }
+
+    public bool TrySpendCurrency(int cost)
+    {
+        if (cost <= 0)
+            return true;
+
+        if (Currency < cost)
+            return false;
+
+        Currency -= cost;
+        OnCurrencyChanged?.Invoke(Currency);
+        return true;
     }
 }

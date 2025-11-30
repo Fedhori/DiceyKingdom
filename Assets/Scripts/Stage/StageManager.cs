@@ -71,7 +71,7 @@ public sealed class StageManager : MonoBehaviour
             Debug.LogError("[StageManager] PrepareRound called with no current stage.");
             return;
         }
-
+        
         roundStartButton.gameObject.SetActive(true);
     }
 
@@ -113,6 +113,8 @@ public sealed class StageManager : MonoBehaviour
     {
         if (!runStarted || currentStage == null)
             return;
+        
+        CurrencyManager.Instance.AddCurrency(100);
 
         var nextRoundIndex = currentStage.CurrentRoundIndex + 1;
 
@@ -120,7 +122,6 @@ public sealed class StageManager : MonoBehaviour
         {
             currentStage.SetCurrentRoundIndex(nextRoundIndex);
             UpdateHudForRound();
-
             ShopManager.Instance?.Open(currentStage, nextRoundIndex);
         }
         else

@@ -23,6 +23,9 @@ namespace Data
         public float critChance = 5f;
         public float criticalMultiplier = 2f;
 
+        // 런 시작 시 지급되는 통화
+        public int startCurrency = 0;
+
         // 플레이어가 시작할 때 들고 있는 볼 덱 정의
         public List<PlayerBallEntryDto> ballDeck;
     }

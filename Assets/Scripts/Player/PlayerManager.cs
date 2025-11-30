@@ -55,6 +55,9 @@ public sealed class PlayerManager : MonoBehaviour
         {
             var dto = PlayerRepository.GetOrThrow(playerId);
             Current = new PlayerInstance(dto);
+
+            // 통화 HUD 등이 있으면 여기서 알림
+            CurrencyManager.Instance?.OnPlayerCreated(Current);
         }
         catch (Exception e)
         {
@@ -74,6 +77,9 @@ public sealed class PlayerManager : MonoBehaviour
 
     void UpdateStatUI()
     {
+        if (Current == null || playerStatText == null)
+            return;
+
         playerStatText.text =
             $"기본 점수: {Current.ScoreBase}\n" +
             $"점수 배율: {Current.ScoreMultiplier}\n" +
@@ -83,6 +89,6 @@ public sealed class PlayerManager : MonoBehaviour
 
     public void ResetPlayer()
     {
-        Current.ResetData();
+        Current?.ResetData();
     }
 }
