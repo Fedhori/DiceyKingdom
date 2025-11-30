@@ -25,6 +25,6 @@ public class GameManager : MonoBehaviour
 
     private void HandleGameStart()
     {
-        StageManager.Instance?.StartRun();
+        FlowManager.Instance?.StartRun();
     }
 }
