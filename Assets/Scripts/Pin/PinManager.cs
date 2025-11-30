@@ -10,13 +10,17 @@ public class PinManager : MonoBehaviour
     [SerializeField] int columnCount = 5;
     [SerializeField] float pinRadius = 64f;
 
-    [SerializeField] string defaultPinId = "pin.basic";
+    [SerializeField] string spawnPinId = "pin.basic";
+    string defaultPinId = "pin.basic";
 
     [Header("World Offset (center of grid in world space)")]
     [SerializeField] Vector2 centerOffset = Vector2.zero;
 
     readonly List<List<PinController>> pinsByRow = new();
     public IReadOnlyList<List<PinController>> PinsByRow => pinsByRow;
+
+    // 기본핀 id 외부에서 참조용
+    public string DefaultPinId => defaultPinId;
 
     void Awake()
     {
@@ -81,14 +85,11 @@ public class PinManager : MonoBehaviour
 
             for (int col = 0; col < colsInRow; col++)
             {
-                PinFactory.Instance.SpawnPin(defaultPinId, row, col);
+                PinFactory.Instance.SpawnPin(spawnPinId, row, col);
             }
         }
     }
 
-    /// <summary>
-    /// 주어진 row, column에 해당하는 핀의 월드 좌표를 계산한다.
-    /// </summary>
     public Vector2 GetPinWorldPosition(int row, int column)
     {
         float dx = pinRadius * 2f;
@@ -163,7 +164,6 @@ public class PinManager : MonoBehaviour
 
     public void ResetAllPins()
     {
-        // pinsByRow 전체를 순회하면서, 유효한 핀에 대해 Instance.ResetData() 호출
         for (int row = 0; row < pinsByRow.Count; row++)
         {
             var rowList = pinsByRow[row];
@@ -176,12 +176,66 @@ public class PinManager : MonoBehaviour
                 if (pin == null)
                     continue;
 
-                // PinController → PinInstance에 ResetData()가 있다고 가정
                 if (pin.Instance != null)
                 {
                     pin.Instance.ResetData();
                 }
             }
         }
+    }
+
+    // 기본핀("빈 슬롯")이 하나라도 있는지
+    public bool HasBasicPinSlot()
+    {
+        if (string.IsNullOrEmpty(defaultPinId))
+            return false;
+
+        for (int row = 0; row < pinsByRow.Count; row++)
+        {
+            var rowList = pinsByRow[row];
+            if (rowList == null)
+                continue;
+
+            for (int col = 0; col < rowList.Count; col++)
+            {
+                var pin = rowList[col];
+                if (pin != null && pin.Instance != null && pin.Instance.Id == defaultPinId)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    // 기본핀 하나를 찾아서 구매한 pinId로 교체
+    public bool TryReplaceBasicPin(string pinId)
+    {
+        if (PinFactory.Instance == null)
+        {
+            Debug.LogError("[PinManager] TryReplaceBasicPin failed. PinFactory.Instance is null.");
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(pinId) || string.IsNullOrEmpty(defaultPinId))
+            return false;
+
+        for (int row = 0; row < pinsByRow.Count; row++)
+        {
+            var rowList = pinsByRow[row];
+            if (rowList == null)
+                continue;
+
+            for (int col = 0; col < rowList.Count; col++)
+            {
+                var pin = rowList[col];
+                if (pin != null && pin.Instance != null && pin.Instance.Id == defaultPinId)
+                {
+                    PinFactory.Instance.SpawnPin(pinId, row, col);
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
