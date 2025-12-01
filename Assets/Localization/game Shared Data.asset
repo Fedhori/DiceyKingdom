@@ -39,6 +39,18 @@ MonoBehaviour:
     m_Key: game.currency.label
     m_Metadata:
       m_Items: []
+  - m_Id: 4240051027968
+    m_Key: game.price.button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4336054452224
+    m_Key: game.exitshop.button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5541610668032
+    m_Key: game.sold.label
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

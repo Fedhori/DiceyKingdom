@@ -1,11 +1,14 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Components;
+using UnityEngine.Localization.SmartFormat.PersistentVariables;
 
 public sealed class CurrencyManager : MonoBehaviour
 {
     public static CurrencyManager Instance { get; private set; }
 
-    [SerializeField] TMP_Text currencyText;
+    [SerializeField] LocalizeStringEvent currencyText;
 
     PlayerInstance subscribedPlayer;
 
@@ -58,8 +61,8 @@ public sealed class CurrencyManager : MonoBehaviour
 
     void HandleCurrencyChanged(int value)
     {
-        if (currencyText != null)
-            currencyText.text = value.ToString();
+        if (currencyText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
+            sv.Value = value.ToString();
     }
 
     void RefreshUI()
@@ -68,10 +71,6 @@ public sealed class CurrencyManager : MonoBehaviour
         if (pm?.Current != null)
         {
             HandleCurrencyChanged(pm.Current.Currency);
-        }
-        else if (currencyText != null)
-        {
-            currencyText.text = "0";
         }
     }
 

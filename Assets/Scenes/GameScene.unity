@@ -153,7 +153,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65, y: -408}
+  m_AnchoredPosition: {x: 65, y: -540}
   m_SizeDelta: {x: 800, y: 280.0123}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &67625486
@@ -266,6 +266,7 @@ GameObject:
   - component: {fileID: 147300225}
   - component: {fileID: 147300227}
   - component: {fileID: 147300226}
+  - component: {fileID: 147300228}
   m_Layer: 5
   m_Name: RerollPriceText
   m_TagString: Untagged
@@ -312,7 +313,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: price
+  m_text: reroll
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 746f86218c845bb49a98169d005126fe, type: 2}
   m_sharedMaterial: {fileID: -8383589127567067901, guid: 746f86218c845bb49a98169d005126fe, type: 2}
@@ -391,6 +392,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 147300224}
   m_CullTransparentMesh: 1
+--- !u!114 &147300228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 147300224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Components.LocalizeStringEvent
+  m_StringReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:8abef000e1d7d584b8bcdb155d7766d4
+    m_TableEntryReference:
+      m_KeyId: 4240051027968
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables:
+    - name: value
+      variable:
+        rid: 2507345031984054483
+  m_FormatArguments: []
+  m_UpdateString:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 147300226}
+        m_TargetAssemblyTypeName: TMPro.TMP_Text, Unity.TextMeshPro
+        m_MethodName: set_text
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 2507345031984054483
+      type: {class: StringVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
+      data:
+        m_Value: 0
 --- !u!1 &231726712
 GameObject:
   m_ObjectHideFlags: 0
@@ -507,7 +555,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchorMin.x
@@ -515,7 +563,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_SizeDelta.x
@@ -555,11 +603,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 107.32886
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -422.7946
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -609,7 +657,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchorMin.x
@@ -617,7 +665,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_SizeDelta.x
@@ -657,11 +705,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 107.32886
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -198.79459
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1122,6 +1170,7 @@ GameObject:
   - component: {fileID: 568611841}
   - component: {fileID: 568611843}
   - component: {fileID: 568611842}
+  - component: {fileID: 568611844}
   m_Layer: 5
   m_Name: RerollPriceText
   m_TagString: Untagged
@@ -1247,6 +1296,46 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 568611840}
   m_CullTransparentMesh: 1
+--- !u!114 &568611844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 568611840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Components.LocalizeStringEvent
+  m_StringReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:8abef000e1d7d584b8bcdb155d7766d4
+    m_TableEntryReference:
+      m_KeyId: 4336054452224
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  m_FormatArguments: []
+  m_UpdateString:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 568611842}
+        m_TargetAssemblyTypeName: TMPro.TMP_Text, Unity.TextMeshPro
+        m_MethodName: set_text
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
+  references:
+    version: 2
+    RefIds: []
 --- !u!1001 &611875351
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1273,7 +1362,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchorMin.x
@@ -1281,7 +1370,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_SizeDelta.x
@@ -1321,11 +1410,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 427.32886
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -198.79459
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1384,7 +1473,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65, y: -344}
+  m_AnchoredPosition: {x: 65, y: -352}
   m_SizeDelta: {x: 800, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &613865862
@@ -1837,7 +1926,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69656cdfbab185d4d9dbfe36020deafe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopManager
-  shopView: {fileID: 0}
+  shopView: {fileID: 708886698}
   itemsPerShop: 3
   baseRerollCost: 1
   rerollCostIncrement: 1
@@ -2345,7 +2434,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchorMin.x
@@ -2353,7 +2442,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_SizeDelta.x
@@ -2393,11 +2482,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 267.32886
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -198.79459
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3263,7 +3352,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1288486032
 RectTransform:
   m_ObjectHideFlags: 0

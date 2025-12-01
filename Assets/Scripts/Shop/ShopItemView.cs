@@ -34,7 +34,7 @@ public sealed class ShopItemView : MonoBehaviour
     public void SetData(string pinId, int price, bool canBuy, bool sold)
     {
         if (nameText != null)
-            nameText.text = pinId;
+            nameText.text = LocalizationUtil.GetPinName(pinId);
 
         if (iconImage != null)
             iconImage.sprite = SpriteCache.GetPinSprite(pinId);
@@ -43,7 +43,7 @@ public sealed class ShopItemView : MonoBehaviour
         {
             if (sold)
             {
-                priceText.text = "SOLD";
+                priceText.text = LocalizationUtil.SoldString;
             }
             else
             {

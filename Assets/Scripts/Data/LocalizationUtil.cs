@@ -6,4 +6,6 @@ public static class LocalizationUtil
     {
         return new LocalizedString("pin", $"{id}.name").GetLocalizedString();
     }
+    
+    public static string SoldString = new LocalizedString("game", "game.sold.label").GetLocalizedString();
 }
