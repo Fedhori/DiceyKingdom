@@ -19,7 +19,6 @@ public class PinManager : MonoBehaviour
     readonly List<List<PinController>> pinsByRow = new();
     public IReadOnlyList<List<PinController>> PinsByRow => pinsByRow;
 
-    // 기본핀 id 외부에서 참조용
     public string DefaultPinId => defaultPinId;
 
     void Awake()
@@ -114,25 +113,13 @@ public class PinManager : MonoBehaviour
         if (pin == null)
             return;
 
-        if (row < 0 || row >= pinsByRow.Count)
+        if (!IsValidCell(row, column))
         {
-            Debug.LogWarning($"[PinManager] RegisterPin: row {row} out of range.");
+            Debug.LogWarning($"[PinManager] RegisterPin: ({row}, {column}) out of range.");
             return;
         }
 
         var rowList = pinsByRow[row];
-        if (rowList == null)
-        {
-            Debug.LogWarning($"[PinManager] RegisterPin: rowList for row {row} is null.");
-            return;
-        }
-
-        if (column < 0 || column >= rowList.Count)
-        {
-            Debug.LogWarning($"[PinManager] RegisterPin: column {column} out of range for row {row}.");
-            return;
-        }
-
         var existing = rowList[column];
         if (existing != null && existing != pin)
         {
@@ -148,14 +135,11 @@ public class PinManager : MonoBehaviour
         if (pin == null)
             return;
 
-        if (row < 0 || row >= pinsByRow.Count)
+        if (!IsValidCell(row, column))
             return;
 
         var rowList = pinsByRow[row];
         if (rowList == null)
-            return;
-
-        if (column < 0 || column >= rowList.Count)
             return;
 
         if (rowList[column] == pin)
@@ -177,14 +161,26 @@ public class PinManager : MonoBehaviour
                     continue;
 
                 if (pin.Instance != null)
-                {
                     pin.Instance.ResetData();
-                }
             }
         }
     }
 
-    // 기본핀("빈 슬롯")이 하나라도 있는지
+    bool IsValidCell(int row, int col)
+    {
+        if (row < 0 || row >= pinsByRow.Count)
+            return false;
+
+        var rowList = pinsByRow[row];
+        if (rowList == null)
+            return false;
+
+        if (col < 0 || col >= rowList.Count)
+            return false;
+
+        return true;
+    }
+
     public bool HasBasicPinSlot()
     {
         if (string.IsNullOrEmpty(defaultPinId))
@@ -207,7 +203,6 @@ public class PinManager : MonoBehaviour
         return false;
     }
 
-    // 기본핀 하나를 찾아서 구매한 pinId로 교체
     public bool TryReplaceBasicPin(string pinId)
     {
         if (PinFactory.Instance == null)
@@ -237,5 +232,49 @@ public class PinManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    // 새로 추가: 두 핀의 보드 위치를 스왑
+    public void SwapPins(PinController a, PinController b)
+    {
+        if (a == null || b == null || a == b)
+            return;
+
+        int rowA = a.RowIndex;
+        int colA = a.ColumnIndex;
+        int rowB = b.RowIndex;
+        int colB = b.ColumnIndex;
+
+        if (!IsValidCell(rowA, colA) || !IsValidCell(rowB, colB))
+        {
+            Debug.LogWarning($"[PinManager] SwapPins: invalid cells ({rowA}, {colA}) <-> ({rowB}, {colB})");
+            return;
+        }
+
+        var rowListA = pinsByRow[rowA];
+        var rowListB = pinsByRow[rowB];
+
+        if (rowListA == null || rowListB == null)
+        {
+            Debug.LogWarning("[PinManager] SwapPins: rowList null");
+            return;
+        }
+
+        if (rowListA[colA] != a || rowListB[colB] != b)
+        {
+            Debug.LogWarning("[PinManager] SwapPins: grid and controller indices mismatch.");
+        }
+
+        var posA = GetPinWorldPosition(rowA, colA);
+        var posB = GetPinWorldPosition(rowB, colB);
+
+        rowListA[colA] = b;
+        rowListB[colB] = a;
+
+        b.transform.position = posA;
+        a.transform.position = posB;
+
+        b.SetGridIndices(rowA, colA);
+        a.SetGridIndices(rowB, colB);
     }
 }

@@ -8,9 +8,8 @@ public sealed class PinController : MonoBehaviour
 {
     public PinInstance Instance { get; private set; }
 
-    [Header("Hit Scale Effect")] [SerializeField]
-    float hitScaleMultiplier = 1.2f;
-
+    [Header("Hit Scale Effect")]
+    [SerializeField] float hitScaleMultiplier = 1.2f;
     [SerializeField] float growDuration = 0.06f;
     [SerializeField] float shrinkDuration = 0.08f;
 
@@ -23,6 +22,9 @@ public sealed class PinController : MonoBehaviour
 
     int rowIndex = -1;
     int columnIndex = -1;
+
+    public int RowIndex => rowIndex;
+    public int ColumnIndex => columnIndex;
 
     void Awake()
     {
@@ -49,7 +51,8 @@ public sealed class PinController : MonoBehaviour
         }
 
         Instance = new PinInstance(dto, row, column);
-        pinSprite.sprite = SpriteCache.GetPinSprite(Instance.Id);
+        if (pinSprite != null)
+            pinSprite.sprite = SpriteCache.GetPinSprite(Instance.Id);
 
         rowIndex = row;
         columnIndex = column;
@@ -98,6 +101,9 @@ public sealed class PinController : MonoBehaviour
 
     void UpdateRemainingHits(int remainingHits)
     {
+        if (remainingHitsText == null)
+            return;
+
         if (remainingHits == -1)
         {
             remainingHitsText.text = "";
@@ -140,5 +146,13 @@ public sealed class PinController : MonoBehaviour
 
         transform.localScale = baseScale;
         hitRoutine = null;
+    }
+
+    // PinManager에서만 호출하는 용도
+    public void SetGridIndices(int row, int column)
+    {
+        rowIndex = row;
+        columnIndex = column;
+        Instance?.SetGridPosition(row, column);
     }
 }

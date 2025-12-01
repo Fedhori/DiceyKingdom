@@ -11,8 +11,8 @@ public sealed class PinInstance
 
     public StatSet Stats { get; }
 
-    public int Row { get; }
-    public int Column { get; }
+    public int Row { get; private set; }
+    public int Column { get; private set; }
 
     readonly List<PinEffectDto> effects;
     public IReadOnlyList<PinEffectDto> Effects => effects;
@@ -20,6 +20,9 @@ public sealed class PinInstance
     public float ScoreMultiplier => Stats.GetValue(PinStatIds.ScoreMultiplier);
 
     public event Action<int> OnRemainingHitsChanged;
+
+    int remainingHits;
+
     public int RemainingHits
     {
         get => remainingHits;
@@ -29,15 +32,14 @@ public sealed class PinInstance
             OnRemainingHitsChanged?.Invoke(remainingHits);
         }
     }
-    private int remainingHits;
 
     bool HasCounterGate => BaseDto.hitsToTrigger > 0;
 
     public PinInstance(PinDto dto, int row, int column)
     {
         BaseDto = dto ?? throw new ArgumentNullException(nameof(dto));
-        Row = row;
-        Column = column;
+
+        SetGridPosition(row, column);
 
         effects = dto.effects != null
             ? new List<PinEffectDto>(dto.effects)
@@ -46,8 +48,13 @@ public sealed class PinInstance
         Stats = new StatSet();
         Stats.SetBase(PinStatIds.ScoreMultiplier, BaseDto.scoreMultiplier);
 
-        // 이벤트 기반 효과 등록
         PinEffectManager.Instance?.RegisterEventEffects(this);
+    }
+
+    public void SetGridPosition(int row, int column)
+    {
+        Row = row;
+        Column = column;
     }
 
     public void ResetData()
@@ -55,31 +62,26 @@ public sealed class PinInstance
         RemainingHits = BaseDto.hitsToTrigger;
         Stats.RemoveModifiers(StatLayer.Temporary);
     }
-    
+
     public void OnHitByBall(BallInstance ball, Vector2 position)
     {
         if (ball == null || effects.Count == 0)
             return;
 
-        // 1) hitsToTrigger 게이트 처리
         if (HasCounterGate)
         {
-            // 지금은 항상 1씩 감소. 나중에 확장하려면 여기서 cost 변수로 분리.
             const int hitCost = 1;
             RemainingHits -= hitCost;
 
             if (RemainingHits > 0)
-            {
-                // 아직 발동 조건 미달 → 효과 실행 안 함
                 return;
-            }
-            
+
             RemainingHits += BaseDto.hitsToTrigger;
         }
 
-        // 2) eventId 없는 OnHit 효과들만 실행
-        foreach (var effect in effects)
+        for (int i = 0; i < effects.Count; i++)
         {
+            var effect = effects[i];
             if (!string.IsNullOrEmpty(effect.eventId))
                 continue;
 

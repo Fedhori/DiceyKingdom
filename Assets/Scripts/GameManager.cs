@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -10,10 +9,16 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
     }
 
-    private void Start()
+    void Start()
     {
         HandleGameStart();
     }
@@ -23,7 +28,7 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("GameScene");
     }
 
-    private void HandleGameStart()
+    void HandleGameStart()
     {
         FlowManager.Instance?.StartRun();
     }

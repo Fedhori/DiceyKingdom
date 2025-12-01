@@ -1645,6 +1645,7 @@ GameObject:
   - component: {fileID: 684668664}
   - component: {fileID: 684668665}
   - component: {fileID: 684668666}
+  - component: {fileID: 684668667}
   m_Layer: 0
   m_Name: Pin
   m_TagString: Untagged
@@ -1709,6 +1710,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50bbfb5a33b081b44b82983a6d4514ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinEffectManager
+--- !u!114 &684668667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 684668662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95a761681a8069742a84c0b63c0b7d61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PinDragManager
+  worldCamera: {fileID: 519420031}
+  pinLayerMask:
+    serializedVersion: 2
+    m_Bits: 8
+  dragAlpha: 0.5
+  dragZOffset: -0.1
 --- !u!1 &708886695
 GameObject:
   m_ObjectHideFlags: 0
