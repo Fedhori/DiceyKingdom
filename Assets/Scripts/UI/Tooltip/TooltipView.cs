@@ -33,13 +33,14 @@ public sealed class TooltipView : MonoBehaviour
         gameObject.SetActive(true);
 
         if (nameText != null)
-            nameText.text = pin.Id;
+            nameText.text = LocalizationUtil.GetPinName(pin.Id);
 
         if (iconImage != null)
             iconImage.sprite = SpriteCache.GetPinSprite(pin.Id);
 
         if (descriptionText != null)
         {
+            // TODO - 효과마다 그에 맞는 설명 문구를 만들어야 함
             float mult = pin.ScoreMultiplier;
             descriptionText.text = $"Score x{mult:0.##}";
         }

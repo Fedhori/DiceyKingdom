@@ -20,6 +20,16 @@ MonoBehaviour:
     m_ReadOnly: 1
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7410117f5ae83cd40ab3a29f02450379
+    m_Address: Assets/Localization/pin Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8abef000e1d7d584b8bcdb155d7766d4
+    m_Address: Assets/Localization/ui Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e1f552199a29cbb4e861fa0096551aa4
     m_Address: Assets/Localization/modal Shared Data.asset
     m_ReadOnly: 1

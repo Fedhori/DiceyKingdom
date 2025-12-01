@@ -167,7 +167,7 @@ MonoBehaviour:
   tooltipView: {fileID: 124097480}
   worldCamera: {fileID: 1362406954}
   showDelay: 0.2
-  screenOffset: {x: 16, y: -16}
+  screenOffset: {x: 16, y: 0}
 --- !u!1 &124097476
 GameObject:
   m_ObjectHideFlags: 0
