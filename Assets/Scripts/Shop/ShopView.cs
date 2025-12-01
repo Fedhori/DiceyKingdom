@@ -129,8 +129,8 @@ public sealed class ShopView : MonoBehaviour
         if (rerollCostText != null)
         {
             bool canReroll = currentCurrency >= rerollCost;
-            rerollCostText.text = rerollCost.ToString();
-            rerollCostText.color = canReroll ? Colors.Common : Colors.Red;
+            rerollCostText.text = $"리롤 비용:{rerollCost.ToString()}";
+            rerollCostText.color = canReroll ? Colors.Black : Colors.Red;
         }
     }
 

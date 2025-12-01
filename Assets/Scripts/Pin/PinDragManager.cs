@@ -117,6 +117,8 @@ public sealed class PinDragManager : MonoBehaviour
             return;
 
         var worldPos = ScreenToWorld(screenPos);
+        draggingPin.transform.position = new Vector2(worldPos.x, worldPos.y);
+
         var target = FindTargetPin(worldPos);
         if (target == draggingPin)
         {

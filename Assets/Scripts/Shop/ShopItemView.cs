@@ -44,12 +44,11 @@ public sealed class ShopItemView : MonoBehaviour
             if (sold)
             {
                 priceText.text = "SOLD";
-                priceText.color = Colors.Black;
             }
             else
             {
-                priceText.text = $"리롤 비용: {price}";
-                priceText.color = canBuy ? Colors.Common : Colors.Red;
+                priceText.text = $"${price}";
+                priceText.color = canBuy ? Colors.Black : Colors.Red;
             }
         }
 
