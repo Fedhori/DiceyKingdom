@@ -75,6 +75,7 @@ public sealed class PlayerManager : MonoBehaviour
         }
     }
 
+    // TODO - 스탯 시스템이 일단락되면 로컬라이징 필요
     void UpdateStatUI()
     {
         if (Current == null || playerStatText == null)

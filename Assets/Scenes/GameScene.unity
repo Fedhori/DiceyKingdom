@@ -3080,7 +3080,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de9f85dd373304e4db4f2ad2581a8413, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CurrencyManager
-  currencyText: {fileID: 613865862}
+  currencyText: {fileID: 613865864}
 --- !u!1 &1241167449
 GameObject:
   m_ObjectHideFlags: 0
@@ -3571,9 +3571,12 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables:
-    - name: value
+    - name: currentRound
       variable:
-        rid: 2507345031984054472
+        rid: 2507345031984054489
+    - name: totalRound
+      variable:
+        rid: 2507345031984054490
   m_FormatArguments: []
   m_UpdateString:
     m_PersistentCalls:
@@ -3593,7 +3596,11 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 2507345031984054472
+    - rid: 2507345031984054489
+      type: {class: DoubleVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
+      data:
+        m_Value: 0
+    - rid: 2507345031984054490
       type: {class: StringVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
       data:
         m_Value: 0
@@ -4148,10 +4155,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ec00ad6ef3d48c48a0924f130a48191, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StageHudView
-  stageText: {fileID: 865148101}
-  targetScoreText: {fileID: 1924407269}
-  currentScoreText: {fileID: 1130700143}
-  roundText: {fileID: 1325018116}
+  stageText: {fileID: 865148103}
+  targetScoreText: {fileID: 1924407271}
+  currentScoreText: {fileID: 1130700145}
+  roundText: {fileID: 1325018118}
 --- !u!114 &1633961190
 MonoBehaviour:
   m_ObjectHideFlags: 0

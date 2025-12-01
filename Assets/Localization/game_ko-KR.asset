@@ -39,7 +39,7 @@ MonoBehaviour:
       m_Items:
       - rid: 2507345031984054468
   - m_Id: 605443342336
-    m_Localized: "\uB77C\uC6B4\uB4DC: {value}"
+    m_Localized: "\uB77C\uC6B4\uB4DC: {currentRound} / {totalRound}"
     m_Metadata:
       m_Items:
       - rid: 2507345031984054468

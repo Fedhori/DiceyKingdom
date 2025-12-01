@@ -24,8 +24,6 @@ public sealed class RewardManager : MonoBehaviour
         currentStage = stage;
         this.stageIndex = stageIndex;
         isOpen = true;
-
-        // TODO: 실제 보상 UI/선택 로직으로 교체 예정
         PlayerManager.Instance.Current.BallDeck.Add("ball.basic", 5);
 
         // 지금은 흐름 테스트용으로 즉시 닫는다.
