@@ -12,6 +12,13 @@ public sealed class TooltipView : MonoBehaviour
 
     void Awake()
     {
+        if (rectTransform == null)
+            rectTransform = transform as RectTransform;
+
+        // 툴팁의 "좌상단"이 pivot 이 되도록 강제
+        if (rectTransform != null)
+            rectTransform.pivot = new Vector2(0f, 1f);
+
         gameObject.SetActive(false);
     }
 
@@ -33,8 +40,6 @@ public sealed class TooltipView : MonoBehaviour
 
         if (descriptionText != null)
         {
-            // 임시 설명: 점수 배율만 간단히 표시
-            // 나중에 PinDto에 displayName / description 추가해서 교체하면 됨.
             float mult = pin.ScoreMultiplier;
             descriptionText.text = $"Score x{mult:0.##}";
         }

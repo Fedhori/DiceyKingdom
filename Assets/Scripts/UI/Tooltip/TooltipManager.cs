@@ -16,7 +16,7 @@ public sealed class TooltipManager : MonoBehaviour
         : null;
 
     PinInstance currentPin;
-    Vector3 currentWorldPos;
+    Vector3 currentWorldPos;   // = 핀의 우상단 월드 위치(anchor)
     Coroutine showRoutine;
 
     void Awake()
@@ -38,7 +38,6 @@ public sealed class TooltipManager : MonoBehaviour
     void OnEnable()
     {
         SceneManager.activeSceneChanged += OnActiveSceneChanged;
-        // 씬이 이미 로드된 상태에서 Enable 될 수도 있으니 한 번 더 보정
         UpdateWorldCamera();
     }
 
@@ -51,7 +50,7 @@ public sealed class TooltipManager : MonoBehaviour
     void OnActiveSceneChanged(Scene oldScene, Scene newScene)
     {
         UpdateWorldCamera();
-        // 씬 바뀔 때 남아있던 툴팁은 숨겨두는게 안전
+
         currentPin = null;
         if (showRoutine != null)
         {
@@ -63,11 +62,9 @@ public sealed class TooltipManager : MonoBehaviour
 
     void UpdateWorldCamera()
     {
-        // 인스펙터에서 이미 지정해둔 카메라가 살아있으면 그대로 사용
         if (worldCamera != null)
             return;
 
-        // 없으면 MainCamera 태그로 다시 찾기
         var mainCam = Camera.main;
         if (mainCam != null)
         {
@@ -81,6 +78,7 @@ public sealed class TooltipManager : MonoBehaviour
 
     /// <summary>
     /// 특정 핀에 포인터가 진입했을 때 호출.
+    /// worldPosition 은 "핀의 우상단 월드 좌표" 를 넘겨주는 것을 전제로 한다.
     /// </summary>
     public void BeginHover(PinInstance pin, Vector3 worldPosition)
     {
@@ -135,8 +133,9 @@ public sealed class TooltipManager : MonoBehaviour
         if (canvasRect == null)
             return;
 
+        // currentWorldPos == 핀의 "우상단" 월드 위치
         Vector2 screenPos = worldCamera.WorldToScreenPoint(currentWorldPos);
-        screenPos += screenOffset;
+        screenPos += screenOffset;   // 여기서부터는 사용자가 원하는 추가 offset
 
         RectTransform tooltipRect = tooltipView.rectTransform;
 
@@ -147,6 +146,7 @@ public sealed class TooltipManager : MonoBehaviour
             out var localPos
         );
 
+        // tooltipRect.pivot == (0,1) 이므로, localPos 가 곧 "툴팁 좌상단" 위치가 된다.
         tooltipRect.anchoredPosition = localPos;
 
         tooltipView.Show(currentPin);
