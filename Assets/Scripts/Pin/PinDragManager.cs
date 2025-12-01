@@ -10,7 +10,6 @@ public sealed class PinDragManager : MonoBehaviour
 
     [Header("Drag Visual")]
     [SerializeField, Range(0f, 1f)] float dragAlpha = 0.5f;
-    [SerializeField] float dragZOffset = -0.1f;
 
     PinController draggingPin;
     SpriteRenderer draggingSprite;
@@ -118,8 +117,6 @@ public sealed class PinDragManager : MonoBehaviour
             return;
 
         var worldPos = ScreenToWorld(screenPos);
-        draggingPin.transform.position = new Vector3(worldPos.x, worldPos.y, originalPosition.z + dragZOffset);
-
         var target = FindTargetPin(worldPos);
         if (target == draggingPin)
         {
