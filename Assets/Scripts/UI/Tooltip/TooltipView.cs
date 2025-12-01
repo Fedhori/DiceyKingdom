@@ -1,27 +1,47 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UI.Tooltip
+public sealed class TooltipView : MonoBehaviour
 {
-    [RequireComponent(typeof(RectTransform))]
-    public abstract class TooltipView : MonoBehaviour
-    {
-        public TooltipContent Content { get; private set; }
-        public TooltipTarget SourceTarget { get; set; }
-        public TooltipKind kind;
-        public Button closeButton;
+    [SerializeField] Image iconImage;
+    [SerializeField] TMP_Text nameText;
+    [SerializeField] TMP_Text descriptionText;
 
-        public virtual void Start()
+    public RectTransform rectTransform;
+
+    void Awake()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public void Show(PinInstance pin)
+    {
+        if (pin == null)
         {
-            if (closeButton != null) closeButton.onClick.AddListener(CloseTooltip);
+            Hide();
+            return;
         }
 
-        public abstract void SetData(TooltipContent data);
+        gameObject.SetActive(true);
 
-        public void CloseTooltip()
+        if (nameText != null)
+            nameText.text = pin.Id;
+
+        if (iconImage != null)
+            iconImage.sprite = SpriteCache.GetPinSprite(pin.Id);
+
+        if (descriptionText != null)
         {
-            TooltipManager.Instance.UnpinTooltip(this);
+            // 임시 설명: 점수 배율만 간단히 표시
+            // 나중에 PinDto에 displayName / description 추가해서 교체하면 됨.
+            float mult = pin.ScoreMultiplier;
+            descriptionText.text = $"Score x{mult:0.##}";
         }
     }
-}
 
+    public void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+}

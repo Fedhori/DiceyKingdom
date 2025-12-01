@@ -1,46 +1,34 @@
-
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
-namespace UI.Tooltip
+[RequireComponent(typeof(PinController))]
+public sealed class TooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    public class TooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    PinController pinController;
+
+    void Awake()
     {
-        [SerializeField] private TooltipKind kind = TooltipKind.SimpleText;
-        [SerializeField] private TooltipContent content = new TooltipContent();
-        [SerializeField] private Button pinButton;
-        private void Start()
-        {
-            if (pinButton != null) pinButton.onClick.AddListener(() => TooltipManager.Instance.PinCurrentTooltip(kind));
-        }
+        pinController = GetComponent<PinController>();
+    }
 
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            TooltipManager.Instance?.ShowTooltip(eventData.position, content, kind, this);
-        }
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (TooltipManager.Instance == null)
+            return;
+        if (pinController == null || pinController.Instance == null)
+            return;
 
-        public void OnPointerExit(PointerEventData eventData)
-        { 
-            TooltipManager.Instance?.HideTooltip(kind);
-        }
+        // 필요하면 개별 딜레이를 PinTooltipManager에 넘기는 방식으로 확장 가능
+        TooltipManager.Instance.BeginHover(pinController.Instance, transform.position);
+    }
 
-        private void OnDisable()
-        {
-            TooltipManager.Instance?.HideTooltip(kind);
-        }
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (TooltipManager.Instance == null)
+            return;
+        if (pinController == null || pinController.Instance == null)
+            return;
 
-        private void OnDestroy()
-        {
-            TooltipManager.Instance?.HideTooltip(kind);
-        }
-
-        public void SetSimpleTooltipContent(string refKey, string stringKey,  Dictionary<string, object> arguments = null)
-        {
-            content.refKey = refKey;
-            content.stringKey = stringKey;
-            content.arguments = arguments;
-        }
+        TooltipManager.Instance.EndHover(pinController.Instance);
     }
 }

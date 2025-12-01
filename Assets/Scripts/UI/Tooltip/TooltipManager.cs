@@ -1,177 +1,160 @@
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-// 툴팁 안에 동일한 타입의 툴팁이 뜨는 경우는 되도록 피한다.
-// 만약 자식 툴팁이 파괴되는 등의 이유로 HideTooltip을 호출해버리면 부모가 SetActive(false)가 되며 gameObject.IsDestroying()이 호출될 수 있다.
-namespace UI.Tooltip
+public sealed class TooltipManager : MonoBehaviour
 {
-    public sealed class TooltipManager : MonoBehaviour
+    public static TooltipManager Instance { get; private set; }
+
+    [SerializeField] Canvas tooltipCanvas;          // Screen Space - Overlay
+    [SerializeField] TooltipView tooltipView;
+    [SerializeField] Camera worldCamera;            // 핀을 보는 카메라
+    [SerializeField] float showDelay = 0.2f;        // 호버 후 표시 딜레이
+    [SerializeField] Vector2 screenOffset = new Vector2(16f, -16f);
+
+    RectTransform CanvasRect => tooltipCanvas != null
+        ? tooltipCanvas.transform as RectTransform
+        : null;
+
+    PinInstance currentPin;
+    Vector3 currentWorldPos;
+    Coroutine showRoutine;
+
+    void Awake()
     {
-        public static TooltipManager Instance { get; private set; }
-
-        [System.Serializable]
-        private struct PrefabMapping
+        if (Instance != null && Instance != this)
         {
-            public TooltipKind kind;
-            public TooltipView prefab;
+            Destroy(gameObject);
+            return;
         }
 
-        [SerializeField] private List<PrefabMapping> prefabMappings;
-        [SerializeField] private Canvas canvas;
-        [SerializeField] private Vector2 screenOffset = new Vector2(12f, -12f);
-        [SerializeField] private float clampMargin = 8f;
+        Instance = this;
 
-        private readonly Dictionary<TooltipKind, TooltipView> prefabRegistry = new();
-        private readonly Dictionary<TooltipKind, List<TooltipView>> pool = new();
-        private readonly Dictionary<TooltipKind, TooltipView> pinnedTooltips = new();
+        if (tooltipCanvas == null)
+            tooltipCanvas = GetComponentInParent<Canvas>();
 
-        private readonly Dictionary<TooltipKind, TooltipView> activeTooltips = new();
-        private bool isPinning; // 재진입 버그를 막기 위한 플래그
+        UpdateWorldCamera();
+    }
 
-        private void Awake()
+    void OnEnable()
+    {
+        SceneManager.activeSceneChanged += OnActiveSceneChanged;
+        // 씬이 이미 로드된 상태에서 Enable 될 수도 있으니 한 번 더 보정
+        UpdateWorldCamera();
+    }
+
+    void OnDisable()
+    {
+        if (Instance == this)
+            SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+    }
+
+    void OnActiveSceneChanged(Scene oldScene, Scene newScene)
+    {
+        UpdateWorldCamera();
+        // 씬 바뀔 때 남아있던 툴팁은 숨겨두는게 안전
+        currentPin = null;
+        if (showRoutine != null)
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-
-            foreach (var mapping in prefabMappings)
-                if (mapping.prefab != null)
-                    prefabRegistry[mapping.kind] = mapping.prefab;
+            StopCoroutine(showRoutine);
+            showRoutine = null;
         }
-        
+        HideImmediate();
+    }
 
-        // Main entry point, now accepts a sourceTarget to check against pinned tooltips.
-        public void ShowTooltip(Vector2 screenPos, TooltipContent data, TooltipKind kind, TooltipTarget sourceTarget)
+    void UpdateWorldCamera()
+    {
+        // 인스펙터에서 이미 지정해둔 카메라가 살아있으면 그대로 사용
+        if (worldCamera != null)
+            return;
+
+        // 없으면 MainCamera 태그로 다시 찾기
+        var mainCam = Camera.main;
+        if (mainCam != null)
         {
-            // Check if the source of this tooltip already has a pinned tooltip.
-            foreach (var pinnedView in pinnedTooltips.Values)
-                if (pinnedView.SourceTarget == sourceTarget)
-                    return; // Don't show a new tooltip if this target's tooltip is already pinned.
-
-            ShowInternal(screenPos, data, kind, sourceTarget);
+            worldCamera = mainCam;
         }
-
-        public void HideTooltip(TooltipKind kind)
+        else
         {
-            // Guard against re-entrant calls during a pinning operation.
-            if (isPinning) return;
-
-            if (activeTooltips.TryGetValue(kind, out var tooltipToHide))
-            {
-                ReturnToPool(tooltipToHide);
-                activeTooltips.Remove(kind);
-            }
+            Debug.LogWarning("[TooltipManager] No world camera found. Tooltips will not be positioned.");
         }
+    }
 
-        public void PinCurrentTooltip(TooltipKind kind)
+    /// <summary>
+    /// 특정 핀에 포인터가 진입했을 때 호출.
+    /// </summary>
+    public void BeginHover(PinInstance pin, Vector3 worldPosition)
+    {
+        if (pin == null)
+            return;
+
+        currentPin      = pin;
+        currentWorldPos = worldPosition;
+
+        if (showRoutine != null)
+            StopCoroutine(showRoutine);
+
+        showRoutine = StartCoroutine(ShowDelayed());
+    }
+
+    /// <summary>
+    /// 해당 핀에서 포인터가 빠져나갈 때 호출.
+    /// </summary>
+    public void EndHover(PinInstance pin)
+    {
+        if (pin != null && pin != currentPin)
+            return; // 다른 핀에서 온 Exit 이면 무시
+
+        if (showRoutine != null)
         {
-            if (isPinning) return; // Prevent nested pinning.
-            
-            if (!activeTooltips.TryGetValue(kind, out var tooltipToPin)) return;
-
-            try
-            {
-                isPinning = true;
-
-                if (pinnedTooltips.ContainsKey(kind)) UnpinTooltip(pinnedTooltips[kind]);
-
-                pinnedTooltips[kind] = tooltipToPin;
-                if (tooltipToPin.closeButton != null) tooltipToPin.closeButton.gameObject.SetActive(true);
-
-                activeTooltips.Remove(kind);
-            }
-            finally
-            {
-                isPinning = false; // Ensure the flag is always reset.
-            }
-        }
-
-        public void UnpinTooltip(TooltipView tooltip)
-        {
-            if (tooltip == null) return;
-
-            var kind = tooltip.kind;
-            if (pinnedTooltips.ContainsKey(kind) && pinnedTooltips[kind] == tooltip)
-            {
-                pinnedTooltips.Remove(kind);
-                ReturnToPool(tooltip);
-            }
+            StopCoroutine(showRoutine);
+            showRoutine = null;
         }
 
-        private void ShowInternal(Vector2 screenPos, TooltipContent data, TooltipKind kind, TooltipTarget sourceTarget, bool clampPosition = true)
-        {
-            if (activeTooltips.TryGetValue(kind, out var existingTooltip)) ReturnToPool(existingTooltip);
+        currentPin = null;
+        HideImmediate();
+    }
 
-            var activeTooltip = GetFromPool(kind);
-            if (activeTooltip == null)
-            {
-                Debug.LogError($"[TooltipManager] No prefab registered for kind: {kind}");
-                return;
-            }
-            activeTooltips[kind] = activeTooltip;
+    System.Collections.IEnumerator ShowDelayed()
+    {
+        if (showDelay > 0f)
+            yield return new WaitForSecondsRealtime(showDelay);
 
-            activeTooltip.kind = kind;
-            activeTooltip.SourceTarget = sourceTarget; // Set the source target
-            activeTooltip.SetData(data);
-            if (activeTooltip.closeButton != null) activeTooltip.closeButton.gameObject.SetActive(false);
-            activeTooltip.gameObject.SetActive(true);
-            activeTooltip.transform.SetAsLastSibling();
+        if (currentPin == null)
+            yield break;
 
-            if (clampPosition) ClampToScreen(screenPos, activeTooltip);
-        }
+        ShowNow();
+        showRoutine = null;
+    }
 
-        private void ClampToScreen(Vector2 screenPos, TooltipView activeTooltip)
-        {
-            var tooltipRect = activeTooltip.GetComponent<RectTransform>();
-            var canvasRect = (RectTransform)canvas.transform;
+    void ShowNow()
+    {
+        if (tooltipCanvas == null || tooltipView == null || worldCamera == null)
+            return;
 
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPos, canvas.worldCamera, out var localPoint);
-            
-            Vector2 pivot = tooltipRect.pivot;
-            
-            localPoint.x += pivot.x * tooltipRect.rect.width;
-            localPoint.y -= (1 - pivot.y) * tooltipRect.rect.height;
-            
-            localPoint += screenOffset;
+        var canvasRect = CanvasRect;
+        if (canvasRect == null)
+            return;
 
-            var halfCanvas = canvasRect.rect.size * 0.5f;
-            var tooltipSize = tooltipRect.rect.size;
-            localPoint.x = Mathf.Clamp(localPoint.x, -halfCanvas.x + clampMargin, halfCanvas.x - tooltipSize.x / 2 - clampMargin);
-            localPoint.y = Mathf.Clamp(localPoint.y, -halfCanvas.y + tooltipSize.y / 2 + clampMargin, halfCanvas.y - clampMargin);
+        Vector2 screenPos = worldCamera.WorldToScreenPoint(currentWorldPos);
+        screenPos += screenOffset;
 
-            tooltipRect.anchoredPosition = localPoint;
-        }
+        RectTransform tooltipRect = tooltipView.rectTransform;
 
-        private TooltipView GetFromPool(TooltipKind kind)
-        {
-            if (!pool.TryGetValue(kind, out var list))
-            {
-                list = new List<TooltipView>();
-                pool[kind] = list;
-            }
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasRect,
+            screenPos,
+            null,                     // Overlay Canvas
+            out var localPos
+        );
 
-            foreach (var view in list)
-                if (!view.gameObject.activeSelf)
-                    return view;
+        tooltipRect.anchoredPosition = localPos;
 
-            if (prefabRegistry.TryGetValue(kind, out var prefab))
-            {
-                var newInstance = Instantiate(prefab, canvas.transform);
-                newInstance.gameObject.name = $"{kind}Tooltip_Pooled_{list.Count}";
-                list.Add(newInstance);
-                return newInstance;
-            }
+        tooltipView.Show(currentPin);
+    }
 
-            return null;
-        }
-
-        private void ReturnToPool(TooltipView view)
-        {
-            view.SourceTarget = null; // Clear the source target reference
-            view.gameObject.SetActive(false);
-        }
+    void HideImmediate()
+    {
+        if (tooltipView != null)
+            tooltipView.Hide();
     }
 }

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 3073552483848044392}
   - component: {fileID: 8191826981322279884}
   - component: {fileID: 6007941849638519635}
+  - component: {fileID: 2437750583722584066}
   m_Layer: 3
   m_Name: Pin
   m_TagString: Untagged
@@ -194,6 +195,19 @@ MonoBehaviour:
   pulseSpeed: 4
   minMultiplier: 0.6
   maxMultiplier: 1.4
+--- !u!114 &2437750583722584066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1637813796359076856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 460196c9499dea941b52aba15bc8a0ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PinTooltipTarget
+  overrideShowDelay: -1
 --- !u!1 &1828472714760143745
 GameObject:
   m_ObjectHideFlags: 0
