@@ -1,15 +1,42 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;    // ★ OnDeserialized 에 필요
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using UnityEngine;
 
 namespace Data
 {
+    // enum 첫 값은 항상 Unknown → 잘못된 입력 검증용
+    public enum PinTriggerType
+    {
+        Unknown = 0,
+        OnBallHit,
+        OnBallDestroyed
+    }
+
+    public enum PinConditionKind
+    {
+        Unknown = 0,
+        Always,
+        Charge
+    }
+
+    [Serializable]
+    public sealed class PinConditionDto
+    {
+        // JSON: "conditionKind": "Always" | "Charge"
+        [JsonConverter(typeof(StringEnumConverter))]
+        public PinConditionKind conditionKind;
+
+        // Charge 용: N회마다 발동. Always일 땐 무시.
+        public int hits;
+    }
+
     [Serializable]
     public sealed class PinEffectDto
     {
-        public string eventId;
+        // "modifyPlayerStat" | "modifySelfStat" | "addVelocity" | "increaseSize" | "addScore"
         public string type;
         public string statId;
         public string mode;
@@ -18,43 +45,37 @@ namespace Data
     }
 
     [Serializable]
+    public sealed class PinRuleDto
+    {
+        // JSON: "triggerType": "OnBallHit" | "OnBallDestroyed"
+        [JsonConverter(typeof(StringEnumConverter))]
+        public PinTriggerType triggerType;
+
+        public List<PinConditionDto> conditions;
+        public List<PinEffectDto> effects;
+    }
+
+    [Serializable]
     public sealed class PinDto
     {
         public string id;
         public float scoreMultiplier = 1f;
 
-        /// <summary>
-        /// -1: 항상 발동, 1 이상: 해당 히트 수마다 발동
-        /// </summary>
-        public int hitsToTrigger = -1;
-
-        /// <summary>
-        /// true면 상점에서 팔 수 없음
-        /// </summary>
         public bool isNotSell = false;
-
-        /// <summary>
-        /// 상점 가격. isNotSell == false 인 경우에만 의미 있음.
-        /// </summary>
         public int price;
 
-        public List<PinEffectDto> effects;
+        public List<PinRuleDto> rules;
 
-        /// <summary>
-        /// 역직렬화/검증 결과 유효한지 여부
-        /// </summary>
         [JsonIgnore]
         public bool isValid = true;
 
-        // ★ Json.NET 역직렬화 완료 후 자동 호출
         [OnDeserialized]
         internal void OnDeserialized(StreamingContext context)
         {
-            // 기본 방어
-            if (effects == null)
-                effects = new List<PinEffectDto>();
+            if (rules == null)
+                rules = new List<PinRuleDto>();
 
-            // 1) id 필수
+            // id 필수
             if (string.IsNullOrEmpty(id))
             {
                 Debug.LogError("[PinDto] id is null or empty.");
@@ -62,7 +83,7 @@ namespace Data
                 return;
             }
 
-            // 2) 판매 가능(isNotSell == false)인데 price <= 0 이면 잘못된 데이터로 간주
+            // 판매 가능인데 price <= 0 이면 에러
             if (!isNotSell && price <= 0)
             {
                 Debug.LogError(
@@ -71,7 +92,7 @@ namespace Data
                 isValid = false;
             }
 
-            // 3) 팔 수 없는 핀인데 price != 0 이면 경고 + 0으로 정규화 (이건 스킵까진 안 하고 자동보정)
+            // isNotSell인데 price != 0이면 0으로 강제
             if (isNotSell && price != 0)
             {
                 Debug.LogError(
@@ -80,16 +101,97 @@ namespace Data
                 price = 0;
             }
 
-            // 4) hitsToTrigger 규칙: 0은 의미가 애매하니 금지. -1 또는 1 이상만 허용.
-            if (hitsToTrigger == 0)
+            int chargeConditionCount = 0;
+
+            for (int i = 0; i < rules.Count; i++)
             {
-                Debug.LogError(
-                    $"[PinDto] '{id}': hitsToTrigger == 0 은 허용하지 않습니다. -1 또는 1 이상을 사용하세요. -1로 강제 설정합니다."
-                );
-                hitsToTrigger = -1;
+                var rule = rules[i];
+                if (rule == null)
+                {
+                    Debug.LogError($"[PinDto] '{id}': rules[{i}] 가 null 입니다.");
+                    isValid = false;
+                    continue;
+                }
+
+                // 트리거 검증
+                if (rule.triggerType == PinTriggerType.Unknown)
+                {
+                    Debug.LogError(
+                        $"[PinDto] '{id}': rules[{i}].triggerType 가 Unknown 입니다. OnBallHit/OnBallDestroyed 중 하나를 사용하세요."
+                    );
+                    isValid = false;
+                }
+
+                // effects 필수
+                if (rule.effects == null || rule.effects.Count == 0)
+                {
+                    Debug.LogError(
+                        $"[PinDto] '{id}': rules[{i}] 에 effects가 비어 있습니다. 최소 1개 이상 필요합니다."
+                    );
+                    isValid = false;
+                }
+
+                // conditions 필수
+                if (rule.conditions == null || rule.conditions.Count == 0)
+                {
+                    Debug.LogError(
+                        $"[PinDto] '{id}': rules[{i}] 에 conditions가 비어 있습니다. 최소 1개 이상 필요합니다."
+                    );
+                    isValid = false;
+                    continue;
+                }
+
+                for (int c = 0; c < rule.conditions.Count; c++)
+                {
+                    var cond = rule.conditions[c];
+                    if (cond == null)
+                    {
+                        Debug.LogError(
+                            $"[PinDto] '{id}': rules[{i}].conditions[{c}] 가 null 입니다."
+                        );
+                        isValid = false;
+                        continue;
+                    }
+
+                    if (cond.conditionKind == PinConditionKind.Unknown)
+                    {
+                        Debug.LogError(
+                            $"[PinDto] '{id}': rules[{i}].conditions[{c}].conditionKind 가 Unknown 입니다. Always/Charge 중 하나를 사용하세요."
+                        );
+                        isValid = false;
+                        continue;
+                    }
+
+                    if (cond.conditionKind == PinConditionKind.Charge)
+                    {
+                        if (cond.hits <= 0)
+                        {
+                            Debug.LogError(
+                                $"[PinDto] '{id}': rules[{i}].conditions[{c}].hits <= 0 입니다. Charge 조건에는 1 이상이 필요합니다."
+                            );
+                            isValid = false;
+                        }
+
+                        if (rule.triggerType != PinTriggerType.OnBallHit)
+                        {
+                            Debug.LogError(
+                                $"[PinDto] '{id}': Charge 조건은 OnBallHit 트리거에서만 사용할 수 있습니다. pin='{id}', rule[{i}].triggerType='{rule.triggerType}'."
+                            );
+                            isValid = false;
+                        }
+
+                        chargeConditionCount++;
+                    }
+                }
             }
 
-            // 여기서 isValid=false 로 마킹된 경우 Repository 단계에서 스킵됨.
+            if (chargeConditionCount > 1)
+            {
+                Debug.LogError(
+                    $"[PinDto] '{id}': Charge 조건이 1개를 초과했습니다. 핀당 Charge 1개만 허용됩니다."
+                );
+                isValid = false;
+            }
         }
     }
 
@@ -130,7 +232,6 @@ namespace Data
                     if (dto == null)
                         continue;
 
-                    // OnDeserialized에서 유효하지 않다고 마킹된 데이터는 스킵
                     if (!dto.isValid)
                     {
                         Debug.LogError(
@@ -141,7 +242,6 @@ namespace Data
 
                     if (string.IsNullOrEmpty(dto.id))
                     {
-                        // 여기까지 왔으면 사실상 isValid=true인데 id가 비었을 일은 거의 없지만, 추가 방어
                         Debug.LogError("[PinRepository] Pin with empty id encountered. Skipped.");
                         continue;
                     }

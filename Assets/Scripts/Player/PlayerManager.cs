@@ -82,7 +82,7 @@ public sealed class PlayerManager : MonoBehaviour
     {
         baseScoreText.text = $"{Current.ScoreBase}";
         scoreMultiplierText.text = $"x{Current.ScoreMultiplier:N1}";
-        criticalChanceText.text = $"{Current.CriticalChance}";
+        criticalChanceText.text = $"{Current.CriticalChance}%";
         criticalMultiplierText.text = $"x{Current.CriticalMultiplier:N1}";
     }
 

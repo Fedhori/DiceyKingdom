@@ -2,102 +2,194 @@
 	"pins": [
 		{
 			"id": "pin.basic",
-			"isNotSell": true
+			"scoreMultiplier": 1.0,
+			"isNotSell": true,
+			"price": 0,
+			"rules": []
 		},
 		{
 			"id": "pin.cloverLeaf",
+			"isNotSell": false,
 			"price": 10,
-			"effects": [
+			"rules": [
 				{
-					"type": "modifyPlayerStat",
-					"statId": "criticalChance",
-					"mode": "add",
-					"value": 1.0
+					"triggerType": "OnBallHit",
+					"conditions": [
+						{
+							"conditionKind": "Always"
+						}
+					],
+					"effects": [
+						{
+							"type": "modifyPlayerStat",
+							"statId": "criticalChance",
+							"mode": "add",
+							"value": 1.0
+						}
+					]
 				}
 			]
 		},
 		{
 			"id": "pin.baseballBat",
+			"isNotSell": false,
 			"price": 10,
-			"effects": [
+			"rules": [
 				{
-					"type": "modifyPlayerStat",
-					"statId": "criticalMultiplier",
-					"mode": "mul",
-					"value": 0.1
+					"triggerType": "OnBallHit",
+					"conditions": [
+						{
+							"conditionKind": "Always"
+						}
+					],
+					"effects": [
+						{
+							"type": "modifyPlayerStat",
+							"statId": "criticalMultiplier",
+							"mode": "add",
+							"value": 0.1
+						}
+					]
 				}
 			]
 		},
 		{
 			"id": "pin.book",
+			"isNotSell": false,
 			"price": 10,
-			"effects": [
+			"rules": [
 				{
-					"type": "modifyPlayerStat",
-					"statId": "score",
-					"mode": "add",
-					"value": 1
+					"triggerType": "OnBallHit",
+					"conditions": [
+						{
+							"conditionKind": "Always"
+						}
+					],
+					"effects": [
+						{
+							"type": "modifyPlayerStat",
+							"statId": "score",
+							"mode": "add",
+							"value": 1.0
+						}
+					]
 				}
 			]
 		},
 		{
 			"id": "pin.trashCan",
+			"isNotSell": false,
 			"price": 10,
-			"effects": [
+			"rules": [
 				{
-					"eventId": "ballDestroyed",
-					"type": "modifySelfStat",
-					"statId": "scoreMultiplier",
-					"mode": "add",
-					"value": 0.1
+					"triggerType": "OnBallDestroyed",
+					"conditions": [
+						{
+							"conditionKind": "Always"
+						}
+					],
+					"effects": [
+						{
+							"type": "modifySelfStat",
+							"statId": "scoreMultiplier",
+							"mode": "add",
+							"value": 0.1
+						}
+					]
 				}
 			]
 		},
 		{
 			"id": "pin.spring",
+			"isNotSell": false,
 			"price": 10,
-			"effects": [
+			"rules": [
 				{
-					"type": "addVelocity",
-					"value": 1.5
+					"triggerType": "OnBallHit",
+					"conditions": [
+						{
+							"conditionKind": "Always"
+						}
+					],
+					"effects": [
+						{
+							"type": "addVelocity",
+							"value": 1.5
+						}
+					]
 				}
 			]
 		},
 		{
 			"id": "pin.magnifier",
+			"isNotSell": false,
 			"price": 10,
-			"effects": [
+			"rules": [
 				{
-					"type": "increaseSize",
-					"value": 1.5
+					"triggerType": "OnBallHit",
+					"conditions": [
+						{
+							"conditionKind": "Always"
+						}
+					],
+					"effects": [
+						{
+							"type": "increaseSize",
+							"value": 1.5
+						}
+					]
 				}
 			]
 		},
 		{
 			"id": "pin.lock",
+			"isNotSell": false,
 			"price": 10,
-			"effects": [
+			"rules": [
 				{
-					"type": "addScore",
-					"value": 100
+					"triggerType": "OnBallHit",
+					"conditions": [
+						{
+							"conditionKind": "Always"
+						}
+					],
+					"effects": [
+						{
+							"type": "addScore",
+							"value": 100.0
+						}
+					]
 				}
 			]
 		},
 		{
 			"id": "pin.megaphone",
+			"scoreMultiplier": 3.0,
+			"isNotSell": false,
 			"price": 10,
-			"scoreMultiplier": 3
+			"rules": []
 		},
 		{
 			"id": "pin.stock",
-			"hitsToTrigger": 20,
+			"isNotSell": false,
 			"price": 20,
-			"effects": [
+			"rules": [
 				{
-					"type": "modifyPlayerStat",
-					"statId": "scoreMultiplier",
-					"mode": "add",
-					"value": 1.0
+					"triggerType": "OnBallHit",
+					"conditions": [
+						{
+							"conditionKind": "Charge",
+							"hits": 20
+						}
+					],
+					"effects": [
+						{
+							"type": "modifyPlayerStat",
+							"statId": "scoreMultiplier",
+							"mode": "add",
+							"value": 1.0
+						}
+					]
 				}
 			]
 		}

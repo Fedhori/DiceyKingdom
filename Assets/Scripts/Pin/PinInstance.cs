@@ -14,26 +14,26 @@ public sealed class PinInstance
     public int Row { get; private set; }
     public int Column { get; private set; }
 
-    readonly List<PinEffectDto> effects;
-    public IReadOnlyList<PinEffectDto> Effects => effects;
+    readonly List<PinRuleDto> rules;
+    public IReadOnlyList<PinRuleDto> Rules => rules;
 
     public float ScoreMultiplier => Stats.GetValue(PinStatIds.ScoreMultiplier);
 
     public event Action<int> OnRemainingHitsChanged;
 
     int remainingHits;
+    int chargeMax;
+    bool hasCharge;
 
     public int RemainingHits
     {
         get => remainingHits;
-        set
+        private set
         {
             remainingHits = value;
             OnRemainingHitsChanged?.Invoke(remainingHits);
         }
     }
-
-    bool HasCounterGate => BaseDto.hitsToTrigger > 0;
 
     public PinInstance(PinDto dto, int row, int column, bool registerEventEffects = true)
     {
@@ -41,15 +41,49 @@ public sealed class PinInstance
 
         SetGridPosition(row, column);
 
-        effects = dto.effects != null
-            ? new List<PinEffectDto>(dto.effects)
-            : new List<PinEffectDto>();
+        rules = dto.rules != null
+            ? new List<PinRuleDto>(dto.rules)
+            : new List<PinRuleDto>();
 
         Stats = new StatSet();
         Stats.SetBase(PinStatIds.ScoreMultiplier, BaseDto.scoreMultiplier);
 
-        if (registerEventEffects)
-            PinEffectManager.Instance?.RegisterEventEffects(this);
+        InitializeChargeState();
+    }
+
+    void InitializeChargeState()
+    {
+        hasCharge = false;
+        chargeMax = 0;
+
+        for (int i = 0; i < rules.Count; i++)
+        {
+            var rule = rules[i];
+            if (rule?.conditions == null)
+                continue;
+
+            for (int c = 0; c < rule.conditions.Count; c++)
+            {
+                var cond = rule.conditions[c];
+                if (cond == null)
+                    continue;
+
+                if (cond.conditionKind == PinConditionKind.Charge)
+                {
+                    if (!hasCharge)
+                    {
+                        hasCharge = true;
+                        chargeMax = Mathf.Max(1, cond.hits);
+                    }
+                    else
+                    {
+                        Debug.LogWarning(
+                            $"[PinInstance] '{Id}': Charge 조건이 2개 이상 발견되었습니다. 첫 번째 것만 사용합니다."
+                        );
+                    }
+                }
+            }
+        }
     }
 
     public void SetGridPosition(int row, int column)
@@ -60,33 +94,104 @@ public sealed class PinInstance
 
     public void ResetData()
     {
-        RemainingHits = BaseDto.hitsToTrigger;
+        if (hasCharge && chargeMax > 0)
+            RemainingHits = chargeMax;
+        else
+            RemainingHits = -1;
+
         Stats.RemoveModifiers(StatLayer.Temporary);
     }
 
     public void OnHitByBall(BallInstance ball, Vector2 position)
     {
-        if (ball == null || effects.Count == 0)
+        if (ball == null)
             return;
 
-        if (HasCounterGate)
+        HandleTrigger(PinTriggerType.OnBallHit, ball, position);
+    }
+
+    public void HandleTrigger(PinTriggerType trigger, BallInstance ball, Vector2 position)
+    {
+        if (rules == null || rules.Count == 0)
+            return;
+
+        for (int i = 0; i < rules.Count; i++)
         {
-            const int hitCost = 1;
-            RemainingHits -= hitCost;
+            var rule = rules[i];
+            if (rule == null)
+                continue;
 
-            if (RemainingHits > 0)
-                return;
+            if (rule.triggerType != trigger)
+                continue;
 
-            RemainingHits += BaseDto.hitsToTrigger;
+            if (!AreConditionsMet(rule, trigger))
+                continue;
+
+            ApplyEffects(rule.effects, ball, position);
         }
+    }
+
+    bool AreConditionsMet(PinRuleDto rule, PinTriggerType trigger)
+    {
+        if (rule.conditions == null || rule.conditions.Count == 0)
+            return false;
+
+        for (int i = 0; i < rule.conditions.Count; i++)
+        {
+            var cond = rule.conditions[i];
+            if (cond == null)
+                return false;
+
+            if (!IsConditionMet(cond, trigger))
+                return false;
+        }
+
+        return true;
+    }
+
+    bool IsConditionMet(PinConditionDto cond, PinTriggerType trigger)
+    {
+        switch (cond.conditionKind)
+        {
+            case PinConditionKind.Always:
+                return true;
+
+            case PinConditionKind.Charge:
+                if (!hasCharge || chargeMax <= 0)
+                    return false;
+
+                if (trigger != PinTriggerType.OnBallHit)
+                    return false;
+
+                RemainingHits -= 1;
+
+                if (RemainingHits > 0)
+                    return false;
+
+                RemainingHits += chargeMax;
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    void ApplyEffects(List<PinEffectDto> effects, BallInstance ball, Vector2 position)
+    {
+        if (effects == null || effects.Count == 0)
+            return;
+
+        var effectManager = PinEffectManager.Instance;
+        if (effectManager == null)
+            return;
 
         for (int i = 0; i < effects.Count; i++)
         {
             var effect = effects[i];
-            if (!string.IsNullOrEmpty(effect.eventId))
+            if (effect == null)
                 continue;
 
-            PinEffectManager.Instance?.Apply(effect, ball, this, position);
+            effectManager.ApplyEffect(effect, ball, this, position);
         }
     }
 }
