@@ -3035,7 +3035,7 @@ MonoBehaviour:
   overlayRoot: {fileID: 1288486031}
   itemPrefab: {fileID: 7698937303703581369, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
   itemsParent: {fileID: 1241167450}
-  rerollCostText: {fileID: 0}
+  rerollCostText: {fileID: 147300228}
   rerollButton: {fileID: 1999143222}
   closeButton: {fileID: 1644759787}
 --- !u!1 &741026068
