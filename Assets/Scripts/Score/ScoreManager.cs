@@ -36,23 +36,11 @@ public sealed class ScoreManager : MonoBehaviour
         }
     }
 
-    [SerializeField] private TMP_Text scoreText;
-
     public event Action<int> OnScoreChanged;
 
     void Awake()
     {
         Instance = this;
-    }
-
-    private void OnEnable()
-    {
-        OnScoreChanged += UpdateScoreText;
-    }
-
-    private void OnDisable()
-    {
-        OnScoreChanged -= UpdateScoreText;
     }
 
     public void AddScore(int amount, CriticalType criticalType, Vector2 position)
@@ -75,10 +63,5 @@ public sealed class ScoreManager : MonoBehaviour
             position
         );
         TotalScore += amount;
-    }
-
-    private void UpdateScoreText(int score)
-    {
-        scoreText.text = score.ToString();
     }
 }

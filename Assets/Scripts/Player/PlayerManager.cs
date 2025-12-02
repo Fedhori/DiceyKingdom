@@ -9,7 +9,10 @@ public sealed class PlayerManager : MonoBehaviour
 
     [SerializeField] string defaultPlayerId = "player.default";
 
-    [SerializeField] private TMP_Text playerStatText;
+    [SerializeField] private TMP_Text baseScoreText;
+    [SerializeField] private TMP_Text scoreMultiplierText;
+    [SerializeField] private TMP_Text criticalChanceText;
+    [SerializeField] private TMP_Text criticalMultiplierText;
     private float statUIUpdateCycle = 0.1f;
     private float currentStatUIUpdateCycle = 0f;
 
@@ -75,17 +78,12 @@ public sealed class PlayerManager : MonoBehaviour
         }
     }
 
-    // TODO - 스탯 시스템이 일단락되면 로컬라이징 필요
     void UpdateStatUI()
     {
-        if (Current == null || playerStatText == null)
-            return;
-
-        playerStatText.text =
-            $"기본 점수: {Current.ScoreBase}\n" +
-            $"점수 배율: {Current.ScoreMultiplier}\n" +
-            $"크리 확률: {Current.CriticalChance}\n" +
-            $"크리 배율: {Current.CriticalMultiplier}\n";
+        baseScoreText.text = $"{Current.ScoreBase}";
+        scoreMultiplierText.text = $"x{Current.ScoreMultiplier:N1}";
+        criticalChanceText.text = $"{Current.CriticalChance}";
+        criticalMultiplierText.text = $"x{Current.CriticalMultiplier:N1}";
     }
 
     public void ResetPlayer()

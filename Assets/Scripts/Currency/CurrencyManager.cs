@@ -8,7 +8,7 @@ public sealed class CurrencyManager : MonoBehaviour
 {
     public static CurrencyManager Instance { get; private set; }
 
-    [SerializeField] LocalizeStringEvent currencyText;
+    [SerializeField] TMP_Text currencyText;
 
     PlayerInstance subscribedPlayer;
 
@@ -61,8 +61,9 @@ public sealed class CurrencyManager : MonoBehaviour
 
     void HandleCurrencyChanged(int value)
     {
-        if (currencyText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
-            sv.Value = value.ToString();
+        // if (currencyText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
+        //     sv.Value = value.ToString();
+        currencyText.text = $"${value}";
     }
 
     void RefreshUI()
