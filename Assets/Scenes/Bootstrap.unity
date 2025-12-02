@@ -181,7 +181,7 @@ GameObject:
   - component: {fileID: 124097478}
   - component: {fileID: 124097480}
   m_Layer: 5
-  m_Name: PinTooltipView
+  m_Name: TooltipView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

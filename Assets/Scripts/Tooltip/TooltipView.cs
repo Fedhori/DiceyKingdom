@@ -15,34 +15,26 @@ public sealed class TooltipView : MonoBehaviour
         if (rectTransform == null)
             rectTransform = transform as RectTransform;
 
-        // 툴팁의 "좌상단"이 pivot 이 되도록 강제
         if (rectTransform != null)
             rectTransform.pivot = new Vector2(0f, 1f);
 
         gameObject.SetActive(false);
     }
 
-    public void Show(PinInstance pin)
+    public void Show(TooltipModel model)
     {
-        if (pin == null)
-        {
-            Hide();
-            return;
-        }
-
         gameObject.SetActive(true);
 
         if (nameText != null)
-            nameText.text = LocalizationUtil.GetPinName(pin.Id);
-
-        if (iconImage != null)
-            iconImage.sprite = SpriteCache.GetPinSprite(pin.Id);
+            nameText.text = model.Title ?? string.Empty;
 
         if (descriptionText != null)
+            descriptionText.text = model.Body ?? string.Empty;
+
+        if (iconImage != null)
         {
-            // TODO - 효과마다 그에 맞는 설명 문구를 만들어야 함
-            float mult = pin.ScoreMultiplier;
-            descriptionText.text = $"Score x{mult:0.##}";
+            iconImage.sprite = model.Icon;
+            iconImage.enabled = model.Icon != null;
         }
     }
 
