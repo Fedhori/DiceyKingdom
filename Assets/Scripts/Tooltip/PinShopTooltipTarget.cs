@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using Data; // PinInstance 가 다른 네임스페이스면 맞게 수정
+using Data; // PinInstance 네임스페이스 맞게 유지
 
 public sealed class PinShopTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
@@ -38,14 +38,15 @@ public sealed class PinShopTooltipTarget : MonoBehaviour, IPointerEnterHandler, 
             return;
 
         rect.GetWorldCorners(corners);
-        // corners: 0=BL,1=TL,2=TR,3=BR
+        // corners: 0=BL, 1=TL, 2=TR, 3=BR
+        Vector3 topLeftWorld = corners[1];
         Vector3 topRightWorld = corners[2];
 
-        // Screen Space Overlay 캔버스 기준 → camera null
-        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(null, topRightWorld);
+        Vector2 screenRightTop = RectTransformUtility.WorldToScreenPoint(null, topRightWorld);
+        Vector2 screenLeftTop = RectTransformUtility.WorldToScreenPoint(null, topLeftWorld);
 
         TooltipModel model = PinTooltipUtil.BuildModel(pin);
-        TooltipAnchor anchor = TooltipAnchor.FromScreen(screenPos);
+        TooltipAnchor anchor = TooltipAnchor.FromScreen(screenRightTop, screenLeftTop);
 
         manager.BeginHover(this, model, anchor);
     }
