@@ -260,6 +260,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1e636de56a2e4e4196eda2dcee6cc5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinTooltipView
+  iconBlockRoot: {fileID: 826616211}
   iconImage: {fileID: 154657784}
   nameText: {fileID: 1959757609}
   descriptionText: {fileID: 899954470}
