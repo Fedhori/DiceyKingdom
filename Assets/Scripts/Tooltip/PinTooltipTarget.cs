@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(PinController))]
-public sealed class TooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public sealed class PinTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     PinController pinController;
     SpriteRenderer spriteRenderer;
@@ -15,13 +15,16 @@ public sealed class TooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointe
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (TooltipManager.Instance == null)
+        var manager = TooltipManager.Instance;
+        if (manager == null)
             return;
+
         if (pinController == null || pinController.Instance == null)
             return;
 
         var pin = pinController.Instance;
 
+        // 월드 상에서 핀의 우상단 위치 계산
         Vector3 worldAnchor;
         if (spriteRenderer != null)
         {
@@ -33,33 +36,27 @@ public sealed class TooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointe
             worldAnchor = transform.position;
         }
 
-        var model = BuildPinTooltipModel(pin);
-        var anchor = TooltipAnchor.FromWorld(worldAnchor);
+        TooltipModel model = PinTooltipUtil.BuildModel(pin);
+        TooltipAnchor anchor = TooltipAnchor.FromWorld(worldAnchor);
 
-        TooltipManager.Instance.BeginHover(this, model, anchor);
+        manager.BeginHover(this, model, anchor);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (TooltipManager.Instance == null)
+        var manager = TooltipManager.Instance;
+        if (manager == null)
             return;
 
-        TooltipManager.Instance.EndHover(this);
+        manager.EndHover(this);
     }
 
-    TooltipModel BuildPinTooltipModel(PinInstance pin)
+    void OnDisable()
     {
-        string title = LocalizationUtil.GetPinName(pin.Id);
-        Sprite icon = SpriteCache.GetPinSprite(pin.Id);
+        var manager = TooltipManager.Instance;
+        if (manager == null)
+            return;
 
-        float mult = pin.ScoreMultiplier;
-        string body = $"Score x{mult:0.##}";
-
-        return new TooltipModel(
-            title,
-            body,
-            icon,
-            TooltipKind.Pin
-        );
+        manager.EndHover(this);
     }
 }

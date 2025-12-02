@@ -6,9 +6,9 @@ using UnityEngine.UI;
 public sealed class ShopItemView : MonoBehaviour
 {
     [SerializeField] Image iconImage;
-    [SerializeField] TMP_Text nameText;
     [SerializeField] TMP_Text priceText;
     [SerializeField] Button buyButton;
+    [SerializeField] PinShopTooltipTarget tooltipTarget;
 
     Action onClick;
 
@@ -19,6 +19,9 @@ public sealed class ShopItemView : MonoBehaviour
             buyButton.onClick.RemoveAllListeners();
             buyButton.onClick.AddListener(HandleClick);
         }
+
+        if (tooltipTarget == null)
+            tooltipTarget = GetComponent<PinShopTooltipTarget>();
     }
 
     void HandleClick()
@@ -33,6 +36,10 @@ public sealed class ShopItemView : MonoBehaviour
 
     public void SetData(PinInstance pin, int price, bool canBuy, bool sold)
     {
+        // 툴팁 쪽에도 현재 핀 정보 전달
+        if (tooltipTarget != null)
+            tooltipTarget.Bind(pin);
+
         if (pin == null)
         {
             gameObject.SetActive(false);
@@ -40,9 +47,6 @@ public sealed class ShopItemView : MonoBehaviour
         }
 
         var pinId = pin.Id;
-
-        if (nameText != null)
-            nameText.text = LocalizationUtil.GetPinName(pinId);
 
         if (iconImage != null)
             iconImage.sprite = SpriteCache.GetPinSprite(pinId);

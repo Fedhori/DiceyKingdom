@@ -88,6 +88,7 @@ GameObject:
   - component: {fileID: 4788195815046530173}
   - component: {fileID: 7698937303703581369}
   - component: {fileID: 565237733685739112}
+  - component: {fileID: 4127392050601341395}
   m_Layer: 5
   m_Name: ShopPinPrefab
   m_TagString: Untagged
@@ -170,6 +171,7 @@ MonoBehaviour:
   nameText: {fileID: 0}
   priceText: {fileID: 4535100356528283430}
   buyButton: {fileID: 565237733685739112}
+  tooltipTarget: {fileID: 4127392050601341395}
 --- !u!114 &565237733685739112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -214,6 +216,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4127392050601341395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1951605456143366293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 329dbda261497af42910d192fe36dfad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PinShopTooltipTarget
+  anchorRect: {fileID: 0}
 --- !u!1 &3099990046270794684
 GameObject:
   m_ObjectHideFlags: 0
