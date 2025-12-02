@@ -3,6 +3,7 @@ using UnityEngine;
 
 public static class GameConfig
 {
+    public static string BasicPinId = "pin.basic";
 }
 
 public static class LayerMaskUtil

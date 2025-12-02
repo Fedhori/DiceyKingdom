@@ -37,13 +37,11 @@ MonoBehaviour:
   - m_Id: 605443342336
     m_Localized: 
     m_Metadata:
-      m_Items:
-      - rid: 2507345031984054467
+      m_Items: []
   - m_Id: 538124763136
     m_Localized: 
     m_Metadata:
-      m_Items:
-      - rid: 2507345031984054467
+      m_Items: []
   - m_Id: 4240051027968
     m_Localized: 
     m_Metadata:
@@ -60,6 +58,4 @@ MonoBehaviour:
         - id: 281940869120
         - id: 470382559232
         - id: 695075618816
-        - id: 605443342336
-        - id: 538124763136
         - id: 4240051027968

@@ -36,8 +36,8 @@ public sealed class StageManager : MonoBehaviour
             var displayStageNumber = stage.StageIndex + 1;
             stageHudView.SetStageInfo(
                 displayStageNumber,
-                stage.NeedScore,
-                stage.RoundCount
+                StageRepository.Count,
+                stage.NeedScore
             );
 
             UpdateRound(stage.CurrentRoundIndex);

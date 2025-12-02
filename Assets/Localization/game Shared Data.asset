@@ -28,11 +28,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 538124763136
-    m_Key: game.currentstage.label
+    m_Key: game.stage.label
     m_Metadata:
       m_Items: []
   - m_Id: 605443342336
-    m_Key: game.currentround.label
+    m_Key: game.round.label
     m_Metadata:
       m_Items: []
   - m_Id: 695075618816
