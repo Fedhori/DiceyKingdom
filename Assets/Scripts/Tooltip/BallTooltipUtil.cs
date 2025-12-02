@@ -1,0 +1,33 @@
+using UnityEngine;
+
+public static class BallTooltipUtil
+{
+    public static TooltipModel BuildModel(BallInstance ball)
+    {
+        if (ball == null)
+        {
+            return new TooltipModel(
+                string.Empty,
+                string.Empty,
+                null,
+                TooltipKind.Ball
+            );
+        }
+
+        string id = ball.Id;
+
+        // 이름은 프로젝트 상황에 맞게 구현해 둔다.
+        // LocalizationUtil.GetBallName(id)가 없다면, 일단 id 그대로 쓰고 나중에 교체해도 된다.
+        string title = LocalizationUtil.GetBallName(id);  // 필요시 구현
+        Sprite icon = SpriteCache.GetBallSprite(id);
+
+        string body = $"Ball Multiplier x{ball.BallScoreMultiplier:0.##}";
+
+        return new TooltipModel(
+            title,
+            body,
+            icon,
+            TooltipKind.Ball
+        );
+    }
+}
