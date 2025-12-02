@@ -13,8 +13,6 @@ public sealed class ShopManager : MonoBehaviour
     [SerializeField] int rerollCostIncrement = 1;
 
     bool isOpen;
-    StageInstance currentStage;
-    int nextRoundIndex;
     ShopOpenContext context;
 
     readonly List<PinDto> sellablePins = new();
@@ -44,9 +42,7 @@ public sealed class ShopManager : MonoBehaviour
 
     public void Open(StageInstance stage, ShopOpenContext context, int nextRoundIndex)
     {
-        currentStage = stage;
         this.context = context;
-        this.nextRoundIndex = nextRoundIndex;
         isOpen = true;
 
         BuildSellablePins();

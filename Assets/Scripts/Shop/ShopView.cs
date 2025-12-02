@@ -2,19 +2,21 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Components;
+using UnityEngine.Localization.SmartFormat.PersistentVariables;
 using UnityEngine.UI;
 
 public sealed class ShopView : MonoBehaviour
 {
-    [Header("Overlay Root")]
-    [SerializeField] private GameObject overlayRoot;
+    [Header("Overlay Root")] [SerializeField]
+    private GameObject overlayRoot;
 
-    [Header("Item UI")]
-    [SerializeField] private ShopItemView itemPrefab;
+    [Header("Item UI")] [SerializeField] private ShopItemView itemPrefab;
     [SerializeField] private Transform itemsParent;
 
-    [Header("Reroll / Close UI")]
-    [SerializeField] private TMP_Text rerollCostText;
+    [Header("Reroll / Close UI")] [SerializeField]
+    private LocalizeStringEvent rerollCostText;
+
     [SerializeField] private Button rerollButton;
     [SerializeField] private Button closeButton;
 
@@ -129,8 +131,9 @@ public sealed class ShopView : MonoBehaviour
         if (rerollCostText != null)
         {
             bool canReroll = currentCurrency >= rerollCost;
-            rerollCostText.text = $"리롤 비용:{rerollCost.ToString()}";
-            rerollCostText.color = canReroll ? Colors.Black : Colors.Red;
+            if (rerollCostText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
+                sv.Value = rerollCost.ToString();
+            rerollCostText.GetComponent<TMP_Text>().color = canReroll ? Colors.Black : Colors.Red;
         }
     }
 

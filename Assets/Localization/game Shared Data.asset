@@ -32,7 +32,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4240051027968
-    m_Key: game.price.button
+    m_Key: game.reroll.button
     m_Metadata:
       m_Items: []
   - m_Id: 4336054452224
