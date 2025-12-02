@@ -1,7 +1,7 @@
 public struct ShopItemData
 {
     public bool hasItem;
-    public string pinId;
+    public PinInstance pin;
     public int price;
     public bool sold;
 }

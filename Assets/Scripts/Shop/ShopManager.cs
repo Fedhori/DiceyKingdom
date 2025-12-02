@@ -114,7 +114,7 @@ public sealed class ShopManager : MonoBehaviour
         for (int i = 0; i < currentItems.Length; i++)
         {
             currentItems[i].hasItem = false;
-            currentItems[i].pinId = null;
+            currentItems[i].pin = null;      // ← 추가
             currentItems[i].price = 0;
             currentItems[i].sold = false;
         }
@@ -144,12 +144,16 @@ public sealed class ShopManager : MonoBehaviour
 
             var dto = sellablePins[pinIndex];
 
+            // 상점용 프리뷰 인스턴스: 그리드 좌표는 의미 없으니 -1, -1
+            var previewInstance = new PinInstance(dto, -1, -1, registerEventEffects: false);
+
             currentItems[slot].hasItem = true;
-            currentItems[slot].pinId = dto.id;
+            currentItems[slot].pin = previewInstance;   // ← PinInstance 캐싱
             currentItems[slot].price = dto.price;
             currentItems[slot].sold = false;
         }
     }
+
 
     void RefreshView()
     {
@@ -199,7 +203,9 @@ public sealed class ShopManager : MonoBehaviour
             return;
         }
 
-        if (!pinMgr.TryReplaceBasicPin(item.pinId))
+        // 여기서 PinInstance 기반으로 캐싱된 정보를 사용
+        var pinId = item.pin != null ? item.pin.Id : null;
+        if (string.IsNullOrEmpty(pinId) || !pinMgr.TryReplaceBasicPin(pinId))
         {
             Debug.LogError("[ShopManager] TryReplaceBasicPin failed after spending currency. Refunding.");
             currencyMgr.AddCurrency(item.price);
@@ -210,6 +216,7 @@ public sealed class ShopManager : MonoBehaviour
         item.sold = true;
         RefreshView();
     }
+
 
     void OnClickReroll()
     {

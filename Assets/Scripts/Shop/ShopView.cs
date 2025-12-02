@@ -116,7 +116,7 @@ public sealed class ShopView : MonoBehaviour
 
             var data = items[i];
 
-            if (!data.hasItem)
+            if (!data.hasItem || data.pin == null)
             {
                 view.gameObject.SetActive(false);
                 continue;
@@ -125,7 +125,7 @@ public sealed class ShopView : MonoBehaviour
             bool canBuy = !data.sold && hasEmptySlot && currentCurrency >= data.price;
 
             view.gameObject.SetActive(true);
-            view.SetData(data.pinId, data.price, canBuy, data.sold);
+            view.SetData(data.pin, data.price, canBuy, data.sold);   // ← PinInstance 넘김
         }
 
         if (rerollCostText != null)

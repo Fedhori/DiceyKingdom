@@ -31,8 +31,16 @@ public sealed class ShopItemView : MonoBehaviour
         onClick = handler;
     }
 
-    public void SetData(string pinId, int price, bool canBuy, bool sold)
+    public void SetData(PinInstance pin, int price, bool canBuy, bool sold)
     {
+        if (pin == null)
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+
+        var pinId = pin.Id;
+
         if (nameText != null)
             nameText.text = LocalizationUtil.GetPinName(pinId);
 

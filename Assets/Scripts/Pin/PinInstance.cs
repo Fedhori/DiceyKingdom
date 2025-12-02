@@ -35,7 +35,7 @@ public sealed class PinInstance
 
     bool HasCounterGate => BaseDto.hitsToTrigger > 0;
 
-    public PinInstance(PinDto dto, int row, int column)
+    public PinInstance(PinDto dto, int row, int column, bool registerEventEffects = true)
     {
         BaseDto = dto ?? throw new ArgumentNullException(nameof(dto));
 
@@ -48,7 +48,8 @@ public sealed class PinInstance
         Stats = new StatSet();
         Stats.SetBase(PinStatIds.ScoreMultiplier, BaseDto.scoreMultiplier);
 
-        PinEffectManager.Instance?.RegisterEventEffects(this);
+        if (registerEventEffects)
+            PinEffectManager.Instance?.RegisterEventEffects(this);
     }
 
     public void SetGridPosition(int row, int column)
