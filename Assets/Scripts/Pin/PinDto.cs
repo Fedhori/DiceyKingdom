@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using GameStats;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using UnityEngine;
@@ -22,6 +23,16 @@ namespace Data
         Charge
     }
 
+    public enum PinEffectType
+    {
+        Unknown = 0,
+        ModifyPlayerStat,
+        ModifySelfStat,
+        AddVelocity,
+        IncreaseSize,
+        AddScore
+    }
+
     [Serializable]
     public sealed class PinConditionDto
     {
@@ -36,10 +47,14 @@ namespace Data
     [Serializable]
     public sealed class PinEffectDto
     {
-        // "modifyPlayerStat" | "modifySelfStat" | "addVelocity" | "increaseSize" | "addScore"
-        public string type;
+        [JsonConverter(typeof(StringEnumConverter))]
+        public PinEffectType effectType;
+
         public string statId;
-        public string mode;
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public StatOpKind effectMode;
+
         public float value;
         public bool temporary = true;
     }

@@ -21,9 +21,9 @@
 					],
 					"effects": [
 						{
-							"type": "modifyPlayerStat",
+							"effectType": "ModifyPlayerStat",
 							"statId": "criticalChance",
-							"mode": "add",
+							"effectMode": "Add",
 							"value": 1.0
 						}
 					]
@@ -44,9 +44,9 @@
 					],
 					"effects": [
 						{
-							"type": "modifyPlayerStat",
+							"effectType": "ModifyPlayerStat",
 							"statId": "criticalMultiplier",
-							"mode": "add",
+							"effectMode": "Add",
 							"value": 0.1
 						}
 					]
@@ -67,9 +67,9 @@
 					],
 					"effects": [
 						{
-							"type": "modifyPlayerStat",
+							"effectType": "ModifyPlayerStat",
 							"statId": "score",
-							"mode": "add",
+							"effectMode": "Add",
 							"value": 1.0
 						}
 					]
@@ -90,9 +90,9 @@
 					],
 					"effects": [
 						{
-							"type": "modifySelfStat",
+							"effectType": "ModifySelfStat",
 							"statId": "scoreMultiplier",
-							"mode": "add",
+							"effectMode": "Add",
 							"value": 0.1
 						}
 					]
@@ -113,7 +113,7 @@
 					],
 					"effects": [
 						{
-							"type": "addVelocity",
+							"effectType": "AddVelocity",
 							"value": 1.5
 						}
 					]
@@ -134,7 +134,7 @@
 					],
 					"effects": [
 						{
-							"type": "increaseSize",
+							"effectType": "IncreaseSize",
 							"value": 1.5
 						}
 					]
@@ -155,7 +155,7 @@
 					],
 					"effects": [
 						{
-							"type": "addScore",
+							"effectType": "AddScore",
 							"value": 100.0
 						}
 					]
@@ -184,9 +184,9 @@
 					],
 					"effects": [
 						{
-							"type": "modifyPlayerStat",
+							"effectType": "ModifyPlayerStat",
 							"statId": "scoreMultiplier",
-							"mode": "add",
+							"effectMode": "Add",
 							"value": 1.0
 						}
 					]

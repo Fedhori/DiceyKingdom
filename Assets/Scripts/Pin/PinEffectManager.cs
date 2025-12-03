@@ -53,31 +53,31 @@ public class PinEffectManager : MonoBehaviour
 
         var player = PlayerManager.Instance?.Current;
 
-        switch (dto.type)
+        switch (dto.effectType)
         {
-            case "modifyPlayerStat":
+            case PinEffectType.ModifyPlayerStat:
                 if (player == null)
                     return;
                 ModifyPlayerStat(dto, player, pin);
                 break;
 
-            case "modifySelfStat":
+            case PinEffectType.ModifySelfStat:
                 ModifySelfStat(dto, pin);
                 break;
 
-            case "addVelocity":
+            case PinEffectType.AddVelocity:
                 if (ball == null)
                     return;
                 ball.PendingSpeedFactor = dto.value;
                 break;
 
-            case "increaseSize":
+            case PinEffectType.IncreaseSize:
                 if (ball == null)
                     return;
                 ball.PendingSizeFactor = dto.value;
                 break;
 
-            case "addScore":
+            case PinEffectType.AddScore:
                 if (player == null || ScoreManager.Instance == null)
                     return;
                 ScoreManager.Instance.AddScore(
@@ -88,7 +88,7 @@ public class PinEffectManager : MonoBehaviour
                 break;
 
             default:
-                Debug.LogWarning($"[PinEffectManager] Unsupported effect type: {dto.type}");
+                Debug.LogWarning($"[PinEffectManager] Unsupported effect type: {dto.effectType}");
                 break;
         }
     }
@@ -101,16 +101,11 @@ public class PinEffectManager : MonoBehaviour
             return;
         }
 
-        var opKind = dto.mode != null &&
-                     dto.mode.Equals("Add", System.StringComparison.OrdinalIgnoreCase)
-            ? StatOpKind.Add
-            : StatOpKind.Mult;
-
         var layer = dto.temporary ? StatLayer.Temporary : StatLayer.Permanent;
 
         player.Stats.AddModifier(new StatModifier(
             statId: dto.statId,
-            opKind: opKind,
+            opKind: dto.effectMode,
             value: dto.value,
             layer: layer,
             source: pin
@@ -125,16 +120,11 @@ public class PinEffectManager : MonoBehaviour
             return;
         }
 
-        var opKind = dto.mode != null &&
-                     dto.mode.Equals("Add", System.StringComparison.OrdinalIgnoreCase)
-            ? StatOpKind.Add
-            : StatOpKind.Mult;
-
         var layer = dto.temporary ? StatLayer.Temporary : StatLayer.Permanent;
 
         pin.Stats.AddModifier(new StatModifier(
             statId: dto.statId,
-            opKind: opKind,
+            opKind: dto.effectMode,
             value: dto.value,
             layer: layer,
             source: pin
