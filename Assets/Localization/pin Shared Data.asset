@@ -55,6 +55,34 @@ MonoBehaviour:
     m_Key: pin.stock.name
     m_Metadata:
       m_Items: []
+  - m_Id: 729531010531328
+    m_Key: trigger.onBallHit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 729550191083520
+    m_Key: trigger.onBallDestroyed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 730771132006400
+    m_Key: condition.charge.prefix
+    m_Metadata:
+      m_Items: []
+  - m_Id: 730788974575616
+    m_Key: effect.base.scoreMultiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 730826782031872
+    m_Key: effect.addVelocity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 730899318325248
+    m_Key: effect.increaseSize
+    m_Metadata:
+      m_Items: []
+  - m_Id: 730914283601920
+    m_Key: effect.addScore
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

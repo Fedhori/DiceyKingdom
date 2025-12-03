@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: stat Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: stat
+  m_TableCollectionNameGuidString: 858bd56724d51b543a9c4c72223843e2
+  m_Entries:
+  - m_Id: 12637192192
+    m_Key: player.score
+    m_Metadata:
+      m_Items: []
+  - m_Id: 26272874496
+    m_Key: player.scoreMultiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 48267804672
+    m_Key: player.criticalChance
+    m_Metadata:
+      m_Items: []
+  - m_Id: 67372859392
+    m_Key: player.criticalMultiplier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 85467086848
+    m_Key: pin.scoreMultiplier
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 2507345055421825116
+  references:
+    version: 2
+    RefIds:
+    - rid: 2507345055421825116
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1764751273173
