@@ -52,7 +52,7 @@
 		{
 			"id": "pin.book",
 			"isNotSell": false,
-			"price": 7,
+			"price": 10,
 			"rules": [
 				{
 					"triggerType": "OnBallHit",

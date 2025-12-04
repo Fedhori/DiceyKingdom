@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public enum FlowPhase
@@ -21,7 +22,19 @@ public sealed class FlowManager : MonoBehaviour
     int currentStageIndex;
     StageInstance currentStage;
     int currentRoundIndex;
-    FlowPhase currentPhase = FlowPhase.None;
+
+    public event Action<FlowPhase> OnPhaseChanged;
+    private FlowPhase currentPhase = FlowPhase.None;
+
+    public FlowPhase CurrentPhase
+    {
+        get => currentPhase;
+        set
+        {
+            currentPhase = value;
+            OnPhaseChanged?.Invoke(currentPhase);
+        }
+    }
 
     // 핀 드래그 허용 여부: 준비 상태(라운드 전)에서만 허용
     public bool CanDragPins => currentPhase != FlowPhase.Round;
@@ -71,7 +84,7 @@ public sealed class FlowManager : MonoBehaviour
         StageManager.Instance?.BindStage(currentStage);
         StageManager.Instance?.ShowRoundStartButton();
 
-        currentPhase = FlowPhase.None;
+        CurrentPhase = FlowPhase.None;
     }
 
     public void OnRoundStartRequested()
@@ -87,7 +100,7 @@ public sealed class FlowManager : MonoBehaviour
             Debug.LogWarning($"[FlowManager] OnRoundStartRequested in phase {currentPhase}");
         }
 
-        currentPhase = FlowPhase.Round;
+        CurrentPhase = FlowPhase.Round;
         RoundManager.Instance?.StartRound(currentStage, currentRoundIndex);
     }
 
@@ -106,11 +119,11 @@ public sealed class FlowManager : MonoBehaviour
         if (!isLastRound)
         {
             currentRoundIndex++;
-            currentStage.SetCurrentRoundIndex(currentRoundIndex);
+            currentStage?.SetCurrentRoundIndex(currentRoundIndex);
 
             StageManager.Instance?.UpdateRound(currentRoundIndex);
 
-            currentPhase = FlowPhase.Shop;
+            CurrentPhase = FlowPhase.Shop;
             ShopManager.Instance?.Open(currentStage, ShopOpenContext.BetweenRounds, currentRoundIndex);
             return;
         }
@@ -128,7 +141,7 @@ public sealed class FlowManager : MonoBehaviour
             return;
         }
 
-        currentPhase = FlowPhase.Reward;
+        CurrentPhase = FlowPhase.Reward;
         RewardManager.Instance?.Open(currentStage, currentStage.StageIndex);
     }
 
@@ -139,7 +152,7 @@ public sealed class FlowManager : MonoBehaviour
             Debug.LogWarning($"[FlowManager] OnRewardClosed in phase {currentPhase}");
         }
 
-        currentPhase = FlowPhase.Shop;
+        CurrentPhase = FlowPhase.Shop;
         ShopManager.Instance?.Open(currentStage, ShopOpenContext.AfterStage, -1);
     }
 
@@ -153,12 +166,12 @@ public sealed class FlowManager : MonoBehaviour
         switch (context)
         {
             case ShopOpenContext.BetweenRounds:
-                currentPhase = FlowPhase.None;
+                CurrentPhase = FlowPhase.None;
                 StageManager.Instance?.ShowRoundStartButton();
                 break;
 
             case ShopOpenContext.AfterStage:
-                currentPhase = FlowPhase.None;
+                CurrentPhase = FlowPhase.None;
                 currentStageIndex++;
                 StartStage(currentStageIndex);
                 break;

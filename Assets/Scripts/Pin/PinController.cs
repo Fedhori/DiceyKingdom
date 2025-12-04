@@ -2,19 +2,22 @@ using System.Collections;
 using Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.XR;
 
 [RequireComponent(typeof(Collider2D))]
 public sealed class PinController : MonoBehaviour
 {
     public PinInstance Instance { get; private set; }
 
-    [Header("Hit Scale Effect")]
-    [SerializeField] float hitScaleMultiplier = 1.2f;
+    [Header("Hit Scale Effect")] [SerializeField]
+    float hitScaleMultiplier = 1.2f;
+
     [SerializeField] float growDuration = 0.06f;
     [SerializeField] float shrinkDuration = 0.08f;
 
     [SerializeField] SpriteRenderer pinSprite;
     [SerializeField] TMP_Text remainingHitsText;
+    [SerializeField] TMP_Text hitCountText;
 
     bool initialized;
     Vector3 baseScale;
@@ -86,6 +89,7 @@ public sealed class PinController : MonoBehaviour
         }
 
         Instance.OnRemainingHitsChanged += UpdateRemainingHits;
+        FlowManager.Instance.OnPhaseChanged += HandlePhaseChanged;
     }
 
     void DetachEvents()
@@ -97,6 +101,14 @@ public sealed class PinController : MonoBehaviour
         }
 
         Instance.OnRemainingHitsChanged -= UpdateRemainingHits;
+        FlowManager.Instance.OnPhaseChanged -= HandlePhaseChanged;
+    }
+
+    void HandlePhaseChanged(FlowPhase phase)
+    {
+        remainingHitsText.gameObject.SetActive(phase == FlowPhase.Round);
+        hitCountText.gameObject.SetActive(phase != FlowPhase.Round);
+        hitCountText.text = Instance.hitCount.ToString();
     }
 
     void UpdateRemainingHits(int remainingHits)

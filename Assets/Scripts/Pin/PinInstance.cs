@@ -21,6 +21,7 @@ public sealed class PinInstance
 
     public event Action<int> OnRemainingHitsChanged;
 
+    public int hitCount = 0;
     int remainingHits;
     int chargeMax;
     bool hasCharge;
@@ -97,12 +98,15 @@ public sealed class PinInstance
             RemainingHits = -1;
 
         Stats.RemoveModifiers(StatLayer.Temporary);
+        hitCount = 0;
     }
 
     public void OnHitByBall(BallInstance ball, Vector2 position)
     {
         if (ball == null)
             return;
+
+        hitCount++;
 
         HandleTrigger(PinTriggerType.OnBallHit, ball, position);
     }
@@ -121,24 +125,18 @@ public sealed class PinInstance
             if (rule.triggerType != trigger)
                 continue;
 
-            if (!AreConditionsMet(rule, trigger))
+            if (!IsConditionMet(rule.condition, trigger))
                 continue;
 
             ApplyEffects(rule.effects, ball, position);
         }
     }
-
-    bool AreConditionsMet(PinRuleDto rule, PinTriggerType trigger)
-    {
-        var cond = rule.condition;
-        if (cond == null)
-            return true; // 조건 없으면 Always 취급
-
-        return IsConditionMet(cond, trigger);
-    }
-
+    
     bool IsConditionMet(PinConditionDto cond, PinTriggerType trigger)
     {
+        if (cond == null)
+            return true;
+        
         switch (cond.conditionKind)
         {
             case PinConditionKind.Always:
