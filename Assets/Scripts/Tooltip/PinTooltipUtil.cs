@@ -14,7 +14,8 @@ public static class PinTooltipUtil
                 string.Empty,
                 string.Empty,
                 null,
-                TooltipKind.Pin
+                TooltipKind.Pin,
+                0
             );
         }
 
@@ -27,7 +28,8 @@ public static class PinTooltipUtil
             title,
             body,
             icon,
-            TooltipKind.Pin
+            TooltipKind.Pin,
+            pin.ScoreMultiplier
         );
     }
 

@@ -10,7 +10,8 @@ public static class BallTooltipUtil
                 string.Empty,
                 string.Empty,
                 null,
-                TooltipKind.Ball
+                TooltipKind.Ball,
+                0
             );
         }
 
@@ -27,7 +28,8 @@ public static class BallTooltipUtil
             title,
             body,
             icon,
-            TooltipKind.Ball
+            TooltipKind.Ball,
+            0
         );
     }
 }

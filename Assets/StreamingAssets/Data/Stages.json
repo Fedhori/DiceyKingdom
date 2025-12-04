@@ -2,11 +2,11 @@
 	"stages": [
 		{
 			"id": "stage.1",
-			"needScore": 1000
+			"needScore": 5000
 		},
 		{
 			"id": "stage.2",
-			"needScore": 10000000
+			"needScore": 30000
 		}
 	]
 }

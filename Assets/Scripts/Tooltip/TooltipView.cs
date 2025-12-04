@@ -2,10 +2,13 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+// TODO - 툴팁 종류에 따라 별도의 툴팁 View를 보여주도록 바꿔야함
 public sealed class TooltipView : MonoBehaviour
 {
-    [Header("Icon + Text")]
-    [SerializeField] GameObject iconBlockRoot;      // 아이콘 들어가는 패널 전체 루트
+    [Header("Icon + Text")] [SerializeField]
+    TMP_Text scoreText;
+
+    [SerializeField] GameObject iconBlockRoot; // 아이콘 들어가는 패널 전체 루트
     [SerializeField] Image iconImage;
     [SerializeField] TMP_Text nameText;
     [SerializeField] TMP_Text descriptionText;
@@ -41,6 +44,11 @@ public sealed class TooltipView : MonoBehaviour
 
         if (descriptionText != null)
             descriptionText.text = model.Body ?? string.Empty;
+
+        if (model.scoreMultiplier != 0)
+            scoreText.text = $"x{model.scoreMultiplier:N1}";
+        else
+            scoreText.text = "";
 
         if (iconImage != null)
         {

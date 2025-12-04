@@ -8,8 +8,8 @@
 			"criticalMultiplier": 2.0,
 			"startCurrency": 5,
 			"ballDeck": [
-				{ "id": "ball.basic", "count": 20 },
-				{ "id": "ball.gold", "count": 3 }
+				{ "id": "ball.basic", "count": 10 },
+				{ "id": "ball.gold", "count": 1 }
 			]
 		}
 	]

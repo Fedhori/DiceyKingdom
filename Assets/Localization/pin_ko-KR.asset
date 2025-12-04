@@ -60,20 +60,19 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1041626872692736
-    m_Localized: "\uBCFC\uACFC \uCDA9\uB3CC\uD560 \uB54C\uB9C8\uB2E4: \uCE58\uBA85\uD0C0
-      \uD655\uB960 +{value0}%"
+    m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uCE58\uBA85\uD0C0 \uD655\uB960
+      +{value0}%"
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
   - m_Id: 1041765397970944
-    m_Localized: "\uBCFC\uACFC \uCDA9\uB3CC\uD560 \uB54C\uB9C8\uB2E4: \uCE58\uBA85\uD0C0
-      \uD53C\uD574 \uBC30\uC728 +{value0}"
+    m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uCE58\uBA85\uD0C0 \uD53C\uD574
+      \uBC30\uC728 +{value0}"
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
   - m_Id: 1041799204061184
-    m_Localized: "\uBCFC\uACFC \uCDA9\uB3CC\uD560 \uB54C\uB9C8\uB2E4: \uC810\uC218
-      +{value0}"
+    m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uAE30\uBCF8 \uC810\uC218 +{value0}"
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
@@ -84,20 +83,19 @@ MonoBehaviour:
       m_Items:
       - rid: 2507345055421825124
   - m_Id: 1041870788247552
-    m_Localized: "\uBCFC\uACFC \uCDA9\uB3CC\uD560 \uB54C\uB9C8\uB2E4: \uBCFC \uC18D\uB3C4
-      x{value0}"
+    m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uBCFC\uC774 \uB354 \uB9CE\uC774
+      \uD295\uACA8\uB0A9\uB2C8\uB2E4"
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
   - m_Id: 1041971359268864
-    m_Localized: "\uBCFC\uACFC \uCDA9\uB3CC\uD560 \uB54C\uB9C8\uB2E4: \uBCFC \uD06C\uAE30
-      x{value0}"
+    m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uBCFC\uC774 \uAE30\uBCF8 \uD06C\uAE30\uAC00
+      \uCEE4\uC9D1\uB2C8\uB2E4"
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
   - m_Id: 1042002204180480
-    m_Localized: "\uBCFC\uACFC \uCDA9\uB3CC\uD560 \uB54C\uB9C8\uB2E4: {value0}\uC810\uC744
-      \uCD94\uAC00\uB85C \uD68D\uB4DD"
+    m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uC810\uC218 +{value0}\uC810"
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
