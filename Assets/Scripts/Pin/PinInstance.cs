@@ -18,14 +18,26 @@ public sealed class PinInstance
     public IReadOnlyList<PinRuleDto> Rules => rules;
 
     public float ScoreMultiplier => Stats.GetValue(PinStatIds.ScoreMultiplier);
+    
+    private int hitCount = 0;
 
-    public event Action<int> OnRemainingHitsChanged;
+    public event Action<int> OnHitCountChanged;
+    public int HitCount
+    {
+        get => hitCount;
+        set
+        {
+            hitCount = value;
+            OnHitCountChanged?.Invoke(hitCount);
+        }
+    }
 
-    public int hitCount = 0;
     int remainingHits;
-    int chargeMax;
+   
     bool hasCharge;
 
+    public event Action<int> OnRemainingHitsChanged;
+    int chargeMax;
     public int RemainingHits
     {
         get => remainingHits;
@@ -98,7 +110,7 @@ public sealed class PinInstance
             RemainingHits = -1;
 
         Stats.RemoveModifiers(StatLayer.Temporary);
-        hitCount = 0;
+        HitCount = 0;
     }
 
     public void OnHitByBall(BallInstance ball, Vector2 position)
@@ -106,7 +118,7 @@ public sealed class PinInstance
         if (ball == null)
             return;
 
-        hitCount++;
+        HitCount++;
 
         HandleTrigger(PinTriggerType.OnBallHit, ball, position);
     }

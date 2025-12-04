@@ -22,7 +22,8 @@ public static class BallTooltipUtil
         string title = LocalizationUtil.GetBallName(id);  // 필요시 구현
         Sprite icon = SpriteCache.GetBallSprite(id);
 
-        string body = $"Ball Multiplier x{ball.BallScoreMultiplier:0.##}";
+        // TODO - 임시임. 볼 효과 구현 시작하며 그에 맞게 로컬라이징 필요
+        string body = $"점수 배율 x{ball.BallScoreMultiplier:0.##}";
 
         return new TooltipModel(
             title,

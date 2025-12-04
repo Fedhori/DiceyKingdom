@@ -89,7 +89,7 @@ public sealed class PinController : MonoBehaviour
         }
 
         Instance.OnRemainingHitsChanged += UpdateRemainingHits;
-        FlowManager.Instance.OnPhaseChanged += HandlePhaseChanged;
+        Instance.OnHitCountChanged += HandleHitCountChanged;
     }
 
     void DetachEvents()
@@ -101,16 +101,16 @@ public sealed class PinController : MonoBehaviour
         }
 
         Instance.OnRemainingHitsChanged -= UpdateRemainingHits;
-        FlowManager.Instance.OnPhaseChanged -= HandlePhaseChanged;
+        Instance.OnHitCountChanged -= HandleHitCountChanged;
     }
 
-    void HandlePhaseChanged(FlowPhase phase)
+    void HandleHitCountChanged(int hitCount)
     {
-        remainingHitsText.gameObject.SetActive(phase == FlowPhase.Round);
-        hitCountText.gameObject.SetActive(phase != FlowPhase.Round);
-        hitCountText.text = Instance.hitCount.ToString();
+        hitCountText.text = hitCount.ToString();
     }
-
+    
+    // TODO - 음.. 이게 remainingHits만을 위한 UI는 아니게 될 예정
+    // 예를 들어 N턴후 효과가 발동되는 녀석이라던지? 그런 타이머로도 활용 가능해야함
     void UpdateRemainingHits(int remainingHits)
     {
         if (remainingHitsText == null)
