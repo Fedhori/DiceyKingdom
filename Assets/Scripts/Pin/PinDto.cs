@@ -6,6 +6,18 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using UnityEngine;
 
+/* 핀 추가 체크리스트
+ 1. Pins.json에 값 추가
+ 2. pin 테이블 - {id}.name, {id}.effect{index} 스트링키 추가
+ */
+
+/* {id}.effect{index} 작성 체크리스트
+ 1. condition은 하나이므로, 할당한 변수명을 arguments로 그대로 작성 - e.g) hits
+ 2. effect는 여러개일 수 있으므로, 할당한 변수명{index} - e.g) value0 형태로 넣을 것
+ 3. argument로 쓰이는 신규 파라미터가 추가되었을 경우에는 BuildRuleArgs() 함수에 대응해둘 것
+ */
+
+
 namespace Data
 {
     // enum 첫 값은 항상 Unknown → 잘못된 입력 검증용
@@ -66,7 +78,8 @@ namespace Data
         [JsonConverter(typeof(StringEnumConverter))]
         public PinTriggerType triggerType;
 
-        public List<PinConditionDto> conditions;
+        // 1 트리거 - 1 조건 - N 이펙트
+        public PinConditionDto condition;
         public List<PinEffectDto> effects;
     }
 
@@ -81,8 +94,7 @@ namespace Data
 
         public List<PinRuleDto> rules;
 
-        [JsonIgnore]
-        public bool isValid = true;
+        [JsonIgnore] public bool isValid = true;
 
         [OnDeserialized]
         internal void OnDeserialized(StreamingContext context)
@@ -146,57 +158,45 @@ namespace Data
                     isValid = false;
                 }
 
-                // conditions 필수
-                if (rule.conditions == null || rule.conditions.Count == 0)
+                // condition 필수
+                var cond = rule.condition;
+                if (cond == null)
                 {
                     Debug.LogError(
-                        $"[PinDto] '{id}': rules[{i}] 에 conditions가 비어 있습니다. 최소 1개 이상 필요합니다."
+                        $"[PinDto] '{id}': rules[{i}].condition 이 null 입니다."
                     );
                     isValid = false;
                     continue;
                 }
 
-                for (int c = 0; c < rule.conditions.Count; c++)
+                if (cond.conditionKind == PinConditionKind.Unknown)
                 {
-                    var cond = rule.conditions[c];
-                    if (cond == null)
+                    Debug.LogError(
+                        $"[PinDto] '{id}': rules[{i}].condition.conditionKind 가 Unknown 입니다. Always/Charge 중 하나를 사용하세요."
+                    );
+                    isValid = false;
+                    continue;
+                }
+
+                if (cond.conditionKind == PinConditionKind.Charge)
+                {
+                    if (cond.hits <= 0)
                     {
                         Debug.LogError(
-                            $"[PinDto] '{id}': rules[{i}].conditions[{c}] 가 null 입니다."
+                            $"[PinDto] '{id}': rules[{i}].condition.hits <= 0 입니다. Charge 조건에는 1 이상이 필요합니다."
                         );
                         isValid = false;
-                        continue;
                     }
 
-                    if (cond.conditionKind == PinConditionKind.Unknown)
+                    if (rule.triggerType != PinTriggerType.OnBallHit)
                     {
                         Debug.LogError(
-                            $"[PinDto] '{id}': rules[{i}].conditions[{c}].conditionKind 가 Unknown 입니다. Always/Charge 중 하나를 사용하세요."
+                            $"[PinDto] '{id}': Charge 조건은 OnBallHit 트리거에서만 사용할 수 있습니다. pin='{id}', rule[{i}].triggerType='{rule.triggerType}'."
                         );
                         isValid = false;
-                        continue;
                     }
 
-                    if (cond.conditionKind == PinConditionKind.Charge)
-                    {
-                        if (cond.hits <= 0)
-                        {
-                            Debug.LogError(
-                                $"[PinDto] '{id}': rules[{i}].conditions[{c}].hits <= 0 입니다. Charge 조건에는 1 이상이 필요합니다."
-                            );
-                            isValid = false;
-                        }
-
-                        if (rule.triggerType != PinTriggerType.OnBallHit)
-                        {
-                            Debug.LogError(
-                                $"[PinDto] '{id}': Charge 조건은 OnBallHit 트리거에서만 사용할 수 있습니다. pin='{id}', rule[{i}].triggerType='{rule.triggerType}'."
-                            );
-                            isValid = false;
-                        }
-
-                        chargeConditionCount++;
-                    }
+                    chargeConditionCount++;
                 }
             }
 

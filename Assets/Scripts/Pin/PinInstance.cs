@@ -56,31 +56,28 @@ public sealed class PinInstance
         hasCharge = false;
         chargeMax = 0;
 
+        if (rules == null)
+            return;
+
         for (int i = 0; i < rules.Count; i++)
         {
             var rule = rules[i];
-            if (rule?.conditions == null)
+            var cond = rule?.condition;
+            if (cond == null)
                 continue;
 
-            for (int c = 0; c < rule.conditions.Count; c++)
+            if (cond.conditionKind == PinConditionKind.Charge)
             {
-                var cond = rule.conditions[c];
-                if (cond == null)
-                    continue;
-
-                if (cond.conditionKind == PinConditionKind.Charge)
+                if (!hasCharge)
                 {
-                    if (!hasCharge)
-                    {
-                        hasCharge = true;
-                        chargeMax = Mathf.Max(1, cond.hits);
-                    }
-                    else
-                    {
-                        Debug.LogWarning(
-                            $"[PinInstance] '{Id}': Charge 조건이 2개 이상 발견되었습니다. 첫 번째 것만 사용합니다."
-                        );
-                    }
+                    hasCharge = true;
+                    chargeMax = Mathf.Max(1, cond.hits);
+                }
+                else
+                {
+                    Debug.LogWarning(
+                        $"[PinInstance] '{Id}': Charge 조건이 2개 이상 발견되었습니다. 첫 번째 것만 사용합니다."
+                    );
                 }
             }
         }
@@ -133,20 +130,11 @@ public sealed class PinInstance
 
     bool AreConditionsMet(PinRuleDto rule, PinTriggerType trigger)
     {
-        if (rule.conditions == null || rule.conditions.Count == 0)
-            return false;
+        var cond = rule.condition;
+        if (cond == null)
+            return true; // 조건 없으면 Always 취급
 
-        for (int i = 0; i < rule.conditions.Count; i++)
-        {
-            var cond = rule.conditions[i];
-            if (cond == null)
-                return false;
-
-            if (!IsConditionMet(cond, trigger))
-                return false;
-        }
-
-        return true;
+        return IsConditionMet(cond, trigger);
     }
 
     bool IsConditionMet(PinConditionDto cond, PinTriggerType trigger)

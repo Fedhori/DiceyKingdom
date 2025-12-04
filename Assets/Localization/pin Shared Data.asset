@@ -19,10 +19,6 @@ MonoBehaviour:
     m_Key: pin.basic.name
     m_Metadata:
       m_Items: []
-  - m_Id: 977277961388032
-    m_Key: 'pin.basic.effect '
-    m_Metadata:
-      m_Items: []
   - m_Id: 79058190336
     m_Key: pin.cloverLeaf.name
     m_Metadata:
@@ -59,8 +55,36 @@ MonoBehaviour:
     m_Key: pin.stock.name
     m_Metadata:
       m_Items: []
-  - m_Id: 977145832423424
-    m_Key: pin.basic.effect
+  - m_Id: 1041626872692736
+    m_Key: pin.cloverLeaf.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1041765397970944
+    m_Key: pin.baseballBat.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1041799204061184
+    m_Key: pin.book.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1041832984985600
+    m_Key: pin.trashCan.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1041870788247552
+    m_Key: pin.spring.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1041971359268864
+    m_Key: pin.magnifier.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1042002204180480
+    m_Key: pin.lock.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1042121259499520
+    m_Key: pin.stock.effect0
     m_Metadata:
       m_Items: []
   m_Metadata:
