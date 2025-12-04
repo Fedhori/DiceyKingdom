@@ -4,7 +4,7 @@ using UnityEngine;
 public static class GameConfig
 {
     public static string BasicPinId = "pin.basic";
-    public static int BaseIncome = 5;
+    public static int BaseIncome = 10;
 }
 
 public static class LayerMaskUtil

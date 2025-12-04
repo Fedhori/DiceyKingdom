@@ -10,7 +10,7 @@
 		{
 			"id": "pin.cloverLeaf",
 			"isNotSell": false,
-			"price": 10,
+			"price": 5,
 			"rules": [
 				{
 					"triggerType": "OnBallHit",
@@ -31,7 +31,7 @@
 		{
 			"id": "pin.baseballBat",
 			"isNotSell": false,
-			"price": 10,
+			"price": 5,
 			"rules": [
 				{
 					"triggerType": "OnBallHit",
@@ -52,7 +52,7 @@
 		{
 			"id": "pin.book",
 			"isNotSell": false,
-			"price": 10,
+			"price": 7,
 			"rules": [
 				{
 					"triggerType": "OnBallHit",
@@ -73,7 +73,7 @@
 		{
 			"id": "pin.trashCan",
 			"isNotSell": false,
-			"price": 10,
+			"price": 5,
 			"rules": [
 				{
 					"triggerType": "OnBallDestroyed",
@@ -94,7 +94,7 @@
 		{
 			"id": "pin.spring",
 			"isNotSell": false,
-			"price": 10,
+			"price": 6,
 			"rules": [
 				{
 					"triggerType": "OnBallHit",
@@ -113,7 +113,7 @@
 		{
 			"id": "pin.magnifier",
 			"isNotSell": false,
-			"price": 10,
+			"price": 7,
 			"rules": [
 				{
 					"triggerType": "OnBallHit",
@@ -132,7 +132,7 @@
 		{
 			"id": "pin.lock",
 			"isNotSell": false,
-			"price": 10,
+			"price": 6,
 			"rules": [
 				{
 					"triggerType": "OnBallHit",
@@ -152,13 +152,13 @@
 			"id": "pin.megaphone",
 			"scoreMultiplier": 3.0,
 			"isNotSell": false,
-			"price": 10,
+			"price": 6,
 			"rules": []
 		},
 		{
 			"id": "pin.stock",
 			"isNotSell": false,
-			"price": 20,
+			"price": 8,
 			"rules": [
 				{
 					"triggerType": "OnBallHit",
