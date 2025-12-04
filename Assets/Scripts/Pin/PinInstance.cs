@@ -6,7 +6,7 @@ using UnityEngine;
 
 public sealed class PinInstance
 {
-    public PinDto BaseDto { get; }
+    private PinDto BaseDto { get; }
     public string Id => BaseDto.id;
 
     public StatSet Stats { get; }
@@ -19,9 +19,8 @@ public sealed class PinInstance
 
     public float ScoreMultiplier => Stats.GetValue(PinStatIds.ScoreMultiplier);
     
-    private int hitCount = 0;
-
     public event Action<int> OnHitCountChanged;
+    private int hitCount = 0;
     public int HitCount
     {
         get => hitCount;
@@ -35,6 +34,8 @@ public sealed class PinInstance
     int remainingHits;
    
     bool hasCharge;
+
+    public int Price => BaseDto.price;
 
     public event Action<int> OnRemainingHitsChanged;
     int chargeMax;

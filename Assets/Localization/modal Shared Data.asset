@@ -31,6 +31,14 @@ MonoBehaviour:
     m_Key: modal.quitgame.message
     m_Metadata:
       m_Items: []
+  - m_Id: 4468386867986432
+    m_Key: modal.sellpin.message
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4468441343606784
+    m_Key: modal.sellpin.title
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

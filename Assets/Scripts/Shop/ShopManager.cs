@@ -60,7 +60,8 @@ public sealed class ShopManager : MonoBehaviour
             switch (context)
             {
                 case ShopOpenContext.BetweenRounds:
-                    Debug.Log($"[ShopManager] Open shop for stage {stage.StageIndex + 1}, before round {nextRoundIndex + 1}");
+                    Debug.Log(
+                        $"[ShopManager] Open shop for stage {stage.StageIndex + 1}, before round {nextRoundIndex + 1}");
                     break;
                 case ShopOpenContext.AfterStage:
                     Debug.Log($"[ShopManager] Open shop after stage {stage.StageIndex + 1}");
@@ -114,7 +115,7 @@ public sealed class ShopManager : MonoBehaviour
         for (int i = 0; i < currentItems.Length; i++)
         {
             currentItems[i].hasItem = false;
-            currentItems[i].pin = null;      // ← 추가
+            currentItems[i].pin = null; // ← 추가
             currentItems[i].price = 0;
             currentItems[i].sold = false;
         }
@@ -143,13 +144,11 @@ public sealed class ShopManager : MonoBehaviour
             tempIndices.RemoveAt(pick);
 
             var dto = sellablePins[pinIndex];
-
-            // 상점용 프리뷰 인스턴스: 그리드 좌표는 의미 없으니 -1, -1
             var previewInstance = new PinInstance(dto, -1, -1, registerEventEffects: false);
 
             currentItems[slot].hasItem = true;
-            currentItems[slot].pin = previewInstance;   // ← PinInstance 캐싱
-            currentItems[slot].price = dto.price;
+            currentItems[slot].pin = previewInstance; // ← PinInstance 캐싱
+            currentItems[slot].price = previewInstance.Price;
             currentItems[slot].sold = false;
         }
     }
@@ -164,7 +163,7 @@ public sealed class ShopManager : MonoBehaviour
             ? CurrencyManager.Instance.CurrentCurrency
             : 0;
 
-        bool hasEmptySlot = PinManager.Instance != null && PinManager.Instance.HasBasicPinSlot();
+        bool hasEmptySlot = PinManager.Instance != null && PinManager.Instance.GetBasicPinSlot(out var x, out var y);
 
         shopView.SetItems(currentItems, currency, hasEmptySlot, currentRerollCost);
     }
@@ -189,7 +188,7 @@ public sealed class ShopManager : MonoBehaviour
             return;
 
         int currency = currencyMgr.CurrentCurrency;
-        bool hasEmptySlot = pinMgr.HasBasicPinSlot();
+        bool hasEmptySlot = pinMgr.GetBasicPinSlot(out var x, out var y);
 
         if (!hasEmptySlot || currency < item.price)
         {
@@ -205,9 +204,9 @@ public sealed class ShopManager : MonoBehaviour
 
         // 여기서 PinInstance 기반으로 캐싱된 정보를 사용
         var pinId = item.pin != null ? item.pin.Id : null;
-        if (string.IsNullOrEmpty(pinId) || !pinMgr.TryReplaceBasicPin(pinId))
+        if (string.IsNullOrEmpty(pinId) || !pinMgr.TryReplace(pinId, x, y))
         {
-            Debug.LogError("[ShopManager] TryReplaceBasicPin failed after spending currency. Refunding.");
+            Debug.LogError("[ShopManager] TryReplace failed after spending currency. Refunding.");
             currencyMgr.AddCurrency(item.price);
             RefreshView();
             return;

@@ -7,7 +7,7 @@ public static class PinTooltipUtil
 {
     public static TooltipModel BuildModel(PinInstance pin)
     {
-        if (pin == null || pin.BaseDto == null)
+        if (pin == null)
         {
             return new TooltipModel
             (
