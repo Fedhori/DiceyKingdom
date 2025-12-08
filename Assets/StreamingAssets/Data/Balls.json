@@ -7,6 +7,18 @@
 		{
 			"id": "ball.gold",
 			"ballScoreMultiplier": 10
+		},
+		{
+			"id": "ball.test1",
+			"ballScoreMultiplier": 2
+		},
+		{
+			"id": "ball.test2",
+			"ballScoreMultiplier": 4
+		},
+		{
+			"id": "ball.test3",
+			"ballScoreMultiplier": 8
 		}
 	]
 }

@@ -10,33 +10,38 @@ public sealed class BallDeck
     // 파라미터 없는 Event
     public event Action OnDeckChanged;
 
-    public void Set(string ballId, int count)
+    public bool TryReplace(string ballId, int delta)
     {
         if (string.IsNullOrEmpty(ballId))
-            return;
+            return false;
 
-        count = Math.Max(0, count);
+        if (delta <= 0)
+            return false;
 
-        var had = counts.TryGetValue(ballId, out var prev);
+        var basicId = GameConfig.BasicBallId;
 
-        if (count == 0)
-        {
-            // 기존에 있었는데 제거되는 경우만 이벤트
-            if (had)
-            {
-                counts.Remove(ballId);
-                OnDeckChanged?.Invoke();
-            }
-            return;
-        }
+        if (!counts.TryGetValue(basicId, out var basicCount) || basicCount < delta)
+            return false;
 
-        // 새로 추가되거나, 값이 달라질 때만 이벤트
-        if (!had || prev != count)
-        {
-            counts[ballId] = count;
-            OnDeckChanged?.Invoke();
-        }
+        var newBasicCount = basicCount - delta;
+        if (newBasicCount <= 0)
+            counts.Remove(basicId);
+        else
+            counts[basicId] = newBasicCount;
+
+        var targetCount = counts.GetValueOrDefault(ballId, 0);
+
+        var newTargetCount = targetCount + delta;
+        if (newTargetCount <= 0)
+            counts.Remove(ballId);
+        else
+            counts[ballId] = newTargetCount;
+
+        OnDeckChanged?.Invoke(); 
+
+        return true;
     }
+
 
     public void Add(string ballId, int delta)
     {
