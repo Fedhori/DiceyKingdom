@@ -210,42 +210,13 @@ public sealed class ShopManager : MonoBehaviour
 
         ref ShopItemData item = ref currentItems[index];
 
-        if (!item.hasItem || item.sold)
+        if (!item.hasItem || item.sold || item.pin == null)
             return;
 
-        var currencyMgr = CurrencyManager.Instance;
-        var pinMgr = PinManager.Instance;
-
-        if (currencyMgr == null || pinMgr == null)
-            return;
-
-        int currency = currencyMgr.CurrentCurrency;
-        bool hasEmptySlot = pinMgr.GetBasicPinSlot(out var x, out var y);
-
-        if (!hasEmptySlot || currency < item.price)
-        {
-            RefreshView();
-            return;
-        }
-
-        if (!currencyMgr.TrySpend(item.price))
-        {
-            RefreshView();
-            return;
-        }
-
-        // 여기서 PinInstance 기반으로 캐싱된 정보를 사용
-        var pinId = item.pin != null ? item.pin.Id : null;
-        if (string.IsNullOrEmpty(pinId) || !pinMgr.TryReplace(pinId, x, y))
-        {
-            Debug.LogError("[ShopManager] TryReplace failed after spending currency. Refunding.");
-            currencyMgr.AddCurrency(item.price);
-            RefreshView();
-            return;
-        }
-
-        item.sold = true;
-        RefreshView();
+        if (CurrentSelectionIndex == index)
+            ClearSelection();
+        else
+            SetSelection(index);
     }
 
 
