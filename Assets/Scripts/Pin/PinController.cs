@@ -148,6 +148,7 @@ public sealed class PinController : MonoBehaviour
             StopCoroutine(hitRoutine);
 
         hitRoutine = StartCoroutine(HitScaleRoutine());
+        AudioManager.Instance.Play("Score");
     }
 
     IEnumerator HitScaleRoutine()

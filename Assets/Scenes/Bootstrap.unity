@@ -1313,9 +1313,12 @@ MonoBehaviour:
   - key: HitWall
     volume: 1
     clip: {fileID: 8300000, guid: e9ae43dafc6f9434cafef0e5f92bbfeb, type: 3}
+  - key: Score
+    volume: 1
+    clip: {fileID: 8300000, guid: e5790be692957c248a755a33b38ddcda, type: 3}
   limitAllSfx: 0
   limitedKeys:
-  - Hit
+  - Score
   sfxMinIntervalSec: 0.1
   sfxMaxVoices: 8
   bgmTransitionDuration: 1
