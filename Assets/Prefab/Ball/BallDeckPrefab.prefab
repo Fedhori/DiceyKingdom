@@ -148,6 +148,7 @@ GameObject:
   - component: {fileID: 2603846784652397479}
   - component: {fileID: 5253872505118160369}
   - component: {fileID: 788362980293077504}
+  - component: {fileID: 2137428398556405856}
   m_Layer: 5
   m_Name: BallDeckPrefab
   m_TagString: Untagged
@@ -227,3 +228,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallDeckView
   ballIcon: {fileID: 5253872505118160369}
   ballCount: {fileID: 2775092078053445188}
+  ballUITooltipTarget: {fileID: 2137428398556405856}
+--- !u!114 &2137428398556405856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4859208012974681839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 286b47e117aaa9f43bdd22a8a72739f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BallUITooltipTarget
+  anchorRect: {fileID: 6989031446112107597}
