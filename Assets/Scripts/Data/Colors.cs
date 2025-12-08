@@ -23,18 +23,16 @@ public static class Colors
     
     public static readonly Color HighlightColor = Color.cyan;
 
-    public static Color GetCriticalColor(CriticalType criticalType)
+    public static Color GetCriticalColor(int criticalLevel)
     {
-        switch (criticalType)
+        switch (criticalLevel)
         {
-            case CriticalType.None:
+            case 0:
                 return NormalScore;
-            case CriticalType.Critical:
+            case 1:
                 return CritScore;
-            case CriticalType.OverCritical:
+            default:
                 return OverCrit;
         }
-
-        return NormalScore;
     }
 }

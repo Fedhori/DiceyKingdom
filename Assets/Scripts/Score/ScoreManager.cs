@@ -43,16 +43,16 @@ public sealed class ScoreManager : MonoBehaviour
         Instance = this;
     }
 
-    public void AddScore(int amount, CriticalType criticalType, Vector2 position)
+    public void AddScore(int amount, int criticalLevel, Vector2 position)
     {
         if (amount == 0)
             return;
 
-        var color = Colors.GetCriticalColor(criticalType);
+        var color = Colors.GetCriticalColor(criticalLevel);
         var postFix = "";
-        if (criticalType == CriticalType.Critical)
+        if (criticalLevel == 1)
             postFix = "!";
-        else if (criticalType == CriticalType.OverCritical)
+        else if (criticalLevel >= 2)
             postFix = "!!";
 
         FloatingTextManager.Instance.ShowText(

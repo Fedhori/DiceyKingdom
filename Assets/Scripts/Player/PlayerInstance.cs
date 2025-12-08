@@ -69,39 +69,25 @@ public sealed class PlayerInstance
         // BallDeck, Currency 등은 런 단위 자원이므로 여기서는 건드리지 않음.
     }
 
-    public CriticalType RollCriticalType(System.Random rng)
+    public int RollCriticalLevel(System.Random rng)
     {
         if (rng == null)
             rng = new System.Random();
 
-        float chance = Mathf.Max(0f, CriticalChance);
-        float overChance = Mathf.Max(0f, chance - 100f);
-        float baseCritChance = Mathf.Min(chance, 100f);
+        int criticalLevel = (int)(CriticalChance / 100f);
+        float chance = Mathf.Max(0f, CriticalChance - criticalLevel * 100f);
 
         double roll = rng.NextDouble() * 100.0;
 
-        if (overChance > 0f && roll < overChance)
-            return CriticalType.OverCritical;
+        if (chance >= roll)
+            criticalLevel++;
 
-        return roll < baseCritChance ? CriticalType.Critical : CriticalType.None;
+        return criticalLevel;
     }
 
-    public float GetCriticalMultiplier(CriticalType criticalType)
+    public float GetCriticalMultiplier(int criticalLevel)
     {
-        float normalCrit = Mathf.Max(1f, CriticalMultiplier);
-        float overCrit = normalCrit * 2f;
-
-        switch (criticalType)
-        {
-            case CriticalType.None:
-                return 1f;
-            case CriticalType.Critical:
-                return normalCrit;
-            case CriticalType.OverCritical:
-                return overCrit;
-            default:
-                return 1f;
-        }
+        return Mathf.Max(1f, criticalLevel * 2f);
     }
 
     public void AddCurrency(int amount)

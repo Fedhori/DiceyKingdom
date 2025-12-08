@@ -1,13 +1,6 @@
 using Data;
 using UnityEngine;
 
-public enum CriticalType
-{
-    None,
-    Critical,
-    OverCritical,
-}
-
 public sealed class BallInstance
 {
     static readonly System.Random LocalRandom = new();
@@ -42,7 +35,7 @@ public sealed class BallInstance
 
         var rng = GameManager.Instance?.Rng ?? LocalRandom;
 
-        var criticalType = player.RollCriticalType(rng);
+        var criticalType = player.RollCriticalLevel(rng);
         float criticalMultiplier = player.GetCriticalMultiplier(criticalType);
 
         float rawScore = player.ScoreBase * player.ScoreMultiplier * BallScoreMultiplier * pin.ScoreMultiplier * criticalMultiplier;
