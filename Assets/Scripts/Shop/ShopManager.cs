@@ -50,6 +50,8 @@ public sealed class ShopManager : MonoBehaviour
         this.context = context;
         isOpen = true;
 
+        ClearSelection();
+
         BuildSellablePins();
         EnsureItemArray();
         currentRerollCost = Mathf.Max(1, baseRerollCost);
@@ -260,6 +262,8 @@ public sealed class ShopManager : MonoBehaviour
 
         if (shopView != null)
             shopView.Hide();
+
+        ClearSelection();
 
         Debug.Log("[ShopManager] Close shop");
 
