@@ -9,7 +9,7 @@ public sealed class PinItemView : MonoBehaviour
     [SerializeField] Image iconImage;
     [SerializeField] TMP_Text priceText;
     [SerializeField] Button buyButton;
-    [SerializeField] PinShopTooltipTarget tooltipTarget;
+    [SerializeField] PinUiTooltipTarget tooltipTarget;
 
     Action onClick;
     Color defaultBackgroundColor = Color.white;
@@ -26,7 +26,7 @@ public sealed class PinItemView : MonoBehaviour
         }
 
         if (tooltipTarget == null)
-            tooltipTarget = GetComponent<PinShopTooltipTarget>();
+            tooltipTarget = GetComponent<PinUiTooltipTarget>();
     }
 
     void HandleClick()

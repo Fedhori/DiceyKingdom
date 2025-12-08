@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using Data; // PinInstance 네임스페이스 맞게 유지
 
-public sealed class PinShopTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public sealed class PinUiTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] RectTransform anchorRect;
 
