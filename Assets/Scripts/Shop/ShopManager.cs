@@ -45,6 +45,7 @@ public sealed class ShopManager : MonoBehaviour
         if (shopView != null)
         {
             shopView.SetCallbacks(OnClickItem, OnClickReroll, OnClickCloseButton);
+            OnSelectionChanged += shopView.HandleSelectionChanged;
         }
     }
 
@@ -283,5 +284,11 @@ public sealed class ShopManager : MonoBehaviour
         Debug.Log("[ShopManager] Close shop");
 
         FlowManager.Instance?.OnShopClosed(context);
+    }
+
+    void OnDisable()
+    {
+        if (shopView != null)
+            OnSelectionChanged -= shopView.HandleSelectionChanged;
     }
 }

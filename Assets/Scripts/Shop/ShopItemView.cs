@@ -12,9 +12,13 @@ public sealed class ShopItemView : MonoBehaviour
     [SerializeField] PinShopTooltipTarget tooltipTarget;
 
     Action onClick;
+    Color defaultBackgroundColor = Color.white;
 
     void Awake()
     {
+        if (background != null)
+            defaultBackgroundColor = background.color;
+
         if (buyButton != null)
         {
             buyButton.onClick.RemoveAllListeners();
@@ -67,5 +71,13 @@ public sealed class ShopItemView : MonoBehaviour
 
         if (buyButton != null)
             buyButton.interactable = !sold;
+    }
+
+    public void SetSelected(bool selected)
+    {
+        if (background == null)
+            return;
+
+        background.color = selected ? Colors.HighlightColor : defaultBackgroundColor;
     }
 }

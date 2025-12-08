@@ -22,6 +22,8 @@ public sealed class ShopView : MonoBehaviour
 
     readonly List<ShopItemView> itemViews = new();
 
+    int currentSelectedIndex = -1;
+
     Action<int> onClickItem;
     Action onClickReroll;
     Action onClickClose;
@@ -126,6 +128,7 @@ public sealed class ShopView : MonoBehaviour
 
             view.gameObject.SetActive(true);
             view.SetData(data.pin, data.price, canBuy, data.sold);   // ← PinInstance 넘김
+            view.SetSelected(i == currentSelectedIndex);
         }
 
         if (rerollCostText != null)
@@ -147,5 +150,19 @@ public sealed class ShopView : MonoBehaviour
     {
         if (overlayRoot != null)
             overlayRoot.SetActive(false);
+    }
+
+    public void HandleSelectionChanged(int selectedIndex)
+    {
+        currentSelectedIndex = selectedIndex;
+
+        for (int i = 0; i < itemViews.Count; i++)
+        {
+            var view = itemViews[i];
+            if (view == null)
+                continue;
+
+            view.SetSelected(i == currentSelectedIndex && view.gameObject.activeSelf);
+        }
     }
 }
