@@ -1,4 +1,4 @@
-public struct ShopItemData
+public struct PinItemData
 {
     public bool hasItem;
     public PinInstance pin;

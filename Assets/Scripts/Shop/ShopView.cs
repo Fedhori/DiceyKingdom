@@ -11,8 +11,8 @@ public sealed class ShopView : MonoBehaviour
     [Header("Overlay Root")] [SerializeField]
     private GameObject overlayRoot;
 
-    [Header("Item UI")] [SerializeField] private ShopItemView itemPrefab;
-    [SerializeField] private Transform itemsParent;
+    [Header("Item UI")] [SerializeField] private PinItemView pinItemPrefab;
+    [SerializeField] private Transform pinItemsParent;
 
     [Header("Reroll / Close UI")] [SerializeField]
     private LocalizeStringEvent rerollCostText;
@@ -20,11 +20,11 @@ public sealed class ShopView : MonoBehaviour
     [SerializeField] private Button rerollButton;
     [SerializeField] private Button closeButton;
 
-    readonly List<ShopItemView> itemViews = new();
+    readonly List<PinItemView> pinItemViews = new();
 
-    int currentSelectedIndex = -1;
+    int selectedPinItemIndex = -1;
 
-    Action<int> onClickItem;
+    Action<int> onClickPinItem;
     Action onClickReroll;
     Action onClickClose;
 
@@ -52,14 +52,14 @@ public sealed class ShopView : MonoBehaviour
 
     void ClearEditorPlacedItems()
     {
-        itemViews.Clear();
+        pinItemViews.Clear();
 
-        if (itemsParent == null)
+        if (pinItemsParent == null)
             return;
 
-        for (int i = itemsParent.childCount - 1; i >= 0; i--)
+        for (int i = pinItemsParent.childCount - 1; i >= 0; i--)
         {
-            var child = itemsParent.GetChild(i);
+            var child = pinItemsParent.GetChild(i);
             if (child != null)
             {
                 Destroy(child.gameObject);
@@ -69,50 +69,50 @@ public sealed class ShopView : MonoBehaviour
 
     public void SetCallbacks(Action<int> onClickItem, Action onClickReroll, Action onClickClose)
     {
-        this.onClickItem = onClickItem;
+        this.onClickPinItem = onClickItem;
         this.onClickReroll = onClickReroll;
         this.onClickClose = onClickClose;
     }
 
-    void EnsureItemViews(int count)
+    void EnsurePinItemViews(int count)
     {
-        if (itemPrefab == null || itemsParent == null)
+        if (pinItemPrefab == null || pinItemsParent == null)
         {
-            Debug.LogError("[ShopView] itemPrefab or itemsParent is null.");
+            Debug.LogError("[ShopView] pinItemPrefab or pinItemsParent is null.");
             return;
         }
 
-        while (itemViews.Count < count)
+        while (pinItemViews.Count < count)
         {
-            var view = Instantiate(itemPrefab, itemsParent);
-            int index = itemViews.Count;
+            var view = Instantiate(pinItemPrefab, pinItemsParent);
+            int index = pinItemViews.Count;
 
             view.SetClickHandler(() =>
             {
-                if (onClickItem != null)
-                    onClickItem(index);
+                if (onClickPinItem != null)
+                    onClickPinItem(index);
             });
 
-            itemViews.Add(view);
+            pinItemViews.Add(view);
         }
 
-        for (int i = 0; i < itemViews.Count; i++)
+        for (int i = 0; i < pinItemViews.Count; i++)
         {
             bool active = i < count;
-            if (itemViews[i] != null)
-                itemViews[i].gameObject.SetActive(active);
+            if (pinItemViews[i] != null)
+                pinItemViews[i].gameObject.SetActive(active);
         }
     }
 
-    public void SetItems(ShopItemData[] items, int currentCurrency, bool hasEmptySlot, int rerollCost)
+    public void SetPinItems(PinItemData[] items, int currentCurrency, bool hasEmptySlot, int rerollCost)
     {
         int count = (items != null) ? items.Length : 0;
 
-        EnsureItemViews(count);
+        EnsurePinItemViews(count);
 
         for (int i = 0; i < count; i++)
         {
-            var view = itemViews[i];
+            var view = pinItemViews[i];
             if (view == null)
                 continue;
 
@@ -128,7 +128,7 @@ public sealed class ShopView : MonoBehaviour
 
             view.gameObject.SetActive(true);
             view.SetData(data.pin, data.price, canBuy, data.sold);   // ← PinInstance 넘김
-            view.SetSelected(i == currentSelectedIndex);
+            view.SetSelected(i == selectedPinItemIndex);
         }
 
         if (rerollCostText != null)
@@ -154,33 +154,33 @@ public sealed class ShopView : MonoBehaviour
 
     public void HandleSelectionChanged(int selectedIndex)
     {
-        currentSelectedIndex = selectedIndex;
+        selectedPinItemIndex = selectedIndex;
 
-        RefreshSelectionVisuals();
+        RefreshPinSelectionVisuals();
     }
 
-    void RefreshSelectionVisuals()
+    void RefreshPinSelectionVisuals()
     {
-        for (int i = 0; i < itemViews.Count; i++)
+        for (int i = 0; i < pinItemViews.Count; i++)
         {
-            var view = itemViews[i];
+            var view = pinItemViews[i];
             if (view == null)
                 continue;
 
-            bool shouldSelect = i == currentSelectedIndex
+            bool shouldSelect = i == selectedPinItemIndex
                                 && view.gameObject.activeSelf;
             view.SetSelected(shouldSelect);
         }
     }
 
-    public void ClearSelectionVisuals()
+    public void ClearPinSelectionVisuals()
     {
-        currentSelectedIndex = -1;
-        RefreshSelectionVisuals();
+        selectedPinItemIndex = -1;
+        RefreshPinSelectionVisuals();
     }
 
     public void RefreshAll()
     {
-        RefreshSelectionVisuals();
+        RefreshPinSelectionVisuals();
     }
 }

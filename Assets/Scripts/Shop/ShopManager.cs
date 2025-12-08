@@ -19,7 +19,7 @@ public sealed class ShopManager : MonoBehaviour
     readonly List<PinDto> sellablePins = new();
     readonly List<int> tempIndices = new();
 
-    ShopItemData[] currentItems;
+    PinItemData[] currentItems;
     int currentRerollCost;
 
     public event Action<int> OnSelectionChanged;
@@ -124,7 +124,7 @@ public sealed class ShopManager : MonoBehaviour
             itemsPerShop = 3;
 
         if (currentItems == null || currentItems.Length != itemsPerShop)
-            currentItems = new ShopItemData[itemsPerShop];
+            currentItems = new PinItemData[itemsPerShop];
 
         for (int i = 0; i < currentItems.Length; i++)
         {
@@ -192,7 +192,7 @@ public sealed class ShopManager : MonoBehaviour
             return;
 
         ApplySelection(null, -1);
-        shopView?.ClearSelectionVisuals();
+        shopView?.ClearPinSelectionVisuals();
     }
 
     void ApplySelection(PinInstance selection, int itemIndex)
@@ -212,7 +212,7 @@ public sealed class ShopManager : MonoBehaviour
         if (CurrentSelectionIndex >= currentItems.Length)
             return false;
 
-        ref ShopItemData item = ref currentItems[CurrentSelectionIndex];
+        ref PinItemData item = ref currentItems[CurrentSelectionIndex];
         if (!item.hasItem || item.sold || item.pin == null)
             return false;
 
@@ -277,7 +277,7 @@ public sealed class ShopManager : MonoBehaviour
 
         bool hasEmptySlot = PinManager.Instance != null && PinManager.Instance.GetBasicPinSlot(out var x, out var y);
 
-        shopView.SetItems(currentItems, currency, hasEmptySlot, currentRerollCost);
+        shopView.SetPinItems(currentItems, currency, hasEmptySlot, currentRerollCost);
         shopView.RefreshAll();
     }
 
@@ -292,7 +292,7 @@ public sealed class ShopManager : MonoBehaviour
         if (currentItems == null || index < 0 || index >= currentItems.Length)
             return;
 
-        ref ShopItemData item = ref currentItems[index];
+        ref PinItemData item = ref currentItems[index];
 
         if (!item.hasItem || item.sold || item.pin == null)
             return;

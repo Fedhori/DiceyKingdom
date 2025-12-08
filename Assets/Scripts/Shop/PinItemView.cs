@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class ShopItemView : MonoBehaviour
+public sealed class PinItemView : MonoBehaviour
 {
     [SerializeField] private Image background;
     [SerializeField] Image iconImage;

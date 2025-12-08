@@ -17,7 +17,7 @@ public sealed class PinShopTooltipTarget : MonoBehaviour, IPointerEnterHandler, 
     }
 
     /// <summary>
-    /// ShopItemView.SetData 에서 호출해서 상점 아이템의 핀 정보를 주입.
+    /// PinItemView.SetData 에서 호출해서 상점 아이템의 핀 정보를 주입.
     /// </summary>
     public void Bind(PinInstance pin)
     {
