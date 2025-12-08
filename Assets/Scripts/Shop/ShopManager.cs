@@ -26,6 +26,12 @@ public sealed class ShopManager : MonoBehaviour
 
     public int CurrentSelectionIndex { get; private set; } = -1;
 
+    bool IsMainStoreContext(ShopOpenContext ctx)
+    {
+        return ctx == ShopOpenContext.BetweenRounds
+               || ctx == ShopOpenContext.AfterStage;
+    }
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -162,6 +168,9 @@ public sealed class ShopManager : MonoBehaviour
 
     public void SetSelection(int itemIndex)
     {
+        if (!IsMainStoreContext(context))
+            return;
+
         PinInstance selection = null;
 
         if (currentItems != null && itemIndex >= 0 && itemIndex < currentItems.Length)
@@ -178,6 +187,9 @@ public sealed class ShopManager : MonoBehaviour
 
     public void ClearSelection()
     {
+        if (!IsMainStoreContext(context))
+            return;
+
         ApplySelection(null, -1);
     }
 
@@ -205,6 +217,9 @@ public sealed class ShopManager : MonoBehaviour
     void OnClickItem(int index)
     {
         if (!isOpen)
+            return;
+
+        if (!IsMainStoreContext(context))
             return;
 
         if (currentItems == null || index < 0 || index >= currentItems.Length)
