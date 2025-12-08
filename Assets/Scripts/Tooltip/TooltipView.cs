@@ -1,12 +1,14 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Components;
+using UnityEngine.Localization.SmartFormat.PersistentVariables;
 using UnityEngine.UI;
 
 // TODO - 툴팁 종류에 따라 별도의 툴팁 View를 보여주도록 바꿔야함
 public sealed class TooltipView : MonoBehaviour
 {
     [Header("Icon + Text")] [SerializeField]
-    TMP_Text scoreText;
+    LocalizeStringEvent scoreMultiplierText;
 
     [SerializeField] GameObject iconBlockRoot; // 아이콘 들어가는 패널 전체 루트
     [SerializeField] Image iconImage;
@@ -34,7 +36,7 @@ public sealed class TooltipView : MonoBehaviour
         gameObject.SetActive(true);
 
         // Kind 에 따라 아이콘 블럭 온/오프
-        bool showIconBlock = model.Kind == TooltipKind.Pin || model.Kind == TooltipKind.Ball;
+        bool showIconBlock = model.Kind is TooltipKind.Pin or TooltipKind.Ball;
 
         if (iconBlockRoot != null)
             iconBlockRoot.SetActive(showIconBlock);
@@ -45,10 +47,9 @@ public sealed class TooltipView : MonoBehaviour
         if (descriptionText != null)
             descriptionText.text = model.Body ?? string.Empty;
 
-        if (model.scoreMultiplier != 0)
-            scoreText.text = $"x{model.scoreMultiplier:N1}";
-        else
-            scoreText.text = "";
+
+        if (scoreMultiplierText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
+            sv.Value = $"{model.scoreMultiplier:N1}";
 
         if (iconImage != null)
         {

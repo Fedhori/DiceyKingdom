@@ -100,7 +100,8 @@ MonoBehaviour:
       m_Items:
       - rid: 2507345055421825124
   - m_Id: 1042121259499520
-    m_Localized: "\uCDA9\uC804 {hits}: \uC810\uC218 \uBC30\uC728 +{value0}"
+    m_Localized: "\uBCFC\uACFC {hits}\uBC88 \uB9CC\uB098\uBA74: \uC810\uC218 \uBC30\uC728
+      +{value0}"
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
