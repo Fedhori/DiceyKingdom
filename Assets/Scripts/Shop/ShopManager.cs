@@ -192,6 +192,7 @@ public sealed class ShopManager : MonoBehaviour
             return;
 
         ApplySelection(null, -1);
+        shopView?.ClearSelectionVisuals();
     }
 
     void ApplySelection(PinInstance selection, int itemIndex)

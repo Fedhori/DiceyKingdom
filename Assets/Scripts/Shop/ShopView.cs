@@ -156,13 +156,26 @@ public sealed class ShopView : MonoBehaviour
     {
         currentSelectedIndex = selectedIndex;
 
+        RefreshSelectionVisuals();
+    }
+
+    void RefreshSelectionVisuals()
+    {
         for (int i = 0; i < itemViews.Count; i++)
         {
             var view = itemViews[i];
             if (view == null)
                 continue;
 
-            view.SetSelected(i == currentSelectedIndex && view.gameObject.activeSelf);
+            bool shouldSelect = i == currentSelectedIndex
+                                && view.gameObject.activeSelf;
+            view.SetSelected(shouldSelect);
         }
+    }
+
+    public void ClearSelectionVisuals()
+    {
+        currentSelectedIndex = -1;
+        RefreshSelectionVisuals();
     }
 }
