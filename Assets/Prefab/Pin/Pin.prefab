@@ -181,6 +181,7 @@ MonoBehaviour:
   remainingHitsText: {fileID: 6119341878415865040}
   hitCountText: {fileID: 6996483618372408644}
   sellPin: {fileID: 6672446916609443424}
+  highlight: {fileID: 6007941849638519635}
 --- !u!114 &6007941849638519635
 MonoBehaviour:
   m_ObjectHideFlags: 0

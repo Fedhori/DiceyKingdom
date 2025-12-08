@@ -201,6 +201,69 @@ public sealed class ShopManager : MonoBehaviour
         OnSelectionChanged?.Invoke(CurrentSelectionIndex);
     }
 
+    public bool TryPurchaseSelectedAt(int row, int col)
+    {
+        if (!isOpen || !IsMainStoreContext(context))
+            return false;
+
+        if (CurrentSelectionIndex < 0 || currentItems == null)
+            return false;
+
+        if (CurrentSelectionIndex >= currentItems.Length)
+            return false;
+
+        ref ShopItemData item = ref currentItems[CurrentSelectionIndex];
+        if (!item.hasItem || item.sold || item.pin == null)
+            return false;
+
+        var currencyMgr = CurrencyManager.Instance;
+        var pinMgr = PinManager.Instance;
+
+        if (currencyMgr == null || pinMgr == null)
+            return false;
+
+        var rows = pinMgr.PinsByRow;
+        if (row < 0 || row >= rows.Count)
+            return false;
+
+        var rowList = rows[row];
+        if (rowList == null || col < 0 || col >= rowList.Count)
+            return false;
+
+        var targetPin = rowList[col];
+        if (targetPin == null || targetPin.Instance == null)
+            return false;
+
+        if (targetPin.Instance.Id != pinMgr.DefaultPinId)
+            return false;
+
+        int price = item.price;
+        if (currencyMgr.CurrentCurrency < price)
+        {
+            RefreshView();
+            return false;
+        }
+
+        if (!currencyMgr.TrySpend(price))
+        {
+            RefreshView();
+            return false;
+        }
+
+        var pinId = item.pin.Id;
+        if (string.IsNullOrEmpty(pinId) || !pinMgr.TryReplace(pinId, row, col))
+        {
+            Debug.LogError("[ShopManager] TryReplace failed after spending currency. Refunding.");
+            currencyMgr.AddCurrency(price);
+            RefreshView();
+            return false;
+        }
+
+        item.sold = true;
+        RefreshView();
+        return true;
+    }
+
 
     void RefreshView()
     {

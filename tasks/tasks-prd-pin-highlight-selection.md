@@ -25,8 +25,8 @@
   - [x] 2.1 ShopItemView가 선택 이벤트를 구독하여 선택된 카드만 배경을 `Colors.HighlightColor`, 나머지는 `FFFFFF`로 유지
   - [x] 2.2 선택 해제(null 이벤트) 시 모든 ShopItemView 배경을 기본색으로 복원
 - [ ] 3.0 기본(pin.basic) 핀 하이라이트 토글 및 클릭 시 구매/배치 처리 (`PinManager.TryReplace`)
-  - [ ] 3.1 PinController(또는 별도 핀 하이라이트 핸들러)가 선택 이벤트를 구독해 기본 핀만 `WorldHighlight.SetHighlight(true/false)` 토글
-  - [ ] 3.2 핀 클릭 입력 처리 추가: 하이라이트된 기본 핀 클릭 시 현재 선택된 pinId를 가져와 `CurrencyManager.TrySpend` 후 `PinManager.TryReplace(pinId, row, col)`로 교체
+  - [x] 3.1 PinController(또는 별도 핀 하이라이트 핸들러)가 선택 이벤트를 구독해 기본 핀만 `WorldHighlight.SetHighlight(true/false)` 토글
+  - [x] 3.2 핀 클릭 입력 처리 추가: 하이라이트된 기본 핀 클릭 시 현재 선택된 pinId를 가져와 `CurrencyManager.TrySpend` 후 `PinManager.TryReplace(pinId, row, col)`로 교체
   - [ ] 3.3 구매 성공 시 선택 상태 해제 및 하이라이트/배경 초기화, 실패 시 통화/Replace 실패 대응(환불/로그) 후 상태 일관성 유지
 - [ ] 4.0 통합 동작 및 회귀 수동 점검 (메인 스토어 한정)
   - [ ] 4.1 시나리오: 상점 열림 → 상품 선택 시 기본 핀 하이라이트 ON/배경 하이라이트 ON → 선택 해제/다른 상품 선택 시 즉시 OFF 전환 확인

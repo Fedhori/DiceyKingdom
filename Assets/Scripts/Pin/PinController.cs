@@ -2,10 +2,11 @@ using System.Collections;
 using Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.XR;
 
 [RequireComponent(typeof(Collider2D))]
-public sealed class PinController : MonoBehaviour
+public sealed class PinController : MonoBehaviour, IPointerClickHandler
 {
     public PinInstance Instance { get; private set; }
 
@@ -19,6 +20,7 @@ public sealed class PinController : MonoBehaviour
     [SerializeField] TMP_Text remainingHitsText;
     [SerializeField] TMP_Text hitCountText;
     [SerializeField] private SellClickTarget sellPin;
+    [SerializeField] private WorldHighlight highlight;
 
     bool initialized;
     Vector3 baseScale;
@@ -26,9 +28,9 @@ public sealed class PinController : MonoBehaviour
 
     int rowIndex = -1;
     int columnIndex = -1;
-
     public int RowIndex => rowIndex;
     public int ColumnIndex => columnIndex;
+    bool IsBasicPin => Instance != null && Instance.Id == GameConfig.BasicPinId;
 
     void Awake()
     {
@@ -60,7 +62,6 @@ public sealed class PinController : MonoBehaviour
 
         rowIndex = row;
         columnIndex = column;
-
         if (PinManager.Instance != null)
             PinManager.Instance.RegisterPin(this, rowIndex, columnIndex);
 
@@ -80,6 +81,9 @@ public sealed class PinController : MonoBehaviour
             PinManager.Instance.UnregisterPin(this, rowIndex, columnIndex);
 
         DetachEvents();
+
+        if (highlight != null)
+            highlight.SetHighlight(false);
     }
 
     void AttachEvents()
@@ -93,6 +97,7 @@ public sealed class PinController : MonoBehaviour
         Instance.OnRemainingHitsChanged += UpdateRemainingHits;
         Instance.OnHitCountChanged += HandleHitCountChanged;
         FlowManager.Instance.OnPhaseChanged += HandlePhaseChanged;
+        ShopManager.Instance.OnSelectionChanged += HandleSelectionChanged;
     }
 
     void DetachEvents()
@@ -106,6 +111,7 @@ public sealed class PinController : MonoBehaviour
         Instance.OnRemainingHitsChanged -= UpdateRemainingHits;
         Instance.OnHitCountChanged -= HandleHitCountChanged;
         FlowManager.Instance.OnPhaseChanged -= HandlePhaseChanged;
+        ShopManager.Instance.OnSelectionChanged -= HandleSelectionChanged;
     }
 
     void HandlePhaseChanged(FlowPhase phase)
@@ -184,5 +190,33 @@ public sealed class PinController : MonoBehaviour
         rowIndex = row;
         columnIndex = column;
         Instance?.SetGridPosition(row, column);
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        if (!IsBasicPin)
+            return;
+
+        var shop = ShopManager.Instance;
+        if (shop == null || shop.CurrentSelectionIndex < 0)
+            return;
+
+        var flow = FlowManager.Instance;
+        if (flow != null && flow.CurrentPhase != FlowPhase.Shop)
+            return;
+
+        shop.TryPurchaseSelectedAt(rowIndex, columnIndex);
+    }
+
+    void HandleSelectionChanged(int selectedIndex)
+    {
+        if (highlight == null)
+            return;
+
+        bool shouldHighlight = IsBasicPin && selectedIndex >= 0;
+        highlight.SetHighlight(shouldHighlight);
     }
 }
