@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Data;
 using UnityEngine;
@@ -20,6 +21,10 @@ public sealed class ShopManager : MonoBehaviour
 
     ShopItemData[] currentItems;
     int currentRerollCost;
+
+    public event Action<int> OnSelectionChanged;
+
+    public int CurrentSelectionIndex { get; private set; } = -1;
 
     void Awake()
     {
@@ -151,6 +156,33 @@ public sealed class ShopManager : MonoBehaviour
             currentItems[slot].price = previewInstance.Price;
             currentItems[slot].sold = false;
         }
+    }
+
+    public void SetSelection(int itemIndex)
+    {
+        PinInstance selection = null;
+
+        if (currentItems != null && itemIndex >= 0 && itemIndex < currentItems.Length)
+        {
+            ref var item = ref currentItems[itemIndex];
+            if (item.hasItem && !item.sold && item.pin != null)
+            {
+                selection = item.pin;
+            }
+        }
+
+        ApplySelection(selection, itemIndex);
+    }
+
+    public void ClearSelection()
+    {
+        ApplySelection(null, -1);
+    }
+
+    void ApplySelection(PinInstance selection, int itemIndex)
+    {
+        CurrentSelectionIndex = selection != null ? itemIndex : -1;
+        OnSelectionChanged?.Invoke(CurrentSelectionIndex);
     }
 
 
