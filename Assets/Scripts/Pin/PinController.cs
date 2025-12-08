@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.XR;
 
 [RequireComponent(typeof(Collider2D))]
-public sealed class PinController : MonoBehaviour, IPointerClickHandler
+public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public PinInstance Instance { get; private set; }
 
@@ -84,6 +84,8 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler
 
         if (highlight != null)
             highlight.SetHighlight(false);
+
+        PinDragManager.Instance?.CancelDragFromPin(this);
     }
 
     void AttachEvents()
@@ -209,6 +211,42 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler
             return;
 
         shop.TryPurchaseSelectedAt(rowIndex, columnIndex);
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        var flow = FlowManager.Instance;
+        if (flow != null && !flow.CanDragPins)
+            return;
+
+        PinDragManager.Instance?.BeginDrag(this, eventData.position);
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        var dragMgr = PinDragManager.Instance;
+        if (dragMgr == null || !dragMgr.IsDragging(this))
+            return;
+
+        dragMgr.UpdateDrag(eventData.position);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        var dragMgr = PinDragManager.Instance;
+        if (dragMgr == null || !dragMgr.IsDragging(this))
+            return;
+
+        dragMgr.EndDrag(eventData.position);
     }
 
     void HandleSelectionChanged(int selectedIndex)

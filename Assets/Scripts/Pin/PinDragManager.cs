@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public sealed class PinDragManager : MonoBehaviour
 {
@@ -39,38 +38,6 @@ public sealed class PinDragManager : MonoBehaviour
             pinLayerMask = LayerMaskUtil.PinLayer;
     }
 
-    void Update()
-    {
-        var mouse = Mouse.current;
-        if (mouse == null || worldCamera == null)
-            return;
-
-        if (draggingPin != null && !CanDragPins())
-        {
-            CancelDrag();
-            return;
-        }
-
-        var mousePos = mouse.position.ReadValue();
-
-        if (draggingPin == null)
-        {
-            if (!CanDragPins())
-                return;
-
-            if (mouse.leftButton.wasPressedThisFrame)
-                TryBeginDrag(mousePos);
-        }
-        else
-        {
-            if (mouse.leftButton.isPressed)
-                UpdateDrag(mousePos);
-
-            if (mouse.leftButton.wasReleasedThisFrame)
-                EndDrag(mousePos);
-        }
-    }
-
     bool CanDragPins()
     {
         var flow = FlowManager.Instance;
@@ -80,24 +47,20 @@ public sealed class PinDragManager : MonoBehaviour
         return flow.CanDragPins;
     }
 
-    void TryBeginDrag(Vector2 screenPos)
+    public bool BeginDrag(PinController pin, Vector2 screenPos)
     {
-        var worldPos = ScreenToWorld(screenPos);
+        if (pin == null || worldCamera == null)
+            return false;
 
-        var hit = Physics2D.OverlapPoint(worldPos, pinLayerMask);
-        if (hit == null)
-            return;
-
-        var pin = hit.GetComponentInParent<PinController>();
-        if (pin == null)
-            return;
+        if (!CanDragPins())
+            return false;
 
         draggingPin = pin;
         originalPosition = pin.transform.position;
         originalRow = pin.RowIndex;
         originalCol = pin.ColumnIndex;
 
-        draggingCollider = hit;
+        draggingCollider = pin.GetComponent<Collider2D>();
         if (draggingCollider != null)
             draggingCollider.enabled = false;
 
@@ -109,30 +72,41 @@ public sealed class PinDragManager : MonoBehaviour
             c.a = dragAlpha;
             draggingSprite.color = c;
         }
+
+        return true;
     }
 
-    void UpdateDrag(Vector2 screenPos)
+    public void UpdateDrag(Vector2 screenPos)
     {
         if (draggingPin == null)
             return;
+
+        if (!CanDragPins())
+        {
+            CancelDrag();
+            return;
+        }
 
         var worldPos = ScreenToWorld(screenPos);
         draggingPin.transform.position = new Vector2(worldPos.x, worldPos.y);
 
         var target = FindTargetPin(worldPos);
         if (target == draggingPin)
-        {
-            Debug.Log("Target is Self");
-            return;
-        }
+            target = null;
 
         UpdateHighlight(target);
     }
 
-    void EndDrag(Vector2 screenPos)
+    public void EndDrag(Vector2 screenPos)
     {
         if (draggingPin == null)
             return;
+
+        if (!CanDragPins())
+        {
+            CancelDrag();
+            return;
+        }
 
         var worldPos = ScreenToWorld(screenPos);
         var target = FindTargetPin(worldPos);
@@ -152,7 +126,12 @@ public sealed class PinDragManager : MonoBehaviour
         draggingPin = null;
     }
 
-    void CancelDrag()
+    public bool IsDragging(PinController pin)
+    {
+        return pin != null && draggingPin == pin;
+    }
+
+    public void CancelDrag()
     {
         if (draggingPin != null)
             draggingPin.transform.position = originalPosition;
@@ -161,6 +140,17 @@ public sealed class PinDragManager : MonoBehaviour
         RestoreSprite();
         ClearHighlight();
         draggingPin = null;
+    }
+
+    public void CancelDragFromPin(PinController pin)
+    {
+        if (pin == null)
+            return;
+
+        if (draggingPin != pin)
+            return;
+
+        CancelDrag();
     }
 
     void RestoreCollider()
