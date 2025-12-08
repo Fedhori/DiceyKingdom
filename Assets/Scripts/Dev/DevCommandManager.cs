@@ -31,8 +31,8 @@ public sealed class DevCommandManager : MonoBehaviour
         {
             if (param.Length != 3)
                 return;
-            
-            PinFactory.Instance.SpawnPin(param[0], Int32.Parse(param[1]), Int32.Parse(param[2]));
+
+            PinManager.Instance.TryReplace(param[0], Int32.Parse(param[1]), Int32.Parse(param[2]));
         });
     }
 

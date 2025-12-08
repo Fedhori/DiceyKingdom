@@ -15,7 +15,7 @@ public sealed class PinFactory : MonoBehaviour
         Instance = this;
     }
 
-    public void SpawnPin(string pinId, int row, int column)
+    public void SpawnPin(string pinId, int row, int column, int hitCount)
     {
         if (PinManager.Instance == null)
         {
@@ -34,6 +34,6 @@ public sealed class PinFactory : MonoBehaviour
             return;
         }
 
-        controller.Initialize(pinId, row, column);
+        controller.Initialize(pinId, row, column, hitCount);
     }
 }

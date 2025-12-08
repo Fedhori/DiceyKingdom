@@ -85,7 +85,7 @@ public class PinManager : MonoBehaviour
 
             for (int col = 0; col < colsInRow; col++)
             {
-                PinFactory.Instance.SpawnPin(spawnPinId, row, col);
+                PinFactory.Instance.SpawnPin(spawnPinId, row, col, 0);
             }
         }
     }
@@ -162,7 +162,7 @@ public class PinManager : MonoBehaviour
                     continue;
 
                 if (pin.Instance != null)
-                    pin.Instance.ResetData();
+                    pin.Instance.ResetData(0);
             }
         }
     }
@@ -229,14 +229,13 @@ public class PinManager : MonoBehaviour
         var pin = rowList[y];
         if (pin != null && pin.Instance != null)
         {
-            PinFactory.Instance.SpawnPin(pinId, x, y);
+            PinFactory.Instance.SpawnPin(pinId, x, y, pin.Instance.HitCount);
             return true;
         }
 
         return false;
     }
-
-    // 새로 추가: 두 핀의 보드 위치를 스왑
+    
     public void SwapPins(PinController dragging, PinController target)
     {
         if (dragging == null || target == null || dragging == target)
@@ -278,6 +277,8 @@ public class PinManager : MonoBehaviour
 
         target.SetGridIndices(rowA, colA);
         dragging.SetGridIndices(rowB, colB);
+
+        (target.Instance.HitCount, dragging.Instance.HitCount) = (dragging.Instance.HitCount, target.Instance.HitCount);
     }
 
     public void SellPin(PinController pin)

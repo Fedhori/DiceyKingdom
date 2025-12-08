@@ -103,7 +103,7 @@ public sealed class PinInstance
         Column = column;
     }
 
-    public void ResetData()
+    public void ResetData(int hitCnt)
     {
         if (hasCharge && chargeMax > 0)
             RemainingHits = chargeMax;
@@ -111,7 +111,7 @@ public sealed class PinInstance
             RemainingHits = -1;
 
         Stats.RemoveModifiers(StatLayer.Temporary);
-        HitCount = 0;
+        HitCount = hitCnt;
     }
 
     public void OnHitByBall(BallInstance ball, Vector2 position)

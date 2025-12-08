@@ -35,7 +35,7 @@ public sealed class PinController : MonoBehaviour
         baseScale = transform.localScale;
     }
 
-    public void Initialize(string pinId, int row, int column)
+    public void Initialize(string pinId, int row, int column, int hitCount)
     {
         if (initialized)
         {
@@ -67,7 +67,7 @@ public sealed class PinController : MonoBehaviour
         AttachEvents();
 
         initialized = true;
-        Instance.ResetData();
+        Instance.ResetData(hitCount);
         UpdateSellPinButton();
     }
 

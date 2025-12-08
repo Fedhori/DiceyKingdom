@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Settings.LocalizationSettings
   m_StartupSelectors:
   - rid: 4562567923916341496
-  - rid: 4562567923916341497
   - rid: 4562567923916341498
+  - rid: 4562567923916341497
   m_AvailableLocales:
     rid: 4562567923916341499
   m_AssetDatabase:
@@ -25,7 +25,7 @@ MonoBehaviour:
   m_Metadata:
     m_Items: []
   m_ProjectLocaleIdentifier:
-    m_Code: en
+    m_Code: ko-KR
   m_PreloadBehavior: 1
   m_InitializeSynchronously: 0
   references:
@@ -44,7 +44,7 @@ MonoBehaviour:
       type: {class: SpecificLocaleSelector, ns: UnityEngine.Localization.Settings, asm: Unity.Localization}
       data:
         m_LocaleId:
-          m_Code: en
+          m_Code: ko-KR
     - rid: 4562567923916341499
       type: {class: LocalesProvider, ns: UnityEngine.Localization.Settings, asm: Unity.Localization}
       data: 
