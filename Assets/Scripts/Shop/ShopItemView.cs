@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public sealed class ShopItemView : MonoBehaviour
 {
+    [SerializeField] private Image background;
     [SerializeField] Image iconImage;
     [SerializeField] TMP_Text priceText;
     [SerializeField] Button buyButton;
