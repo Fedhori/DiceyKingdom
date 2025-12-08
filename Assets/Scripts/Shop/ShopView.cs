@@ -178,4 +178,9 @@ public sealed class ShopView : MonoBehaviour
         currentSelectedIndex = -1;
         RefreshSelectionVisuals();
     }
+
+    public void RefreshAll()
+    {
+        RefreshSelectionVisuals();
+    }
 }

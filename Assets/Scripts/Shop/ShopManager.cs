@@ -260,6 +260,7 @@ public sealed class ShopManager : MonoBehaviour
         }
 
         item.sold = true;
+        ClearSelection();
         RefreshView();
         return true;
     }
@@ -277,6 +278,7 @@ public sealed class ShopManager : MonoBehaviour
         bool hasEmptySlot = PinManager.Instance != null && PinManager.Instance.GetBasicPinSlot(out var x, out var y);
 
         shopView.SetItems(currentItems, currency, hasEmptySlot, currentRerollCost);
+        shopView.RefreshAll();
     }
 
     void OnClickItem(int index)
