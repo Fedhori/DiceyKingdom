@@ -7,6 +7,9 @@ public sealed class BallDeck
 
     public IReadOnlyDictionary<string, int> Counts => counts;
 
+    // 파라미터 없는 Event
+    public event Action OnDeckChanged;
+
     public void Set(string ballId, int count)
     {
         if (string.IsNullOrEmpty(ballId))
@@ -14,13 +17,25 @@ public sealed class BallDeck
 
         count = Math.Max(0, count);
 
+        var had = counts.TryGetValue(ballId, out var prev);
+
         if (count == 0)
         {
-            counts.Remove(ballId);
+            // 기존에 있었는데 제거되는 경우만 이벤트
+            if (had)
+            {
+                counts.Remove(ballId);
+                OnDeckChanged?.Invoke();
+            }
             return;
         }
 
-        counts[ballId] = count;
+        // 새로 추가되거나, 값이 달라질 때만 이벤트
+        if (!had || prev != count)
+        {
+            counts[ballId] = count;
+            OnDeckChanged?.Invoke();
+        }
     }
 
     public void Add(string ballId, int delta)
@@ -34,10 +49,21 @@ public sealed class BallDeck
         var next = current + delta;
         next = Math.Max(0, next);
 
+        // 값이 그대로면 아무 일도 안 함
+        if (next == current)
+            return;
+
         if (next == 0)
-            counts.Remove(ballId);
+        {
+            // 0이 되면 딕셔너리에서 제거
+            if (counts.Remove(ballId))
+                OnDeckChanged?.Invoke();
+        }
         else
+        {
             counts[ballId] = next;
+            OnDeckChanged?.Invoke();
+        }
     }
 
     public int GetCount(string ballId)

@@ -34,7 +34,6 @@ public sealed class PlayerInstance
         Stats.SetBase(PlayerStatIds.CriticalMultiplier, BaseDto.criticalMultiplier);
 
         BallDeck = new BallDeck();
-
         if (BaseDto.ballDeck != null)
         {
             foreach (var entry in BaseDto.ballDeck)

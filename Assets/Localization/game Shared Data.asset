@@ -63,6 +63,10 @@ MonoBehaviour:
     m_Key: game.criticalmultiplier.label
     m_Metadata:
       m_Items: []
+  - m_Id: 2536571039137792
+    m_Key: game.balldeck.title
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
