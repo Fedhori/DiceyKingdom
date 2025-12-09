@@ -10,6 +10,8 @@ namespace Data
     {
         public string id;
         public float ballScoreMultiplier = 1f;
+        public bool isNotSell = false;
+        public int price;
     }
 
     [Serializable]
