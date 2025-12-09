@@ -408,6 +408,7 @@ public sealed class ShopManager : MonoBehaviour
         currentRerollCost = Mathf.Max(1, currentRerollCost + Mathf.Max(1, rerollCostIncrement));
 
         RollItems();
+        RollBallItems();
         RefreshView();
     }
 
