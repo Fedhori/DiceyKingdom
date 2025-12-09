@@ -22,7 +22,7 @@
 - [ ] 1.0 RewardManager 보상 흐름 확장
   - [x] 1.1 Reward 단계 진입 시 `currentBallRerollCost = baseBallRerollCost`, `ballRewardOverlay` 활성화, 이전 보상 인스턴스 정리.
   - [x] 1.2 `BallRepository`에서 `isNotReward == false`인 볼 목록을 가져와 `ballRewardCount`개 보상 생성(고유 우선, 부족 시 중복 허용).
-  - [ ] 1.3 `BallCost`에 1.0~1.5 난수 계수 곱해 `adjustedCost` 산출, `ballCount = ceil(adjustedCost / ballDto.cost)` 계산.
+  - [x] 1.3 `BallCost`에 1.0~1.5 난수 계수 곱해 `adjustedCost` 산출, `ballCount = ceil(adjustedCost / ballDto.cost)` 계산.
   - [ ] 1.4 생성된 보상마다 `ballRewardPrefab`을 `ballRewardParent` 아래 instantiate하고 데이터 바인딩 호출.
   - [ ] 1.5 리롤 시 비용 차감 성공 시 기존 보상 파괴 후 1.2~1.4 재실행, 실패 시 리롤 버튼 텍스트를 `Colors.Red`로 세팅하고 인터랙션 차단.
   - [ ] 1.6 보상 선택 완료 시 `RewardManager.Close()`에서 FlowManager 후속 호출 유지, 오버레이 비활성/정리.
