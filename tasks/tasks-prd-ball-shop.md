@@ -9,6 +9,7 @@
 - `Assets/Scripts/Ball/BallUiTooltipTarget.cs` - Ball 툴팁 타겟 연결.
 - `Assets/Scripts/Ball/BallDeck.cs` - `TryReplace`로 덱 교체 수행.
 - `Assets/Scripts/Ball/BallFactory.cs`/`BallInstance.cs` - 필요 시 스프라이트/프리뷰 생성에 참고.
+- `Assets/Scripts/Shop/BallItemView.cs` - Ball 상품 카드 UI.
 
 ### Notes
 
@@ -21,7 +22,7 @@
   - [x] 1.1 `isNotSell == false` Ball 풀 구성 및 슬롯 수(기본 2, 변수화) 랜덤 노출 로직 추가
   - [x] 1.2 재롤/회차마다 Ball 상품 재생성 및 중복 방지 처리
 - [ ] 2.0 Ball 전용 뷰/툴팁 연결
-  - [ ] 2.1 `BallItemView` 신설(아이콘/가격/구매 가능 표시; 배경/하이라이트 없음)
+  - [x] 2.1 `BallItemView` 신설(아이콘/가격/구매 가능 표시; 배경/하이라이트 없음)
   - [ ] 2.2 `BallUiTooltipTarget` 바인딩 및 ShopView에서 Ball 컨테이너/프리팹 직렬화 필드 처리
 - [ ] 3.0 Ball 구매 흐름 연동
   - [ ] 3.1 Ball 카드 클릭 시 즉시 구매 시도, 가격 검증 및 `BallDeck.TryReplace(ballId)` 호출
