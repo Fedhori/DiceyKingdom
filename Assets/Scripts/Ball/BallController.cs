@@ -95,7 +95,7 @@ public sealed class BallController : MonoBehaviour
         if (otherCollider.TryGetComponent<BallController>(out var otherBall))
         {
             HandleBallBallCollision(otherBall, collision);
-        }
+        } 
     }
 
     void HandleBallPinCollision(PinController pin, Collision2D collision)

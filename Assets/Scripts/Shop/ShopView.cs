@@ -161,6 +161,9 @@ public sealed class ShopView : MonoBehaviour
 
         EnsurePinItemViews(count);
 
+        if (count != pinItemViews.Count)
+            return;
+
         for (int i = 0; i < count; i++)
         {
             var view = pinItemViews[i];

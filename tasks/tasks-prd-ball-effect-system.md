@@ -30,7 +30,7 @@
 - [ ] 4.0 로컬라이징/툴팁 반영
   - [x] 4.1 효과 설명 문자열 키를 Ball용으로 추가(핀 포맷과 동일 변수명 사용)
   - [x] 4.2 BallTooltipUtil에 효과 설명/값 노출 로직 추가(Pin과 동일 포맷)
-  - [ ] 4.3 Tooltip 타겟(BallTooltipTarget/BallUITooltipTarget)에서 신규 설명이 표시되는지 확인
+  - [x] 4.3 Tooltip 타겟(BallTooltipTarget/BallUITooltipTarget)에서 신규 설명이 표시되는지 확인
 - [ ] 5.0 수동 검증 가이드 마련
   - [ ] 5.1 에디터/플레이 모드에서 Ball-Pin, Ball-Ball 충돌로 효과 발동/누적 여부 확인 절차 정리
   - [ ] 5.2 로컬라이징 문자열/툴팁 표시 확인 절차 정리

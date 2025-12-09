@@ -1778,6 +1778,7 @@ GameObject:
   - component: {fileID: 509129557}
   - component: {fileID: 509129558}
   - component: {fileID: 509129559}
+  - component: {fileID: 509129560}
   m_Layer: 0
   m_Name: Ball
   m_TagString: Untagged
@@ -1828,6 +1829,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallFactory
   ballPrefab: {fileID: 6712946394271827164, guid: 22f0b2cd85091534b90dbab6ca9639f4, type: 3}
   ballParent: {fileID: 1435853806}
+--- !u!114 &509129560
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 509129556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e9dca69a13eb65448381bea7e1388fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BallEffectManager
 --- !u!1 &513418570
 GameObject:
   m_ObjectHideFlags: 0
