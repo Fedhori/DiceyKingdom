@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using Data;
 
 public sealed class RewardManager : MonoBehaviour
 {
@@ -13,9 +15,18 @@ public sealed class RewardManager : MonoBehaviour
     [SerializeField] private int ballRerollCostIncrement = 1;
     private int currentBallRerollCost;
 
+    readonly List<BallRewardData> currentBallRewards = new();
+
     bool isOpen;
     StageInstance currentStage;
     int stageIndex;
+
+    sealed class BallRewardData
+    {
+        public string BallId;
+        public int BallCount;
+        public BallDto BallDto;
+    }
 
     void Awake()
     {
@@ -41,6 +52,8 @@ public sealed class RewardManager : MonoBehaviour
 
         currentBallRerollCost = baseBallRerollCost;
         ClearBallRewards();
+
+        BuildBallRewardSelection();
 
         if (ballRewardOverlay != null)
             ballRewardOverlay.SetActive(true);
@@ -98,11 +111,74 @@ public sealed class RewardManager : MonoBehaviour
         if (ballRewardParent == null)
             return;
 
+        currentBallRewards.Clear();
+
         for (int i = ballRewardParent.childCount - 1; i >= 0; i--)
         {
             var child = ballRewardParent.GetChild(i);
             if (child != null)
                 Destroy(child.gameObject);
+        }
+    }
+
+    void BuildBallRewardSelection()
+    {
+        currentBallRewards.Clear();
+
+        if (ballRewardCount <= 0)
+            return;
+
+        if (!BallRepository.IsInitialized)
+        {
+            Debug.LogError("[RewardManager] BallRepository not initialized. Cannot build ball rewards.");
+            return;
+        }
+
+        var candidates = new List<BallDto>();
+        foreach (var dto in BallRepository.All)
+        {
+            if (dto == null)
+                continue;
+
+            if (dto.isNotReward)
+                continue;
+
+            candidates.Add(dto);
+        }
+
+        if (candidates.Count == 0)
+        {
+            Debug.LogError("[RewardManager] No eligible ball rewards found.");
+            return;
+        }
+
+        var usedIds = new HashSet<string>();
+        int uniqueTarget = Mathf.Min(ballRewardCount, candidates.Count);
+
+        while (currentBallRewards.Count < uniqueTarget)
+        {
+            var dto = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+            if (usedIds.Contains(dto.id))
+                continue;
+
+            usedIds.Add(dto.id);
+            currentBallRewards.Add(new BallRewardData
+            {
+                BallId = dto.id,
+                BallDto = dto,
+                BallCount = 0
+            });
+        }
+
+        while (currentBallRewards.Count < ballRewardCount)
+        {
+            var dto = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+            currentBallRewards.Add(new BallRewardData
+            {
+                BallId = dto.id,
+                BallDto = dto,
+                BallCount = 0
+            });
         }
     }
 }
