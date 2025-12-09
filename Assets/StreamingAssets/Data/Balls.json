@@ -3,27 +3,32 @@
 		{
 			"id": "ball.basic",
 			"ballScoreMultiplier": 1,
-			"isNotSell": true
+			"isNotSell": true,
+			"rules": []
 		},
 		{
 			"id": "ball.gold",
 			"ballScoreMultiplier": 10,
-			"price": 4
+			"price": 4,
+			"rules": []
 		},
 		{
 			"id": "ball.test1",
 			"ballScoreMultiplier": 2,
-			"price": 1
+			"price": 1,
+			"rules": []
 		},
 		{
 			"id": "ball.test2",
 			"ballScoreMultiplier": 4,
-			"price": 2
+			"price": 2,
+			"rules": []
 		},
 		{
 			"id": "ball.test3",
 			"ballScoreMultiplier": 8,
-			"price": 3
+			"price": 3,
+			"rules": []
 		}
 	]
 }
