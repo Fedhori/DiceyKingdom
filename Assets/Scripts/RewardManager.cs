@@ -166,7 +166,7 @@ public sealed class RewardManager : MonoBehaviour
             {
                 BallId = dto.id,
                 BallDto = dto,
-                BallCount = CalculateBallRewardCount(dto)
+                BallCount = 0
             });
         }
 
@@ -177,24 +177,8 @@ public sealed class RewardManager : MonoBehaviour
             {
                 BallId = dto.id,
                 BallDto = dto,
-                BallCount = CalculateBallRewardCount(dto)
+                BallCount = 0
             });
         }
-    }
-
-    int CalculateBallRewardCount(BallDto dto)
-    {
-        if (dto == null || dto.cost <= 0)
-            return 0;
-
-        var player = PlayerManager.Instance?.Current;
-        if (player == null)
-            return 0;
-
-        float baseCost = player.BallCost;
-        float multiplier = UnityEngine.Random.Range(1.0f, 1.5f);
-        float adjustedCost = baseCost * multiplier;
-        int count = Mathf.CeilToInt(adjustedCost / dto.cost);
-        return Mathf.Max(1, count);
     }
 }
