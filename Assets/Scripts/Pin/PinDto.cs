@@ -8,7 +8,7 @@ using UnityEngine;
 
 /* 핀 추가 체크리스트
  1. Pins.json에 값 추가
- 2. pin 테이블 - {id}.name, {id}.effect{index} 스트링키 추가
+ 2. pin 테이블 - {id}.name (핀 이름), {id}.effect{index} (핀 효과) 스트링키 추가
  */
 
 /* {id}.effect{index} 작성 체크리스트
@@ -16,7 +16,6 @@ using UnityEngine;
  2. effect는 여러개일 수 있으므로, 할당한 변수명{index} - e.g) value0 형태로 넣을 것
  3. argument로 쓰이는 신규 파라미터가 추가되었을 경우에는 BuildRuleArgs() 함수에 대응해둘 것
  */
-
 
 namespace Data
 {
@@ -74,7 +73,6 @@ namespace Data
     [Serializable]
     public sealed class PinRuleDto
     {
-        // JSON: "triggerType": "OnBallHit" | "OnBallDestroyed"
         [JsonConverter(typeof(StringEnumConverter))]
         public PinTriggerType triggerType;
 

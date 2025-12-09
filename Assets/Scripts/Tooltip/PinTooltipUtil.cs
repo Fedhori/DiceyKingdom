@@ -94,9 +94,12 @@ public static class PinTooltipUtil
         var dict = new Dictionary<string, object>();
 
         // 단일 condition: hits0
-        if (rule.condition != null && rule.condition.hits > 0)
+        if (rule.condition != null)
         {
-            dict["hits"] = rule.condition.hits;
+            if(rule.condition.hits > 0)
+                dict["hits"] = rule.condition.hits;
+            
+            // 이쪽에 새로 추가한 파라미터들을 넘긴다
         }
 
         // effects: valueN
@@ -111,6 +114,8 @@ public static class PinTooltipUtil
                 string key = $"value{i}";
                 float v = e.value;
                 dict[key] = v.ToString("0.##");
+                
+                // 이쪽에 새로 추가한 파라미터들을 넘긴다
             }
         }
 
