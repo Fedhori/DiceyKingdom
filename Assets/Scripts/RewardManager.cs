@@ -46,7 +46,6 @@ public sealed class RewardManager : MonoBehaviour
     private void Start()
     {
         SubscribePlayer();
-        SetupRerollButton();
     }
 
     public void Open(StageInstance stage, int stageIndex)
@@ -107,19 +106,10 @@ public sealed class RewardManager : MonoBehaviour
 
         player.OnCurrencyChanged -= HandleCurrencyChanged;
     }
-
-    void SetupRerollButton()
-    {
-        if (ballRerollButton == null)
-            return;
-
-        ballRerollButton.onClick.RemoveAllListeners();
-        ballRerollButton.onClick.AddListener(BallRewardReroll);
-    }
     
     void HandleCurrencyChanged(int value)
     {
-        UpdateRerollUI();
+        // TODO
     }
 
     void ClearBallRewards()
