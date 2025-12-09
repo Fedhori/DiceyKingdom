@@ -26,7 +26,7 @@
   - [x] 2.1 `BallItemView` 신설(아이콘/가격/구매 가능 표시; 배경/하이라이트 없음)
   - [x] 2.2 `BallUiTooltipTarget` 바인딩 및 ShopView에서 Ball 컨테이너/프리팹 직렬화 필드 처리
 - [ ] 3.0 Ball 구매 흐름 연동
-  - [ ] 3.1 Ball 카드 클릭 시 즉시 구매 시도, 가격 검증 및 `BallDeck.TryReplace(ballId)` 호출
+  - [x] 3.1 Ball 카드 클릭 시 즉시 구매 시도, 가격 검증 및 `BallDeck.TryReplace(ballId)` 호출
   - [ ] 3.2 구매 성공 시 통화 차감/판매 처리, 실패(`TryReplace == false`) 시 무동작(리펀드/메시지 없음)
 - [ ] 4.0 UI 통합 및 수동 검증
   - [ ] 4.1 Pin/Ball 혼합 레이아웃에서 구매 가능/불가 색상/비활성화가 Pin 규칙과 일관되는지 확인

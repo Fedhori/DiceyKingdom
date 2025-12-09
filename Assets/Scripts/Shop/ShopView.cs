@@ -58,16 +58,27 @@ public sealed class ShopView : MonoBehaviour
     void ClearEditorPlacedItems()
     {
         pinItemViews.Clear();
+        ballItemViews.Clear();
 
-        if (pinItemsParent == null)
-            return;
-
-        for (int i = pinItemsParent.childCount - 1; i >= 0; i--)
+        if (ballItemsParent != null)
         {
-            var child = pinItemsParent.GetChild(i);
-            if (child != null)
+            for (int i = ballItemsParent.childCount - 1; i >= 0; i--)
             {
-                Destroy(child.gameObject);
+                var child = ballItemsParent.GetChild(i);
+                if (child != null)
+                    Destroy(child.gameObject);
+            }
+        }
+
+        if (pinItemsParent != null)
+        {
+            for (int i = pinItemsParent.childCount - 1; i >= 0; i--)
+            {
+                var child = pinItemsParent.GetChild(i);
+                if (child != null)
+                {
+                    Destroy(child.gameObject);
+                }
             }
         }
     }

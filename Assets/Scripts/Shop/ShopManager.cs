@@ -358,7 +358,7 @@ public sealed class ShopManager : MonoBehaviour
             : 0;
 
         bool hasEmptySlot = PinManager.Instance != null && PinManager.Instance.GetBasicPinSlot(out var x, out var y);
-        bool hasBallDeckSpace = true; // TODO: 덱 수용 가능 여부가 필요하면 연동
+        bool hasBallDeckSpace = HasBallDeckSpace();
 
         shopView.SetPinItems(currentItems, currency, hasEmptySlot, currentRerollCost);
         shopView.SetBallItems(currentBallItems, currency, hasBallDeckSpace);
@@ -389,7 +389,85 @@ public sealed class ShopManager : MonoBehaviour
 
     void OnClickBallItem(int index)
     {
-        // TODO: Ball 구매 처리 (Task 3.x)
+        if (!isOpen)
+            return;
+
+        if (!IsMainStoreContext(context))
+            return;
+
+        TryPurchaseBallAt(index);
+    }
+
+    bool HasBallDeckSpace()
+    {
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+            return false;
+
+        var deck = player.BallDeck;
+        if (deck == null)
+            return false;
+
+        int basicCount = deck.GetCount(GameConfig.BasicBallId);
+        return basicCount > 0;
+    }
+
+    bool TryPurchaseBallAt(int index)
+    {
+        if (currentBallItems == null || index < 0 || index >= currentBallItems.Length)
+            return false;
+
+        ref BallItemData item = ref currentBallItems[index];
+        if (!item.hasItem || item.sold || item.ball == null)
+            return false;
+
+        var currencyMgr = CurrencyManager.Instance;
+        var player = PlayerManager.Instance?.Current;
+
+        if (currencyMgr == null || player == null)
+        {
+            RefreshView();
+            return false;
+        }
+
+        var deck = player.BallDeck;
+        if (deck == null)
+        {
+            RefreshView();
+            return false;
+        }
+
+        int price = item.price;
+
+        if (currencyMgr.CurrentCurrency < price)
+        {
+            RefreshView();
+            return false;
+        }
+
+        if (!HasBallDeckSpace())
+        {
+            RefreshView();
+            return false;
+        }
+
+        if (!currencyMgr.TrySpend(price))
+        {
+            RefreshView();
+            return false;
+        }
+
+        var ballId = item.ball.id;
+        if (string.IsNullOrEmpty(ballId) || !deck.TryReplace(ballId, 1))
+        {
+            currencyMgr.AddCurrency(price);
+            RefreshView();
+            return false;
+        }
+
+        item.sold = true;
+        RefreshView();
+        return true;
     }
 
 
