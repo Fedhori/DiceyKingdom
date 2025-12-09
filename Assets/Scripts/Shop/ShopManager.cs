@@ -50,6 +50,7 @@ public sealed class ShopManager : MonoBehaviour
         if (shopView != null)
         {
             shopView.SetCallbacks(OnClickItem, OnClickReroll, OnClickCloseButton);
+            shopView.SetBallCallbacks(OnClickBallItem);
             OnSelectionChanged += shopView.HandleSelectionChanged;
         }
     }
@@ -357,8 +358,10 @@ public sealed class ShopManager : MonoBehaviour
             : 0;
 
         bool hasEmptySlot = PinManager.Instance != null && PinManager.Instance.GetBasicPinSlot(out var x, out var y);
+        bool hasBallDeckSpace = true; // TODO: 덱 수용 가능 여부가 필요하면 연동
 
         shopView.SetPinItems(currentItems, currency, hasEmptySlot, currentRerollCost);
+        shopView.SetBallItems(currentBallItems, currency, hasBallDeckSpace);
         shopView.RefreshAll();
     }
 
@@ -382,6 +385,11 @@ public sealed class ShopManager : MonoBehaviour
             ClearSelection();
         else
             SetSelection(index);
+    }
+
+    void OnClickBallItem(int index)
+    {
+        // TODO: Ball 구매 처리 (Task 3.x)
     }
 
 

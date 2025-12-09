@@ -11,8 +11,11 @@ public sealed class ShopView : MonoBehaviour
     [Header("Overlay Root")] [SerializeField]
     private GameObject overlayRoot;
 
-    [Header("Item UI")] [SerializeField] private PinItemView pinItemPrefab;
+    [Header("Pin Item UI")] [SerializeField] private PinItemView pinItemPrefab;
     [SerializeField] private Transform pinItemsParent;
+
+    [Header("Ball Item UI")] [SerializeField] private BallItemView ballItemPrefab;
+    [SerializeField] private Transform ballItemsParent;
 
     [Header("Reroll / Close UI")] [SerializeField]
     private LocalizeStringEvent rerollCostText;
@@ -21,10 +24,12 @@ public sealed class ShopView : MonoBehaviour
     [SerializeField] private Button closeButton;
 
     readonly List<PinItemView> pinItemViews = new();
+    readonly List<BallItemView> ballItemViews = new();
 
     int selectedPinItemIndex = -1;
 
     Action<int> onClickPinItem;
+    Action<int> onClickBallItem;
     Action onClickReroll;
     Action onClickClose;
 
@@ -74,6 +79,11 @@ public sealed class ShopView : MonoBehaviour
         this.onClickClose = onClickClose;
     }
 
+    public void SetBallCallbacks(Action<int> onClickItem)
+    {
+        this.onClickBallItem = onClickItem;
+    }
+
     void EnsurePinItemViews(int count)
     {
         if (pinItemPrefab == null || pinItemsParent == null)
@@ -101,6 +111,36 @@ public sealed class ShopView : MonoBehaviour
             bool active = i < count;
             if (pinItemViews[i] != null)
                 pinItemViews[i].gameObject.SetActive(active);
+        }
+    }
+
+    void EnsureBallItemViews(int count)
+    {
+        if (ballItemPrefab == null || ballItemsParent == null)
+        {
+            Debug.LogError("[ShopView] ballItemPrefab or ballItemsParent is null.");
+            return;
+        }
+
+        while (ballItemViews.Count < count)
+        {
+            var view = Instantiate(ballItemPrefab, ballItemsParent);
+            int index = ballItemViews.Count;
+
+            view.SetClickHandler(() =>
+            {
+                if (onClickBallItem != null)
+                    onClickBallItem(index);
+            });
+
+            ballItemViews.Add(view);
+        }
+
+        for (int i = 0; i < ballItemViews.Count; i++)
+        {
+            bool active = i < count;
+            if (ballItemViews[i] != null)
+                ballItemViews[i].gameObject.SetActive(active);
         }
     }
 
@@ -137,6 +177,33 @@ public sealed class ShopView : MonoBehaviour
             if (rerollCostText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
                 sv.Value = rerollCost.ToString();
             rerollCostText.GetComponent<TMP_Text>().color = canReroll ? Colors.Black : Colors.Red;
+        }
+    }
+
+    public void SetBallItems(BallItemData[] items, int currentCurrency, bool hasDeckSpace)
+    {
+        int count = (items != null) ? items.Length : 0;
+
+        EnsureBallItemViews(count);
+
+        for (int i = 0; i < count; i++)
+        {
+            var view = ballItemViews[i];
+            if (view == null)
+                continue;
+
+            var data = items[i];
+
+            if (!data.hasItem || data.ball == null)
+            {
+                view.gameObject.SetActive(false);
+                continue;
+            }
+
+            bool canBuy = !data.sold && hasDeckSpace && currentCurrency >= data.price;
+
+            view.gameObject.SetActive(true);
+            view.SetData(data.ball, data.price, canBuy, data.sold);
         }
     }
 

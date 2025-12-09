@@ -5,6 +5,7 @@
 - `Assets/Scripts/Shop/PinItemData.cs` - 상점 아이템 데이터 구조; Ball도 유사 구조 필요 시 재사용/확장 검토.
 - `Assets/Scripts/Shop/BallItemData.cs` - Ball 상품 슬롯 데이터 구조.
 - `Assets/Scripts/Shop/PinItemView.cs` - Pin용 뷰; BallItemView 구조 참고용.
+- `Assets/Scripts/Shop/BallItemView.cs` - Ball 상품 카드 UI.
 - `Assets/Scripts/Ball/BallRepository.cs` (또는 Ball DTO/데이터 소스) - Ball 목록/price/isNotSell 필터 출처.
 - `Assets/Scripts/Ball/BallUiTooltipTarget.cs` - Ball 툴팁 타겟 연결.
 - `Assets/Scripts/Ball/BallDeck.cs` - `TryReplace`로 덱 교체 수행.
@@ -23,7 +24,7 @@
   - [x] 1.2 재롤/회차마다 Ball 상품 재생성 및 중복 방지 처리
 - [ ] 2.0 Ball 전용 뷰/툴팁 연결
   - [x] 2.1 `BallItemView` 신설(아이콘/가격/구매 가능 표시; 배경/하이라이트 없음)
-  - [ ] 2.2 `BallUiTooltipTarget` 바인딩 및 ShopView에서 Ball 컨테이너/프리팹 직렬화 필드 처리
+  - [x] 2.2 `BallUiTooltipTarget` 바인딩 및 ShopView에서 Ball 컨테이너/프리팹 직렬화 필드 처리
 - [ ] 3.0 Ball 구매 흐름 연동
   - [ ] 3.1 Ball 카드 클릭 시 즉시 구매 시도, 가격 검증 및 `BallDeck.TryReplace(ballId)` 호출
   - [ ] 3.2 구매 성공 시 통화 차감/판매 처리, 실패(`TryReplace == false`) 시 무동작(리펀드/메시지 없음)
