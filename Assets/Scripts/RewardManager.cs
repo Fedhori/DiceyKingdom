@@ -54,7 +54,6 @@ public sealed class RewardManager : MonoBehaviour
         ClearBallRewards();
 
         BuildBallRewardSelection();
-        InstantiateBallRewardViews();
 
         if (ballRewardOverlay != null)
             ballRewardOverlay.SetActive(true);
@@ -180,28 +179,6 @@ public sealed class RewardManager : MonoBehaviour
                 BallDto = dto,
                 BallCount = CalculateBallRewardCount(dto)
             });
-        }
-    }
-
-    void InstantiateBallRewardViews()
-    {
-        if (ballRewardPrefab == null || ballRewardParent == null)
-        {
-            Debug.LogError("[RewardManager] ballRewardPrefab or ballRewardParent missing.");
-            return;
-        }
-
-        foreach (var reward in currentBallRewards)
-        {
-            var go = Instantiate(ballRewardPrefab, ballRewardParent);
-            var controller = go.GetComponent<BallRewardController>();
-            if (controller == null)
-            {
-                Debug.LogError("[RewardManager] BallRewardController not found on prefab.");
-                continue;
-            }
-
-            controller.Initialize(reward.BallId, reward.BallCount, null);
         }
     }
 
