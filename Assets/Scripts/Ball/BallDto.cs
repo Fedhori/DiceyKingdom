@@ -12,7 +12,6 @@ namespace Data
         public string id;
         public float ballScoreMultiplier = 1f;
         public int cost;
-        public bool isNotReward = false;
 
         [OnDeserialized]
         internal void OnDeserialized(StreamingContext context)

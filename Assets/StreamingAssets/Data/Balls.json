@@ -3,8 +3,7 @@
 		{
 			"id": "ball.basic",
 			"ballScoreMultiplier": 1,
-			"cost": 10,
-			"isNotReward": true
+			"cost": 10
 		},
 		{
 			"id": "ball.gold",
