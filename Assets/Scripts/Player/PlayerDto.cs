@@ -23,6 +23,7 @@ namespace Data
         public float critChance = 5f;
         public float criticalMultiplier = 2f;
 
+        public int startBallCost;
         // 런 시작 시 지급되는 통화
         public int startCurrency = 0;
 

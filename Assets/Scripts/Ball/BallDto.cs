@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -10,6 +11,17 @@ namespace Data
     {
         public string id;
         public float ballScoreMultiplier = 1f;
+        public int cost;
+
+        [OnDeserialized]
+        internal void OnDeserialized(StreamingContext context)
+        {
+            if (cost <= 0)
+            {
+                Debug.LogError($"[BallDto] cost is same or below 0. cost: {cost}, id: {id}");
+                return;
+            }
+        }
     }
 
     [Serializable]
