@@ -1,5 +1,6 @@
 using Data;
 using UnityEngine;
+using System.Collections.Generic;
 
 public sealed class BallInstance
 {
@@ -51,10 +52,69 @@ public sealed class BallInstance
         int gained = Mathf.RoundToInt(rawScore);
 
         ScoreManager.Instance.AddScore(gained, criticalType, position);
+
+        HandleTrigger(BallTriggerType.OnBallHitPin, null, pin, position);
     }
 
     public void OnHitBall(BallInstance other)
     {
-        // 나중에 Ball-Ball 충돌에 따른 효과를 추가하고 싶으면 여기서 처리
+        if (other == null)
+            return;
+
+        HandleTrigger(BallTriggerType.OnBallHitBall, other, null, Vector2.zero);
+    }
+
+    void HandleTrigger(BallTriggerType trigger, BallInstance otherBall, PinInstance pin, Vector2 position)
+    {
+        if (rules == null || rules.Count == 0)
+            return;
+
+        for (int i = 0; i < rules.Count; i++)
+        {
+            var rule = rules[i];
+            if (rule == null)
+                continue;
+
+            if (rule.triggerType != trigger)
+                continue;
+
+            if (!IsConditionMet(rule.condition, trigger))
+                continue;
+
+            ApplyEffects(rule.effects, otherBall, pin, position);
+        }
+    }
+
+    bool IsConditionMet(BallConditionDto cond, BallTriggerType trigger)
+    {
+        if (cond == null)
+            return true;
+
+        switch (cond.conditionKind)
+        {
+            case BallConditionKind.Always:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    void ApplyEffects(List<BallEffectDto> effects, BallInstance otherBall, PinInstance pin, Vector2 position)
+    {
+        if (effects == null || effects.Count == 0)
+            return;
+
+        var effectManager = BallEffectManager.Instance;
+        if (effectManager == null)
+            return;
+
+        for (int i = 0; i < effects.Count; i++)
+        {
+            var effect = effects[i];
+            if (effect == null)
+                continue;
+
+            effectManager.ApplyEffect(effect, this, otherBall, pin, position);
+        }
     }
 }
