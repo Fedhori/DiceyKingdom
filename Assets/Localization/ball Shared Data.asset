@@ -23,6 +23,22 @@ MonoBehaviour:
     m_Key: ball.gold.name
     m_Metadata:
       m_Items: []
+  - m_Id: 2591086715092992
+    m_Key: ball.friend.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2591164875948033
+    m_Key: ball.friend.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2591164875948032
+    m_Key: ball.coal.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2591164875948034
+    m_Key: ball.coal.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

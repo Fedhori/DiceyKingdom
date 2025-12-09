@@ -17,7 +17,15 @@ MonoBehaviour:
   m_SharedData: {fileID: 11400000, guid: ef0496c17314a7941a6d6e3630939611, type: 2}
   m_Metadata:
     m_Items: []
-  m_TableData: []
+  m_TableData:
+  - m_Id: 2591164875948033
+    m_Localized: "On ball hit: other ball score multiplier +{value0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2591164875948034
+    m_Localized: "On pin hit: self score multiplier +{value0}"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
