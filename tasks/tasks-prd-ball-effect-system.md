@@ -24,8 +24,8 @@
   - [x] 2.2 BallInstance에 효과 평가 흐름 추가(트리거별 조건 검사 → 다중 효과 실행), 충돌 이벤트에 훅 연결(OnHitBall/OnHitPin 등)
   - [x] 2.3 PinEffectManager와 유사한 BallEffectManager(또는 유틸)로 효과 실행 분리 및 재사용 구조 설계
 - [ ] 3.0 요구 효과(점수 배율 +1) 정의 및 적용
-  - [ ] 3.1 Balls.json에 “Ball-Ball 충돌 시 상대 Ball 점수 배율 +1” 룰 추가
-  - [ ] 3.2 Balls.json에 “Ball-Pin 충돌 시 자기 Ball 점수 배율 +1” 룰 추가
+  - [x] 3.1 Balls.json에 “Ball-Ball 충돌 시 상대 Ball 점수 배율 +1” 룰 추가
+  - [x] 3.2 Balls.json에 “Ball-Pin 충돌 시 자기 Ball 점수 배율 +1” 룰 추가
   - [ ] 3.3 런타임에서 두 효과가 누적 적용되는지 검증(배율 증가 반영)
 - [ ] 4.0 로컬라이징/툴팁 반영
   - [ ] 4.1 효과 설명 문자열 키를 Ball용으로 추가(핀 포맷과 동일 변수명 사용)

@@ -13,22 +13,48 @@
 			"rules": []
 		},
 		{
-			"id": "ball.test1",
-			"ballScoreMultiplier": 2,
+			"id": "ball.friend",
+			"ballScoreMultiplier": 1,
 			"price": 1,
-			"rules": []
+			"rules": [
+				{
+					"triggerType": "OnBallHitBall",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyOtherBallStat",
+							"statId": "ball.scoreMultiplier",
+							"effectMode": "Add",
+							"value": 1,
+							"temporary": true
+						}
+					]
+				}
+			]
 		},
 		{
-			"id": "ball.test2",
-			"ballScoreMultiplier": 4,
+			"id": "ball.coal",
+			"ballScoreMultiplier": 1,
 			"price": 2,
-			"rules": []
-		},
-		{
-			"id": "ball.test3",
-			"ballScoreMultiplier": 8,
-			"price": 3,
-			"rules": []
+			"rules": [
+				{
+					"triggerType": "OnBallHitPin",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifySelfStat",
+							"statId": "ball.scoreMultiplier",
+							"effectMode": "Add",
+							"value": 1,
+							"temporary": true
+						}
+					]
+				}
+			]
 		}
 	]
 }
