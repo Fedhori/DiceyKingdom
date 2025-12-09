@@ -35,6 +35,5 @@
 
 - [ ] 3.0 리롤 UI/자원 처리
   - [x] 3.1 리롤 버튼 클릭 핸들러에서 `CurrencyManager.TrySpend(currentBallRerollCost)`로 비용 지불, 성공 시 `currentBallRerollCost += ballRerollCostIncrement`.
-  - [x] 3.2 `RewardManager.HandleCurrencyChanged`로 `CurrencyManager.CurrentCurrency` 변동을 구독/반영해 리롤 가능 여부와 버튼 상태를 갱신.
-  - [x] 3.3 비용 부족 상태에서 리롤 버튼 텍스트 색을 `Colors.Red`로 표시하고 버튼을 비활성화.
-- [x] 3.0 리롤 UI/자원 처리
+  - [ ] 3.2 `RewardManager.HandleCurrencyChanged`로 `CurrencyManager.CurrentCurrency` 변동을 구독/반영해 리롤 가능 여부와 버튼 상태를 갱신.
+  - [ ] 3.3 비용 부족 상태에서 리롤 버튼 텍스트 색을 `Colors.Red`로 표시하고 버튼을 비활성화.
