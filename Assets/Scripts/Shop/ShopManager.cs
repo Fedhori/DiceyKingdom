@@ -10,6 +10,7 @@ public sealed class ShopManager : MonoBehaviour
     [SerializeField] ShopView shopView;
 
     [SerializeField] int itemsPerShop = 3;
+    [SerializeField] int ballItemsPerShop = 2;
     [SerializeField] int baseRerollCost = 1;
     [SerializeField] int rerollCostIncrement = 1;
 
@@ -17,9 +18,13 @@ public sealed class ShopManager : MonoBehaviour
     ShopOpenContext context;
 
     readonly List<PinDto> sellablePins = new();
-    readonly List<int> tempIndices = new();
+    readonly List<int> tempPinIndices = new();
+
+    readonly List<BallDto> sellableBalls = new();
+    readonly List<int> tempBallIndices = new();
 
     PinItemData[] currentItems;
+    BallItemData[] currentBallItems;
     int currentRerollCost;
 
     public event Action<int> OnSelectionChanged;
@@ -60,10 +65,13 @@ public sealed class ShopManager : MonoBehaviour
         ClearSelection();
 
         BuildSellablePins();
+        BuildSellableBalls();
         EnsureItemArray();
+        EnsureBallItemArray();
         currentRerollCost = Mathf.Max(1, baseRerollCost);
 
         RollItems();
+        RollBallItems();
         RefreshView();
 
         if (shopView != null)
@@ -118,6 +126,31 @@ public sealed class ShopManager : MonoBehaviour
         }
     }
 
+    void BuildSellableBalls()
+    {
+        sellableBalls.Clear();
+
+        if (!BallRepository.IsInitialized)
+        {
+            Debug.LogWarning("[ShopManager] BallRepository not initialized.");
+            return;
+        }
+
+        foreach (var dto in BallRepository.All)
+        {
+            if (dto == null)
+                continue;
+
+            if (dto.isNotSell)
+                continue;
+
+            if (!string.IsNullOrEmpty(GameConfig.BasicBallId) && dto.id == GameConfig.BasicBallId)
+                continue;
+
+            sellableBalls.Add(dto);
+        }
+    }
+
     void EnsureItemArray()
     {
         if (itemsPerShop <= 0)
@@ -135,6 +168,23 @@ public sealed class ShopManager : MonoBehaviour
         }
     }
 
+    void EnsureBallItemArray()
+    {
+        if (ballItemsPerShop <= 0)
+            ballItemsPerShop = 2;
+
+        if (currentBallItems == null || currentBallItems.Length != ballItemsPerShop)
+            currentBallItems = new BallItemData[ballItemsPerShop];
+
+        for (int i = 0; i < currentBallItems.Length; i++)
+        {
+            currentBallItems[i].hasItem = false;
+            currentBallItems[i].ball = null;
+            currentBallItems[i].price = 0;
+            currentBallItems[i].sold = false;
+        }
+    }
+
     void RollItems()
     {
         EnsureItemArray();
@@ -142,20 +192,20 @@ public sealed class ShopManager : MonoBehaviour
         if (sellablePins.Count == 0)
             return;
 
-        tempIndices.Clear();
+        tempPinIndices.Clear();
         for (int i = 0; i < sellablePins.Count; i++)
-            tempIndices.Add(i);
+            tempPinIndices.Add(i);
 
         int count = Mathf.Min(itemsPerShop, sellablePins.Count);
 
         for (int slot = 0; slot < count; slot++)
         {
-            if (tempIndices.Count == 0)
+            if (tempPinIndices.Count == 0)
                 break;
 
-            int pick = Rng.Next(tempIndices.Count);
-            int pinIndex = tempIndices[pick];
-            tempIndices.RemoveAt(pick);
+            int pick = Rng.Next(tempPinIndices.Count);
+            int pinIndex = tempPinIndices[pick];
+            tempPinIndices.RemoveAt(pick);
 
             var dto = sellablePins[pinIndex];
             var previewInstance = new PinInstance(dto, -1, -1, registerEventEffects: false);
@@ -164,6 +214,37 @@ public sealed class ShopManager : MonoBehaviour
             currentItems[slot].pin = previewInstance; // ← PinInstance 캐싱
             currentItems[slot].price = previewInstance.Price;
             currentItems[slot].sold = false;
+        }
+    }
+
+    void RollBallItems()
+    {
+        EnsureBallItemArray();
+
+        if (sellableBalls.Count == 0)
+            return;
+
+        tempBallIndices.Clear();
+        for (int i = 0; i < sellableBalls.Count; i++)
+            tempBallIndices.Add(i);
+
+        int count = Mathf.Min(ballItemsPerShop, sellableBalls.Count);
+
+        for (int slot = 0; slot < count; slot++)
+        {
+            if (tempBallIndices.Count == 0)
+                break;
+
+            int pick = Rng.Next(tempBallIndices.Count);
+            int ballIndex = tempBallIndices[pick];
+            tempBallIndices.RemoveAt(pick);
+
+            var dto = sellableBalls[ballIndex];
+
+            currentBallItems[slot].hasItem = true;
+            currentBallItems[slot].ball = dto;
+            currentBallItems[slot].price = dto.price;
+            currentBallItems[slot].sold = false;
         }
     }
 
