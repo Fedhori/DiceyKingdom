@@ -233,7 +233,7 @@ public sealed class RewardManager : MonoBehaviour
                 continue;
             }
 
-            controller.Initialize(reward.BallId, reward.BallCount, null);
+            controller.Initialize(reward.BallId, reward.BallCount, HandleBallRewardSelected);
         }
     }
 
@@ -270,5 +270,21 @@ public sealed class RewardManager : MonoBehaviour
 
         if (ballRerollButton != null)
             ballRerollButton.interactable = canReroll;
+    }
+
+    void HandleBallRewardSelected(string ballId, int count)
+    {
+        if (!isOpen)
+            return;
+
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+        {
+            Debug.LogError("[RewardManager] Player not found. Cannot apply reward.");
+            return;
+        }
+
+        player.BallDeck.Add(ballId, count);
+        Close();
     }
 }

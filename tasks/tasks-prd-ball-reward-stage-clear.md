@@ -25,7 +25,7 @@
   - [x] 1.3 `BallCost`에 1.0~1.5 난수 계수 곱해 `adjustedCost` 산출, `ballCount = ceil(adjustedCost / ballDto.cost)` 계산.
   - [x] 1.4 생성된 보상마다 `ballRewardPrefab`을 `ballRewardParent` 아래 instantiate하고 데이터 바인딩 호출.
   - [x] 1.5 리롤 시 비용 차감 성공 시 기존 보상 파괴 후 1.2~1.4 재실행, 실패 시 리롤 버튼 텍스트를 `Colors.Red`로 세팅하고 인터랙션 차단.
-  - [ ] 1.6 보상 선택 완료 시 `RewardManager.Close()`에서 FlowManager 후속 호출 유지, 오버레이 비활성/정리.
+  - [x] 1.6 보상 선택 완료 시 `RewardManager.Close()`에서 FlowManager 후속 호출 유지, 오버레이 비활성/정리.
 
 - [ ] 2.0 보상 데이터 바인딩/선택 처리
   - [ ] 2.1 `BallRewardController`에서 `Initialize(ballId, count, onSelected)` 형태의 초기화 메서드로 아이콘(`SpriteCache.GetBallSprite`)과 수량 UI 표시.
