@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 using Data;
 
 public sealed class RewardManager : MonoBehaviour
@@ -12,8 +10,6 @@ public sealed class RewardManager : MonoBehaviour
     [SerializeField] private GameObject ballRewardOverlay;
     [SerializeField] private GameObject ballRewardPrefab;
     [SerializeField] private RectTransform ballRewardParent;
-    [SerializeField] private Button ballRerollButton;
-    [SerializeField] private TMP_Text ballRerollCostText;
 
     [SerializeField] private int baseBallRerollCost = 1;
     [SerializeField] private int ballRerollCostIncrement = 1;
@@ -59,7 +55,6 @@ public sealed class RewardManager : MonoBehaviour
 
         BuildBallRewardSelection();
         InstantiateBallRewardViews();
-        UpdateRerollUI();
 
         if (ballRewardOverlay != null)
             ballRewardOverlay.SetActive(true);
@@ -188,33 +183,6 @@ public sealed class RewardManager : MonoBehaviour
         }
     }
 
-    public void BallRewardReroll()
-    {
-        if (!isOpen)
-            return;
-
-        var currencyManager = CurrencyManager.Instance;
-        if (currencyManager == null)
-        {
-            Debug.LogError("[RewardManager] CurrencyManager not found. Cannot reroll.");
-            return;
-        }
-
-        int cost = Mathf.Max(1, currentBallRerollCost);
-        if (!currencyManager.TrySpend(cost))
-        {
-            SetRerollButtonState(false);
-            return;
-        }
-
-        currentBallRerollCost = Mathf.Max(1, currentBallRerollCost + Mathf.Max(1, ballRerollCostIncrement));
-
-        ClearBallRewards();
-        BuildBallRewardSelection();
-        InstantiateBallRewardViews();
-        UpdateRerollUI();
-    }
-
     void InstantiateBallRewardViews()
     {
         if (ballRewardPrefab == null || ballRewardParent == null)
@@ -251,24 +219,5 @@ public sealed class RewardManager : MonoBehaviour
         float adjustedCost = baseCost * multiplier;
         int count = Mathf.CeilToInt(adjustedCost / dto.cost);
         return Mathf.Max(1, count);
-    }
-
-    void UpdateRerollUI()
-    {
-        int currency = CurrencyManager.Instance?.CurrentCurrency ?? 0;
-        bool canReroll = currency >= currentBallRerollCost;
-        SetRerollButtonState(canReroll);
-    }
-
-    void SetRerollButtonState(bool canReroll)
-    {
-        if (ballRerollCostText != null)
-        {
-            ballRerollCostText.text = currentBallRerollCost.ToString();
-            ballRerollCostText.color = canReroll ? Colors.Black : Colors.Red;
-        }
-
-        if (ballRerollButton != null)
-            ballRerollButton.interactable = canReroll;
     }
 }
