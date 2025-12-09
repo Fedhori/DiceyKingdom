@@ -21,8 +21,6 @@ public sealed class PlayerInstance
     // 상점/보상에 사용하는 통화
     public int Currency { get; private set; }
 
-    public int BallCost { get; private set; }
-
     public event Action<int> OnCurrencyChanged;
 
     public PlayerInstance(PlayerDto dto)
@@ -61,7 +59,6 @@ public sealed class PlayerInstance
 
         // 시작 통화 셋업
         Currency = Mathf.Max(0, BaseDto.startCurrency);
-        BallCost = Mathf.Max(0, BaseDto.startBallCost);
     }
 
     public void ResetData()

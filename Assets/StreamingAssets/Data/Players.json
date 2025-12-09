@@ -6,7 +6,6 @@
 			"scoreMultiplier": 1.0,
 			"critChance": 10.0,
 			"criticalMultiplier": 2.0,
-			"startBallCost": 50,
 			"startCurrency": 0,
 			"ballDeck": [
 				{ "id": "ball.basic", "count": 10 },

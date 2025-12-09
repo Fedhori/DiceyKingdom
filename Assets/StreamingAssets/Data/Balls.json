@@ -2,28 +2,23 @@
 	"balls": [
 		{
 			"id": "ball.basic",
-			"ballScoreMultiplier": 1,
-			"cost": 10
+			"ballScoreMultiplier": 1
 		},
 		{
 			"id": "ball.gold",
-			"ballScoreMultiplier": 10,
-			"cost": 30
+			"ballScoreMultiplier": 10
 		},
 		{
 			"id": "ball.test1",
-			"ballScoreMultiplier": 2,
-			"cost": 15
+			"ballScoreMultiplier": 2
 		},
 		{
 			"id": "ball.test2",
-			"ballScoreMultiplier": 4,
-			"cost": 20
+			"ballScoreMultiplier": 4
 		},
 		{
 			"id": "ball.test3",
-			"ballScoreMultiplier": 8,
-			"cost": 25
+			"ballScoreMultiplier": 8
 		}
 	]
 }
