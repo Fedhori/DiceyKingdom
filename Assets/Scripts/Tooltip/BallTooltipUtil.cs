@@ -1,4 +1,7 @@
 using UnityEngine;
+using System.Collections.Generic;
+using System.Text;
+using Data;
 
 public static class BallTooltipUtil
 {
@@ -19,9 +22,8 @@ public static class BallTooltipUtil
 
         string title = LocalizationUtil.GetBallName(id);
         Sprite icon = SpriteCache.GetBallSprite(id);
-        
-        // TODO - ball 효과를 구현하면서 이쪽도 대응 필요
-        string body = "";
+
+        string body = BuildBody(ball);
 
         return new TooltipModel(
             title,
@@ -30,5 +32,80 @@ public static class BallTooltipUtil
             TooltipKind.Ball,
             ball.BallScoreMultiplier
         );
+    }
+
+    static string BuildBody(BallInstance ball)
+    {
+        var lines = new List<string>();
+        AppendRuleLines(ball, lines);
+
+        if (lines.Count == 0)
+            return string.Empty;
+
+        var sb = new StringBuilder();
+        for (int i = 0; i < lines.Count; i++)
+        {
+            if (i > 0)
+                sb.Append('\n');
+            sb.Append(lines[i]);
+        }
+
+        return sb.ToString();
+    }
+
+    static void AppendRuleLines(BallInstance ball, List<string> lines)
+    {
+        var rules = ball.Rules;
+        if (rules == null || rules.Count == 0)
+            return;
+
+        for (int i = 0; i < rules.Count; i++)
+        {
+            var rule = rules[i];
+            if (rule == null)
+                continue;
+
+            if (rule.effects == null || rule.effects.Count == 0)
+                continue;
+
+            var line = BuildRuleLine(ball, rule, i);
+            if (!string.IsNullOrEmpty(line))
+                lines.Add(line);
+        }
+    }
+
+    static string BuildRuleLine(BallInstance ball, BallRuleDto rule, int ruleIndex)
+    {
+        var key = $"{ball.Id}.effect{ruleIndex}";
+        var loc = new UnityEngine.Localization.LocalizedString("ball", key);
+
+        var args = BuildRuleArgs(rule);
+        if (args != null)
+            loc.Arguments = new object[] { args };
+
+        return loc.GetLocalizedString();
+    }
+
+    static object BuildRuleArgs(BallRuleDto rule)
+    {
+        var dict = new Dictionary<string, object>();
+
+        if (rule.effects != null)
+        {
+            for (int i = 0; i < rule.effects.Count; i++)
+            {
+                var e = rule.effects[i];
+                if (e == null)
+                    continue;
+
+                string key = $"value{i}";
+                dict[key] = e.value.ToString("0.##");
+            }
+        }
+
+        if (dict.Count == 0)
+            return null;
+
+        return dict;
     }
 }
