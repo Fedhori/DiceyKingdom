@@ -60,9 +60,6 @@ public sealed class PlayerManager : MonoBehaviour
         {
             var dto = PlayerRepository.GetOrThrow(playerId);
             Current = new PlayerInstance(dto);
-
-            // 통화 HUD 등이 있으면 여기서 알림
-            CurrencyManager.Instance?.OnPlayerCreated(Current);
             Current.BallDeck.OnDeckChanged += HandleBallDeckChanged;
             HandleBallDeckChanged();
         }

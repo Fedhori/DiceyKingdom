@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -9,8 +10,6 @@ public sealed class CurrencyManager : MonoBehaviour
     public static CurrencyManager Instance { get; private set; }
 
     [SerializeField] TMP_Text currencyText;
-
-    PlayerInstance subscribedPlayer;
 
     void Awake()
     {
@@ -34,6 +33,12 @@ public sealed class CurrencyManager : MonoBehaviour
         UnsubscribePlayer();
     }
 
+    private void Start()
+    {
+        SubscribePlayer();
+        RefreshUI();
+    }
+
     void SubscribePlayer()
     {
         UnsubscribePlayer();
@@ -46,23 +51,24 @@ public sealed class CurrencyManager : MonoBehaviour
         if (player == null)
             return;
 
-        subscribedPlayer = player;
-        subscribedPlayer.OnCurrencyChanged += HandleCurrencyChanged;
+        player.OnCurrencyChanged += HandleCurrencyChanged;
     }
 
     void UnsubscribePlayer()
     {
-        if (subscribedPlayer != null)
-        {
-            subscribedPlayer.OnCurrencyChanged -= HandleCurrencyChanged;
-            subscribedPlayer = null;
-        }
+        var pm = PlayerManager.Instance;
+        if (pm == null)
+            return;
+
+        var player = pm.Current;
+        if (player == null)
+            return;
+
+        player.OnCurrencyChanged -= HandleCurrencyChanged;
     }
 
     void HandleCurrencyChanged(int value)
     {
-        // if (currencyText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
-        //     sv.Value = value.ToString();
         currencyText.text = $"${value}";
     }
 
@@ -73,13 +79,6 @@ public sealed class CurrencyManager : MonoBehaviour
         {
             HandleCurrencyChanged(pm.Current.Currency);
         }
-    }
-
-    // PlayerManager.CreatePlayer 이후 호출됨
-    public void OnPlayerCreated(PlayerInstance player)
-    {
-        SubscribePlayer();
-        RefreshUI();
     }
 
     public int CurrentCurrency =>

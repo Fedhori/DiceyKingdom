@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public sealed class RewardManager : MonoBehaviour
@@ -27,6 +28,11 @@ public sealed class RewardManager : MonoBehaviour
         Instance = this;
     }
 
+    private void Start()
+    {
+        SubscribePlayer();
+    }
+
     public void Open(StageInstance stage, int stageIndex)
     {
         currentStage = stage;
@@ -49,8 +55,36 @@ public sealed class RewardManager : MonoBehaviour
         FlowManager.Instance?.OnRewardClosed();
     }
 
-    public void BallRewardReroll()
+    void SubscribePlayer()
     {
-        
+        UnsubscribePlayer();
+
+        var pm = PlayerManager.Instance;
+        if (pm == null)
+            return;
+
+        var player = pm.Current;
+        if (player == null)
+            return;
+
+        player.OnCurrencyChanged += HandleCurrencyChanged;
+    }
+
+    void UnsubscribePlayer()
+    {
+        var pm = PlayerManager.Instance;
+        if (pm == null)
+            return;
+
+        var player = pm.Current;
+        if (player == null)
+            return;
+
+        player.OnCurrencyChanged -= HandleCurrencyChanged;
+    }
+    
+    void HandleCurrencyChanged(int value)
+    {
+        // TODO
     }
 }
