@@ -22,7 +22,7 @@
 - [ ] 2.0 Ball 효과 런타임 파이프라인 구현
   - [x] 2.1 Ball 트리거/컨디션/효과 enum/DTO 정의(Pin과 동일 네이밍/값으로 정렬)
   - [x] 2.2 BallInstance에 효과 평가 흐름 추가(트리거별 조건 검사 → 다중 효과 실행), 충돌 이벤트에 훅 연결(OnHitBall/OnHitPin 등)
-  - [ ] 2.3 PinEffectManager와 유사한 BallEffectManager(또는 유틸)로 효과 실행 분리 및 재사용 구조 설계
+  - [x] 2.3 PinEffectManager와 유사한 BallEffectManager(또는 유틸)로 효과 실행 분리 및 재사용 구조 설계
 - [ ] 3.0 요구 효과(점수 배율 +1) 정의 및 적용
   - [ ] 3.1 Balls.json에 “Ball-Ball 충돌 시 상대 Ball 점수 배율 +1” 룰 추가
   - [ ] 3.2 Balls.json에 “Ball-Pin 충돌 시 자기 Ball 점수 배율 +1” 룰 추가

@@ -9,7 +9,7 @@ public sealed class BallInstance
     public BallDto BaseDto { get; }
     public string Id => BaseDto.id;
 
-    public float BallScoreMultiplier => BaseDto.ballScoreMultiplier;
+    public float BallScoreMultiplier => Stats.GetValue(BallStatIds.ScoreMultiplier);
     
     public float PendingSpeedFactor { get; set; } = 1f;
     public float PendingSizeFactor { get; set; } = 1f;
@@ -19,6 +19,8 @@ public sealed class BallInstance
     readonly List<BallRuleDto> rules;
     public IReadOnlyList<BallRuleDto> Rules => rules;
 
+    public StatSet Stats { get; }
+
     public BallInstance(BallDto dto)
     {
         BaseDto = dto ?? throw new System.ArgumentNullException(nameof(dto));
@@ -26,6 +28,9 @@ public sealed class BallInstance
         rules = dto.rules != null
             ? new List<BallRuleDto>(dto.rules)
             : new List<BallRuleDto>();
+
+        Stats = new StatSet();
+        Stats.SetBase(BallStatIds.ScoreMultiplier, BaseDto.ballScoreMultiplier);
     }
 
     public void OnHitPin(PinInstance pin, Vector2 position)
