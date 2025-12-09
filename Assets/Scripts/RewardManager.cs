@@ -4,13 +4,13 @@ using UnityEngine;
 public sealed class RewardManager : MonoBehaviour
 {
     public static RewardManager Instance { get; private set; }
-    private int ballRewardCount = 3;
+    [SerializeField] private int ballRewardCount = 3;
     [SerializeField] private GameObject ballRewardOverlay;
     [SerializeField] private GameObject ballRewardPrefab;
     [SerializeField] private RectTransform ballRewardParent;
 
-    private int baseBallRerollCost = 1;
-    private int ballRerollCostIncrement = 1;
+    [SerializeField] private int baseBallRerollCost = 1;
+    [SerializeField] private int ballRerollCostIncrement = 1;
     private int currentBallRerollCost;
 
     bool isOpen;
@@ -38,10 +38,12 @@ public sealed class RewardManager : MonoBehaviour
         currentStage = stage;
         this.stageIndex = stageIndex;
         isOpen = true;
-        PlayerManager.Instance.Current.BallDeck.Add("ball.basic", 5);
 
-        // 지금은 흐름 테스트용으로 즉시 닫는다.
-        Close();
+        currentBallRerollCost = baseBallRerollCost;
+        ClearBallRewards();
+
+        if (ballRewardOverlay != null)
+            ballRewardOverlay.SetActive(true);
     }
 
     public void Close()
@@ -51,6 +53,9 @@ public sealed class RewardManager : MonoBehaviour
 
         isOpen = false;
         Debug.Log("[RewardManager] Close reward");
+
+        if (ballRewardOverlay != null)
+            ballRewardOverlay.SetActive(false);
 
         FlowManager.Instance?.OnRewardClosed();
     }
@@ -86,5 +91,18 @@ public sealed class RewardManager : MonoBehaviour
     void HandleCurrencyChanged(int value)
     {
         // TODO
+    }
+
+    void ClearBallRewards()
+    {
+        if (ballRewardParent == null)
+            return;
+
+        for (int i = ballRewardParent.childCount - 1; i >= 0; i--)
+        {
+            var child = ballRewardParent.GetChild(i);
+            if (child != null)
+                Destroy(child.gameObject);
+        }
     }
 }
