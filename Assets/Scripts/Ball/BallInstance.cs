@@ -13,9 +13,18 @@ public sealed class BallInstance
     public float PendingSpeedFactor { get; set; } = 1f;
     public float PendingSizeFactor { get; set; } = 1f;
 
+    readonly System.Random localRandom = new();
+
+    readonly List<BallRuleDto> rules;
+    public IReadOnlyList<BallRuleDto> Rules => rules;
+
     public BallInstance(BallDto dto)
     {
         BaseDto = dto ?? throw new System.ArgumentNullException(nameof(dto));
+
+        rules = dto.rules != null
+            ? new List<BallRuleDto>(dto.rules)
+            : new List<BallRuleDto>();
     }
 
     public void OnHitPin(PinInstance pin, Vector2 position)
@@ -33,7 +42,7 @@ public sealed class BallInstance
             return;
         }
 
-        var rng = GameManager.Instance?.Rng ?? LocalRandom;
+        var rng = GameManager.Instance?.Rng ?? localRandom;
 
         var criticalType = player.RollCriticalLevel(rng);
         float criticalMultiplier = player.GetCriticalMultiplier(criticalType);
