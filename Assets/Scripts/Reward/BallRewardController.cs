@@ -43,7 +43,9 @@ public sealed class BallRewardController : MonoBehaviour
         if (!isInitialized)
             return;
 
-        selectButton.interactable = false;
+        if (selectButton != null)
+            selectButton.interactable = false;
+
         onSelected?.Invoke(ballId, ballCount);
     }
 }

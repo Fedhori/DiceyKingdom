@@ -26,11 +26,12 @@
   - [x] 1.4 생성된 보상마다 `ballRewardPrefab`을 `ballRewardParent` 아래 instantiate하고 데이터 바인딩 호출.
   - [x] 1.5 리롤 시 비용 차감 성공 시 기존 보상 파괴 후 1.2~1.4 재실행, 실패 시 리롤 버튼 텍스트를 `Colors.Red`로 세팅하고 인터랙션 차단.
   - [x] 1.6 보상 선택 완료 시 `RewardManager.Close()`에서 FlowManager 후속 호출 유지, 오버레이 비활성/정리.
+- [x] 1.0 RewardManager 보상 흐름 확장
 
 - [ ] 2.0 보상 데이터 바인딩/선택 처리
-  - [ ] 2.1 `BallRewardController`에서 `Initialize(ballId, count, onSelected)` 형태의 초기화 메서드로 아이콘(`SpriteCache.GetBallSprite`)과 수량 UI 표시.
-  - [ ] 2.2 클릭 시 전달받은 콜백으로 `PlayerManager.Instance.Current.BallDeck.Add(ballId, count)` 실행하고 중복 클릭 방지.
-  - [ ] 2.3 보상 선택 시 `RewardManager.Close()` 트리거하여 다음 단계로 진행.
+  - [x] 2.1 `BallRewardController`에서 `Initialize(ballId, count, onSelected)` 형태의 초기화 메서드로 아이콘(`SpriteCache.GetBallSprite`)과 수량 UI 표시.
+  - [x] 2.2 클릭 시 전달받은 콜백으로 `PlayerManager.Instance.Current.BallDeck.Add(ballId, count)` 실행하고 중복 클릭 방지.
+  - [x] 2.3 보상 선택 시 `RewardManager.Close()` 트리거하여 다음 단계로 진행.
 
 - [ ] 3.0 리롤 UI/자원 처리
   - [ ] 3.1 리롤 버튼 클릭 핸들러에서 `CurrencyManager.TrySpend(currentBallRerollCost)`로 비용 지불, 성공 시 `currentBallRerollCost += ballRerollCostIncrement`.
