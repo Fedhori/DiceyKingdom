@@ -95,6 +95,14 @@ MonoBehaviour:
     m_Key: pin.cheese.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 3272633948319744
+    m_Key: pin.piggyBank.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3272702227394560
+    m_Key: pin.piggyBank.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

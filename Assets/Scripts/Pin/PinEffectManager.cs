@@ -88,6 +88,18 @@ public class PinEffectManager : MonoBehaviour
                 );
                 break;
 
+            case PinEffectType.AddCurrency:
+            {
+                CurrencyManager.Instance.AddCurrency((int)dto.value);
+                break;
+            }
+
+            case PinEffectType.DestroySelf:
+            {
+                PinManager.Instance.TryReplace(GameConfig.BasicPinId, pin.Row, pin.Column);
+                break;
+            }
+
             default:
                 Debug.LogWarning($"[PinEffectManager] Unsupported effect type: {dto.effectType}");
                 break;

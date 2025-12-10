@@ -114,6 +114,15 @@ MonoBehaviour:
       \uC810\uC218 \uBC30\uC728 +1"
     m_Metadata:
       m_Items: []
+  - m_Id: 3272633948319744
+    m_Localized: "\uB3FC\uC9C0 \uC800\uAE08\uD1B5"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3272702227394560
+    m_Localized: "{round} \uB77C\uC6B4\uB4DC \uD6C4: +${value0}"
+    m_Metadata:
+      m_Items:
+      - rid: 2507345055421825124
   references:
     version: 2
     RefIds:
@@ -130,3 +139,4 @@ MonoBehaviour:
         - id: 1041799204061184
         - id: 1041765397970944
         - id: 1041626872692736
+        - id: 3272702227394560

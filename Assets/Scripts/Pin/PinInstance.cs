@@ -49,6 +49,8 @@ public sealed class PinInstance
         }
     }
 
+    public int RoundCount = 0;
+
     public PinInstance(PinDto dto, int row, int column, bool registerEventEffects = true)
     {
         BaseDto = dto ?? throw new ArgumentNullException(nameof(dto));
@@ -169,6 +171,11 @@ public sealed class PinInstance
 
                 RemainingHits += chargeMax;
                 return true;
+
+            case PinConditionKind.RoundCount:
+            {
+                return RoundCount >= cond.round;
+            }
 
             default:
                 return false;

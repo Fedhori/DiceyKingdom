@@ -197,6 +197,28 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "pin.piggyBank",
+			"price": 5,
+			"rules": [
+				{
+					"triggerType": "OnRoundFinished",
+					"condition": {
+						"conditionKind": "RoundCount",
+						"round": 5
+					},
+					"effects": [
+						{
+							"effectType": "AddCurrency",
+							"value": 10
+						},
+						{
+							"effectType": "DestroySelf"
+						}
+					]
+				}
+			]
 		}
 	]
 }

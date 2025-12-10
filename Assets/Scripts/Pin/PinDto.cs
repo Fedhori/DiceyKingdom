@@ -32,7 +32,8 @@ namespace Data
     {
         Unknown = 0,
         Always,
-        Charge
+        Charge,
+        RoundCount,
     }
 
     public enum PinEffectType
@@ -42,7 +43,9 @@ namespace Data
         ModifySelfStat,
         AddVelocity,
         IncreaseSize,
-        AddScore
+        AddScore,
+        AddCurrency,
+        DestroySelf,
     }
 
     [Serializable]
@@ -54,6 +57,7 @@ namespace Data
 
         // Charge 용: N회마다 발동. Always일 땐 무시.
         public int hits;
+        public int round;
     }
 
     [Serializable]
