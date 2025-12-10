@@ -219,6 +219,26 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "pin.angel",
+			"price": 10,
+			"rules": [
+				{
+					"triggerType": "OnBallHit",
+					"maxPerRound": 3,
+					"condition": {
+						"conditionKind": "Charge",
+						"hits": 20
+					},
+					"effects": [
+						{
+							"effectType": "ReviveBall",
+							"value": 1
+						}
+					]
+				}
+			]
 		}
 	]
 }

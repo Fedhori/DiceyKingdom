@@ -78,7 +78,7 @@ public static class PinTooltipUtil
         var key = $"{pin.Id}.effect{ruleIndex}";
         var loc = new LocalizedString("pin", key);
 
-        var args = BuildRuleArgs(pin, rule);
+        var args = BuildRuleArgs(pin, rule, ruleIndex);
         if (args != null)
         {
             // SmartFormat + Dictionary 조합으로 {hits0}, {value0} 직접 사용
@@ -89,10 +89,17 @@ public static class PinTooltipUtil
         return text;
     }
     
-    static object BuildRuleArgs(PinInstance pin, PinRuleDto rule)
+    static object BuildRuleArgs(PinInstance pin, PinRuleDto rule, int index)
     {
         var dict = new Dictionary<string, object>();
 
+        if (rule.maxPerRound > 0)
+        {
+            dict["maxPerRound"] = rule.maxPerRound;
+            dict["remainRuleCount"] = pin.RemainRuleCount(index);
+        }
+            
+        
         // 단일 condition: hits0
         if (rule.condition != null)
         {
@@ -100,7 +107,7 @@ public static class PinTooltipUtil
                 dict["hits"] = rule.condition.hits;
             
             if(rule.condition.round > 0)
-                dict["round"] = rule.condition.round - pin.RoundCount;
+                dict["round"] = rule.condition.round - pin.roundCount;
             
             // 이쪽에 새로 추가한 파라미터들을 넘긴다
         }

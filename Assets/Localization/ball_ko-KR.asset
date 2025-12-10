@@ -77,7 +77,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2896195000741888
-    m_Localized: "\uD30C\uAD34\uB420 \uB54C {life}\uBC88 \uBD80\uD65C"
+    m_Localized: "\uBD80\uD65C {life}"
     m_Metadata:
       m_Items:
       - rid: 2507345213413916748

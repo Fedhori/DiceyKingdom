@@ -100,6 +100,14 @@ public class PinEffectManager : MonoBehaviour
                 break;
             }
 
+            case PinEffectType.ReviveBall:
+            {
+                if (ball == null)
+                    return;
+                ball.life += dto.value;
+                break;
+            }
+
             default:
                 Debug.LogWarning($"[PinEffectManager] Unsupported effect type: {dto.effectType}");
                 break;

@@ -103,6 +103,14 @@ MonoBehaviour:
     m_Key: pin.piggyBank.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 3280419545427968
+    m_Key: pin.angel.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3280458426626048
+    m_Key: pin.angel.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

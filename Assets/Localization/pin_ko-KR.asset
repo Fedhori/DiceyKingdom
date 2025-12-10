@@ -123,6 +123,17 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
+  - m_Id: 3280419545427968
+    m_Localized: "\uCC9C\uC0AC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3280458426626048
+    m_Localized: "\uBCFC\uACFC {hits}\uBC88 \uB9CC\uB098\uBA74:  \uB9CC\uB09C \uBCFC\uC5D0
+      \uBD80\uD65C +{value0}\n(\uB77C\uC6B4\uB4DC\uB2F9 {maxPerRound}\uBC88 \uD55C\uC815
+      {remainRuleCount}\uD68C \uB0A8\uC74C)"
+    m_Metadata:
+      m_Items:
+      - rid: 2507345055421825124
   references:
     version: 2
     RefIds:
@@ -140,3 +151,4 @@ MonoBehaviour:
         - id: 1041765397970944
         - id: 1041626872692736
         - id: 3272702227394560
+        - id: 3280458426626048

@@ -127,12 +127,7 @@ public sealed class FlowManager : MonoBehaviour
                 var pin = rowList[col];
                 if (pin != null && pin.Instance != null)
                 {
-                    pin.Instance.RoundCount++;
-                    pin.Instance.HandleTrigger(
-                        PinTriggerType.OnRoundFinished,
-                        null,
-                        Vector2.zero
-                    );
+                    pin.Instance.HandleRoundFinished();
                 }
             }
         }

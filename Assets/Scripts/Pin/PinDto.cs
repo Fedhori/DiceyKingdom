@@ -46,6 +46,7 @@ namespace Data
         AddScore,
         AddCurrency,
         DestroySelf,
+        ReviveBall,
     }
 
     [Serializable]
@@ -84,6 +85,7 @@ namespace Data
         // 1 트리거 - 1 조건 - N 이펙트
         public PinConditionDto condition;
         public List<PinEffectDto> effects;
+        public int maxPerRound;
     }
 
     [Serializable]
@@ -132,6 +134,12 @@ namespace Data
             }
 
             int chargeConditionCount = 0;
+
+            if (rules.Count > GameConfig.MaxRuleCount)
+            {
+                Debug.LogError("[PinDto] rules.Count > GameConfig.MaxRuleCount");
+                isValid = false;
+            }
 
             for (int i = 0; i < rules.Count; i++)
             {

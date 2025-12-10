@@ -18,9 +18,10 @@ public sealed class PinInstance
     public IReadOnlyList<PinRuleDto> Rules => rules;
 
     public float ScoreMultiplier => Stats.GetValue(PinStatIds.ScoreMultiplier);
-    
+
     public event Action<int> OnHitCountChanged;
     private int hitCount = 0;
+
     public int HitCount
     {
         get => hitCount;
@@ -32,13 +33,14 @@ public sealed class PinInstance
     }
 
     int remainingHits;
-   
+
     bool hasCharge;
 
     public int Price => BaseDto.price;
 
     public event Action<int> OnRemainingHitsChanged;
     int chargeMax;
+
     public int RemainingHits
     {
         get => remainingHits;
@@ -49,7 +51,18 @@ public sealed class PinInstance
         }
     }
 
-    public int RoundCount = 0;
+    public int roundCount = 0;
+    private int[] ruleActivationCount = new int[GameConfig.MaxRuleCount];
+    public int RemainRuleCount(int index)
+    {
+        if (index >= rules.Count)
+            return 0;
+
+        if (index >= ruleActivationCount.Length)
+            return 0;
+        
+        return rules[index].maxPerRound - ruleActivationCount[index];
+    }
 
     public PinInstance(PinDto dto, int row, int column, bool registerEventEffects = true)
     {
@@ -143,15 +156,19 @@ public sealed class PinInstance
             if (!IsConditionMet(rule.condition, trigger))
                 continue;
 
+            if (ruleActivationCount[i] > rule.maxPerRound)
+                continue;
+            ruleActivationCount[i]++;
+
             ApplyEffects(rule.effects, ball, position);
         }
     }
-    
+
     bool IsConditionMet(PinConditionDto cond, PinTriggerType trigger)
     {
         if (cond == null)
             return true;
-        
+
         switch (cond.conditionKind)
         {
             case PinConditionKind.Always:
@@ -174,7 +191,7 @@ public sealed class PinInstance
 
             case PinConditionKind.RoundCount:
             {
-                return RoundCount >= cond.round;
+                return roundCount >= cond.round;
             }
 
             default:
@@ -199,5 +216,16 @@ public sealed class PinInstance
 
             effectManager.ApplyEffect(effect, ball, this, position);
         }
+    }
+
+    public void HandleRoundFinished()
+    {
+        roundCount++;
+        HandleTrigger(
+            PinTriggerType.OnRoundFinished,
+            null,
+            Vector2.zero
+        );
+        ruleActivationCount = new int[GameConfig.MaxRuleCount];
     }
 }
