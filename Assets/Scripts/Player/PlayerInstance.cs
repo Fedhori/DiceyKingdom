@@ -15,6 +15,10 @@ public sealed class PlayerInstance
     public float CriticalChance => Stats.GetValue(PlayerStatIds.CriticalChance);
     public float CriticalMultiplier => Stats.GetValue(PlayerStatIds.CriticalMultiplier);
 
+    // TODO - PlayerRunState라는 값을 만들어서,
+    // 해당 Run에서 저장되어야 할 값들(영구 보너스, 재화, 볼 구성, 핀 구성)을 통합해서 관리해야 하지 않을까?
+    // 지금은 저장되어야 할 값들이 게임 파일들 곳곳에 뿔뿔이 흩어져있다.
+    
     // 플레이어가 들고 있는 볼 덱
     public BallDeck BallDeck { get; }
 

@@ -26,8 +26,7 @@ public sealed class RewardManager : MonoBehaviour
         isOpen = true;
         PlayerManager.Instance.Current.BallDeck.Add("ball.basic", 5);
         CurrencyManager.Instance.AddCurrency(10);
-
-        // 지금은 흐름 테스트용으로 즉시 닫는다.
+        
         Close();
     }
 

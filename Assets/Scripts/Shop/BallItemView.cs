@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public sealed class BallItemView : MonoBehaviour
 {
+    [SerializeField] private TMP_Text ballCountText;
     [SerializeField] private Image iconImage;
     [SerializeField] private TMP_Text priceText;
     [SerializeField] private Button buyButton;
@@ -35,13 +36,15 @@ public sealed class BallItemView : MonoBehaviour
         onClick = handler;
     }
 
-    public void SetData(BallDto ball, int price, bool canBuy, bool sold)
+    public void SetData(BallDto ball, int ballCount, int price, bool canBuy, bool sold)
     {
         if (ball == null)
         {
             gameObject.SetActive(false);
             return;
         }
+
+        ballCountText.text = $"x{ballCount}";
 
         if (iconImage != null)
             iconImage.sprite = SpriteCache.GetBallSprite(ball.id);

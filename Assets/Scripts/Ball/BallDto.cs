@@ -65,7 +65,7 @@ namespace Data
         public string id;
         public float ballScoreMultiplier = 1f;
         public bool isNotSell = false;
-        public int price;
+        public float price;
 
         public List<BallRuleDto> rules;
 

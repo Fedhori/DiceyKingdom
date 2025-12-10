@@ -9,7 +9,7 @@
 		{
 			"id": "ball.gold",
 			"ballScoreMultiplier": 10,
-			"price": 4,
+			"price": 2,
 			"rules": []
 		},
 		{
@@ -37,7 +37,7 @@
 		{
 			"id": "ball.coal",
 			"ballScoreMultiplier": 1,
-			"price": 2,
+			"price": 3,
 			"rules": [
 				{
 					"triggerType": "OnBallHitPin",

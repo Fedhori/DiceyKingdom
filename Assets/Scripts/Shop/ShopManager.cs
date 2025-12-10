@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Data;
 using UnityEngine;
+using Random = System.Random;
 
 public sealed class ShopManager : MonoBehaviour
 {
@@ -71,7 +72,7 @@ public sealed class ShopManager : MonoBehaviour
         EnsureBallItemArray();
         currentRerollCost = Mathf.Max(1, baseRerollCost);
 
-        RollItems();
+        RollPinItems();
         RollBallItems();
         RefreshView();
 
@@ -181,12 +182,13 @@ public sealed class ShopManager : MonoBehaviour
         {
             currentBallItems[i].hasItem = false;
             currentBallItems[i].ball = null;
+            currentBallItems[i].ballCount = 0;
             currentBallItems[i].price = 0;
             currentBallItems[i].sold = false;
         }
     }
 
-    void RollItems()
+    void RollPinItems()
     {
         EnsureItemArray();
 
@@ -242,9 +244,21 @@ public sealed class ShopManager : MonoBehaviour
 
             var dto = sellableBalls[ballIndex];
 
+            var maxBallCount = (int)Mathf.Max(1, GameConfig.MaxBallPrice / dto.price);
+            var minBallCount = (int)Mathf.Max(1, 1 / dto.price);
+
+            var ballCount = UnityEngine.Random.Range(minBallCount, maxBallCount + 1);
+
+            var floatPrice = ballCount * dto.price;
+            int floor = Mathf.FloorToInt(floatPrice);
+            float frac = floatPrice - floor;
+            var finalPrice = (UnityEngine.Random.Range(0, frac) < frac) ? floor + 1 : floor;
+
+
             currentBallItems[slot].hasItem = true;
             currentBallItems[slot].ball = dto;
-            currentBallItems[slot].price = dto.price;
+            currentBallItems[slot].ballCount = ballCount;
+            currentBallItems[slot].price = finalPrice;
             currentBallItems[slot].sold = false;
         }
     }
@@ -358,10 +372,9 @@ public sealed class ShopManager : MonoBehaviour
             : 0;
 
         bool hasEmptySlot = PinManager.Instance != null && PinManager.Instance.GetBasicPinSlot(out var x, out var y);
-        bool hasBallDeckSpace = HasBallDeckSpace();
 
         shopView.SetPinItems(currentItems, currency, hasEmptySlot, currentRerollCost);
-        shopView.SetBallItems(currentBallItems, currency, hasBallDeckSpace);
+        shopView.SetBallItems(currentBallItems, currency);
         shopView.RefreshAll();
     }
 
@@ -398,7 +411,7 @@ public sealed class ShopManager : MonoBehaviour
         TryPurchaseBallAt(index);
     }
 
-    bool HasBallDeckSpace()
+    public bool HasBallDeckSpace(int space)
     {
         var player = PlayerManager.Instance?.Current;
         if (player == null)
@@ -409,65 +422,70 @@ public sealed class ShopManager : MonoBehaviour
             return false;
 
         int basicCount = deck.GetCount(GameConfig.BasicBallId);
-        return basicCount > 0;
+        return basicCount >= space;
     }
 
-    bool TryPurchaseBallAt(int index)
+    void TryPurchaseBallAt(int index)
     {
         if (currentBallItems == null || index < 0 || index >= currentBallItems.Length)
-            return false;
+        {
+            Debug.LogError("ShopManager: currentBallItems is invalid");
+            return;
+        }
+
 
         ref BallItemData item = ref currentBallItems[index];
         if (!item.hasItem || item.sold || item.ball == null)
-            return false;
+        {
+            Debug.LogError($"ShopManager: item is invalid. index: {index}");
+            return;
+        }
 
         var currencyMgr = CurrencyManager.Instance;
         var player = PlayerManager.Instance?.Current;
 
         if (currencyMgr == null || player == null)
         {
-            RefreshView();
-            return false;
+            Debug.LogError("ShopManager: currencyMgr, player is null");
+            return;
         }
 
         var deck = player.BallDeck;
         if (deck == null)
         {
-            RefreshView();
-            return false;
+            Debug.LogError("ShopManager: deck is null");
+            return;
         }
 
         int price = item.price;
 
         if (currencyMgr.CurrentCurrency < price)
         {
-            RefreshView();
-            return false;
+            Debug.LogError("ShopManager: currency unavailable.");
+            return;
         }
 
-        if (!HasBallDeckSpace())
+        if (!HasBallDeckSpace(item.ballCount))
         {
-            RefreshView();
-            return false;
+            Debug.LogError("ShopManager: HasBallDeckSpace failed.");
+            return;
         }
 
         if (!currencyMgr.TrySpend(price))
         {
-            RefreshView();
-            return false;
+            Debug.LogError("ShopManager: TrySpend failed after spending currency.");
+            return;
         }
 
-        var ballId = item.ball.id;
-        if (string.IsNullOrEmpty(ballId) || !deck.TryReplace(ballId, 1))
+        if (!deck.TryReplace(item.ball.id, item.ballCount))
         {
             currencyMgr.AddCurrency(price);
-            RefreshView();
-            return false;
+            Debug.LogError("ShopManager: TrySpend failed after spending currency. Refunding.");
+            return;
         }
 
         item.sold = true;
         RefreshView();
-        return true;
     }
 
 
@@ -493,7 +511,7 @@ public sealed class ShopManager : MonoBehaviour
 
         currentRerollCost = Mathf.Max(1, currentRerollCost + Mathf.Max(1, rerollCostIncrement));
 
-        RollItems();
+        RollPinItems();
         RollBallItems();
         RefreshView();
     }

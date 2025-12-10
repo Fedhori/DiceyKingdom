@@ -111,7 +111,7 @@ public sealed class FlowManager : MonoBehaviour
             Debug.LogWarning($"[FlowManager] OnRoundFinished in phase {currentPhase}");
         }
 
-        CurrencyManager.Instance?.AddCurrency(GameConfig.BaseIncome);
+        CurrencyManager.Instance?.AddCurrency(GameConfig.BaseRoundIncome);
 
         bool isLastRound = currentStage != null &&
                            currentRoundIndex >= currentStage.RoundCount - 1;

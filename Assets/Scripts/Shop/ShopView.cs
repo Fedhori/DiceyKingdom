@@ -194,18 +194,34 @@ public sealed class ShopView : MonoBehaviour
         }
     }
 
-    public void SetBallItems(BallItemData[] items, int currentCurrency, bool hasDeckSpace)
+    public void SetBallItems(BallItemData[] items, int currentCurrency)
     {
-        int count = (items != null) ? items.Length : 0;
+        if (items == null)
+        {
+            Debug.LogError("[ShopView] ballItemPrefab or ballItemsParent is null.");
+            return;
+        }
+
+        int count = items.Length;
 
         EnsureBallItemViews(count);
 
+        var shopManager = ShopManager.Instance;
+        if (shopManager == null)
+        {
+            Debug.LogError("[ShopView] shopManager is null.");
+            return;
+        }
+        
         for (int i = 0; i < count; i++)
         {
             var view = ballItemViews[i];
             if (view == null)
                 continue;
 
+            if (i >= items.Length)
+                break;
+            
             var data = items[i];
 
             if (!data.hasItem || data.ball == null)
@@ -213,11 +229,11 @@ public sealed class ShopView : MonoBehaviour
                 view.gameObject.SetActive(false);
                 continue;
             }
-
-            bool canBuy = !data.sold && hasDeckSpace && currentCurrency >= data.price;
+            
+            bool canBuy = !data.sold && shopManager.HasBallDeckSpace(data.ballCount) && currentCurrency >= data.price;
 
             view.gameObject.SetActive(true);
-            view.SetData(data.ball, data.price, canBuy, data.sold);
+            view.SetData(data.ball, data.ballCount, data.price, canBuy, data.sold);
         }
     }
 
