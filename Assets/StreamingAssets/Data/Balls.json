@@ -35,7 +35,7 @@
 			]
 		},
 		{
-			"id": "ball.coal",
+			"id": "ball.student",
 			"ballScoreMultiplier": 1,
 			"price": 3,
 			"rules": [

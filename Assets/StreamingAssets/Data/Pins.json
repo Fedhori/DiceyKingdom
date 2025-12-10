@@ -104,7 +104,7 @@
 					"effects": [
 						{
 							"effectType": "AddVelocity",
-							"value": 1.5
+							"value": 1.3
 						}
 					]
 				}

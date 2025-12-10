@@ -32,11 +32,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2591164875948032
-    m_Key: ball.coal.name
+    m_Key: ball.student.name
     m_Metadata:
       m_Items: []
   - m_Id: 2591164875948034
-    m_Key: ball.coal.effect0
+    m_Key: ball.student.effect0
     m_Metadata:
       m_Items: []
   m_Metadata:
