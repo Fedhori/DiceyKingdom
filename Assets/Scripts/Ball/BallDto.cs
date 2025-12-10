@@ -75,6 +75,7 @@ namespace Data
         public bool isNotSell;
         public float price;
         public float criticalMultiplier = 1f;
+        public int life = 0;
 
         public List<BallRuleDto> rules;
 

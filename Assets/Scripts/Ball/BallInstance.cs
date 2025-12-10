@@ -12,6 +12,7 @@ public sealed class BallInstance
 
     public float ScoreMultiplier => Stats.GetValue(BallStatIds.ScoreMultiplier);
     public float CriticalMultiplier => Stats.GetValue(BallStatIds.CriticalMultiplier);
+    public float life;
     
     public float PendingSpeedFactor { get; set; } = 1f;
     public float PendingSizeFactor { get; set; } = 1f;
@@ -34,6 +35,7 @@ public sealed class BallInstance
         Stats = new StatSet();
         Stats.SetBase(BallStatIds.ScoreMultiplier, BaseDto.ballScoreMultiplier);
         Stats.SetBase(BallStatIds.CriticalMultiplier, BaseDto.criticalMultiplier);
+        life = BaseDto.life;
     }
 
     public void OnHitPin(PinInstance pin, Vector2 position)

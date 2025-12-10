@@ -88,6 +88,7 @@ public static class BallTooltipUtil
         var dict = new Dictionary<string, object>();
 
         dict["criticalMultiplier"] = ball.BaseDto.criticalMultiplier;
+        dict["life"] = ball.BaseDto.life;
 
         if (rule.effects != null)
         {

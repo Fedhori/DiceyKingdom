@@ -75,6 +75,13 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "ball.ankh",
+			"price": 2,
+			"rules": [{}],
+			"criticalMultiplier": 2,
+			"life": 1
 		}
 	]
 }

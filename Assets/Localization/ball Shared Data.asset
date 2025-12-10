@@ -63,6 +63,14 @@ MonoBehaviour:
     m_Key: ball.merchant.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 2896056232194048
+    m_Key: ball.ankh.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2896195000741888
+    m_Key: ball.ankh.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
