@@ -116,7 +116,7 @@ public sealed class BallController : MonoBehaviour
         if (GetInstanceID() >= otherBall.GetInstanceID())
             return;
 
-        Instance.OnHitBall(otherBall.Instance);
-        otherBall.Instance.OnHitBall(Instance);
+        Instance.OnHitBall(otherBall.Instance, transform.position);
+        otherBall.Instance.OnHitBall(Instance, otherBall.transform.position);
     }
 }

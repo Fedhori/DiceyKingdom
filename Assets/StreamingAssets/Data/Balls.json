@@ -58,6 +58,23 @@
 			"price": 1,
 			"rules": [{}],
 			"criticalMultiplier": 2
+		},
+		{
+			"id": "ball.merchant",
+			"price": 1,
+			"rules": [
+				{
+					"triggerType": "OnBallHitBall",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "AddScore"
+						}
+					]
+				}
+			]
 		}
 	]
 }

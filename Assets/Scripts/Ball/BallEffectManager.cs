@@ -11,7 +11,8 @@ public sealed class BallEffectManager : MonoBehaviour
         Instance = this;
     }
 
-    public void ApplyEffect(BallEffectDto dto, BallInstance self, BallInstance otherBall, PinInstance pin, Vector2 position)
+    public void ApplyEffect(BallEffectDto dto, BallInstance self, BallInstance otherBall, PinInstance pin,
+        Vector2 position)
     {
         if (dto == null || self == null)
             return;
@@ -28,6 +29,9 @@ public sealed class BallEffectManager : MonoBehaviour
                 ModifyStat(dto, otherBall.Stats, self);
                 break;
 
+            case BallEffectType.AddScore:
+                ScoreManager.Instance.CalculateScore(self, position);
+                break;
             default:
                 Debug.LogWarning($"[BallEffectManager] Unsupported effect type: {dto.effectType}");
                 break;

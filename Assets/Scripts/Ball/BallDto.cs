@@ -31,7 +31,8 @@ namespace Data
     {
         Unknown = 0,
         ModifySelfStat,
-        ModifyOtherBallStat
+        ModifyOtherBallStat,
+        AddScore,
     }
 
     [Serializable]
@@ -71,7 +72,7 @@ namespace Data
     {
         public string id;
         public float ballScoreMultiplier = 1f;
-        public bool isNotSell = false;
+        public bool isNotSell;
         public float price;
         public float criticalMultiplier = 1f;
 
@@ -86,7 +87,6 @@ namespace Data
             if (string.IsNullOrEmpty(id))
             {
                 Debug.LogError("[BallDto] id is null or empty.");
-                isValid = false;
                 return;
             }
 
@@ -95,7 +95,6 @@ namespace Data
                 Debug.LogError(
                     $"[BallDto] '{id}': isNotSell=false but price <= 0. (price={price})"
                 );
-                isValid = false;
             }
 
             if (isNotSell && price != 0)
@@ -116,15 +115,15 @@ namespace Data
 
     public static class BallRepository
     {
-        static readonly Dictionary<string, BallDto> map = new();
+        private static readonly Dictionary<string, BallDto> Map = new();
         static bool initialized;
 
         public static bool IsInitialized => initialized;
-        public static IEnumerable<BallDto> All => map.Values;
+        public static IEnumerable<BallDto> All => Map.Values;
 
         public static void InitializeFromJson(string json)
         {
-            map.Clear();
+            Map.Clear();
 
             BallRoot root;
             try
@@ -145,7 +144,7 @@ namespace Data
                     if (dto == null || string.IsNullOrEmpty(dto.id))
                         continue;
 
-                    map[dto.id] = dto;
+                    Map[dto.id] = dto;
                 }
             }
 
@@ -161,7 +160,7 @@ namespace Data
                 return false;
             }
 
-            return map.TryGetValue(id, out dto);
+            return Map.TryGetValue(id, out dto);
         }
 
         public static BallDto GetOrThrow(string id)
@@ -169,7 +168,7 @@ namespace Data
             if (!initialized)
                 throw new InvalidOperationException("[BallRepository] Not initialized.");
 
-            if (!map.TryGetValue(id, out var dto) || dto == null)
+            if (!Map.TryGetValue(id, out var dto) || dto == null)
                 throw new KeyNotFoundException($"[BallRepository] Ball id not found: {id}");
 
             return dto;

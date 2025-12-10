@@ -10,8 +10,8 @@ public sealed class BallInstance
     public BallDto BaseDto { get; }
     public string Id => BaseDto.id;
 
-    public float BallScoreMultiplier => Stats.GetValue(BallStatIds.ScoreMultiplier);
-    public float BallCriticalMultiplier => Stats.GetValue(BallStatIds.CriticalMultiplier);
+    public float ScoreMultiplier => Stats.GetValue(BallStatIds.ScoreMultiplier);
+    public float CriticalMultiplier => Stats.GetValue(BallStatIds.CriticalMultiplier);
     
     public float PendingSpeedFactor { get; set; } = 1f;
     public float PendingSizeFactor { get; set; } = 1f;
@@ -44,32 +44,16 @@ public sealed class BallInstance
             return;
         }
 
-        var player = PlayerManager.Instance?.Current;
-        if (player == null)
-        {
-            Debug.LogWarning("[BallInstance] PlayerManager.Current is null.");
-            return;
-        }
-
-        var rng = GameManager.Instance?.Rng ?? localRandom;
-
-        var criticalType = player.RollCriticalLevel(rng);
-        float criticalMultiplier = player.GetCriticalMultiplier(criticalType) * BallCriticalMultiplier;
-
-        float rawScore = player.ScoreBase * player.ScoreMultiplier * BallScoreMultiplier * pin.ScoreMultiplier * criticalMultiplier;
-        int gained = Mathf.RoundToInt(rawScore);
-
-        ScoreManager.Instance.AddScore(gained, criticalType, position);
-
+        ScoreManager.Instance.CalculateScore(this, pin, position);
         HandleTrigger(BallTriggerType.OnBallHitPin, null, pin, position);
     }
 
-    public void OnHitBall(BallInstance other)
+    public void OnHitBall(BallInstance other, Vector2 position)
     {
         if (other == null)
             return;
 
-        HandleTrigger(BallTriggerType.OnBallHitBall, other, null, Vector2.zero);
+        HandleTrigger(BallTriggerType.OnBallHitBall, other, null, position);
     }
 
     void HandleTrigger(BallTriggerType trigger, BallInstance otherBall, PinInstance pin, Vector2 position)

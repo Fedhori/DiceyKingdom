@@ -55,6 +55,14 @@ MonoBehaviour:
     m_Key: ball.basic.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 2884342539366400
+    m_Key: ball.merchant.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2884378300002304
+    m_Key: ball.merchant.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

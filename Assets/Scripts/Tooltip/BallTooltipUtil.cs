@@ -30,7 +30,7 @@ public static class BallTooltipUtil
             body,
             icon,
             TooltipKind.Ball,
-            ball.BallScoreMultiplier
+            ball.ScoreMultiplier
         );
     }
 

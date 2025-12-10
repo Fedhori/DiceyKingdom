@@ -43,6 +43,59 @@ public sealed class ScoreManager : MonoBehaviour
         Instance = this;
     }
 
+    // NOTICE - 다른 오버로드 함수들도 대응해야함
+    public void CalculateScore(BallInstance ball, PinInstance pin, Vector2 position)
+    {
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+        {
+            Debug.LogWarning("[BallInstance] PlayerManager.Current is null.");
+            return;
+        }
+
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("[BallInstance] GameManager.Instance is null.");
+            return;
+        }
+        
+        var rng = GameManager.Instance.Rng;
+
+        var criticalType = player.RollCriticalLevel(rng);
+        float criticalMultiplier = player.GetCriticalMultiplier(criticalType) * ball.CriticalMultiplier;
+
+        float rawScore = player.ScoreBase * player.ScoreMultiplier * ball.ScoreMultiplier * pin.ScoreMultiplier * criticalMultiplier;
+        int gained = Mathf.RoundToInt(rawScore);
+
+        AddScore(gained, criticalType, position);
+    }
+    
+    public void CalculateScore(BallInstance ball, Vector2 position)
+    {
+         var player = PlayerManager.Instance?.Current;
+        if (player == null)
+        {
+            Debug.LogWarning("[BallInstance] PlayerManager.Current is null.");
+            return;
+        }
+
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("[BallInstance] GameManager.Instance is null.");
+            return;
+        }
+        
+        var rng = GameManager.Instance.Rng;
+
+        var criticalType = player.RollCriticalLevel(rng);
+        float criticalMultiplier = player.GetCriticalMultiplier(criticalType) * ball.CriticalMultiplier;
+
+        float rawScore = player.ScoreBase * player.ScoreMultiplier * ball.ScoreMultiplier * criticalMultiplier;
+        int gained = Mathf.RoundToInt(rawScore);
+
+        AddScore(gained, criticalType, position);
+    }
+
     public void AddScore(int amount, int criticalLevel, Vector2 position)
     {
         if (amount == 0)
