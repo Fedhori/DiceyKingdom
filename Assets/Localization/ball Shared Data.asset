@@ -39,6 +39,22 @@ MonoBehaviour:
     m_Key: ball.student.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 2877691358883840
+    m_Key: ball.star.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2878002278445056
+    m_Key: ball.star.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2878955429834752
+    m_Key: ball.gold.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2879159574999040
+    m_Key: ball.basic.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

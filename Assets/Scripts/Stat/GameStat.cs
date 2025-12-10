@@ -26,6 +26,12 @@ namespace GameStats
     {
         public const string ScoreMultiplier = "scoreMultiplier";
     }
+    
+    public static class BallStatIds
+    {
+        public const string ScoreMultiplier = "scoreMultiplier";
+        public const string CriticalMultiplier = "criticalMultiplier";
+    }
 
     public sealed class StatModifier
     {

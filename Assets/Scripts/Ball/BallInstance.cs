@@ -11,6 +11,7 @@ public sealed class BallInstance
     public string Id => BaseDto.id;
 
     public float BallScoreMultiplier => Stats.GetValue(BallStatIds.ScoreMultiplier);
+    public float BallCriticalMultiplier => Stats.GetValue(BallStatIds.CriticalMultiplier);
     
     public float PendingSpeedFactor { get; set; } = 1f;
     public float PendingSizeFactor { get; set; } = 1f;
@@ -32,6 +33,7 @@ public sealed class BallInstance
 
         Stats = new StatSet();
         Stats.SetBase(BallStatIds.ScoreMultiplier, BaseDto.ballScoreMultiplier);
+        Stats.SetBase(BallStatIds.CriticalMultiplier, BaseDto.criticalMultiplier);
     }
 
     public void OnHitPin(PinInstance pin, Vector2 position)
@@ -52,7 +54,7 @@ public sealed class BallInstance
         var rng = GameManager.Instance?.Rng ?? localRandom;
 
         var criticalType = player.RollCriticalLevel(rng);
-        float criticalMultiplier = player.GetCriticalMultiplier(criticalType);
+        float criticalMultiplier = player.GetCriticalMultiplier(criticalType) * BallCriticalMultiplier;
 
         float rawScore = player.ScoreBase * player.ScoreMultiplier * BallScoreMultiplier * pin.ScoreMultiplier * criticalMultiplier;
         int gained = Mathf.RoundToInt(rawScore);

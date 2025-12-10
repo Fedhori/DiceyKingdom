@@ -65,9 +65,6 @@ public static class BallTooltipUtil
             if (rule == null)
                 continue;
 
-            if (rule.effects == null || rule.effects.Count == 0)
-                continue;
-
             var line = BuildRuleLine(ball, rule, i);
             if (!string.IsNullOrEmpty(line))
                 lines.Add(line);
@@ -79,16 +76,18 @@ public static class BallTooltipUtil
         var key = $"{ball.Id}.effect{ruleIndex}";
         var loc = new UnityEngine.Localization.LocalizedString("ball", key);
 
-        var args = BuildRuleArgs(rule);
+        var args = BuildRuleArgs(ball, rule);
         if (args != null)
             loc.Arguments = new object[] { args };
 
         return loc.GetLocalizedString();
     }
 
-    static object BuildRuleArgs(BallRuleDto rule)
+    static object BuildRuleArgs(BallInstance ball, BallRuleDto rule)
     {
         var dict = new Dictionary<string, object>();
+
+        dict["criticalMultiplier"] = ball.BaseDto.criticalMultiplier;
 
         if (rule.effects != null)
         {

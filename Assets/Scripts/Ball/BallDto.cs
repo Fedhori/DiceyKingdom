@@ -5,6 +5,13 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using UnityEngine;
 
+/*
+ * 신규 볼 추가 체크리스트
+ * - Balls.json에 신규 볼 추가
+ * - ball table에 {id}.name, {id}.effect{index} 추가
+ * - {id}.png 파일 추가
+ */
+
 namespace Data
 {
     public enum BallTriggerType
@@ -66,10 +73,9 @@ namespace Data
         public float ballScoreMultiplier = 1f;
         public bool isNotSell = false;
         public float price;
+        public float criticalMultiplier = 1f;
 
         public List<BallRuleDto> rules;
-
-        [JsonIgnore] public bool isValid = true;
 
         [OnDeserialized]
         internal void OnDeserialized(StreamingContext context)
@@ -98,49 +104,6 @@ namespace Data
                     $"[BallDto] '{id}': isNotSell=true but price={price}. Force set to 0."
                 );
                 price = 0;
-            }
-
-            for (int i = 0; i < rules.Count; i++)
-            {
-                var rule = rules[i];
-                if (rule == null)
-                {
-                    Debug.LogError($"[BallDto] '{id}': rules[{i}] is null.");
-                    isValid = false;
-                    continue;
-                }
-
-                if (rule.triggerType == BallTriggerType.Unknown)
-                {
-                    Debug.LogError(
-                        $"[BallDto] '{id}': rules[{i}].triggerType is Unknown. Use OnBallHitBall/OnBallHitPin."
-                    );
-                    isValid = false;
-                }
-
-                if (rule.effects == null || rule.effects.Count == 0)
-                {
-                    Debug.LogError(
-                        $"[BallDto] '{id}': rules[{i}] effects empty. Need at least 1 effect."
-                    );
-                    isValid = false;
-                }
-
-                var cond = rule.condition;
-                if (cond == null)
-                {
-                    Debug.LogError($"[BallDto] '{id}': rules[{i}].condition is null.");
-                    isValid = false;
-                    continue;
-                }
-
-                if (cond.conditionKind == BallConditionKind.Unknown)
-                {
-                    Debug.LogError(
-                        $"[BallDto] '{id}': rules[{i}].condition.conditionKind is Unknown. Use Always."
-                    );
-                    isValid = false;
-                }
             }
         }
     }

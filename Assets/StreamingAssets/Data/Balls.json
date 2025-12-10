@@ -2,19 +2,17 @@
 	"balls": [
 		{
 			"id": "ball.basic",
-			"ballScoreMultiplier": 1,
 			"isNotSell": true,
-			"rules": []
+			"rules": [{}]
 		},
 		{
 			"id": "ball.gold",
 			"ballScoreMultiplier": 10,
 			"price": 2,
-			"rules": []
+			"rules": [{}]
 		},
 		{
 			"id": "ball.friend",
-			"ballScoreMultiplier": 1,
 			"price": 1,
 			"rules": [
 				{
@@ -36,7 +34,6 @@
 		},
 		{
 			"id": "ball.student",
-			"ballScoreMultiplier": 1,
 			"price": 3,
 			"rules": [
 				{
@@ -55,6 +52,12 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "ball.star",
+			"price": 1,
+			"rules": [{}],
+			"criticalMultiplier": 2
 		}
 	]
 }
