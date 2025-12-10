@@ -1,4 +1,5 @@
 using System;
+using Data;
 using UnityEngine;
 
 public enum FlowPhase
@@ -112,6 +113,28 @@ public sealed class FlowManager : MonoBehaviour
         }
 
         CurrencyManager.Instance?.AddCurrency(GameConfig.BaseRoundIncome);
+
+        var pinsByRow = PinManager.Instance.PinsByRow;
+         
+        for (int row = 0; row < pinsByRow.Count; row++)
+        {
+            var rowList = pinsByRow[row];
+            if (rowList == null)
+                continue;
+
+            for (int col = 0; col < rowList.Count; col++)
+            {
+                var pin = rowList[col];
+                if (pin != null && pin.Instance != null)
+                {
+                    pin.Instance.HandleTrigger(
+                        PinTriggerType.OnRoundFinished,
+                        null,
+                        Vector2.zero
+                    );
+                }
+            }
+        }
 
         bool isLastRound = currentStage != null &&
                            currentRoundIndex >= currentStage.RoundCount - 1;

@@ -176,6 +176,27 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "pin.cheese",
+			"price": 5,
+			"rules": [
+				{
+					"triggerType": "OnRoundFinished",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifySelfStat",
+							"statId": "scoreMultiplier",
+							"effectMode": "Add",
+							"value": 1,
+							"temporary": false
+						}
+					]
+				}
+			]
 		}
 	]
 }

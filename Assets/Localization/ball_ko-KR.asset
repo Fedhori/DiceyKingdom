@@ -79,7 +79,8 @@ MonoBehaviour:
   - m_Id: 2896195000741888
     m_Localized: "\uD30C\uAD34\uB420 \uB54C {life}\uBC88 \uBD80\uD65C"
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 2507345213413916748
   references:
     version: 2
     RefIds:
@@ -91,3 +92,4 @@ MonoBehaviour:
         - id: 2591164875948033
         - id: 2591164875948034
         - id: 2878002278445056
+        - id: 2896195000741888

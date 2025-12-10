@@ -24,7 +24,8 @@ namespace Data
     {
         Unknown = 0,
         OnBallHit,
-        OnBallDestroyed
+        OnBallDestroyed,
+        OnRoundFinished,
     }
 
     public enum PinConditionKind
