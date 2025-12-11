@@ -83,6 +83,10 @@ MonoBehaviour:
     m_Key: game.gameclear.desc
     m_Metadata:
       m_Items: []
+  - m_Id: 3550732967489536
+    m_Key: game.notEnoughBall.label
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

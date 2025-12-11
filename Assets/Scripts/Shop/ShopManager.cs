@@ -9,6 +9,8 @@ public sealed class ShopManager : MonoBehaviour
     public static ShopManager Instance { get; private set; }
 
     [SerializeField] ShopView shopView;
+    [SerializeField] private GameObject notEnoughBallText;
+    [SerializeField] private GameObject ballItemsLayout;
 
     [SerializeField] int itemsPerShop = 3;
     [SerializeField] int ballItemsPerShop = 2;
@@ -222,6 +224,19 @@ public sealed class ShopManager : MonoBehaviour
 
     void RollBallItems()
     {
+        var player = PlayerManager.Instance?.Current;
+
+        var deck = player?.BallDeck;
+        if (deck == null)
+            return;
+
+        int basicCount = deck.GetCount(GameConfig.BasicBallId);
+
+        notEnoughBallText.SetActive(basicCount <= 0);
+        ballItemsLayout.SetActive(basicCount > 0);
+        if (basicCount <= 0)
+            return;
+
         EnsureBallItemArray();
 
         if (sellableBalls.Count == 0)
@@ -244,8 +259,8 @@ public sealed class ShopManager : MonoBehaviour
 
             var dto = sellableBalls[ballIndex];
 
-            var maxBallCount = (int)Mathf.Max(1, GameConfig.MaxBallPrice / dto.price);
-            var minBallCount = (int)Mathf.Max(1, 1 / dto.price);
+            var maxBallCount = (int)Mathf.Min(Mathf.Max(1, GameConfig.MaxBallPrice / dto.price), basicCount);
+            var minBallCount = (int)Mathf.Min(Mathf.Max(1, 1 / dto.price), basicCount);
 
             var ballCount = UnityEngine.Random.Range(minBallCount, maxBallCount + 1);
 
