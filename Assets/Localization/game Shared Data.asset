@@ -87,6 +87,10 @@ MonoBehaviour:
     m_Key: game.notEnoughBall.label
     m_Metadata:
       m_Items: []
+  - m_Id: 3659398399930368
+    m_Key: game.option.button
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
