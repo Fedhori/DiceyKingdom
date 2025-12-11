@@ -36,7 +36,7 @@ public sealed class StageHudView : MonoBehaviour
     public void SetStageInfo(int currentStage, int maxStage, double needScore)
     {
         stageText.text = $"{currentStage} / {maxStage}";
-        targetScoreText.text = $"{needScore}";
+        targetScoreText.text = $"{needScore:N0}";
     }
 
     public void SetRoundInfo(int currentRound, int totalRounds)

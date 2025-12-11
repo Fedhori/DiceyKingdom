@@ -63,7 +63,9 @@ public sealed class ScoreManager : MonoBehaviour
 
         var rng = GameManager.Instance.Rng;
 
-        var criticalType = player.RollCriticalLevel(rng);
+        // TODO - 크리티컬 시스템 <- 어차피 100% 무조건 넘어가게 될건데, 전혀 흥미롭지 않아 제외
+        //var criticalType = player.RollCriticalLevel(rng);
+        var criticalType = 0;
         double criticalMultiplier = player.GetCriticalMultiplier(criticalType) * ball.CriticalMultiplier;
 
         var gained = player.ScoreBase * player.ScoreMultiplier * ball.ScoreMultiplier * pin.ScoreMultiplier *
@@ -89,7 +91,8 @@ public sealed class ScoreManager : MonoBehaviour
 
         var rng = GameManager.Instance.Rng;
 
-        var criticalType = player.RollCriticalLevel(rng);
+        // TODO - 크리티컬 시스템 <- 어차피 100% 무조건 넘어가게 될건데, 전혀 흥미롭지 않아 제외
+        var criticalType = 0;
         var criticalMultiplier = player.GetCriticalMultiplier(criticalType) * ball.CriticalMultiplier;
 
         var gained = player.ScoreBase * player.ScoreMultiplier * ball.ScoreMultiplier * criticalMultiplier;

@@ -9,7 +9,7 @@
 		},
 		{
 			"id": "pin.cloverLeaf",
-			"isNotSell": false,
+			"isNotSell": true,
 			"price": 5,
 			"rules": [
 				{
@@ -30,7 +30,7 @@
 		},
 		{
 			"id": "pin.baseballBat",
-			"isNotSell": false,
+			"isNotSell": true,
 			"price": 5,
 			"rules": [
 				{
@@ -150,9 +150,9 @@
 		},
 		{
 			"id": "pin.megaphone",
-			"scoreMultiplier": 3.0,
+			"scoreMultiplier": 10.0,
 			"isNotSell": false,
-			"price": 6,
+			"price": 4,
 			"rules": []
 		},
 		{
@@ -200,7 +200,7 @@
 		},
 		{
 			"id": "pin.piggyBank",
-			"price": 5,
+			"price": 7,
 			"rules": [
 				{
 					"triggerType": "OnRoundFinished",
@@ -223,6 +223,7 @@
 		{
 			"id": "pin.angel",
 			"price": 10,
+			"isNotSell": true,
 			"rules": [
 				{
 					"triggerType": "OnBallHit",

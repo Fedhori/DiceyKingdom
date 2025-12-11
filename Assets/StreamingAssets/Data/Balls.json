@@ -23,7 +23,7 @@
 					"effects": [
 						{
 							"effectType": "ModifyOtherBallStat",
-							"statId": "ball.scoreMultiplier",
+							"statId": "scoreMultiplier",
 							"effectMode": "Add",
 							"value": 1,
 							"temporary": true
@@ -44,7 +44,7 @@
 					"effects": [
 						{
 							"effectType": "ModifySelfStat",
-							"statId": "ball.scoreMultiplier",
+							"statId": "scoreMultiplier",
 							"effectMode": "Add",
 							"value": 1,
 							"temporary": true
@@ -57,6 +57,7 @@
 			"id": "ball.star",
 			"price": 1,
 			"rules": [{}],
+			"isNotSell": true,
 			"criticalMultiplier": 2
 		},
 		{
@@ -81,7 +82,8 @@
 			"price": 2,
 			"rules": [{}],
 			"criticalMultiplier": 2,
-			"life": 1
+			"life": 1,
+			"isNotSell": true
 		}
 	]
 }

@@ -12,6 +12,8 @@ public sealed class BallInstance
 
     public double ScoreMultiplier => Stats.GetValue(BallStatIds.ScoreMultiplier);
     public double CriticalMultiplier => Stats.GetValue(BallStatIds.CriticalMultiplier);
+    
+    // TODO - life 매커니즘 제거할 것. 생각보다 부활 매커니즘은 재밌지는 않고 게임이 길어지며 루즈해지는 느낌을 줌
     public int life;
     
     public float PendingSpeedFactor { get; set; } = 1f;

@@ -156,7 +156,8 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
             StopCoroutine(hitRoutine);
 
         hitRoutine = StartCoroutine(HitScaleRoutine());
-        AudioManager.Instance.Play("Score");
+        // 너무 시끄러워서 비활성화. 다른 방식으로 이펙트, 사운드를 채우는게 맞을듯?
+        // AudioManager.Instance.Play("Score");
     }
 
     IEnumerator HitScaleRoutine()
