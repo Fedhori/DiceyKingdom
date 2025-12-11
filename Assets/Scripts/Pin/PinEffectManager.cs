@@ -104,7 +104,7 @@ public class PinEffectManager : MonoBehaviour
             {
                 if (ball == null)
                     return;
-                ball.life += dto.value;
+                ball.life += (int)dto.value;
                 break;
             }
 

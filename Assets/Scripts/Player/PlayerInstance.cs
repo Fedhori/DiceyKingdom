@@ -10,10 +10,10 @@ public sealed class PlayerInstance
 
     public StatSet Stats { get; }
 
-    public float ScoreBase => Stats.GetValue(PlayerStatIds.Score);
-    public float ScoreMultiplier => Stats.GetValue(PlayerStatIds.ScoreMultiplier);
-    public float CriticalChance => Stats.GetValue(PlayerStatIds.CriticalChance);
-    public float CriticalMultiplier => Stats.GetValue(PlayerStatIds.CriticalMultiplier);
+    public double ScoreBase => Stats.GetValue(PlayerStatIds.Score);
+    public double ScoreMultiplier => Stats.GetValue(PlayerStatIds.ScoreMultiplier);
+    public double CriticalChance => Stats.GetValue(PlayerStatIds.CriticalChance);
+    public double CriticalMultiplier => Stats.GetValue(PlayerStatIds.CriticalMultiplier);
 
     // TODO - PlayerRunState라는 값을 만들어서,
     // 해당 Run에서 저장되어야 할 값들(영구 보너스, 재화, 볼 구성, 핀 구성)을 통합해서 관리해야 하지 않을까?
@@ -78,7 +78,7 @@ public sealed class PlayerInstance
             rng = new System.Random();
 
         int criticalLevel = (int)(CriticalChance / 100f);
-        float chance = Mathf.Max(0f, CriticalChance - criticalLevel * 100f);
+        double chance = Math.Max(0f, CriticalChance - criticalLevel * 100f);
 
         double roll = rng.NextDouble() * 100.0;
 
@@ -88,7 +88,7 @@ public sealed class PlayerInstance
         return criticalLevel;
     }
 
-    public float GetCriticalMultiplier(int criticalLevel)
+    public double GetCriticalMultiplier(int criticalLevel)
     {
         return Mathf.Max(1f, criticalLevel * 2f);
     }

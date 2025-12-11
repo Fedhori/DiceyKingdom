@@ -1,5 +1,6 @@
 // StageHudView.cs
 
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 
@@ -27,12 +28,12 @@ public sealed class StageHudView : MonoBehaviour
         }
     }
 
-    void HandleScoreChanged(int score)
+    void HandleScoreChanged(double score)
     {
-        currentScoreText.text = score.ToString();
+        currentScoreText.text = $"{score:N0}";
     }
 
-    public void SetStageInfo(int currentStage, int maxStage, int needScore)
+    public void SetStageInfo(int currentStage, int maxStage, double needScore)
     {
         stageText.text = $"{currentStage} / {maxStage}";
         targetScoreText.text = $"{needScore}";

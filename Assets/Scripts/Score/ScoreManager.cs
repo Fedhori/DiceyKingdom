@@ -1,32 +1,18 @@
 using System;
-using System.Globalization;
-using TMPro;
 using UnityEngine;
 
 public sealed class ScoreManager : MonoBehaviour
 {
     public static ScoreManager Instance { get; private set; }
 
-    private int totalScore;
-
-    const float MinValue = 10f;
-    const float MaxValue = 10000f;
+    const double MinValue = 10;
+    const double MaxValue = 10000;
     const float MinFontSize = 12f;
     const float MaxFontSize = 36f;
 
-    float GetFontSizeForScore(int score)
-    {
-        // 점수 범위 밖 안전 처리 (clamp score to range)
-        float value = Mathf.Clamp(score, MinValue, MaxValue);
+    private double totalScore;
 
-        // 0~1로 정규화 (normalize to 0~1)
-        float t = Mathf.InverseLerp(MinValue, MaxValue, value);
-
-        // 폰트 크기 보간 (lerp font size)
-        return Mathf.Lerp(MinFontSize, MaxFontSize, t);
-    }
-
-    public int TotalScore
+    public double TotalScore
     {
         get => totalScore;
         private set
@@ -36,7 +22,23 @@ public sealed class ScoreManager : MonoBehaviour
         }
     }
 
-    public event Action<int> OnScoreChanged;
+    float GetFontSizeForScore(double score)
+    {
+        // 점수 범위 밖 안전 처리 (clamp score to range)
+        var value = Math.Clamp(score, MinValue, MaxValue);
+
+        double t = 0;
+        if (MinValue < MaxValue)
+        {
+            // 0~1로 정규화 (normalize to 0~1)
+            t = (float)((value - MinValue) / (MaxValue - MinValue));
+        }
+
+        // 폰트 크기 보간 (lerp font size)
+        return Mathf.Lerp(MinFontSize, MaxFontSize, (float)t);
+    }
+
+    public event Action<double> OnScoreChanged;
 
     void Awake()
     {
@@ -58,21 +60,21 @@ public sealed class ScoreManager : MonoBehaviour
             Debug.LogWarning("[BallInstance] GameManager.Instance is null.");
             return;
         }
-        
+
         var rng = GameManager.Instance.Rng;
 
         var criticalType = player.RollCriticalLevel(rng);
-        float criticalMultiplier = player.GetCriticalMultiplier(criticalType) * ball.CriticalMultiplier;
+        double criticalMultiplier = player.GetCriticalMultiplier(criticalType) * ball.CriticalMultiplier;
 
-        float rawScore = player.ScoreBase * player.ScoreMultiplier * ball.ScoreMultiplier * pin.ScoreMultiplier * criticalMultiplier;
-        int gained = Mathf.RoundToInt(rawScore);
+        var gained = player.ScoreBase * player.ScoreMultiplier * ball.ScoreMultiplier * pin.ScoreMultiplier *
+                     criticalMultiplier;
 
         AddScore(gained, criticalType, position);
     }
-    
+
     public void CalculateScore(BallInstance ball, Vector2 position)
     {
-         var player = PlayerManager.Instance?.Current;
+        var player = PlayerManager.Instance?.Current;
         if (player == null)
         {
             Debug.LogWarning("[BallInstance] PlayerManager.Current is null.");
@@ -84,19 +86,18 @@ public sealed class ScoreManager : MonoBehaviour
             Debug.LogWarning("[BallInstance] GameManager.Instance is null.");
             return;
         }
-        
+
         var rng = GameManager.Instance.Rng;
 
         var criticalType = player.RollCriticalLevel(rng);
-        float criticalMultiplier = player.GetCriticalMultiplier(criticalType) * ball.CriticalMultiplier;
+        var criticalMultiplier = player.GetCriticalMultiplier(criticalType) * ball.CriticalMultiplier;
 
-        float rawScore = player.ScoreBase * player.ScoreMultiplier * ball.ScoreMultiplier * criticalMultiplier;
-        int gained = Mathf.RoundToInt(rawScore);
+        var gained = player.ScoreBase * player.ScoreMultiplier * ball.ScoreMultiplier * criticalMultiplier;
 
         AddScore(gained, criticalType, position);
     }
 
-    public void AddScore(int amount, int criticalLevel, Vector2 position)
+    public void AddScore(double amount, int criticalLevel, Vector2 position)
     {
         if (amount == 0)
             return;

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public sealed class StageDto
 {
     public string id;
-    public int needScore;
+    public double needScore;
     public int roundCount = 3;
 }
 

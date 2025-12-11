@@ -146,7 +146,7 @@ public sealed class FlowManager : MonoBehaviour
             return;
         }
 
-        int totalScore = ScoreManager.Instance != null
+        var totalScore = ScoreManager.Instance != null
             ? ScoreManager.Instance.TotalScore
             : 0;
 

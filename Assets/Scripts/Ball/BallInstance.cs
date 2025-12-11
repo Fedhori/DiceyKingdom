@@ -10,9 +10,9 @@ public sealed class BallInstance
     public BallDto BaseDto { get; }
     public string Id => BaseDto.id;
 
-    public float ScoreMultiplier => Stats.GetValue(BallStatIds.ScoreMultiplier);
-    public float CriticalMultiplier => Stats.GetValue(BallStatIds.CriticalMultiplier);
-    public float life;
+    public double ScoreMultiplier => Stats.GetValue(BallStatIds.ScoreMultiplier);
+    public double CriticalMultiplier => Stats.GetValue(BallStatIds.CriticalMultiplier);
+    public int life;
     
     public float PendingSpeedFactor { get; set; } = 1f;
     public float PendingSizeFactor { get; set; } = 1f;

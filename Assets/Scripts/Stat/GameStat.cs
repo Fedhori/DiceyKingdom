@@ -37,7 +37,7 @@ namespace GameStats
     {
         public string StatId { get; }
         public StatOpKind OpKind { get; }
-        public float Value { get; }
+        public double Value { get; }
         public StatLayer Layer { get; }
         public object Source { get; }
         public int Priority { get; }
@@ -45,7 +45,7 @@ namespace GameStats
         public StatModifier(
             string statId,
             StatOpKind opKind,
-            float value,
+            double value,
             StatLayer layer,
             object source,
             int priority = 0)
@@ -63,13 +63,13 @@ namespace GameStats
     {
         readonly List<StatModifier> _modifiers = new();
 
-        float _baseValue;
+        double _baseValue;
         bool _dirty = true;
-        float _cachedFinal;
+        double _cachedFinal;
 
         public string StatId { get; }
 
-        public float BaseValue
+        public double BaseValue
         {
             get => _baseValue;
             set
@@ -80,7 +80,7 @@ namespace GameStats
             }
         }
 
-        public float FinalValue
+        public double FinalValue
         {
             get
             {
@@ -91,7 +91,7 @@ namespace GameStats
 
         public IReadOnlyList<StatModifier> Modifiers => _modifiers;
 
-        public StatSlot(string statId, float baseValue = 0f)
+        public StatSlot(string statId, double baseValue = 0f)
         {
             StatId = statId;
             _baseValue = baseValue;
@@ -129,8 +129,8 @@ namespace GameStats
 
         void Recalculate()
         {
-            float addSum = 0f;
-            float multSum = 0f;
+            double addSum = 0f;
+            double multSum = 0f;
 
             for (int i = 0; i < _modifiers.Count; i++)
             {
@@ -152,7 +152,7 @@ namespace GameStats
 
         public IEnumerable<StatSlot> AllSlots => _slots.Values;
 
-        public void SetBase(string statId, float baseValue)
+        public void SetBase(string statId, double baseValue)
         {
             if (!_slots.TryGetValue(statId, out var slot))
             {
@@ -165,7 +165,7 @@ namespace GameStats
             }
         }
 
-        public float GetValue(string statId)
+        public double GetValue(string statId)
         {
             return _slots.TryGetValue(statId, out var slot)
                 ? slot.FinalValue

@@ -6,7 +6,7 @@ public sealed class StageInstance
     public StageDto StageDto { get; }
     public int StageIndex { get; }
 
-    public int NeedScore => StageDto.needScore;
+    public double NeedScore => StageDto.needScore;
     public int RoundCount => StageDto.roundCount > 0 ? StageDto.roundCount : 3;
 
     public int CurrentRoundIndex { get; private set; }  // 0-based

@@ -17,7 +17,7 @@ public sealed class PinInstance
     readonly List<PinRuleDto> rules;
     public IReadOnlyList<PinRuleDto> Rules => rules;
 
-    public float ScoreMultiplier => Stats.GetValue(PinStatIds.ScoreMultiplier);
+    public double ScoreMultiplier => Stats.GetValue(PinStatIds.ScoreMultiplier);
 
     public event Action<int> OnHitCountChanged;
     private int hitCount = 0;
