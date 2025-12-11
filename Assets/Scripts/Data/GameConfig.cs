@@ -6,7 +6,7 @@ public static class GameConfig
     public static string BasicPinId = "pin.basic";
     public static string BasicBallId = "ball.basic";
     public static int BaseRoundIncome = 10;
-    public static float MaxBallPrice = 10;
+    public static float MaxBallPrice = 5;
     public static int MaxRuleCount = 4;
 }
 

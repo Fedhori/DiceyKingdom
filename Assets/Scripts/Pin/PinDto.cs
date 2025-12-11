@@ -124,15 +124,6 @@ namespace Data
                 isValid = false;
             }
 
-            // isNotSell인데 price != 0이면 0으로 강제
-            if (isNotSell && price != 0)
-            {
-                Debug.LogError(
-                    $"[PinDto] '{id}': isNotSell=true 인데 price={price} 입니다. 0으로 강제 설정합니다."
-                );
-                price = 0;
-            }
-
             int chargeConditionCount = 0;
 
             if (rules.Count > GameConfig.MaxRuleCount)

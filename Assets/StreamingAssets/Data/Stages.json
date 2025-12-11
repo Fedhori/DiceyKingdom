@@ -10,35 +10,27 @@
 		},
 		{
 			"id": "stage.3",
-			"needScore": 200000
+			"needScore": 500000
 		},
 		{
 			"id": "stage.4",
-			"needScore": 1000000
+			"needScore": 5000000
 		},
 		{
 			"id": "stage.5",
-			"needScore": 10000000
+			"needScore": 50000000
 		},
 		{
 			"id": "stage.6",
-			"needScore": 10000000
+			"needScore": 200000000
 		},
 		{
 			"id": "stage.7",
-			"needScore": 10000000
+			"needScore": 1000000000
 		},
 		{
 			"id": "stage.8",
-			"needScore": 10000000
-		},
-		{
-			"id": "stage.9",
-			"needScore": 10000000
-		},
-		{
-			"id": "stage.10",
-			"needScore": 10000000
+			"needScore": 10000000000
 		}
 	]
 }

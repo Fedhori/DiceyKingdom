@@ -24,8 +24,8 @@ public sealed class RewardManager : MonoBehaviour
         currentStage = stage;
         this.stageIndex = stageIndex;
         isOpen = true;
-        PlayerManager.Instance.Current.BallDeck.Add("ball.basic", 5);
-        CurrencyManager.Instance.AddCurrency(10);
+        PlayerManager.Instance.Current.BallDeck.Add("ball.basic", 3);
+        //CurrencyManager.Instance.AddCurrency(10);
         
         Close();
     }

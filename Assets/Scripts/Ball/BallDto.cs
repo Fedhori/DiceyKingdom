@@ -97,14 +97,6 @@ namespace Data
                     $"[BallDto] '{id}': isNotSell=false but price <= 0. (price={price})"
                 );
             }
-
-            if (isNotSell && price != 0)
-            {
-                Debug.LogError(
-                    $"[BallDto] '{id}': isNotSell=true but price={price}. Force set to 0."
-                );
-                price = 0;
-            }
         }
     }
 

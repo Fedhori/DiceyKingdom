@@ -85,7 +85,7 @@
 							"effectType": "ModifySelfStat",
 							"statId": "scoreMultiplier",
 							"effectMode": "Add",
-							"value": 0.1
+							"value": 1
 						}
 					]
 				}
@@ -199,8 +199,10 @@
 			]
 		},
 		{
+			// 카드풀이 적으면 너무 강력해진다. 의도적으로 비활성화시킴.
 			"id": "pin.piggyBank",
 			"price": 7,
+			"isNotSell": true,
 			"rules": [
 				{
 					"triggerType": "OnRoundFinished",
