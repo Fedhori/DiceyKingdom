@@ -60,48 +60,50 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1041626872692736
-    m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uD06C\uB9AC\uD2F0\uCEEC \uD655\uB960
-      +{value0}%"
+    m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uD06C\uB9AC\uD2F0\uCEEC \uD655\uB960\uC774
+      {value0}% \uC99D\uAC00\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
   - m_Id: 1041765397970944
-    m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uD06C\uB9AC\uD2F0\uCEEC \uBC30\uC728
-      +{value0}"
+    m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uD06C\uB9AC\uD2F0\uCEEC \uBC30\uC728\uC774
+      {value0} \uC99D\uAC00\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
   - m_Id: 1041799204061184
-    m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uAE30\uBCF8 \uC810\uC218 +{value0}"
+    m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uAE30\uBCF8 \uC810\uC218\uAC00
+      {value0} \uC99D\uAC00\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
   - m_Id: 1041832984985600
     m_Localized: "\uBCFC\uC774 \uD30C\uAD34\uB420 \uB54C\uB9C8\uB2E4: \uC774 \uD540\uC758
-      \uC810\uC218 \uBC30\uC728 +{value0}"
+      \uC810\uC218 \uBC30\uC728\uC774 {value0} \uC99D\uAC00\uD569\uB2C8\uB2E4"
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
   - m_Id: 1041870788247552
     m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uBCFC\uC774 \uB354 \uB9CE\uC774
-      \uD295\uACA8\uB0A9\uB2C8\uB2E4"
+      \uD295\uACA8\uB0A9\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
   - m_Id: 1041971359268864
     m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uBCFC\uC774 \uAE30\uBCF8 \uD06C\uAE30\uAC00
-      \uCEE4\uC9D1\uB2C8\uB2E4"
+      \uCEE4\uC9D1\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
   - m_Id: 1042002204180480
-    m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uC810\uC218 +{value0}\uC810"
+    m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uC810\uC218 +{value0}\uC810\uC744
+      \uC5BB\uC2B5\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
   - m_Id: 1042121259499520
-    m_Localized: "\uBCFC\uACFC {hits}\uBC88 \uB9CC\uB098\uBA74: \uC810\uC218 \uBC30\uC728
-      +{value0}"
+    m_Localized: "\uBCFC\uACFC {hits}\uBC88 \uB9CC\uB098\uBA74: \uC810\uC218 \uBC30\uC728\uC774
+      {value0} \uC99D\uAC00\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
@@ -111,15 +113,17 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 3264850205093888
     m_Localized: "\uB77C\uC6B4\uB4DC\uAC00 \uB05D\uB0A0 \uB54C: \uC601\uAD6C\uC801\uC73C\uB85C
-      \uC810\uC218 \uBC30\uC728 +1"
+      \uD574\uB2F9 \uD540\uC758 \uC810\uC218 \uBC30\uC728\uC774 {value0} \uC99D\uAC00\uD569\uB2C8\uB2E4."
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 2507345055421825124
   - m_Id: 3272633948319744
     m_Localized: "\uB3FC\uC9C0 \uC800\uAE08\uD1B5"
     m_Metadata:
       m_Items: []
   - m_Id: 3272702227394560
-    m_Localized: "{round} \uB77C\uC6B4\uB4DC \uD6C4: +${value0}"
+    m_Localized: "{round} \uB77C\uC6B4\uB4DC \uD6C4: ${value0}\uB97C \uC5BB\uACE0
+      \uD30C\uAD34\uB429\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
@@ -128,9 +132,9 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 3280458426626048
-    m_Localized: "\uBCFC\uACFC {hits}\uBC88 \uB9CC\uB098\uBA74:  \uB9CC\uB09C \uBCFC\uC5D0
-      \uBD80\uD65C +{value0}\n(\uB77C\uC6B4\uB4DC\uB2F9 {maxPerRound}\uBC88 \uD55C\uC815
-      {remainRuleCount}\uD68C \uB0A8\uC74C)"
+    m_Localized: "\uBCFC\uACFC {hits}\uBC88 \uB9CC\uB098\uBA74:  \uB9CC\uB09C \uBCFC\uC744
+      {value0}\uD68C \uBD80\uD65C\uC2DC\uD0B5\uB2C8\uB2E4.\n\uB77C\uC6B4\uB4DC\uB2F9
+      {maxPerRound}\uD68C \uD55C\uC815. \n({remainRuleCount}\uD68C \uB0A8\uC74C!)"
     m_Metadata:
       m_Items:
       - rid: 2507345055421825124
@@ -152,3 +156,4 @@ MonoBehaviour:
         - id: 1041626872692736
         - id: 3272702227394560
         - id: 3280458426626048
+        - id: 3264850205093888
