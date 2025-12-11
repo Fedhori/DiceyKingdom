@@ -67,6 +67,22 @@ MonoBehaviour:
     m_Key: game.balldeck.title
     m_Metadata:
       m_Items: []
+  - m_Id: 3521450148900864
+    m_Key: game.gameover.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3521514736988160
+    m_Key: game.gameover.desc
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3525382434729984
+    m_Key: game.gameclear.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3526835891089408
+    m_Key: game.gameclear.desc
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -73,8 +73,7 @@ public sealed class FlowManager : MonoBehaviour
     {
         if (!StageRepository.TryGetByIndex(stageIndex, out var dto))
         {
-            Debug.Log("[FlowManager] No more stages. Run clear or not defined.");
-            GameManager.Instance?.RestartGame();
+            Debug.Log($"[FlowManager] stage not defined. stageIndex:{stageIndex}");
             return;
         }
 
@@ -115,7 +114,7 @@ public sealed class FlowManager : MonoBehaviour
         CurrencyManager.Instance?.AddCurrency(GameConfig.BaseRoundIncome);
 
         var pinsByRow = PinManager.Instance.PinsByRow;
-         
+
         for (int row = 0; row < pinsByRow.Count; row++)
         {
             var rowList = pinsByRow[row];
@@ -155,8 +154,13 @@ public sealed class FlowManager : MonoBehaviour
 
         if (!cleared)
         {
-            Debug.Log("[FlowManager] Game Over. NeedScore not reached.");
-            GameManager.Instance?.RestartGame();
+            GameManager.Instance?.HandleGameOver();
+            return;
+        }
+
+        if (!StageRepository.TryGetByIndex(currentStageIndex + 1, out var dto))
+        {
+            GameManager.Instance?.HandleGameClear();
             return;
         }
 

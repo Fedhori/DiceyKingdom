@@ -1281,11 +1281,11 @@ MonoBehaviour:
   src: {fileID: 784719082}
   entries:
   - key: GameOver
-    volume: 0.044
-    clip: {fileID: 8300000, guid: 148903a5ecfb2a64fbe25be8e693e4bd, type: 3}
+    volume: 1
+    clip: {fileID: 8300000, guid: 28dfc96e26a2a5d469915f453811cf2c, type: 3}
   - key: GameClear
-    volume: 0.133
-    clip: {fileID: 8300000, guid: 35065ed2494ab12409e0baac2359a7bc, type: 3}
+    volume: 1
+    clip: {fileID: 8300000, guid: 84413f930fa79f54dbc634d120231e2c, type: 3}
   - key: Clap
     volume: 0.196
     clip: {fileID: 8300000, guid: a1659dfbb297af743a1dd58d259b21a6, type: 3}
