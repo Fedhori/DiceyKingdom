@@ -29,7 +29,7 @@ public class Bootstrap : MonoBehaviour
         }
 
         // 3) 다음 씬으로
-        await SceneManager.LoadSceneAsync("GameScene").AsTask();
+        await SceneManager.LoadSceneAsync("MainMenuScene").AsTask();
     }
 }
 

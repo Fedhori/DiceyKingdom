@@ -5,20 +5,25 @@ using UnityEngine.UI;
 public class OptionManager : MonoBehaviour
 {
     public static OptionManager Instance { get; private set; }
-    
+
     public GameObject optionOverlay;
 
     public Button quitGameButton;
     public Button gameRestartButton;
     public Button returnToMainMenuButton;
-    
+
     private void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
         ToggleOption(false);
     }
-    
+
     void OnEnable()
     {
         // 씬이 로드될 때마다 OnSceneLoaded 실행
@@ -30,12 +35,12 @@ public class OptionManager : MonoBehaviour
         // 이벤트 중복 등록 방지
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
-    
+
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         UpdateOptionButtons();
     }
-    
+
     void HideAllOptionButtons()
     {
         gameRestartButton.gameObject.SetActive(false);
@@ -45,13 +50,21 @@ public class OptionManager : MonoBehaviour
     void UpdateOptionButtons()
     {
         HideAllOptionButtons();
-        
+
         quitGameButton.gameObject.SetActive(true);
 
-        if (SceneManager.GetActiveScene().name == "GameScene")
+        switch (SceneManager.GetActiveScene().name)
         {
-            gameRestartButton.gameObject.SetActive(true);
-            //returnToMainMenuButton.gameObject.SetActive(true);
+            case "GameScene":
+            {
+                gameRestartButton.gameObject.SetActive(true);
+                returnToMainMenuButton.gameObject.SetActive(true);
+                break;
+            }
+            default:
+            {
+                break;
+            }
         }
     }
 
@@ -70,20 +83,21 @@ public class OptionManager : MonoBehaviour
         ToggleOption(false);
         GameManager.Instance?.RestartGame();
     }
-    
+
     public void RequestReturnToMainMenu()
     {
         ModalManager.Instance.ShowConfirmation(
             titleTable: "modal", titleKey: "modal.mainmenu.title",
             messageTable: "modal", messageKey: "modal.mainmenu.desc",
             onConfirm: ReturnToMainMenu,
-            onCancel: () => {}
+            onCancel: () => { }
         );
     }
-    
+
     public void ReturnToMainMenu()
     {
         ToggleOption(false);
+        SceneManager.LoadScene("MainMenuScene");
     }
 
     public void RequestQuitGame()
@@ -92,7 +106,7 @@ public class OptionManager : MonoBehaviour
             titleTable: "modal", titleKey: "modal.quitgame.title",
             messageTable: "modal", messageKey: "modal.quitgame.message",
             onConfirm: QuitGame,
-            onCancel: () => {}
+            onCancel: () => { }
         );
     }
 
