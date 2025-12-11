@@ -156,8 +156,9 @@ public sealed class PinInstance
             if (!IsConditionMet(rule.condition, trigger))
                 continue;
 
-            if (ruleActivationCount[i] > rule.maxPerRound)
+            if (rule.maxPerRound > 0 && ruleActivationCount[i] > rule.maxPerRound)
                 continue;
+            
             ruleActivationCount[i]++;
 
             ApplyEffects(rule.effects, ball, position);

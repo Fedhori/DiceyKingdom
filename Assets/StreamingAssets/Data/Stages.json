@@ -19,6 +19,26 @@
 		{
 			"id": "stage.5",
 			"needScore": 10000000
+		},
+		{
+			"id": "stage.6",
+			"needScore": 10000000
+		},
+		{
+			"id": "stage.7",
+			"needScore": 10000000
+		},
+		{
+			"id": "stage.8",
+			"needScore": 10000000
+		},
+		{
+			"id": "stage.9",
+			"needScore": 10000000
+		},
+		{
+			"id": "stage.10",
+			"needScore": 10000000
 		}
 	]
 }

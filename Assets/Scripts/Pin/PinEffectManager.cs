@@ -53,7 +53,7 @@ public class PinEffectManager : MonoBehaviour
 
         var player = PlayerManager.Instance?.Current;
 
-        switch (dto.effectType)
+         switch (dto.effectType)
         {
             case PinEffectType.ModifyPlayerStat:
                 if (player == null)

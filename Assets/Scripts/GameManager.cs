@@ -1,3 +1,4 @@
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.Localization.Components;
 using UnityEngine.Localization.SmartFormat.PersistentVariables;
@@ -41,14 +42,14 @@ public class GameManager : MonoBehaviour
     public void HandleGameOver()
     {
         AudioManager.Instance.Play("GameOver");
-        gameOverOverlay.gameObject.SetActive(true);
+        gameOverOverlay.SetActive(true);
     }
 
     public void HandleGameClear()
     {
         AudioManager.Instance.Play("GameClear");
         if (gameClearDescription.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
-            sv.Value = ScoreManager.Instance.TotalScore.ToString();
-        gameClearOverlay.gameObject.SetActive(true);
+            sv.Value = ScoreManager.Instance.TotalScore.ToString(CultureInfo.InvariantCulture);
+        gameClearOverlay.SetActive(true);
     }
 }
