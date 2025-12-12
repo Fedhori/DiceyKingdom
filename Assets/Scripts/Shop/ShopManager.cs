@@ -58,6 +58,11 @@ public sealed class ShopManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        PlayerManager.Instance.Current.OnCurrencyChanged += HandleCurrencyChanged;
+    }
+
     System.Random Rng =>
         GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
 
@@ -559,5 +564,12 @@ public sealed class ShopManager : MonoBehaviour
     {
         if (shopView != null)
             OnSelectionChanged -= shopView.HandleSelectionChanged;
+        
+        PlayerManager.Instance.Current.OnCurrencyChanged -= HandleCurrencyChanged;
+    }
+    
+    void HandleCurrencyChanged(int value)
+    {
+        RefreshView();
     }
 }
