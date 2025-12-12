@@ -232,9 +232,9 @@ public sealed class ShopManager : MonoBehaviour
 
         int basicCount = deck.GetCount(GameConfig.BasicBallId);
         
-        if(!notEnoughBallText)
+        if(notEnoughBallText != null)
             notEnoughBallText?.SetActive(basicCount <= 0);
-        if(!ballItemsLayout)
+        if(ballItemsLayout != null)
             ballItemsLayout?.SetActive(basicCount > 0);
         if (basicCount <= 0)
             return;
