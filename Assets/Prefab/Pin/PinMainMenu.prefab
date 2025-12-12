@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &4367736191816846010
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1637813796359076856, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+      propertyPath: m_Name
+      value: PinMainMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 2084582402183828137, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2084582402183828137, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2084582402183828137, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2084582402183828137, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2084582402183828137, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2084582402183828137, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2084582402183828137, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2084582402183828137, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2084582402183828137, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2084582402183828137, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 6007941849638519635, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+    - {fileID: 4675173870170839225, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+    - {fileID: 8191826981322279884, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+    m_RemovedGameObjects:
+    - {fileID: 4307899560632157248, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+    - {fileID: 8717561988933603963, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+    - {fileID: 1828472714760143745, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1637813796359076856, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 517126221032960710}
+  m_SourcePrefab: {fileID: 100100000, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+--- !u!212 &1528362944005630430 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 3001795468906668900, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+  m_PrefabInstance: {fileID: 4367736191816846010}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &3037675838723797314 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1637813796359076856, guid: d4acf8a657bc03f479704915bf307234, type: 3}
+  m_PrefabInstance: {fileID: 4367736191816846010}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &517126221032960710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3037675838723797314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bff45f111a03a9a4eb8938f389fed389, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PinMainMenuController
+  pinIcon: {fileID: 1528362944005630430}

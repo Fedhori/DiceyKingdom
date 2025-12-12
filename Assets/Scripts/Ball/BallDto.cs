@@ -166,5 +166,29 @@ namespace Data
 
             return dto;
         }
+
+        public static BallDto GetRandomBall(System.Random rng = null)
+        {
+            if (!initialized)
+                throw new InvalidOperationException("[BallRepository] Not initialized.");
+
+            if (Map.Count == 0)
+                throw new InvalidOperationException("[BallRepository] No balls loaded.");
+
+            int index = rng != null
+                ? rng.Next(Map.Count)                      // [0, map.Count)
+                : UnityEngine.Random.Range(0, Map.Count);  // [0, map.Count)
+
+            int i = 0;
+            foreach (var dto in Map.Values)
+            {
+                if (i == index)
+                    return dto;
+                i++;
+            }
+
+            // 이 위치까지 오면 로직에 문제가 있다는 뜻
+            throw new InvalidOperationException("[BallRepository] Failed to pick random ball.");
+        }
     }
 }

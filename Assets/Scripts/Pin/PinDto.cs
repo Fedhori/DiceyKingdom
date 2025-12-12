@@ -293,5 +293,29 @@ namespace Data
 
             return dto;
         }
+        
+        public static PinDto GetRandomPin(System.Random rng = null)
+        {
+            if (!initialized)
+                throw new InvalidOperationException("[PinRepository] Not initialized.");
+
+            if (map.Count == 0)
+                throw new InvalidOperationException("[PinRepository] No pins loaded.");
+
+            int index = rng != null
+                ? rng.Next(map.Count)                      // [0, map.Count)
+                : UnityEngine.Random.Range(0, map.Count);  // [0, map.Count)
+
+            int i = 0;
+            foreach (var dto in map.Values)
+            {
+                if (i == index)
+                    return dto;
+                i++;
+            }
+
+            // 이 위치까지 오면 로직에 문제가 있다는 뜻
+            throw new InvalidOperationException("[PinRepository] Failed to pick random pin.");
+        }
     }
 }
