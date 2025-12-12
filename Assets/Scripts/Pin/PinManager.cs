@@ -235,7 +235,7 @@ public class PinManager : MonoBehaviour
 
         return false;
     }
-    
+
     public void SwapPins(PinController dragging, PinController target)
     {
         if (dragging == null || target == null || dragging == target)
@@ -289,13 +289,20 @@ public class PinManager : MonoBehaviour
         // 모달 띄워야함
         if (TryReplace(GameConfig.BasicPinId, pin.RowIndex, pin.ColumnIndex))
         {
+            var sellPrice = Mathf.CeilToInt(pin.Instance.Price / 2f);
+            var args = new Dictionary<string, object>
+            {
+                ["value"] = sellPrice
+            };
+
             ModalManager.Instance.ShowConfirmation(
                 "modal",
                 "modal.sellpin.title",
                 "modal",
                 "modal.sellpin.message",
-                () => CurrencyManager.Instance.AddCurrency(Mathf.CeilToInt(pin.Instance.Price / 2f)),
-                () => { });
+                () => CurrencyManager.Instance.AddCurrency(sellPrice),
+                () => { },
+                args);
         }
     }
 }
