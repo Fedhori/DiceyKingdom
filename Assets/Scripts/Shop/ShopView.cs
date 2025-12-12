@@ -197,10 +197,7 @@ public sealed class ShopView : MonoBehaviour
     public void SetBallItems(BallItemData[] items, int currentCurrency)
     {
         if (items == null)
-        {
-            Debug.LogError("[ShopView] ballItemPrefab or ballItemsParent is null.");
             return;
-        }
 
         int count = items.Length;
 
