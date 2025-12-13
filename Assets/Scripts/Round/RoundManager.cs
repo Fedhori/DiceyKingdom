@@ -52,7 +52,6 @@ public sealed class RoundManager : MonoBehaviour
             return;
 
         roundActive = false;
-        Debug.Log("[RoundManager] All balls destroyed. Round finished.");
 
         FlowManager.Instance?.OnRoundFinished();
     }

@@ -23,8 +23,6 @@ public sealed class SellClickTarget : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        PinManager.Instance.SellPin(pinController);
-
-        Debug.Log($"[SellClickTarget] Sell clicked for pin {pinController.Instance?.Id}");
+        PinManager.Instance.RequestSellPin(pinController);
     }
 }

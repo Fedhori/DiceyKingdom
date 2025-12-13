@@ -123,10 +123,7 @@ public class PinManager : MonoBehaviour
         var rowList = pinsByRow[row];
         var existing = rowList[column];
         if (existing != null && existing != pin)
-        {
-            Debug.Log($"[PinManager] Replacing existing pin at ({row}, {column}) with a new one.");
             Destroy(existing.gameObject);
-        }
 
         rowList[column] = pin;
     }
@@ -281,28 +278,36 @@ public class PinManager : MonoBehaviour
         (target.Instance.HitCount, dragging.Instance.HitCount) = (dragging.Instance.HitCount, target.Instance.HitCount);
     }
 
+    public void RequestSellPin(PinController pin)
+    {
+        var sellPrice = Mathf.CeilToInt(pin.Instance.Price / 2f);
+        var args = new Dictionary<string, object>
+        {
+            ["value"] = sellPrice
+        };
+
+        ModalManager.Instance.ShowConfirmation(
+            "modal",
+            "modal.sellpin.title",
+            "modal",
+            "modal.sellpin.message",
+            () => SellPin(pin),
+            () => { },
+            args);
+    }
+
     public void SellPin(PinController pin)
     {
         if (pin == null)
+        {
+            Debug.LogError("[PinManager] SellPin is null");
             return;
+        }
 
         // 모달 띄워야함
         if (TryReplace(GameConfig.BasicPinId, pin.RowIndex, pin.ColumnIndex))
         {
-            var sellPrice = Mathf.CeilToInt(pin.Instance.Price / 2f);
-            var args = new Dictionary<string, object>
-            {
-                ["value"] = sellPrice
-            };
-
-            ModalManager.Instance.ShowConfirmation(
-                "modal",
-                "modal.sellpin.title",
-                "modal",
-                "modal.sellpin.message",
-                () => CurrencyManager.Instance.AddCurrency(sellPrice),
-                () => { },
-                args);
+            CurrencyManager.Instance.AddCurrency(Mathf.CeilToInt(pin.Instance.Price / 2f));
         }
     }
 }

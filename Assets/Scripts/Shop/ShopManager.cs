@@ -85,27 +85,6 @@ public sealed class ShopManager : MonoBehaviour
 
         if (shopView != null)
             shopView.Show();
-
-        if (stage != null)
-        {
-            switch (context)
-            {
-                case ShopOpenContext.BetweenRounds:
-                    Debug.Log(
-                        $"[ShopManager] Open shop for stage {stage.StageIndex + 1}, before round {nextRoundIndex + 1}");
-                    break;
-                case ShopOpenContext.AfterStage:
-                    Debug.Log($"[ShopManager] Open shop after stage {stage.StageIndex + 1}");
-                    break;
-                default:
-                    Debug.Log($"[ShopManager] Open shop (context: {context})");
-                    break;
-            }
-        }
-        else
-        {
-            Debug.Log("[ShopManager] Open shop (stage is null)");
-        }
     }
 
     void BuildSellablePins()
