@@ -47,6 +47,14 @@ MonoBehaviour:
     m_Key: modal.mainmenu.desc
     m_Metadata:
       m_Items: []
+  - m_Id: 7651726059909120
+    m_Key: modal.restart.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7651769194131456
+    m_Key: modal.restart.desc
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

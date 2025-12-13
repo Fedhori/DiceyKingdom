@@ -78,12 +78,23 @@ public class OptionManager : MonoBehaviour
         optionOverlay.SetActive(isOpen);
     }
 
-    public void RestartGame()
+    public void RequestRestartGame()
     {
         ToggleOption(false);
-        GameManager.Instance?.RestartGame();
+        ModalManager.Instance.ShowConfirmation(
+            titleTable: "modal", titleKey: "modal.restart.title",
+            messageTable: "modal", messageKey: "modal.restart.desc",
+            onConfirm: RestartGame,
+            onCancel: () => { }
+        );
+       
     }
 
+    void RestartGame()
+    {
+        GameManager.Instance?.RestartGame();
+    }
+    
     public void RequestReturnToMainMenu()
     {
         ModalManager.Instance.ShowConfirmation(
