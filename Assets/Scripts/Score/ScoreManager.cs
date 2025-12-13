@@ -10,6 +10,8 @@ public sealed class ScoreManager : MonoBehaviour
     const float MinFontSize = 12f;
     const float MaxFontSize = 36f;
 
+    public double previousScore;
+    
     private double totalScore;
 
     public double TotalScore

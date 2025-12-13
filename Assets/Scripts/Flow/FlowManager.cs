@@ -157,13 +157,13 @@ public sealed class FlowManager : MonoBehaviour
 
             // 마지막 라운드 + 스테이지 클리어 → 클리어 보상 UI
             CurrentPhase = FlowPhase.Reward;
-            RewardManager.Instance?.Open(true);
+            StatisticsManager.Instance?.Open(true);
             return;
         }
 
         // 중간 라운드 → 항상 보상 단계로 넘어감
         CurrentPhase = FlowPhase.Reward;
-        RewardManager.Instance?.Open(false);
+        StatisticsManager.Instance?.Open(false);
     }
 
     public void OnRewardClosed()

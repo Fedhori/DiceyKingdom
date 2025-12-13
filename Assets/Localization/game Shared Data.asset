@@ -99,6 +99,18 @@ MonoBehaviour:
     m_Key: game.roundresult.exit
     m_Metadata:
       m_Items: []
+  - m_Id: 4317961107550208
+    m_Key: game.earnedscore.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4318060248313856
+    m_Key: game.earnedcurrency.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4318162333478912
+    m_Key: game.earnedballs.label
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -8,6 +8,7 @@ public static class GameConfig
     public static int BaseRoundIncome = 10;
     public static float MaxBallPrice = 5;
     public static int MaxRuleCount = 4;
+    public static int BaseBallIncome = 3;
 }
 
 public static class LayerMaskUtil

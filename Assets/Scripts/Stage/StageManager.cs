@@ -89,6 +89,7 @@ public sealed class StageManager : MonoBehaviour
     /// </summary>
     public void StartRound(StageInstance stage, int roundIndex)
     {
+        ScoreManager.Instance.previousScore = ScoreManager.Instance.TotalScore;
         currentStage = stage;
         currentRoundIndex = roundIndex;
         roundActive = true;
