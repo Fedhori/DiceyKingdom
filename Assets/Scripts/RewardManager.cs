@@ -3,10 +3,9 @@ using UnityEngine;
 public sealed class RewardManager : MonoBehaviour
 {
     public static RewardManager Instance { get; private set; }
+    [SerializeField] private GameObject rewardOverlay;
 
     bool isOpen;
-    StageInstance currentStage;
-    int stageIndex;
 
     void Awake()
     {
@@ -19,15 +18,15 @@ public sealed class RewardManager : MonoBehaviour
         Instance = this;
     }
 
-    public void Open(StageInstance stage, int stageIndex)
+    public void Open(bool isStageClear)
     {
-        currentStage = stage;
-        this.stageIndex = stageIndex;
         isOpen = true;
-        PlayerManager.Instance.Current.BallDeck.Add("ball.basic", 3);
-        //CurrencyManager.Instance.AddCurrency(10);
         
-        Close();
+        if (isStageClear)
+            PlayerManager.Instance.Current.BallDeck.Add(GameConfig.BasicBallId, 3);
+        CurrencyManager.Instance?.AddCurrency(GameConfig.BaseRoundIncome);
+
+        rewardOverlay.SetActive(true);
     }
 
     public void Close()
@@ -35,8 +34,8 @@ public sealed class RewardManager : MonoBehaviour
         if (!isOpen)
             return;
 
+        rewardOverlay.SetActive(false);
         isOpen = false;
-        Debug.Log("[RewardManager] Close reward");
 
         FlowManager.Instance?.OnRewardClosed();
     }

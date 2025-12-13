@@ -18,7 +18,6 @@ public sealed class ShopManager : MonoBehaviour
     [SerializeField] int rerollCostIncrement = 1;
 
     bool isOpen;
-    ShopOpenContext context;
 
     readonly List<PinDto> sellablePins = new();
     readonly List<int> tempPinIndices = new();
@@ -33,12 +32,6 @@ public sealed class ShopManager : MonoBehaviour
     public event Action<int> OnSelectionChanged;
 
     public int CurrentSelectionIndex { get; private set; } = -1;
-
-    bool IsMainStoreContext(ShopOpenContext ctx)
-    {
-        return ctx == ShopOpenContext.BetweenRounds
-               || ctx == ShopOpenContext.AfterStage;
-    }
 
     void Awake()
     {
@@ -66,9 +59,8 @@ public sealed class ShopManager : MonoBehaviour
     System.Random Rng =>
         GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
 
-    public void Open(StageInstance stage, ShopOpenContext context, int nextRoundIndex)
+    public void Open(StageInstance stage, int nextRoundIndex)
     {
-        this.context = context;
         isOpen = true;
 
         ClearSelection();
@@ -266,9 +258,6 @@ public sealed class ShopManager : MonoBehaviour
 
     public void SetSelection(int itemIndex)
     {
-        if (!IsMainStoreContext(context))
-            return;
-
         PinInstance selection = null;
 
         if (currentItems != null && itemIndex >= 0 && itemIndex < currentItems.Length)
@@ -285,9 +274,6 @@ public sealed class ShopManager : MonoBehaviour
 
     public void ClearSelection()
     {
-        if (!IsMainStoreContext(context))
-            return;
-
         ApplySelection(null, -1);
         shopView?.ClearPinSelectionVisuals();
     }
@@ -300,7 +286,7 @@ public sealed class ShopManager : MonoBehaviour
 
     public bool TryPurchaseSelectedAt(int row, int col)
     {
-        if (!isOpen || !IsMainStoreContext(context))
+        if (!isOpen)
             return false;
 
         if (CurrentSelectionIndex < 0 || currentItems == null)
@@ -384,9 +370,6 @@ public sealed class ShopManager : MonoBehaviour
         if (!isOpen)
             return;
 
-        if (!IsMainStoreContext(context))
-            return;
-
         if (currentItems == null || index < 0 || index >= currentItems.Length)
             return;
 
@@ -404,9 +387,6 @@ public sealed class ShopManager : MonoBehaviour
     void OnClickBallItem(int index)
     {
         if (!isOpen)
-            return;
-
-        if (!IsMainStoreContext(context))
             return;
 
         TryPurchaseBallAt(index);
@@ -534,9 +514,7 @@ public sealed class ShopManager : MonoBehaviour
 
         ClearSelection();
 
-        Debug.Log("[ShopManager] Close shop");
-
-        FlowManager.Instance?.OnShopClosed(context);
+        FlowManager.Instance?.OnShopClosed();
     }
 
     void OnDisable()
