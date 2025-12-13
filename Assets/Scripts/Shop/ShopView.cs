@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Components;
@@ -8,6 +9,12 @@ using UnityEngine.UI;
 
 public sealed class ShopView : MonoBehaviour
 {
+    [Header("Ball Drag UI")]
+    [SerializeField] private Canvas rootCanvas;
+    [SerializeField] private GameObject ballDragHintRoot;   // "이곳으로 드래그해 구매" 텍스트 루트
+    [SerializeField] private RectTransform ballDropZoneArea; // 드롭 존 영역
+    [SerializeField] private Image ballDragGhostImage;      // 마우스를 따라다닐 고스트 아이콘
+    
     [Header("Overlay Root")] [SerializeField]
     private GameObject overlayRoot;
 
@@ -53,6 +60,11 @@ public sealed class ShopView : MonoBehaviour
         // 실제로 열고 닫는 건 overlayRoot만 제어
         if (overlayRoot != null)
             overlayRoot.SetActive(false);
+
+        if (ballDragHintRoot != null)
+            ballDragHintRoot.SetActive(false);
+        if (ballDragGhostImage != null)
+            ballDragGhostImage.gameObject.SetActive(false);
     }
 
     void ClearEditorPlacedItems()
@@ -137,21 +149,19 @@ public sealed class ShopView : MonoBehaviour
         {
             var view = Instantiate(ballItemPrefab, ballItemsParent);
             int index = ballItemViews.Count;
-
-            view.SetClickHandler(() =>
-            {
-                if (onClickBallItem != null)
-                    onClickBallItem(index);
-            });
-
+            view.SetIndex(index);
             ballItemViews.Add(view);
         }
 
         for (int i = 0; i < ballItemViews.Count; i++)
         {
             bool active = i < count;
-            if (ballItemViews[i] != null)
-                ballItemViews[i].gameObject.SetActive(active);
+            var view = ballItemViews[i];
+            if (view != null)
+            {
+                view.gameObject.SetActive(active);
+                view.SetIndex(i); // 재사용 시 인덱스 재설정
+            }
         }
     }
 
@@ -233,6 +243,71 @@ public sealed class ShopView : MonoBehaviour
             view.SetData(data.ball, data.ballCount, data.price, canBuy, data.sold);
         }
     }
+    
+    public void ShowBallDragHint(BallDto ball, Vector2 screenPos)
+    {
+        if (ballDragGhostImage != null)
+        {
+            ballDragGhostImage.sprite = SpriteCache.GetBallSprite(ball.id);
+            ballDragGhostImage.gameObject.SetActive(true);
+        }
+
+        if (ballDragHintRoot != null)
+            ballDragHintRoot.SetActive(true);
+
+        UpdateBallDragGhostPosition(screenPos);
+    }
+
+    public void UpdateBallDragGhostPosition(Vector2 screenPos)
+    {
+        if (ballDragGhostImage == null)
+            return;
+
+        var rectTransform = ballDragGhostImage.rectTransform;
+
+        // 이 고스트가 속한 Canvas 찾기
+        Canvas canvas = rootCanvas != null 
+            ? rootCanvas 
+            : rectTransform.GetComponentInParent<Canvas>();
+
+        if (canvas == null)
+            return;
+
+        Camera cam = null;
+        if (canvas.renderMode == RenderMode.ScreenSpaceCamera ||
+            canvas.renderMode == RenderMode.WorldSpace)
+        {
+            cam = canvas.worldCamera;
+        }
+
+        // 스크린 좌표 → 이 RectTransform 평면상의 월드 좌표
+        if (RectTransformUtility.ScreenPointToWorldPointInRectangle(
+                rectTransform, screenPos, cam, out var worldPos))
+        {
+            rectTransform.position = worldPos;
+        }
+    }
+
+    public bool IsInBallDropZone(Vector2 screenPos)
+    {
+        if (ballDropZoneArea == null || rootCanvas == null)
+            return false;
+
+        var cam = rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+            ? null
+            : rootCanvas.worldCamera;
+
+        return RectTransformUtility.RectangleContainsScreenPoint(
+            ballDropZoneArea, screenPos, cam);
+    }
+
+    public void HideBallDragHint()
+    {
+        if (ballDragGhostImage != null)
+            ballDragGhostImage.gameObject.SetActive(false);
+        if (ballDragHintRoot != null)
+            ballDragHintRoot.SetActive(false);
+    }
 
     public void Show()
     {
@@ -244,6 +319,8 @@ public sealed class ShopView : MonoBehaviour
     {
         if (overlayRoot != null)
             overlayRoot.SetActive(false);
+
+        HideBallDragHint();
     }
 
     public void HandleSelectionChanged(int selectedIndex)

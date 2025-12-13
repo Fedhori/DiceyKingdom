@@ -37,13 +37,13 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 2591164875948033
     m_Localized: "\uBCFC\uACFC \uB9CC\uB098\uBA74: \uB9CC\uB09C \uBCFC\uC758 \uC810\uC218
-      \uBC30\uC728\uC744 {value0} \uC99D\uAC00\uC2DC\uD0B5\uB2C8\uB2E4."
+      \uBC30\uC728\uC774 {value0} \uC99D\uAC00\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 2507345213413916748
   - m_Id: 2591164875948034
     m_Localized: "\uD540\uACFC \uB9CC\uB098\uBA74: \uC790\uC2E0\uC758 \uC810\uC218
-      \uBC30\uC728\uC744 {value0} \uC99D\uAC00\uC2DC\uD0B5\uB2C8\uB2E4."
+      \uBC30\uC728\uC774 {value0} \uC99D\uAC00\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 2507345213413916748

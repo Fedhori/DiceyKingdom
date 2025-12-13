@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Data;
 using UnityEngine;
-using Random = System.Random;
 
 public sealed class ShopManager : MonoBehaviour
 {
@@ -32,6 +31,7 @@ public sealed class ShopManager : MonoBehaviour
     public event Action<int> OnSelectionChanged;
 
     public int CurrentSelectionIndex { get; private set; } = -1;
+    int draggingBallIndex = -1;
 
     void Awake()
     {
@@ -46,14 +46,25 @@ public sealed class ShopManager : MonoBehaviour
         if (shopView != null)
         {
             shopView.SetCallbacks(OnClickItem, OnClickReroll, OnClickCloseButton);
-            shopView.SetBallCallbacks(OnClickBallItem);
             OnSelectionChanged += shopView.HandleSelectionChanged;
         }
     }
 
     private void Start()
     {
-        PlayerManager.Instance.Current.OnCurrencyChanged += HandleCurrencyChanged;
+        var player = PlayerManager.Instance?.Current;
+        if (player != null)
+            player.OnCurrencyChanged += HandleCurrencyChanged;
+    }
+
+    void OnDisable()
+    {
+        if (shopView != null)
+            OnSelectionChanged -= shopView.HandleSelectionChanged;
+
+        var player = PlayerManager.Instance?.Current;
+        if (player != null)
+            player.OnCurrencyChanged -= HandleCurrencyChanged;
     }
 
     System.Random Rng =>
@@ -516,17 +527,61 @@ public sealed class ShopManager : MonoBehaviour
 
         FlowManager.Instance?.OnShopClosed();
     }
-
-    void OnDisable()
-    {
-        if (shopView != null)
-            OnSelectionChanged -= shopView.HandleSelectionChanged;
-        
-        PlayerManager.Instance.Current.OnCurrencyChanged -= HandleCurrencyChanged;
-    }
     
     void HandleCurrencyChanged(int value)
     {
         RefreshView();
+    }
+    
+    public void BeginBallDrag(int index, BallDto ball, Vector2 screenPos)
+    {
+        if (!isOpen || shopView == null)
+            return;
+
+        if (currentBallItems == null || index < 0 || index >= currentBallItems.Length)
+            return;
+
+        ref BallItemData item = ref currentBallItems[index];
+        if (!item.hasItem || item.sold || item.ball == null)
+            return;
+
+        draggingBallIndex = index;
+        shopView.ShowBallDragHint(ball, screenPos);
+    }
+
+    public void UpdateBallDrag(int index, Vector2 screenPos)
+    {
+        if (!isOpen || shopView == null)
+            return;
+
+        if (index != draggingBallIndex)
+            return;
+
+        shopView.UpdateBallDragGhostPosition(screenPos);
+    }
+
+    public void EndBallDrag(int index, Vector2 screenPos)
+    {
+        if (shopView == null)
+        {
+            draggingBallIndex = -1;
+            return;
+        }
+
+        if (!isOpen || index != draggingBallIndex)
+        {
+            shopView.HideBallDragHint();
+            draggingBallIndex = -1;
+            return;
+        }
+
+        bool shouldBuy = shopView.IsInBallDropZone(screenPos);
+        if (shouldBuy)
+        {
+            TryPurchaseBallAt(index);
+        }
+
+        shopView.HideBallDragHint();
+        draggingBallIndex = -1;
     }
 }
