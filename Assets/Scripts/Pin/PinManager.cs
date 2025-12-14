@@ -283,6 +283,7 @@ public class PinManager : MonoBehaviour
         var sellPrice = Mathf.CeilToInt(pin.Instance.Price / 2f);
         var args = new Dictionary<string, object>
         {
+            ["pinName"] = LocalizationUtil.GetPinName(pin.Instance.Id),
             ["value"] = sellPrice
         };
 

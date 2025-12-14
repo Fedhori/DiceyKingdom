@@ -4156,7 +4156,7 @@ MonoBehaviour:
   rootCanvas: {fileID: 2114596190}
   ballDragHintRoot: {fileID: 2079151}
   ballDropZoneArea: {fileID: 2079152}
-  ballDragGhostImage: {fileID: 0}
+  ballDragGhostImage: {fileID: 766580492291515554}
   overlayRoot: {fileID: 1288486031}
   pinItemPrefab: {fileID: 7698937303703581369, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
   pinItemsParent: {fileID: 1241167450}
@@ -8364,11 +8364,11 @@ RectTransform:
   - {fileID: 1582589998}
   m_Father: {fileID: 2114596191}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 32}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -32}
   m_SizeDelta: {x: 360, y: 128}
-  m_Pivot: {x: 0.5, y: 0}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1422292759
 MonoBehaviour:
   m_ObjectHideFlags: 0

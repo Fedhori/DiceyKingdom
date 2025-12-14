@@ -31,9 +31,8 @@ public sealed class FlowManager : MonoBehaviour
             OnPhaseChanged?.Invoke(currentPhase);
         }
     }
-
-    // 준비 상태(라운드 전)에만 핀 드래그 허용
-    public bool CanDragPins => currentPhase == FlowPhase.None;
+    
+    public bool CanDragPins => currentPhase != FlowPhase.Round;
 
     void Awake()
     {
