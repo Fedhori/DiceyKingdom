@@ -4141,6 +4141,9 @@ MonoBehaviour:
   ballItemsPerShop: 2
   baseRerollCost: 1
   rerollCostIncrement: 1
+  pinDropLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &708886698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4153,10 +4156,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9938532ea0caac84eaafde3cb0c89bcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopView
-  rootCanvas: {fileID: 2114596190}
-  ballDragHintRoot: {fileID: 2079151}
-  ballDropZoneArea: {fileID: 2079152}
-  ballDragGhostImage: {fileID: 766580492291515554}
   overlayRoot: {fileID: 1288486031}
   pinItemPrefab: {fileID: 7698937303703581369, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
   pinItemsParent: {fileID: 1241167450}
@@ -4165,6 +4164,10 @@ MonoBehaviour:
   rerollCostText: {fileID: 147300228}
   rerollButton: {fileID: 1999143222}
   closeButton: {fileID: 1644759787}
+  rootCanvas: {fileID: 2114596190}
+  dragGhostImage: {fileID: 0}
+  ballDropHintRoot: {fileID: 0}
+  ballDropZoneRect: {fileID: 0}
 --- !u!1 &722256243
 GameObject:
   m_ObjectHideFlags: 0
@@ -12314,7 +12317,7 @@ GameObject:
   - component: {fileID: 4750697266939932127}
   - component: {fileID: 766580492291515554}
   m_Layer: 5
-  m_Name: ShopBallGhost
+  m_Name: DragGhost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

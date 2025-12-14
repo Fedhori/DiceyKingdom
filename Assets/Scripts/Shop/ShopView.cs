@@ -9,26 +9,27 @@ using UnityEngine.UI;
 
 public sealed class ShopView : MonoBehaviour
 {
-    [Header("Ball Drag UI")]
-    [SerializeField] private Canvas rootCanvas;
-    [SerializeField] private GameObject ballDragHintRoot;   // "이곳으로 드래그해 구매" 텍스트 루트
-    [SerializeField] private RectTransform ballDropZoneArea; // 드롭 존 영역
-    [SerializeField] private Image ballDragGhostImage;      // 마우스를 따라다닐 고스트 아이콘
-    
-    [Header("Overlay Root")] [SerializeField]
-    private GameObject overlayRoot;
+    [Header("Overlay Root")]
+    [SerializeField] private GameObject overlayRoot;
 
-    [Header("Pin Item UI")] [SerializeField] private PinItemView pinItemPrefab;
+    [Header("Pin Item UI")]
+    [SerializeField] private PinItemView pinItemPrefab;
     [SerializeField] private Transform pinItemsParent;
 
-    [Header("Ball Item UI")] [SerializeField] private BallItemView ballItemPrefab;
+    [Header("Ball Item UI")]
+    [SerializeField] private BallItemView ballItemPrefab;
     [SerializeField] private Transform ballItemsParent;
 
-    [Header("Reroll / Close UI")] [SerializeField]
-    private LocalizeStringEvent rerollCostText;
-
+    [Header("Reroll / Close UI")]
+    [SerializeField] private LocalizeStringEvent rerollCostText;
     [SerializeField] private Button rerollButton;
     [SerializeField] private Button closeButton;
+
+    [Header("Drag / Drop UI")]
+    [SerializeField] private Canvas rootCanvas;
+    [SerializeField] private Image dragGhostImage;
+    [SerializeField] private GameObject ballDropHintRoot;
+    [SerializeField] private RectTransform ballDropZoneRect;
 
     readonly List<PinItemView> pinItemViews = new();
     readonly List<BallItemView> ballItemViews = new();
@@ -56,15 +57,14 @@ public sealed class ShopView : MonoBehaviour
             closeButton.onClick.AddListener(() => onClickClose?.Invoke());
         }
 
-        // ShopView GameObject는 항상 Active로 두고,
-        // 실제로 열고 닫는 건 overlayRoot만 제어
         if (overlayRoot != null)
             overlayRoot.SetActive(false);
 
-        if (ballDragHintRoot != null)
-            ballDragHintRoot.SetActive(false);
-        if (ballDragGhostImage != null)
-            ballDragGhostImage.gameObject.SetActive(false);
+        if (dragGhostImage != null)
+            dragGhostImage.gameObject.SetActive(false);
+
+        if (ballDropHintRoot != null)
+            ballDropHintRoot.SetActive(false);
     }
 
     void ClearEditorPlacedItems()
@@ -88,9 +88,7 @@ public sealed class ShopView : MonoBehaviour
             {
                 var child = pinItemsParent.GetChild(i);
                 if (child != null)
-                {
                     Destroy(child.gameObject);
-                }
             }
         }
     }
@@ -119,6 +117,8 @@ public sealed class ShopView : MonoBehaviour
         {
             var view = Instantiate(pinItemPrefab, pinItemsParent);
             int index = pinItemViews.Count;
+
+            view.SetIndex(index);
 
             view.SetClickHandler(() =>
             {
@@ -149,19 +149,18 @@ public sealed class ShopView : MonoBehaviour
         {
             var view = Instantiate(ballItemPrefab, ballItemsParent);
             int index = ballItemViews.Count;
+
+            // 클릭 핸들러는 더 이상 연결하지 않는다 (드래그 전용)
             view.SetIndex(index);
+
             ballItemViews.Add(view);
         }
 
         for (int i = 0; i < ballItemViews.Count; i++)
         {
             bool active = i < count;
-            var view = ballItemViews[i];
-            if (view != null)
-            {
-                view.gameObject.SetActive(active);
-                view.SetIndex(i); // 재사용 시 인덱스 재설정
-            }
+            if (ballItemViews[i] != null)
+                ballItemViews[i].gameObject.SetActive(active);
         }
     }
 
@@ -191,7 +190,7 @@ public sealed class ShopView : MonoBehaviour
             bool canBuy = !data.sold && hasEmptySlot && currentCurrency >= data.price;
 
             view.gameObject.SetActive(true);
-            view.SetData(data.pin, data.price, canBuy, data.sold);   // ← PinInstance 넘김
+            view.SetData(data.pin, data.price, canBuy, data.sold);
             view.SetSelected(i == selectedPinItemIndex);
         }
 
@@ -219,7 +218,7 @@ public sealed class ShopView : MonoBehaviour
             Debug.LogError("[ShopView] shopManager is null.");
             return;
         }
-        
+
         for (int i = 0; i < count; i++)
         {
             var view = ballItemViews[i];
@@ -228,7 +227,7 @@ public sealed class ShopView : MonoBehaviour
 
             if (i >= items.Length)
                 break;
-            
+
             var data = items[i];
 
             if (!data.hasItem || data.ball == null)
@@ -236,77 +235,12 @@ public sealed class ShopView : MonoBehaviour
                 view.gameObject.SetActive(false);
                 continue;
             }
-            
-            bool canBuy = !data.sold && shopManager.HasBallDeckSpace(data.ballCount) && currentCurrency >= data.price;
 
-            view.gameObject.SetActive(true);
+            bool canBuy = !data.sold && shopManager.HasBallDeckSpace(data.ballCount) &&
+                          currentCurrency >= data.price;
+
             view.SetData(data.ball, data.ballCount, data.price, canBuy, data.sold);
         }
-    }
-    
-    public void ShowBallDragHint(BallDto ball, Vector2 screenPos)
-    {
-        if (ballDragGhostImage != null)
-        {
-            ballDragGhostImage.sprite = SpriteCache.GetBallSprite(ball.id);
-            ballDragGhostImage.gameObject.SetActive(true);
-        }
-
-        if (ballDragHintRoot != null)
-            ballDragHintRoot.SetActive(true);
-
-        UpdateBallDragGhostPosition(screenPos);
-    }
-
-    public void UpdateBallDragGhostPosition(Vector2 screenPos)
-    {
-        if (ballDragGhostImage == null)
-            return;
-
-        var rectTransform = ballDragGhostImage.rectTransform;
-
-        // 이 고스트가 속한 Canvas 찾기
-        Canvas canvas = rootCanvas != null 
-            ? rootCanvas 
-            : rectTransform.GetComponentInParent<Canvas>();
-
-        if (canvas == null)
-            return;
-
-        Camera cam = null;
-        if (canvas.renderMode == RenderMode.ScreenSpaceCamera ||
-            canvas.renderMode == RenderMode.WorldSpace)
-        {
-            cam = canvas.worldCamera;
-        }
-
-        // 스크린 좌표 → 이 RectTransform 평면상의 월드 좌표
-        if (RectTransformUtility.ScreenPointToWorldPointInRectangle(
-                rectTransform, screenPos, cam, out var worldPos))
-        {
-            rectTransform.position = worldPos;
-        }
-    }
-
-    public bool IsInBallDropZone(Vector2 screenPos)
-    {
-        if (ballDropZoneArea == null || rootCanvas == null)
-            return false;
-
-        var cam = rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay
-            ? null
-            : rootCanvas.worldCamera;
-
-        return RectTransformUtility.RectangleContainsScreenPoint(
-            ballDropZoneArea, screenPos, cam);
-    }
-
-    public void HideBallDragHint()
-    {
-        if (ballDragGhostImage != null)
-            ballDragGhostImage.gameObject.SetActive(false);
-        if (ballDragHintRoot != null)
-            ballDragHintRoot.SetActive(false);
     }
 
     public void Show()
@@ -319,14 +253,11 @@ public sealed class ShopView : MonoBehaviour
     {
         if (overlayRoot != null)
             overlayRoot.SetActive(false);
-
-        HideBallDragHint();
     }
 
     public void HandleSelectionChanged(int selectedIndex)
     {
         selectedPinItemIndex = selectedIndex;
-
         RefreshPinSelectionVisuals();
     }
 
@@ -338,8 +269,7 @@ public sealed class ShopView : MonoBehaviour
             if (view == null)
                 continue;
 
-            bool shouldSelect = i == selectedPinItemIndex
-                                && view.gameObject.activeSelf;
+            bool shouldSelect = i == selectedPinItemIndex && view.gameObject.activeSelf;
             view.SetSelected(shouldSelect);
         }
     }
@@ -353,5 +283,104 @@ public sealed class ShopView : MonoBehaviour
     public void RefreshAll()
     {
         RefreshPinSelectionVisuals();
+    }
+
+    // ======================
+    // Ball drag UI
+    // ======================
+
+    public void ShowBallDragHint(BallDto ball, Vector2 screenPos)
+    {
+        if (dragGhostImage != null)
+        {
+            dragGhostImage.sprite = SpriteCache.GetBallSprite(ball.id);
+            dragGhostImage.gameObject.SetActive(true);
+            UpdateDragGhostPosition(screenPos);
+        }
+
+        if (ballDropHintRoot != null)
+            ballDropHintRoot.SetActive(true);
+    }
+
+    public void UpdateBallDragGhostPosition(Vector2 screenPos)
+    {
+        UpdateDragGhostPosition(screenPos);
+    }
+
+    public void HideBallDragHint()
+    {
+        if (dragGhostImage != null)
+            dragGhostImage.gameObject.SetActive(false);
+
+        if (ballDropHintRoot != null)
+            ballDropHintRoot.SetActive(false);
+    }
+
+    public bool IsInBallDropZone(Vector2 screenPos)
+    {
+        if (ballDropZoneRect == null)
+            return false;
+
+        Canvas canvas = rootCanvas != null ? rootCanvas : ballDropZoneRect.GetComponentInParent<Canvas>();
+        if (canvas == null)
+            return false;
+
+        Camera cam = null;
+        if (canvas.renderMode == RenderMode.ScreenSpaceCamera ||
+            canvas.renderMode == RenderMode.WorldSpace)
+        {
+            cam = canvas.worldCamera;
+        }
+
+        return RectTransformUtility.RectangleContainsScreenPoint(ballDropZoneRect, screenPos, cam);
+    }
+
+    // ======================
+    // Pin drag UI
+    // ======================
+
+    public void ShowPinDragGhost(PinInstance pin, Vector2 screenPos)
+    {
+        if (dragGhostImage == null || pin == null)
+            return;
+
+        dragGhostImage.sprite = SpriteCache.GetPinSprite(pin.Id);
+        dragGhostImage.gameObject.SetActive(true);
+        UpdateDragGhostPosition(screenPos);
+    }
+
+    public void UpdatePinDragGhostPosition(Vector2 screenPos)
+    {
+        UpdateDragGhostPosition(screenPos);
+    }
+
+    public void HidePinDragGhost()
+    {
+        if (dragGhostImage != null)
+            dragGhostImage.gameObject.SetActive(false);
+    }
+
+    void UpdateDragGhostPosition(Vector2 screenPos)
+    {
+        if (dragGhostImage == null)
+            return;
+
+        var rectTransform = dragGhostImage.rectTransform;
+
+        Canvas canvas = rootCanvas != null ? rootCanvas : rectTransform.GetComponentInParent<Canvas>();
+        if (canvas == null)
+            return;
+
+        Camera cam = null;
+        if (canvas.renderMode == RenderMode.ScreenSpaceCamera ||
+            canvas.renderMode == RenderMode.WorldSpace)
+        {
+            cam = canvas.worldCamera;
+        }
+
+        if (RectTransformUtility.ScreenPointToWorldPointInRectangle(rectTransform, screenPos, cam, out var worldPos))
+        {
+            rectTransform.position = worldPos;
+        }
     }
 }

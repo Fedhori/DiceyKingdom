@@ -168,10 +168,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d5ba31e2e1d312408189b4852f05665, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopItemView
-  background: {fileID: 4788195815046530173}
   iconImage: {fileID: 7589533931114004664}
   priceText: {fileID: 4535100356528283430}
-  buyButton: {fileID: 565237733685739112}
+  selectedHighlight: {fileID: 1951605456143366293}
   tooltipTarget: {fileID: 4127392050601341395}
 --- !u!114 &565237733685739112
 MonoBehaviour:

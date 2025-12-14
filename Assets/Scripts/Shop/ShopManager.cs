@@ -7,14 +7,17 @@ public sealed class ShopManager : MonoBehaviour
 {
     public static ShopManager Instance { get; private set; }
 
-    [SerializeField] ShopView shopView;
+    [SerializeField] private ShopView shopView;
     [SerializeField] private GameObject notEnoughBallText;
     [SerializeField] private GameObject ballItemsLayout;
 
-    [SerializeField] int itemsPerShop = 3;
-    [SerializeField] int ballItemsPerShop = 2;
-    [SerializeField] int baseRerollCost = 1;
-    [SerializeField] int rerollCostIncrement = 1;
+    [SerializeField] private int itemsPerShop = 3;
+    [SerializeField] private int ballItemsPerShop = 2;
+    [SerializeField] private int baseRerollCost = 1;
+    [SerializeField] private int rerollCostIncrement = 1;
+
+    [Header("Pin Drag Settings")]
+    [SerializeField] private LayerMask pinDropLayerMask = ~0; // 월드 핀 콜라이더 레이어
 
     bool isOpen;
 
@@ -31,7 +34,9 @@ public sealed class ShopManager : MonoBehaviour
     public event Action<int> OnSelectionChanged;
 
     public int CurrentSelectionIndex { get; private set; } = -1;
+
     int draggingBallIndex = -1;
+    int draggingPinIndex = -1;
 
     void Awake()
     {
@@ -46,11 +51,12 @@ public sealed class ShopManager : MonoBehaviour
         if (shopView != null)
         {
             shopView.SetCallbacks(OnClickItem, OnClickReroll, OnClickCloseButton);
+            shopView.SetBallCallbacks(OnClickBallItem);
             OnSelectionChanged += shopView.HandleSelectionChanged;
         }
     }
 
-    private void Start()
+    void Start()
     {
         var player = PlayerManager.Instance?.Current;
         if (player != null)
@@ -153,7 +159,7 @@ public sealed class ShopManager : MonoBehaviour
         for (int i = 0; i < currentItems.Length; i++)
         {
             currentItems[i].hasItem = false;
-            currentItems[i].pin = null; // ← 추가
+            currentItems[i].pin = null;
             currentItems[i].price = 0;
             currentItems[i].sold = false;
         }
@@ -203,7 +209,7 @@ public sealed class ShopManager : MonoBehaviour
             var previewInstance = new PinInstance(dto, -1, -1, registerEventEffects: false);
 
             currentItems[slot].hasItem = true;
-            currentItems[slot].pin = previewInstance; // ← PinInstance 캐싱
+            currentItems[slot].pin = previewInstance;
             currentItems[slot].price = previewInstance.Price;
             currentItems[slot].sold = false;
         }
@@ -212,17 +218,18 @@ public sealed class ShopManager : MonoBehaviour
     void RollBallItems()
     {
         var player = PlayerManager.Instance?.Current;
-
         var deck = player?.BallDeck;
         if (deck == null)
             return;
 
         int basicCount = deck.GetCount(GameConfig.BasicBallId);
-        
-        if(notEnoughBallText != null)
-            notEnoughBallText?.SetActive(basicCount <= 0);
-        if(ballItemsLayout != null)
-            ballItemsLayout?.SetActive(basicCount > 0);
+
+        if (notEnoughBallText != null)
+            notEnoughBallText.SetActive(basicCount <= 0);
+
+        if (ballItemsLayout != null)
+            ballItemsLayout.SetActive(basicCount > 0);
+
         if (basicCount <= 0)
             return;
 
@@ -251,13 +258,12 @@ public sealed class ShopManager : MonoBehaviour
             var maxBallCount = (int)Mathf.Min(Mathf.Max(1, GameConfig.MaxBallPrice / dto.price), basicCount);
             var minBallCount = (int)Mathf.Min(Mathf.Max(1, 1 / dto.price), basicCount);
 
-            var ballCount = UnityEngine.Random.Range(minBallCount, maxBallCount + 1);
+            int ballCount = UnityEngine.Random.Range(minBallCount, maxBallCount + 1);
 
-            var floatPrice = ballCount * dto.price;
+            float floatPrice = ballCount * dto.price;
             int floor = Mathf.FloorToInt(floatPrice);
             float frac = floatPrice - floor;
-            var finalPrice = (UnityEngine.Random.Range(0, frac) < frac) ? floor + 1 : floor;
-
+            int finalPrice = (UnityEngine.Random.Range(0f, 1f) < frac) ? floor + 1 : floor;
 
             currentBallItems[slot].hasItem = true;
             currentBallItems[slot].ball = dto;
@@ -275,9 +281,7 @@ public sealed class ShopManager : MonoBehaviour
         {
             ref var item = ref currentItems[itemIndex];
             if (item.hasItem && !item.sold && item.pin != null)
-            {
                 selection = item.pin;
-            }
         }
 
         ApplySelection(selection, itemIndex);
@@ -306,7 +310,18 @@ public sealed class ShopManager : MonoBehaviour
         if (CurrentSelectionIndex >= currentItems.Length)
             return false;
 
-        ref PinItemData item = ref currentItems[CurrentSelectionIndex];
+        return TryPurchasePinItemAt(CurrentSelectionIndex, row, col);
+    }
+
+    bool TryPurchasePinItemAt(int itemIndex, int row, int col)
+    {
+        if (!isOpen)
+            return false;
+
+        if (currentItems == null || itemIndex < 0 || itemIndex >= currentItems.Length)
+            return false;
+
+        ref PinItemData item = ref currentItems[itemIndex];
         if (!item.hasItem || item.sold || item.pin == null)
             return false;
 
@@ -328,6 +343,7 @@ public sealed class ShopManager : MonoBehaviour
         if (targetPin == null || targetPin.Instance == null)
             return false;
 
+        // 기본 핀만 교체
         if (targetPin.Instance.Id != pinMgr.DefaultPinId)
             return false;
 
@@ -344,7 +360,7 @@ public sealed class ShopManager : MonoBehaviour
             return false;
         }
 
-        var pinId = item.pin.Id;
+        string pinId = item.pin.Id;
         if (string.IsNullOrEmpty(pinId) || !pinMgr.TryReplace(pinId, row, col))
         {
             Debug.LogError("[ShopManager] TryReplace failed after spending currency. Refunding.");
@@ -359,7 +375,6 @@ public sealed class ShopManager : MonoBehaviour
         return true;
     }
 
-
     void RefreshView()
     {
         if (shopView == null)
@@ -369,7 +384,8 @@ public sealed class ShopManager : MonoBehaviour
             ? CurrencyManager.Instance.CurrentCurrency
             : 0;
 
-        bool hasEmptySlot = PinManager.Instance != null && PinManager.Instance.GetBasicPinSlot(out var x, out var y);
+        bool hasEmptySlot = PinManager.Instance != null &&
+                            PinManager.Instance.GetBasicPinSlot(out _, out _);
 
         shopView.SetPinItems(currentItems, currency, hasEmptySlot, currentRerollCost);
         shopView.SetBallItems(currentBallItems, currency);
@@ -425,7 +441,6 @@ public sealed class ShopManager : MonoBehaviour
             return;
         }
 
-
         ref BallItemData item = ref currentBallItems[index];
         if (!item.hasItem || item.sold || item.ball == null)
         {
@@ -472,14 +487,13 @@ public sealed class ShopManager : MonoBehaviour
         if (!deck.TryReplace(item.ball.id, item.ballCount))
         {
             currencyMgr.AddCurrency(price);
-            Debug.LogError("ShopManager: TrySpend failed after spending currency. Refunding.");
+            Debug.LogError("ShopManager: TryReplace failed after spending currency. Refunding.");
             return;
         }
 
         item.sold = true;
         RefreshView();
     }
-
 
     void OnClickReroll()
     {
@@ -520,19 +534,30 @@ public sealed class ShopManager : MonoBehaviour
 
         isOpen = false;
 
+        draggingBallIndex = -1;
+        draggingPinIndex = -1;
+
         if (shopView != null)
+        {
             shopView.Hide();
+            shopView.HideBallDragHint();
+            shopView.HidePinDragGhost();
+        }
 
         ClearSelection();
 
         FlowManager.Instance?.OnShopClosed();
     }
-    
+
     void HandleCurrencyChanged(int value)
     {
         RefreshView();
     }
-    
+
+    // ======================
+    // Ball drag (이미 있던 로직)
+    // ======================
+
     public void BeginBallDrag(int index, BallDto ball, Vector2 screenPos)
     {
         if (!isOpen || shopView == null)
@@ -583,5 +608,87 @@ public sealed class ShopManager : MonoBehaviour
 
         shopView.HideBallDragHint();
         draggingBallIndex = -1;
+    }
+
+    // ======================
+    // Pin drag (신규)
+    // ======================
+
+    public void BeginPinDrag(int itemIndex, Vector2 screenPos)
+    {
+        if (!isOpen || shopView == null)
+            return;
+
+        if (currentItems == null || itemIndex < 0 || itemIndex >= currentItems.Length)
+            return;
+
+        ref PinItemData item = ref currentItems[itemIndex];
+        if (!item.hasItem || item.sold || item.pin == null)
+            return;
+
+        var flow = FlowManager.Instance;
+        if (flow != null && flow.CurrentPhase != FlowPhase.Shop)
+            return;
+
+        // 드래그 시작 시 해당 상품 선택 상태로 만들어 기본 핀 하이라이트 유지
+        SetSelection(itemIndex);
+
+        draggingPinIndex = itemIndex;
+        shopView.ShowPinDragGhost(item.pin, screenPos);
+    }
+
+    public void UpdatePinDrag(int itemIndex, Vector2 screenPos)
+    {
+        if (!isOpen || shopView == null)
+            return;
+
+        if (itemIndex != draggingPinIndex)
+            return;
+
+        shopView.UpdatePinDragGhostPosition(screenPos);
+    }
+
+    public void EndPinDrag(int itemIndex, Vector2 screenPos)
+    {
+        if (shopView == null)
+        {
+            draggingPinIndex = -1;
+            return;
+        }
+
+        if (!isOpen || itemIndex != draggingPinIndex)
+        {
+            shopView.HidePinDragGhost();
+            draggingPinIndex = -1;
+            return;
+        }
+
+        if (TryGetTargetPinFromScreenPos(screenPos, out var targetPin))
+        {
+            // 기본 핀만 교체 가능 → 실제 체크는 TryPurchasePinItemAt 내부에서도 한 번 더 한다.
+            TryPurchasePinItemAt(itemIndex, targetPin.RowIndex, targetPin.ColumnIndex);
+        }
+
+        shopView.HidePinDragGhost();
+        draggingPinIndex = -1;
+    }
+
+    bool TryGetTargetPinFromScreenPos(Vector2 screenPos, out PinController pin)
+    {
+        pin = null;
+
+        var cam = Camera.main;
+        if (cam == null)
+            return false;
+
+        Vector3 worldPos3 = cam.ScreenToWorldPoint(screenPos);
+        Vector2 worldPos = worldPos3;
+
+        var hit = Physics2D.OverlapPoint(worldPos, pinDropLayerMask);
+        if (hit == null)
+            return false;
+
+        pin = hit.GetComponentInParent<PinController>();
+        return pin != null;
     }
 }
