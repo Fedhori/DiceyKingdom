@@ -19,7 +19,17 @@ public sealed class BallController : MonoBehaviour
 
         if (!Mathf.Approximately(Instance.PendingSpeedFactor, 1f))
         {
-            ballRigidbody2D.linearVelocity *= Instance.PendingSpeedFactor;
+            var v = ballRigidbody2D.linearVelocity;
+            float currentSpeed = v.magnitude;
+            float targetSpeed = Mathf.Max(currentSpeed, Instance.PendingSpeedFactor);
+
+            // 속도가 0이 아니고, 변경 여지가 있을 때만 보정
+            if (currentSpeed > 0f && !Mathf.Approximately(currentSpeed, targetSpeed))
+            {
+                Vector2 dir = v / currentSpeed;      // 정규화 방향
+                ballRigidbody2D.linearVelocity = dir * targetSpeed;
+            }
+
             Instance.PendingSpeedFactor = 1f;
         }
 
