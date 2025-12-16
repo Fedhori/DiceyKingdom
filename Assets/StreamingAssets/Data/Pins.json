@@ -199,7 +199,6 @@
 			]
 		},
 		{
-			// 카드풀이 적으면 너무 강력해진다. 의도적으로 비활성화시킴.
 			"id": "pin.piggyBank",
 			"price": 7,
 			"isNotSell": true,
