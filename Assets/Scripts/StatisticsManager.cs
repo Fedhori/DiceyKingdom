@@ -65,6 +65,9 @@ public sealed class StatisticsManager : MonoBehaviour
 
     private void UpdateEarnedBalls(bool isShow)
     {
+        if (earnedBallsText == null)
+            return;
+        
         if (!isShow)
         {
             earnedBallsText.gameObject.SetActive(false);

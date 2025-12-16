@@ -1050,8 +1050,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: CurrentScore
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 746f86218c845bb49a98169d005126fe, type: 2}
-  m_sharedMaterial: {fileID: -8383589127567067901, guid: 746f86218c845bb49a98169d005126fe, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: af29c603ea9ac6b408cf6260d3307c18, type: 2}
+  m_sharedMaterial: {fileID: 8618836993111102986, guid: af29c603ea9ac6b408cf6260d3307c18, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4143,7 +4143,7 @@ MonoBehaviour:
   rerollCostIncrement: 1
   pinDropLayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 8
 --- !u!114 &708886698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4165,9 +4165,9 @@ MonoBehaviour:
   rerollButton: {fileID: 1999143222}
   closeButton: {fileID: 1644759787}
   rootCanvas: {fileID: 2114596190}
-  dragGhostImage: {fileID: 0}
-  ballDropHintRoot: {fileID: 0}
-  ballDropZoneRect: {fileID: 0}
+  dragGhostImage: {fileID: 766580492291515554}
+  ballDropHintRoot: {fileID: 2079151}
+  ballDropZoneRect: {fileID: 2079152}
 --- !u!1 &722256243
 GameObject:
   m_ObjectHideFlags: 0
@@ -7866,8 +7866,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: TargetScore
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 746f86218c845bb49a98169d005126fe, type: 2}
-  m_sharedMaterial: {fileID: -8383589127567067901, guid: 746f86218c845bb49a98169d005126fe, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: af29c603ea9ac6b408cf6260d3307c18, type: 2}
+  m_sharedMaterial: {fileID: 8618836993111102986, guid: af29c603ea9ac6b408cf6260d3307c18, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
