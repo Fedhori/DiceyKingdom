@@ -29,15 +29,14 @@ public sealed class StatisticsManager : MonoBehaviour
     {
         isOpen = true;
         
-        if (isStageClear)
-            PlayerManager.Instance.Current.BallDeck.Add(GameConfig.BasicBallId, GameConfig.BaseBallIncome);
         CurrencyManager.Instance?.AddCurrency(GameConfig.BaseRoundIncome);
 
         UpdateEarnedScore();
         UpdateEarnedCurrency();
         UpdateEarnedBalls(isStageClear);
         
-        rewardOverlay.SetActive(true);
+        if(rewardOverlay != null)
+            rewardOverlay.SetActive(true);
     }
 
     public void Close()

@@ -110,13 +110,48 @@ public sealed class StageManager : MonoBehaviour
             ? GameManager.Instance.Rng
             : new System.Random();
 
-        var sequence = player.BallDeck.BuildSpawnSequence(rng);
+        var sequence = BuildRaritySequence(player, rng);
 
         BallManager.Instance.PrepareSpawnSequence(sequence);
         BallManager.Instance.StartSpawning();
 
         // HUD에 현재 라운드 번호 반영
         UpdateRound(currentRoundIndex);
+    }
+
+    static System.Collections.Generic.List<BallRarity> BuildRaritySequence(PlayerInstance player, System.Random rng)
+    {
+        var list = new System.Collections.Generic.List<BallRarity>();
+        int count = Mathf.Max(0, player.InitialBallCount);
+        var probs = player.RarityProbabilities;
+
+        if (rng == null)
+            rng = new System.Random();
+
+        for (int i = 0; i < count; i++)
+        {
+            var rarity = RollRarity(probs, rng);
+            list.Add(rarity);
+        }
+
+        return list;
+    }
+
+    static BallRarity RollRarity(System.Collections.Generic.IReadOnlyList<float> probs, System.Random rng)
+    {
+        if (probs == null || probs.Count == 0)
+            return BallRarity.Common;
+
+        double roll = rng.NextDouble() * 100.0;
+        double acc = 0.0;
+        for (int i = 0; i < probs.Count; i++)
+        {
+            acc += probs[i];
+            if (roll <= acc)
+                return (BallRarity)i;
+        }
+
+        return BallRarity.Common;
     }
 
     /// <summary>

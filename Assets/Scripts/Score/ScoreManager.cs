@@ -70,34 +70,10 @@ public sealed class ScoreManager : MonoBehaviour
         var criticalType = 0;
         double criticalMultiplier = player.GetCriticalMultiplier(criticalType) * ball.CriticalMultiplier;
 
-        var gained = player.ScoreBase * player.ScoreMultiplier * ball.ScoreMultiplier * pin.ScoreMultiplier *
+        double rarityMultiplier = Math.Pow(player.RarityGrowth, (int)ball.Rarity);
+
+        var gained = player.ScoreBase * player.ScoreMultiplier * rarityMultiplier * pin.ScoreMultiplier *
                      criticalMultiplier;
-
-        AddScore(gained, criticalType, position);
-    }
-
-    public void CalculateScore(BallInstance ball, Vector2 position)
-    {
-        var player = PlayerManager.Instance?.Current;
-        if (player == null)
-        {
-            Debug.LogWarning("[BallInstance] PlayerManager.Current is null.");
-            return;
-        }
-
-        if (GameManager.Instance == null)
-        {
-            Debug.LogWarning("[BallInstance] GameManager.Instance is null.");
-            return;
-        }
-
-        var rng = GameManager.Instance.Rng;
-
-        // TODO - 크리티컬 시스템 <- 어차피 100% 무조건 넘어가게 될건데, 전혀 흥미롭지 않아 제외
-        var criticalType = 0;
-        var criticalMultiplier = player.GetCriticalMultiplier(criticalType) * ball.CriticalMultiplier;
-
-        var gained = player.ScoreBase * player.ScoreMultiplier * ball.ScoreMultiplier * criticalMultiplier;
 
         AddScore(gained, criticalType, position);
     }

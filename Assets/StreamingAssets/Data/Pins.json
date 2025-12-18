@@ -93,7 +93,7 @@
 		},
 		{
 			"id": "pin.spring",
-			"isNotSell": false,
+			"isNotSell": true,
 			"price": 6,
 			"rules": [
 				{
@@ -112,7 +112,7 @@
 		},
 		{
 			"id": "pin.magnifier",
-			"isNotSell": false,
+			"isNotSell": true,
 			"price": 7,
 			"rules": [
 				{

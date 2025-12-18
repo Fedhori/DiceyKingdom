@@ -27,7 +27,6 @@ public class StaticDataManager : MonoBehaviour
     void LoadAndProcessData()
     {
         LoadStage();
-        LoadBalls();
         LoadPins();
         LoadPlayers();
     }
@@ -72,27 +71,6 @@ public class StaticDataManager : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"[StaticDataManager] Failed to initialize PlayerRepository from Players.json: {e}");
-        }
-    }
-
-    void LoadBalls()
-    {
-        string filePath = Path.Combine("Data", "Balls.json");
-        string json = SaCache.ReadText(filePath);
-
-        if (string.IsNullOrEmpty(json))
-        {
-            Debug.LogError($"[StaticDataManager] Balls.json not found or empty at: {filePath}");
-            return;
-        }
-
-        try
-        {
-            Data.BallRepository.InitializeFromJson(json);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[StaticDataManager] Failed to initialize BallRepository from Balls.json: {e}");
         }
     }
 

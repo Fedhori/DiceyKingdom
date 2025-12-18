@@ -1,43 +1,51 @@
-using Data;
+using System;
 using UnityEngine;
-using System.Collections.Generic;
-using GameStats;
+
+public enum BallRarity
+{
+    Common = 0,
+    Uncommon = 1,
+    Rare = 2,
+    Epic = 3,
+    Legendary = 4
+}
 
 public sealed class BallInstance
 {
-    static readonly System.Random LocalRandom = new();
+    public BallRarity Rarity { get; }
+    public double ScoreMultiplier { get; private set; }
+    public double CriticalMultiplier => 1f;
 
-    public BallDto BaseDto { get; }
-    public string Id => BaseDto.id;
-
-    public double ScoreMultiplier => Stats.GetValue(BallStatIds.ScoreMultiplier);
-    public double CriticalMultiplier => Stats.GetValue(BallStatIds.CriticalMultiplier);
-    
-    // TODO - life 매커니즘 제거할 것. 생각보다 부활 매커니즘은 재밌지는 않고 게임이 길어지며 루즈해지는 느낌을 줌
-    public int life;
-    
     public float PendingSpeedFactor { get; set; } = 1f;
     public float PendingSizeFactor { get; set; } = 1f;
 
-    readonly System.Random localRandom = new();
+    public Color RarityColor { get; }
 
-    readonly List<BallRuleDto> rules;
-    public IReadOnlyList<BallRuleDto> Rules => rules;
+    // TODO: life 매커니즘 제거 예정. 남아있는 핀 효과 대비하여 유지.
+    public int life = 0;
 
-    public StatSet Stats { get; }
-
-    public BallInstance(BallDto dto)
+    public BallInstance(BallRarity rarity, float rarityGrowth)
     {
-        BaseDto = dto ?? throw new System.ArgumentNullException(nameof(dto));
+        if (rarityGrowth <= 0f)
+        {
+            Debug.LogError($"[BallInstance] Invalid rarityGrowth: {rarityGrowth}");
+            rarityGrowth = 1f;
+        }
 
-        rules = dto.rules != null
-            ? new List<BallRuleDto>(dto.rules)
-            : new List<BallRuleDto>();
+        Rarity = rarity;
+        ScoreMultiplier = Math.Pow(rarityGrowth, (int)rarity);
+        RarityColor = GetColorForRarity(rarity);
+    }
 
-        Stats = new StatSet();
-        Stats.SetBase(BallStatIds.ScoreMultiplier, BaseDto.ballScoreMultiplier);
-        Stats.SetBase(BallStatIds.CriticalMultiplier, BaseDto.criticalMultiplier);
-        life = BaseDto.life;
+    public void SetRarityGrowth(float rarityGrowth)
+    {
+        if (rarityGrowth <= 0f)
+        {
+            Debug.LogError($"[BallInstance] Invalid rarityGrowth: {rarityGrowth}");
+            return;
+        }
+
+        ScoreMultiplier = Math.Pow(rarityGrowth, (int)Rarity);
     }
 
     public void OnHitPin(PinInstance pin, Vector2 position)
@@ -49,68 +57,29 @@ public sealed class BallInstance
         }
 
         ScoreManager.Instance.CalculateScore(this, pin, position);
-        HandleTrigger(BallTriggerType.OnBallHitPin, null, pin, position);
     }
 
     public void OnHitBall(BallInstance other, Vector2 position)
     {
-        if (other == null)
-            return;
-
-        HandleTrigger(BallTriggerType.OnBallHitBall, other, null, position);
+        // 현재 희귀도 기반 로직에서는 추가 효과 없음
     }
 
-    void HandleTrigger(BallTriggerType trigger, BallInstance otherBall, PinInstance pin, Vector2 position)
+    Color GetColorForRarity(BallRarity rarity)
     {
-        if (rules == null || rules.Count == 0)
-            return;
-
-        for (int i = 0; i < rules.Count; i++)
+        switch (rarity)
         {
-            var rule = rules[i];
-            if (rule == null)
-                continue;
-
-            if (rule.triggerType != trigger)
-                continue;
-
-            if (!IsConditionMet(rule.condition, trigger))
-                continue;
-
-            ApplyEffects(rule.effects, otherBall, pin, position);
-        }
-    }
-
-    bool IsConditionMet(BallConditionDto cond, BallTriggerType trigger)
-    {
-        if (cond == null)
-            return true;
-
-        switch (cond.conditionKind)
-        {
-            case BallConditionKind.Always:
-                return true;
+            case BallRarity.Common:
+                return Colors.Common;
+            case BallRarity.Uncommon:
+                return Colors.Uncommon;
+            case BallRarity.Rare:
+                return Colors.Rare;
+            case BallRarity.Epic:
+                return Colors.Epic;
+            case BallRarity.Legendary:
+                return Colors.Legendary;
             default:
-                return false;
-        }
-    }
-
-    void ApplyEffects(List<BallEffectDto> effects, BallInstance otherBall, PinInstance pin, Vector2 position)
-    {
-        if (effects == null || effects.Count == 0)
-            return;
-
-        var effectManager = BallEffectManager.Instance;
-        if (effectManager == null)
-            return;
-
-        for (int i = 0; i < effects.Count; i++)
-        {
-            var effect = effects[i];
-            if (effect == null)
-                continue;
-
-            effectManager.ApplyEffect(effect, this, otherBall, pin, position);
+                return Colors.Common;
         }
     }
 }

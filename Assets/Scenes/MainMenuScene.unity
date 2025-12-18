@@ -751,7 +751,7 @@ MonoBehaviour:
   pinsContainer: {fileID: 1829479581}
   rowCount: 12
   columnCount: 20
-  pinRadius: 64
+  pinRadius: 96
   cycle: 0.1
 --- !u!1 &1558706222
 GameObject:

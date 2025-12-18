@@ -8,11 +8,8 @@ public sealed class ShopManager : MonoBehaviour
     public static ShopManager Instance { get; private set; }
 
     [SerializeField] private ShopView shopView;
-    [SerializeField] private GameObject notEnoughBallText;
-    [SerializeField] private GameObject ballItemsLayout;
 
     [SerializeField] private int itemsPerShop = 3;
-    [SerializeField] private int ballItemsPerShop = 2;
     [SerializeField] private int baseRerollCost = 1;
     [SerializeField] private int rerollCostIncrement = 1;
 
@@ -24,18 +21,13 @@ public sealed class ShopManager : MonoBehaviour
     readonly List<PinDto> sellablePins = new();
     readonly List<int> tempPinIndices = new();
 
-    readonly List<BallDto> sellableBalls = new();
-    readonly List<int> tempBallIndices = new();
-
     PinItemData[] currentItems;
-    BallItemData[] currentBallItems;
     int currentRerollCost;
 
     public event Action<int> OnSelectionChanged;
 
     public int CurrentSelectionIndex { get; private set; } = -1;
 
-    int draggingBallIndex = -1;
     int draggingPinIndex = -1;
 
     void Awake()
@@ -51,7 +43,6 @@ public sealed class ShopManager : MonoBehaviour
         if (shopView != null)
         {
             shopView.SetCallbacks(OnClickItem, OnClickReroll, OnClickCloseButton);
-            shopView.SetBallCallbacks(OnClickBallItem);
             OnSelectionChanged += shopView.HandleSelectionChanged;
         }
     }
@@ -83,13 +74,10 @@ public sealed class ShopManager : MonoBehaviour
         ClearSelection();
 
         BuildSellablePins();
-        BuildSellableBalls();
         EnsureItemArray();
-        EnsureBallItemArray();
         currentRerollCost = Mathf.Max(1, baseRerollCost);
 
         RollPinItems();
-        RollBallItems();
         RefreshView();
 
         if (shopView != null)
@@ -123,31 +111,6 @@ public sealed class ShopManager : MonoBehaviour
         }
     }
 
-    void BuildSellableBalls()
-    {
-        sellableBalls.Clear();
-
-        if (!BallRepository.IsInitialized)
-        {
-            Debug.LogWarning("[ShopManager] BallRepository not initialized.");
-            return;
-        }
-
-        foreach (var dto in BallRepository.All)
-        {
-            if (dto == null)
-                continue;
-
-            if (dto.isNotSell)
-                continue;
-
-            if (!string.IsNullOrEmpty(GameConfig.BasicBallId) && dto.id == GameConfig.BasicBallId)
-                continue;
-
-            sellableBalls.Add(dto);
-        }
-    }
-
     void EnsureItemArray()
     {
         if (itemsPerShop <= 0)
@@ -162,24 +125,6 @@ public sealed class ShopManager : MonoBehaviour
             currentItems[i].pin = null;
             currentItems[i].price = 0;
             currentItems[i].sold = false;
-        }
-    }
-
-    void EnsureBallItemArray()
-    {
-        if (ballItemsPerShop <= 0)
-            ballItemsPerShop = 2;
-
-        if (currentBallItems == null || currentBallItems.Length != ballItemsPerShop)
-            currentBallItems = new BallItemData[ballItemsPerShop];
-
-        for (int i = 0; i < currentBallItems.Length; i++)
-        {
-            currentBallItems[i].hasItem = false;
-            currentBallItems[i].ball = null;
-            currentBallItems[i].ballCount = 0;
-            currentBallItems[i].price = 0;
-            currentBallItems[i].sold = false;
         }
     }
 
@@ -212,64 +157,6 @@ public sealed class ShopManager : MonoBehaviour
             currentItems[slot].pin = previewInstance;
             currentItems[slot].price = previewInstance.Price;
             currentItems[slot].sold = false;
-        }
-    }
-
-    void RollBallItems()
-    {
-        var player = PlayerManager.Instance?.Current;
-        var deck = player?.BallDeck;
-        if (deck == null)
-            return;
-
-        int basicCount = deck.GetCount(GameConfig.BasicBallId);
-
-        if (notEnoughBallText != null)
-            notEnoughBallText.SetActive(basicCount <= 0);
-
-        if (ballItemsLayout != null)
-            ballItemsLayout.SetActive(basicCount > 0);
-
-        if (basicCount <= 0)
-            return;
-
-        EnsureBallItemArray();
-
-        if (sellableBalls.Count == 0)
-            return;
-
-        tempBallIndices.Clear();
-        for (int i = 0; i < sellableBalls.Count; i++)
-            tempBallIndices.Add(i);
-
-        int count = Mathf.Min(ballItemsPerShop, sellableBalls.Count);
-
-        for (int slot = 0; slot < count; slot++)
-        {
-            if (tempBallIndices.Count == 0)
-                break;
-
-            int pick = Rng.Next(tempBallIndices.Count);
-            int ballIndex = tempBallIndices[pick];
-            tempBallIndices.RemoveAt(pick);
-
-            var dto = sellableBalls[ballIndex];
-
-            var maxBallCount = (int)Mathf.Min(Mathf.Max(1, GameConfig.MaxBallPrice / dto.price), basicCount);
-            var minBallCount = (int)Mathf.Min(Mathf.Max(1, 1 / dto.price), basicCount);
-
-            int ballCount = UnityEngine.Random.Range(minBallCount, maxBallCount + 1);
-
-            float floatPrice = ballCount * dto.price;
-            int floor = Mathf.FloorToInt(floatPrice);
-            float frac = floatPrice - floor;
-            int finalPrice = (UnityEngine.Random.Range(0f, 1f) < frac) ? floor + 1 : floor;
-
-            currentBallItems[slot].hasItem = true;
-            currentBallItems[slot].ball = dto;
-            currentBallItems[slot].ballCount = ballCount;
-            currentBallItems[slot].price = finalPrice;
-            currentBallItems[slot].sold = false;
         }
     }
 
@@ -388,7 +275,6 @@ public sealed class ShopManager : MonoBehaviour
                             PinManager.Instance.GetBasicPinSlot(out _, out _);
 
         shopView.SetPinItems(currentItems, currency, hasEmptySlot, currentRerollCost);
-        shopView.SetBallItems(currentBallItems, currency);
         shopView.RefreshAll();
     }
 
@@ -409,90 +295,6 @@ public sealed class ShopManager : MonoBehaviour
             ClearSelection();
         else
             SetSelection(index);
-    }
-
-    void OnClickBallItem(int index)
-    {
-        if (!isOpen)
-            return;
-
-        TryPurchaseBallAt(index);
-    }
-
-    public bool HasBallDeckSpace(int space)
-    {
-        var player = PlayerManager.Instance?.Current;
-        if (player == null)
-            return false;
-
-        var deck = player.BallDeck;
-        if (deck == null)
-            return false;
-
-        int basicCount = deck.GetCount(GameConfig.BasicBallId);
-        return basicCount >= space;
-    }
-
-    void TryPurchaseBallAt(int index)
-    {
-        if (currentBallItems == null || index < 0 || index >= currentBallItems.Length)
-        {
-            Debug.LogError("ShopManager: currentBallItems is invalid");
-            return;
-        }
-
-        ref BallItemData item = ref currentBallItems[index];
-        if (!item.hasItem || item.sold || item.ball == null)
-        {
-            Debug.LogError($"ShopManager: item is invalid. index: {index}");
-            return;
-        }
-
-        var currencyMgr = CurrencyManager.Instance;
-        var player = PlayerManager.Instance?.Current;
-
-        if (currencyMgr == null || player == null)
-        {
-            Debug.LogError("ShopManager: currencyMgr, player is null");
-            return;
-        }
-
-        var deck = player.BallDeck;
-        if (deck == null)
-        {
-            Debug.LogError("ShopManager: deck is null");
-            return;
-        }
-
-        int price = item.price;
-
-        if (currencyMgr.CurrentCurrency < price)
-        {
-            Debug.LogError("ShopManager: currency unavailable.");
-            return;
-        }
-
-        if (!HasBallDeckSpace(item.ballCount))
-        {
-            Debug.LogError("ShopManager: HasBallDeckSpace failed.");
-            return;
-        }
-
-        if (!currencyMgr.TrySpend(price))
-        {
-            Debug.LogError("ShopManager: TrySpend failed after spending currency.");
-            return;
-        }
-
-        if (!deck.TryReplace(item.ball.id, item.ballCount))
-        {
-            currencyMgr.AddCurrency(price);
-            Debug.LogError("ShopManager: TryReplace failed after spending currency. Refunding.");
-            return;
-        }
-
-        item.sold = true;
-        RefreshView();
     }
 
     void OnClickReroll()
@@ -518,7 +320,6 @@ public sealed class ShopManager : MonoBehaviour
         currentRerollCost = Mathf.Max(1, currentRerollCost + Mathf.Max(1, rerollCostIncrement));
 
         RollPinItems();
-        RollBallItems();
         RefreshView();
     }
 
@@ -534,13 +335,11 @@ public sealed class ShopManager : MonoBehaviour
 
         isOpen = false;
 
-        draggingBallIndex = -1;
         draggingPinIndex = -1;
 
         if (shopView != null)
         {
             shopView.Hide();
-            shopView.HideBallDragHint();
             shopView.HidePinDragGhost();
         }
 
@@ -552,62 +351,6 @@ public sealed class ShopManager : MonoBehaviour
     void HandleCurrencyChanged(int value)
     {
         RefreshView();
-    }
-
-    // ======================
-    // Ball drag (이미 있던 로직)
-    // ======================
-
-    public void BeginBallDrag(int index, BallDto ball, Vector2 screenPos)
-    {
-        if (!isOpen || shopView == null)
-            return;
-
-        if (currentBallItems == null || index < 0 || index >= currentBallItems.Length)
-            return;
-
-        ref BallItemData item = ref currentBallItems[index];
-        if (!item.hasItem || item.sold || item.ball == null)
-            return;
-
-        draggingBallIndex = index;
-        shopView.ShowBallDragHint(ball, screenPos);
-    }
-
-    public void UpdateBallDrag(int index, Vector2 screenPos)
-    {
-        if (!isOpen || shopView == null)
-            return;
-
-        if (index != draggingBallIndex)
-            return;
-
-        shopView.UpdateBallDragGhostPosition(screenPos);
-    }
-
-    public void EndBallDrag(int index, Vector2 screenPos)
-    {
-        if (shopView == null)
-        {
-            draggingBallIndex = -1;
-            return;
-        }
-
-        if (!isOpen || index != draggingBallIndex)
-        {
-            shopView.HideBallDragHint();
-            draggingBallIndex = -1;
-            return;
-        }
-
-        bool shouldBuy = shopView.IsInBallDropZone(screenPos);
-        if (shouldBuy)
-        {
-            TryPurchaseBallAt(index);
-        }
-
-        shopView.HideBallDragHint();
-        draggingBallIndex = -1;
     }
 
     // ======================

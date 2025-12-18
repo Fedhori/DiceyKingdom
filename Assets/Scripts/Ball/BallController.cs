@@ -1,5 +1,4 @@
 using System;
-using Data;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
@@ -40,7 +39,7 @@ public sealed class BallController : MonoBehaviour
         }
     }
 
-    public void Initialize(string ballId)
+    public void Initialize(BallRarity rarity, float rarityGrowth)
     {
         if (initialized)
         {
@@ -48,19 +47,10 @@ public sealed class BallController : MonoBehaviour
             return;
         }
 
-        BallDto dto;
-        try
-        {
-            dto = BallRepository.GetOrThrow(ballId);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[BallController] Failed to initialize ball {ballId}: {e}");
-            return;
-        }
+        Instance = new BallInstance(rarity, rarityGrowth);
 
-        Instance = new BallInstance(dto);
-        ballSprite.sprite = SpriteCache.GetBallSprite(Instance.Id);
+        if (ballSprite != null)
+            ballSprite.color = Instance.RarityColor;
 
         initialized = true;
 

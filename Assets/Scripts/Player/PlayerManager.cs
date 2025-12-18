@@ -13,8 +13,6 @@ public sealed class PlayerManager : MonoBehaviour
     [SerializeField] private TMP_Text scoreMultiplierText;
     [SerializeField] private TMP_Text criticalChanceText;
     [SerializeField] private TMP_Text criticalMultiplierText;
-    [SerializeField] private RectTransform ballDeckContainer;
-    [SerializeField] private GameObject ballDeckPrefab;
     private float statUIUpdateCycle = 0.1f;
     private float currentStatUIUpdateCycle = 0f;
 
@@ -63,8 +61,6 @@ public sealed class PlayerManager : MonoBehaviour
 
             // 통화 HUD 등이 있으면 여기서 알림
             CurrencyManager.Instance?.OnPlayerCreated(Current);
-            Current.BallDeck.OnDeckChanged += HandleBallDeckChanged;
-            HandleBallDeckChanged();
         }
         catch (Exception e)
         {
@@ -74,47 +70,6 @@ public sealed class PlayerManager : MonoBehaviour
 
     private void OnDisable()
     {
-        Current.BallDeck.OnDeckChanged -= HandleBallDeckChanged;
-    }
-
-    void HandleBallDeckChanged()
-    {
-        if (Current == null || ballDeckContainer == null || ballDeckPrefab == null)
-            return;
-
-        for (int i = ballDeckContainer.childCount - 1; i >= 0; i--)
-        {
-            var child = ballDeckContainer.GetChild(i);
-            if (child != null)
-                Destroy(child.gameObject);
-        }
-
-        foreach (var kv in Current.BallDeck.Counts)
-        {
-            var ballId = kv.Key;
-            if (string.IsNullOrEmpty(ballId))
-            {
-                Debug.LogError($"[PlayerManager] ballId not found. {ballId}");
-                continue;
-            }
-
-            var ballCount = kv.Value;
-            if (ballCount <= 0)
-            {
-                Debug.LogError($"[PlayerManager] ballCount Invalid. {ballId}, {ballCount}");
-                continue;
-            }
-
-            var ballInfo = Instantiate(ballDeckPrefab, ballDeckContainer);
-            var ballDeckView = ballInfo.GetComponent<BallDeckView>();
-            if (ballDeckView == null)
-            {
-                Debug.LogError($"[PlayerManager] BallDeckView not found. {ballId}, {kv.Value}");
-                continue;
-            }
-
-            ballDeckView.UpdateBallDeckView(ballId, ballCount);
-        }
     }
 
     void Update()

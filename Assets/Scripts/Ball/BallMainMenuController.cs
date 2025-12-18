@@ -1,14 +1,11 @@
-using Data;
 using UnityEngine;
 
 public class BallMainMenuController : MonoBehaviour
 {
-    BallDto ballDto;
     [SerializeField] SpriteRenderer ballIcon;
 
     void Awake()
     {
-        ballDto = BallRepository.GetRandomBall();
-        ballIcon.sprite = SpriteCache.GetBallSprite(ballDto.id);
+        // 프리팹에 설정된 기본 스프라이트 사용
     }
 }

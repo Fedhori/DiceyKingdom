@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Data;
 using GameStats;
 using UnityEngine;
@@ -15,17 +16,23 @@ public sealed class PlayerInstance
     public double CriticalChance => Stats.GetValue(PlayerStatIds.CriticalChance);
     public double CriticalMultiplier => Stats.GetValue(PlayerStatIds.CriticalMultiplier);
 
+    // 희귀도 기반 볼 생성 파라미터
+    public IReadOnlyList<float> RarityProbabilities => rarityProbabilities;
+    public int InitialBallCount { get; private set; }
+    public float RarityGrowth { get; private set; }
+    public IReadOnlyList<float> RarityMultipliers => rarityMultipliers;
+
     // TODO - PlayerRunState라는 값을 만들어서,
     // 해당 Run에서 저장되어야 할 값들(영구 보너스, 재화, 볼 구성, 핀 구성)을 통합해서 관리해야 하지 않을까?
     // 지금은 저장되어야 할 값들이 게임 파일들 곳곳에 뿔뿔이 흩어져있다.
-    
-    // 플레이어가 들고 있는 볼 덱
-    public BallDeck BallDeck { get; }
 
     // 상점/보상에 사용하는 통화
     public int Currency { get; private set; }
 
     public event Action<int> OnCurrencyChanged;
+
+    readonly List<float> rarityProbabilities;
+    readonly List<float> rarityMultipliers = new();
 
     public PlayerInstance(PlayerDto dto)
     {
@@ -37,32 +44,76 @@ public sealed class PlayerInstance
         Stats.SetBase(PlayerStatIds.CriticalChance, BaseDto.critChance);
         Stats.SetBase(PlayerStatIds.CriticalMultiplier, BaseDto.criticalMultiplier);
 
-        BallDeck = new BallDeck();
-        if (BaseDto.ballDeck != null)
-        {
-            foreach (var entry in BaseDto.ballDeck)
-            {
-                if (entry == null || string.IsNullOrEmpty(entry.id))
-                    continue;
-
-                var count = Mathf.Max(0, entry.count);
-                if (count <= 0)
-                    continue;
-
-                // 유효하지 않은 ballId는 무시
-                if (!BallRepository.IsInitialized ||
-                    !BallRepository.TryGet(entry.id, out _))
-                {
-                    Debug.LogWarning($"[PlayerInstance] Unknown ball id in deck: {entry.id}");
-                    continue;
-                }
-
-                BallDeck.Add(entry.id, count);
-            }
-        }
+        InitialBallCount = BaseDto.initialBallCount;
+        RarityGrowth = BaseDto.rarityGrowth;
+        rarityProbabilities = BaseDto.rarityProbabilities != null
+            ? new List<float>(BaseDto.rarityProbabilities)
+            : new List<float>();
+        NormalizeRarityProbabilities(rarityProbabilities);
+        RecalculateRarityMultipliers();
 
         // 시작 통화 셋업
         Currency = Mathf.Max(0, BaseDto.startCurrency);
+    }
+
+    void NormalizeRarityProbabilities(List<float> list)
+    {
+        if (list == null || list.Count == 0)
+        {
+            Debug.LogError("[PlayerInstance] rarityProbabilities is empty.");
+            throw new InvalidOperationException("[PlayerInstance] rarityProbabilities is empty.");
+        }
+
+        float sum = 0f;
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i] < 0f)
+            {
+                Debug.LogError("[PlayerInstance] rarityProbabilities contains negative value.");
+                throw new InvalidOperationException("[PlayerInstance] rarityProbabilities invalid.");
+            }
+            sum += list[i];
+        }
+
+        if (sum <= 0f)
+        {
+            Debug.LogError("[PlayerInstance] rarityProbabilities sum <= 0.");
+            throw new InvalidOperationException("[PlayerInstance] rarityProbabilities sum invalid.");
+        }
+
+        if (Mathf.Abs(sum - 100f) > 0.001f)
+        {
+            Debug.LogError($"[PlayerInstance] rarityProbabilities sum != 100 (sum={sum}). Normalizing.");
+            for (int i = 0; i < list.Count; i++)
+            {
+                list[i] = list[i] / sum * 100f;
+            }
+        }
+    }
+
+    public void SetRarityGrowth(float newGrowth)
+    {
+        if (newGrowth <= 0f)
+        {
+            Debug.LogError($"[PlayerInstance] Invalid rarityGrowth: {newGrowth}");
+            throw new InvalidOperationException("[PlayerInstance] rarityGrowth must be > 0.");
+        }
+
+        RarityGrowth = newGrowth;
+        RecalculateRarityMultipliers();
+    }
+
+    void RecalculateRarityMultipliers()
+    {
+        rarityMultipliers.Clear();
+        if (rarityProbabilities == null || rarityProbabilities.Count == 0)
+            return;
+
+        for (int i = 0; i < rarityProbabilities.Count; i++)
+        {
+            float multiplier = Mathf.Pow(RarityGrowth, i);
+            rarityMultipliers.Add(multiplier);
+        }
     }
 
     public void ResetData()

@@ -1,36 +1,30 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PinManager : MonoBehaviour
+public sealed class PinManager : MonoBehaviour
 {
     public static PinManager Instance { get; private set; }
 
-    [Header("Grid Settings")] [SerializeField]
-    int rowCount = 5;
-
+    [Header("Grid Settings")]
+    [SerializeField] int rowCount = 5;
     [SerializeField] int columnCount = 5;
-    [SerializeField] float pinRadius = 64f;
+    [SerializeField] float pinGap = 64f;
 
-    [SerializeField] private string spawnPinId = GameConfig.BasicPinId;
-    string defaultPinId = GameConfig.BasicPinId;
-
-    [Header("World Offset (center of grid in world space)")] [SerializeField]
-    Vector2 centerOffset = Vector2.zero;
+    [SerializeField] string spawnPinId = GameConfig.BasicPinId;
+    [SerializeField] Vector2 centerOffset = Vector2.zero;
 
     readonly List<List<PinController>> pinsByRow = new();
     public IReadOnlyList<List<PinController>> PinsByRow => pinsByRow;
 
-    public string DefaultPinId => defaultPinId;
+    public string DefaultPinId => GameConfig.BasicPinId;
 
     void Awake()
     {
         if (Instance != null && Instance != this)
-        {
             Debug.LogWarning("[PinManager] Multiple instances detected. Overwriting Instance.");
-        }
 
         Instance = this;
-        InitializePinsGrid();
+        BuildGrid();
     }
 
     void Start()
@@ -38,7 +32,7 @@ public class PinManager : MonoBehaviour
         GeneratePins();
     }
 
-    void InitializePinsGrid()
+    void BuildGrid()
     {
         pinsByRow.Clear();
 
@@ -47,11 +41,8 @@ public class PinManager : MonoBehaviour
 
         for (int row = 0; row < rowCount; row++)
         {
-            bool isOddRow = (row % 2) == 1;
-            int colsInRow = isOddRow ? columnCount - 1 : columnCount;
-
-            var rowList = new List<PinController>(colsInRow);
-            for (int col = 0; col < colsInRow; col++)
+            var rowList = new List<PinController>(columnCount);
+            for (int col = 0; col < columnCount; col++)
                 rowList.Add(null);
 
             pinsByRow.Add(rowList);
@@ -67,81 +58,57 @@ public class PinManager : MonoBehaviour
         }
 
         if (rowCount <= 0 || columnCount <= 0)
-        {
-            Debug.LogWarning("[PinManager] rowCount or columnCount <= 0. Nothing to generate.");
             return;
-        }
-
-        if (rowCount % 2 == 0 || columnCount % 2 == 0)
-        {
-            Debug.LogWarning(
-                $"[PinManager] rowCount ({rowCount}) and columnCount ({columnCount}) are assumed to be odd for perfect centering.");
-        }
 
         for (int row = 0; row < rowCount; row++)
         {
-            bool isOddRow = (row % 2) == 1;
-            int colsInRow = isOddRow ? columnCount - 1 : columnCount;
-
-            for (int col = 0; col < colsInRow; col++)
-            {
+            for (int col = 0; col < columnCount; col++)
                 PinFactory.Instance.SpawnPin(spawnPinId, row, col, 0);
-            }
         }
     }
 
-    public Vector2 GetPinWorldPosition(int row, int column)
+    public Vector2 GetPinWorldPosition(int row, int col)
     {
-        float dx = pinRadius * 2f;
-        float dy = pinRadius * Mathf.Sqrt(3f);
+        float dx = pinGap;
+        float dy = pinGap;
 
-        int centerRow = rowCount / 2;
-        int centerCol = columnCount / 2;
+        float centerRow = (rowCount - 1) * 0.5f;
+        float centerCol = (columnCount - 1) * 0.5f;
 
-        bool isOddRow = (row % 2) == 1;
+        float x = (col - centerCol) * dx;
+        float y = (centerRow - row) * dy;
 
-        float baseX = (column - centerCol) * dx;
-        if (isOddRow)
-            baseX += pinRadius;
-
-        float baseY = (centerRow - row) * dy;
-
-        return new Vector2(baseX, baseY) + centerOffset;
+        return new Vector2(x, y) + centerOffset;
     }
 
-    public void RegisterPin(PinController pin, int row, int column)
+    public void RegisterPin(PinController pin, int row, int col)
     {
         if (pin == null)
             return;
 
-        if (!IsValidCell(row, column))
+        if (!IsValidCell(row, col))
         {
-            Debug.LogWarning($"[PinManager] RegisterPin: ({row}, {column}) out of range.");
+            Debug.LogWarning($"[PinManager] RegisterPin: ({row}, {col}) out of range.");
             return;
         }
 
-        var rowList = pinsByRow[row];
-        var existing = rowList[column];
+        var existing = pinsByRow[row][col];
         if (existing != null && existing != pin)
             Destroy(existing.gameObject);
 
-        rowList[column] = pin;
+        pinsByRow[row][col] = pin;
     }
 
-    public void UnregisterPin(PinController pin, int row, int column)
+    public void UnregisterPin(PinController pin, int row, int col)
     {
         if (pin == null)
             return;
 
-        if (!IsValidCell(row, column))
+        if (!IsValidCell(row, col))
             return;
 
-        var rowList = pinsByRow[row];
-        if (rowList == null)
-            return;
-
-        if (rowList[column] == pin)
-            rowList[column] = null;
+        if (pinsByRow[row][col] == pin)
+            pinsByRow[row][col] = null;
     }
 
     public void ResetAllPins()
@@ -149,57 +116,42 @@ public class PinManager : MonoBehaviour
         for (int row = 0; row < pinsByRow.Count; row++)
         {
             var rowList = pinsByRow[row];
-            if (rowList == null)
-                continue;
-
             for (int col = 0; col < rowList.Count; col++)
             {
                 var pin = rowList[col];
-                if (pin == null)
+                if (pin?.Instance == null)
                     continue;
 
-                if (pin.Instance != null)
-                    pin.Instance.ResetData(0);
+                pin.Instance.ResetData(0);
             }
         }
     }
 
     bool IsValidCell(int row, int col)
     {
-        if (row < 0 || row >= pinsByRow.Count)
-            return false;
-
-        var rowList = pinsByRow[row];
-        if (rowList == null)
-            return false;
-
-        if (col < 0 || col >= rowList.Count)
-            return false;
-
-        return true;
+        return row >= 0 && row < pinsByRow.Count
+               && col >= 0 && col < columnCount;
     }
 
-    public bool GetBasicPinSlot(out int x, out int y)
+    public bool GetBasicPinSlot(out int row, out int col)
     {
-        x = 0;
-        y = 0;
+        row = 0;
+        col = 0;
 
-        if (string.IsNullOrEmpty(defaultPinId))
+        string id = DefaultPinId;
+        if (string.IsNullOrEmpty(id))
             return false;
 
-        for (int row = 0; row < pinsByRow.Count; row++)
+        for (int r = 0; r < pinsByRow.Count; r++)
         {
-            var rowList = pinsByRow[row];
-            if (rowList == null)
-                continue;
-
-            for (int col = 0; col < rowList.Count; col++)
+            var rowList = pinsByRow[r];
+            for (int c = 0; c < rowList.Count; c++)
             {
-                var pin = rowList[col];
-                if (pin != null && pin.Instance != null && pin.Instance.Id == defaultPinId)
+                var pin = rowList[c];
+                if (pin?.Instance != null && pin.Instance.Id == id)
                 {
-                    x = row;
-                    y = col;
+                    row = r;
+                    col = c;
                     return true;
                 }
             }
@@ -208,7 +160,7 @@ public class PinManager : MonoBehaviour
         return false;
     }
 
-    public bool TryReplace(string pinId, int x, int y)
+    public bool TryReplace(string pinId, int row, int col)
     {
         if (PinFactory.Instance == null)
         {
@@ -216,32 +168,29 @@ public class PinManager : MonoBehaviour
             return false;
         }
 
-        if (string.IsNullOrEmpty(pinId) || string.IsNullOrEmpty(defaultPinId))
+        if (string.IsNullOrEmpty(pinId))
             return false;
 
-        var rowList = pinsByRow[x];
-        if (rowList == null)
+        if (!IsValidCell(row, col))
             return false;
 
-        var pin = rowList[y];
-        if (pin != null && pin.Instance != null)
-        {
-            PinFactory.Instance.SpawnPin(pinId, x, y, pin.Instance.HitCount);
-            return true;
-        }
+        var pin = pinsByRow[row][col];
+        if (pin?.Instance == null)
+            return false;
 
-        return false;
+        PinFactory.Instance.SpawnPin(pinId, row, col, pin.Instance.HitCount);
+        return true;
     }
 
-    public void SwapPins(PinController dragging, PinController target)
+    public void SwapPins(PinController a, PinController b)
     {
-        if (dragging == null || target == null || dragging == target)
+        if (a == null || b == null || a == b)
             return;
 
-        int rowA = dragging.RowIndex;
-        int colA = dragging.ColumnIndex;
-        int rowB = target.RowIndex;
-        int colB = target.ColumnIndex;
+        int rowA = a.RowIndex;
+        int colA = a.ColumnIndex;
+        int rowB = b.RowIndex;
+        int colB = b.ColumnIndex;
 
         if (!IsValidCell(rowA, colA) || !IsValidCell(rowB, colB))
         {
@@ -249,38 +198,29 @@ public class PinManager : MonoBehaviour
             return;
         }
 
-        var rowListA = pinsByRow[rowA];
-        var rowListB = pinsByRow[rowB];
-
-        if (rowListA == null || rowListB == null)
-        {
-            Debug.LogWarning("[PinManager] SwapPins: rowList null");
-            return;
-        }
-
-        if (rowListA[colA] != dragging || rowListB[colB] != target)
-        {
-            Debug.LogWarning("[PinManager] SwapPins: grid and controller indices mismatch.");
-        }
-
         var posA = GetPinWorldPosition(rowA, colA);
         var posB = GetPinWorldPosition(rowB, colB);
 
-        rowListA[colA] = target;
-        rowListB[colB] = dragging;
+        pinsByRow[rowA][colA] = b;
+        pinsByRow[rowB][colB] = a;
 
-        target.transform.position = posA;
-        dragging.transform.position = posB;
+        b.transform.position = posA;
+        a.transform.position = posB;
 
-        target.SetGridIndices(rowA, colA);
-        dragging.SetGridIndices(rowB, colB);
+        b.SetGridIndices(rowA, colA);
+        a.SetGridIndices(rowB, colB);
 
-        (target.Instance.HitCount, dragging.Instance.HitCount) = (dragging.Instance.HitCount, target.Instance.HitCount);
+        if (a.Instance != null && b.Instance != null)
+            (b.Instance.HitCount, a.Instance.HitCount) = (a.Instance.HitCount, b.Instance.HitCount);
     }
 
     public void RequestSellPin(PinController pin)
     {
-        var sellPrice = Mathf.CeilToInt(pin.Instance.Price / 2f);
+        if (pin?.Instance == null)
+            return;
+
+        int sellPrice = Mathf.CeilToInt(pin.Instance.Price / 2f);
+
         var args = new Dictionary<string, object>
         {
             ["pinName"] = LocalizationUtil.GetPinName(pin.Instance.Id),
@@ -299,16 +239,13 @@ public class PinManager : MonoBehaviour
 
     public void SellPin(PinController pin)
     {
-        if (pin == null)
+        if (pin?.Instance == null)
         {
-            Debug.LogError("[PinManager] SellPin is null");
+            Debug.LogError("[PinManager] SellPin pin/instance is null");
             return;
         }
 
-        // 모달 띄워야함
         if (TryReplace(GameConfig.BasicPinId, pin.RowIndex, pin.ColumnIndex))
-        {
             CurrencyManager.Instance.AddCurrency(Mathf.CeilToInt(pin.Instance.Price / 2f));
-        }
     }
 }

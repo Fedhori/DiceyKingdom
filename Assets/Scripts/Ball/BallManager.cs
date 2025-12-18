@@ -9,8 +9,8 @@ public class BallManager : MonoBehaviour
     [SerializeField] private GameObject ballPrefab; // 현재는 BallFactory가 prefab을 들고 있지만, 인스펙터 용으로 유지
     [SerializeField] private float cycle = 0.1f;
 
-    // 이번 라운드에 스폰할 ballId 시퀀스
-    readonly List<string> spawnSequence = new();
+    // 이번 라운드에 스폰할 희귀도 시퀀스
+    readonly List<BallRarity> spawnSequence = new();
     int nextSpawnIndex = 0;
     bool isSpawning = false;
 
@@ -36,7 +36,7 @@ public class BallManager : MonoBehaviour
     /// <summary>
     /// 라운드 시작 전, 이번 라운드에서 사용할 스폰 시퀀스를 세팅.
     /// </summary>
-    public void PrepareSpawnSequence(IReadOnlyList<string> sequence)
+    public void PrepareSpawnSequence(IReadOnlyList<BallRarity> sequence)
     {
         // 이전 코루틴 정리
         if (spawnCoroutine != null)
@@ -51,11 +51,7 @@ public class BallManager : MonoBehaviour
         {
             for (int i = 0; i < sequence.Count; i++)
             {
-                var id = sequence[i];
-                if (string.IsNullOrEmpty(id))
-                    continue;
-
-                spawnSequence.Add(id);
+                spawnSequence.Add(sequence[i]);
             }
         }
 
@@ -95,10 +91,10 @@ public class BallManager : MonoBehaviour
     {
         while (nextSpawnIndex < spawnSequence.Count)
         {
-            var ballId = spawnSequence[nextSpawnIndex];
+            var rarity = spawnSequence[nextSpawnIndex];
             nextSpawnIndex++;
 
-            BallFactory.Instance.SpawnBallById(ballId);
+            BallFactory.Instance.SpawnBall(rarity);
 
             yield return new WaitForSeconds(cycle);
         }

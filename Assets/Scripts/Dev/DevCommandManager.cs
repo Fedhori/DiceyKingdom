@@ -38,28 +38,18 @@ public sealed class DevCommandManager : MonoBehaviour
             PinManager.Instance.TryReplace(param[0], int.Parse(param[1]), int.Parse(param[2]));
         });
 
-        Register("replaceball", param =>
-        {
-            if (param.Length != 2)
-                return;
-
-            if (PlayerManager.Instance == null)
-                return;
-
-            PlayerManager.Instance.Current.BallDeck.TryReplace(param[0], int.Parse(param[1]));
-        });
-
         Register("spawnball", param =>
         {
-            if (param.Length != 2)
+            if (param.Length != 1)
                 return;
 
             if (BallFactory.Instance == null)
                 return;
-            for (var i = 0; i < int.Parse(param[1]); i++)
-            {
-                BallFactory.Instance.SpawnBallById(param[0]);
-            }
+
+            if (!Enum.TryParse<BallRarity>(param[0], true, out var rarity))
+                rarity = BallRarity.Common;
+
+            BallFactory.Instance.SpawnBall(rarity);
         });
     }
 
