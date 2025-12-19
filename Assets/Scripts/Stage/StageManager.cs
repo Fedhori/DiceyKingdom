@@ -161,7 +161,7 @@ public sealed class StageManager : MonoBehaviour
         pendingSpawnPoint = pos;
         waitingSpawnSelection = false;
 
-        // TODO: 4.x에서 선택 지점 적용. 현재는 위치 적용 없이 스폰 시작.
+        BallManager.Instance.SetSpawnPosition(pos);
         BallManager.Instance.StartSpawning();
     }
 

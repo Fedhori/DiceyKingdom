@@ -32,7 +32,7 @@
   - [ ] 2.4 (해당 없음)
 - [ ] 3.0 라운드 흐름 연동
   - [x] 3.1 Flow/StageManager에 “스폰 지점 선택 대기” 상태 추가 또는 RoundStart 버튼 클릭 시 지점 표시 후 대기하도록 변경
-  - [ ] 3.2 선택 콜백에서 BallManager.StartSpawning을 호출하고 선택 좌표를 넘기도록 연계
+  - [x] 3.2 선택 콜백에서 BallManager.StartSpawning을 호출하고 선택 좌표를 넘기도록 연계
 - [ ] 4.0 스폰 위치 적용
   - [ ] 4.1 BallManager/BallFactory가 선택된 시작 위치를 받아 최초 스폰 위치로 사용하도록 수정
   - [ ] 4.2 첫 스폰 이후 기존 속도/랜덤 벨로시티 적용 로직이 정상 동작하는지 확인

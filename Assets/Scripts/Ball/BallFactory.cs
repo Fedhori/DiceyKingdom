@@ -11,7 +11,7 @@ public sealed class BallFactory : MonoBehaviour
         Instance = this;
     }
 
-    public void SpawnBall(BallRarity rarity)
+    public void SpawnBall(BallRarity rarity, Vector2 position)
     {
         if (FlowManager.Instance.CurrentPhase != FlowPhase.Round)
         {
@@ -23,7 +23,7 @@ public sealed class BallFactory : MonoBehaviour
         var controller = ball.GetComponent<BallController>();
         float growth = PlayerManager.Instance?.Current?.RarityGrowth ?? 1f;
         controller.Initialize(rarity, growth);
-        ball.transform.position = Vector2.zero;
+        ball.transform.position = position;
 
         var rb = ball.GetComponent<Rigidbody2D>();
         if (rb != null)

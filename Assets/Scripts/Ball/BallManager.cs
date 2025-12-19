@@ -8,6 +8,7 @@ public class BallManager : MonoBehaviour
 
     [SerializeField] private GameObject ballPrefab; // 현재는 BallFactory가 prefab을 들고 있지만, 인스펙터 용으로 유지
     [SerializeField] private float cycle = 0.1f;
+    [SerializeField] private Vector2 spawnOffset = Vector2.zero;
 
     // 이번 라운드에 스폰할 희귀도 시퀀스
     readonly List<BallRarity> spawnSequence = new();
@@ -18,6 +19,8 @@ public class BallManager : MonoBehaviour
     int liveBallCount = 0;
 
     Coroutine spawnCoroutine;
+
+    Vector2 spawnPosition = Vector2.zero;
 
     void Awake()
     {
@@ -94,7 +97,7 @@ public class BallManager : MonoBehaviour
             var rarity = spawnSequence[nextSpawnIndex];
             nextSpawnIndex++;
 
-            BallFactory.Instance.SpawnBall(rarity);
+            BallFactory.Instance.SpawnBall(rarity, spawnPosition + spawnOffset);
 
             yield return new WaitForSeconds(cycle);
         }
@@ -123,6 +126,12 @@ public class BallManager : MonoBehaviour
         nextSpawnIndex = 0;
         isSpawning = false;
         liveBallCount = 0;
+        spawnPosition = Vector2.zero;
+    }
+
+    public void SetSpawnPosition(Vector2 position)
+    {
+        spawnPosition = position;
     }
 
     /// <summary>
