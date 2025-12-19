@@ -1,35 +1,35 @@
 {
 	"stages": [
 		{
-			"id": "stage.1",
+			"index": 0,
 			"needScore": 10000
 		},
 		{
-			"id": "stage.2",
+			"index": 1,
 			"needScore": 50000
 		},
 		{
-			"id": "stage.3",
+			"index": 2,
 			"needScore": 500000
 		},
 		{
-			"id": "stage.4",
+			"index": 3,
 			"needScore": 5000000
 		},
 		{
-			"id": "stage.5",
+			"index": 4,
 			"needScore": 50000000
 		},
 		{
-			"id": "stage.6",
+			"index": 5,
 			"needScore": 200000000
 		},
 		{
-			"id": "stage.7",
+			"index": 6,
 			"needScore": 1000000000
 		},
 		{
-			"id": "stage.8",
+			"index": 7,
 			"needScore": 10000000000
 		}
 	]

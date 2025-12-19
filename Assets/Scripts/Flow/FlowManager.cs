@@ -72,7 +72,7 @@ public sealed class FlowManager : MonoBehaviour
             return;
         }
 
-        currentStage = new StageInstance(dto, stageIndex);
+        currentStage = new StageInstance(dto);
         currentRoundIndex = 0;
         currentStage.SetCurrentRoundIndex(currentRoundIndex);
 
