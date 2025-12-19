@@ -49,10 +49,20 @@ public sealed class BallSpawnPointManager : MonoBehaviour
                 centerView = p;
         }
 
-        if (centerView != null)
+        if (selectedView != null)
         {
-            SetSelectedView(centerView);
-            OnPointSelected?.Invoke(centerView.transform.position);
+            // 이미 선택된 포인트가 있으면 다시 선택 표시만 갱신
+            selectedView.SetSelected(true);
+            if (isActive)
+                OnPointSelected?.Invoke(selectedView.transform.position);
+        }
+        else if (centerView != null)
+        {
+            SetSelectedView(centerView, notify: true);
+        }
+        else if (points.Count > 0)
+        {
+            SetSelectedView(points[0], notify: true);
         }
     }
 
@@ -81,36 +91,10 @@ public sealed class BallSpawnPointManager : MonoBehaviour
         if (view == null)
             return;
 
-        SetSelectedView(view);
-        OnPointSelected?.Invoke(view.transform.position);
+        SetSelectedView(view, notify: true);
     }
 
-    public void SetSelectedPoint(Vector2 position)
-    {
-        if (points.Count == 0)
-            return;
-
-        BallSpawnPointView closest = null;
-        float bestSqr = float.MaxValue;
-        for (int i = 0; i < points.Count; i++)
-        {
-            var p = points[i];
-            if (p == null)
-                continue;
-
-            float sqr = (p.transform.position - (Vector3)position).sqrMagnitude;
-            if (sqr < bestSqr)
-            {
-                bestSqr = sqr;
-                closest = p;
-            }
-        }
-
-        if (closest != null)
-            SetSelectedView(closest);
-    }
-
-    void SetSelectedView(BallSpawnPointView view)
+    void SetSelectedView(BallSpawnPointView view, bool notify = false)
     {
         if (selectedView == view)
             return;
@@ -121,6 +105,10 @@ public sealed class BallSpawnPointManager : MonoBehaviour
         selectedView = view;
 
         if (selectedView != null)
+        {
             selectedView.SetSelected(true);
+            if (notify)
+                OnPointSelected?.Invoke(selectedView.transform.position);
+        }
     }
 }

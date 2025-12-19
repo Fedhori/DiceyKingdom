@@ -13,19 +13,17 @@ public sealed class StageManager : MonoBehaviour
     [SerializeField] private LocalizeStringEvent stallNoticeText;
     [SerializeField] private TMP_Text ballCountText;
     [SerializeField] private Button startSpawnButton;
-    [SerializeField] private float stallWarningTime = 60f;
-    [SerializeField] private float stallForceTime = 90f;
 
     // Stage & Round 상태
     StageInstance currentStage;
     int currentRoundIndex;
     public bool roundActive;
-    bool waitingSpawnSelection;
+    
+    [SerializeField] private float stallWarningTime = 60f;
+    [SerializeField] private float stallForceTime = 90f;
     bool stallTimerRunning;
     bool spawnStarted;
     float stallTimer;
-    bool hasSelectedSpawn;
-    Vector2 selectedSpawnPoint;
 
     void Awake()
     {
@@ -111,9 +109,7 @@ public sealed class StageManager : MonoBehaviour
         currentStage = stage;
         currentRoundIndex = roundIndex;
         roundActive = true;
-        waitingSpawnSelection = false;
         ResetStallState();
-        hasSelectedSpawn = false;
         UpdateStartSpawnButton(false, true);
         
         BallManager.Instance.ResetForNewRound();
@@ -141,14 +137,6 @@ public sealed class StageManager : MonoBehaviour
 
     void BeginSpawnSelection()
     {
-        var spawnPointManager = BallSpawnPointManager.Instance;
-        if (spawnPointManager == null)
-        {
-            Debug.LogWarning("[StageManager] spawnPointManager not set. Spawning immediately.");
-            StartBallSpawning();
-            return;
-        }
-
         var pinMgr = PinManager.Instance;
         if (pinMgr == null)
         {
@@ -165,8 +153,8 @@ public sealed class StageManager : MonoBehaviour
             return;
         }
 
-        waitingSpawnSelection = true;
-        hasSelectedSpawn = false;
+        var spawnPointManager = BallSpawnPointManager.Instance;
+
         UpdateStartSpawnButton(true, false);
         spawnPointManager.OnPointSelected = OnSpawnPointSelected;
         spawnPointManager.ShowPoints(points);
@@ -174,29 +162,12 @@ public sealed class StageManager : MonoBehaviour
 
     void OnSpawnPointSelected(Vector2 pos)
     {
-        if (!waitingSpawnSelection)
-            return;
-
         BallManager.Instance.SetSpawnPosition(pos);
-        hasSelectedSpawn = true;
-        selectedSpawnPoint = pos;
-
-        BallSpawnPointManager.Instance?.SetSelectedPoint(pos);
         UpdateStartSpawnButton(true, true);
     }
 
     public void OnStartSpawnButtonClicked()
     {
-        if (!waitingSpawnSelection)
-            return;
-
-        if (!hasSelectedSpawn)
-        {
-            Debug.LogWarning("[StageManager] Spawn position not selected.");
-            return;
-        }
-
-        waitingSpawnSelection = false;
         UpdateStartSpawnButton(false, false);
         BallSpawnPointManager.Instance?.HidePoints();
         StartBallSpawning();
@@ -205,7 +176,6 @@ public sealed class StageManager : MonoBehaviour
     void StartBallSpawning()
     {
         spawnStarted = true;
-        waitingSpawnSelection = false;
         UpdateStartSpawnButton(false, false);
         BallSpawnPointManager.Instance?.HidePoints();
         BallManager.Instance.StartSpawning();
@@ -355,9 +325,6 @@ public sealed class StageManager : MonoBehaviour
         stallTimerRunning = false;
         spawnStarted = false;
         stallTimer = 0f;
-        hasSelectedSpawn = false;
-        waitingSpawnSelection = false;
-        UpdateStartSpawnButton(false, false);
         SetStallNoticeVisible(false);
     }
 }

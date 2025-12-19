@@ -106,4 +106,5 @@ public sealed class BallSpawnPointView : MonoBehaviour, IPointerClickHandler
         float t = Mathf.PingPong(Time.time / period, 1f);
         return Mathf.Lerp(minAlpha, maxAlpha, t);
     }
+
 }
