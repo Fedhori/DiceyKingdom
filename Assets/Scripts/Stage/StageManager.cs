@@ -59,10 +59,11 @@ public sealed class StageManager : MonoBehaviour
     /// <summary>
     /// 현재 스테이지 바인딩 + HUD 갱신.
     /// </summary>
-    public void BindStage(StageInstance stage)
+    public void SetStage(StageInstance stage)
     {
         currentStage = stage;
         roundActive = false;
+        ScoreManager.Instance.previousScore = ScoreManager.Instance.TotalScore;
 
         if (stageHudView != null && stage != null)
         {
@@ -102,7 +103,6 @@ public sealed class StageManager : MonoBehaviour
     
     public void StartRound(StageInstance stage, int roundIndex)
     {
-        ScoreManager.Instance.previousScore = ScoreManager.Instance.TotalScore;
         currentStage = stage;
         currentRoundIndex = roundIndex;
         roundActive = true;

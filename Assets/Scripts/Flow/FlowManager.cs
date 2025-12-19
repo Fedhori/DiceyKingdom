@@ -76,7 +76,7 @@ public sealed class FlowManager : MonoBehaviour
         currentRoundIndex = 0;
         currentStage.SetCurrentRoundIndex(currentRoundIndex);
 
-        StageManager.Instance?.BindStage(currentStage);
+        StageManager.Instance?.SetStage(currentStage);
         OnRoundStart();
     }
 
