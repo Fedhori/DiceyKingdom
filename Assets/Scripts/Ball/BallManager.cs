@@ -129,6 +129,17 @@ public class BallManager : MonoBehaviour
         spawnPosition = Vector2.zero;
     }
 
+    public void StopSpawning()
+    {
+        if (spawnCoroutine != null)
+        {
+            StopCoroutine(spawnCoroutine);
+            spawnCoroutine = null;
+        }
+
+        isSpawning = false;
+    }
+
     public void SetSpawnPosition(Vector2 position)
     {
         spawnPosition = position;

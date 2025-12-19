@@ -99,4 +99,15 @@ public sealed class ScoreManager : MonoBehaviour
         );
         TotalScore += amount;
     }
+
+    public void MultiplyScore(double multiplier)
+    {
+        if (multiplier <= 0)
+        {
+            Debug.LogWarning($"[ScoreManager] Invalid multiplier: {multiplier}");
+            return;
+        }
+
+        TotalScore *= multiplier;
+    }
 }

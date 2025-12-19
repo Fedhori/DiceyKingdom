@@ -103,6 +103,7 @@ public sealed class BallController : MonoBehaviour
         if (pin == null || pin.Instance == null)
             return;
 
+        StageManager.Instance?.ResetNoScoreTimer();
         pin.Instance.OnHitByBall(Instance, pin.transform.position);
         Instance.OnHitPin(pin.Instance, transform.position);
         pin.PlayHitEffect();
