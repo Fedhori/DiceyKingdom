@@ -6,12 +6,14 @@ public sealed class StageManager : MonoBehaviour
     public static StageManager Instance { get; private set; }
 
     [SerializeField] private StageHudView stageHudView;
+    [SerializeField] private GameObject spawnSelectHintUI;
 
     // Stage & Round 상태
     StageInstance currentStage;
     int currentRoundIndex;
     bool roundActive;
     bool waitingSpawnSelection;
+    Vector2 pendingSpawnPoint;
 
     void Awake()
     {
@@ -22,6 +24,7 @@ public sealed class StageManager : MonoBehaviour
         }
 
         Instance = this;
+
     }
 
     /// <summary>
@@ -120,6 +123,7 @@ public sealed class StageManager : MonoBehaviour
         }
 
         waitingSpawnSelection = true;
+        ToggleSpawnSelectHint(true);
         spawnPointManager.OnPointSelected = OnSpawnPointSelected;
         spawnPointManager.ShowPoints(points);
     }
@@ -129,10 +133,18 @@ public sealed class StageManager : MonoBehaviour
         if (!waitingSpawnSelection)
             return;
 
+        pendingSpawnPoint = pos;
         waitingSpawnSelection = false;
 
+        ToggleSpawnSelectHint(false);
         BallManager.Instance.SetSpawnPosition(pos);
         BallManager.Instance.StartSpawning();
+    }
+
+    void ToggleSpawnSelectHint(bool show)
+    {
+        if (spawnSelectHintUI != null)
+            spawnSelectHintUI.SetActive(show);
     }
 
     static System.Collections.Generic.List<BallRarity> BuildRaritySequence(PlayerInstance player, System.Random rng)

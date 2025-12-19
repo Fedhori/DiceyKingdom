@@ -115,6 +115,10 @@ MonoBehaviour:
     m_Key: game.dragballhere.label
     m_Metadata:
       m_Items: []
+  - m_Id: 6474724191776768
+    m_Key: game.selectballstart.label
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
