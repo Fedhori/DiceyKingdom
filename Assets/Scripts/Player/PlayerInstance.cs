@@ -22,7 +22,7 @@ public sealed class PlayerInstance
     public int BallCount
     {
         get => ballCount;
-        private set
+        set
         {
             int newValue = Math.Max(0, value);
             if (ballCount == newValue)

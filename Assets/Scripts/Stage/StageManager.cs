@@ -41,7 +41,10 @@ public sealed class StageManager : MonoBehaviour
         
         var player = PlayerManager.Instance?.Current;
         if (player != null)
+        {
             player.OnBallCountChanged += UpdateBallCount;
+            UpdateBallCount(player.BallCount);
+        }
     }
 
     void OnDisable()
@@ -313,6 +316,7 @@ public sealed class StageManager : MonoBehaviour
     {
         roundActive = false;
         ResetStallState();
+        UpdateBallCount(PlayerManager.Instance.Current.BallCount);
         FlowManager.Instance?.OnRoundFinished();
     }
 

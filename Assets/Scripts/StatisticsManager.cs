@@ -25,11 +25,13 @@ public sealed class StatisticsManager : MonoBehaviour
         Instance = this;
     }
 
+    // 스테이지당 보상으로 바뀔거니까, 여기서 늘리면 안됨..
     public void Open(bool isStageClear)
     {
         isOpen = true;
         
         CurrencyManager.Instance?.AddCurrency(GameConfig.BaseRoundIncome);
+        PlayerManager.Instance.Current.BallCount += GameConfig.BaseBallIncome;
 
         UpdateEarnedScore();
         UpdateEarnedCurrency();
