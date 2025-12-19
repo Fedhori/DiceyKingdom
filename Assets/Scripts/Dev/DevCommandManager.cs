@@ -37,20 +37,6 @@ public sealed class DevCommandManager : MonoBehaviour
 
             PinManager.Instance.TryReplace(param[0], int.Parse(param[1]), int.Parse(param[2]));
         });
-
-        Register("spawnball", param =>
-        {
-            if (param.Length != 1)
-                return;
-
-            if (BallFactory.Instance == null)
-                return;
-
-            if (!Enum.TryParse<BallRarity>(param[0], true, out var rarity))
-                rarity = BallRarity.Common;
-
-            BallFactory.Instance.SpawnBall(rarity);
-        });
     }
 
     [Header("Toggle")] public KeyCode toggleKey = KeyCode.BackQuote;
