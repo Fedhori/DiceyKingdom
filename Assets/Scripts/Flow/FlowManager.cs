@@ -90,11 +90,6 @@ public sealed class FlowManager : MonoBehaviour
             return;
         }
 
-        if (currentPhase != FlowPhase.None)
-        {
-            Debug.LogWarning($"[FlowManager] OnRoundStartRequested in phase {currentPhase}");
-        }
-
         CurrentPhase = FlowPhase.Round;
         StageManager.Instance?.StartRound(currentStage, currentRoundIndex);
     }
