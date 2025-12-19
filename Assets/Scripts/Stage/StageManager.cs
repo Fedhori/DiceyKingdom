@@ -22,7 +22,6 @@ public sealed class StageManager : MonoBehaviour
     float noScoreElapsed;
     bool stallButtonShown;
     bool forceEndTriggered;
-    bool stallTimerRunning;
 
     void Awake()
     {
@@ -60,7 +59,7 @@ public sealed class StageManager : MonoBehaviour
 
     void Update()
     {
-        if (!roundActive || forceEndTriggered || !stallTimerRunning)
+        if (!roundActive || forceEndTriggered)
             return;
 
         roundElapsed += Time.deltaTime;
@@ -133,7 +132,7 @@ public sealed class StageManager : MonoBehaviour
         if (spawnPointManager == null)
         {
             Debug.LogWarning("[StageManager] spawnPointManager not set. Spawning immediately.");
-            StartBallSpawning();
+            BallManager.Instance.StartSpawning();
             return;
         }
 
@@ -141,7 +140,7 @@ public sealed class StageManager : MonoBehaviour
         if (pinMgr == null)
         {
             Debug.LogWarning("[StageManager] PinManager missing. Spawning immediately.");
-            StartBallSpawning();
+            BallManager.Instance.StartSpawning();
             return;
         }
 
@@ -149,7 +148,7 @@ public sealed class StageManager : MonoBehaviour
         if (points == null || points.Count == 0)
         {
             Debug.LogWarning("[StageManager] No spawn points. Spawning immediately.");
-            StartBallSpawning();
+            BallManager.Instance.StartSpawning();
             return;
         }
 
@@ -169,13 +168,7 @@ public sealed class StageManager : MonoBehaviour
 
         ToggleSpawnSelectHint(false);
         BallManager.Instance.SetSpawnPosition(pos);
-        StartBallSpawning();
-    }
-
-    void StartBallSpawning()
-    {
         BallManager.Instance.StartSpawning();
-        StartStallTimer();
     }
 
     void ToggleSpawnSelectHint(bool show)
@@ -201,7 +194,6 @@ public sealed class StageManager : MonoBehaviour
         roundElapsed = 0f;
         noScoreElapsed = 0f;
         stallButtonShown = false;
-        stallTimerRunning = false;
         ToggleStallEndButton(false);
     }
 
@@ -210,13 +202,6 @@ public sealed class StageManager : MonoBehaviour
         waitingSpawnSelection = false;
         ToggleSpawnSelectHint(false);
         BallSpawnPointManager.Instance?.HidePoints();
-    }
-
-    void StartStallTimer()
-    {
-        stallTimerRunning = true;
-        roundElapsed = 0f;
-        noScoreElapsed = 0f;
     }
 
     public void ResetNoScoreTimer()
@@ -236,7 +221,6 @@ public sealed class StageManager : MonoBehaviour
 
         forceEndTriggered = true;
         roundActive = false;
-        stallTimerRunning = false;
 
         CancelSpawnSelection();
         ToggleStallEndButton(false);
@@ -314,7 +298,6 @@ public sealed class StageManager : MonoBehaviour
         roundActive = false;
         ToggleStallEndButton(false);
         stallButtonShown = false;
-        stallTimerRunning = false;
 
         FlowManager.Instance?.OnRoundFinished();
     }
