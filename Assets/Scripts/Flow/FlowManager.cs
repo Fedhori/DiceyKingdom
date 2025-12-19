@@ -31,7 +31,7 @@ public sealed class FlowManager : MonoBehaviour
             OnPhaseChanged?.Invoke(currentPhase);
         }
     }
-    
+
     public bool CanDragPins => currentPhase != FlowPhase.Round;
 
     void Awake()
@@ -76,9 +76,7 @@ public sealed class FlowManager : MonoBehaviour
         currentStage.SetCurrentRoundIndex(currentRoundIndex);
 
         StageManager.Instance?.BindStage(currentStage);
-        StageManager.Instance?.ShowRoundStartButton();
-
-        CurrentPhase = FlowPhase.None;
+        OnRoundStartRequested();
     }
 
     bool IsLastRoundInCurrentStage =>
@@ -223,8 +221,7 @@ public sealed class FlowManager : MonoBehaviour
         currentRoundIndex++;
         currentStage.SetCurrentRoundIndex(currentRoundIndex);
         StageManager.Instance?.UpdateRound(currentRoundIndex);
-        StageManager.Instance?.ShowRoundStartButton();
 
-        CurrentPhase = FlowPhase.None;
+        OnRoundStartRequested();
     }
 }
