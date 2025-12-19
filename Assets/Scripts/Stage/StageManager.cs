@@ -1,5 +1,7 @@
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
+using UnityEngine.Localization.Components;
+using UnityEngine.Localization.SmartFormat.PersistentVariables;
 
 public sealed class StageManager : MonoBehaviour
 {
@@ -7,13 +9,18 @@ public sealed class StageManager : MonoBehaviour
 
     [SerializeField] private StageHudView stageHudView;
     [SerializeField] private GameObject spawnSelectHintUI;
+    [SerializeField] private LocalizeStringEvent stallNoticeText;
+    [SerializeField] private float stallWarningTime = 60f;
+    [SerializeField] private float stallForceTime = 90f;
 
     // Stage & Round 상태
     StageInstance currentStage;
     int currentRoundIndex;
     bool roundActive;
     bool waitingSpawnSelection;
-    Vector2 pendingSpawnPoint;
+    bool stallTimerRunning;
+    bool spawnStarted;
+    float stallTimer;
 
     void Awake()
     {
@@ -49,6 +56,14 @@ public sealed class StageManager : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (!roundActive)
+            return;
+
+        HandleStallTimer();
+    }
+
     /// <summary>
     /// 라운드 인덱스 갱신 + HUD 반영.
     /// </summary>
@@ -70,6 +85,7 @@ public sealed class StageManager : MonoBehaviour
         currentRoundIndex = roundIndex;
         roundActive = true;
         waitingSpawnSelection = false;
+        ResetStallState();
 
         PlayerManager.Instance.ResetPlayer();
         PinManager.Instance.ResetAllPins();
@@ -102,7 +118,7 @@ public sealed class StageManager : MonoBehaviour
         if (spawnPointManager == null)
         {
             Debug.LogWarning("[StageManager] spawnPointManager not set. Spawning immediately.");
-            BallManager.Instance.StartSpawning();
+            StartBallSpawning();
             return;
         }
 
@@ -110,7 +126,7 @@ public sealed class StageManager : MonoBehaviour
         if (pinMgr == null)
         {
             Debug.LogWarning("[StageManager] PinManager missing. Spawning immediately.");
-            BallManager.Instance.StartSpawning();
+            StartBallSpawning();
             return;
         }
 
@@ -118,7 +134,7 @@ public sealed class StageManager : MonoBehaviour
         if (points == null || points.Count == 0)
         {
             Debug.LogWarning("[StageManager] No spawn points. Spawning immediately.");
-            BallManager.Instance.StartSpawning();
+            StartBallSpawning();
             return;
         }
 
@@ -133,11 +149,16 @@ public sealed class StageManager : MonoBehaviour
         if (!waitingSpawnSelection)
             return;
 
-        pendingSpawnPoint = pos;
         waitingSpawnSelection = false;
 
         ToggleSpawnSelectHint(false);
         BallManager.Instance.SetSpawnPosition(pos);
+        StartBallSpawning();
+    }
+
+    void StartBallSpawning()
+    {
+        spawnStarted = true;
         BallManager.Instance.StartSpawning();
     }
 
@@ -145,6 +166,71 @@ public sealed class StageManager : MonoBehaviour
     {
         if (spawnSelectHintUI != null)
             spawnSelectHintUI.SetActive(show);
+    }
+
+    void HandleStallTimer()
+    {
+        if (!spawnStarted)
+            return;
+
+        var ballMgr = BallManager.Instance;
+        bool stillSpawning = ballMgr != null && ballMgr.IsSpawning;
+
+        if (!stallTimerRunning)
+        {
+            if (stillSpawning)
+                return;
+
+            StartStallTimer();
+        }
+
+        stallTimer += Time.deltaTime;
+
+        if (stallTimer >= stallWarningTime)
+        {
+            float remaining = Mathf.Max(0f, stallForceTime - stallTimer);
+            UpdateStallNotice(remaining);
+        }
+
+        if (stallTimer >= stallForceTime)
+        {
+            ForceFinishRound();
+        }
+    }
+
+    void StartStallTimer()
+    {
+        stallTimerRunning = true;
+        stallTimer = 0f;
+        SetStallNoticeVisible(false);
+    }
+
+    void UpdateStallNotice(float remainingSeconds)
+    {
+        if (stallNoticeText == null)
+            return;
+
+        int seconds = Mathf.CeilToInt(remainingSeconds);
+        if (seconds < 0)
+            seconds = 0;
+
+        if (stallNoticeText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
+            sv.Value = seconds.ToString();
+        SetStallNoticeVisible(true);
+    }
+
+    void SetStallNoticeVisible(bool show)
+    {
+        if (stallNoticeText != null)
+            stallNoticeText.gameObject.SetActive(show);
+    }
+
+    void ForceFinishRound()
+    {
+        if (!roundActive)
+            return;
+
+        FinishRound();
     }
 
     static System.Collections.Generic.List<BallRarity> BuildRaritySequence(PlayerInstance player, System.Random rng)
@@ -190,13 +276,21 @@ public sealed class StageManager : MonoBehaviour
         if (!roundActive)
             return;
 
-        roundActive = false;
+        FinishRound();
+    }
 
+    void FinishRound()
+    {
+        roundActive = false;
+        ResetStallState();
         FlowManager.Instance?.OnRoundFinished();
     }
 
-    // 필요하다면 외부용 프로퍼티 추가
-    public StageInstance CurrentStage => currentStage;
-    public int CurrentRoundIndex => currentRoundIndex;
-    public bool IsRoundActive => roundActive;
+    void ResetStallState()
+    {
+        stallTimerRunning = false;
+        spawnStarted = false;
+        stallTimer = 0f;
+        SetStallNoticeVisible(false);
+    }
 }

@@ -133,6 +133,8 @@ public class BallManager : MonoBehaviour
     {
         spawnPosition = position;
     }
+    
+    public bool IsSpawning => isSpawning;
 
     /// <summary>
     /// 볼이 Initialize를 완료했을 때 호출.

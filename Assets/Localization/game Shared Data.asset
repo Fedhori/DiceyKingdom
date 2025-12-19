@@ -119,6 +119,10 @@ MonoBehaviour:
     m_Key: game.selectballstart.label
     m_Metadata:
       m_Items: []
+  - m_Id: 6503365021806592
+    m_Key: game.forceendround.label
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

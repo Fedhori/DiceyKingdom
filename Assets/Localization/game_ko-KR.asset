@@ -130,6 +130,11 @@ MonoBehaviour:
     m_Localized: "\uC2DC\uC791 \uC9C0\uC810\uC744 \uC120\uD0DD\uD558\uC138\uC694!"
     m_Metadata:
       m_Items: []
+  - m_Id: 6503365021806592
+    m_Localized: "\uB77C\uC6B4\uB4DC \uC885\uB8CC\uAE4C\uC9C0: {value}\uCD08 "
+    m_Metadata:
+      m_Items:
+      - rid: 2507345031984054468
   references:
     version: 2
     RefIds:
@@ -144,3 +149,4 @@ MonoBehaviour:
         - id: 4317961107550208
         - id: 4318060248313856
         - id: 4318162333478912
+        - id: 6503365021806592
