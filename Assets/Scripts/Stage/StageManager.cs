@@ -18,7 +18,7 @@ public sealed class StageManager : MonoBehaviour
     // Stage & Round 상태
     StageInstance currentStage;
     int currentRoundIndex;
-    bool roundActive;
+    public bool roundActive;
     bool waitingSpawnSelection;
     bool stallTimerRunning;
     bool spawnStarted;

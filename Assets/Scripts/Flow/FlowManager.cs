@@ -33,7 +33,7 @@ public sealed class FlowManager : MonoBehaviour
         }
     }
 
-    public bool CanDragPins => currentPhase != FlowPhase.Round;
+    public bool CanDragPins => !StageManager.Instance.roundActive;
 
     void Awake()
     {
