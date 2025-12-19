@@ -63,7 +63,8 @@ public sealed class BallSpawnPointView : MonoBehaviour, IPointerClickHandler
     {
         StopFade();
         fadeRoutine = FadeRoutine();
-        StartCoroutine(fadeRoutine);
+        if(gameObject.activeInHierarchy)
+            StartCoroutine(fadeRoutine);
     }
 
     void StopFade()

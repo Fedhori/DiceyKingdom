@@ -32,26 +32,34 @@ public sealed class BallSpawnPointManager : MonoBehaviour
             return;
         }
 
-        ClearPoints();
         isActive = true;
-        selectedView = null;
-        BallSpawnPointView centerView = null;
+        EnsurePool(positions.Count);
 
-        foreach (var pos in positions)
+        for (int i = 0; i < points.Count; i++)
+            points[i].gameObject.SetActive(false);
+
+        BallSpawnPointView centerView = null;
+        BallSpawnPointView firstView = null;
+
+        for (int i = 0; i < positions.Count; i++)
         {
-            var p = Instantiate(spawnPointPrefab, container);
+            var pos = positions[i];
+            BallSpawnPointView p = points[i];
+
             p.transform.position = pos;
             p.SetSelected(false);
             p.OnClicked = HandleSelected;
-            points.Add(p);
+            p.gameObject.SetActive(true);
 
+            if (firstView == null)
+                firstView = p;
             if (centerView == null && pos == Vector2.zero)
                 centerView = p;
         }
 
+        // 기본 선택 처리: 기존 선택 유지, 없으면 중앙, 없으면 첫 포인트
         if (selectedView != null)
         {
-            // 이미 선택된 포인트가 있으면 다시 선택 표시만 갱신
             selectedView.SetSelected(true);
             if (isActive)
                 OnPointSelected?.Invoke(selectedView.transform.position);
@@ -60,9 +68,9 @@ public sealed class BallSpawnPointManager : MonoBehaviour
         {
             SetSelectedView(centerView, notify: true);
         }
-        else if (points.Count > 0)
+        else if (firstView != null)
         {
-            SetSelectedView(points[0], notify: true);
+            SetSelectedView(firstView, notify: true);
         }
     }
 
@@ -77,10 +85,8 @@ public sealed class BallSpawnPointManager : MonoBehaviour
         for (int i = points.Count - 1; i >= 0; i--)
         {
             if (points[i] != null)
-                Destroy(points[i].gameObject);
+                points[i].gameObject.SetActive(false);
         }
-        points.Clear();
-        selectedView = null;
     }
 
     public void HandleSelected(BallSpawnPointView view)
@@ -111,4 +117,21 @@ public sealed class BallSpawnPointManager : MonoBehaviour
                 OnPointSelected?.Invoke(selectedView.transform.position);
         }
     }
+
+    void EnsurePool(int count)
+    {
+        if (count < 0)
+            count = 0;
+
+        while (points.Count < count)
+        {
+            var p = Instantiate(spawnPointPrefab, container);
+            p.gameObject.SetActive(false);
+            p.OnClicked = HandleSelected;
+            points.Add(p);
+        }
+    }
+
+    public bool HasSelection => selectedView != null;
+    public Vector2 SelectedPosition => selectedView != null ? (Vector2)selectedView.transform.position : Vector2.zero;
 }
