@@ -182,7 +182,7 @@
 			"price": 5,
 			"rules": [
 				{
-					"triggerType": "OnRoundFinished",
+					"triggerType": "OnStageFinished",
 					"condition": {
 						"conditionKind": "Always"
 					},

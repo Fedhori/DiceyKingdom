@@ -26,6 +26,7 @@ namespace Data
         OnBallHit,
         OnBallDestroyed,
         OnRoundFinished,
+        OnStageFinished,
     }
 
     public enum PinConditionKind

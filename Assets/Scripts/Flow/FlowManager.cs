@@ -114,23 +114,7 @@ public sealed class FlowManager : MonoBehaviour
             return;
         }
 
-        // 라운드 종료시 모든 핀에 통지
-        var pinsByRow = PinManager.Instance.PinsByRow;
-        for (int row = 0; row < pinsByRow.Count; row++)
-        {
-            var rowList = pinsByRow[row];
-            if (rowList == null)
-                continue;
-
-            for (int col = 0; col < rowList.Count; col++)
-            {
-                var pin = rowList[col];
-                if (pin?.Instance != null)
-                {
-                    pin.Instance.HandleRoundFinished();
-                }
-            }
-        }
+        PinManager.Instance.HandleRoundFinished();
 
         bool isLastRound = IsLastRound;
 
@@ -227,6 +211,8 @@ public sealed class FlowManager : MonoBehaviour
             GameManager.Instance?.HandleGameClear();
             return;
         }
+
+        PinManager.Instance.HandleStageFinished();
 
         currentStageIndex = nextStageIndex;
         StartStage(currentStageIndex);

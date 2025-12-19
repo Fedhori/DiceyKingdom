@@ -229,4 +229,15 @@ public sealed class PinInstance
         );
         ruleActivationCount = new int[GameConfig.MaxRuleCount];
     }
+    
+    public void HandleStageFinished()
+    {
+        roundCount++;
+        HandleTrigger(
+            PinTriggerType.OnStageFinished,
+            null,
+            Vector2.zero
+        );
+        ruleActivationCount = new int[GameConfig.MaxRuleCount];
+    }
 }

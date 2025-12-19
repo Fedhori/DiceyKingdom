@@ -2,7 +2,7 @@
 	"stages": [
 		{
 			"index": 0,
-			"needScore": 10000
+			"needScore": 1000
 		},
 		{
 			"index": 1,
