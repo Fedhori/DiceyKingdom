@@ -18,7 +18,7 @@ public sealed class PlayerInstance
 
     // 희귀도 기반 볼 생성 파라미터
     public IReadOnlyList<float> RarityProbabilities => rarityProbabilities;
-    public int InitialBallCount { get; private set; }
+    public int BallCount { get; private set; }
     public float RarityGrowth { get; private set; }
     public IReadOnlyList<float> RarityMultipliers => rarityMultipliers;
 
@@ -44,7 +44,7 @@ public sealed class PlayerInstance
         Stats.SetBase(PlayerStatIds.CriticalChance, BaseDto.critChance);
         Stats.SetBase(PlayerStatIds.CriticalMultiplier, BaseDto.criticalMultiplier);
 
-        InitialBallCount = BaseDto.initialBallCount;
+        BallCount = BaseDto.initialBallCount;
         RarityGrowth = BaseDto.rarityGrowth;
         rarityProbabilities = BaseDto.rarityProbabilities != null
             ? new List<float>(BaseDto.rarityProbabilities)
@@ -120,7 +120,6 @@ public sealed class PlayerInstance
     {
         // 라운드 단위로 날아가는 임시 버프만 초기화
         Stats.RemoveModifiers(StatLayer.Temporary);
-        // BallDeck, Currency 등은 런 단위 자원이므로 여기서는 건드리지 않음.
     }
 
     public int RollCriticalLevel(System.Random rng)

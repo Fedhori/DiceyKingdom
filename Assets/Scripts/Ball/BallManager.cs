@@ -14,6 +14,7 @@ public class BallManager : MonoBehaviour
     readonly List<BallRarity> spawnSequence = new();
     int nextSpawnIndex = 0;
     bool isSpawning = false;
+    public event System.Action<int> OnRemainingSpawnCountChanged;
 
     // 현재 필드에 살아있는 볼 수
     int liveBallCount = 0;
@@ -60,6 +61,7 @@ public class BallManager : MonoBehaviour
 
         nextSpawnIndex = 0;
         isSpawning = false;
+        NotifyRemainingCountChanged();
     }
 
     /// <summary>
@@ -99,6 +101,7 @@ public class BallManager : MonoBehaviour
 
             BallFactory.Instance.SpawnBall(rarity, spawnPosition + spawnOffset);
 
+            NotifyRemainingCountChanged();
             yield return new WaitForSeconds(cycle);
         }
 
@@ -127,6 +130,7 @@ public class BallManager : MonoBehaviour
         isSpawning = false;
         liveBallCount = 0;
         spawnPosition = Vector2.zero;
+        NotifyRemainingCountChanged();
     }
 
     public void SetSpawnPosition(Vector2 position)
@@ -135,6 +139,13 @@ public class BallManager : MonoBehaviour
     }
     
     public bool IsSpawning => isSpawning;
+    public int RemainingSpawnCount => Mathf.Max(0, spawnSequence.Count - nextSpawnIndex);
+
+    void NotifyRemainingCountChanged()
+    {
+        int remaining = Mathf.Max(0, spawnSequence.Count - nextSpawnIndex);
+        OnRemainingSpawnCountChanged?.Invoke(remaining);
+    }
 
     /// <summary>
     /// 볼이 Initialize를 완료했을 때 호출.

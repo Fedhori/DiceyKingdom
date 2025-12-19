@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using TMPro;
 using UnityEngine.Localization.Components;
@@ -10,6 +11,7 @@ public sealed class StageManager : MonoBehaviour
     [SerializeField] private StageHudView stageHudView;
     [SerializeField] private GameObject spawnSelectHintUI;
     [SerializeField] private LocalizeStringEvent stallNoticeText;
+    [SerializeField] private TMP_Text ballCountText;
     [SerializeField] private float stallWarningTime = 60f;
     [SerializeField] private float stallForceTime = 90f;
 
@@ -21,6 +23,7 @@ public sealed class StageManager : MonoBehaviour
     bool stallTimerRunning;
     bool spawnStarted;
     float stallTimer;
+    bool subscribedBallCount;
 
     void Awake()
     {
@@ -31,7 +34,16 @@ public sealed class StageManager : MonoBehaviour
         }
 
         Instance = this;
+    }
 
+    private void Start()
+    {
+        SubscribeBallCountEvent();
+    }
+
+    void OnDestroy()
+    {
+        UnsubscribeBallCountEvent();
     }
 
     /// <summary>
@@ -86,6 +98,7 @@ public sealed class StageManager : MonoBehaviour
         roundActive = true;
         waitingSpawnSelection = false;
         ResetStallState();
+        RefreshBallCountImmediate();
 
         PlayerManager.Instance.ResetPlayer();
         PinManager.Instance.ResetAllPins();
@@ -233,10 +246,46 @@ public sealed class StageManager : MonoBehaviour
         FinishRound();
     }
 
+    void RefreshBallCountImmediate()
+    {
+        if (BallManager.Instance == null)
+            return;
+
+        UpdateBallCount(BallManager.Instance.RemainingSpawnCount);
+    }
+
+    void SubscribeBallCountEvent()
+    {
+        var ballMgr = BallManager.Instance;
+        if (ballMgr == null || subscribedBallCount)
+            return;
+
+        ballMgr.OnRemainingSpawnCountChanged += UpdateBallCount;
+        subscribedBallCount = true;
+    }
+
+    void UnsubscribeBallCountEvent()
+    {
+        var ballMgr = BallManager.Instance;
+        if (ballMgr == null || !subscribedBallCount)
+            return;
+
+        ballMgr.OnRemainingSpawnCountChanged -= UpdateBallCount;
+        subscribedBallCount = false;
+    }
+
+    void UpdateBallCount(int count)
+    {
+        if (ballCountText == null)
+            return;
+
+        ballCountText.text = $"x{count}";
+    }
+
     static System.Collections.Generic.List<BallRarity> BuildRaritySequence(PlayerInstance player, System.Random rng)
     {
         var list = new System.Collections.Generic.List<BallRarity>();
-        int count = Mathf.Max(0, player.InitialBallCount);
+        int count = Mathf.Max(0, player.BallCount);
         var probs = player.RarityProbabilities;
 
         if (rng == null)
