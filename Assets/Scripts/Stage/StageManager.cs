@@ -3,15 +3,16 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.Localization.Components;
 using UnityEngine.Localization.SmartFormat.PersistentVariables;
+using UnityEngine.UI;
 
 public sealed class StageManager : MonoBehaviour
 {
     public static StageManager Instance { get; private set; }
 
     [SerializeField] private StageHudView stageHudView;
-    [SerializeField] private GameObject spawnSelectHintUI;
     [SerializeField] private LocalizeStringEvent stallNoticeText;
     [SerializeField] private TMP_Text ballCountText;
+    [SerializeField] private Button startSpawnButton;
     [SerializeField] private float stallWarningTime = 60f;
     [SerializeField] private float stallForceTime = 90f;
 
@@ -23,6 +24,8 @@ public sealed class StageManager : MonoBehaviour
     bool stallTimerRunning;
     bool spawnStarted;
     float stallTimer;
+    bool hasSelectedSpawn;
+    Vector2 selectedSpawnPoint;
 
     void Awake()
     {
@@ -37,7 +40,8 @@ public sealed class StageManager : MonoBehaviour
 
     void Start()
     {
-        BallManager.Instance.OnRemainingSpawnCountChanged += UpdateBallCount;
+        if (BallManager.Instance != null)
+            BallManager.Instance.OnRemainingSpawnCountChanged += UpdateBallCount;
         
         var player = PlayerManager.Instance?.Current;
         if (player != null)
@@ -49,7 +53,8 @@ public sealed class StageManager : MonoBehaviour
 
     void OnDisable()
     {
-        BallManager.Instance.OnRemainingSpawnCountChanged -= UpdateBallCount;
+        if (BallManager.Instance != null)
+            BallManager.Instance.OnRemainingSpawnCountChanged -= UpdateBallCount;
         
         var player = PlayerManager.Instance?.Current;
         if (player != null)
@@ -108,6 +113,8 @@ public sealed class StageManager : MonoBehaviour
         roundActive = true;
         waitingSpawnSelection = false;
         ResetStallState();
+        hasSelectedSpawn = false;
+        UpdateStartSpawnButton(false, true);
         
         BallManager.Instance.ResetForNewRound();
 
@@ -159,7 +166,8 @@ public sealed class StageManager : MonoBehaviour
         }
 
         waitingSpawnSelection = true;
-        ToggleSpawnSelectHint(true);
+        hasSelectedSpawn = false;
+        UpdateStartSpawnButton(true, false);
         spawnPointManager.OnPointSelected = OnSpawnPointSelected;
         spawnPointManager.ShowPoints(points);
     }
@@ -169,23 +177,47 @@ public sealed class StageManager : MonoBehaviour
         if (!waitingSpawnSelection)
             return;
 
-        waitingSpawnSelection = false;
-
-        ToggleSpawnSelectHint(false);
         BallManager.Instance.SetSpawnPosition(pos);
+        hasSelectedSpawn = true;
+        selectedSpawnPoint = pos;
+
+        BallSpawnPointManager.Instance?.SetSelectedPoint(pos);
+        UpdateStartSpawnButton(true, true);
+    }
+
+    public void OnStartSpawnButtonClicked()
+    {
+        if (!waitingSpawnSelection)
+            return;
+
+        if (!hasSelectedSpawn)
+        {
+            Debug.LogWarning("[StageManager] Spawn position not selected.");
+            return;
+        }
+
+        waitingSpawnSelection = false;
+        UpdateStartSpawnButton(false, false);
+        BallSpawnPointManager.Instance?.HidePoints();
         StartBallSpawning();
     }
 
     void StartBallSpawning()
     {
         spawnStarted = true;
+        waitingSpawnSelection = false;
+        UpdateStartSpawnButton(false, false);
+        BallSpawnPointManager.Instance?.HidePoints();
         BallManager.Instance.StartSpawning();
     }
 
-    void ToggleSpawnSelectHint(bool show)
+    void UpdateStartSpawnButton(bool show, bool interactable)
     {
-        if (spawnSelectHintUI != null)
-            spawnSelectHintUI.SetActive(show);
+        if (startSpawnButton == null)
+            return;
+
+        startSpawnButton.gameObject.SetActive(show);
+        startSpawnButton.interactable = interactable;
     }
 
     void HandleStallTimer()
@@ -323,6 +355,9 @@ public sealed class StageManager : MonoBehaviour
         stallTimerRunning = false;
         spawnStarted = false;
         stallTimer = 0f;
+        hasSelectedSpawn = false;
+        waitingSpawnSelection = false;
+        UpdateStartSpawnButton(false, false);
         SetStallNoticeVisible(false);
     }
 }

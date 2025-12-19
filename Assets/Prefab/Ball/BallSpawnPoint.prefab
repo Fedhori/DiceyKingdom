@@ -142,5 +142,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallSpawnPointView
   spriteRenderer: {fileID: 3580798012609635237}
   minAlpha: 0.1
-  maxAlpha: 1
-  fadePeriod: 0.5
+  maxAlpha: 0.5
+  fadePeriod: 0.7

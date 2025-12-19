@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -6,13 +5,14 @@ using UnityEngine.EventSystems;
 public sealed class BallSpawnPointView : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField, Range(0f, 1f)] private float minAlpha = 0.35f;
-    [SerializeField, Range(0f, 1f)] private float maxAlpha = 1f;
+    [SerializeField, Range(0f, 1f)] private float minAlpha = 0.3f;
+    [SerializeField, Range(0f, 1f)] private float maxAlpha = 0.7f;
     [SerializeField] private float fadePeriod = 1.2f;
 
-    public System.Action<Vector2> OnClicked;
+    public System.Action<BallSpawnPointView> OnClicked;
 
-    Coroutine fadeRoutine;
+    System.Collections.IEnumerator fadeRoutine;
+    bool isSelected;
 
     void Awake()
     {
@@ -22,24 +22,48 @@ public sealed class BallSpawnPointView : MonoBehaviour, IPointerClickHandler
 
     void OnEnable()
     {
-        StartFade();
+        RefreshFadeState();
     }
 
     void OnDisable()
     {
         StopFade();
-        ResetAlpha();
+        ApplyAlpha(isSelected ? 1f : CalculateAlpha());
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        OnClicked?.Invoke(transform.position);
+        OnClicked?.Invoke(this);
+    }
+
+    public void SetSelected(bool selected)
+    {
+        if (isSelected == selected)
+            return;
+
+        isSelected = selected;
+        RefreshFadeState();
+    }
+
+    void RefreshFadeState()
+    {
+        if (isSelected)
+        {
+            StopFade();
+            ApplyAlpha(1f);
+        }
+        else
+        {
+            ApplyAlpha(CalculateAlpha());
+            StartFade();
+        }
     }
 
     void StartFade()
     {
         StopFade();
-        fadeRoutine = StartCoroutine(FadeRoutine());
+        fadeRoutine = FadeRoutine();
+        StartCoroutine(fadeRoutine);
     }
 
     void StopFade()
@@ -51,33 +75,35 @@ public sealed class BallSpawnPointView : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    IEnumerator FadeRoutine()
+    System.Collections.IEnumerator FadeRoutine()
     {
         if (spriteRenderer == null)
             yield break;
 
-        float timer = 0f;
+        float period = Mathf.Max(0.01f, fadePeriod);
         while (true)
         {
-            timer += Time.deltaTime;
-            float t = Mathf.PingPong(timer / Mathf.Max(0.01f, fadePeriod), 1f);
+            float t = Mathf.PingPong(Time.time / period, 1f);
             float a = Mathf.Lerp(minAlpha, maxAlpha, t);
-
-            var c = spriteRenderer.color;
-            c.a = a;
-            spriteRenderer.color = c;
-
+            ApplyAlpha(a);
             yield return null;
         }
     }
 
-    void ResetAlpha()
+    void ApplyAlpha(float alpha)
     {
         if (spriteRenderer == null)
             return;
 
         var c = spriteRenderer.color;
-        c.a = maxAlpha;
+        c.a = alpha;
         spriteRenderer.color = c;
+    }
+
+    float CalculateAlpha()
+    {
+        float period = Mathf.Max(0.01f, fadePeriod);
+        float t = Mathf.PingPong(Time.time / period, 1f);
+        return Mathf.Lerp(minAlpha, maxAlpha, t);
     }
 }
