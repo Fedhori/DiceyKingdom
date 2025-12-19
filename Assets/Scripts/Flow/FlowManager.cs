@@ -14,6 +14,7 @@ public sealed class FlowManager : MonoBehaviour
 {
     public static FlowManager Instance { get; private set; }
 
+    // index는 stageInstance dto안에서 관리하게.
     int currentStageIndex;
     StageInstance currentStage;
     int currentRoundIndex;
@@ -76,17 +77,19 @@ public sealed class FlowManager : MonoBehaviour
         currentStage.SetCurrentRoundIndex(currentRoundIndex);
 
         StageManager.Instance?.BindStage(currentStage);
-        OnRoundStartRequested();
+        OnRoundStart();
     }
 
-    bool IsLastRoundInCurrentStage =>
+    bool IsLastRound =>
         currentStage != null && currentRoundIndex >= currentStage.RoundCount - 1;
+    bool IsLastStage =>
+        StageRepository.TryGetByIndex(currentStageIndex + 1, out _);
 
-    public void OnRoundStartRequested()
+    public void OnRoundStart()
     {
         if (currentStage == null)
         {
-            Debug.LogError("[FlowManager] OnRoundStartRequested but currentStage is null.");
+            Debug.LogError("[FlowManager] OnRoundStart but currentStage is null.");
             return;
         }
 
@@ -129,33 +132,22 @@ public sealed class FlowManager : MonoBehaviour
             }
         }
 
-        bool isLastRound = IsLastRoundInCurrentStage;
+        bool isLastRound = IsLastRound;
 
-        if (isLastRound)
+        if (!isLastRound)
         {
-            // 마지막 라운드면 스테이지 클리어 여부 판정
-            var totalScore = ScoreManager.Instance != null
-                ? ScoreManager.Instance.TotalScore
-                : 0;
-
-            bool cleared = totalScore >= currentStage.NeedScore;
-            if (!cleared)
-            {
-                // 마지막 라운드 + 점수 미달 → 즉시 게임 오버
-                CurrentPhase = FlowPhase.None;
-                GameManager.Instance?.HandleGameOver();
-                return;
-            }
-
-            // 마지막 라운드 + 스테이지 클리어 → 클리어 보상 UI
-            CurrentPhase = FlowPhase.Reward;
-            StatisticsManager.Instance?.Open(true);
+            AdvanceToNextRound();
             return;
         }
 
-        // 중간 라운드 → 항상 보상 단계로 넘어감
-        CurrentPhase = FlowPhase.Reward;
-        StatisticsManager.Instance?.Open(false);
+        if (!IsStageCleared())
+        {
+            CurrentPhase = FlowPhase.None;
+            GameManager.Instance?.HandleGameOver();
+            return;
+        }
+
+        OpenReward(true);
     }
 
     public void OnRewardClosed()
@@ -172,9 +164,7 @@ public sealed class FlowManager : MonoBehaviour
             return;
         }
 
-        CurrentPhase = FlowPhase.Shop;
-        // 라운드 인덱스는 currentRoundIndex 그대로 유지
-        ShopManager.Instance?.Open(currentStage, -1);
+        OpenShop();
     }
 
     public void OnShopClosed()
@@ -191,32 +181,54 @@ public sealed class FlowManager : MonoBehaviour
             return;
         }
 
-        bool isLastRound = IsLastRoundInCurrentStage;
+        AdvanceToNextStage();
+    }
 
-        if (isLastRound)
-        {
-            // 여기까지 왔다는 건: 마지막 라운드를 클리어했고, 보상/상점까지 끝난 상태
-            int nextStageIndex = currentStageIndex + 1;
+    bool IsStageCleared()
+    {
+        if (currentStage == null)
+            return false;
 
-            if (!StageRepository.TryGetByIndex(nextStageIndex, out var _))
-            {
-                // 다음 스테이지 없음 → 게임 클리어
-                CurrentPhase = FlowPhase.None;
-                GameManager.Instance?.HandleGameClear();
-                return;
-            }
+        var totalScore = ScoreManager.Instance != null
+            ? ScoreManager.Instance.TotalScore
+            : 0;
 
-            // 다음 스테이지 시작
-            currentStageIndex = nextStageIndex;
-            StartStage(currentStageIndex);
-            return;
-        }
+        return totalScore >= currentStage.NeedScore;
+    }
 
-        // 마지막 라운드가 아니면: 다음 라운드 준비 상태로 돌아감
+    void OpenReward(bool isStageClear)
+    {
+        CurrentPhase = FlowPhase.Reward;
+        StatisticsManager.Instance?.Open(isStageClear);
+    }
+
+    void OpenShop()
+    {
+        CurrentPhase = FlowPhase.Shop;
+        ShopManager.Instance?.Open(currentStage, -1);
+    }
+
+    void AdvanceToNextRound()
+    {
         currentRoundIndex++;
         currentStage.SetCurrentRoundIndex(currentRoundIndex);
         StageManager.Instance?.UpdateRound(currentRoundIndex);
 
-        OnRoundStartRequested();
+        OnRoundStart();
+    }
+
+    void AdvanceToNextStage()
+    {
+        int nextStageIndex = currentStageIndex + 1;
+
+        if (!IsLastStage)
+        {
+            CurrentPhase = FlowPhase.None;
+            GameManager.Instance?.HandleGameClear();
+            return;
+        }
+
+        currentStageIndex = nextStageIndex;
+        StartStage(currentStageIndex);
     }
 }

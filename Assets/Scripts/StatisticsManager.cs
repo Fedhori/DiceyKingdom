@@ -25,7 +25,7 @@ public sealed class StatisticsManager : MonoBehaviour
         Instance = this;
     }
 
-    // 스테이지당 보상으로 바뀔거니까, 여기서 늘리면 안됨..
+    // 스테이지당 보상으로 바뀔거니까, 여기 말고 스테이지 끝날 때 띄우게
     public void Open(bool isStageClear)
     {
         isOpen = true;
