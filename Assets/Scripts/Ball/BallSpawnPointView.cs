@@ -1,13 +1,16 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(SpriteRenderer), typeof(Collider2D))]
-public sealed class BallSpawnPointView : MonoBehaviour
+public sealed class BallSpawnPointView : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField, Range(0f, 1f)] private float minAlpha = 0.35f;
     [SerializeField, Range(0f, 1f)] private float maxAlpha = 1f;
     [SerializeField] private float fadePeriod = 1.2f;
+
+    public System.Action<Vector2> OnClicked;
 
     Coroutine fadeRoutine;
 
@@ -28,11 +31,9 @@ public sealed class BallSpawnPointView : MonoBehaviour
         ResetAlpha();
     }
 
-    public void SetColor(Color color)
+    public void OnPointerClick(PointerEventData eventData)
     {
-        if (spriteRenderer == null)
-            return;
-        spriteRenderer.color = color;
+        OnClicked?.Invoke(transform.position);
     }
 
     void StartFade()
