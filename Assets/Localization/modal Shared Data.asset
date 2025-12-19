@@ -55,14 +55,6 @@ MonoBehaviour:
     m_Key: modal.restart.desc
     m_Metadata:
       m_Items: []
-  - m_Id: 9836360550068224
-    m_Key: modal.forceendround.title
-    m_Metadata:
-      m_Items: []
-  - m_Id: 9836446998867968
-    m_Key: modal.forceendround.desc
-    m_Metadata:
-      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

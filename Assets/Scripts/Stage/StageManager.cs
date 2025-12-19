@@ -7,10 +7,6 @@ public sealed class StageManager : MonoBehaviour
 
     [SerializeField] private StageHudView stageHudView;
     [SerializeField] private GameObject spawnSelectHintUI;
-    [SerializeField] private GameObject stallEndButton;
-    [SerializeField] private float noScoreTimeoutSeconds = 5f;
-    [SerializeField] private float stallButtonDelaySeconds = 60f;
-    [SerializeField] private float autoEndSeconds = 180f;
 
     // Stage & Round 상태
     StageInstance currentStage;
@@ -18,10 +14,6 @@ public sealed class StageManager : MonoBehaviour
     bool roundActive;
     bool waitingSpawnSelection;
     Vector2 pendingSpawnPoint;
-    float roundElapsed;
-    float noScoreElapsed;
-    bool stallButtonShown;
-    bool forceEndTriggered;
 
     void Awake()
     {
@@ -57,26 +49,6 @@ public sealed class StageManager : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        if (!roundActive || forceEndTriggered)
-            return;
-
-        roundElapsed += Time.deltaTime;
-        noScoreElapsed += Time.deltaTime;
-
-        if (!stallButtonShown &&
-            (noScoreElapsed >= noScoreTimeoutSeconds || roundElapsed >= stallButtonDelaySeconds))
-        {
-            ShowStallEndButton();
-        }
-
-        if (roundElapsed >= autoEndSeconds)
-        {
-            ForceEndRound(applyAutoBonus: true);
-        }
-    }
-    
     /// <summary>
     /// 라운드 인덱스 갱신 + HUD 반영.
     /// </summary>
@@ -98,8 +70,6 @@ public sealed class StageManager : MonoBehaviour
         currentRoundIndex = roundIndex;
         roundActive = true;
         waitingSpawnSelection = false;
-        forceEndTriggered = false;
-        ResetStallState();
 
         PlayerManager.Instance.ResetPlayer();
         PinManager.Instance.ResetAllPins();
@@ -177,81 +147,6 @@ public sealed class StageManager : MonoBehaviour
             spawnSelectHintUI.SetActive(show);
     }
 
-    void ToggleStallEndButton(bool show)
-    {
-        if (stallEndButton != null)
-            stallEndButton.SetActive(show);
-    }
-
-    void ShowStallEndButton()
-    {
-        stallButtonShown = true;
-        ToggleStallEndButton(true);
-    }
-
-    void ResetStallState()
-    {
-        roundElapsed = 0f;
-        noScoreElapsed = 0f;
-        stallButtonShown = false;
-        ToggleStallEndButton(false);
-    }
-
-    void CancelSpawnSelection()
-    {
-        waitingSpawnSelection = false;
-        ToggleSpawnSelectHint(false);
-        BallSpawnPointManager.Instance?.HidePoints();
-    }
-
-    public void ResetNoScoreTimer()
-    {
-        noScoreElapsed = 0f;
-    }
-
-    public void OnStallEndButtonClicked()
-    {
-        ForceEndRound(applyAutoBonus: false);
-    }
-
-    void ForceEndRound(bool applyAutoBonus)
-    {
-        if (!roundActive || forceEndTriggered)
-            return;
-
-        forceEndTriggered = true;
-        roundActive = false;
-
-        CancelSpawnSelection();
-        ToggleStallEndButton(false);
-
-        BallManager.Instance?.StopSpawning();
-        DestroyAllBallsInField();
-
-        if (applyAutoBonus)
-        {
-            ScoreManager.Instance?.MultiplyScore(10.0);
-        }
-
-        FlowManager.Instance?.OnRoundFinished();
-        
-        ModalManager.Instance.ShowInfo(
-            titleTable: "modal", titleKey: "modal.forceendround.title",
-            messageTable: "modal", messageKey: "modal.forceendround.desc",
-            onConfirm: () => { }
-        );
-    }
-
-    void DestroyAllBallsInField()
-    {
-        var balls = FindObjectsByType<BallController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-        for (int i = 0; i < balls.Length; i++)
-        {
-            if (balls[i] != null)
-                Destroy(balls[i].gameObject);
-        }
-    }
-
     static System.Collections.Generic.List<BallRarity> BuildRaritySequence(PlayerInstance player, System.Random rng)
     {
         var list = new System.Collections.Generic.List<BallRarity>();
@@ -296,8 +191,6 @@ public sealed class StageManager : MonoBehaviour
             return;
 
         roundActive = false;
-        ToggleStallEndButton(false);
-        stallButtonShown = false;
 
         FlowManager.Instance?.OnRoundFinished();
     }

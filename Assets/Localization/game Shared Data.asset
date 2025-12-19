@@ -119,10 +119,6 @@ MonoBehaviour:
     m_Key: game.selectballstart.label
     m_Metadata:
       m_Items: []
-  - m_Id: 6481683615854592
-    m_Key: game.roundend.label
-    m_Metadata:
-      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
