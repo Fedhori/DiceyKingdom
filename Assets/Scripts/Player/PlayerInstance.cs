@@ -15,10 +15,24 @@ public sealed class PlayerInstance
     public double ScoreMultiplier => Stats.GetValue(PlayerStatIds.ScoreMultiplier);
     public double CriticalChance => Stats.GetValue(PlayerStatIds.CriticalChance);
     public double CriticalMultiplier => Stats.GetValue(PlayerStatIds.CriticalMultiplier);
-
-    // 희귀도 기반 볼 생성 파라미터
+    
     public IReadOnlyList<float> RarityProbabilities => rarityProbabilities;
-    public int BallCount { get; private set; }
+    
+    int ballCount;
+    public int BallCount
+    {
+        get => ballCount;
+        private set
+        {
+            int newValue = Math.Max(0, value);
+            if (ballCount == newValue)
+                return;
+
+            ballCount = newValue;
+            OnBallCountChanged?.Invoke(ballCount);
+        }
+    }
+    public event Action<int> OnBallCountChanged;
     public float RarityGrowth { get; private set; }
     public IReadOnlyList<float> RarityMultipliers => rarityMultipliers;
 

@@ -23,7 +23,6 @@ public sealed class StageManager : MonoBehaviour
     bool stallTimerRunning;
     bool spawnStarted;
     float stallTimer;
-    bool subscribedBallCount;
 
     void Awake()
     {
@@ -36,14 +35,22 @@ public sealed class StageManager : MonoBehaviour
         Instance = this;
     }
 
-    private void Start()
+    void Start()
     {
-        SubscribeBallCountEvent();
+        BallManager.Instance.OnRemainingSpawnCountChanged += UpdateBallCount;
+        
+        var player = PlayerManager.Instance?.Current;
+        if (player != null)
+            player.OnBallCountChanged += UpdateBallCount;
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
-        UnsubscribeBallCountEvent();
+        BallManager.Instance.OnRemainingSpawnCountChanged -= UpdateBallCount;
+        
+        var player = PlayerManager.Instance?.Current;
+        if (player != null)
+            player.OnBallCountChanged -= UpdateBallCount;
     }
 
     /// <summary>
@@ -98,7 +105,6 @@ public sealed class StageManager : MonoBehaviour
         roundActive = true;
         waitingSpawnSelection = false;
         ResetStallState();
-        RefreshBallCountImmediate();
 
         PlayerManager.Instance.ResetPlayer();
         PinManager.Instance.ResetAllPins();
@@ -246,38 +252,13 @@ public sealed class StageManager : MonoBehaviour
         FinishRound();
     }
 
-    void RefreshBallCountImmediate()
-    {
-        if (BallManager.Instance == null)
-            return;
-
-        UpdateBallCount(BallManager.Instance.RemainingSpawnCount);
-    }
-
-    void SubscribeBallCountEvent()
-    {
-        var ballMgr = BallManager.Instance;
-        if (ballMgr == null || subscribedBallCount)
-            return;
-
-        ballMgr.OnRemainingSpawnCountChanged += UpdateBallCount;
-        subscribedBallCount = true;
-    }
-
-    void UnsubscribeBallCountEvent()
-    {
-        var ballMgr = BallManager.Instance;
-        if (ballMgr == null || !subscribedBallCount)
-            return;
-
-        ballMgr.OnRemainingSpawnCountChanged -= UpdateBallCount;
-        subscribedBallCount = false;
-    }
-
     void UpdateBallCount(int count)
     {
         if (ballCountText == null)
             return;
+
+        if (count < 0)
+            count = 0;
 
         ballCountText.text = $"x{count}";
     }
