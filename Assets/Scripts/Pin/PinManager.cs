@@ -81,6 +81,26 @@ public sealed class PinManager : MonoBehaviour
         return new Vector2(x, y) + centerOffset;
     }
 
+    /// <summary>
+    /// 4x4 핀 격자 중심을 기준으로 3x3 스폰 지점 좌표를 계산한다.
+    /// 예시: pinGap=64, centerOffset=0이면 (-64,64)~(64,-64) 9개 지점.
+    /// </summary>
+    public List<Vector2> GetBallSpawnPoints()
+    {
+        var result = new List<Vector2>(9);
+        float gap = pinGap;
+        var offsets = new float[] { -gap, 0f, gap };
+        for (int yi = 0; yi < offsets.Length; yi++)
+        {
+            for (int xi = 0; xi < offsets.Length; xi++)
+            {
+                var pos = new Vector2(offsets[xi], offsets[yi]) + centerOffset;
+                result.Add(pos);
+            }
+        }
+        return result;
+    }
+
     public void RegisterPin(PinController pin, int row, int col)
     {
         if (pin == null)
