@@ -108,9 +108,7 @@ public sealed class StageManager : MonoBehaviour
         roundActive = true;
         waitingSpawnSelection = false;
         ResetStallState();
-
-        PlayerManager.Instance.ResetPlayer();
-        PinManager.Instance.ResetAllPins();
+        
         BallManager.Instance.ResetForNewRound();
 
         var player = PlayerManager.Instance.Current;

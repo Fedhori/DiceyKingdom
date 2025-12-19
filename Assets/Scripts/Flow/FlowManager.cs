@@ -213,6 +213,8 @@ public sealed class FlowManager : MonoBehaviour
         }
 
         PinManager.Instance.HandleStageFinished();
+        PinManager.Instance.ResetAllPins();
+        PlayerManager.Instance.ResetPlayer();
 
         currentStageIndex = nextStageIndex;
         StartStage(currentStageIndex);
