@@ -12,6 +12,8 @@ public sealed class StageManager : MonoBehaviour
     StageInstance currentStage;
     int currentRoundIndex;
     bool roundActive;
+    bool waitingSpawnSelection;
+    Vector2 pendingSpawnPoint;
 
     void Awake()
     {
@@ -93,6 +95,7 @@ public sealed class StageManager : MonoBehaviour
         currentStage = stage;
         currentRoundIndex = roundIndex;
         roundActive = true;
+        waitingSpawnSelection = false;
 
         PlayerManager.Instance.ResetPlayer();
         PinManager.Instance.ResetAllPins();
@@ -113,10 +116,53 @@ public sealed class StageManager : MonoBehaviour
         var sequence = BuildRaritySequence(player, rng);
 
         BallManager.Instance.PrepareSpawnSequence(sequence);
-        BallManager.Instance.StartSpawning();
+        BeginSpawnSelection();
 
         // HUD에 현재 라운드 번호 반영
         UpdateRound(currentRoundIndex);
+    }
+
+    void BeginSpawnSelection()
+    {
+        var spawnPointManager = BallSpawnPointManager.Instance;
+        if (spawnPointManager == null)
+        {
+            Debug.LogWarning("[StageManager] spawnPointManager not set. Spawning immediately.");
+            BallManager.Instance.StartSpawning();
+            return;
+        }
+
+        var pinMgr = PinManager.Instance;
+        if (pinMgr == null)
+        {
+            Debug.LogWarning("[StageManager] PinManager missing. Spawning immediately.");
+            BallManager.Instance.StartSpawning();
+            return;
+        }
+
+        var points = pinMgr.GetBallSpawnPoints();
+        if (points == null || points.Count == 0)
+        {
+            Debug.LogWarning("[StageManager] No spawn points. Spawning immediately.");
+            BallManager.Instance.StartSpawning();
+            return;
+        }
+
+        waitingSpawnSelection = true;
+        spawnPointManager.OnPointSelected = OnSpawnPointSelected;
+        spawnPointManager.ShowPoints(points);
+    }
+
+    void OnSpawnPointSelected(Vector2 pos)
+    {
+        if (!waitingSpawnSelection)
+            return;
+
+        pendingSpawnPoint = pos;
+        waitingSpawnSelection = false;
+
+        // TODO: 4.x에서 선택 지점 적용. 현재는 위치 적용 없이 스폰 시작.
+        BallManager.Instance.StartSpawning();
     }
 
     static System.Collections.Generic.List<BallRarity> BuildRaritySequence(PlayerInstance player, System.Random rng)

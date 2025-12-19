@@ -3,6 +3,8 @@ using UnityEngine;
 
 public sealed class BallSpawnPointManager : MonoBehaviour
 {
+    public static BallSpawnPointManager Instance { get; private set; }
+
     [SerializeField] private Transform container;
     [SerializeField] private BallSpawnPointView spawnPointPrefab;
 
@@ -10,6 +12,16 @@ public sealed class BallSpawnPointManager : MonoBehaviour
     bool isActive;
 
     public System.Action<Vector2> OnPointSelected;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
 
     public void ShowPoints(List<Vector2> positions)
     {
