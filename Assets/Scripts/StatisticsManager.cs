@@ -30,7 +30,7 @@ public sealed class StatisticsManager : MonoBehaviour
     {
         isOpen = true;
         
-        CurrencyManager.Instance?.AddCurrency(GameConfig.BaseRoundIncome);
+        CurrencyManager.Instance?.AddCurrency(GameConfig.BaseIncome);
         PlayerManager.Instance.Current.BallCount += GameConfig.BaseBallIncome;
 
         UpdateEarnedScore();
@@ -61,7 +61,7 @@ public sealed class StatisticsManager : MonoBehaviour
     private void UpdateEarnedCurrency()
     {
         if (earnedCurrencyText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
-            sv.Value = GameConfig.BaseRoundIncome.ToString(CultureInfo.InvariantCulture);
+            sv.Value = GameConfig.BaseIncome.ToString(CultureInfo.InvariantCulture);
     }
 
     private void UpdateEarnedBalls(bool isShow)

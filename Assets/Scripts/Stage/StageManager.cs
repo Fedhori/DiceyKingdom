@@ -14,10 +14,9 @@ public sealed class StageManager : MonoBehaviour
     [SerializeField] private TMP_Text ballCountText;
     [SerializeField] private Button startSpawnButton;
 
-    // Stage & Round 상태
+    // Stage 상태
     StageInstance currentStage;
-    int currentRoundIndex;
-    public bool roundActive;
+    public bool playActive;
     
     [SerializeField] private float stallWarningTime = 60f;
     [SerializeField] private float stallForceTime = 90f;
@@ -65,7 +64,7 @@ public sealed class StageManager : MonoBehaviour
     public void SetStage(StageInstance stage)
     {
         currentStage = stage;
-        roundActive = false;
+        playActive = false;
         ScoreManager.Instance.previousScore = ScoreManager.Instance.TotalScore;
 
         if (stageHudView != null && stage != null)
@@ -77,48 +76,32 @@ public sealed class StageManager : MonoBehaviour
                 stage.NeedScore
             );
 
-            currentRoundIndex = stage.CurrentRoundIndex;
-            UpdateRound(currentRoundIndex);
+            UpdateStageHud();
         }
     }
 
     void Update()
     {
-        if (!roundActive)
+        if (!playActive)
             return;
 
         HandleStallTimer();
     }
 
-    /// <summary>
-    /// 라운드 인덱스 갱신 + HUD 반영.
-    /// </summary>
-    public void UpdateRound(int roundIndex)
-    {
-        if (stageHudView == null || currentStage == null)
-            return;
-
-        currentRoundIndex = roundIndex;
-
-        var displayRoundNumber = roundIndex + 1;
-        stageHudView.SetRoundInfo(displayRoundNumber, currentStage.RoundCount);
-    }
-    
-    public void StartRound(StageInstance stage, int roundIndex)
+    public void StartStagePlay(StageInstance stage)
     {
         currentStage = stage;
-        currentRoundIndex = roundIndex;
-        roundActive = true;
+        playActive = true;
         ResetStallState();
         UpdateStartSpawnButton(false, false);
         
-        BallManager.Instance.ResetForNewRound();
+        BallManager.Instance.ResetForNewStage();
 
         var player = PlayerManager.Instance.Current;
         if (player == null)
         {
             Debug.LogError("[StageManager] Player not created. Cannot build ball deck.");
-            roundActive = false;
+            playActive = false;
             return;
         }
 
@@ -130,9 +113,6 @@ public sealed class StageManager : MonoBehaviour
 
         BallManager.Instance.PrepareSpawnSequence(sequence);
         BeginSpawnSelection();
-
-        // HUD에 현재 라운드 번호 반영
-        UpdateRound(currentRoundIndex);
     }
 
     void BeginSpawnSelection()
@@ -158,7 +138,7 @@ public sealed class StageManager : MonoBehaviour
 
     public void OnStartSpawnButtonClicked()
     {
-        if (!roundActive || spawnStarted)
+        if (!playActive || spawnStarted)
             return;
 
         UpdateStartSpawnButton(false, false);
@@ -200,7 +180,7 @@ public sealed class StageManager : MonoBehaviour
 
         if (stallTimer >= stallForceTime)
         {
-            ForceFinishRound();
+            ForceFinishStage();
         }
     }
 
@@ -231,12 +211,12 @@ public sealed class StageManager : MonoBehaviour
             stallNoticeText.gameObject.SetActive(show);
     }
 
-    void ForceFinishRound()
+    void ForceFinishStage()
     {
-        if (!roundActive)
+        if (!playActive)
             return;
 
-        FinishRound();
+        FinishPlay();
     }
 
     void UpdateBallCount(int count)
@@ -284,24 +264,21 @@ public sealed class StageManager : MonoBehaviour
 
         return BallRarity.Common;
     }
-
-    /// <summary>
-    /// 모든 볼이 삭제되었을 때 호출: 기존 RoundManager.NotifyAllBallsDestroyed 역할.
-    /// </summary>
+    
     public void NotifyAllBallsDestroyed()
     {
-        if (!roundActive)
+        if (!playActive)
             return;
 
-        FinishRound();
+        FinishPlay();
     }
 
-    void FinishRound()
+    void FinishPlay()
     {
-        roundActive = false;
+        playActive = false;
         ResetStallState();
         UpdateBallCount(PlayerManager.Instance.Current.BallCount);
-        FlowManager.Instance?.OnRoundFinished();
+        FlowManager.Instance?.OnStagePlayFinished();
     }
 
     void ResetStallState()
@@ -311,5 +288,18 @@ public sealed class StageManager : MonoBehaviour
         stallTimer = 0f;
         SetStallNoticeVisible(false);
         UpdateStartSpawnButton(false, false);
+    }
+
+    void UpdateStageHud()
+    {
+        if (stageHudView == null || currentStage == null)
+            return;
+
+        var displayStageNumber = currentStage.StageIndex + 1;
+        stageHudView.SetStageInfo(
+            displayStageNumber,
+            StageRepository.Count,
+            currentStage.NeedScore
+        );
     }
 }

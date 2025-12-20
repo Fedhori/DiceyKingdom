@@ -67,7 +67,7 @@ public sealed class ShopManager : MonoBehaviour
     System.Random Rng =>
         GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
 
-    public void Open(StageInstance stage, int nextRoundIndex)
+    public void Open()
     {
         isOpen = true;
 

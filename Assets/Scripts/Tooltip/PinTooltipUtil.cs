@@ -93,21 +93,11 @@ public static class PinTooltipUtil
     {
         var dict = new Dictionary<string, object>();
 
-        if (rule.maxPerRound > 0)
-        {
-            dict["maxPerRound"] = rule.maxPerRound;
-            dict["remainRuleCount"] = pin.RemainRuleCount(index);
-        }
-            
-        
         // 단일 condition: hits0
         if (rule.condition != null)
         {
             if(rule.condition.hits > 0)
                 dict["hits"] = rule.condition.hits;
-            
-            if(rule.condition.round > 0)
-                dict["round"] = rule.condition.round - pin.roundCount;
             
             // 이쪽에 새로 추가한 파라미터들을 넘긴다
         }

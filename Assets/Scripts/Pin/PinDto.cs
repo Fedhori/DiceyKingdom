@@ -25,7 +25,6 @@ namespace Data
         Unknown = 0,
         OnBallHit,
         OnBallDestroyed,
-        OnRoundFinished,
         OnStageFinished,
     }
 
@@ -34,7 +33,6 @@ namespace Data
         Unknown = 0,
         Always,
         Charge,
-        RoundCount,
     }
 
     public enum PinEffectType
@@ -59,7 +57,6 @@ namespace Data
 
         // Charge 용: N회마다 발동. Always일 땐 무시.
         public int hits;
-        public int round;
     }
 
     [Serializable]
@@ -86,7 +83,6 @@ namespace Data
         // 1 트리거 - 1 조건 - N 이펙트
         public PinConditionDto condition;
         public List<PinEffectDto> effects;
-        public int maxPerRound;
     }
 
     [Serializable]

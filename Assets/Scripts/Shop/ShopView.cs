@@ -80,10 +80,7 @@ public sealed class ShopView : MonoBehaviour
     void EnsurePinItemViews(int count)
     {
         if (pinItemPrefab == null || pinItemsParent == null)
-        {
-            Debug.LogError("[ShopView] pinItemPrefab or pinItemsParent is null.");
             return;
-        }
 
         while (pinItemViews.Count < count)
         {

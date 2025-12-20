@@ -13,7 +13,7 @@ public sealed class BallFactory : MonoBehaviour
 
     public void SpawnBall(BallRarity rarity, Vector2 position)
     {
-        if (FlowManager.Instance.CurrentPhase != FlowPhase.Round)
+        if (FlowManager.Instance.CurrentPhase != FlowPhase.Play)
         {
             Debug.LogError($"Invalid Phase Type. Phase: {FlowManager.Instance.CurrentPhase}");
             return;

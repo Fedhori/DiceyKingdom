@@ -8,48 +8,6 @@
 			"rules": []
 		},
 		{
-			"id": "pin.cloverLeaf",
-			"isNotSell": true,
-			"price": 5,
-			"rules": [
-				{
-					"triggerType": "OnBallHit",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "ModifyPlayerStat",
-							"statId": "criticalChance",
-							"effectMode": "Add",
-							"value": 1.0
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "pin.baseballBat",
-			"isNotSell": true,
-			"price": 5,
-			"rules": [
-				{
-					"triggerType": "OnBallHit",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "ModifyPlayerStat",
-							"statId": "criticalMultiplier",
-							"effectMode": "Add",
-							"value": 0.1
-						}
-					]
-				}
-			]
-		},
-		{
 			"id": "pin.book",
 			"isNotSell": false,
 			"price": 10,
@@ -86,44 +44,6 @@
 							"statId": "scoreMultiplier",
 							"effectMode": "Add",
 							"value": 1
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "pin.spring",
-			"isNotSell": true,
-			"price": 6,
-			"rules": [
-				{
-					"triggerType": "OnBallHit",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "AddVelocity",
-							"value": 1000
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "pin.magnifier",
-			"isNotSell": true,
-			"price": 7,
-			"rules": [
-				{
-					"triggerType": "OnBallHit",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "IncreaseSize",
-							"value": 1.3
 						}
 					]
 				}
@@ -204,9 +124,9 @@
 			"isNotSell": true,
 			"rules": [
 				{
-					"triggerType": "OnRoundFinished",
+					"triggerType": "OnStageFinished",
 					"condition": {
-						"conditionKind": "RoundCount",
+						"conditionKind": "StageCount",
 						"round": 5
 					},
 					"effects": [
@@ -216,27 +136,6 @@
 						},
 						{
 							"effectType": "DestroySelf"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "pin.angel",
-			"price": 10,
-			"isNotSell": true,
-			"rules": [
-				{
-					"triggerType": "OnBallHit",
-					"maxPerRound": 3,
-					"condition": {
-						"conditionKind": "Charge",
-						"hits": 20
-					},
-					"effects": [
-						{
-							"effectType": "ReviveBall",
-							"value": 1
 						}
 					]
 				}

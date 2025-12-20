@@ -115,11 +115,8 @@ public class BallManager : MonoBehaviour
             StageManager.Instance?.NotifyAllBallsDestroyed();
         }
     }
-
-    /// <summary>
-    /// 라운드 시작 시 초기화.
-    /// </summary>
-    public void ResetForNewRound()
+    
+    public void ResetForNewStage()
     {
         if (spawnCoroutine != null)
         {
@@ -134,11 +131,6 @@ public class BallManager : MonoBehaviour
         spawnPosition = Vector2.zero;
         spawnPoints.Clear();
         NotifyRemainingCountChanged();
-    }
-
-    public void SetSpawnPosition(Vector2 position)
-    {
-        spawnPosition = position;
     }
 
     public void SetSpawnPoints(IReadOnlyList<Vector2> points)

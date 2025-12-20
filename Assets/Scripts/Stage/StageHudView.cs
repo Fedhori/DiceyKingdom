@@ -7,7 +7,6 @@ using UnityEngine;
 public sealed class StageHudView : MonoBehaviour
 {
     [SerializeField] TMP_Text stageText;
-    [SerializeField] TMP_Text roundText;
     [SerializeField] TMP_Text targetScoreText;
     [SerializeField] TMP_Text currentScoreText;
 
@@ -37,10 +36,5 @@ public sealed class StageHudView : MonoBehaviour
     {
         stageText.text = $"{currentStage} / {maxStage}";
         targetScoreText.text = $"{needScore:N0}";
-    }
-
-    public void SetRoundInfo(int currentRound, int totalRounds)
-    {
-        roundText.text = $"{currentRound} / {totalRounds}";
     }
 }

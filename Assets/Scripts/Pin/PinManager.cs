@@ -263,25 +263,6 @@ public sealed class PinManager : MonoBehaviour
             CurrencyManager.Instance.AddCurrency(Mathf.CeilToInt(pin.Instance.Price / 2f));
     }
 
-    public void HandleRoundFinished()
-    {
-        for (int row = 0; row < pinsByRow.Count; row++)
-        {
-            var rowList = pinsByRow[row];
-            if (rowList == null)
-                continue;
-
-            for (int col = 0; col < rowList.Count; col++)
-            {
-                var pin = rowList[col];
-                if (pin?.Instance != null)
-                {
-                    pin.Instance.HandleRoundFinished();
-                }
-            }
-        }
-    }
-    
     public void HandleStageFinished()
     {
         for (int row = 0; row < pinsByRow.Count; row++)

@@ -5,7 +5,7 @@ using UnityEngine;
 public enum FlowPhase
 {
     None,
-    Round,
+    Play,
     Reward,
     Shop
 }
@@ -17,7 +17,6 @@ public sealed class FlowManager : MonoBehaviour
     // index는 stageInstance dto안에서 관리하게.
     int currentStageIndex;
     StageInstance currentStage;
-    int currentRoundIndex;
 
     public event Action<FlowPhase> OnPhaseChanged;
     private FlowPhase currentPhase = FlowPhase.None;
@@ -33,7 +32,7 @@ public sealed class FlowManager : MonoBehaviour
         }
     }
 
-    public bool CanDragPins => !StageManager.Instance.roundActive;
+    public bool CanDragPins => !StageManager.Instance.playActive;
 
     void Awake()
     {
@@ -73,56 +72,43 @@ public sealed class FlowManager : MonoBehaviour
         }
 
         currentStage = new StageInstance(dto);
-        currentRoundIndex = 0;
-        currentStage.SetCurrentRoundIndex(currentRoundIndex);
-
         StageManager.Instance?.SetStage(currentStage);
-        OnRoundStart();
+        OnStagePlayStart();
     }
 
-    bool IsLastRound =>
-        currentStage != null && currentRoundIndex >= currentStage.RoundCount - 1;
     bool IsLastStage =>
         StageRepository.TryGetByIndex(currentStageIndex + 1, out _);
 
-    public void OnRoundStart()
+    public void OnStagePlayStart()
     {
         if (currentStage == null)
         {
-            Debug.LogError("[FlowManager] OnRoundStart but currentStage is null.");
+            Debug.LogError("[FlowManager] OnStagePlayStart but currentStage is null.");
             return;
         }
 
-        CurrentPhase = FlowPhase.Round;
-        StageManager.Instance?.StartRound(currentStage, currentRoundIndex);
+        CurrentPhase = FlowPhase.Play;
+        StageManager.Instance?.StartStagePlay(currentStage);
     }
 
     /// <summary>
     /// StageManager에서 모든 볼이 파괴되었을 때 호출.
     /// </summary>
-    public void OnRoundFinished()
+    public void OnStagePlayFinished()
     {
-        if (currentPhase != FlowPhase.Round)
+        if (currentPhase != FlowPhase.Play)
         {
-            Debug.LogWarning($"[FlowManager] OnRoundFinished in phase {currentPhase}");
+            Debug.LogWarning($"[FlowManager] OnStagePlayFinished in phase {currentPhase}");
         }
 
         if (currentStage == null)
         {
-            Debug.LogError("[FlowManager] OnRoundFinished but currentStage is null.");
+            Debug.LogError("[FlowManager] OnStagePlayFinished but currentStage is null.");
             CurrentPhase = FlowPhase.None;
             return;
         }
 
-        PinManager.Instance.HandleRoundFinished();
-
-        bool isLastRound = IsLastRound;
-
-        if (!isLastRound)
-        {
-            AdvanceToNextRound();
-            return;
-        }
+        PinManager.Instance.HandleStageFinished();
 
         if (!IsStageCleared())
         {
@@ -189,16 +175,7 @@ public sealed class FlowManager : MonoBehaviour
     void OpenShop()
     {
         CurrentPhase = FlowPhase.Shop;
-        ShopManager.Instance?.Open(currentStage, -1);
-    }
-
-    void AdvanceToNextRound()
-    {
-        currentRoundIndex++;
-        currentStage.SetCurrentRoundIndex(currentRoundIndex);
-        StageManager.Instance?.UpdateRound(currentRoundIndex);
-
-        OnRoundStart();
+        ShopManager.Instance?.Open();
     }
 
     void AdvanceToNextStage()
@@ -212,7 +189,6 @@ public sealed class FlowManager : MonoBehaviour
             return;
         }
 
-        PinManager.Instance.HandleStageFinished();
         PinManager.Instance.ResetAllPins();
         PlayerManager.Instance.ResetPlayer();
 

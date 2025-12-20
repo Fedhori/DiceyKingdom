@@ -51,19 +51,6 @@ public sealed class PinInstance
         }
     }
 
-    public int roundCount = 0;
-    private int[] ruleActivationCount = new int[GameConfig.MaxRuleCount];
-    public int RemainRuleCount(int index)
-    {
-        if (index >= rules.Count)
-            return 0;
-
-        if (index >= ruleActivationCount.Length)
-            return 0;
-        
-        return rules[index].maxPerRound - ruleActivationCount[index];
-    }
-
     public PinInstance(PinDto dto, int row, int column, bool registerEventEffects = true)
     {
         BaseDto = dto ?? throw new ArgumentNullException(nameof(dto));
@@ -156,11 +143,6 @@ public sealed class PinInstance
             if (!IsConditionMet(rule.condition, trigger))
                 continue;
 
-            if (rule.maxPerRound > 0 && ruleActivationCount[i] > rule.maxPerRound)
-                continue;
-            
-            ruleActivationCount[i]++;
-
             ApplyEffects(rule.effects, ball, position);
         }
     }
@@ -190,11 +172,6 @@ public sealed class PinInstance
                 RemainingHits += chargeMax;
                 return true;
 
-            case PinConditionKind.RoundCount:
-            {
-                return roundCount >= cond.round;
-            }
-
             default:
                 return false;
         }
@@ -219,25 +196,12 @@ public sealed class PinInstance
         }
     }
 
-    public void HandleRoundFinished()
-    {
-        roundCount++;
-        HandleTrigger(
-            PinTriggerType.OnRoundFinished,
-            null,
-            Vector2.zero
-        );
-        ruleActivationCount = new int[GameConfig.MaxRuleCount];
-    }
-    
     public void HandleStageFinished()
     {
-        roundCount++;
         HandleTrigger(
             PinTriggerType.OnStageFinished,
             null,
             Vector2.zero
         );
-        ruleActivationCount = new int[GameConfig.MaxRuleCount];
     }
 }

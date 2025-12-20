@@ -8,7 +8,6 @@ public sealed class StageDto
 {
     public int index = -1;
     public double needScore;
-    public int roundCount = 3;
 }
 
 [Serializable]
