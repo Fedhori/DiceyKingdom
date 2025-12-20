@@ -110,7 +110,7 @@ public sealed class StageManager : MonoBehaviour
         currentRoundIndex = roundIndex;
         roundActive = true;
         ResetStallState();
-        UpdateStartSpawnButton(false, true);
+        UpdateStartSpawnButton(false, false);
         
         BallManager.Instance.ResetForNewRound();
 
@@ -146,39 +146,23 @@ public sealed class StageManager : MonoBehaviour
         }
 
         var points = pinMgr.GetBallSpawnPoints();
-        if (points == null || points.Count == 0)
-        {
-            Debug.LogWarning("[StageManager] No spawn points. Spawning immediately.");
-            StartBallSpawning();
-            return;
-        }
-
-        var spawnPointManager = BallSpawnPointManager.Instance;
-
-        UpdateStartSpawnButton(true, false);
-        spawnPointManager.OnPointSelected = OnSpawnPointSelected;
-        spawnPointManager.ShowPoints(points);
-    }
-
-    void OnSpawnPointSelected(Vector2 pos)
-    {
-        BallManager.Instance.SetSpawnPosition(pos);
+        BallManager.Instance.SetSpawnPoints(points);
         UpdateStartSpawnButton(true, true);
-    }
-
-    public void OnStartSpawnButtonClicked()
-    {
-        UpdateStartSpawnButton(false, false);
-        BallSpawnPointManager.Instance?.HidePoints();
-        StartBallSpawning();
     }
 
     void StartBallSpawning()
     {
         spawnStarted = true;
-        UpdateStartSpawnButton(false, false);
-        BallSpawnPointManager.Instance?.HidePoints();
         BallManager.Instance.StartSpawning();
+    }
+
+    public void OnStartSpawnButtonClicked()
+    {
+        if (!roundActive || spawnStarted)
+            return;
+
+        UpdateStartSpawnButton(false, false);
+        StartBallSpawning();
     }
 
     void UpdateStartSpawnButton(bool show, bool interactable)
@@ -326,5 +310,6 @@ public sealed class StageManager : MonoBehaviour
         spawnStarted = false;
         stallTimer = 0f;
         SetStallNoticeVisible(false);
+        UpdateStartSpawnButton(false, false);
     }
 }

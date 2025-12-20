@@ -22,6 +22,7 @@ public class BallManager : MonoBehaviour
     Coroutine spawnCoroutine;
 
     Vector2 spawnPosition = Vector2.zero;
+    readonly List<Vector2> spawnPoints = new();
 
     void Awake()
     {
@@ -99,7 +100,8 @@ public class BallManager : MonoBehaviour
             var rarity = spawnSequence[nextSpawnIndex];
             nextSpawnIndex++;
 
-            BallFactory.Instance.SpawnBall(rarity, spawnPosition + spawnOffset);
+            var pos = GetSpawnPosition();
+            BallFactory.Instance.SpawnBall(rarity, pos + spawnOffset);
 
             NotifyRemainingCountChanged();
             yield return new WaitForSeconds(cycle);
@@ -130,6 +132,7 @@ public class BallManager : MonoBehaviour
         isSpawning = false;
         liveBallCount = 0;
         spawnPosition = Vector2.zero;
+        spawnPoints.Clear();
         NotifyRemainingCountChanged();
     }
 
@@ -137,9 +140,33 @@ public class BallManager : MonoBehaviour
     {
         spawnPosition = position;
     }
+
+    public void SetSpawnPoints(IReadOnlyList<Vector2> points)
+    {
+        spawnPoints.Clear();
+
+        if (points == null)
+            return;
+
+        for (int i = 0; i < points.Count; i++)
+        {
+            spawnPoints.Add(points[i]);
+        }
+    }
     
     public bool IsSpawning => isSpawning;
     public int RemainingSpawnCount => Mathf.Max(0, spawnSequence.Count - nextSpawnIndex);
+
+    Vector2 GetSpawnPosition()
+    {
+        if (spawnPoints.Count > 0)
+        {
+            int idx = Random.Range(0, spawnPoints.Count);
+            return spawnPoints[idx];
+        }
+
+        return spawnPosition;
+    }
 
     void NotifyRemainingCountChanged()
     {

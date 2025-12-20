@@ -9530,9 +9530,9 @@ MonoBehaviour:
   stallNoticeText: {fileID: 342056949}
   ballCountText: {fileID: 1821693368}
   startSpawnButton: {fileID: 1863612799}
+  roundActive: 0
   stallWarningTime: 60
   stallForceTime: 90
-  roundActive: 0
 --- !u!1 &1644066638
 GameObject:
   m_ObjectHideFlags: 0
@@ -10972,7 +10972,6 @@ GameObject:
   - component: {fileID: 1863612801}
   - component: {fileID: 1863612800}
   - component: {fileID: 1863612799}
-  - component: {fileID: 1863612798}
   m_Layer: 5
   m_Name: RoundStartButton
   m_TagString: Untagged
@@ -10995,24 +10994,11 @@ RectTransform:
   - {fileID: 1719465443}
   m_Father: {fileID: 2114596191}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -64}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 300, y: 128}
-  m_Pivot: {x: 0.5, y: 1}
---- !u!114 &1863612798
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1863612796}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e212424e804a43d47992c1cbe6b58482, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OptionOpener
-  button: {fileID: 1863612799}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1863612799
 MonoBehaviour:
   m_ObjectHideFlags: 0
