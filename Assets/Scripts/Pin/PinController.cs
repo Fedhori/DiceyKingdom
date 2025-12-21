@@ -23,6 +23,7 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
     [SerializeField] private WorldHighlight highlight;
 
     bool initialized;
+    bool eventsAttached;
     Vector3 baseScale;
     Coroutine hitRoutine;
 
@@ -39,36 +40,28 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
 
     public void Initialize(string pinId, int row, int column, int hitCount)
     {
-        if (initialized)
+        if (!initialized)
         {
-            Debug.LogWarning($"[PinController] Already initialized on {name}.");
+            rowIndex = row;
+            columnIndex = column;
+            if (PinManager.Instance != null)
+                PinManager.Instance.RegisterPin(this, rowIndex, columnIndex);
+            initialized = true;
+        }
+
+        BindNewInstance(pinId, hitCount, row, column);
+    }
+
+    public void BindExistingInstance(PinInstance instance)
+    {
+        if (instance == null)
             return;
-        }
 
-        PinDto dto;
-        try
-        {
-            dto = PinRepository.GetOrThrow(pinId);
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"[PinController] Failed to initialize {pinId}: {e}");
-            return;
-        }
-
-        Instance = new PinInstance(dto, row, column);
-        if (pinSprite != null)
-            pinSprite.sprite = SpriteCache.GetPinSprite(Instance.Id);
-
-        rowIndex = row;
-        columnIndex = column;
-        if (PinManager.Instance != null)
-            PinManager.Instance.RegisterPin(this, rowIndex, columnIndex);
-
+        DetachEvents();
+        Instance = instance;
+        Instance.SetGridPosition(rowIndex, columnIndex);
+        UpdateSprite();
         AttachEvents();
-
-        initialized = true;
-        Instance.ResetData(hitCount);
         UpdateSellPinButton();
     }
 
@@ -90,30 +83,30 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
 
     void AttachEvents()
     {
-        if (Instance == null)
-        {
-            Debug.LogError($"[PinController] Failed to AttachEvents {name}.");
+        if (eventsAttached || Instance == null)
             return;
-        }
 
         Instance.OnRemainingHitsChanged += UpdateRemainingHits;
         Instance.OnHitCountChanged += HandleHitCountChanged;
-        FlowManager.Instance.OnPhaseChanged += HandlePhaseChanged;
-        ShopManager.Instance.OnSelectionChanged += HandleSelectionChanged;
+        if (FlowManager.Instance != null)
+            FlowManager.Instance.OnPhaseChanged += HandlePhaseChanged;
+        if (ShopManager.Instance != null)
+            ShopManager.Instance.OnSelectionChanged += HandleSelectionChanged;
+        eventsAttached = true;
     }
 
     void DetachEvents()
     {
-        if (Instance == null)
-        {
-            Debug.LogError($"[PinController] Failed to DetachEvents {name}.");
+        if (!eventsAttached || Instance == null)
             return;
-        }
 
         Instance.OnRemainingHitsChanged -= UpdateRemainingHits;
         Instance.OnHitCountChanged -= HandleHitCountChanged;
-        FlowManager.Instance.OnPhaseChanged -= HandlePhaseChanged;
-        ShopManager.Instance.OnSelectionChanged -= HandleSelectionChanged;
+        if (FlowManager.Instance != null)
+            FlowManager.Instance.OnPhaseChanged -= HandlePhaseChanged;
+        if (ShopManager.Instance != null)
+            ShopManager.Instance.OnSelectionChanged -= HandleSelectionChanged;
+        eventsAttached = false;
     }
 
     void HandlePhaseChanged(FlowPhase phase)
@@ -123,10 +116,15 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
 
     void UpdateSellPinButton()
     {
-        sellPin.gameObject.SetActive(
-            FlowManager.Instance.CurrentPhase == FlowPhase.Shop
-            && Instance.Id != GameConfig.BasicPinId
-        );
+        if (sellPin == null || Instance == null)
+        {
+            if (sellPin != null)
+                sellPin.gameObject.SetActive(false);
+            return;
+        }
+
+        bool inShop = FlowManager.Instance != null && FlowManager.Instance.CurrentPhase == FlowPhase.Shop;
+        sellPin.gameObject.SetActive(inShop && Instance.Id != GameConfig.BasicPinId);
     }
 
     void HandleHitCountChanged(int hitCount)
@@ -134,8 +132,6 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
         hitCountText.text = hitCount.ToString();
     }
 
-    // TODO - 음.. 이게 remainingHits만을 위한 UI는 아니게 될 예정
-    // 예를 들어 N턴후 효과가 발동되는 녀석이라던지? 그런 타이머로도 활용 가능해야함
     void UpdateRemainingHits(int remainingHits)
     {
         if (remainingHitsText == null)
@@ -257,5 +253,27 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
 
         bool shouldHighlight = IsBasicPin && selectedIndex >= 0;
         highlight.SetHighlight(shouldHighlight);
+    }
+
+    void BindNewInstance(string pinId, int hitCount, int row, int column)
+    {
+        if (!PinRepository.TryGet(pinId, out var dto))
+        {
+            Debug.LogError($"[PinController] Failed to initialize {pinId}");
+            return;
+        }
+
+        DetachEvents();
+        Instance = new PinInstance(dto, row, column);
+        UpdateSprite();
+        AttachEvents();
+        UpdateSellPinButton();
+        Instance.ResetData(hitCount);
+    }
+
+    void UpdateSprite()
+    {
+        if (pinSprite != null && Instance != null)
+            pinSprite.sprite = SpriteCache.GetPinSprite(Instance.Id);
     }
 }

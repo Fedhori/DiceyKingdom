@@ -7,9 +7,9 @@ public static class LocalizationUtil
         return new LocalizedString("pin", $"{id}.name").GetLocalizedString();
     }
     
-    public static string GetBallName(string id)
+    public static string GetTokenName(string id)
     {
-        return new LocalizedString("ball", $"{id}.name").GetLocalizedString();
+        return new LocalizedString("token", $"{id}.name").GetLocalizedString();
     }
     
     public static string SoldString = new LocalizedString("game", "game.sold.label").GetLocalizedString();

@@ -102,7 +102,7 @@
 			"price": 5,
 			"rules": [
 				{
-					"triggerType": "OnStageFinished",
+					"triggerType": "OnStageStart",
 					"condition": {
 						"conditionKind": "Always"
 					},
@@ -124,7 +124,7 @@
 			"isNotSell": true,
 			"rules": [
 				{
-					"triggerType": "OnStageFinished",
+					"triggerType": "OnStageStart",
 					"condition": {
 						"conditionKind": "StageCount",
 						"round": 5

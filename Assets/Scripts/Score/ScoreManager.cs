@@ -65,7 +65,7 @@ public sealed class ScoreManager : MonoBehaviour
 
         var rng = GameManager.Instance.Rng;
 
-        // TODO - 크리티컬 시스템 <- 어차피 100% 무조건 넘어가게 될건데, 전혀 흥미롭지 않아 제외
+        // TODO - 크리티컬 시스템 <- 제거하는건 어떨까? 아니면 Pin으로는 얻기 어렵고, Token으로만 얻거나 성장으로만 얻을 수 있게?
         //var criticalType = player.RollCriticalLevel(rng);
         var criticalType = 0;
         double criticalMultiplier = player.GetCriticalMultiplier(criticalType) * ball.CriticalMultiplier;

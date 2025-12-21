@@ -73,6 +73,10 @@ public sealed class FlowManager : MonoBehaviour
 
         currentStage = new StageInstance(dto);
         StageManager.Instance?.SetStage(currentStage);
+        
+        PinManager.Instance.TriggerPins(PinTriggerType.OnStageStart);
+        TokenManager.Instance.TriggerTokens(TokenTriggerType.OnStageStart);
+        
         OnStagePlayStart();
     }
 
@@ -90,25 +94,20 @@ public sealed class FlowManager : MonoBehaviour
         CurrentPhase = FlowPhase.Play;
         StageManager.Instance?.StartStagePlay(currentStage);
     }
-
-    /// <summary>
-    /// StageManager에서 모든 볼이 파괴되었을 때 호출.
-    /// </summary>
-    public void OnStagePlayFinished()
+    
+    public void OnPlayFinished()
     {
         if (currentPhase != FlowPhase.Play)
         {
-            Debug.LogWarning($"[FlowManager] OnStagePlayFinished in phase {currentPhase}");
+            Debug.LogWarning($"[FlowManager] OnPlayFinished in phase {currentPhase}");
         }
 
         if (currentStage == null)
         {
-            Debug.LogError("[FlowManager] OnStagePlayFinished but currentStage is null.");
+            Debug.LogError("[FlowManager] OnPlayFinished but currentStage is null.");
             CurrentPhase = FlowPhase.None;
             return;
         }
-
-        PinManager.Instance.HandleStageFinished();
 
         if (!IsStageCleared())
         {

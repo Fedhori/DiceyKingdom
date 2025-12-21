@@ -195,13 +195,4 @@ public sealed class PinInstance
             effectManager.ApplyEffect(effect, ball, this, position);
         }
     }
-
-    public void HandleStageFinished()
-    {
-        HandleTrigger(
-            PinTriggerType.OnStageFinished,
-            null,
-            Vector2.zero
-        );
-    }
 }

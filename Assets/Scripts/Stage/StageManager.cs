@@ -21,7 +21,6 @@ public sealed class StageManager : MonoBehaviour
     [SerializeField] private float stallWarningTime = 60f;
     [SerializeField] private float stallForceTime = 90f;
     bool stallTimerRunning;
-    bool spawnStarted;
     float stallTimer;
 
     void Awake()
@@ -91,19 +90,12 @@ public sealed class StageManager : MonoBehaviour
     public void StartStagePlay(StageInstance stage)
     {
         currentStage = stage;
-        playActive = true;
         ResetStallState();
         UpdateStartSpawnButton(false, false);
         
         BallManager.Instance.ResetForNewStage();
 
         var player = PlayerManager.Instance.Current;
-        if (player == null)
-        {
-            Debug.LogError("[StageManager] Player not created. Cannot build ball deck.");
-            playActive = false;
-            return;
-        }
 
         var rng = GameManager.Instance != null
             ? GameManager.Instance.Rng
@@ -112,35 +104,20 @@ public sealed class StageManager : MonoBehaviour
         var sequence = BuildRaritySequence(player, rng);
 
         BallManager.Instance.PrepareSpawnSequence(sequence);
-        BeginSpawnSelection();
-    }
-
-    void BeginSpawnSelection()
-    {
-        var pinMgr = PinManager.Instance;
-        if (pinMgr == null)
-        {
-            Debug.LogWarning("[StageManager] PinManager missing. Spawning immediately.");
-            StartBallSpawning();
-            return;
-        }
-
-        var points = pinMgr.GetBallSpawnPoints();
+        
+        var points = PinManager.Instance.GetBallSpawnPoints();
         BallManager.Instance.SetSpawnPoints(points);
         UpdateStartSpawnButton(true, true);
     }
 
     void StartBallSpawning()
     {
-        spawnStarted = true;
+        playActive = true;
         BallManager.Instance.StartSpawning();
     }
 
     public void OnStartSpawnButtonClicked()
     {
-        if (!playActive || spawnStarted)
-            return;
-
         UpdateStartSpawnButton(false, false);
         StartBallSpawning();
     }
@@ -156,7 +133,7 @@ public sealed class StageManager : MonoBehaviour
 
     void HandleStallTimer()
     {
-        if (!spawnStarted)
+        if (!playActive)
             return;
 
         var ballMgr = BallManager.Instance;
@@ -236,8 +213,7 @@ public sealed class StageManager : MonoBehaviour
         int count = Mathf.Max(0, player.BallCount);
         var probs = player.RarityProbabilities;
 
-        if (rng == null)
-            rng = new System.Random();
+        rng ??= new System.Random();
 
         for (int i = 0; i < count; i++)
         {
@@ -278,13 +254,12 @@ public sealed class StageManager : MonoBehaviour
         playActive = false;
         ResetStallState();
         UpdateBallCount(PlayerManager.Instance.Current.BallCount);
-        FlowManager.Instance?.OnStagePlayFinished();
+        FlowManager.Instance?.OnPlayFinished();
     }
 
     void ResetStallState()
     {
         stallTimerRunning = false;
-        spawnStarted = false;
         stallTimer = 0f;
         SetStallNoticeVisible(false);
         UpdateStartSpawnButton(false, false);

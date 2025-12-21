@@ -3,6 +3,7 @@ using UnityEngine;
 public sealed class PinFactory : MonoBehaviour
 {
     [SerializeField] GameObject pinPrefab;
+    [SerializeField] Transform pinParent;
     public static PinFactory Instance;
 
     void Awake()
@@ -23,9 +24,12 @@ public sealed class PinFactory : MonoBehaviour
             return;
         }
 
-        Vector2 position = PinManager.Instance.GetPinWorldPosition(row, column);
+        Vector2 localPos = PinManager.Instance.GetPinWorldPosition(row, column);
 
-        var obj = Instantiate(pinPrefab, position, Quaternion.identity);
+        var obj = Instantiate(pinPrefab, pinParent, false);
+        obj.transform.localPosition = localPos;
+        obj.transform.localRotation = Quaternion.identity;
+
         var controller = obj.GetComponent<PinController>();
         if (controller == null)
         {
@@ -35,5 +39,16 @@ public sealed class PinFactory : MonoBehaviour
         }
 
         controller.Initialize(pinId, row, column, hitCount);
+    }
+
+    public void BindPin(PinController controller, string pinId, int hitCount)
+    {
+        if (controller == null)
+        {
+            Debug.LogError("[PinFactory] BindPin called with null controller.");
+            return;
+        }
+
+        controller.Initialize(pinId, controller.RowIndex, controller.ColumnIndex, hitCount);
     }
 }

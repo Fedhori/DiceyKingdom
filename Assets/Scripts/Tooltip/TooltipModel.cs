@@ -4,7 +4,8 @@ public enum TooltipKind
 {
     Pin,
     Ball,
-    Simple
+    Simple,
+    Token
 }
 
 public readonly struct TooltipModel

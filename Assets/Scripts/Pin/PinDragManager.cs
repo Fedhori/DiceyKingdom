@@ -115,10 +115,8 @@ public sealed class PinDragManager : MonoBehaviour
         {
             PinManager.Instance.SwapPins(draggingPin, target);
         }
-        else
-        {
-            draggingPin.transform.position = originalPosition;
-        }
+
+        draggingPin.transform.position = originalPosition;
 
         RestoreCollider();
         RestoreSprite();

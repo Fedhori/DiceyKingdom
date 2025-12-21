@@ -29,16 +29,6 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345055421825123
-  - m_Id: 1041971359268864
-    m_Localized: 
-    m_Metadata:
-      m_Items:
-      - rid: 2507345055421825123
-  - m_Id: 1041870788247552
-    m_Localized: 
-    m_Metadata:
-      m_Items:
-      - rid: 2507345055421825123
   - m_Id: 1041832984985600
     m_Localized: 
     m_Metadata:
@@ -49,22 +39,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345055421825123
-  - m_Id: 1041765397970944
-    m_Localized: 
-    m_Metadata:
-      m_Items:
-      - rid: 2507345055421825123
-  - m_Id: 1041626872692736
-    m_Localized: 
-    m_Metadata:
-      m_Items:
-      - rid: 2507345055421825123
   - m_Id: 3272702227394560
-    m_Localized: 
-    m_Metadata:
-      m_Items:
-      - rid: 2507345055421825123
-  - m_Id: 3280458426626048
     m_Localized: 
     m_Metadata:
       m_Items:
@@ -84,12 +59,7 @@ MonoBehaviour:
         m_SharedEntries:
         - id: 1042121259499520
         - id: 1042002204180480
-        - id: 1041971359268864
-        - id: 1041870788247552
         - id: 1041832984985600
         - id: 1041799204061184
-        - id: 1041765397970944
-        - id: 1041626872692736
         - id: 3272702227394560
-        - id: 3280458426626048
         - id: 3264850205093888

@@ -25,7 +25,7 @@ namespace Data
         Unknown = 0,
         OnBallHit,
         OnBallDestroyed,
-        OnStageFinished,
+        OnStageStart,
     }
 
     public enum PinConditionKind
@@ -33,6 +33,7 @@ namespace Data
         Unknown = 0,
         Always,
         Charge,
+        StageCount, // TODO - PiggyBank 구현 필요
     }
 
     public enum PinEffectType
@@ -277,17 +278,6 @@ namespace Data
             }
 
             return map.TryGetValue(id, out dto);
-        }
-
-        public static PinDto GetOrThrow(string id)
-        {
-            if (!initialized)
-                throw new InvalidOperationException("[PinRepository] Not initialized.");
-
-            if (!map.TryGetValue(id, out var dto) || dto == null)
-                throw new KeyNotFoundException($"[PinRepository] Pin id not found: {id}");
-
-            return dto;
         }
         
         public static PinDto GetRandomPin(System.Random rng = null)

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Data;
 using UnityEngine;
 
 public sealed class PinManager : MonoBehaviour
@@ -88,10 +89,11 @@ public sealed class PinManager : MonoBehaviour
     {
         var result = new List<Vector2>(4);
         float gap = pinGap;
-        result.Add(new Vector2(-gap, gap) + centerOffset); // 좌상
-        result.Add(new Vector2(gap, gap) + centerOffset);  // 우상
-        result.Add(new Vector2(-gap, -gap) + centerOffset); // 좌하
-        result.Add(new Vector2(gap, -gap) + centerOffset);  // 우하
+        Vector2 basePos = transform != null ? (Vector2)transform.position : Vector2.zero;
+        result.Add(basePos + new Vector2(-gap, gap) + centerOffset); // 좌상
+        result.Add(basePos + new Vector2(gap, gap) + centerOffset);  // 우상
+        result.Add(basePos + new Vector2(-gap, -gap) + centerOffset); // 좌하
+        result.Add(basePos + new Vector2(gap, -gap) + centerOffset);  // 우하
         return result;
     }
 
@@ -176,23 +178,18 @@ public sealed class PinManager : MonoBehaviour
 
     public bool TryReplace(string pinId, int row, int col)
     {
-        if (PinFactory.Instance == null)
-        {
-            Debug.LogError("[PinManager] TryReplace failed. PinFactory.Instance is null.");
-            return false;
-        }
-
         if (string.IsNullOrEmpty(pinId))
             return false;
 
         if (!IsValidCell(row, col))
             return false;
 
-        var pin = pinsByRow[row][col];
-        if (pin?.Instance == null)
+        var controller = pinsByRow[row][col];
+        if (controller?.Instance == null)
             return false;
 
-        PinFactory.Instance.SpawnPin(pinId, row, col, pin.Instance.HitCount);
+        int hitCount = controller.Instance.HitCount;
+        controller.Initialize(pinId, row, col, hitCount);
         return true;
     }
 
@@ -212,20 +209,11 @@ public sealed class PinManager : MonoBehaviour
             return;
         }
 
-        var posA = GetPinWorldPosition(rowA, colA);
-        var posB = GetPinWorldPosition(rowB, colB);
-
-        pinsByRow[rowA][colA] = b;
-        pinsByRow[rowB][colB] = a;
-
-        b.transform.position = posA;
-        a.transform.position = posB;
-
-        b.SetGridIndices(rowA, colA);
-        a.SetGridIndices(rowB, colB);
-
-        if (a.Instance != null && b.Instance != null)
-            (b.Instance.HitCount, a.Instance.HitCount) = (a.Instance.HitCount, b.Instance.HitCount);
+        var temp = a.Instance;
+        a.BindExistingInstance(b.Instance);
+        b.BindExistingInstance(temp);
+        a.SetGridIndices(rowA, colA);
+        b.SetGridIndices(rowB, colB);
     }
 
     public void RequestSellPin(PinController pin)
@@ -263,7 +251,7 @@ public sealed class PinManager : MonoBehaviour
             CurrencyManager.Instance.AddCurrency(Mathf.CeilToInt(pin.Instance.Price / 2f));
     }
 
-    public void HandleStageFinished()
+    public void TriggerPins(PinTriggerType type)
     {
         for (int row = 0; row < pinsByRow.Count; row++)
         {
@@ -276,7 +264,11 @@ public sealed class PinManager : MonoBehaviour
                 var pin = rowList[col];
                 if (pin?.Instance != null)
                 {
-                    pin.Instance.HandleStageFinished();
+                    pin.Instance.HandleTrigger(
+                        type,
+                        null,
+                        Vector2.zero
+                    );
                 }
             }
         }

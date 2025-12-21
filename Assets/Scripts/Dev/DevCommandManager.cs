@@ -27,7 +27,7 @@ public sealed class DevCommandManager : MonoBehaviour
         open = !startClosed;
 
         // 명령어
-        Register("spawnpin", param =>
+        Register("addpin", param =>
         {
             if (param.Length != 3)
                 return;
@@ -36,6 +36,33 @@ public sealed class DevCommandManager : MonoBehaviour
                 return;
 
             PinManager.Instance.TryReplace(param[0], int.Parse(param[1]), int.Parse(param[2]));
+        });
+
+        Register("addtoken", param =>
+        {
+            if (param.Length != 2)
+            {
+                Debug.LogWarning("[DevCommand] Usage: addtoken <tokenId> <slotIndex>");
+                return;
+            }
+
+            if (TokenManager.Instance == null)
+            {
+                Debug.LogWarning("[DevCommand] TokenManager.Instance is null.");
+                return;
+            }
+
+            string tokenId = param[0];
+            if (!int.TryParse(param[1], out int slotIndex))
+            {
+                Debug.LogWarning($"[DevCommand] addtoken invalid slotIndex: {param[1]}");
+                return;
+            }
+
+            if (!TokenManager.Instance.TryAddTokenAt(tokenId, slotIndex, out _))
+            {
+                Debug.LogWarning($"[DevCommand] addtoken failed: id={tokenId}, slot={slotIndex}");
+            }
         });
     }
 

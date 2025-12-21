@@ -77,7 +77,6 @@ public class PinEffectManager : MonoBehaviour
                 ball.PendingSizeFactor = dto.value;
                 break;
 
-            // TODO - 이거 좀 별로인듯? 그냥 제거할까?
             case PinEffectType.AddScore:
                 if (player == null || ScoreManager.Instance == null)
                     return;
