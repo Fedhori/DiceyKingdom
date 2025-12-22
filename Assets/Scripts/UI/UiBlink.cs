@@ -14,6 +14,7 @@ public sealed class UiBlink : MonoBehaviour
 
     Graphic graphic;
     Color baseColor;
+    int tweenId = -1;
 
     void Awake()
     {
@@ -23,33 +24,49 @@ public sealed class UiBlink : MonoBehaviour
 
     void OnEnable()
     {
-        Apply(1f);
+        StartTween();
     }
 
     void OnDisable()
     {
+        StopTween();
         graphic.color = baseColor;
     }
 
-    void Update()
+    void StartTween()
     {
+        StopTween();
+
         float p = Mathf.Max(0.0001f, periodSeconds);
-        float t = Time.unscaledTime / p * Mathf.PI * 2f;
-        float s = (Mathf.Sin(t) + 1f) * 0.5f; // 0..1
-        Apply(s);
+        float half = p * 0.5f;
+
+        ApplyBrightness(maxBrightness);
+
+        tweenId = LeanTween.value(gameObject, maxBrightness, minBrightness, half)
+            .setEaseInOutSine()
+            .setLoopPingPong()
+            .setOnUpdate((float b) => ApplyBrightness(b))
+            .id;
     }
 
-    void Apply(float s01)
+    void StopTween()
     {
-        float b = Mathf.Lerp(minBrightness, maxBrightness, s01);
+        if (tweenId >= 0)
+        {
+            LeanTween.cancel(tweenId);
+            tweenId = -1;
+        }
+    }
 
+    void ApplyBrightness(float b)
+    {
         Color c = baseColor;
 
         c.r = Mathf.Clamp01(c.r * b);
         c.g = Mathf.Clamp01(c.g * b);
         c.b = Mathf.Clamp01(c.b * b);
 
-        c.a = baseColor.a; // 알파는 그대로 유지
+        c.a = baseColor.a;
         graphic.color = c;
     }
 }

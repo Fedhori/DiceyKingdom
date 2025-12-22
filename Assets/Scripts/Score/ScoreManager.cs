@@ -65,9 +65,7 @@ public sealed class ScoreManager : MonoBehaviour
 
         var rng = GameManager.Instance.Rng;
 
-        // TODO - 크리티컬 시스템 <- 제거하는건 어떨까? 아니면 Pin으로는 얻기 어렵고, Token으로만 얻거나 성장으로만 얻을 수 있게?
-        //var criticalType = player.RollCriticalLevel(rng);
-        var criticalType = 0;
+        var criticalType = player.RollCriticalLevel(rng);
         double criticalMultiplier = player.GetCriticalMultiplier(criticalType) * ball.CriticalMultiplier;
 
         double rarityMultiplier = Math.Pow(player.RarityGrowth, (int)ball.Rarity);

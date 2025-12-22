@@ -68,10 +68,6 @@ public sealed class PlayerManager : MonoBehaviour
         }
     }
 
-    private void OnDisable()
-    {
-    }
-
     void Update()
     {
         currentStatUIUpdateCycle += Time.deltaTime;
