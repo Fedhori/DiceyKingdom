@@ -9,19 +9,28 @@ public sealed class ShopManager : MonoBehaviour
 
     [SerializeField] private ShopView shopView;
 
-    [SerializeField] private int itemsPerShop = 3;
+    [SerializeField] private int itemsPerShop = 6;
     [SerializeField] private int baseRerollCost = 1;
     [SerializeField] private int rerollCostIncrement = 1;
 
     [Header("Pin Drag Settings")]
     [SerializeField] private LayerMask pinDropLayerMask = ~0; // 월드 핀 콜라이더 레이어
+    [Header("Mixed Item Probabilities (weight-based)")]
+    [SerializeField] private ShopItemProbability[] itemProbabilities =
+    {
+        new ShopItemProbability { type = ShopItemType.Pin, weight = 50 },
+        new ShopItemProbability { type = ShopItemType.Token, weight = 50 }
+    };
 
     bool isOpen;
 
     readonly List<PinDto> sellablePins = new();
-    readonly List<int> tempPinIndices = new();
+    readonly List<IShopItem> rosterItems = new();
+    readonly List<TokenDto> sellableTokens = new();
+    readonly HashSet<string> rosterTokenIds = new();
+    readonly HashSet<string> ownedTokenIds = new();
 
-    PinItemData[] currentItems;
+    IShopItem[] currentShopItems;
     int currentRerollCost;
 
     public event Action<int> OnSelectionChanged;
@@ -29,6 +38,7 @@ public sealed class ShopManager : MonoBehaviour
     public int CurrentSelectionIndex { get; private set; } = -1;
 
     int draggingPinIndex = -1;
+    int draggingTokenIndex = -1;
 
     void Awake()
     {
@@ -42,7 +52,14 @@ public sealed class ShopManager : MonoBehaviour
 
         if (shopView != null)
         {
-            shopView.SetCallbacks(OnClickItem, OnClickReroll, OnClickCloseButton);
+            shopView.SetCallbacks(
+                onClickItem: OnClickItem,
+                onClickReroll: OnClickReroll,
+                onClickClose: OnClickCloseButton,
+                onBeginDragItem: BeginItemDrag,
+                onDragItem: UpdateItemDrag,
+                onEndDragItem: EndItemDrag
+            );
             OnSelectionChanged += shopView.HandleSelectionChanged;
             shopView.Close();  
         }
@@ -75,13 +92,24 @@ public sealed class ShopManager : MonoBehaviour
         ClearSelection();
 
         BuildSellablePins();
-        EnsureItemArray();
+        BuildSellableTokens();
+        CollectOwnedTokens();
+        EnsureArrays();
         currentRerollCost = Mathf.Max(1, baseRerollCost);
 
-        RollPinItems();
+        BuildRoster();
         RefreshView();
 
         shopView.Open();   
+    }
+
+    void CollectOwnedTokens()
+    {
+        ownedTokenIds.Clear();
+        rosterTokenIds.Clear();
+
+        if (TokenManager.Instance != null)
+            TokenManager.Instance.CollectOwnedTokenIds(ownedTokenIds);
     }
 
     void BuildSellablePins()
@@ -111,64 +139,162 @@ public sealed class ShopManager : MonoBehaviour
         }
     }
 
-    void EnsureItemArray()
+    void BuildSellableTokens()
+    {
+        sellableTokens.Clear();
+
+        if (!TokenRepository.IsInitialized)
+        {
+            Debug.LogWarning("[ShopManager] TokenRepository not initialized.");
+            return;
+        }
+
+        foreach (var dto in TokenRepository.All)
+        {
+            if (dto == null)
+                continue;
+
+            // 추후 isNotSell 같은 플래그가 생기면 필터 추가
+            sellableTokens.Add(dto);
+        }
+    }
+
+    void EnsureArrays()
     {
         if (itemsPerShop <= 0)
             itemsPerShop = 3;
 
-        if (currentItems == null || currentItems.Length != itemsPerShop)
-            currentItems = new PinItemData[itemsPerShop];
+        if (currentShopItems == null || currentShopItems.Length != itemsPerShop)
+            currentShopItems = new IShopItem[itemsPerShop];
 
-        for (int i = 0; i < currentItems.Length; i++)
+        for (int i = 0; i < itemsPerShop; i++)
+            currentShopItems[i] = null;
+    }
+
+    void BuildRoster()
+    {
+        rosterItems.Clear();
+        rosterTokenIds.Clear();
+
+        var factory = ShopItemFactory.Instance;
+        if (factory == null)
         {
-            currentItems[i].hasItem = false;
-            currentItems[i].pin = null;
-            currentItems[i].price = 0;
-            currentItems[i].sold = false;
+            Debug.LogError("[ShopManager] ShopItemFactory.Instance is null.");
+            return;
+        }
+
+        // 토큰 후보 리스트(중복 필터 적용)
+        var tokenPool = BuildTokenPool();
+
+        for (int slot = 0; slot < itemsPerShop; slot++)
+        {
+            var type = factory.RollType(itemProbabilities);
+
+            if (type == ShopItemType.Token && tokenPool.Count > 0)
+            {
+                var dto = PopToken(tokenPool);
+                var item = factory.CreateToken(dto);
+                if (item != null)
+                {
+                    rosterItems.Add(item);
+                    rosterTokenIds.Add(dto.id);
+                    continue;
+                }
+            }
+
+            // 기본: 핀으로 대체
+            var pinItem = DrawPin(factory);
+            if (pinItem != null)
+                rosterItems.Add(pinItem);
+        }
+
+        rosterItems.Sort((a, b) => a.ItemType.CompareTo(b.ItemType));
+
+        // currentShopItems에 복사
+        EnsureArrays();
+        int copyCount = Mathf.Min(itemsPerShop, rosterItems.Count);
+        for (int i = 0; i < copyCount; i++)
+            currentShopItems[i] = rosterItems[i];
+
+        for (int i = 0; i < itemsPerShop; i++)
+        {
+            if (currentShopItems[i] != null)
+                currentShopItems[i].Sold = false;
         }
     }
 
-    void RollPinItems()
+    List<TokenDto> BuildTokenPool()
     {
-        EnsureItemArray();
+        var pool = new List<TokenDto>();
 
-        if (sellablePins.Count == 0)
-            return;
+        if (sellableTokens == null || sellableTokens.Count == 0)
+            return pool;
 
-        tempPinIndices.Clear();
-        for (int i = 0; i < sellablePins.Count; i++)
-            tempPinIndices.Add(i);
-
-        int count = Mathf.Min(itemsPerShop, sellablePins.Count);
-
-        for (int slot = 0; slot < count; slot++)
+        for (int i = 0; i < sellableTokens.Count; i++)
         {
-            if (tempPinIndices.Count == 0)
-                break;
+            var dto = sellableTokens[i];
+            if (dto == null)
+                continue;
 
-            int pick = Rng.Next(tempPinIndices.Count);
-            int pinIndex = tempPinIndices[pick];
-            tempPinIndices.RemoveAt(pick);
+            if (!IsTokenAllowed(dto.id))
+                continue;
 
-            var dto = sellablePins[pinIndex];
-            var previewInstance = new PinInstance(dto, -1, -1, registerEventEffects: false);
-
-            currentItems[slot].hasItem = true;
-            currentItems[slot].pin = previewInstance;
-            currentItems[slot].price = previewInstance.Price;
-            currentItems[slot].sold = false;
+            pool.Add(dto);
         }
+
+        // 셔플
+        for (int i = pool.Count - 1; i > 0; i--)
+        {
+            int j = Rng.Next(i + 1);
+            (pool[i], pool[j]) = (pool[j], pool[i]);
+        }
+
+        return pool;
+    }
+
+    TokenDto PopToken(List<TokenDto> pool)
+    {
+        if (pool == null || pool.Count == 0)
+            return null;
+
+        int last = pool.Count - 1;
+        var dto = pool[last];
+        pool.RemoveAt(last);
+        return dto;
+    }
+
+    IShopItem DrawPin(ShopItemFactory factory)
+    {
+        if (sellablePins.Count == 0)
+            return null;
+
+        int idx = Rng.Next(sellablePins.Count);
+        return factory.CreatePin(sellablePins[idx]);
+    }
+
+    bool IsTokenAllowed(string tokenId)
+    {
+        if (string.IsNullOrEmpty(tokenId))
+            return false;
+
+        if (ownedTokenIds.Contains(tokenId))
+            return false;
+
+        if (rosterTokenIds.Contains(tokenId))
+            return false;
+
+        return true;
     }
 
     public void SetSelection(int itemIndex)
     {
-        PinInstance selection = null;
+        IShopItem selection = null;
 
-        if (currentItems != null && itemIndex >= 0 && itemIndex < currentItems.Length)
+        if (currentShopItems != null && itemIndex >= 0 && itemIndex < currentShopItems.Length)
         {
-            ref var item = ref currentItems[itemIndex];
-            if (item.hasItem && !item.sold && item.pin != null)
-                selection = item.pin;
+            var item = GetShopItem(itemIndex);
+            if (item != null && !IsSold(itemIndex))
+                selection = item;
         }
 
         ApplySelection(selection, itemIndex);
@@ -177,10 +303,11 @@ public sealed class ShopManager : MonoBehaviour
     public void ClearSelection()
     {
         ApplySelection(null, -1);
-        shopView?.ClearPinSelectionVisuals();
+        shopView?.ClearSelectionVisuals();
+        TokenManager.Instance?.ClearHighlights();
     }
 
-    void ApplySelection(PinInstance selection, int itemIndex)
+    void ApplySelection(IShopItem selection, int itemIndex)
     {
         CurrentSelectionIndex = selection != null ? itemIndex : -1;
         OnSelectionChanged?.Invoke(CurrentSelectionIndex);
@@ -191,13 +318,47 @@ public sealed class ShopManager : MonoBehaviour
         if (!isOpen)
             return false;
 
-        if (CurrentSelectionIndex < 0 || currentItems == null)
+        if (CurrentSelectionIndex < 0 || currentShopItems == null)
             return false;
 
-        if (CurrentSelectionIndex >= currentItems.Length)
+        if (CurrentSelectionIndex >= currentShopItems.Length)
             return false;
 
-        return TryPurchasePinItemAt(CurrentSelectionIndex, row, col);
+        var item = GetShopItem(CurrentSelectionIndex);
+        if (item == null || IsSold(CurrentSelectionIndex))
+            return false;
+
+        switch (item.ItemType)
+        {
+            case ShopItemType.Pin:
+                TokenManager.Instance?.ClearHighlights();
+                return TryPurchasePinItemAt(CurrentSelectionIndex, row, col);
+            case ShopItemType.Token:
+                shopView?.ClearSelectionVisuals();
+                return TryPurchaseTokenItemAt(CurrentSelectionIndex);
+            default:
+                return false;
+        }
+    }
+
+    public bool TryPurchaseSelectedTokenAt(int slotIndex)
+    {
+        if (!isOpen)
+            return false;
+
+        if (CurrentSelectionIndex < 0 || currentShopItems == null)
+            return false;
+
+        if (CurrentSelectionIndex >= currentShopItems.Length)
+            return false;
+
+        var item = GetShopItem(CurrentSelectionIndex);
+        if (item == null || item.ItemType != ShopItemType.Token || IsSold(CurrentSelectionIndex))
+            return false;
+
+        shopView?.ClearSelectionVisuals();
+        TokenManager.Instance?.ClearHighlights();
+        return TryPurchaseTokenItemAt(CurrentSelectionIndex, slotIndex);
     }
 
     bool TryPurchasePinItemAt(int itemIndex, int row, int col)
@@ -205,11 +366,14 @@ public sealed class ShopManager : MonoBehaviour
         if (!isOpen)
             return false;
 
-        if (currentItems == null || itemIndex < 0 || itemIndex >= currentItems.Length)
+        if (currentShopItems == null || itemIndex < 0 || itemIndex >= currentShopItems.Length)
             return false;
 
-        ref PinItemData item = ref currentItems[itemIndex];
-        if (!item.hasItem || item.sold || item.pin == null)
+        if (IsSold(itemIndex))
+            return false;
+
+        var pinItem = currentShopItems[itemIndex] as PinShopItem;
+        if (pinItem == null)
             return false;
 
         var currencyMgr = CurrencyManager.Instance;
@@ -234,20 +398,14 @@ public sealed class ShopManager : MonoBehaviour
         if (targetPin.Instance.Id != pinMgr.DefaultPinId)
             return false;
 
-        int price = item.price;
-        if (currencyMgr.CurrentCurrency < price)
-        {
-            RefreshView();
-            return false;
-        }
-
+        int price = pinItem.Price;
         if (!currencyMgr.TrySpend(price))
         {
             RefreshView();
             return false;
         }
 
-        string pinId = item.pin.Id;
+        string pinId = pinItem.Id;
         if (string.IsNullOrEmpty(pinId) || !pinMgr.TryReplace(pinId, row, col))
         {
             Debug.LogError("[ShopManager] TryReplace failed after spending currency. Refunding.");
@@ -256,10 +414,65 @@ public sealed class ShopManager : MonoBehaviour
             return false;
         }
 
-        item.sold = true;
+        MarkSold(itemIndex);
         ClearSelection();
         RefreshView();
         return true;
+    }
+
+    bool TryPurchaseTokenItemAt(int itemIndex, int overrideSlot = -1)
+    {
+        if (!isOpen)
+            return false;
+
+        if (currentShopItems == null || itemIndex < 0 || itemIndex >= currentShopItems.Length)
+            return false;
+
+        var item = currentShopItems[itemIndex] as TokenShopItem;
+        if (item == null || IsSold(itemIndex))
+            return false;
+
+        var currencyMgr = CurrencyManager.Instance;
+        if (currencyMgr == null)
+            return false;
+
+        int price = item.Price;
+        if (!currencyMgr.TrySpend(price))
+        {
+            RefreshView();
+            return false;
+        }
+
+        int slotIndex = overrideSlot >= 0 ? overrideSlot : FindFirstEmptyTokenSlot();
+        if (slotIndex < 0 || !TokenManager.Instance.TryAddTokenAt(item.Id, slotIndex, out _))
+        {
+            currencyMgr.AddCurrency(price);
+            RefreshView();
+            return false;
+        }
+
+        MarkSold(itemIndex);
+        ClearSelection();
+        RefreshView();
+        return true;
+    }
+
+    int FindFirstEmptyTokenSlot()
+    {
+        if (TokenManager.Instance == null)
+            return -1;
+
+        if (TokenManager.Instance.TryGetFirstEmptySlot(out int idx))
+            return idx;
+
+        return -1;
+    }
+
+    void MarkSold(int index)
+    {
+        var item = GetShopItem(index);
+        if (item != null)
+            item.Sold = true;
     }
 
     void RefreshView()
@@ -274,8 +487,34 @@ public sealed class ShopManager : MonoBehaviour
         bool hasEmptySlot = PinManager.Instance != null &&
                             PinManager.Instance.GetBasicPinSlot(out _, out _);
 
-        shopView.SetPinItems(currentItems, currency, hasEmptySlot, currentRerollCost);
+        bool hasEmptyTokenSlot = TokenManager.Instance != null && TokenManager.Instance.TryGetFirstEmptySlot(out _);
+
+        shopView.SetItems(currentShopItems, currency, hasEmptySlot, hasEmptyTokenSlot, currentRerollCost);
         shopView.RefreshAll();
+    }
+
+    IShopItem GetShopItem(int index)
+    {
+        if (currentShopItems == null || index < 0 || index >= currentShopItems.Length)
+            return null;
+        return currentShopItems[index];
+    }
+
+    bool IsSold(int index)
+    {
+        var item = GetShopItem(index);
+        return item?.Sold ?? true;
+    }
+
+    public IShopItem GetSelectedItem()
+    {
+        if (CurrentSelectionIndex < 0 || currentShopItems == null)
+            return null;
+
+        if (CurrentSelectionIndex >= currentShopItems.Length)
+            return null;
+
+        return currentShopItems[CurrentSelectionIndex];
     }
 
     void OnClickItem(int index)
@@ -283,18 +522,29 @@ public sealed class ShopManager : MonoBehaviour
         if (!isOpen)
             return;
 
-        if (currentItems == null || index < 0 || index >= currentItems.Length)
-            return;
-
-        ref PinItemData item = ref currentItems[index];
-
-        if (!item.hasItem || item.sold || item.pin == null)
+        if (currentShopItems == null || index < 0 || index >= currentShopItems.Length)
             return;
 
         if (CurrentSelectionIndex == index)
             ClearSelection();
         else
             SetSelection(index);
+
+        var item = GetShopItem(index);
+        if (item == null)
+            return;
+
+        if (item.ItemType == ShopItemType.Token)
+        {
+            // 토큰 슬롯 하이라이트, 핀 선택 해제
+            TokenManager.Instance?.HighlightEmptySlots();
+            shopView?.ClearSelectionVisuals();
+        }
+        else if (item.ItemType == ShopItemType.Pin)
+        {
+            // 핀 슬롯 하이라이트(기존 ShopView) 유지, 토큰 하이라이트 해제
+            TokenManager.Instance?.ClearHighlights();
+        }
     }
 
     void OnClickReroll()
@@ -319,7 +569,10 @@ public sealed class ShopManager : MonoBehaviour
 
         currentRerollCost = Mathf.Max(1, currentRerollCost + Mathf.Max(1, rerollCostIncrement));
 
-        RollPinItems();
+        BuildSellablePins();
+        BuildSellableTokens();
+        CollectOwnedTokens();
+        BuildRoster();
         RefreshView();
     }
 
@@ -340,7 +593,7 @@ public sealed class ShopManager : MonoBehaviour
         if (shopView != null)
         {
             shopView.Close();
-            shopView.HidePinDragGhost();
+            shopView.HideItemDragGhost();
         }
 
         ClearSelection();
@@ -354,66 +607,85 @@ public sealed class ShopManager : MonoBehaviour
     }
 
     // ======================
-    // Pin drag (신규)
+    // Item drag (핀/토큰)
     // ======================
 
-    public void BeginPinDrag(int itemIndex, Vector2 screenPos)
+    public void BeginItemDrag(int itemIndex, Vector2 screenPos)
     {
         if (!isOpen || shopView == null)
             return;
 
-        if (currentItems == null || itemIndex < 0 || itemIndex >= currentItems.Length)
-            return;
-
-        ref PinItemData item = ref currentItems[itemIndex];
-        if (!item.hasItem || item.sold || item.pin == null)
+        var item = GetShopItem(itemIndex);
+        if (item == null || IsSold(itemIndex))
             return;
 
         var flow = FlowManager.Instance;
         if (flow != null && flow.CurrentPhase != FlowPhase.Shop)
             return;
 
-        // 드래그 시작 시 해당 상품 선택 상태로 만들어 기본 핀 하이라이트 유지
         SetSelection(itemIndex);
 
-        draggingPinIndex = itemIndex;
-        shopView.ShowPinDragGhost(item.pin, screenPos);
+        switch (item.ItemType)
+        {
+            case ShopItemType.Pin:
+                draggingPinIndex = itemIndex;
+                shopView.ShowItemDragGhost(item, screenPos);
+                break;
+            case ShopItemType.Token:
+                draggingTokenIndex = itemIndex;
+                TokenManager.Instance?.HighlightEmptySlots();
+                shopView.ShowItemDragGhost(item, screenPos);
+                break;
+        }
     }
 
-    public void UpdatePinDrag(int itemIndex, Vector2 screenPos)
+    public void UpdateItemDrag(int itemIndex, Vector2 screenPos)
     {
         if (!isOpen || shopView == null)
             return;
 
-        if (itemIndex != draggingPinIndex)
-            return;
-
-        shopView.UpdatePinDragGhostPosition(screenPos);
+        if (itemIndex == draggingPinIndex || itemIndex == draggingTokenIndex)
+            shopView.UpdateItemDragGhostPosition(screenPos);
     }
 
-    public void EndPinDrag(int itemIndex, Vector2 screenPos)
+    public void EndItemDrag(int itemIndex, Vector2 screenPos)
     {
         if (shopView == null)
         {
             draggingPinIndex = -1;
+            draggingTokenIndex = -1;
             return;
         }
 
-        if (!isOpen || itemIndex != draggingPinIndex)
+        if (!isOpen)
         {
-            shopView.HidePinDragGhost();
+            shopView.HideItemDragGhost();
             draggingPinIndex = -1;
+            draggingTokenIndex = -1;
             return;
         }
 
-        if (TryGetTargetPinFromScreenPos(screenPos, out var targetPin))
+        if (itemIndex == draggingPinIndex)
         {
-            // 기본 핀만 교체 가능 → 실제 체크는 TryPurchasePinItemAt 내부에서도 한 번 더 한다.
-            TryPurchasePinItemAt(itemIndex, targetPin.RowIndex, targetPin.ColumnIndex);
+            if (TryGetTargetPinFromScreenPos(screenPos, out var targetPin))
+            {
+                TryPurchasePinItemAt(itemIndex, targetPin.RowIndex, targetPin.ColumnIndex);
+            }
+        }
+        else if (itemIndex == draggingTokenIndex)
+        {
+            int targetSlot = -1;
+            if (TokenManager.Instance != null && TokenManager.Instance.TryGetSlotFromScreenPos(screenPos, out var idx))
+                targetSlot = idx;
+
+            if (targetSlot >= 0)
+                TryPurchaseTokenItemAt(itemIndex, targetSlot);
         }
 
-        shopView.HidePinDragGhost();
+        shopView.HideItemDragGhost();
         draggingPinIndex = -1;
+        draggingTokenIndex = -1;
+        TokenManager.Instance?.ClearHighlights();
     }
 
     bool TryGetTargetPinFromScreenPos(Vector2 screenPos, out PinController pin)
@@ -434,4 +706,5 @@ public sealed class ShopManager : MonoBehaviour
         pin = hit.GetComponentInParent<PinController>();
         return pin != null;
     }
+
 }

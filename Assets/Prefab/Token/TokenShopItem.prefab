@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8751344861249504488}
   - component: {fileID: 7589533931114004664}
   m_Layer: 5
-  m_Name: PinIcon
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 38d2ac90b0a07f644935317f6e469e40, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 65e6d377f331a91418e3505a8338262b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -86,12 +86,11 @@ GameObject:
   - component: {fileID: 4484877120713957811}
   - component: {fileID: 665894626917633280}
   - component: {fileID: 4788195815046530173}
-  - component: {fileID: 7698937303703581369}
   - component: {fileID: 565237733685739112}
-  - component: {fileID: 4127392050601341395}
   - component: {fileID: 6676649803103999892}
+  - component: {fileID: 7135958795844342221}
   m_Layer: 5
-  m_Name: ShopPinPrefab
+  m_Name: TokenShopItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -139,15 +138,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.50980395, g: 0.54901963, b: 0.6392157, a: 1}
+  m_Color: {r: 0.24705882, g: 0.26666668, b: 0.30980393, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 32e65a26c5dff784da60defb5029e659, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: 2a79d017bd108064ebc85bbaf2ba18c3, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -156,21 +155,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &7698937303703581369
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1951605456143366293}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d5ba31e2e1d312408189b4852f05665, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ShopItemView
-  iconImage: {fileID: 7589533931114004664}
-  priceText: {fileID: 4535100356528283430}
-  tooltipTarget: {fileID: 4127392050601341395}
 --- !u!114 &565237733685739112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,19 +199,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &4127392050601341395
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1951605456143366293}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 329dbda261497af42910d192fe36dfad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PinShopTooltipTarget
-  anchorRect: {fileID: 0}
 --- !u!114 &6676649803103999892
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243,6 +214,20 @@ MonoBehaviour:
   target: {fileID: 0}
   hoverScale: 1.08
   duration: 0.08
+--- !u!114 &7135958795844342221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1951605456143366293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b763ac0ef359854683653bc419f5e9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopItemView
+  iconImage: {fileID: 7589533931114004664}
+  priceText: {fileID: 4535100356528283430}
 --- !u!1 &3099990046270794684
 GameObject:
   m_ObjectHideFlags: 0
@@ -255,7 +240,7 @@ GameObject:
   - component: {fileID: 3490845107499687640}
   - component: {fileID: 4535100356528283430}
   m_Layer: 5
-  m_Name: PinPrice
+  m_Name: Price
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -277,7 +262,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: -40}
+  m_AnchoredPosition: {x: 0, y: -36}
   m_SizeDelta: {x: 128, y: 32}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &3490845107499687640

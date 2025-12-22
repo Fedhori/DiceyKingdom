@@ -93,7 +93,91 @@ public sealed class TokenManager : MonoBehaviour
 
         instance = new TokenInstance(dto);
         controller.Bind(instance);
+        ClearHighlights();
         return true;
+    }
+
+    public int SlotCount => slotControllers != null ? slotControllers.Length : 0;
+
+    public bool TryGetFirstEmptySlot(out int index)
+    {
+        index = -1;
+        if (slotControllers == null)
+            return false;
+
+        for (int i = 0; i < slotControllers.Length; i++)
+        {
+            if (slotControllers[i] != null && slotControllers[i].Instance == null)
+            {
+                index = i;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool IsSlotEmpty(int slotIndex)
+    {
+        if (!IsValidIndex(slotIndex))
+            return false;
+
+        return slotControllers[slotIndex]?.Instance == null;
+    }
+    
+    public bool TryGetSlotFromScreenPos(Vector2 screenPos, out int slotIndex)
+    {
+        slotIndex = -1;
+        if (slotControllers == null)
+            return false;
+
+        for (int i = 0; i < slotControllers.Length; i++)
+        {
+            var ctrl = slotControllers[i];
+            if (ctrl == null || ctrl.RectTransform == null)
+                continue;
+
+            if (RectTransformUtility.RectangleContainsScreenPoint(ctrl.RectTransform, screenPos))
+            {
+                slotIndex = i;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void HighlightEmptySlots()
+    {
+        if (slotControllers == null)
+            return;
+
+        for (int i = 0; i < slotControllers.Length; i++)
+        {
+            var ctrl = slotControllers[i];
+            if (ctrl == null)
+                continue;
+
+            bool empty = ctrl.Instance == null;
+            ctrl.SetHighlight(empty, slotHighlightColor);
+        }
+    }
+
+    public void ClearHighlights()
+    {
+        if (slotControllers == null)
+            return;
+
+        for (int i = 0; i < slotControllers.Length; i++)
+        {
+            var ctrl = slotControllers[i];
+            if (ctrl == null)
+                continue;
+
+            ctrl.SetHighlight(false, slotHighlightColor);
+        }
+
+        currentHighlightIndex = -1;
     }
 
     public bool BeginDrag(TokenController controller)
@@ -206,6 +290,39 @@ public sealed class TokenManager : MonoBehaviour
 
         for (int i = 0; i < slotControllers.Length; i++)
             slotControllers[i]?.Instance?.HandleTrigger(trigger);
+    }
+
+    public bool HasToken(string tokenId)
+    {
+        if (string.IsNullOrEmpty(tokenId) || slotControllers == null)
+            return false;
+
+        for (int i = 0; i < slotControllers.Length; i++)
+        {
+            var inst = slotControllers[i]?.Instance;
+            if (inst != null && inst.Id == tokenId)
+                return true;
+        }
+
+        return false;
+    }
+
+    public void CollectOwnedTokenIds(System.Collections.Generic.HashSet<string> set)
+    {
+        if (set == null)
+            return;
+
+        if (slotControllers == null)
+            return;
+
+        for (int i = 0; i < slotControllers.Length; i++)
+        {
+            var inst = slotControllers[i]?.Instance;
+            if (inst == null || string.IsNullOrEmpty(inst.Id))
+                continue;
+
+            set.Add(inst.Id);
+        }
     }
 
     bool IsValidIndex(int index)

@@ -4,30 +4,31 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public sealed class PinItemView : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public sealed class ShopItemView : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private Image iconImage;
     [SerializeField] private TMP_Text priceText;
-    [SerializeField] private PinUiTooltipTarget tooltipTarget;
 
-    Action onClick;
+    public ShopItemType ViewType { get; private set; } = ShopItemType.Pin;
 
-    PinInstance boundPin;
+    Action<int> onClick;
+    Action<int, Vector2> onBeginDrag;
+    Action<int, Vector2> onDrag;
+    Action<int, Vector2> onEndDrag;
 
-    bool canDrag;   // = canBuy && !sold && pin != null
-    bool canClick;  // = canBuy && !sold && pin != null
-
+    bool canDrag;
+    bool canClick;
     bool isSelected;
     Color baseIconColor;
     bool baseColorInitialized;
 
     int index = -1;
+    IShopItem boundItem;
+    PinShopItem boundPinItem;
+    TokenShopItem boundTokenItem;
 
     void Awake()
     {
-        if (tooltipTarget == null)
-            tooltipTarget = GetComponent<PinUiTooltipTarget>();
-
         if (iconImage != null)
         {
             baseIconColor = iconImage.color;
@@ -40,21 +41,31 @@ public sealed class PinItemView : MonoBehaviour, IPointerClickHandler, IBeginDra
         index = i;
     }
 
-    public void SetClickHandler(Action handler)
+    public void SetViewType(ShopItemType type)
     {
-        onClick = handler;
+        ViewType = type;
     }
 
-    public void SetData(PinInstance pin, int price, bool canBuy, bool sold)
+    public void SetHandlers(Action<int> click, Action<int, Vector2> beginDrag, Action<int, Vector2> drag, Action<int, Vector2> endDrag)
     {
-        boundPin = pin;
+        onClick = click;
+        onBeginDrag = beginDrag;
+        onDrag = drag;
+        onEndDrag = endDrag;
+    }
 
-        // 구매 불가 상태면 클릭/드래그 전부 막는다
-        bool canInteract = (pin != null) && canBuy && !sold;
+    public void SetData(IShopItem item, int price, bool canBuy, bool sold)
+    {
+        boundItem = item;
+        boundPinItem = item as PinShopItem;
+        boundTokenItem = item as TokenShopItem;
+        ViewType = item != null ? item.ItemType : ViewType;
+
+        bool canInteract = (item != null) && canBuy && !sold;
         canDrag = canInteract;
         canClick = canInteract;
 
-        if (pin == null)
+        if (item == null)
         {
             gameObject.SetActive(false);
             return;
@@ -64,7 +75,7 @@ public sealed class PinItemView : MonoBehaviour, IPointerClickHandler, IBeginDra
 
         if (iconImage != null)
         {
-            iconImage.sprite = SpriteCache.GetPinSprite(pin.Id);
+            iconImage.sprite = item.Icon;
 
             if (!baseColorInitialized)
             {
@@ -74,9 +85,6 @@ public sealed class PinItemView : MonoBehaviour, IPointerClickHandler, IBeginDra
 
             ApplySelectionColor();
         }
-
-        if (tooltipTarget != null)
-            tooltipTarget.Bind(pin);
 
         if (priceText != null)
         {
@@ -126,7 +134,7 @@ public sealed class PinItemView : MonoBehaviour, IPointerClickHandler, IBeginDra
         if (!canClick)
             return;
 
-        onClick?.Invoke();
+        onClick?.Invoke(index);
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -134,13 +142,13 @@ public sealed class PinItemView : MonoBehaviour, IPointerClickHandler, IBeginDra
         if (eventData.button != PointerEventData.InputButton.Left)
             return;
 
-        if (!canDrag || boundPin == null)
+        if (!canDrag || boundItem == null)
             return;
 
         if (index < 0)
             return;
 
-        ShopManager.Instance?.BeginPinDrag(index, eventData.position);
+        onBeginDrag?.Invoke(index, eventData.position);
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -154,7 +162,7 @@ public sealed class PinItemView : MonoBehaviour, IPointerClickHandler, IBeginDra
         if (index < 0)
             return;
 
-        ShopManager.Instance?.UpdatePinDrag(index, eventData.position);
+        onDrag?.Invoke(index, eventData.position);
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -168,6 +176,48 @@ public sealed class PinItemView : MonoBehaviour, IPointerClickHandler, IBeginDra
         if (index < 0)
             return;
 
-        ShopManager.Instance?.EndPinDrag(index, eventData.position);
+        onEndDrag?.Invoke(index, eventData.position);
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        ShowTooltip(eventData);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        HideTooltip();
+    }
+
+    void ShowTooltip(PointerEventData eventData)
+    {
+        var manager = TooltipManager.Instance;
+        if (manager == null || boundItem == null)
+            return;
+
+        TooltipModel model;
+        if (boundPinItem != null)
+        {
+            model = PinTooltipUtil.BuildModel(boundPinItem.PreviewInstance);
+        }
+        else if (boundTokenItem != null)
+        {
+            model = TokenTooltipUtil.BuildModel(boundTokenItem.PreviewInstance);
+        }
+        else
+        {
+            return;
+        }
+
+        var anchor = TooltipAnchor.FromScreen(eventData.position, eventData.position);
+        manager.BeginHover(this, model, anchor);
+    }
+
+    void HideTooltip()
+    {
+        var manager = TooltipManager.Instance;
+        if (manager == null)
+            return;
+        manager.EndHover(this);
     }
 }

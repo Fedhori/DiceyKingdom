@@ -242,8 +242,9 @@ public sealed class PinManager : MonoBehaviour
             return;
         }
 
+        var price = pin.Instance.Price;
         if (TryReplace(GameConfig.BasicPinId, pin.RowIndex, pin.ColumnIndex))
-            CurrencyManager.Instance.AddCurrency(Mathf.CeilToInt(pin.Instance.Price / 2f));
+            CurrencyManager.Instance.AddCurrency(Mathf.CeilToInt(price / 2f));
     }
 
     public void TriggerPins(PinTriggerType type)

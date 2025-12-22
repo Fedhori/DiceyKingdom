@@ -64,6 +64,17 @@ public sealed class DevCommandManager : MonoBehaviour
                 Debug.LogWarning($"[DevCommand] addtoken failed: id={tokenId}, slot={slotIndex}");
             }
         });
+
+        Register("addcurrency", param =>
+        {
+            if (param.Length != 1)
+                return;
+
+            if (CurrencyManager.Instance == null)
+                return;
+
+            CurrencyManager.Instance.AddCurrency(int.Parse(param[0]));
+        });
     }
 
     [Header("Toggle")] public KeyCode toggleKey = KeyCode.BackQuote;

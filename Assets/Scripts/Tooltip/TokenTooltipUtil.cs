@@ -31,7 +31,7 @@ public static class TokenTooltipUtil
         );
     }
 
-    static string BuildBody(TokenInstance token)
+    public static string BuildBody(TokenInstance token)
     {
         var lines = new List<string>();
         AppendRuleLines(token, lines);

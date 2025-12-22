@@ -11,9 +11,10 @@ public sealed class ShopView : MonoBehaviour
     [Header("Overlay Root")]
     [SerializeField] private GameObject shopClosedOverlay;
 
-    [Header("Pin Item UI")]
-    [SerializeField] private PinItemView pinItemPrefab;
-    [SerializeField] private Transform pinItemsParent;
+    [Header("Item UI")]
+    [SerializeField] private ShopItemView pinItemPrefab;
+    [SerializeField] private ShopItemView tokenItemPrefab;
+    [SerializeField] private Transform itemsParent;
 
     [Header("Reroll / Close UI")]
     [SerializeField] private LocalizeStringEvent rerollCostText;
@@ -24,11 +25,14 @@ public sealed class ShopView : MonoBehaviour
     [SerializeField] private Canvas rootCanvas;
     [SerializeField] private Image dragGhostImage;
 
-    readonly List<PinItemView> pinItemViews = new();
+    readonly List<ShopItemView> itemViews = new();
 
-    int selectedPinItemIndex = -1;
+    int selectedItemIndex = -1;
 
-    Action<int> onClickPinItem;
+    Action<int> onClickItem;
+    Action<int, Vector2> onBeginDragItem;
+    Action<int, Vector2> onDragItem;
+    Action<int, Vector2> onEndDragItem;
     Action onClickReroll;
     Action onClickClose;
 
@@ -57,82 +61,124 @@ public sealed class ShopView : MonoBehaviour
 
     void ClearEditorPlacedItems()
     {
-        pinItemViews.Clear();
+        itemViews.Clear();
 
-        if (pinItemsParent != null)
+        if (itemsParent != null)
         {
-            for (int i = pinItemsParent.childCount - 1; i >= 0; i--)
+            for (int i = itemsParent.childCount - 1; i >= 0; i--)
             {
-                var child = pinItemsParent.GetChild(i);
+                var child = itemsParent.GetChild(i);
                 if (child != null)
                     Destroy(child.gameObject);
             }
         }
     }
 
-    public void SetCallbacks(Action<int> onClickItem, Action onClickReroll, Action onClickClose)
+    public void SetCallbacks(Action<int> onClickItem, Action onClickReroll, Action onClickClose,
+        Action<int, Vector2> onBeginDragItem, Action<int, Vector2> onDragItem, Action<int, Vector2> onEndDragItem)
     {
-        this.onClickPinItem = onClickItem;
+        this.onClickItem = onClickItem;
         this.onClickReroll = onClickReroll;
         this.onClickClose = onClickClose;
+        this.onBeginDragItem = onBeginDragItem;
+        this.onDragItem = onDragItem;
+        this.onEndDragItem = onEndDragItem;
     }
 
-    void EnsurePinItemViews(int count)
+    void EnsureItemViews(IShopItem[] items)
     {
-        if (pinItemPrefab == null || pinItemsParent == null)
+        if (itemsParent == null)
             return;
 
-        while (pinItemViews.Count < count)
-        {
-            var view = Instantiate(pinItemPrefab, pinItemsParent);
-            int index = pinItemViews.Count;
+        int count = items != null ? items.Length : 0;
 
-            view.SetIndex(index);
-
-            view.SetClickHandler(() =>
-            {
-                onClickPinItem?.Invoke(index);
-            });
-
-            pinItemViews.Add(view);
-        }
-
-        for (int i = 0; i < pinItemViews.Count; i++)
-        {
-            bool active = i < count;
-            if (pinItemViews[i] != null)
-                pinItemViews[i].gameObject.SetActive(active);
-        }
-    }
-
-    public void SetPinItems(PinItemData[] items, int currentCurrency, bool hasEmptySlot, int rerollCost)
-    {
-        int count = (items != null) ? items.Length : 0;
-
-        EnsurePinItemViews(count);
-
-        if (count != pinItemViews.Count)
-            return;
+        // Ensure list size
+        while (itemViews.Count < count)
+            itemViews.Add(null);
 
         for (int i = 0; i < count; i++)
         {
-            var view = pinItemViews[i];
+            var desiredType = items != null && items[i] != null ? items[i].ItemType : ShopItemType.Pin;
+            var currentView = itemViews[i];
+
+            bool needNew = currentView == null || currentView.ViewType != desiredType;
+            if (needNew)
+            {
+                if (currentView != null)
+                    Destroy(currentView.gameObject);
+
+                var prefab = GetPrefab(desiredType);
+                if (prefab == null)
+                    continue;
+
+                var view = Instantiate(prefab, itemsParent);
+                view.SetViewType(desiredType);
+                view.SetIndex(i);
+                view.SetHandlers(
+                    click: idx => onClickItem?.Invoke(idx),
+                    beginDrag: (idx, pos) => onBeginDragItem?.Invoke(idx, pos),
+                    drag: (idx, pos) => onDragItem?.Invoke(idx, pos),
+                    endDrag: (idx, pos) => onEndDragItem?.Invoke(idx, pos)
+                );
+                view.transform.SetSiblingIndex(i);
+                itemViews[i] = view;
+            }
+            else
+            {
+                currentView.SetIndex(i);
+                currentView.transform.SetSiblingIndex(i);
+            }
+
+            if (itemViews[i] != null)
+                itemViews[i].gameObject.SetActive(true);
+        }
+
+        // Deactivate extra views
+        for (int i = count; i < itemViews.Count; i++)
+        {
+            if (itemViews[i] != null)
+                itemViews[i].gameObject.SetActive(false);
+        }
+    }
+
+    ShopItemView GetPrefab(ShopItemType type)
+    {
+        return type switch
+        {
+            ShopItemType.Token => tokenItemPrefab != null ? tokenItemPrefab : pinItemPrefab,
+            _ => pinItemPrefab
+        };
+    }
+
+    public void SetItems(IShopItem[] items, int currentCurrency, bool hasEmptyPinSlot, bool hasEmptyTokenSlot, int rerollCost)
+    {
+        int count = (items != null) ? items.Length : 0;
+
+        EnsureItemViews(items);
+
+        for (int i = 0; i < count; i++)
+        {
+            var view = i < itemViews.Count ? itemViews[i] : null;
             if (view == null)
                 continue;
 
-            var data = items[i];
-
-            if (!data.hasItem || data.pin == null)
+            var item = items[i];
+            bool sold = item != null && item.Sold;
+            if (item == null)
             {
                 view.gameObject.SetActive(false);
                 continue;
             }
 
-            bool canBuy = !data.sold && hasEmptySlot && currentCurrency >= data.price;
+            bool canBuy;
+            if (item.ItemType == ShopItemType.Pin)
+                canBuy = !sold && hasEmptyPinSlot && currentCurrency >= item.Price;
+            else
+                canBuy = !sold && hasEmptyTokenSlot && currentCurrency >= item.Price;
 
             view.gameObject.SetActive(true);
-            view.SetData(data.pin, data.price, canBuy, data.sold);
-            view.SetSelected(i == selectedPinItemIndex);
+            view.SetData(item, item.Price, canBuy, sold);
+            view.SetSelected(i == selectedItemIndex);
         }
 
         if (rerollCostText != null)
@@ -158,54 +204,54 @@ public sealed class ShopView : MonoBehaviour
 
     public void HandleSelectionChanged(int selectedIndex)
     {
-        selectedPinItemIndex = selectedIndex;
-        RefreshPinSelectionVisuals();
+        selectedItemIndex = selectedIndex;
+        RefreshItemSelectionVisuals();
     }
 
-    void RefreshPinSelectionVisuals()
+    void RefreshItemSelectionVisuals()
     {
-        for (int i = 0; i < pinItemViews.Count; i++)
+        for (int i = 0; i < itemViews.Count; i++)
         {
-            var view = pinItemViews[i];
+            var view = itemViews[i];
             if (view == null)
                 continue;
 
-            bool shouldSelect = i == selectedPinItemIndex && view.gameObject.activeSelf;
+            bool shouldSelect = i == selectedItemIndex && view.gameObject.activeSelf;
             view.SetSelected(shouldSelect);
         }
     }
 
-    public void ClearPinSelectionVisuals()
+    public void ClearSelectionVisuals()
     {
-        selectedPinItemIndex = -1;
-        RefreshPinSelectionVisuals();
+        selectedItemIndex = -1;
+        RefreshItemSelectionVisuals();
     }
 
     public void RefreshAll()
     {
-        RefreshPinSelectionVisuals();
+        RefreshItemSelectionVisuals();
     }
 
     // ======================
     // Pin drag UI
     // ======================
 
-    public void ShowPinDragGhost(PinInstance pin, Vector2 screenPos)
+    public void ShowItemDragGhost(IShopItem item, Vector2 screenPos)
     {
-        if (dragGhostImage == null || pin == null)
+        if (dragGhostImage == null || item == null)
             return;
 
-        dragGhostImage.sprite = SpriteCache.GetPinSprite(pin.Id);
+        dragGhostImage.sprite = item.Icon;
         dragGhostImage.gameObject.SetActive(true);
         UpdateDragGhostPosition(screenPos);
     }
 
-    public void UpdatePinDragGhostPosition(Vector2 screenPos)
+    public void UpdateItemDragGhostPosition(Vector2 screenPos)
     {
         UpdateDragGhostPosition(screenPos);
     }
 
-    public void HidePinDragGhost()
+    public void HideItemDragGhost()
     {
         if (dragGhostImage != null)
             dragGhostImage.gameObject.SetActive(false);

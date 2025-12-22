@@ -251,7 +251,14 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
         if (highlight == null)
             return;
 
-        bool shouldHighlight = IsBasicPin && selectedIndex >= 0;
+        bool shouldHighlight = false;
+        if (IsBasicPin && selectedIndex >= 0)
+        {
+            var shop = ShopManager.Instance;
+            var item = shop != null ? shop.GetSelectedItem() : null;
+            shouldHighlight = item != null && item.ItemType == ShopItemType.Pin;
+        }
+
         highlight.SetHighlight(shouldHighlight);
     }
 

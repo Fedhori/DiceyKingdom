@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(RectTransform))]
-public sealed class TokenController : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler
+public sealed class TokenController : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     public int SlotIndex { get; private set; } = -1;
     public TokenInstance Instance { get; private set; }
@@ -20,7 +20,7 @@ public sealed class TokenController : MonoBehaviour, IBeginDragHandler, IEndDrag
     void Awake()
     {
         if (raycastGraphic == null)
-            raycastGraphic = iconImage != null ? iconImage : GetComponent<Graphic>();
+            raycastGraphic = highlightImage != null ? highlightImage : (iconImage != null ? iconImage : GetComponent<Graphic>());
 
         if (raycastGraphic != null)
             raycastGraphic.raycastTarget = true;
@@ -40,6 +40,25 @@ public sealed class TokenController : MonoBehaviour, IBeginDragHandler, IEndDrag
     public void OnPointerExit(PointerEventData eventData)
     {
         HideTooltip();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        if (Instance != null)
+            return;
+
+        var flow = FlowManager.Instance;
+        if (flow != null && flow.CurrentPhase != FlowPhase.Shop)
+            return;
+
+        var shop = ShopManager.Instance;
+        if (shop == null)
+            return;
+
+        shop.TryPurchaseSelectedTokenAt(SlotIndex);
     }
 
     public void SetSlotIndex(int index)

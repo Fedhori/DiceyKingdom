@@ -33,7 +33,7 @@ public static class PinTooltipUtil
         );
     }
 
-    static string BuildBody(PinInstance pin)
+    public static string BuildBody(PinInstance pin)
     {
         var lines = new List<string>();
         AppendRuleLines(pin, lines);
