@@ -2,52 +2,54 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Graphic))]
-public class UiBlink : MonoBehaviour
+public sealed class UiBlink : MonoBehaviour
 {
     [SerializeField] float periodSeconds = 0.5f;
-    [SerializeField] float minAlpha = 0.2f;
-    [SerializeField] float maxAlpha = 1f;
+
+    [Tooltip("baseColor RGB에 곱해지는 배수")]
+    [SerializeField] float minBrightness = 0.6f;
+
+    [Tooltip("baseColor RGB에 곱해지는 배수")]
+    [SerializeField] float maxBrightness = 1.2f;
 
     Graphic graphic;
-    CanvasGroup canvasGroup;
     Color baseColor;
 
     void Awake()
     {
         graphic = GetComponent<Graphic>();
-        canvasGroup = GetComponent<CanvasGroup>();
         baseColor = graphic.color;
     }
 
     void OnEnable()
     {
-        ApplyAlpha(maxAlpha);
+        Apply(1f);
     }
 
     void OnDisable()
     {
-        ApplyAlpha(maxAlpha);
+        graphic.color = baseColor;
     }
 
     void Update()
     {
         float p = Mathf.Max(0.0001f, periodSeconds);
         float t = Time.unscaledTime / p * Mathf.PI * 2f;
-        float s = (Mathf.Sin(t) + 1f) * 0.5f;
-        float a = Mathf.Lerp(minAlpha, maxAlpha, s);
-        ApplyAlpha(a);
+        float s = (Mathf.Sin(t) + 1f) * 0.5f; // 0..1
+        Apply(s);
     }
 
-    void ApplyAlpha(float a)
+    void Apply(float s01)
     {
-        if (canvasGroup != null)
-        {
-            canvasGroup.alpha = a;
-            return;
-        }
+        float b = Mathf.Lerp(minBrightness, maxBrightness, s01);
 
-        var c = baseColor;
-        c.a = a;
+        Color c = baseColor;
+
+        c.r = Mathf.Clamp01(c.r * b);
+        c.g = Mathf.Clamp01(c.g * b);
+        c.b = Mathf.Clamp01(c.b * b);
+
+        c.a = baseColor.a; // 알파는 그대로 유지
         graphic.color = c;
     }
 }

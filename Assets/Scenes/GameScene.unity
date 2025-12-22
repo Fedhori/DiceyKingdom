@@ -2007,8 +2007,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UiBlink
   periodSeconds: 1
-  minAlpha: 0.2
-  maxAlpha: 1
+  minBrightness: 0.6
+  maxBrightness: 1.2
 --- !u!114 &342056949
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11860,13 +11860,14 @@ GameObject:
   - component: {fileID: 1863612800}
   - component: {fileID: 1863612799}
   - component: {fileID: 1863612802}
+  - component: {fileID: 1863612803}
   m_Layer: 5
   m_Name: RoundStartButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1863612797
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11996,6 +11997,21 @@ MonoBehaviour:
   target: {fileID: 0}
   hoverScale: 1.05
   duration: 0.08
+--- !u!114 &1863612803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1863612796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72bbb3721c30d0449940a09b9776d4dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UiBlink
+  periodSeconds: 2
+  minBrightness: 0.7
+  maxBrightness: 1.25
 --- !u!1 &1875031555
 GameObject:
   m_ObjectHideFlags: 0
