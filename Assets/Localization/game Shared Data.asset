@@ -44,7 +44,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 279564840091648
-    m_Key: game.score.label
+    m_Key: game.needscore.label
     m_Metadata:
       m_Items: []
   - m_Id: 284702950572032
@@ -121,6 +121,18 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 6503365021806592
     m_Key: game.forceendround.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7536855750291456
+    m_Key: game.current.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7546586569125888
+    m_Key: game.ballcount.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7546608568250368
+    m_Key: game.shopclosed.label
     m_Metadata:
       m_Items: []
   m_Metadata:

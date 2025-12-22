@@ -14,11 +14,9 @@ public static class Colors
     public static readonly Color Epic = new Color32(0xB3, 0x00, 0xFF, 0xFF);       // #B300FF
     public static readonly Color Legendary = new Color32(0xFF, 0xD4, 0x00, 0xFF);  // #FFD400
     
-    public static readonly Color Red = new Color32(0xE7, 0x4C, 0x3C, 0xFF); // #E74C3C (붉은색)
-    public static readonly Color Blue = new Color32(0x34, 0x98, 0xDB, 0xFF); // #3498DB (파란색)
-    public static readonly Color Green = new Color32(0x27, 0xAE, 0x60, 0xFF); // #27AE60 (초록색)
-
-    public static readonly Color EnemyRed = new Color32(0xB3, 0x2A, 0x2A, 0xFF);
+    public static readonly Color Red = new Color32(0xE7, 0x4C, 0x3C, 0xFF);
+    public static readonly Color Blue = new Color32(0x64, 0x94, 0xFF, 0xFF);
+    public static readonly Color Green = new Color32(0x27, 0xAE, 0x60, 0xFF);
     
     public static readonly Color HighlightColor = Color.cyan;
 

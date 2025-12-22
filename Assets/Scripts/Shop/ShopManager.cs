@@ -44,6 +44,7 @@ public sealed class ShopManager : MonoBehaviour
         {
             shopView.SetCallbacks(OnClickItem, OnClickReroll, OnClickCloseButton);
             OnSelectionChanged += shopView.HandleSelectionChanged;
+            shopView.Close();  
         }
     }
 
@@ -80,8 +81,7 @@ public sealed class ShopManager : MonoBehaviour
         RollPinItems();
         RefreshView();
 
-        if (shopView != null)
-            shopView.Show();
+        shopView.Open();   
     }
 
     void BuildSellablePins()
@@ -339,7 +339,7 @@ public sealed class ShopManager : MonoBehaviour
 
         if (shopView != null)
         {
-            shopView.Hide();
+            shopView.Close();
             shopView.HidePinDragGhost();
         }
 
