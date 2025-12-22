@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace GameStats
@@ -67,7 +68,13 @@ namespace GameStats
         bool _dirty = true;
         double _cachedFinal;
 
+        double? _minValue;
+        double? _maxValue;
+
         public string StatId { get; }
+
+        public double? MinValue => _minValue;
+        public double? MaxValue => _maxValue;
 
         public double BaseValue
         {
@@ -91,10 +98,24 @@ namespace GameStats
 
         public IReadOnlyList<StatModifier> Modifiers => _modifiers;
 
-        public StatSlot(string statId, double baseValue = 0f)
+        public StatSlot(string statId, double baseValue = 0f, double? minValue = null, double? maxValue = null)
         {
             StatId = statId;
             _baseValue = baseValue;
+            SetBounds(minValue, maxValue);
+        }
+
+        public void SetBounds(double? minValue, double? maxValue)
+        {
+            if (minValue.HasValue && maxValue.HasValue && minValue.Value > maxValue.Value)
+                (minValue, maxValue) = (maxValue, minValue);
+
+            if (_minValue == minValue && _maxValue == maxValue)
+                return;
+
+            _minValue = minValue;
+            _maxValue = maxValue;
+            _dirty = true;
         }
 
         public void AddModifier(StatModifier modifier)
@@ -104,10 +125,6 @@ namespace GameStats
             _dirty = true;
         }
 
-        /// <summary>
-        /// layer 혹은 source 기준으로 Modifier 제거. 둘 다 null이면 아무 것도 안 함.
-        /// 반환값: 제거된 개수
-        /// </summary>
         public int RemoveModifiers(StatLayer? layer = null, object source = null)
         {
             if (layer == null && source == null) return 0;
@@ -141,7 +158,15 @@ namespace GameStats
                     multSum += m.Value;
             }
 
-            _cachedFinal = (_baseValue + addSum) * (1f + multSum);
+            double v = (_baseValue + addSum) * (1f + multSum);
+
+            if (_minValue.HasValue)
+                v = Math.Max(_minValue.Value, v);
+
+            if (_maxValue.HasValue)
+                v = Math.Min(_maxValue.Value, v);
+
+            _cachedFinal = v;
             _dirty = false;
         }
     }
@@ -152,17 +177,17 @@ namespace GameStats
 
         public IEnumerable<StatSlot> AllSlots => _slots.Values;
 
-        public void SetBase(string statId, double baseValue)
+        public void SetBase(string statId, double baseValue, double? minValue = null, double? maxValue = null)
         {
             if (!_slots.TryGetValue(statId, out var slot))
             {
-                slot = new StatSlot(statId, baseValue);
+                slot = new StatSlot(statId, baseValue, minValue, maxValue);
                 _slots.Add(statId, slot);
+                return;
             }
-            else
-            {
-                slot.BaseValue = baseValue;
-            }
+
+            slot.BaseValue = baseValue;
+            slot.SetBounds(minValue, maxValue);
         }
 
         public double GetValue(string statId)
@@ -190,9 +215,6 @@ namespace GameStats
             slot.AddModifier(modifier);
         }
 
-        /// <summary>
-        /// 전체 스탯에서 특정 source / layer 기준으로 Modifier 제거
-        /// </summary>
         public int RemoveModifiers(StatLayer? layer = null, object source = null)
         {
             int totalRemoved = 0;

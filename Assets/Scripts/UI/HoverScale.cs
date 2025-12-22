@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 public sealed class HoverScale : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private RectTransform target;   // 비워두면 자기 자신
-    [SerializeField] private float hoverScale = 1.08f;
+    [SerializeField] private float hoverScale = 1.05f;
     [SerializeField] private float duration = 0.08f;
 
     Vector3 baseScale;

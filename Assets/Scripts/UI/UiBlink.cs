@@ -2,52 +2,71 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Graphic))]
-public class UiBlink : MonoBehaviour
+public sealed class UiBlink : MonoBehaviour
 {
     [SerializeField] float periodSeconds = 0.5f;
-    [SerializeField] float minAlpha = 0.2f;
-    [SerializeField] float maxAlpha = 1f;
+
+    [Tooltip("baseColor RGB에 곱해지는 배수")]
+    [SerializeField] float minBrightness = 0.6f;
+
+    [Tooltip("baseColor RGB에 곱해지는 배수")]
+    [SerializeField] float maxBrightness = 1.2f;
 
     Graphic graphic;
-    CanvasGroup canvasGroup;
     Color baseColor;
+    int tweenId = -1;
 
     void Awake()
     {
         graphic = GetComponent<Graphic>();
-        canvasGroup = GetComponent<CanvasGroup>();
         baseColor = graphic.color;
     }
 
     void OnEnable()
     {
-        ApplyAlpha(maxAlpha);
+        StartTween();
     }
 
     void OnDisable()
     {
-        ApplyAlpha(maxAlpha);
+        StopTween();
+        graphic.color = baseColor;
     }
 
-    void Update()
+    void StartTween()
     {
+        StopTween();
+
         float p = Mathf.Max(0.0001f, periodSeconds);
-        float t = Time.unscaledTime / p * Mathf.PI * 2f;
-        float s = (Mathf.Sin(t) + 1f) * 0.5f;
-        float a = Mathf.Lerp(minAlpha, maxAlpha, s);
-        ApplyAlpha(a);
+        float half = p * 0.5f;
+
+        ApplyBrightness(maxBrightness);
+
+        tweenId = LeanTween.value(gameObject, maxBrightness, minBrightness, half)
+            .setEaseInOutSine()
+            .setLoopPingPong()
+            .setOnUpdate((float b) => ApplyBrightness(b))
+            .id;
     }
 
-    void ApplyAlpha(float a)
+    void StopTween()
     {
-        if (canvasGroup != null)
+        if (tweenId >= 0)
         {
-            canvasGroup.alpha = a;
-            return;
+            LeanTween.cancel(tweenId);
+            tweenId = -1;
         }
+    }
 
-        var c = baseColor;
-        c.a = a;
+    void ApplyBrightness(float b)
+    {
+        Color c = baseColor;
+
+        c.r = Mathf.Clamp01(c.r * b);
+        c.g = Mathf.Clamp01(c.g * b);
+        c.b = Mathf.Clamp01(c.b * b);
+
+        c.a = baseColor.a;
         graphic.color = c;
     }
 }

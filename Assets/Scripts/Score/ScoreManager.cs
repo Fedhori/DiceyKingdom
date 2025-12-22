@@ -5,14 +5,15 @@ public sealed class ScoreManager : MonoBehaviour
 {
     public static ScoreManager Instance { get; private set; }
 
-    const double MinValue = 10;
-    const double MaxValue = 10000;
-    const float MinFontSize = 12f;
-    const float MaxFontSize = 36f;
+    [SerializeField] private float minFontSize = 12f;
+    [SerializeField] private float maxFontSize = 48f;
+
+    double minValue = 10;
+    double maxValue = 10000;
 
     public double previousScore;
-    
-    private double totalScore;
+
+    double totalScore;
 
     public double TotalScore
     {
@@ -24,22 +25,6 @@ public sealed class ScoreManager : MonoBehaviour
         }
     }
 
-    float GetFontSizeForScore(double score)
-    {
-        // 점수 범위 밖 안전 처리 (clamp score to range)
-        var value = Math.Clamp(score, MinValue, MaxValue);
-
-        double t = 0;
-        if (MinValue < MaxValue)
-        {
-            // 0~1로 정규화 (normalize to 0~1)
-            t = (float)((value - MinValue) / (MaxValue - MinValue));
-        }
-
-        // 폰트 크기 보간 (lerp font size)
-        return Mathf.Lerp(MinFontSize, MaxFontSize, (float)t);
-    }
-
     public event Action<double> OnScoreChanged;
 
     void Awake()
@@ -47,7 +32,34 @@ public sealed class ScoreManager : MonoBehaviour
         Instance = this;
     }
 
-    // NOTICE - 다른 오버로드 함수들도 대응해야함
+    public void SetNeedScoreForFontScale(double needScore)
+    {
+        if (needScore <= 0)
+        {
+            minValue = 10;
+            maxValue = 10000;
+            return;
+        }
+
+        maxValue = needScore;
+        minValue = needScore / 100.0;
+
+        if (minValue < 0)
+            minValue = 0;
+
+        if (maxValue <= minValue)
+            maxValue = minValue + 1.0;
+    }
+
+    float GetFontSizeForScore(double score)
+    {
+        var value = Math.Clamp(score, minValue, maxValue);
+
+        double t = (Math.Log(value) - Math.Log(minValue)) / (Math.Log(maxValue) - Math.Log(minValue));
+        t = Math.Clamp(t, 0.0, 1.0);
+        return Mathf.Lerp(minFontSize, maxFontSize, (float)t);
+    }
+
     public void CalculateScore(BallInstance ball, PinInstance pin, Vector2 position)
     {
         var player = PlayerManager.Instance?.Current;
@@ -65,15 +77,12 @@ public sealed class ScoreManager : MonoBehaviour
 
         var rng = GameManager.Instance.Rng;
 
-        // TODO - 크리티컬 시스템 <- 제거하는건 어떨까? 아니면 Pin으로는 얻기 어렵고, Token으로만 얻거나 성장으로만 얻을 수 있게?
-        //var criticalType = player.RollCriticalLevel(rng);
-        var criticalType = 0;
+        var criticalType = player.RollCriticalLevel(rng);
         double criticalMultiplier = player.GetCriticalMultiplier(criticalType) * ball.CriticalMultiplier;
 
         double rarityMultiplier = Math.Pow(player.RarityGrowth, (int)ball.Rarity);
 
-        var gained = player.ScoreBase * player.ScoreMultiplier * rarityMultiplier * pin.ScoreMultiplier *
-                     criticalMultiplier;
+        var gained = player.ScoreBase * player.ScoreMultiplier * rarityMultiplier * pin.ScoreMultiplier * criticalMultiplier;
 
         AddScore(gained, criticalType, position);
     }
@@ -84,6 +93,7 @@ public sealed class ScoreManager : MonoBehaviour
             return;
 
         var color = Colors.GetCriticalColor(criticalLevel);
+
         var postFix = "";
         if (criticalLevel == 1)
             postFix = "!";
@@ -97,6 +107,7 @@ public sealed class ScoreManager : MonoBehaviour
             1f,
             position
         );
+
         TotalScore += amount;
     }
 }

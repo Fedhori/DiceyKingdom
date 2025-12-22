@@ -206,4 +206,18 @@ public class BallManager : MonoBehaviour
 
         isSpawning = false;
     }
+    
+    public void DestroyAllBalls()
+    {
+        var balls = FindObjectsByType<BallController>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None
+        );
+
+        foreach (var ball in balls)
+        {
+            if (ball != null)
+                Destroy(ball.gameObject);
+        }
+    }
 }

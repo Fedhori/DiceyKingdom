@@ -7,12 +7,11 @@ public sealed class PinManager : MonoBehaviour
     public static PinManager Instance { get; private set; }
 
     [Header("Grid Settings")]
-    [SerializeField] int rowCount = 5;
-    [SerializeField] int columnCount = 5;
-    [SerializeField] float pinGap = 64f;
+    [SerializeField] int rowCount = 3;
+    [SerializeField] int columnCount = 3;
+    [SerializeField] float pinGap = 160f;
 
     [SerializeField] string spawnPinId = GameConfig.BasicPinId;
-    [SerializeField] Vector2 centerOffset = Vector2.zero;
 
     readonly List<List<PinController>> pinsByRow = new();
     public IReadOnlyList<List<PinController>> PinsByRow => pinsByRow;
@@ -79,21 +78,17 @@ public sealed class PinManager : MonoBehaviour
         float x = (col - centerCol) * dx;
         float y = (centerRow - row) * dy;
 
-        return new Vector2(x, y) + centerOffset;
+        return new Vector2(x, y);
     }
-
-    /// <summary>
-    /// 4x4 핀 격자 중심을 기준으로 코너(좌상/우상/좌하/우하) 4개 스폰 지점 좌표를 계산한다.
-    /// </summary>
+    
     public List<Vector2> GetBallSpawnPoints()
     {
         var result = new List<Vector2>(4);
         float gap = pinGap;
-        Vector2 basePos = transform != null ? (Vector2)transform.position : Vector2.zero;
-        result.Add(basePos + new Vector2(-gap, gap) + centerOffset); // 좌상
-        result.Add(basePos + new Vector2(gap, gap) + centerOffset);  // 우상
-        result.Add(basePos + new Vector2(-gap, -gap) + centerOffset); // 좌하
-        result.Add(basePos + new Vector2(gap, -gap) + centerOffset);  // 우하
+        result.Add(new Vector2(-gap / 2, gap / 2)); // 좌상
+        result.Add(new Vector2(gap / 2, gap / 2));  // 우상
+        result.Add(new Vector2(-gap / 2, -gap / 2)); // 좌하
+        result.Add(new Vector2(gap / 2, -gap / 2));  // 우하
         return result;
     }
 

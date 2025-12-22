@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public sealed class ShopView : MonoBehaviour
 {
     [Header("Overlay Root")]
-    [SerializeField] private GameObject overlayRoot;
+    [SerializeField] private GameObject shopClosedOverlay;
 
     [Header("Pin Item UI")]
     [SerializeField] private PinItemView pinItemPrefab;
@@ -48,8 +48,8 @@ public sealed class ShopView : MonoBehaviour
             closeButton.onClick.AddListener(() => onClickClose?.Invoke());
         }
 
-        if (overlayRoot != null)
-            overlayRoot.SetActive(false);
+        if (shopClosedOverlay != null)
+            shopClosedOverlay.SetActive(true);
 
         if (dragGhostImage != null)
             dragGhostImage.gameObject.SetActive(false);
@@ -144,16 +144,16 @@ public sealed class ShopView : MonoBehaviour
         }
     }
 
-    public void Show()
+    public void Open()
     {
-        if (overlayRoot != null)
-            overlayRoot.SetActive(true);
+        if (shopClosedOverlay != null)
+            shopClosedOverlay.SetActive(false);
     }
 
-    public void Hide()
+    public void Close()
     {
-        if (overlayRoot != null)
-            overlayRoot.SetActive(false);
+        if (shopClosedOverlay != null)
+            shopClosedOverlay.SetActive(true);
     }
 
     public void HandleSelectionChanged(int selectedIndex)
