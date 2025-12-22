@@ -5280,7 +5280,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9938532ea0caac84eaafde3cb0c89bcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopView
-  shopClosedOverlay: {fileID: 0}
+  shopClosedOverlay: {fileID: 22690864}
   pinItemPrefab: {fileID: 7698937303703581369, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
   pinItemsParent: {fileID: 1241167450}
   rerollCostText: {fileID: 147300228}
@@ -7880,6 +7880,7 @@ RectTransform:
   - {fileID: 1644759786}
   - {fileID: 8569538266258555244}
   - {fileID: 22690865}
+  - {fileID: 1863612797}
   m_Father: {fileID: 2114596191}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
@@ -7907,7 +7908,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b83de4ecc42eaab4fb58cd6dad0ca13a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 771355982a14a6c4da4c3305ffd3d60f, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -11832,7 +11833,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1863612797
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11846,13 +11847,13 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1719465443}
-  m_Father: {fileID: 2114596191}
+  m_Father: {fileID: 1288486032}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -96}
-  m_SizeDelta: {x: 300, y: 128}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: -32}
+  m_SizeDelta: {x: -64, y: 128}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1863612799
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13803,7 +13804,6 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1863612797}
   - {fileID: 1892048340}
   - {fileID: 659254754}
   - {fileID: 1290664731}

@@ -156,9 +156,7 @@ public sealed class StageManager : MonoBehaviour
         }
 
         if (stallTimer >= stallForceTime)
-        {
-            ForceFinishStage();
-        }
+            BallManager.Instance.DestroyAllBalls();
     }
 
     void StartStallTimer()
@@ -186,14 +184,6 @@ public sealed class StageManager : MonoBehaviour
     {
         if (stallNoticeText != null)
             stallNoticeText.gameObject.SetActive(show);
-    }
-
-    void ForceFinishStage()
-    {
-        if (!playActive)
-            return;
-
-        FinishPlay();
     }
 
     void UpdateBallCount(int count)
