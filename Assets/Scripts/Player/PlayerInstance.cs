@@ -49,8 +49,8 @@ public sealed class PlayerInstance
         BaseDto = dto ?? throw new ArgumentNullException(nameof(dto));
 
         Stats = new StatSet();
-        Stats.SetBase(PlayerStatIds.Score, BaseDto.scoreBase, 0.1d);
-        Stats.SetBase(PlayerStatIds.ScoreMultiplier, BaseDto.scoreMultiplier, 0.1d);
+        Stats.SetBase(PlayerStatIds.Score, BaseDto.scoreBase, 1d);
+        Stats.SetBase(PlayerStatIds.ScoreMultiplier, BaseDto.scoreMultiplier, 1d);
         Stats.SetBase(PlayerStatIds.CriticalChance, BaseDto.critChance, 0d, 200d);
         Stats.SetBase(PlayerStatIds.CriticalMultiplier, BaseDto.criticalMultiplier, 1d);
 
