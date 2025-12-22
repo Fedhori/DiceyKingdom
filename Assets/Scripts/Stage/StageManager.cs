@@ -57,14 +57,14 @@ public sealed class StageManager : MonoBehaviour
             player.OnBallCountChanged -= UpdateBallCount;
     }
 
-    /// <summary>
-    /// 현재 스테이지 바인딩 + HUD 갱신.
-    /// </summary>
     public void SetStage(StageInstance stage)
     {
         currentStage = stage;
         playActive = false;
         ScoreManager.Instance.previousScore = ScoreManager.Instance.TotalScore;
+
+        if (ScoreManager.Instance != null && stage != null)
+            ScoreManager.Instance.SetNeedScoreForFontScale(stage.NeedScore);
 
         if (stageHudView != null && stage != null)
         {
