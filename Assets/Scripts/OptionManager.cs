@@ -80,7 +80,6 @@ public class OptionManager : MonoBehaviour
 
     public void RequestRestartGame()
     {
-        ToggleOption(false);
         ModalManager.Instance.ShowConfirmation(
             titleTable: "modal", titleKey: "modal.restart.title",
             messageTable: "modal", messageKey: "modal.restart.desc",

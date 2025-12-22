@@ -89,3 +89,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinMainMenuController
   pinIcon: {fileID: 1528362944005630430}
+  growDuration: 0.06
+  shrinkDuration: 0.08
