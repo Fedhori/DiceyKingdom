@@ -19,7 +19,6 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
     [SerializeField] SpriteRenderer pinSprite;
     [SerializeField] TMP_Text remainingHitsText;
     [SerializeField] TMP_Text hitCountText;
-    [SerializeField] private SellClickTarget sellPin;
     public GameObject dragHighlightMask;
 
     bool initialized;
@@ -62,7 +61,6 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
         Instance.SetGridPosition(rowIndex, columnIndex);
         UpdateSprite();
         AttachEvents();
-        UpdateSellPinButton();
     }
 
     void OnDisable()
@@ -85,8 +83,6 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
 
         Instance.OnRemainingHitsChanged += UpdateRemainingHits;
         Instance.OnHitCountChanged += HandleHitCountChanged;
-        if (FlowManager.Instance != null)
-            FlowManager.Instance.OnPhaseChanged += HandlePhaseChanged;
         if (ShopManager.Instance != null)
             ShopManager.Instance.OnSelectionChanged += HandleSelectionChanged;
         eventsAttached = true;
@@ -99,29 +95,9 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
 
         Instance.OnRemainingHitsChanged -= UpdateRemainingHits;
         Instance.OnHitCountChanged -= HandleHitCountChanged;
-        if (FlowManager.Instance != null)
-            FlowManager.Instance.OnPhaseChanged -= HandlePhaseChanged;
         if (ShopManager.Instance != null)
             ShopManager.Instance.OnSelectionChanged -= HandleSelectionChanged;
         eventsAttached = false;
-    }
-
-    void HandlePhaseChanged(FlowPhase phase)
-    {
-        UpdateSellPinButton();
-    }
-
-    void UpdateSellPinButton()
-    {
-        if (sellPin == null || Instance == null)
-        {
-            if (sellPin != null)
-                sellPin.gameObject.SetActive(false);
-            return;
-        }
-
-        bool inShop = FlowManager.Instance != null && FlowManager.Instance.CurrentPhase == FlowPhase.Shop;
-        sellPin.gameObject.SetActive(inShop && Instance.Id != GameConfig.BasicPinId);
     }
 
     void HandleHitCountChanged(int hitCount)
@@ -269,7 +245,6 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
         Instance = new PinInstance(dto, row, column);
         UpdateSprite();
         AttachEvents();
-        UpdateSellPinButton();
         Instance.ResetData(hitCount);
     }
 

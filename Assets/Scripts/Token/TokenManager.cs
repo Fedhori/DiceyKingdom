@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Data;
 using UnityEngine;
 
@@ -13,6 +14,7 @@ public sealed class TokenManager : MonoBehaviour
     TokenController draggingController;
     int draggingStartIndex = -1;
     int currentHighlightIndex = -1;
+    bool overSellArea;
 
     [SerializeField] Color slotHighlightColor = Color.white;
 
@@ -190,6 +192,10 @@ public sealed class TokenManager : MonoBehaviour
         if (controller == null)
             return false;
 
+        var flow = FlowManager.Instance;
+        if (flow != null && !flow.CanDragTokens)
+            return false;
+
         int idx = controller.SlotIndex;
         if (controller.Instance == null)
             return false;
@@ -198,6 +204,8 @@ public sealed class TokenManager : MonoBehaviour
         draggingStartIndex = idx;
         GhostManager.Instance?.ShowGhost(controller.GetIconSprite(), screenPos, GhostKind.Token);
         controller.SetIconVisible(false);
+        overSellArea = false;
+        SellOverlayController.Instance?.Show();
         return true;
     }
 
@@ -205,11 +213,27 @@ public sealed class TokenManager : MonoBehaviour
     {
         if (draggingController == null || controller != draggingController)
         {
+            SellOverlayController.Instance?.Hide();
             ResetDrag();
             return;
         }
 
-        int targetIndex = FindNearestSlotIndex(screenPos);
+        var overlay = SellOverlayController.Instance;
+        overSellArea = overlay != null && overlay.ContainsScreenPoint(screenPos);
+        if (overSellArea)
+        {
+            GhostManager.Instance?.HideGhost(GhostKind.Token);
+            ClearHighlights();
+            draggingController?.SetIconVisible(true);
+            overlay?.Hide();
+
+            var toSell = draggingController;
+            ResetDrag();
+            RequestSellToken(toSell);
+            return;
+        }
+
+        int targetIndex = FindSlotIndexAtScreenPos(screenPos);
         if (targetIndex >= 0 && targetIndex != draggingStartIndex)
             SwapControllers(draggingStartIndex, targetIndex);
 
@@ -218,15 +242,13 @@ public sealed class TokenManager : MonoBehaviour
         draggingController?.SetIconVisible(true);
 
         ResetDrag();
+        overlay?.Hide();
     }
 
-    int FindNearestSlotIndex(Vector2 screenPos)
+    int FindSlotIndexAtScreenPos(Vector2 screenPos)
     {
         if (slotControllers == null || slotControllers.Length == 0)
             return -1;
-
-        float bestDist = float.MaxValue;
-        int bestIndex = -1;
 
         for (int i = 0; i < slotControllers.Length; i++)
         {
@@ -238,17 +260,11 @@ public sealed class TokenManager : MonoBehaviour
             if (rt == null)
                 continue;
 
-            Vector3 worldPos = rt.position;
-            Vector2 slotScreenPos = RectTransformUtility.WorldToScreenPoint(null, worldPos);
-            float dist = Vector2.SqrMagnitude(slotScreenPos - screenPos);
-            if (dist < bestDist)
-            {
-                bestDist = dist;
-                bestIndex = i;
-            }
+            if (RectTransformUtility.RectangleContainsScreenPoint(rt, screenPos))
+                return i;
         }
 
-        return bestIndex;
+        return -1;
     }
 
     public void UpdateDrag(TokenController controller, Vector2 screenPos)
@@ -258,8 +274,11 @@ public sealed class TokenManager : MonoBehaviour
 
         GhostManager.Instance?.UpdateGhostPosition(screenPos);
 
-        int targetIndex = FindNearestSlotIndex(screenPos);
+        int targetIndex = FindSlotIndexAtScreenPos(screenPos);
         UpdateHighlight(targetIndex);
+
+        var overlay = SellOverlayController.Instance;
+        overSellArea = overlay != null && overlay.ContainsScreenPoint(screenPos);
     }
 
     void SwapControllers(int indexA, int indexB)
@@ -341,6 +360,7 @@ public sealed class TokenManager : MonoBehaviour
     {
         draggingController = null;
         draggingStartIndex = -1;
+        overSellArea = false;
     }
 
     public void TriggerTokens(TokenTriggerType trigger)
@@ -350,6 +370,48 @@ public sealed class TokenManager : MonoBehaviour
 
         for (int i = 0; i < slotControllers.Length; i++)
             slotControllers[i]?.Instance?.HandleTrigger(trigger);
+    }
+
+    public void RequestSellToken(TokenController ctrl)
+    {
+        if (ctrl == null || ctrl.Instance == null)
+            return;
+
+        int price = Mathf.FloorToInt(ctrl.Instance.Price / 2f);
+        if (price <= 0)
+            return;
+
+        var args = new Dictionary<string, object>
+        {
+            ["pinName"] = LocalizationUtil.GetTokenName(ctrl.Instance.Id),
+            ["value"] = price
+        };
+
+        ModalManager.Instance.ShowConfirmation(
+            "modal",
+            "modal.sellpin.title",
+            "modal",
+            "modal.sellpin.message",
+            () => SellToken(ctrl, price),
+            () => { },
+            args);
+    }
+
+    void SellToken(TokenController ctrl, int price)
+    {
+        if (ctrl == null || ctrl.Instance == null)
+            return;
+
+        CurrencyManager.Instance?.AddCurrency(price);
+        RemoveToken(ctrl);
+    }
+
+    void RemoveToken(TokenController ctrl)
+    {
+        if (ctrl == null)
+            return;
+
+        ctrl.Bind(null);
     }
 
     public bool HasToken(string tokenId)

@@ -33,6 +33,7 @@ public sealed class FlowManager : MonoBehaviour
     }
 
     public bool CanDragPins => !StageManager.Instance.playActive;
+    public bool CanDragTokens => !StageManager.Instance.playActive;
 
     void Awake()
     {

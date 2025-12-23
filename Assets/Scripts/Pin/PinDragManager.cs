@@ -18,6 +18,7 @@ public sealed class PinDragManager : MonoBehaviour
     PinController draggingPin;
     Collider2D draggingCollider;
     PinController highlightedPin;
+    bool overSellArea;
     Vector3 originalPosition;
     Vector2 originalScreenPos;
     Graphic[] cachedGraphics = System.Array.Empty<Graphic>();
@@ -69,11 +70,13 @@ public sealed class PinDragManager : MonoBehaviour
         draggingPin = pin;
         originalPosition = pin.transform.position;
         originalScreenPos = WorldToScreen(originalPosition);
+        overSellArea = false;
 
         CacheVisuals(pin);
         SetVisualsEnabled(pin, false);
         DisableCollider(pin);
         ShowGhost(pin, screenPos);
+        SellOverlayController.Instance?.Show();
 
         return true;
     }
@@ -97,6 +100,9 @@ public sealed class PinDragManager : MonoBehaviour
             target = null;
 
         UpdateHighlight(target);
+
+        var sellOverlay = SellOverlayController.Instance;
+        overSellArea = sellOverlay != null && sellOverlay.ContainsScreenPoint(screenPos);
     }
 
     public void EndDrag(Vector2 screenPos)
@@ -107,6 +113,24 @@ public sealed class PinDragManager : MonoBehaviour
         if (!CanDragPins())
         {
             CancelDrag();
+            return;
+        }
+
+        var sellOverlay = SellOverlayController.Instance;
+        overSellArea = sellOverlay != null && sellOverlay.ContainsScreenPoint(screenPos);
+
+        if (overSellArea)
+        {
+            GhostManager.Instance?.HideGhost(GhostKind.Pin);
+            draggingPin.transform.position = originalPosition;
+            RestoreCollider();
+            SetVisualsEnabled(draggingPin, true);
+            ClearHighlight();
+            sellOverlay?.Hide();
+
+            var pinToSell = draggingPin;
+            draggingPin = null;
+            PinManager.Instance?.RequestSellPin(pinToSell);
             return;
         }
 
@@ -138,6 +162,7 @@ public sealed class PinDragManager : MonoBehaviour
         SetVisualsEnabled(draggingPin, true);
         GhostManager.Instance?.HideGhost(GhostKind.Pin);
         ClearHighlight();
+        SellOverlayController.Instance?.Hide();
         draggingPin = null;
     }
 
@@ -296,6 +321,7 @@ public sealed class PinDragManager : MonoBehaviour
         SetVisualsEnabled(draggingPin, true);
         draggingPin = null;
         animationRoutine = null;
+        SellOverlayController.Instance?.Hide();
     }
 
     IEnumerator PlaySwapAnimation(PinController current, PinController target, Vector3 dropWorldPos)
@@ -348,6 +374,7 @@ public sealed class PinDragManager : MonoBehaviour
 
         draggingPin = null;
         animationRoutine = null;
+        SellOverlayController.Instance?.Hide();
     }
 
     float ComputeDuration(Vector3 from, Vector3 to)
@@ -402,5 +429,6 @@ public sealed class PinDragManager : MonoBehaviour
 
         GhostManager.Instance?.HideGhost(GhostKind.Pin);
         ClearHighlight();
+        SellOverlayController.Instance?.Hide();
     }
 }

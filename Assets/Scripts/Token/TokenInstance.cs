@@ -9,6 +9,7 @@ public sealed class TokenInstance
 
     public string Id => BaseDto.id;
     public TokenRarity Rarity => BaseDto.rarity;
+    public int Price => BaseDto.price;
 
     private readonly List<TokenRuleDto> rules;
     public IReadOnlyList<TokenRuleDto> Rules => rules;
