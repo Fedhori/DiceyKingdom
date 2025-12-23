@@ -21,10 +21,6 @@ public sealed class ShopView : MonoBehaviour
     [SerializeField] private Button rerollButton;
     [SerializeField] private Button closeButton;
 
-    [Header("Pin Drag UI")]
-    [SerializeField] private Canvas rootCanvas;
-    [SerializeField] private Image dragGhostImage;
-
     readonly List<ShopItemView> itemViews = new();
 
     int selectedItemIndex = -1;
@@ -54,9 +50,6 @@ public sealed class ShopView : MonoBehaviour
 
         if (shopClosedOverlay != null)
             shopClosedOverlay.SetActive(true);
-
-        if (dragGhostImage != null)
-            dragGhostImage.gameObject.SetActive(false);
     }
 
     void ClearEditorPlacedItems()
@@ -238,46 +231,16 @@ public sealed class ShopView : MonoBehaviour
 
     public void ShowItemDragGhost(IShopItem item, Vector2 screenPos)
     {
-        if (dragGhostImage == null || item == null)
-            return;
-
-        dragGhostImage.sprite = item.Icon;
-        dragGhostImage.gameObject.SetActive(true);
-        UpdateDragGhostPosition(screenPos);
+        GhostManager.Instance?.ShowGhost(item?.Icon, screenPos, item?.ItemType == ShopItemType.Token ? GhostKind.Token : GhostKind.Pin);
     }
 
     public void UpdateItemDragGhostPosition(Vector2 screenPos)
     {
-        UpdateDragGhostPosition(screenPos);
+        GhostManager.Instance?.UpdateGhostPosition(screenPos);
     }
 
     public void HideItemDragGhost()
     {
-        if (dragGhostImage != null)
-            dragGhostImage.gameObject.SetActive(false);
-    }
-
-    void UpdateDragGhostPosition(Vector2 screenPos)
-    {
-        if (dragGhostImage == null)
-            return;
-
-        var rectTransform = dragGhostImage.rectTransform;
-
-        Canvas canvas = rootCanvas != null ? rootCanvas : rectTransform.GetComponentInParent<Canvas>();
-        if (canvas == null)
-            return;
-
-        Camera cam = null;
-        if (canvas.renderMode == RenderMode.ScreenSpaceCamera ||
-            canvas.renderMode == RenderMode.WorldSpace)
-        {
-            cam = canvas.worldCamera;
-        }
-
-        if (RectTransformUtility.ScreenPointToWorldPointInRectangle(rectTransform, screenPos, cam, out var worldPos))
-        {
-            rectTransform.position = worldPos;
-        }
+        GhostManager.Instance?.HideGhost();
     }
 }

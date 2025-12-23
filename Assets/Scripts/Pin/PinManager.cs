@@ -188,7 +188,7 @@ public sealed class PinManager : MonoBehaviour
         return true;
     }
 
-    public void SwapPins(PinController a, PinController b)
+    public void SwapPins(PinController a, PinController b, bool moveTransforms = true)
     {
         if (a == null || b == null || a == b)
             return;
@@ -204,11 +204,21 @@ public sealed class PinManager : MonoBehaviour
             return;
         }
 
-        var temp = a.Instance;
-        a.BindExistingInstance(b.Instance);
-        b.BindExistingInstance(temp);
-        a.SetGridIndices(rowA, colA);
-        b.SetGridIndices(rowB, colB);
+        pinsByRow[rowA][colA] = b;
+        pinsByRow[rowB][colB] = a;
+
+        a.SetGridIndices(rowB, colB);
+        b.SetGridIndices(rowA, colA);
+
+        if (!moveTransforms)
+            return;
+
+        // 위치 스왑을 통해 Controller와 Instance를 함께 이동
+        Vector3 posA = a.transform.position;
+        Vector3 posB = b.transform.position;
+
+        a.transform.position = posB;
+        b.transform.position = posA;
     }
 
     public void RequestSellPin(PinController pin)

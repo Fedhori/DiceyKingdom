@@ -11,23 +11,11 @@ public sealed class TokenController : MonoBehaviour, IBeginDragHandler, IEndDrag
     [SerializeField] RectTransform rectTransform;
     public RectTransform RectTransform => rectTransform != null ? rectTransform : (rectTransform = GetComponent<RectTransform>());
     [SerializeField] Image iconImage;
-    [SerializeField] Image highlightImage;
-    [SerializeField] Graphic raycastGraphic;
+    public GameObject dragHighlightMask;
     [SerializeField] TooltipAnchorType anchorType = TooltipAnchorType.Screen;
-
-    Color baseHighlightColor = Color.white;
 
     void Awake()
     {
-        if (raycastGraphic == null)
-            raycastGraphic = highlightImage != null ? highlightImage : (iconImage != null ? iconImage : GetComponent<Graphic>());
-
-        if (raycastGraphic != null)
-            raycastGraphic.raycastTarget = true;
-
-        if (highlightImage != null)
-            baseHighlightColor = highlightImage.color;
-
         if (iconImage != null)
             iconImage.gameObject.SetActive(false);
     }
@@ -74,10 +62,13 @@ public sealed class TokenController : MonoBehaviour, IBeginDragHandler, IEndDrag
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
         if (Instance == null)
             return;
 
-        TokenManager.Instance?.BeginDrag(this);
+        TokenManager.Instance?.BeginDrag(this, eventData.position);
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -116,10 +107,7 @@ public sealed class TokenController : MonoBehaviour, IBeginDragHandler, IEndDrag
 
     public void SetHighlight(bool active, Color highlightColor)
     {
-        if (highlightImage == null)
-            return;
-
-        highlightImage.color = active ? highlightColor : baseHighlightColor;
+        // Deprecated: visual highlight now handled via dragHighlightMask
     }
 
     public void ShowTooltip(PointerEventData eventData)

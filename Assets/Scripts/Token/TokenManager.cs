@@ -1,20 +1,19 @@
 using Data;
 using UnityEngine;
-using UnityEngine.UI;
 
 public sealed class TokenManager : MonoBehaviour
 {
     public static TokenManager Instance { get; private set; }
 
     [SerializeField] Transform slotContainer;
+    [SerializeField] TokenController slotPrefab;
+    [SerializeField] float slotSpacing = 10f;
     TokenController[] slotControllers;
 
     TokenController draggingController;
     int draggingStartIndex = -1;
     int currentHighlightIndex = -1;
 
-    [SerializeField] RectTransform dragGhostRect;
-    [SerializeField] Image dragGhostImage;
     [SerializeField] Color slotHighlightColor = Color.white;
 
     void Awake()
@@ -26,34 +25,37 @@ public sealed class TokenManager : MonoBehaviour
         }
 
         Instance = this;
-        CacheSlotControllers();
-        InitializeSlots();
+        BuildSlots();
     }
 
-    void CacheSlotControllers()
+    void BuildSlots()
     {
-        if (slotContainer == null)
+        if (slotContainer == null || slotPrefab == null)
         {
-            slotControllers = GetComponentsInChildren<TokenController>(true);
+            Debug.LogError("[TokenManager] slotContainer or slotPrefab is not assigned.");
+            slotControllers = System.Array.Empty<TokenController>();
             return;
         }
 
-        slotControllers = slotContainer.GetComponentsInChildren<TokenController>(true);
-    }
-
-    void InitializeSlots()
-    {
-        if (slotControllers == null)
-            return;
-
-        for (int i = 0; i < slotControllers.Length; i++)
+        // 기존 자식 슬롯 정리
+        for (int i = slotContainer.childCount - 1; i >= 0; i--)
         {
-            var ctrl = slotControllers[i];
-            if (ctrl == null)
-                continue;
+            var child = slotContainer.GetChild(i);
+            if (child != null)
+                Destroy(child.gameObject);
+        }
 
+        int slotCount = Mathf.Max(0, GameConfig.TokenSlotCount);
+        slotControllers = new TokenController[slotCount];
+
+        for (int i = 0; i < slotCount; i++)
+        {
+            var ctrl = Instantiate(slotPrefab, slotContainer);
             ctrl.SetSlotIndex(i);
+            slotControllers[i] = ctrl;
         }
+
+        PositionSlots();
     }
 
     public bool TryAddTokenAt(string tokenId, int slotIndex, out TokenInstance instance)
@@ -159,7 +161,8 @@ public sealed class TokenManager : MonoBehaviour
                 continue;
 
             bool empty = ctrl.Instance == null;
-            ctrl.SetHighlight(empty, slotHighlightColor);
+            if (ctrl.dragHighlightMask != null)
+                ctrl.dragHighlightMask.SetActive(empty);
         }
     }
 
@@ -174,13 +177,15 @@ public sealed class TokenManager : MonoBehaviour
             if (ctrl == null)
                 continue;
 
+            if (ctrl.dragHighlightMask != null)
+                ctrl.dragHighlightMask.SetActive(false);
             ctrl.SetHighlight(false, slotHighlightColor);
         }
 
         currentHighlightIndex = -1;
     }
 
-    public bool BeginDrag(TokenController controller)
+    public bool BeginDrag(TokenController controller, Vector2 screenPos)
     {
         if (controller == null)
             return false;
@@ -191,7 +196,7 @@ public sealed class TokenManager : MonoBehaviour
 
         draggingController = controller;
         draggingStartIndex = idx;
-        ShowDragGhost(controller.GetIconSprite(), controller.RectTransform.position);
+        GhostManager.Instance?.ShowGhost(controller.GetIconSprite(), screenPos, GhostKind.Token);
         controller.SetIconVisible(false);
         return true;
     }
@@ -208,8 +213,8 @@ public sealed class TokenManager : MonoBehaviour
         if (targetIndex >= 0 && targetIndex != draggingStartIndex)
             SwapControllers(draggingStartIndex, targetIndex);
 
-        HideDragGhost();
-        ClearHighlight();
+        GhostManager.Instance?.HideGhost(GhostKind.Token);
+        ClearHighlights();
         draggingController?.SetIconVisible(true);
 
         ResetDrag();
@@ -251,8 +256,7 @@ public sealed class TokenManager : MonoBehaviour
         if (draggingController == null || controller != draggingController)
             return;
 
-        if (dragGhostRect != null)
-            dragGhostRect.position = screenPos;
+        GhostManager.Instance?.UpdateGhostPosition(screenPos);
 
         int targetIndex = FindNearestSlotIndex(screenPos);
         UpdateHighlight(targetIndex);
@@ -272,9 +276,65 @@ public sealed class TokenManager : MonoBehaviour
         if (ctrlA == null || ctrlB == null)
             return;
 
-        var temp = ctrlA.Instance;
-        ctrlA.Bind(ctrlB.Instance);
-        ctrlB.Bind(temp);
+        int siblingA = ctrlA.transform.GetSiblingIndex();
+        int siblingB = ctrlB.transform.GetSiblingIndex();
+
+        slotControllers[indexA] = ctrlB;
+        slotControllers[indexB] = ctrlA;
+
+        ctrlA.SetSlotIndex(indexB);
+        ctrlB.SetSlotIndex(indexA);
+
+        ctrlA.transform.SetSiblingIndex(siblingB);
+        ctrlB.transform.SetSiblingIndex(siblingA);
+
+        PositionSlots();
+    }
+
+    void PositionSlots()
+    {
+        if (slotControllers == null || slotControllers.Length == 0)
+            return;
+
+        var containerRt = slotContainer as RectTransform;
+        float slotWidth = GetSlotSize().x;
+        float spacing = Mathf.Max(0f, slotSpacing);
+        float totalWidth = slotWidth * slotControllers.Length + spacing * Mathf.Max(0, slotControllers.Length - 1);
+        float startX = -0.5f * totalWidth + slotWidth * 0.5f;
+
+        for (int i = 0; i < slotControllers.Length; i++)
+        {
+            var ctrl = slotControllers[i];
+            if (ctrl == null)
+                continue;
+
+            var rt = ctrl.RectTransform;
+            if (rt == null)
+                continue;
+
+            if (containerRt != null)
+            {
+                rt.SetParent(containerRt, false);
+                rt.anchorMin = new Vector2(0.5f, 0.5f);
+                rt.anchorMax = new Vector2(0.5f, 0.5f);
+                rt.pivot = new Vector2(0.5f, 0.5f);
+            }
+
+            float x = startX + i * (slotWidth + spacing);
+            rt.anchoredPosition = new Vector2(x, 0f);
+        }
+    }
+
+    Vector2 GetSlotSize()
+    {
+        if (slotPrefab != null)
+        {
+            var rt = slotPrefab.RectTransform != null ? slotPrefab.RectTransform : slotPrefab.GetComponent<RectTransform>();
+            if (rt != null)
+                return rt.sizeDelta;
+        }
+
+        return new Vector2(100f, 100f);
     }
 
     void ResetDrag()
@@ -330,25 +390,6 @@ public sealed class TokenManager : MonoBehaviour
         return slotControllers != null && index >= 0 && index < slotControllers.Length;
     }
 
-    void ShowDragGhost(Sprite sprite, Vector2 screenPos)
-    {
-        if (dragGhostRect == null || dragGhostImage == null)
-            return;
-
-        dragGhostImage.sprite = sprite;
-        dragGhostImage.enabled = sprite != null;
-        dragGhostRect.gameObject.SetActive(true);
-        dragGhostRect.position = screenPos;
-    }
-
-    void HideDragGhost()
-    {
-        if (dragGhostRect == null)
-            return;
-
-        dragGhostRect.gameObject.SetActive(false);
-    }
-
     void UpdateHighlight(int targetIndex)
     {
         if (currentHighlightIndex == targetIndex)
@@ -364,6 +405,8 @@ public sealed class TokenManager : MonoBehaviour
             return;
 
         ctrl.SetHighlight(true, slotHighlightColor);
+        if (ctrl.dragHighlightMask != null)
+            ctrl.dragHighlightMask.SetActive(true);
         currentHighlightIndex = targetIndex;
     }
 
@@ -373,7 +416,11 @@ public sealed class TokenManager : MonoBehaviour
         {
             var ctrl = slotControllers[currentHighlightIndex];
             if (ctrl != null)
+            {
                 ctrl.SetHighlight(false, slotHighlightColor);
+                if (ctrl.dragHighlightMask != null)
+                    ctrl.dragHighlightMask.SetActive(false);
+            }
         }
 
         currentHighlightIndex = -1;

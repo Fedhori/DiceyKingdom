@@ -20,7 +20,7 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
     [SerializeField] TMP_Text remainingHitsText;
     [SerializeField] TMP_Text hitCountText;
     [SerializeField] private SellClickTarget sellPin;
-    [SerializeField] private WorldHighlight highlight;
+    public GameObject dragHighlightMask;
 
     bool initialized;
     bool eventsAttached;
@@ -74,9 +74,6 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
             PinManager.Instance.UnregisterPin(this, rowIndex, columnIndex);
 
         DetachEvents();
-
-        if (highlight != null)
-            highlight.SetHighlight(false);
 
         PinDragManager.Instance?.CancelDragFromPin(this);
     }
@@ -248,9 +245,6 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
 
     void HandleSelectionChanged(int selectedIndex)
     {
-        if (highlight == null)
-            return;
-
         bool shouldHighlight = false;
         if (IsBasicPin && selectedIndex >= 0)
         {
@@ -259,7 +253,8 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
             shouldHighlight = item != null && item.ItemType == ShopItemType.Pin;
         }
 
-        highlight.SetHighlight(shouldHighlight);
+        if (dragHighlightMask != null)
+            dragHighlightMask.SetActive(false);
     }
 
     void BindNewInstance(string pinId, int hitCount, int row, int column)

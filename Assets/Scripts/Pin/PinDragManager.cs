@@ -1,4 +1,7 @@
+using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public sealed class PinDragManager : MonoBehaviour
 {
@@ -9,17 +12,20 @@ public sealed class PinDragManager : MonoBehaviour
 
     [Header("Drag Visual")]
     [SerializeField, Range(0f, 1f)] float dragAlpha = 0.5f;
+    [SerializeField] float minMoveSpeed = 8f;
+    [SerializeField] float moveDuration = 0.2f;
 
     PinController draggingPin;
-    SpriteRenderer draggingSprite;
-    Color originalColor;
-    Vector3 originalPosition;
-    int originalRow;
-    int originalCol;
-    
     Collider2D draggingCollider;
+    PinController highlightedPin;
+    Vector3 originalPosition;
+    Vector2 originalScreenPos;
+    Graphic[] cachedGraphics = System.Array.Empty<Graphic>();
+    SpriteRenderer[] cachedSprites = System.Array.Empty<SpriteRenderer>();
+    Color[] spriteOriginalColors = System.Array.Empty<Color>();
+    Coroutine animationRoutine;
 
-    WorldHighlight currentHighlight;
+    bool IsAnimating => animationRoutine != null;
 
     void Awake()
     {
@@ -52,26 +58,22 @@ public sealed class PinDragManager : MonoBehaviour
         if (pin == null || worldCamera == null)
             return false;
 
+        if (pin.Instance != null && pin.Instance.Id == GameConfig.BasicPinId)
+            return false;
+
         if (!CanDragPins())
             return false;
 
+        StopActiveAnimation();
+
         draggingPin = pin;
         originalPosition = pin.transform.position;
-        originalRow = pin.RowIndex;
-        originalCol = pin.ColumnIndex;
+        originalScreenPos = WorldToScreen(originalPosition);
 
-        draggingCollider = pin.GetComponent<Collider2D>();
-        if (draggingCollider != null)
-            draggingCollider.enabled = false;
-
-        draggingSprite = pin.GetComponentInChildren<SpriteRenderer>();
-        if (draggingSprite != null)
-        {
-            originalColor = draggingSprite.color;
-            var c = originalColor;
-            c.a = dragAlpha;
-            draggingSprite.color = c;
-        }
+        CacheVisuals(pin);
+        SetVisualsEnabled(pin, false);
+        DisableCollider(pin);
+        ShowGhost(pin, screenPos);
 
         return true;
     }
@@ -87,9 +89,9 @@ public sealed class PinDragManager : MonoBehaviour
             return;
         }
 
-        var worldPos = ScreenToWorld(screenPos);
-        draggingPin.transform.position = new Vector2(worldPos.x, worldPos.y);
+        GhostManager.Instance?.UpdateGhostPosition(screenPos);
 
+        var worldPos = ScreenToWorld(screenPos);
         var target = FindTargetPin(worldPos);
         if (target == draggingPin)
             target = null;
@@ -108,20 +110,19 @@ public sealed class PinDragManager : MonoBehaviour
             return;
         }
 
+        ClearHighlight();
+
         var worldPos = ScreenToWorld(screenPos);
         var target = FindTargetPin(worldPos);
 
         if (target != null && target != draggingPin && PinManager.Instance != null)
         {
-            PinManager.Instance.SwapPins(draggingPin, target);
+            animationRoutine = StartCoroutine(PlaySwapAnimation(draggingPin, target, worldPos));
         }
-
-        draggingPin.transform.position = originalPosition;
-
-        RestoreCollider();
-        RestoreSprite();
-        ClearHighlight();
-        draggingPin = null;
+        else
+        {
+            animationRoutine = StartCoroutine(PlayReturnAnimation());
+        }
     }
 
     public bool IsDragging(PinController pin)
@@ -131,11 +132,11 @@ public sealed class PinDragManager : MonoBehaviour
 
     public void CancelDrag()
     {
-        if (draggingPin != null)
-            draggingPin.transform.position = originalPosition;
+        StopActiveAnimation();
 
         RestoreCollider();
-        RestoreSprite();
+        SetVisualsEnabled(draggingPin, true);
+        GhostManager.Instance?.HideGhost(GhostKind.Pin);
         ClearHighlight();
         draggingPin = null;
     }
@@ -160,44 +161,29 @@ public sealed class PinDragManager : MonoBehaviour
         }
     }
 
-    void RestoreSprite()
-    {
-        if (draggingSprite != null)
-        {
-            draggingSprite.color = originalColor;
-            draggingSprite = null;
-        }
-    }
-
     void ClearHighlight()
     {
-        if (currentHighlight != null)
-        {
-            currentHighlight.SetPulse(false);
-            currentHighlight.SetHighlight(false);
-            currentHighlight = null;
-        }
+        if (highlightedPin != null && highlightedPin.dragHighlightMask != null)
+            highlightedPin.dragHighlightMask.SetActive(false);
+
+        highlightedPin = null;
     }
 
     void UpdateHighlight(PinController target)
     {
-        if (currentHighlight != null)
-        {
-            currentHighlight.SetPulse(false);
-            currentHighlight.SetHighlight(false);
-            currentHighlight = null;
-        }
+        if (highlightedPin != null && highlightedPin.dragHighlightMask != null)
+            highlightedPin.dragHighlightMask.SetActive(false);
+
+        highlightedPin = null;
 
         if (target == null)
             return;
 
-        var h = target.GetComponent<WorldHighlight>();
-        if (h == null)
-            return;
-
-        h.SetHighlight(true);
-        h.SetPulse(true);
-        currentHighlight = h;
+        if (target.dragHighlightMask != null)
+        {
+            target.dragHighlightMask.SetActive(true);
+            highlightedPin = target;
+        }
     }
 
     PinController FindTargetPin(Vector3 worldPos)
@@ -213,5 +199,208 @@ public sealed class PinDragManager : MonoBehaviour
     {
         var sp = new Vector3(screenPos.x, screenPos.y, -worldCamera.transform.position.z);
         return worldCamera.ScreenToWorldPoint(sp);
+    }
+
+    Vector2 WorldToScreen(Vector3 worldPos)
+    {
+        return worldCamera != null ? (Vector2)worldCamera.WorldToScreenPoint(worldPos) : Vector2.zero;
+    }
+
+    void CacheVisuals(PinController pin)
+    {
+        cachedGraphics = pin != null ? pin.GetComponentsInChildren<Graphic>(true) : System.Array.Empty<Graphic>();
+        cachedSprites = pin != null ? pin.GetComponentsInChildren<SpriteRenderer>(true) : System.Array.Empty<SpriteRenderer>();
+        spriteOriginalColors = new Color[cachedSprites.Length];
+        for (int i = 0; i < cachedSprites.Length; i++)
+            spriteOriginalColors[i] = cachedSprites[i].color;
+    }
+
+    void SetVisualsEnabled(PinController pin, bool enabled)
+    {
+        if (pin == null)
+            return;
+
+        for (int i = 0; i < cachedGraphics.Length; i++)
+        {
+            var g = cachedGraphics[i];
+            if (g == null)
+                continue;
+
+            g.enabled = enabled;
+            g.raycastTarget = enabled;
+        }
+
+        for (int i = 0; i < cachedSprites.Length; i++)
+        {
+            var sr = cachedSprites[i];
+            if (sr == null)
+                continue;
+
+            sr.enabled = enabled;
+            var c = spriteOriginalColors[i];
+            if (!enabled)
+                c.a = dragAlpha;
+            sr.color = c;
+        }
+    }
+
+    void DisableCollider(PinController pin)
+    {
+        draggingCollider = pin != null ? pin.GetComponent<Collider2D>() : null;
+        if (draggingCollider != null)
+            draggingCollider.enabled = false;
+    }
+
+    void ShowGhost(PinController pin, Vector2 screenPos)
+    {
+        var ghost = GhostManager.Instance;
+        if (ghost == null)
+            return;
+
+        Sprite sprite = null;
+        if (pin != null && pin.Instance != null)
+            sprite = SpriteCache.GetPinSprite(pin.Instance.Id);
+
+        ghost.ShowGhost(sprite, screenPos, GhostKind.Pin);
+    }
+
+    IEnumerator PlayReturnAnimation()
+    {
+        var ghost = GhostManager.Instance;
+        if (ghost == null || draggingPin == null)
+        {
+            RestoreCollider();
+            SetVisualsEnabled(draggingPin, true);
+            draggingPin = null;
+            animationRoutine = null;
+            yield break;
+        }
+
+        Vector2 start = ghost.IsVisible ? ghost.CurrentScreenPosition : originalScreenPos;
+        Vector2 end = originalScreenPos;
+        float duration = ComputeGhostDuration(start, end);
+
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float u = Mathf.Clamp01(t / duration);
+            var pos = Vector2.Lerp(start, end, u);
+            ghost.UpdateGhostPosition(pos);
+            yield return null;
+        }
+
+        ghost.UpdateGhostPosition(end);
+        ghost.HideGhost(GhostKind.Pin);
+        RestoreCollider();
+        SetVisualsEnabled(draggingPin, true);
+        draggingPin = null;
+        animationRoutine = null;
+    }
+
+    IEnumerator PlaySwapAnimation(PinController current, PinController target, Vector3 dropWorldPos)
+    {
+        var ghost = GhostManager.Instance;
+        if (ghost != null)
+            ghost.HideGhost(GhostKind.Pin);
+
+        if (current == null || target == null)
+        {
+            RestoreCollider();
+            SetVisualsEnabled(current, true);
+            draggingPin = null;
+            animationRoutine = null;
+            yield break;
+        }
+
+        SetVisualsEnabled(current, true);
+        SetVisualsEnabled(target, true);
+        var targetCollider = target.GetComponent<Collider2D>();
+        bool targetColliderWasEnabled = targetCollider != null && targetCollider.enabled;
+        if (targetCollider != null)
+            targetCollider.enabled = false;
+
+        // 현재 핀은 고스트 위치에서 목표 슬롯으로, 타겟 핀은 동시에 원본 슬롯으로 이동
+        current.transform.position = dropWorldPos;
+
+        Vector3 posAStart = dropWorldPos;
+        Vector3 posAEnd = target.transform.position;
+        Vector3 posBStart = target.transform.position;
+        Vector3 posBEnd = originalPosition;
+
+        float durA = ComputeDuration(posAStart, posAEnd);
+        float durB = ComputeDuration(posBStart, posBEnd);
+
+        var moveA = MoveTransform(current.transform, posAStart, posAEnd, durA);
+        var moveB = MoveTransform(target.transform, posBStart, posBEnd, durB);
+
+        while (moveA.MoveNext() | moveB.MoveNext())
+            yield return null;
+
+        current.transform.position = posAEnd;
+        target.transform.position = posBEnd;
+
+        PinManager.Instance?.SwapPins(current, target, moveTransforms: false);
+
+        RestoreCollider();
+        if (targetCollider != null)
+            targetCollider.enabled = targetColliderWasEnabled;
+
+        draggingPin = null;
+        animationRoutine = null;
+    }
+
+    float ComputeDuration(Vector3 from, Vector3 to)
+    {
+        float dist = Vector3.Distance(from, to);
+        float speedByTime = dist <= 0.001f || moveDuration <= 0.001f ? minMoveSpeed : dist / moveDuration;
+        float speed = Mathf.Max(minMoveSpeed, speedByTime);
+        return speed <= 0f ? 0.01f : dist / speed;
+    }
+
+    float ComputeGhostDuration(Vector2 from, Vector2 to)
+    {
+        float dist = Vector2.Distance(from, to);
+        float speed = moveDuration > 0.001f ? dist / moveDuration : float.MaxValue;
+        if (speed <= 0f || float.IsInfinity(speed))
+            speed = minMoveSpeed;
+        return speed <= 0f ? 0.01f : dist / speed;
+    }
+
+    IEnumerator MoveTransform(Transform t, Vector3 from, Vector3 to, float duration)
+    {
+        if (t == null)
+            yield break;
+
+        float tAccum = 0f;
+        duration = Mathf.Max(0.01f, duration);
+        while (tAccum < duration)
+        {
+            tAccum += Time.deltaTime;
+            float u = Mathf.Clamp01(tAccum / duration);
+            t.position = Vector3.Lerp(from, to, u);
+            yield return null;
+        }
+
+        t.position = to;
+    }
+
+    void StopActiveAnimation()
+    {
+        if (animationRoutine != null)
+        {
+            StopCoroutine(animationRoutine);
+            animationRoutine = null;
+        }
+
+        if (draggingPin != null)
+        {
+            RestoreCollider();
+            SetVisualsEnabled(draggingPin, true);
+            draggingPin = null;
+        }
+
+        GhostManager.Instance?.HideGhost(GhostKind.Pin);
+        ClearHighlight();
     }
 }
