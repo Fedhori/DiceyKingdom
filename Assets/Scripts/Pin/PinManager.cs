@@ -188,6 +188,52 @@ public sealed class PinManager : MonoBehaviour
         return true;
     }
 
+    public void HighlightBasicPins()
+    {
+        if (pinsByRow == null)
+            return;
+
+        string basicId = !string.IsNullOrEmpty(DefaultPinId) ? DefaultPinId : GameConfig.BasicPinId;
+
+        for (int r = 0; r < pinsByRow.Count; r++)
+        {
+            var rowList = pinsByRow[r];
+            if (rowList == null)
+                continue;
+
+            for (int c = 0; c < rowList.Count; c++)
+            {
+                var ctrl = rowList[c];
+                if (ctrl == null)
+                    continue;
+
+                bool shouldHighlight = ctrl.Instance != null && ctrl.Instance.Id == basicId;
+                if (ctrl.dragHighlightMask != null)
+                    ctrl.dragHighlightMask.SetActive(shouldHighlight);
+            }
+        }
+    }
+
+    public void ClearPinHighlights()
+    {
+        if (pinsByRow == null)
+            return;
+
+        for (int r = 0; r < pinsByRow.Count; r++)
+        {
+            var rowList = pinsByRow[r];
+            if (rowList == null)
+                continue;
+
+            for (int c = 0; c < rowList.Count; c++)
+            {
+                var ctrl = rowList[c];
+                if (ctrl?.dragHighlightMask != null)
+                    ctrl.dragHighlightMask.SetActive(false);
+            }
+        }
+    }
+
     public void SwapPins(PinController a, PinController b, bool moveTransforms = true)
     {
         if (a == null || b == null || a == b)

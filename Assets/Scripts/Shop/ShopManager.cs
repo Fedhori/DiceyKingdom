@@ -305,6 +305,7 @@ public sealed class ShopManager : MonoBehaviour
         ApplySelection(null, -1);
         shopView?.ClearSelectionVisuals();
         TokenManager.Instance?.ClearHighlights();
+        PinManager.Instance?.ClearPinHighlights();
     }
 
     void ApplySelection(IShopItem selection, int itemIndex)
@@ -539,11 +540,13 @@ public sealed class ShopManager : MonoBehaviour
             // 토큰 슬롯 하이라이트, 핀 선택 해제
             TokenManager.Instance?.HighlightEmptySlots();
             shopView?.ClearSelectionVisuals();
+            PinManager.Instance?.ClearPinHighlights();
         }
         else if (item.ItemType == ShopItemType.Pin)
         {
-            // 핀 슬롯 하이라이트(기존 ShopView) 유지, 토큰 하이라이트 해제
+            // 핀 슬롯 하이라이트, 토큰 하이라이트 해제
             TokenManager.Instance?.ClearHighlights();
+            PinManager.Instance?.HighlightBasicPins();
         }
     }
 
@@ -628,12 +631,14 @@ public sealed class ShopManager : MonoBehaviour
         switch (item.ItemType)
         {
             case ShopItemType.Pin:
+                PinManager.Instance?.HighlightBasicPins();
                 draggingPinIndex = itemIndex;
                 shopView.ShowItemDragGhost(item, screenPos);
                 break;
             case ShopItemType.Token:
                 draggingTokenIndex = itemIndex;
                 TokenManager.Instance?.HighlightEmptySlots();
+                PinManager.Instance?.ClearPinHighlights();
                 shopView.ShowItemDragGhost(item, screenPos);
                 break;
         }
@@ -686,6 +691,7 @@ public sealed class ShopManager : MonoBehaviour
         draggingPinIndex = -1;
         draggingTokenIndex = -1;
         TokenManager.Instance?.ClearHighlights();
+        PinManager.Instance?.ClearPinHighlights();
     }
 
     bool TryGetTargetPinFromScreenPos(Vector2 screenPos, out PinController pin)
