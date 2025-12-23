@@ -77,8 +77,11 @@ public sealed class FlowManager : MonoBehaviour
         
         PinManager.Instance.TriggerPins(PinTriggerType.OnStageStart);
         TokenManager.Instance.TriggerTokens(TokenTriggerType.OnStageStart);
-        
-        OnStagePlayStart();
+
+        if (stageIndex == 0)
+            OnStagePlayStart();
+        else
+            OpenShop();
     }
 
     bool IsLastStage =>
@@ -134,7 +137,7 @@ public sealed class FlowManager : MonoBehaviour
             return;
         }
 
-        OpenShop();
+        AdvanceToNextStage();
     }
 
     public void OnShopClosed()
@@ -151,7 +154,7 @@ public sealed class FlowManager : MonoBehaviour
             return;
         }
 
-        AdvanceToNextStage();
+        OnStagePlayStart();
     }
 
     bool IsStageCleared()
