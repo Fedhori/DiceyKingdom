@@ -91,6 +91,7 @@ public class OptionManager : MonoBehaviour
 
     void RestartGame()
     {
+        ToggleOption(false);
         GameManager.Instance?.RestartGame();
     }
     
