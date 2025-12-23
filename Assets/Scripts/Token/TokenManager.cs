@@ -8,7 +8,6 @@ public sealed class TokenManager : MonoBehaviour
 
     [SerializeField] Transform slotContainer;
     [SerializeField] TokenController slotPrefab;
-    [SerializeField] float slotSpacing = 10f;
     TokenController[] slotControllers;
 
     TokenController draggingController;
@@ -57,7 +56,6 @@ public sealed class TokenManager : MonoBehaviour
             slotControllers[i] = ctrl;
         }
 
-        PositionSlots();
     }
 
     public bool TryAddTokenAt(string tokenId, int slotIndex, out TokenInstance instance)
@@ -307,53 +305,6 @@ public sealed class TokenManager : MonoBehaviour
         ctrlA.transform.SetSiblingIndex(siblingB);
         ctrlB.transform.SetSiblingIndex(siblingA);
 
-        PositionSlots();
-    }
-
-    void PositionSlots()
-    {
-        if (slotControllers == null || slotControllers.Length == 0)
-            return;
-
-        var containerRt = slotContainer as RectTransform;
-        float slotWidth = GetSlotSize().x;
-        float spacing = Mathf.Max(0f, slotSpacing);
-        float totalWidth = slotWidth * slotControllers.Length + spacing * Mathf.Max(0, slotControllers.Length - 1);
-        float startX = -0.5f * totalWidth + slotWidth * 0.5f;
-
-        for (int i = 0; i < slotControllers.Length; i++)
-        {
-            var ctrl = slotControllers[i];
-            if (ctrl == null)
-                continue;
-
-            var rt = ctrl.RectTransform;
-            if (rt == null)
-                continue;
-
-            if (containerRt != null)
-            {
-                rt.SetParent(containerRt, false);
-                rt.anchorMin = new Vector2(0.5f, 0.5f);
-                rt.anchorMax = new Vector2(0.5f, 0.5f);
-                rt.pivot = new Vector2(0.5f, 0.5f);
-            }
-
-            float x = startX + i * (slotWidth + spacing);
-            rt.anchoredPosition = new Vector2(x, 0f);
-        }
-    }
-
-    Vector2 GetSlotSize()
-    {
-        if (slotPrefab != null)
-        {
-            var rt = slotPrefab.RectTransform != null ? slotPrefab.RectTransform : slotPrefab.GetComponent<RectTransform>();
-            if (rt != null)
-                return rt.sizeDelta;
-        }
-
-        return new Vector2(100f, 100f);
     }
 
     void ResetDrag()
