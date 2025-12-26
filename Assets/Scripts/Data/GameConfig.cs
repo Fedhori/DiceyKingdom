@@ -7,7 +7,9 @@ public static class GameConfig
     public static int BaseIncome = 10;
     public static int MaxRuleCount = 4;
     public static int BaseBallIncome = 1;
-    public static int TokenSlotCount = 5;
+    public static int TokenSlotCount = 8;
+    public static float BallSpeed = 1000f;
+    public static float BallRadius = 16f;
 }
 
 public static class LayerMaskUtil

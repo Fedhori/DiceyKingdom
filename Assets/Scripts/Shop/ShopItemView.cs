@@ -91,12 +91,12 @@ public sealed class ShopItemView : MonoBehaviour, IPointerClickHandler, IBeginDr
             if (sold)
             {
                 priceText.text = LocalizationUtil.SoldString;
-                priceText.color = Colors.Black;
+                priceText.color = Colors.Green;
             }
             else
             {
                 priceText.text = $"${price}";
-                priceText.color = canBuy ? Colors.Black : Colors.Red;
+                priceText.color = canBuy ? Colors.Green : Colors.Red;
             }
         }
     }

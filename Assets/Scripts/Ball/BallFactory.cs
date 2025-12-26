@@ -11,7 +11,7 @@ public sealed class BallFactory : MonoBehaviour
         Instance = this;
     }
 
-    public void SpawnBall(BallRarity rarity, Vector2 localPosition)
+    public void SpawnBall(BallRarity rarity, Vector2 spawnPosition)
     {
         if (FlowManager.Instance.CurrentPhase != FlowPhase.Play)
         {
@@ -20,7 +20,7 @@ public sealed class BallFactory : MonoBehaviour
         }
 
         var ball = Instantiate(ballPrefab, ballParent, false);
-        ball.transform.localPosition = localPosition;
+        ball.transform.localPosition = spawnPosition;
         ball.transform.localRotation = Quaternion.identity;
 
         var controller = ball.GetComponent<BallController>();
@@ -30,11 +30,11 @@ public sealed class BallFactory : MonoBehaviour
         var rb = ball.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
-            Vector2 dir = Random.insideUnitCircle;
-            if (dir.sqrMagnitude < 0.0001f)
-                dir = Vector2.right;
+            Vector2 dir = BallManager.Instance != null ? BallManager.Instance.LaunchDirection : Vector2.up;
+            if (dir == Vector2.zero)
+                dir = Vector2.up;
 
-            rb.linearVelocity = dir.normalized * 500f;
+            rb.linearVelocity = dir.normalized * GameConfig.BallSpeed;
         }
     }
 }

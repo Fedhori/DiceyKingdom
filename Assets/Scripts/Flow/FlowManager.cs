@@ -5,6 +5,7 @@ using UnityEngine;
 public enum FlowPhase
 {
     None,
+    Ready,
     Play,
     Reward,
     Shop
@@ -34,6 +35,7 @@ public sealed class FlowManager : MonoBehaviour
 
     public bool CanDragPins => !StageManager.Instance.playActive;
     public bool CanDragTokens => !StageManager.Instance.playActive;
+    public bool CanAimBalls => currentPhase == FlowPhase.Ready;
 
     void Awake()
     {
@@ -74,12 +76,14 @@ public sealed class FlowManager : MonoBehaviour
 
         currentStage = new StageInstance(dto);
         StageManager.Instance?.SetStage(currentStage);
-        
+
+        BrickManager.Instance?.ShiftDownAndSpawn();
+
         PinManager.Instance.TriggerPins(PinTriggerType.OnStageStart);
         TokenManager.Instance.TriggerTokens(TokenTriggerType.OnStageStart);
 
         if (stageIndex == 0)
-            OnStagePlayStart();
+            OnStageReadyStart();
         else
             OpenShop();
     }
@@ -87,16 +91,21 @@ public sealed class FlowManager : MonoBehaviour
     bool IsLastStage =>
         StageRepository.TryGetByIndex(currentStageIndex + 1, out _);
 
-    public void OnStagePlayStart()
+    public void OnStageReadyStart()
     {
         if (currentStage == null)
         {
-            Debug.LogError("[FlowManager] OnStagePlayStart but currentStage is null.");
+            Debug.LogError("[FlowManager] OnStageReadyStart but currentStage is null.");
             return;
         }
 
-        CurrentPhase = FlowPhase.Play;
+        CurrentPhase = FlowPhase.Ready;
         StageManager.Instance?.StartStagePlay(currentStage);
+    }
+
+    public void OnPlayStarted()
+    {
+        CurrentPhase = FlowPhase.Play;
     }
     
     public void OnPlayFinished()
@@ -113,7 +122,8 @@ public sealed class FlowManager : MonoBehaviour
             return;
         }
 
-        if (!IsStageCleared())
+        const int incomingRows = 2;
+        if (BrickManager.Instance != null && BrickManager.Instance.IsOverflow(incomingRows))
         {
             CurrentPhase = FlowPhase.None;
             GameManager.Instance?.HandleGameOver();
@@ -154,25 +164,13 @@ public sealed class FlowManager : MonoBehaviour
             return;
         }
 
-        OnStagePlayStart();
-    }
-
-    bool IsStageCleared()
-    {
-        if (currentStage == null)
-            return false;
-
-        var totalScore = ScoreManager.Instance != null
-            ? ScoreManager.Instance.TotalScore
-            : 0;
-
-        return totalScore >= currentStage.NeedScore;
+        OnStageReadyStart();
     }
 
     void OpenReward(bool isStageClear)
     {
         CurrentPhase = FlowPhase.Reward;
-        StatisticsManager.Instance?.Open(isStageClear);
+        RewardManager.Instance?.Open(isStageClear);
     }
 
     void OpenShop()

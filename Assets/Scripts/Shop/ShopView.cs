@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public sealed class ShopView : MonoBehaviour
 {
     [Header("Overlay Root")]
-    [SerializeField] private GameObject shopClosedOverlay;
+    [SerializeField] private GameObject shopOverlay;
 
     [Header("Item UI")]
     [SerializeField] private ShopItemView pinItemPrefab;
@@ -48,8 +48,8 @@ public sealed class ShopView : MonoBehaviour
             closeButton.onClick.AddListener(() => onClickClose?.Invoke());
         }
 
-        if (shopClosedOverlay != null)
-            shopClosedOverlay.SetActive(true);
+        if (shopOverlay != null)
+            shopOverlay.SetActive(false);
     }
 
     void ClearEditorPlacedItems()
@@ -179,20 +179,20 @@ public sealed class ShopView : MonoBehaviour
             bool canReroll = currentCurrency >= rerollCost;
             if (rerollCostText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
                 sv.Value = rerollCost.ToString();
-            rerollCostText.GetComponent<TMP_Text>().color = canReroll ? Colors.Black : Colors.Red;
+            rerollCostText.GetComponent<TMP_Text>().color = canReroll ? Colors.White : Colors.Red;
         }
     }
 
     public void Open()
     {
-        if (shopClosedOverlay != null)
-            shopClosedOverlay.SetActive(false);
+        if (shopOverlay != null)
+            shopOverlay.SetActive(true);
     }
 
     public void Close()
     {
-        if (shopClosedOverlay != null)
-            shopClosedOverlay.SetActive(true);
+        if (shopOverlay != null)
+            shopOverlay.SetActive(false);
     }
 
     public void HandleSelectionChanged(int selectedIndex)

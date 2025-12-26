@@ -217,7 +217,7 @@ public class AudioManager : MonoBehaviour
         }
         else
         {
-            src.PlayOneShot(e.clip, e.volume <= 0f ? 1f : e.volume);
+            src?.PlayOneShot(e.clip, e.volume <= 0f ? 1f : e.volume);
         }
     }
 

@@ -135,6 +135,10 @@ MonoBehaviour:
     m_Key: game.shopclosed.label
     m_Metadata:
       m_Items: []
+  - m_Id: 8981073463095296
+    m_Key: game.damage.label
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

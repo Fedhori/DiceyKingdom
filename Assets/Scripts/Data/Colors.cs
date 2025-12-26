@@ -6,6 +6,7 @@ public static class Colors
     public static readonly Color CritScore = new Color32(0xFF, 0x8A, 0x80, 0xFF);
     public static readonly Color OverCrit = new Color32(0xFF, 0x17, 0x44, 0xFF);
     
+    public static readonly Color White = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
     public static readonly Color Black = new Color32(0x00, 0x00, 0x00, 0xFF); // #FFFFFF
     
     public static readonly Color Common = new Color32(0xFF, 0xFF, 0xFF, 0xFF);     // #FFFFFF

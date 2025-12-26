@@ -13,18 +13,14 @@ public sealed class ShopManager : MonoBehaviour
     [SerializeField] private int baseRerollCost = 1;
     [SerializeField] private int rerollCostIncrement = 1;
 
-    [Header("Pin Drag Settings")]
-    [SerializeField] private LayerMask pinDropLayerMask = ~0; // 월드 핀 콜라이더 레이어
     [Header("Mixed Item Probabilities (weight-based)")]
     [SerializeField] private ShopItemProbability[] itemProbabilities =
     {
-        new ShopItemProbability { type = ShopItemType.Pin, weight = 50 },
-        new ShopItemProbability { type = ShopItemType.Token, weight = 50 }
+        new ShopItemProbability { type = ShopItemType.Token, weight = 100 }
     };
 
     bool isOpen;
 
-    readonly List<PinDto> sellablePins = new();
     readonly List<IShopItem> rosterItems = new();
     readonly List<TokenDto> sellableTokens = new();
     readonly HashSet<string> rosterTokenIds = new();
@@ -37,7 +33,6 @@ public sealed class ShopManager : MonoBehaviour
 
     public int CurrentSelectionIndex { get; private set; } = -1;
 
-    int draggingPinIndex = -1;
     int draggingTokenIndex = -1;
 
     void Awake()
@@ -91,7 +86,6 @@ public sealed class ShopManager : MonoBehaviour
 
         ClearSelection();
 
-        BuildSellablePins();
         BuildSellableTokens();
         CollectOwnedTokens();
         EnsureArrays();
@@ -110,33 +104,6 @@ public sealed class ShopManager : MonoBehaviour
 
         if (TokenManager.Instance != null)
             TokenManager.Instance.CollectOwnedTokenIds(ownedTokenIds);
-    }
-
-    void BuildSellablePins()
-    {
-        sellablePins.Clear();
-
-        if (!PinRepository.IsInitialized)
-        {
-            Debug.LogWarning("[ShopManager] PinRepository not initialized.");
-            return;
-        }
-
-        string basicId = PinManager.Instance != null ? PinManager.Instance.DefaultPinId : null;
-
-        foreach (var dto in PinRepository.All)
-        {
-            if (dto == null)
-                continue;
-
-            if (dto.isNotSell)
-                continue;
-
-            if (!string.IsNullOrEmpty(basicId) && dto.id == basicId)
-                continue;
-
-            sellablePins.Add(dto);
-        }
     }
 
     void BuildSellableTokens()
@@ -183,35 +150,32 @@ public sealed class ShopManager : MonoBehaviour
             return;
         }
 
-        // 토큰 후보 리스트(중복 필터 적용)
         var tokenPool = BuildTokenPool();
 
         for (int slot = 0; slot < itemsPerShop; slot++)
         {
             var type = factory.RollType(itemProbabilities);
+            if (type != ShopItemType.Token)
+                continue;
 
-            if (type == ShopItemType.Token && tokenPool.Count > 0)
+            if (tokenPool.Count == 0)
+                continue;
+
+            var dto = PopToken(tokenPool);
+            var item = factory.CreateToken(dto);
+            if (item != null)
             {
-                var dto = PopToken(tokenPool);
-                var item = factory.CreateToken(dto);
-                if (item != null)
-                {
-                    rosterItems.Add(item);
-                    rosterTokenIds.Add(dto.id);
-                    continue;
-                }
+                rosterItems.Add(item);
+                rosterTokenIds.Add(dto.id);
             }
-
-            // 기본: 핀으로 대체
-            var pinItem = DrawPin(factory);
-            if (pinItem != null)
-                rosterItems.Add(pinItem);
         }
 
         rosterItems.Sort((a, b) => a.ItemType.CompareTo(b.ItemType));
 
         // currentShopItems에 복사
         EnsureArrays();
+        for (int i = 0; i < currentShopItems.Length; i++)
+            currentShopItems[i] = null;
         int copyCount = Mathf.Min(itemsPerShop, rosterItems.Count);
         for (int i = 0; i < copyCount; i++)
             currentShopItems[i] = rosterItems[i];
@@ -263,15 +227,6 @@ public sealed class ShopManager : MonoBehaviour
         return dto;
     }
 
-    IShopItem DrawPin(ShopItemFactory factory)
-    {
-        if (sellablePins.Count == 0)
-            return null;
-
-        int idx = Rng.Next(sellablePins.Count);
-        return factory.CreatePin(sellablePins[idx]);
-    }
-
     bool IsTokenAllowed(string tokenId)
     {
         if (string.IsNullOrEmpty(tokenId))
@@ -305,7 +260,6 @@ public sealed class ShopManager : MonoBehaviour
         ApplySelection(null, -1);
         shopView?.ClearSelectionVisuals();
         TokenManager.Instance?.ClearHighlights();
-        PinManager.Instance?.ClearPinHighlights();
     }
 
     void ApplySelection(IShopItem selection, int itemIndex)
@@ -316,30 +270,9 @@ public sealed class ShopManager : MonoBehaviour
 
     public bool TryPurchaseSelectedAt(int row, int col)
     {
-        if (!isOpen)
-            return false;
-
-        if (CurrentSelectionIndex < 0 || currentShopItems == null)
-            return false;
-
-        if (CurrentSelectionIndex >= currentShopItems.Length)
-            return false;
-
-        var item = GetShopItem(CurrentSelectionIndex);
-        if (item == null || IsSold(CurrentSelectionIndex))
-            return false;
-
-        switch (item.ItemType)
-        {
-            case ShopItemType.Pin:
-                TokenManager.Instance?.ClearHighlights();
-                return TryPurchasePinItemAt(CurrentSelectionIndex, row, col);
-            case ShopItemType.Token:
-                shopView?.ClearSelectionVisuals();
-                return TryPurchaseTokenItemAt(CurrentSelectionIndex);
-            default:
-                return false;
-        }
+        _ = row;
+        _ = col;
+        return false;
     }
 
     public bool TryPurchaseSelectedTokenAt(int slotIndex)
@@ -360,65 +293,6 @@ public sealed class ShopManager : MonoBehaviour
         shopView?.ClearSelectionVisuals();
         TokenManager.Instance?.ClearHighlights();
         return TryPurchaseTokenItemAt(CurrentSelectionIndex, slotIndex);
-    }
-
-    bool TryPurchasePinItemAt(int itemIndex, int row, int col)
-    {
-        if (!isOpen)
-            return false;
-
-        if (currentShopItems == null || itemIndex < 0 || itemIndex >= currentShopItems.Length)
-            return false;
-
-        if (IsSold(itemIndex))
-            return false;
-
-        var pinItem = currentShopItems[itemIndex] as PinShopItem;
-        if (pinItem == null)
-            return false;
-
-        var currencyMgr = CurrencyManager.Instance;
-        var pinMgr = PinManager.Instance;
-
-        if (currencyMgr == null || pinMgr == null)
-            return false;
-
-        var rows = pinMgr.PinsByRow;
-        if (row < 0 || row >= rows.Count)
-            return false;
-
-        var rowList = rows[row];
-        if (rowList == null || col < 0 || col >= rowList.Count)
-            return false;
-
-        var targetPin = rowList[col];
-        if (targetPin == null || targetPin.Instance == null)
-            return false;
-
-        // 기본 핀만 교체
-        if (targetPin.Instance.Id != pinMgr.DefaultPinId)
-            return false;
-
-        int price = pinItem.Price;
-        if (!currencyMgr.TrySpend(price))
-        {
-            RefreshView();
-            return false;
-        }
-
-        string pinId = pinItem.Id;
-        if (string.IsNullOrEmpty(pinId) || !pinMgr.TryReplace(pinId, row, col))
-        {
-            Debug.LogError("[ShopManager] TryReplace failed after spending currency. Refunding.");
-            currencyMgr.AddCurrency(price);
-            RefreshView();
-            return false;
-        }
-
-        MarkSold(itemIndex);
-        ClearSelection();
-        RefreshView();
-        return true;
     }
 
     bool TryPurchaseTokenItemAt(int itemIndex, int overrideSlot = -1)
@@ -485,12 +359,9 @@ public sealed class ShopManager : MonoBehaviour
             ? CurrencyManager.Instance.CurrentCurrency
             : 0;
 
-        bool hasEmptySlot = PinManager.Instance != null &&
-                            PinManager.Instance.GetBasicPinSlot(out _, out _);
-
         bool hasEmptyTokenSlot = TokenManager.Instance != null && TokenManager.Instance.TryGetFirstEmptySlot(out _);
 
-        shopView.SetItems(currentShopItems, currency, hasEmptySlot, hasEmptyTokenSlot, currentRerollCost);
+        shopView.SetItems(currentShopItems, currency, false, hasEmptyTokenSlot, currentRerollCost);
         shopView.RefreshAll();
     }
 
@@ -540,13 +411,6 @@ public sealed class ShopManager : MonoBehaviour
             // 토큰 슬롯 하이라이트, 핀 선택 해제
             TokenManager.Instance?.HighlightEmptySlots();
             shopView?.ClearSelectionVisuals();
-            PinManager.Instance?.ClearPinHighlights();
-        }
-        else if (item.ItemType == ShopItemType.Pin)
-        {
-            // 핀 슬롯 하이라이트, 토큰 하이라이트 해제
-            TokenManager.Instance?.ClearHighlights();
-            PinManager.Instance?.HighlightBasicPins();
         }
     }
 
@@ -572,7 +436,6 @@ public sealed class ShopManager : MonoBehaviour
 
         currentRerollCost = Mathf.Max(1, currentRerollCost + Mathf.Max(1, rerollCostIncrement));
 
-        BuildSellablePins();
         BuildSellableTokens();
         CollectOwnedTokens();
         BuildRoster();
@@ -591,7 +454,7 @@ public sealed class ShopManager : MonoBehaviour
 
         isOpen = false;
 
-        draggingPinIndex = -1;
+        draggingTokenIndex = -1;
 
         if (shopView != null)
         {
@@ -610,7 +473,7 @@ public sealed class ShopManager : MonoBehaviour
     }
 
     // ======================
-    // Item drag (핀/토큰)
+    // Item drag (토큰)
     // ======================
 
     public void BeginItemDrag(int itemIndex, Vector2 screenPos)
@@ -628,19 +491,15 @@ public sealed class ShopManager : MonoBehaviour
 
         SetSelection(itemIndex);
 
-        switch (item.ItemType)
+        if (item.ItemType == ShopItemType.Token)
         {
-            case ShopItemType.Pin:
-                PinManager.Instance?.HighlightBasicPins();
-                draggingPinIndex = itemIndex;
-                shopView.ShowItemDragGhost(item, screenPos);
-                break;
-            case ShopItemType.Token:
-                draggingTokenIndex = itemIndex;
-                TokenManager.Instance?.HighlightEmptySlots();
-                PinManager.Instance?.ClearPinHighlights();
-                shopView.ShowItemDragGhost(item, screenPos);
-                break;
+            draggingTokenIndex = itemIndex;
+            TokenManager.Instance?.HighlightEmptySlots();
+            shopView.ShowItemDragGhost(item, screenPos);
+        }
+        else
+        {
+            draggingTokenIndex = -1;
         }
     }
 
@@ -649,7 +508,7 @@ public sealed class ShopManager : MonoBehaviour
         if (!isOpen || shopView == null)
             return;
 
-        if (itemIndex == draggingPinIndex || itemIndex == draggingTokenIndex)
+        if (itemIndex == draggingTokenIndex)
             shopView.UpdateItemDragGhostPosition(screenPos);
     }
 
@@ -657,7 +516,6 @@ public sealed class ShopManager : MonoBehaviour
     {
         if (shopView == null)
         {
-            draggingPinIndex = -1;
             draggingTokenIndex = -1;
             return;
         }
@@ -665,19 +523,11 @@ public sealed class ShopManager : MonoBehaviour
         if (!isOpen)
         {
             shopView.HideItemDragGhost();
-            draggingPinIndex = -1;
             draggingTokenIndex = -1;
             return;
         }
 
-        if (itemIndex == draggingPinIndex)
-        {
-            if (TryGetTargetPinFromScreenPos(screenPos, out var targetPin))
-            {
-                TryPurchasePinItemAt(itemIndex, targetPin.RowIndex, targetPin.ColumnIndex);
-            }
-        }
-        else if (itemIndex == draggingTokenIndex)
+        if (itemIndex == draggingTokenIndex)
         {
             int targetSlot = -1;
             if (TokenManager.Instance != null && TokenManager.Instance.TryGetSlotFromScreenPos(screenPos, out var idx))
@@ -688,29 +538,8 @@ public sealed class ShopManager : MonoBehaviour
         }
 
         shopView.HideItemDragGhost();
-        draggingPinIndex = -1;
         draggingTokenIndex = -1;
         TokenManager.Instance?.ClearHighlights();
-        PinManager.Instance?.ClearPinHighlights();
-    }
-
-    bool TryGetTargetPinFromScreenPos(Vector2 screenPos, out PinController pin)
-    {
-        pin = null;
-
-        var cam = Camera.main;
-        if (cam == null)
-            return false;
-
-        Vector3 worldPos3 = cam.ScreenToWorldPoint(screenPos);
-        Vector2 worldPos = worldPos3;
-
-        var hit = Physics2D.OverlapPoint(worldPos, pinDropLayerMask);
-        if (hit == null)
-            return false;
-
-        pin = hit.GetComponentInParent<PinController>();
-        return pin != null;
     }
 
 }

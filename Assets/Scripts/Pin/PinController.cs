@@ -173,7 +173,11 @@ public sealed class PinController : MonoBehaviour, IPointerClickHandler, IBeginD
             return;
 
         var shop = ShopManager.Instance;
-        if (shop == null || shop.CurrentSelectionIndex < 0)
+        if (shop == null)
+            return;
+
+        var selectedItem = shop.GetSelectedItem();
+        if (selectedItem == null || selectedItem.ItemType != ShopItemType.Pin)
             return;
 
         var flow = FlowManager.Instance;

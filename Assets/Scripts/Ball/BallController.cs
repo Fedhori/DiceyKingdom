@@ -92,9 +92,16 @@ public sealed class BallController : MonoBehaviour
             return;
         }
 
+        if (otherCollider.TryGetComponent<BrickController>(out var brick))
+        {
+            HandleBallBrickCollision(brick, collision);
+            return;
+        }
+
         if (otherCollider.TryGetComponent<BallController>(out var otherBall))
         {
             HandleBallBallCollision(otherBall, collision);
+            return;
         } 
     }
 
@@ -106,6 +113,35 @@ public sealed class BallController : MonoBehaviour
         pin.Instance.OnHitByBall(Instance, pin.transform.position);
         Instance.OnHitPin(pin.Instance, transform.position);
         pin.PlayHitEffect();
+    }
+
+    void HandleBallBrickCollision(BrickController brick, Collision2D collision)
+    {
+        if (brick == null || brick.Instance == null)
+            return;
+
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+            return;
+
+        var rng = GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
+        int criticalLevel = player.RollCriticalLevel(rng);
+        double criticalMultiplier = player.GetCriticalMultiplier(criticalLevel) * Instance.CriticalMultiplier;
+
+        double rawDamage = Instance.ScoreMultiplier * player.ScoreBase * criticalMultiplier;
+        int intDamage = Mathf.Max(1, Mathf.FloorToInt((float)rawDamage));
+
+        brick.ApplyDamage(intDamage);
+
+        var color = Colors.GetCriticalColor(criticalLevel);
+        var postFix = criticalLevel >= 1 ? new string('!', criticalLevel) : "";
+        FloatingTextManager.Instance?.ShowText(
+            intDamage + postFix,
+            color,
+            32f,
+            1f,
+            collision.GetContact(0).point
+        );
     }
 
     void HandleBallBallCollision(BallController otherBall, Collision2D collision)

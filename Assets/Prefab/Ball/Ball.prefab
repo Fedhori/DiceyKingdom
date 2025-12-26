@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7596754220899415685}
   - component: {fileID: 6740381008601338111}
   - component: {fileID: 3790704704334117300}
+  - component: {fileID: -1837259154666241732}
   m_Layer: 6
   m_Name: Ball
   m_TagString: Untagged
@@ -81,7 +82,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 788df4e82c2b1fa40a8a877f6cf2d0ed, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -107,7 +108,7 @@ Rigidbody2D:
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_AngularDamping: 0
   m_GravityScale: 0
   m_Material: {fileID: 6200000, guid: 9a91c6a4e71c2974d9f6472bad1d4eb3, type: 2}
   m_IncludeLayers:
@@ -116,9 +117,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!58 &6740381008601338111
 CircleCollider2D:
@@ -170,3 +171,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallController
   ballSprite: {fileID: 4098678211225629946}
   ballRigidbody2D: {fileID: 7596754220899415685}
+--- !u!114 &-1837259154666241732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6712946394271827164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccf75eed49f854d43991982355dabcc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BallAngleGuard2D
+  rb: {fileID: 7596754220899415685}

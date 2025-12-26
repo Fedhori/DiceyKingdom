@@ -12,9 +12,9 @@
 
 ## Tasks
 
-- [ ] 1.0 흐름 정의 업데이트: 스테이지 인덱스 0 스킵, 1+는 Shop→Play→Reward 순서로 재배치
-  - [ ] 1.1 FlowManager에서 StartStage 진입 시 스테이지 인덱스 0이면 Shop 없이 Play로 바로 진입하도록 분기 추가
-  - [ ] 1.2 스테이지 인덱스 1 이상일 때 StartStage → Shop → Play → Reward 순서가 되도록 초기 진입 흐름 정리
+- [x] 1.0 흐름 정의 업데이트: 스테이지 인덱스 0 스킵, 1+는 Shop→Play→Reward 순서로 재배치
+  - [x] 1.1 FlowManager에서 StartStage 진입 시 스테이지 인덱스 0이면 Shop 없이 Play로 바로 진입하도록 분기 추가
+  - [x] 1.2 스테이지 인덱스 1 이상일 때 StartStage → Shop → Play → Reward 순서가 되도록 초기 진입 흐름 정리
 - [ ] 2.0 페이즈 전환/호출부 정리: 기존 트리거·점수 판정 로직 유지한 채 순서 변경 반영
   - [ ] 2.1 OnPlayFinished에서 성공 시 Reward로 바로 진입하도록 유지 확인, 실패 시 GameOver 동작 검증
   - [ ] 2.2 OnRewardClosed가 Shop이 아닌 다음 단계(Shop→Play→Reward 순서)에 맞춰 호출되도록 조정

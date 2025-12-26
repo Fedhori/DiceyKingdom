@@ -22,7 +22,7 @@ public class BallManager : MonoBehaviour
     Coroutine spawnCoroutine;
 
     Vector2 spawnPosition = Vector2.zero;
-    readonly List<Vector2> spawnPoints = new();
+    Vector2 launchDirection = Vector2.up;
 
     void Awake()
     {
@@ -129,34 +129,29 @@ public class BallManager : MonoBehaviour
         isSpawning = false;
         liveBallCount = 0;
         spawnPosition = Vector2.zero;
-        spawnPoints.Clear();
         NotifyRemainingCountChanged();
     }
 
-    public void SetSpawnPoints(IReadOnlyList<Vector2> points)
+    public void SetSpawnPosition(Vector2 position)
     {
-        spawnPoints.Clear();
-
-        if (points == null)
+        spawnPosition = position;
+    }
+    
+    public void SetLaunchDirection(Vector2 direction)
+    {
+        if (direction.sqrMagnitude <= 0f)
             return;
 
-        for (int i = 0; i < points.Count; i++)
-        {
-            spawnPoints.Add(points[i]);
-        }
+        launchDirection = direction.normalized;
     }
+
+    public Vector2 LaunchDirection => launchDirection;
     
     public bool IsSpawning => isSpawning;
     public int RemainingSpawnCount => Mathf.Max(0, spawnSequence.Count - nextSpawnIndex);
 
     Vector2 GetSpawnPosition()
     {
-        if (spawnPoints.Count > 0)
-        {
-            int idx = Random.Range(0, spawnPoints.Count);
-            return spawnPoints[idx];
-        }
-
         return spawnPosition;
     }
 

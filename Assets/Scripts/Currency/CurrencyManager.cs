@@ -61,8 +61,6 @@ public sealed class CurrencyManager : MonoBehaviour
 
     void HandleCurrencyChanged(int value)
     {
-        // if (currencyText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
-        //     sv.Value = value.ToString();
         currencyText.text = $"${value}";
     }
 
@@ -99,7 +97,11 @@ public sealed class CurrencyManager : MonoBehaviour
         var player = PlayerManager.Instance?.Current;
         if (player == null)
             return false;
+        
+        bool isSuccess = player.TrySpendCurrency(cost);
+        if (isSuccess)
+            AudioManager.Instance.Play("Buy");
 
-        return player.TrySpendCurrency(cost);
+        return isSuccess;
     }
 }

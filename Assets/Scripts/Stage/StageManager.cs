@@ -13,9 +13,11 @@ public sealed class StageManager : MonoBehaviour
     [SerializeField] private LocalizeStringEvent stallNoticeText;
     [SerializeField] private TMP_Text ballCountText;
     [SerializeField] private Button startSpawnButton;
+    [SerializeField] private BallAimManager ballAimManager;
 
     // Stage 상태
     StageInstance currentStage;
+    public StageInstance CurrentStage => currentStage;
     public bool playActive;
     
     [SerializeField] private float stallWarningTime = 60f;
@@ -61,6 +63,7 @@ public sealed class StageManager : MonoBehaviour
     {
         currentStage = stage;
         playActive = false;
+        ballAimManager?.ResetAim();
         ScoreManager.Instance.previousScore = ScoreManager.Instance.TotalScore;
 
         if (ScoreManager.Instance != null && stage != null)
@@ -105,21 +108,37 @@ public sealed class StageManager : MonoBehaviour
 
         BallManager.Instance.PrepareSpawnSequence(sequence);
         
-        var points = PinManager.Instance.GetBallSpawnPoints();
-        BallManager.Instance.SetSpawnPoints(points);
+        BallManager.Instance.SetSpawnPosition(Vector2.zero);
         UpdateStartSpawnButton(true, true);
     }
 
     void StartBallSpawning()
     {
         playActive = true;
+        FlowManager.Instance?.OnPlayStarted();
         BallManager.Instance.StartSpawning();
     }
 
     public void OnStartSpawnButtonClicked()
     {
+        if (FlowManager.Instance != null && !FlowManager.Instance.CanAimBalls)
+            return;
+
         UpdateStartSpawnButton(false, false);
         StartBallSpawning();
+    }
+
+    public void OnAimConfirmed(Vector2 origin, Vector2 direction)
+    {
+        if (FlowManager.Instance != null && !FlowManager.Instance.CanAimBalls)
+            return;
+
+        BallManager.Instance?.SetSpawnPosition(origin);
+        BallManager.Instance?.SetLaunchDirection(direction);
+
+        UpdateStartSpawnButton(false, false);
+        StartBallSpawning();
+        ballAimManager?.ResetAim();
     }
 
     void UpdateStartSpawnButton(bool show, bool interactable)
