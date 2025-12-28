@@ -125,21 +125,32 @@ public sealed class BrickManager : MonoBehaviour
     void SpawnRows(int count)
     {
         if (count <= 0) return;
+
         var rng = GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
+
+        int width = gridSize.x;
+        int maxEmpties = width / 2;
+
         for (int row = 0; row < count; row++)
         {
             int gridY = row;
-            int emptyX = rng.Next(0, gridSize.x);
-            if (row == 0)
-                continue;
-            
-            for (int x = 0; x < gridSize.x; x++)
+
+            // 0 ~ N/2 개의 빈칸 수
+            int emptyCount = rng.Next(0, maxEmpties + 1);
+
+            // 중복 없는 빈칸 X 좌표들
+            var emptyXs = new HashSet<int>();
+            while (emptyXs.Count < emptyCount)
             {
-                if (x == emptyX)
+                emptyXs.Add(rng.Next(0, width));
+            }
+
+            for (int x = 0; x < width; x++)
+            {
+                if (emptyXs.Contains(x))
                     continue;
 
-                var pos = new Vector2Int(x, gridY);
-                SpawnBrick(pos);
+                SpawnBrick(new Vector2Int(x, gridY));
             }
         }
     }

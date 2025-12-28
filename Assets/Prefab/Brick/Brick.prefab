@@ -87,7 +87,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 128, y: 64}
+  m_Size: {x: 160, y: 80}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -132,12 +132,12 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 64, y: 32}
-    newSize: {x: 128, y: 64}
+    newSize: {x: 160, y: 80}
     adaptiveTilingThreshold: 0.5
     drawMode: 1
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 128, y: 64}
+  m_Size: {x: 160, y: 80}
   m_EdgeRadius: 0
 --- !u!114 &13672171728307425
 MonoBehaviour:

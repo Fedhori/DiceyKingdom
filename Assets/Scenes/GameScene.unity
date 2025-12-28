@@ -2065,7 +2065,7 @@ Transform:
   m_GameObject: {fileID: 407153861}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2008, y: 174, z: 0}
+  m_LocalPosition: {x: 1976, y: 174, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2366,7 +2366,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallManager
   ballPrefab: {fileID: 6712946394271827164, guid: 22f0b2cd85091534b90dbab6ca9639f4, type: 3}
-  cycle: 0.1
+  cycle: 0.01
   spawnOffset: {x: 0, y: 0}
 --- !u!114 &509129559
 MonoBehaviour:
@@ -2684,6 +2684,7 @@ MonoBehaviour:
   cam: {fileID: 519420031}
   boardSize: 1080
   margin: 0
+  landscapeSize: 960
 --- !u!1 &522494019
 GameObject:
   m_ObjectHideFlags: 0
@@ -4085,7 +4086,7 @@ Transform:
   m_GameObject: {fileID: 665436231}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -576, z: 0}
+  m_LocalPosition: {x: 0, y: -544, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4145,7 +4146,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 1024, y: 128}
+  m_Size: {x: 960, y: 128}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -4190,12 +4191,12 @@ BoxCollider2D:
     border: {x: 16, y: 16, z: 16, w: 16}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 128, y: 128}
-    newSize: {x: 1024, y: 128}
+    newSize: {x: 960, y: 128}
     adaptiveTilingThreshold: 0.5
     drawMode: 1
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1024, y: 128}
+  m_Size: {x: 960, y: 128}
   m_EdgeRadius: 0
 --- !u!1 &684668662
 GameObject:
@@ -9494,9 +9495,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BrickManager
   brickFactory: {fileID: 1612725526}
   playArea: {fileID: 1644066639}
-  gridSize: {x: 8, y: 16}
-  brickSize: {x: 128, y: 64}
-  newRowsPerStage: 4
+  gridSize: {x: 6, y: 12}
+  brickSize: {x: 160, y: 80}
+  newRowsPerStage: 2
   defaultHp: 20
 --- !u!114 &1612725526
 MonoBehaviour:
@@ -9671,7 +9672,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 1024, y: 1024}
+  m_Size: {x: 960, y: 960}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -11876,7 +11877,7 @@ Transform:
   m_GameObject: {fileID: 1972683697}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2012, y: 193, z: 0}
+  m_LocalPosition: {x: -1980, y: 193, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12506,7 +12507,7 @@ Transform:
   m_GameObject: {fileID: 2025243434}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -45.5, y: 2012.5, z: 0}
+  m_LocalPosition: {x: -45.5, y: 1980.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

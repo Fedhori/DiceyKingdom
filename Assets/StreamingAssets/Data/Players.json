@@ -7,7 +7,7 @@
 			"critChance": 5.0,
 			"criticalMultiplier": 2.0,
 			"startCurrency": 0,
-			"initialBallCount": 20,
+			"initialBallCount": 100,
 			"rarityGrowth": 2.0,
 			"rarityProbabilities": [
 				80.0, 15.0, 4.0, 1.0, 0.0

@@ -3,57 +3,57 @@
 		{
 			"index": 0,
 			"needScore": 1000,
-			"blockHealth": 20
+			"blockHealth": 200
 		},
 		{
 			"index": 1,
 			"needScore": 2000,
-			"blockHealth": 30
+			"blockHealth": 300
 		},
 		{
 			"index": 2,
 			"needScore": 500000,
-			"blockHealth": 40
+			"blockHealth": 400
 		},
 		{
 			"index": 3,
 			"needScore": 5000000,
-			"blockHealth": 50
+			"blockHealth": 500
 		},
 		{
 			"index": 4,
 			"needScore": 50000000,
-			"blockHealth": 60
+			"blockHealth": 600
 		},
 		{
 			"index": 5,
 			"needScore": 200000000,
-			"blockHealth": 70
+			"blockHealth": 700
 		},
 		{
 			"index": 6,
 			"needScore": 1000000000,
-			"blockHealth": 80
+			"blockHealth": 800
 		},
 		{
 			"index": 7,
 			"needScore": 10000000000,
-			"blockHealth": 90
+			"blockHealth": 900
 		},
 		{
 			"index": 8,
 			"needScore": 10000000000,
-			"blockHealth": 100
+			"blockHealth": 1000
 		},
 		{
 			"index": 9,
 			"needScore": 10000000000,
-			"blockHealth": 100
+			"blockHealth": 1000
 		},
 		{
 			"index": 10,
 			"needScore": 10000000000,
-			"blockHealth": 100
+			"blockHealth": 1000
 		}
 	]
 }
