@@ -17,12 +17,16 @@ public class InputManager : MonoBehaviour
     private string playerMapName = "Player";
 
     private InputActionMap playerMap;
+    private InputAction moveAction;
 
     private void CacheMaps()
     {
         if (playerInput == null) return;
         var asset = playerInput.actions;
         if (playerMap == null) playerMap = asset.FindActionMap(playerMapName, throwIfNotFound: true);
+
+        if (moveAction == null)
+            moveAction = asset.FindAction("Move", throwIfNotFound: false);
     }
 
     private void SetConsoleMode(bool on)
@@ -65,6 +69,17 @@ public class InputManager : MonoBehaviour
             return null;
 
         return playerInput.actions.FindAction(actionName, throwIfNotFound: false);
+    }
+
+    public float GetMoveX()
+    {
+        CacheMaps();
+        var action = moveAction ?? GetAction("Move");
+        if (action == null)
+            return 0f;
+
+        Vector2 v = action.ReadValue<Vector2>();
+        return v.x;
     }
 
     public InputAction GetSelectSlotAction(int slotIndex)
