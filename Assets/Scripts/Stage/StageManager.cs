@@ -98,6 +98,8 @@ public sealed class StageManager : MonoBehaviour
         
         BallManager.Instance.ResetForNewStage();
 
+        ballAimManager?.ResetAim(); // 스테이지마다 90도 리셋 및 에임 라인 갱신
+
         var player = PlayerManager.Instance.Current;
 
         var rng = GameManager.Instance != null
@@ -108,8 +110,11 @@ public sealed class StageManager : MonoBehaviour
 
         BallManager.Instance.PrepareSpawnSequence(sequence);
 
-        BallManager.Instance.SetSpawnPosition(ballAimManager.AimOrigin);
-        BallManager.Instance.SetLaunchDirection(ballAimManager.AimDirection);
+        if (ballAimManager != null)
+        {
+            BallManager.Instance.SetSpawnPosition(ballAimManager.AimOrigin);
+            BallManager.Instance.SetLaunchDirection(ballAimManager.AimDirection);
+        }
         
         StartBallSpawning();
     }
