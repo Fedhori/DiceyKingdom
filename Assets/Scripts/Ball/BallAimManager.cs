@@ -68,17 +68,8 @@ public sealed class BallAimManager : MonoBehaviour
             return;
         }
 
-        var pointer = Pointer.current;
-        if (pointer == null) return;
-
-        var press = pointer.press;
-        if (press == null) return;
-
-        Vector2 screenPos = pointer.position.ReadValue();
-
-        if (press.wasPressedThisFrame) TryBeginDrag(screenPos);
-        else if (dragging && press.isPressed) UpdateDrag(screenPos);
-        else if (dragging && press.wasReleasedThisFrame) EndDrag(screenPos);
+        HandlePointerInput();
+        HandleKeyboardAim();
     }
 
     public void ResetAim()
@@ -174,6 +165,13 @@ public sealed class BallAimManager : MonoBehaviour
 
         HasValidAim = valid;
         AimDirection = valid ? adjustedDir : Vector2.zero;
+        if (valid)
+        {
+            // Vector2.SignedAngle은 오른손 좌표계 기준: up→dir 로의 회전이 양수(반시계). 포신 각도는 위를 90도로 보고 시계 방향 양수로 처리.
+            float signed = Vector2.SignedAngle(Vector2.up, AimDirection);
+            float cannonAngle = 90f - signed;
+            CurrentAngle = ClampAngle(cannonAngle);
+        }
 
         UpdateAimLine(adjustedDir, valid);
     }
@@ -387,5 +385,41 @@ public sealed class BallAimManager : MonoBehaviour
     {
         // 0도는 위쪽, 양수는 시계 방향(오른쪽) 회전
         return (Vector2)(Quaternion.Euler(0f, 0f, -angleDeg) * Vector2.up);
+    }
+
+    void HandlePointerInput()
+    {
+        var pointer = Pointer.current;
+        if (pointer == null) return;
+
+        var press = pointer.press;
+        if (press == null) return;
+
+        Vector2 screenPos = pointer.position.ReadValue();
+
+        if (press.wasPressedThisFrame) TryBeginDrag(screenPos);
+        else if (dragging && press.isPressed) UpdateDrag(screenPos);
+        else if (dragging && press.wasReleasedThisFrame) EndDrag(screenPos);
+    }
+
+    void HandleKeyboardAim()
+    {
+        if (!Application.isFocused) return;
+
+        float moveX = InputManager.Instance != null ? InputManager.Instance.GetMoveX() : 0f;
+        if (Mathf.Approximately(moveX, 0f))
+            return;
+
+        float delta = rotateDegreesPerSecond * Time.deltaTime * Mathf.Sign(moveX);
+        float nextAngle = ClampAngle(CurrentAngle + delta);
+        if (Mathf.Approximately(nextAngle, CurrentAngle))
+            return;
+
+        CurrentAngle = nextAngle;
+        AimDirection = DirectionFromAngle(CurrentAngle);
+        AimOrigin = GetCannonOrigin();
+
+        // 키보드 회전 중에는 즉시 라인을 갱신
+        UpdateAimLine(AimDirection, true);
     }
 }
