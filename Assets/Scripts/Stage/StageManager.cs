@@ -107,9 +107,11 @@ public sealed class StageManager : MonoBehaviour
         var sequence = BuildRaritySequence(player, rng);
 
         BallManager.Instance.PrepareSpawnSequence(sequence);
+
+        BallManager.Instance.SetSpawnPosition(ballAimManager.AimOrigin);
+        BallManager.Instance.SetLaunchDirection(ballAimManager.AimDirection);
         
-        BallManager.Instance.SetSpawnPosition(Vector2.zero);
-        UpdateStartSpawnButton(true, true);
+        StartBallSpawning();
     }
 
     void StartBallSpawning()

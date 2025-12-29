@@ -38,7 +38,6 @@ public sealed class BallAimManager : MonoBehaviour
     public Vector2 AimDirection { get; private set; }
     public bool HasValidAim { get; private set; }
     public float CurrentAngle { get; private set; }
-    public float CurrentAngle { get; private set; }
 
     bool dragging;
     Vector2 dragStart;
