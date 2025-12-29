@@ -53,11 +53,12 @@ public sealed class BallAimManager : MonoBehaviour
 
         InitSegmentLines();
         ApplyLineStyle();
-        HideVisuals();
+        HideStartMarker();
 
         CurrentAngle = ClampAngle(initialAngleDegrees);
         AimOrigin = GetCannonOrigin();
         AimDirection = DirectionFromAngle(CurrentAngle);
+        RenderAimLine(AimDirection, true);
     }
 
     void Update()
@@ -65,11 +66,13 @@ public sealed class BallAimManager : MonoBehaviour
         if (FlowManager.Instance != null && !FlowManager.Instance.CanAimBalls)
         {
             CancelDrag();
+            RefreshAimLineFromState();
             return;
         }
 
         HandlePointerInput();
         HandleKeyboardAim();
+        RefreshAimLineFromState();
     }
 
     public void ResetAim()
@@ -79,7 +82,8 @@ public sealed class BallAimManager : MonoBehaviour
         AimOrigin = GetCannonOrigin();
         CurrentAngle = ClampAngle(initialAngleDegrees);
         AimDirection = DirectionFromAngle(CurrentAngle);
-        HideVisuals();
+        RenderAimLine(AimDirection, true);
+        HideStartMarker();
     }
 
     void InitSegmentLines()
@@ -138,7 +142,7 @@ public sealed class BallAimManager : MonoBehaviour
         CurrentAngle = ClampAngle(CurrentAngle);
 
         ShowStartMarker(AimOrigin);
-        UpdateAimLine(Vector2.zero, false);
+        RenderAimLine(Vector2.zero, false);
     }
 
     void UpdateDrag(Vector2 screenPos)
@@ -173,7 +177,7 @@ public sealed class BallAimManager : MonoBehaviour
             CurrentAngle = ClampAngle(cannonAngle);
         }
 
-        UpdateAimLine(adjustedDir, valid);
+        RenderAimLine(adjustedDir, valid);
     }
 
     void EndDrag(Vector2 screenPos)
@@ -196,8 +200,8 @@ public sealed class BallAimManager : MonoBehaviour
     {
         dragging = false;
         HasValidAim = false;
-        AimDirection = Vector2.zero;
-        HideVisuals();
+        HideStartMarker();
+        RenderAimLine(AimDirection, AimDirection != Vector2.zero);
     }
 
     Vector3 ScreenToWorldOnZ0(Vector2 screenPos)
@@ -216,11 +220,11 @@ public sealed class BallAimManager : MonoBehaviour
         startMarker.enabled = true;
     }
 
-    void UpdateAimLine(Vector2 aimDir, bool valid)
+    void RenderAimLine(Vector2 aimDir, bool valid)
     {
         if (segmentLines.Count == 0) return;
 
-        if (!dragging || !valid || aimDir == Vector2.zero)
+        if (!valid || aimDir == Vector2.zero)
         {
             DisableAllSegments();
             return;
@@ -361,8 +365,13 @@ public sealed class BallAimManager : MonoBehaviour
 
     void HideVisuals()
     {
-        if (startMarker != null) startMarker.enabled = false;
+        HideStartMarker();
         DisableAllSegments();
+    }
+
+    void HideStartMarker()
+    {
+        if (startMarker != null) startMarker.enabled = false;
     }
 
     float ClampAngle(float angleDeg)
@@ -423,6 +432,13 @@ public sealed class BallAimManager : MonoBehaviour
         AimOrigin = GetCannonOrigin();
 
         // 키보드 회전 중에는 즉시 라인을 갱신
-        UpdateAimLine(AimDirection, true);
+        RenderAimLine(AimDirection, true);
+    }
+
+    void RefreshAimLineFromState()
+    {
+        AimOrigin = GetCannonOrigin();
+        bool show = AimDirection != Vector2.zero;
+        RenderAimLine(AimDirection, show);
     }
 }

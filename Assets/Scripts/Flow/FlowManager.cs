@@ -35,7 +35,7 @@ public sealed class FlowManager : MonoBehaviour
 
     public bool CanDragPins => !StageManager.Instance.playActive;
     public bool CanDragTokens => !StageManager.Instance.playActive;
-    public bool CanAimBalls => currentPhase == FlowPhase.Ready;
+    public bool CanAimBalls => currentPhase == FlowPhase.Ready || currentPhase == FlowPhase.Play;
 
     void Awake()
     {
