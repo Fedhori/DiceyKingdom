@@ -2,7 +2,7 @@
 	"stages": [
 		{
 			"index": 0,
-			"blockHealth": 20000
+			"blockHealth": 200
 		},
 		{
 			"index": 1,

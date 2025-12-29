@@ -76,7 +76,7 @@ public sealed class FlowManager : MonoBehaviour
 
         currentStage = new StageInstance(dto);
         StageManager.Instance?.SetStage(currentStage);
-
+        
         BrickManager.Instance?.ShiftDownAndSpawn();
 
         PinManager.Instance.TriggerPins(PinTriggerType.OnStageStart);

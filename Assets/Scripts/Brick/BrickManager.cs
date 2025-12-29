@@ -11,11 +11,14 @@ public sealed class BrickManager : MonoBehaviour
     [SerializeField] private Vector2 brickSize = new Vector2(128f, 64f);
     [SerializeField] private int newRowsPerStage = 2;
     [SerializeField] private int defaultHp = 100;
-    private int currentHp = 100;
+    private int currentHp;
     [SerializeField] private float fallSpeed = 40f;
+    [SerializeField] private float spawnIntervalSeconds = 3f;
 
     private readonly List<List<BrickController>> grid = new();
+    private readonly List<BrickController> activeBricks = new();
     private Vector2 originTopLeft;
+    float spawnTimer;
 
     void Awake()
     {
@@ -42,6 +45,13 @@ public sealed class BrickManager : MonoBehaviour
             return;
 
         MoveAllBricksDown(dy);
+
+        spawnTimer += Time.deltaTime;
+        if (spawnTimer >= Mathf.Max(0.01f, spawnIntervalSeconds))
+        {
+            spawnTimer = 0f;
+            SpawnRandomBrickFromTop();
+        }
     }
 
     void InitGrid()
@@ -97,6 +107,14 @@ public sealed class BrickManager : MonoBehaviour
                 row[x] = null;
             }
         }
+
+        for (int i = 0; i < activeBricks.Count; i++)
+        {
+            var b = activeBricks[i];
+            if (b != null)
+                Destroy(b.gameObject);
+        }
+        activeBricks.Clear();
     }
 
     public void ShiftDownAndSpawn()
@@ -105,8 +123,8 @@ public sealed class BrickManager : MonoBehaviour
             ? StageManager.Instance.CurrentStage.BlockHealth
             : defaultHp;
 
-        ShiftDown(newRowsPerStage);
-        SpawnRows(newRowsPerStage);
+        //ShiftDown(newRowsPerStage);
+        //SpawnRows(newRowsPerStage);
     }
 
     void ShiftDown(int rows)
@@ -184,6 +202,8 @@ public sealed class BrickManager : MonoBehaviour
         var worldPos = GridToWorld(gridPos);
         var brick = brickFactory.CreateBrick(currentHp, gridPos, worldPos);
         grid[gridPos.y][gridPos.x] = brick;
+        if (brick != null && !activeBricks.Contains(brick))
+            activeBricks.Add(brick);
     }
 
     public bool IsOverflow(int incomingRows)
@@ -218,19 +238,33 @@ public sealed class BrickManager : MonoBehaviour
             return;
 
         float delta = distance;
-        for (int y = 0; y < grid.Count; y++)
+        for (int i = activeBricks.Count - 1; i >= 0; i--)
         {
-            var row = grid[y];
-            if (row == null) continue;
-
-            for (int x = 0; x < row.Count; x++)
+            var brick = activeBricks[i];
+            if (brick == null)
             {
-                var brick = row[x];
-                if (brick == null) continue;
-
-                var t = brick.transform;
-                t.position += new Vector3(0f, -delta, 0f);
+                activeBricks.RemoveAt(i);
+                continue;
             }
+
+            brick.transform.position += new Vector3(0f, -delta, 0f);
         }
+    }
+
+    void SpawnRandomBrickFromTop()
+    {
+        if (brickFactory == null)
+            return;
+
+        float minX = originTopLeft.x + brickSize.x * 0.5f;
+        float maxX = originTopLeft.x + brickSize.x * (gridSize.x - 0.5f);
+        float y = originTopLeft.y - brickSize.y * 0.5f;
+
+        float x = Random.Range(minX, maxX);
+        Vector3 worldPos = new Vector3(x, y, 0f);
+
+        var brick = brickFactory.CreateBrick(currentHp, Vector2Int.zero, worldPos);
+        if (brick != null && !activeBricks.Contains(brick))
+            activeBricks.Add(brick);
     }
 }
