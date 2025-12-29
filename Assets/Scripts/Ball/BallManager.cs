@@ -20,9 +20,13 @@ public class BallManager : MonoBehaviour
     int liveBallCount = 0;
 
     Coroutine spawnCoroutine;
+    Coroutine relaunchCoroutine;
 
     Vector2 spawnPosition = Vector2.zero;
     Vector2 launchDirection = Vector2.up;
+
+    readonly Queue<BallController> relaunchQueue = new();
+    readonly HashSet<BallController> queuedSet = new();
 
     void Awake()
     {
@@ -123,12 +127,19 @@ public class BallManager : MonoBehaviour
             StopCoroutine(spawnCoroutine);
             spawnCoroutine = null;
         }
+        if (relaunchCoroutine != null)
+        {
+            StopCoroutine(relaunchCoroutine);
+            relaunchCoroutine = null;
+        }
 
         spawnSequence.Clear();
         nextSpawnIndex = 0;
         isSpawning = false;
         liveBallCount = 0;
         spawnPosition = Vector2.zero;
+        relaunchQueue.Clear();
+        queuedSet.Clear();
         NotifyRemainingCountChanged();
     }
 
@@ -214,5 +225,63 @@ public class BallManager : MonoBehaviour
             if (ball != null)
                 Destroy(ball.gameObject);
         }
+    }
+
+    public void QueueForRelaunch(BallController ball)
+    {
+        if (ball == null)
+            return;
+
+        var rb = ball.GetComponent<Rigidbody2D>();
+        if (rb == null)
+            return;
+
+        if (queuedSet.Contains(ball))
+            return;
+
+        queuedSet.Add(ball);
+        relaunchQueue.Enqueue(ball);
+
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        rb.simulated = false;
+
+        if (relaunchCoroutine == null)
+            relaunchCoroutine = StartCoroutine(RelaunchRoutine());
+    }
+
+    IEnumerator RelaunchRoutine()
+    {
+        while (relaunchQueue.Count > 0)
+        {
+            var ball = relaunchQueue.Dequeue();
+            queuedSet.Remove(ball);
+
+            RelaunchBall(ball);
+
+            yield return new WaitForSeconds(cycle);
+        }
+
+        relaunchCoroutine = null;
+    }
+
+    void RelaunchBall(BallController ball)
+    {
+        if (ball == null)
+            return;
+
+        var rb = ball.GetComponent<Rigidbody2D>();
+        if (rb == null)
+            return;
+
+        var dir = launchDirection;
+        if (dir == Vector2.zero)
+            dir = Vector2.up;
+
+        var pos = GetSpawnPosition() + spawnOffset;
+
+        ball.transform.position = new Vector3(pos.x, pos.y, ball.transform.position.z);
+        rb.simulated = true;
+        rb.linearVelocity = dir.normalized * GameConfig.BallSpeed;
     }
 }
