@@ -130,11 +130,13 @@ public sealed class BrickManager : MonoBehaviour
 
         int width = gridSize.x;
         int maxEmpties = 2;
-        
+
         for (int i = 0; i < count; i++)
         {
-            int gridY = i + 1;
-            if (gridY >= gridSize.y)
+            if (i == 0)
+                continue;
+            
+            if (i >= gridSize.y)
                 break;
 
             int emptyCount = rng.Next(1, maxEmpties + 1);
@@ -148,7 +150,7 @@ public sealed class BrickManager : MonoBehaviour
                 if (emptyXs.Contains(x))
                     continue;
 
-                SpawnBrick(new Vector2Int(x, gridY));
+                SpawnBrick(new Vector2Int(x, i));
             }
         }
     }

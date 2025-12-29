@@ -2335,7 +2335,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BallManager
   ballPrefab: {fileID: 6712946394271827164, guid: 22f0b2cd85091534b90dbab6ca9639f4, type: 3}
-  cycle: 0.01
+  cycle: 0.1
   spawnOffset: {x: 0, y: 0}
 --- !u!114 &509129559
 MonoBehaviour:
@@ -9466,7 +9466,7 @@ MonoBehaviour:
   playArea: {fileID: 1644066639}
   gridSize: {x: 6, y: 12}
   brickSize: {x: 160, y: 80}
-  newRowsPerStage: 2
+  newRowsPerStage: 3
   defaultHp: 20
 --- !u!114 &1612725526
 MonoBehaviour:
