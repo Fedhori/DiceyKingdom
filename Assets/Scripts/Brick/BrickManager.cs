@@ -12,6 +12,7 @@ public sealed class BrickManager : MonoBehaviour
     [SerializeField] private int newRowsPerStage = 2;
     [SerializeField] private int defaultHp = 100;
     private int currentHp = 100;
+    [SerializeField] private float fallSpeed = 40f;
 
     private readonly List<List<BrickController>> grid = new();
     private Vector2 originTopLeft;
@@ -27,6 +28,20 @@ public sealed class BrickManager : MonoBehaviour
         Instance = this;
         InitGrid();
         ComputeOrigin();
+    }
+
+    void Update()
+    {
+        // Play 중에만 하강
+        var flow = FlowManager.Instance;
+        if (flow == null || flow.CurrentPhase != FlowPhase.Play)
+            return;
+
+        float dy = fallSpeed * Time.deltaTime;
+        if (dy <= 0f)
+            return;
+
+        MoveAllBricksDown(dy);
     }
 
     void InitGrid()
@@ -195,5 +210,27 @@ public sealed class BrickManager : MonoBehaviour
     bool IsInsideGrid(Vector2Int pos)
     {
         return pos.x >= 0 && pos.x < gridSize.x && pos.y >= 0 && pos.y < gridSize.y;
+    }
+
+    void MoveAllBricksDown(float distance)
+    {
+        if (distance <= 0f)
+            return;
+
+        float delta = distance;
+        for (int y = 0; y < grid.Count; y++)
+        {
+            var row = grid[y];
+            if (row == null) continue;
+
+            for (int x = 0; x < row.Count; x++)
+            {
+                var brick = row[x];
+                if (brick == null) continue;
+
+                var t = brick.transform;
+                t.position += new Vector3(0f, -delta, 0f);
+            }
+        }
     }
 }
