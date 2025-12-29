@@ -11,7 +11,7 @@ public sealed class BallFactory : MonoBehaviour
         Instance = this;
     }
 
-    public void SpawnBall(BallRarity rarity, Vector2 spawnPosition)
+    public void SpawnBall(BallRarity rarity, Vector2 spawnPosition, Vector2 direction)
     {
         if (FlowManager.Instance.CurrentPhase != FlowPhase.Play)
         {
@@ -31,7 +31,7 @@ public sealed class BallFactory : MonoBehaviour
         var rb = ball.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
-            Vector2 dir = BallManager.Instance != null ? BallManager.Instance.LaunchDirection : Vector2.up;
+            Vector2 dir = direction;
             if (dir == Vector2.zero)
                 dir = Vector2.up;
 

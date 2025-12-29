@@ -9,6 +9,7 @@ public class BallManager : MonoBehaviour
     [SerializeField] private GameObject ballPrefab; // 현재는 BallFactory가 prefab을 들고 있지만, 인스펙터 용으로 유지
     [SerializeField] private float cycle = 0.1f;
     [SerializeField] private Vector2 spawnOffset = Vector2.zero;
+    [SerializeField] private Transform playArea;
 
     // 이번 라운드에 스폰할 희귀도 시퀀스
     readonly List<BallRarity> spawnSequence = new();
@@ -28,6 +29,9 @@ public class BallManager : MonoBehaviour
     readonly Queue<BallController> relaunchQueue = new();
     readonly HashSet<BallController> queuedSet = new();
 
+    Bounds playBounds;
+    bool hasPlayBounds;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -37,6 +41,7 @@ public class BallManager : MonoBehaviour
         }
 
         Instance = this;
+        CachePlayAreaBounds();
     }
 
     // 이번 라운드에서 소환해야 할 볼을 다 뽑았는지 여부
@@ -94,23 +99,17 @@ public class BallManager : MonoBehaviour
         }
 
         isSpawning = true;
-        spawnCoroutine = StartCoroutine(SpawnRoutine());
-    }
 
-    IEnumerator SpawnRoutine()
-    {
-        while (nextSpawnIndex < spawnSequence.Count)
+        // 한 번에 모두 생성 (랜덤 위치/방향)
+        for (int i = nextSpawnIndex; i < spawnSequence.Count; i++)
         {
-            var rarity = spawnSequence[nextSpawnIndex];
-            nextSpawnIndex++;
-
-            var pos = GetSpawnPosition();
-            BallFactory.Instance.SpawnBall(rarity, pos + spawnOffset);
-
-            NotifyRemainingCountChanged();
-            yield return new WaitForSeconds(cycle);
+            var rarity = spawnSequence[i];
+            var pos = GetRandomSpawnPosition();
+            var dir = GetRandomDirection();
+            BallFactory.Instance.SpawnBall(rarity, pos + spawnOffset, dir);
         }
 
+        nextSpawnIndex = spawnSequence.Count;
         isSpawning = false;
         spawnCoroutine = null;
 
@@ -274,14 +273,58 @@ public class BallManager : MonoBehaviour
         if (rb == null)
             return;
 
-        var dir = launchDirection;
-        if (dir == Vector2.zero)
-            dir = Vector2.up;
-
-        var pos = GetSpawnPosition() + spawnOffset;
+        var dir = GetRandomDirection();
+        var pos = GetRandomSpawnPosition() + spawnOffset;
 
         ball.transform.position = new Vector3(pos.x, pos.y, ball.transform.position.z);
         rb.simulated = true;
         rb.linearVelocity = dir.normalized * GameConfig.BallSpeed;
+    }
+
+    void CachePlayAreaBounds()
+    {
+        hasPlayBounds = false;
+
+        if (playArea == null)
+            return;
+
+        var sr = playArea.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            playBounds = sr.bounds;
+            hasPlayBounds = true;
+            return;
+        }
+
+        playBounds = new Bounds(playArea.position, Vector3.one * 10f);
+        hasPlayBounds = true;
+    }
+
+    Vector2 GetRandomSpawnPosition()
+    {
+        if (!hasPlayBounds)
+            CachePlayAreaBounds();
+
+        if (!hasPlayBounds)
+            return GetSpawnPosition();
+
+        var min = playBounds.min;
+        var max = playBounds.max;
+
+        float x = UnityEngine.Random.Range(min.x, max.x);
+        float y = UnityEngine.Random.Range(min.y, max.y);
+        return new Vector2(x, y);
+    }
+
+    Vector2 GetRandomDirection()
+    {
+        var rng = GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
+        // random angle 0~360
+        double angle = rng.NextDouble() * 360.0;
+        float rad = (float)(angle * Mathf.Deg2Rad);
+        Vector2 dir = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
+        if (dir.sqrMagnitude < 0.0001f)
+            dir = Vector2.up;
+        return dir.normalized;
     }
 }
