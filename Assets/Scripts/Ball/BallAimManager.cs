@@ -37,6 +37,7 @@ public sealed class BallAimManager : MonoBehaviour
     public Vector2 AimOrigin { get; private set; }
     public Vector2 AimDirection { get; private set; }
     public bool HasValidAim { get; private set; }
+    public float CurrentAngle { get; private set; }
 
     bool dragging;
     Vector2 dragStart;
@@ -53,6 +54,8 @@ public sealed class BallAimManager : MonoBehaviour
         InitSegmentLines();
         ApplyLineStyle();
         HideVisuals();
+
+        CurrentAngle = ClampAngle(initialAngleDegrees);
     }
 
     void Update()
@@ -81,6 +84,7 @@ public sealed class BallAimManager : MonoBehaviour
         dragging = false;
         HasValidAim = false;
         AimDirection = Vector2.up;
+        CurrentAngle = ClampAngle(initialAngleDegrees);
         HideVisuals();
     }
 
@@ -137,6 +141,7 @@ public sealed class BallAimManager : MonoBehaviour
         AimOrigin = dragStart;
         HasValidAim = false;
         AimDirection = Vector2.zero;
+        CurrentAngle = ClampAngle(CurrentAngle);
 
         ShowStartMarker(dragStart);
         UpdateAimLine(Vector2.zero, false);
@@ -357,5 +362,10 @@ public sealed class BallAimManager : MonoBehaviour
     {
         if (startMarker != null) startMarker.enabled = false;
         DisableAllSegments();
+    }
+
+    float ClampAngle(float angleDeg)
+    {
+        return Mathf.Clamp(angleDeg, minUpAngleDegrees, maxUpAngleDegrees);
     }
 }
