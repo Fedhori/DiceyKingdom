@@ -406,6 +406,9 @@ public sealed class BallAimManager : MonoBehaviour
     {
         if (!Application.isFocused) return;
 
+        if (FlowManager.Instance != null && !FlowManager.Instance.CanAimBalls)
+            return;
+
         float moveX = InputManager.Instance != null ? InputManager.Instance.GetMoveX() : 0f;
         if (Mathf.Approximately(moveX, 0f))
             return;
