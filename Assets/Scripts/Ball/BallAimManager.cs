@@ -12,7 +12,12 @@ public sealed class BallAimManager : MonoBehaviour
 
     [SerializeField] float fixedStartY = 0f;
     [SerializeField] float minDragDistance = 0.5f;
-    [SerializeField, Range(0f, 89f)] float minUpAngleDegrees = 15;
+    [Header("Cannon Angles & Speed")]
+    [SerializeField, Range(0f, 89f)] float minUpAngleDegrees = 15f;
+    [SerializeField, Range(91f, 179f)] float maxUpAngleDegrees = 165f;
+    [SerializeField] float initialAngleDegrees = 90f;
+    [SerializeField] float rotateDegreesPerSecond = 30f;
+
     [SerializeField] float aimLineLength = 160f;
 
     [SerializeField] float pixelsPerUnit = 1f;
