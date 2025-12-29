@@ -171,10 +171,9 @@ public sealed class BallAimManager : MonoBehaviour
         AimDirection = valid ? adjustedDir : Vector2.zero;
         if (valid)
         {
-            // Vector2.SignedAngle은 오른손 좌표계 기준: up→dir 로의 회전이 양수(반시계). 포신 각도는 위를 90도로 보고 시계 방향 양수로 처리.
-            float signed = Vector2.SignedAngle(Vector2.up, AimDirection);
-            float cannonAngle = 90f - signed;
-            CurrentAngle = ClampAngle(cannonAngle);
+            // 0도는 (1,0) 기준, 양수는 반시계(표준 수학 규약)
+            float signed = Vector2.SignedAngle(Vector2.right, AimDirection);
+            CurrentAngle = ClampAngle(signed);
         }
 
         RenderAimLine(adjustedDir, valid);
@@ -383,8 +382,12 @@ public sealed class BallAimManager : MonoBehaviour
     {
         if (cannonAnchor != null)
         {
-            var p = cannonAnchor.position;
-            return new Vector2(p.x, p.y);
+            // localPosition을 기준으로 부모 트랜스폼을 거쳐 월드 좌표로 변환
+            var parent = cannonAnchor.parent;
+            Vector3 world = parent != null
+                ? parent.TransformPoint(cannonAnchor.localPosition)
+                : cannonAnchor.position;
+            return new Vector2(world.x, world.y);
         }
 
         return new Vector2(0f, fixedStartY);
@@ -392,8 +395,8 @@ public sealed class BallAimManager : MonoBehaviour
 
     Vector2 DirectionFromAngle(float angleDeg)
     {
-        // 0도는 위쪽, 양수는 시계 방향(오른쪽) 회전
-        return (Vector2)(Quaternion.Euler(0f, 0f, -angleDeg) * Vector2.up);
+        // 0도: (1,0) 오른쪽, 양수: 반시계 방향(기본 수학 각도 규약)
+        return (Vector2)(Quaternion.Euler(0f, 0f, angleDeg) * Vector2.right);
     }
 
     void HandlePointerInput()
@@ -422,7 +425,7 @@ public sealed class BallAimManager : MonoBehaviour
         if (Mathf.Approximately(moveX, 0f))
             return;
 
-        float delta = rotateDegreesPerSecond * Time.deltaTime * Mathf.Sign(moveX);
+        float delta = -rotateDegreesPerSecond * Time.deltaTime * Mathf.Sign(moveX);
         float nextAngle = ClampAngle(CurrentAngle + delta);
         if (Mathf.Approximately(nextAngle, CurrentAngle))
             return;
@@ -433,6 +436,10 @@ public sealed class BallAimManager : MonoBehaviour
 
         // 키보드 회전 중에는 즉시 라인을 갱신
         RenderAimLine(AimDirection, true);
+
+        // 발사 위치/방향을 최신 각도로 반영
+        BallManager.Instance?.SetSpawnPosition(AimOrigin);
+        BallManager.Instance?.SetLaunchDirection(AimDirection);
     }
 
     void RefreshAimLineFromState()
@@ -440,5 +447,10 @@ public sealed class BallAimManager : MonoBehaviour
         AimOrigin = GetCannonOrigin();
         bool show = AimDirection != Vector2.zero;
         RenderAimLine(AimDirection, show);
+
+        // 발사 위치/방향을 항상 최신 상태로 유지
+        BallManager.Instance?.SetSpawnPosition(AimOrigin);
+        if (show)
+            BallManager.Instance?.SetLaunchDirection(AimDirection);
     }
 }

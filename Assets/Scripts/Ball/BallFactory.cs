@@ -20,7 +20,8 @@ public sealed class BallFactory : MonoBehaviour
         }
 
         var ball = Instantiate(ballPrefab, ballParent, false);
-        ball.transform.localPosition = spawnPosition;
+        // spawnPosition은 월드 좌표 기준으로 처리
+        ball.transform.position = new Vector3(spawnPosition.x, spawnPosition.y, 0f);
         ball.transform.localRotation = Quaternion.identity;
 
         var controller = ball.GetComponent<BallController>();
