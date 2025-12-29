@@ -2365,6 +2365,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BallAimController
   dragAreaCollider: {fileID: 665436234}
   worldCamera: {fileID: 519420031}
+  cannonAnchor: {fileID: 570699547}
   startMarker: {fileID: 570699548}
   aimLine: {fileID: 465733806}
   fixedStartY: -576
@@ -2591,7 +2592,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 960
+  orthographic size: 1127.9727
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -3051,7 +3052,7 @@ GameObject:
   - component: {fileID: 570699547}
   - component: {fileID: 570699548}
   m_Layer: 7
-  m_Name: StartMarker
+  m_Name: Cannon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

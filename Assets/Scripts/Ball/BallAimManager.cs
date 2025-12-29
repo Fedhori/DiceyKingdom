@@ -6,6 +6,7 @@ public sealed class BallAimManager : MonoBehaviour
 {
     [SerializeField] Collider2D dragAreaCollider;
     [SerializeField] Camera worldCamera;
+    [SerializeField] Transform cannonAnchor;
     [SerializeField] SpriteRenderer startMarker;
     [SerializeField] LineRenderer aimLine;
 
