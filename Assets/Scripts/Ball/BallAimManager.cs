@@ -38,6 +38,7 @@ public sealed class BallAimManager : MonoBehaviour
     public Vector2 AimDirection { get; private set; }
     public bool HasValidAim { get; private set; }
     public float CurrentAngle { get; private set; }
+    public float CurrentAngle { get; private set; }
 
     bool dragging;
     Vector2 dragStart;
@@ -56,6 +57,8 @@ public sealed class BallAimManager : MonoBehaviour
         HideVisuals();
 
         CurrentAngle = ClampAngle(initialAngleDegrees);
+        AimOrigin = GetCannonOrigin();
+        AimDirection = DirectionFromAngle(CurrentAngle);
     }
 
     void Update()
@@ -83,8 +86,9 @@ public sealed class BallAimManager : MonoBehaviour
     {
         dragging = false;
         HasValidAim = false;
-        AimDirection = Vector2.up;
+        AimOrigin = GetCannonOrigin();
         CurrentAngle = ClampAngle(initialAngleDegrees);
+        AimDirection = DirectionFromAngle(CurrentAngle);
         HideVisuals();
     }
 
@@ -136,14 +140,14 @@ public sealed class BallAimManager : MonoBehaviour
         if (!dragAreaCollider.OverlapPoint(worldPos)) return;
 
         dragging = true;
-        dragStart = new Vector2(worldPos.x, fixedStartY);
+        dragStart = GetCannonOrigin();
 
         AimOrigin = dragStart;
         HasValidAim = false;
         AimDirection = Vector2.zero;
         CurrentAngle = ClampAngle(CurrentAngle);
 
-        ShowStartMarker(dragStart);
+        ShowStartMarker(AimOrigin);
         UpdateAimLine(Vector2.zero, false);
     }
 
@@ -225,7 +229,7 @@ public sealed class BallAimManager : MonoBehaviour
             return;
         }
 
-        BuildFirstHitPath(dragStart, aimDir.normalized, aimLineLength);
+        BuildFirstHitPath(AimOrigin, aimDir.normalized, aimLineLength);
 
         int segCount = Mathf.Max(0, aimPoints.Count - 1);
         if (segCount == 0)
@@ -367,5 +371,22 @@ public sealed class BallAimManager : MonoBehaviour
     float ClampAngle(float angleDeg)
     {
         return Mathf.Clamp(angleDeg, minUpAngleDegrees, maxUpAngleDegrees);
+    }
+
+    Vector2 GetCannonOrigin()
+    {
+        if (cannonAnchor != null)
+        {
+            var p = cannonAnchor.position;
+            return new Vector2(p.x, p.y);
+        }
+
+        return new Vector2(0f, fixedStartY);
+    }
+
+    Vector2 DirectionFromAngle(float angleDeg)
+    {
+        // 0도는 위쪽, 양수는 시계 방향(오른쪽) 회전
+        return (Vector2)(Quaternion.Euler(0f, 0f, -angleDeg) * Vector2.up);
     }
 }
