@@ -129,21 +129,19 @@ public sealed class BrickManager : MonoBehaviour
         var rng = GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
 
         int width = gridSize.x;
-        int maxEmpties = width / 2;
-
-        for (int row = 0; row < count; row++)
+        int maxEmpties = 2;
+        
+        for (int i = 0; i < count; i++)
         {
-            int gridY = row;
+            int gridY = i + 1;
+            if (gridY >= gridSize.y)
+                break;
 
-            // 0 ~ N/2 개의 빈칸 수
-            int emptyCount = rng.Next(0, maxEmpties + 1);
+            int emptyCount = rng.Next(1, maxEmpties + 1);
 
-            // 중복 없는 빈칸 X 좌표들
             var emptyXs = new HashSet<int>();
             while (emptyXs.Count < emptyCount)
-            {
                 emptyXs.Add(rng.Next(0, width));
-            }
 
             for (int x = 0; x < width; x++)
             {
