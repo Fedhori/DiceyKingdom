@@ -29,6 +29,7 @@ public class StaticDataManager : MonoBehaviour
         LoadStage();
         LoadPins();
         LoadPlayers();
+        LoadItems();
         LoadTokens();
     }
 
@@ -114,6 +115,28 @@ public class StaticDataManager : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"[StaticDataManager] Failed to initialize TokenRepository from Tokens.json: {e}");
+        }
+    }
+
+    void LoadItems()
+    {
+        string filePath = Path.Combine("Data", "Items.json");
+        string json = SaCache.ReadText(filePath);
+
+        if (string.IsNullOrEmpty(json))
+        {
+            Debug.LogError($"[StaticDataManager] Items.json not found or empty at: {filePath}");
+            return;
+        }
+
+        try
+        {
+            var asset = new TextAsset(json);
+            Data.ItemRepository.LoadFromJson(asset);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[StaticDataManager] Failed to initialize ItemRepository from Items.json: {e}");
         }
     }
 }
