@@ -7,11 +7,9 @@
 			"critChance": 0.0,
 			"criticalMultiplier": 2.0,
 			"startCurrency": 0,
-			"initialBallCount": 20,
+			"initialBallCount": 0,
 			"moveSpeed": 1.0,
-			"itemIds": [
-				"item.default"
-			],
+			"itemIds": ["item.default"],
 			"rarityGrowth": 2.0,
 			"rarityProbabilities": [
 				100.0, 0.0, 0.0, 0.0, 0.0

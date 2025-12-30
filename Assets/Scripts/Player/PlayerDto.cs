@@ -66,8 +66,7 @@ namespace Data
                 {
                     if (dto == null || string.IsNullOrEmpty(dto.id))
                         continue;
-
-                    EnsureDefaults(dto);
+                    
                     map[dto.id] = dto;
                 }
             }
@@ -96,23 +95,6 @@ namespace Data
                 throw new KeyNotFoundException($"[PlayerRepository] Player id not found: {id}");
 
             return dto;
-        }
-
-        static void EnsureDefaults(PlayerDto dto)
-        {
-            if (dto.initialBallCount <= 0)
-            {
-                Debug.LogError($"[PlayerRepository] initialBallCount is invalid (<=0) for player '{dto.id}'.");
-                throw new InvalidOperationException("[PlayerRepository] Invalid initialBallCount.");
-            }
-
-            if (dto.rarityGrowth <= 0f)
-            {
-                Debug.LogError($"[PlayerRepository] rarityGrowth is invalid (<=0) for player '{dto.id}'.");
-                throw new InvalidOperationException("[PlayerRepository] Invalid rarityGrowth.");
-            }
-
-            dto.rarityProbabilities = NormalizeProbabilities(dto.rarityProbabilities);
         }
 
         static List<float> NormalizeProbabilities(List<float> input)
