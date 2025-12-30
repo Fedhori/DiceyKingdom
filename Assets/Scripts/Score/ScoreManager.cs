@@ -60,33 +60,6 @@ public sealed class ScoreManager : MonoBehaviour
         return Mathf.Lerp(minFontSize, maxFontSize, (float)t);
     }
 
-    public void CalculateScore(BallInstance ball, PinInstance pin, Vector2 position)
-    {
-        var player = PlayerManager.Instance?.Current;
-        if (player == null)
-        {
-            Debug.LogWarning("[BallInstance] PlayerManager.Current is null.");
-            return;
-        }
-
-        if (GameManager.Instance == null)
-        {
-            Debug.LogWarning("[BallInstance] GameManager.Instance is null.");
-            return;
-        }
-
-        var rng = GameManager.Instance.Rng;
-
-        var criticalType = player.RollCriticalLevel(rng);
-        double criticalMultiplier = player.GetCriticalMultiplier(criticalType) * ball.CriticalMultiplier;
-
-        double rarityMultiplier = Math.Pow(player.RarityGrowth, (int)ball.Rarity);
-
-        var gained = player.ScoreBase * player.ScoreMultiplier * rarityMultiplier * pin.ScoreMultiplier * criticalMultiplier;
-
-        AddScore(gained, criticalType, position);
-    }
-
     public void AddScore(double amount, int criticalLevel, Vector2 position)
     {
         if (amount == 0)

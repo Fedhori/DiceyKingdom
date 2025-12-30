@@ -76,10 +76,6 @@ public sealed class FlowManager : MonoBehaviour
 
         currentStage = new StageInstance(dto);
         PlayManager.Instance?.SetStage(currentStage);
-        
-        BrickManager.Instance?.ShiftDownAndSpawn();
-
-        PinManager.Instance.TriggerPins(PinTriggerType.OnStageStart);
         TokenManager.Instance.TriggerTokens(TokenTriggerType.OnStageStart);
 
         if (stageIndex == 0)
@@ -119,14 +115,6 @@ public sealed class FlowManager : MonoBehaviour
         {
             Debug.LogError("[FlowManager] OnPlayFinished but currentStage is null.");
             CurrentPhase = FlowPhase.None;
-            return;
-        }
-
-        const int incomingRows = 2;
-        if (BrickManager.Instance != null && BrickManager.Instance.IsOverflow(incomingRows))
-        {
-            CurrentPhase = FlowPhase.None;
-            GameManager.Instance?.HandleGameOver();
             return;
         }
 
@@ -190,9 +178,7 @@ public sealed class FlowManager : MonoBehaviour
             return;
         }
 
-        PinManager.Instance.ResetAllPins();
         PlayerManager.Instance.ResetPlayer();
-
         currentStageIndex = nextStageIndex;
         StartStage(currentStageIndex);
     }

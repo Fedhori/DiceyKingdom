@@ -24,7 +24,6 @@ public sealed class ShopItemView : MonoBehaviour, IPointerClickHandler, IBeginDr
 
     int index = -1;
     IShopItem boundItem;
-    PinShopItem boundPinItem;
     TokenShopItem boundTokenItem;
 
     void Awake()
@@ -57,7 +56,6 @@ public sealed class ShopItemView : MonoBehaviour, IPointerClickHandler, IBeginDr
     public void SetData(IShopItem item, int price, bool canBuy, bool sold)
     {
         boundItem = item;
-        boundPinItem = item as PinShopItem;
         boundTokenItem = item as TokenShopItem;
         ViewType = item != null ? item.ItemType : ViewType;
 
@@ -196,11 +194,7 @@ public sealed class ShopItemView : MonoBehaviour, IPointerClickHandler, IBeginDr
             return;
 
         TooltipModel model;
-        if (boundPinItem != null)
-        {
-            model = PinTooltipUtil.BuildModel(boundPinItem.PreviewInstance);
-        }
-        else if (boundTokenItem != null)
+        if (boundTokenItem != null)
         {
             model = TokenTooltipUtil.BuildModel(boundTokenItem.PreviewInstance);
         }

@@ -27,7 +27,6 @@ public class StaticDataManager : MonoBehaviour
     void LoadAndProcessData()
     {
         LoadStage();
-        LoadPins();
         LoadPlayers();
         LoadItems();
         LoadTokens();
@@ -73,27 +72,6 @@ public class StaticDataManager : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"[StaticDataManager] Failed to initialize PlayerRepository from Players.json: {e}");
-        }
-    }
-
-    void LoadPins()
-    {
-        string filePath = Path.Combine("Data", "Pins.json");
-        string json = SaCache.ReadText(filePath);
-
-        if (string.IsNullOrEmpty(json))
-        {
-            Debug.LogError($"[StaticDataManager] Pins.json not found or empty at: {filePath}");
-            return;
-        }
-
-        try
-        {
-            Data.PinRepository.InitializeFromJson(json);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[StaticDataManager] Failed to initialize PinRepository from Pins.json: {e}");
         }
     }
 

@@ -45,14 +45,6 @@ public sealed class ShopItemFactory : MonoBehaviour
         return probabilities[probabilities.Count - 1].type;
     }
 
-    public IShopItem CreatePin(PinDto dto)
-    {
-        if (dto == null)
-            return null;
-
-        return new PinShopItem(dto);
-    }
-
     public IShopItem CreateToken(TokenDto dto)
     {
         if (dto == null)

@@ -27,17 +27,6 @@ public sealed class DevCommandManager : MonoBehaviour
         open = !startClosed;
 
         // 명령어
-        Register("addpin", param =>
-        {
-            if (param.Length != 3)
-                return;
-
-            if (PinManager.Instance == null)
-                return;
-
-            PinManager.Instance.TryReplace(param[0], int.Parse(param[1]), int.Parse(param[2]));
-        });
-
         Register("addtoken", param =>
         {
             if (param.Length != 2)

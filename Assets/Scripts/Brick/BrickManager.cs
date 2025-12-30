@@ -7,10 +7,7 @@ public sealed class BrickManager : MonoBehaviour
 
     [SerializeField] private BrickFactory brickFactory;
     [SerializeField] private Transform playArea;
-    [SerializeField] private Vector2Int gridSize = new Vector2Int(8, 16);
     [SerializeField] private Vector2 brickSize = new Vector2(128f, 64f);
-    [SerializeField] private int newRowsPerStage = 2;
-    [SerializeField] private int defaultHp = 100;
     private int currentHp;
     [SerializeField] private float fallSpeed = 40f;
 
@@ -18,10 +15,9 @@ public sealed class BrickManager : MonoBehaviour
     [SerializeField] private float spawnDurationSeconds = 30f;
     [SerializeField] private float spawnRateStartPerSec = 1f;
     [SerializeField] private float spawnRateEndPerSec = 2f;
-
-    private readonly List<List<BrickController>> grid = new();
     private readonly List<BrickController> activeBricks = new();
     private Vector2 originTopLeft;
+    private Vector2 originTopRight;
     float spawnElapsed;
     float spawnAccumulator;
     bool spawnWindowActive;
@@ -35,7 +31,6 @@ public sealed class BrickManager : MonoBehaviour
         }
 
         Instance = this;
-        InitGrid();
         ComputeOrigin();
     }
 
@@ -54,17 +49,12 @@ public sealed class BrickManager : MonoBehaviour
 
         UpdateSpawnRamp();
     }
-
-    void InitGrid()
+    
+    public void BeginSpawnRamp()
     {
-        grid.Clear();
-        for (int y = 0; y < gridSize.y; y++)
-        {
-            var row = new List<BrickController>(gridSize.x);
-            for (int x = 0; x < gridSize.x; x++)
-                row.Add(null);
-            grid.Add(row);
-        }
+        spawnWindowActive = true;
+        spawnElapsed = 0f;
+        spawnAccumulator = 0f;
     }
 
     void ComputeOrigin()
@@ -81,161 +71,12 @@ public sealed class BrickManager : MonoBehaviour
             var size = sr.bounds.size;
             var center = sr.bounds.center;
             originTopLeft = new Vector2(center.x - size.x * 0.5f, center.y + size.y * 0.5f);
-        }
-        else
-        {
-            originTopLeft = playArea.position;
-        }
-    }
-
-    Vector3 GridToWorld(Vector2Int gridPos)
-    {
-        float x = originTopLeft.x + brickSize.x * (gridPos.x + 0.5f);
-        float y = originTopLeft.y - brickSize.y * (gridPos.y + 0.5f);
-        return new Vector3(x, y, 0f);
-    }
-
-    public void ClearAll()
-    {
-        for (int y = 0; y < grid.Count; y++)
-        {
-            var row = grid[y];
-            if (row == null) continue;
-            for (int x = 0; x < row.Count; x++)
-            {
-                if (row[x] != null)
-                    Destroy(row[x].gameObject);
-                row[x] = null;
-            }
-        }
-
-        for (int i = 0; i < activeBricks.Count; i++)
-        {
-            var b = activeBricks[i];
-            if (b != null)
-                Destroy(b.gameObject);
-        }
-        activeBricks.Clear();
-        spawnWindowActive = false;
-        spawnElapsed = 0f;
-        spawnAccumulator = 0f;
-    }
-
-    public void ShiftDownAndSpawn()
-    {
-        currentHp = PlayManager.Instance != null && PlayManager.Instance.CurrentStage != null
-            ? PlayManager.Instance.CurrentStage.BlockHealth
-            : defaultHp;
-
-        // 기존 줄 이동/스폰은 사용하지 않음
-        BeginSpawnRamp();
-    }
-
-    void ShiftDown(int rows)
-    {
-        if (rows <= 0) return;
-
-        for (int y = gridSize.y - 1; y >= 0; y--)
-        {
-            for (int x = 0; x < gridSize.x; x++)
-            {
-                int fromY = y - rows;
-                BrickController brick = fromY >= 0 ? grid[fromY][x] : null;
-
-                grid[y][x] = brick;
-                if (brick != null)
-                {
-                    brick.Instance.SetGridPos(new Vector2Int(x, y));
-                    brick.SetGridPosition(GridToWorld(new Vector2Int(x, y)));
-                }
-            }
-        }
-
-        // 상단 비운 칸 null 처리
-        for (int y = 0; y < rows && y < gridSize.y; y++)
-        {
-            for (int x = 0; x < gridSize.x; x++)
-                grid[y][x] = null;
-        }
-    }
-
-    void SpawnRows(int count)
-    {
-        if (count <= 0) return;
-
-        var rng = GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
-
-        int width = gridSize.x;
-        int maxEmpties = 2;
-
-        for (int i = 0; i < count; i++)
-        {
-            if (i == 0)
-                continue;
+            originTopRight = new Vector2(center.x + size.x * 0.5f, center.y + size.y * 0.5f);
             
-            if (i >= gridSize.y)
-                break;
-
-            int emptyCount = rng.Next(1, maxEmpties + 1);
-
-            var emptyXs = new HashSet<int>();
-            while (emptyXs.Count < emptyCount)
-                emptyXs.Add(rng.Next(0, width));
-
-            for (int x = 0; x < width; x++)
-            {
-                if (emptyXs.Contains(x))
-                    continue;
-
-                SpawnBrick(new Vector2Int(x, i));
-            }
         }
     }
 
-    void SpawnBrick(Vector2Int gridPos)
-    {
-        if (brickFactory == null)
-        {
-            Debug.LogError("[BrickManager] brickFactory not assigned");
-            return;
-        }
-
-        if (!IsInsideGrid(gridPos))
-            return;
-
-        var worldPos = GridToWorld(gridPos);
-        var brick = brickFactory.CreateBrick(currentHp, gridPos, worldPos);
-        grid[gridPos.y][gridPos.x] = brick;
-        if (brick != null && !activeBricks.Contains(brick))
-            activeBricks.Add(brick);
-    }
-
-    public bool IsOverflow(int incomingRows)
-    {
-        if (incomingRows <= 0)
-            return false;
-
-        int thresholdRow = gridSize.y - incomingRows;
-        if (thresholdRow < 0)
-            return true;
-
-        for (int y = thresholdRow; y < gridSize.y; y++)
-        {
-            for (int x = 0; x < gridSize.x; x++)
-            {
-                if (grid[y][x] != null)
-                    return true;
-            }
-        }
-
-        return false;
-    }
-
-    bool IsInsideGrid(Vector2Int pos)
-    {
-        return pos.x >= 0 && pos.x < gridSize.x && pos.y >= 0 && pos.y < gridSize.y;
-    }
-
+    // TODO - 이게 manager가 아니라 brickController에서 관리되어야 할게 아닌가?
     void MoveAllBricksDown(float distance)
     {
         if (distance <= 0f)
@@ -261,7 +102,7 @@ public sealed class BrickManager : MonoBehaviour
             return;
 
         float minX = originTopLeft.x + brickSize.x * 0.5f;
-        float maxX = originTopLeft.x + brickSize.x * (gridSize.x - 0.5f);
+        float maxX = originTopRight.x - brickSize.x * 0.5f;
         float y = originTopLeft.y - brickSize.y * 0.5f;
 
         float x = Random.Range(minX, maxX);
@@ -279,13 +120,6 @@ public sealed class BrickManager : MonoBehaviour
 
         activeBricks.Remove(brick);
         CheckClearCondition();
-    }
-
-    void BeginSpawnRamp()
-    {
-        spawnWindowActive = true;
-        spawnElapsed = 0f;
-        spawnAccumulator = 0f;
     }
 
     void UpdateSpawnRamp()
