@@ -13,12 +13,18 @@ public sealed class BrickManager : MonoBehaviour
     [SerializeField] private int defaultHp = 100;
     private int currentHp;
     [SerializeField] private float fallSpeed = 40f;
-    [SerializeField] private float spawnIntervalSeconds = 3f;
+
+    [Header("Spawn Ramp")]
+    [SerializeField] private float spawnDurationSeconds = 30f;
+    [SerializeField] private float spawnRateStartPerSec = 1f;
+    [SerializeField] private float spawnRateEndPerSec = 2f;
 
     private readonly List<List<BrickController>> grid = new();
     private readonly List<BrickController> activeBricks = new();
     private Vector2 originTopLeft;
-    float spawnTimer;
+    float spawnElapsed;
+    float spawnAccumulator;
+    bool spawnWindowActive;
 
     void Awake()
     {
@@ -46,12 +52,7 @@ public sealed class BrickManager : MonoBehaviour
 
         MoveAllBricksDown(dy);
 
-        spawnTimer += Time.deltaTime;
-        if (spawnTimer >= Mathf.Max(0.01f, spawnIntervalSeconds))
-        {
-            spawnTimer = 0f;
-            SpawnRandomBrickFromTop();
-        }
+        UpdateSpawnRamp();
     }
 
     void InitGrid()
@@ -115,6 +116,9 @@ public sealed class BrickManager : MonoBehaviour
                 Destroy(b.gameObject);
         }
         activeBricks.Clear();
+        spawnWindowActive = false;
+        spawnElapsed = 0f;
+        spawnAccumulator = 0f;
     }
 
     public void ShiftDownAndSpawn()
@@ -123,8 +127,8 @@ public sealed class BrickManager : MonoBehaviour
             ? StageManager.Instance.CurrentStage.BlockHealth
             : defaultHp;
 
-        //ShiftDown(newRowsPerStage);
-        //SpawnRows(newRowsPerStage);
+        // 기존 줄 이동/스폰은 사용하지 않음
+        BeginSpawnRamp();
     }
 
     void ShiftDown(int rows)
@@ -266,5 +270,36 @@ public sealed class BrickManager : MonoBehaviour
         var brick = brickFactory.CreateBrick(currentHp, Vector2Int.zero, worldPos);
         if (brick != null && !activeBricks.Contains(brick))
             activeBricks.Add(brick);
+    }
+
+    void BeginSpawnRamp()
+    {
+        spawnWindowActive = true;
+        spawnElapsed = 0f;
+        spawnAccumulator = 0f;
+    }
+
+    void UpdateSpawnRamp()
+    {
+        if (!spawnWindowActive)
+            return;
+
+        spawnElapsed += Time.deltaTime;
+
+        float duration = Mathf.Max(0.001f, spawnDurationSeconds);
+        float t = Mathf.Clamp01(spawnElapsed / duration);
+        float rate = Mathf.Lerp(spawnRateStartPerSec, spawnRateEndPerSec, t);
+
+        spawnAccumulator += rate * Time.deltaTime;
+
+        int spawnCount = Mathf.FloorToInt(spawnAccumulator);
+        if (spawnCount > 0)
+            spawnAccumulator -= spawnCount;
+
+        for (int i = 0; i < spawnCount; i++)
+            SpawnRandomBrickFromTop();
+
+        if (spawnElapsed >= duration)
+            spawnWindowActive = false;
     }
 }
