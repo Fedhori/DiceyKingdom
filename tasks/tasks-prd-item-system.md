@@ -21,9 +21,9 @@
   - [x] 2.1 PlayerBaseMoveSpeed, ItemBaseBulletSize, ItemBaseBulletSpeed 필드 추가
   - [x] 2.2 아이템/탄환 계산 시 base × 배율 적용
 - [ ] 3.0 플레이어 시스템 구현 (배치, 이동 입력, 범위 클램프, 시작 위치 설정)
-  - [ ] 3.1 플레이어 시작 위치(x=0, y=PlayArea 하단+64) 배치
-  - [ ] 3.2 MoveX(A/D) 및 좌/우 반 터치/홀드 입력 처리
-  - [ ] 3.3 이동 속도 = GameConfig.PlayerBaseMoveSpeed × 플레이어 이동 배율, PlayArea 좌우로 클램프
+  - [x] 3.1 플레이어 시작 위치(x=0, y=PlayArea 하단+64) 배치
+  - [x] 3.2 MoveX(A/D) 및 좌/우 반 터치/홀드 입력 처리
+  - [x] 3.3 이동 속도 = GameConfig.PlayerBaseMoveSpeed × 플레이어 이동 배율, PlayArea 좌우로 클램프
 - [ ] 4.0 아이템 시스템 구현 (itemIds 로드, 플레이어에 장착, 공격속도·피해·탄환 스펙 관리)
   - [ ] 4.1 ItemManager가 itemIds로 아이템 생성/장착
   - [ ] 4.2 아이템 발사 타이머(attackSpeed) 및 피해 배율 관리
