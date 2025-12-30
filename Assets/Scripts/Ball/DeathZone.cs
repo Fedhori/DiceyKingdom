@@ -1,20 +1,12 @@
-using System;
 using UnityEngine;
 
 public class DeathZone : MonoBehaviour
 {
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (GameManager.Instance == null)
+        if (other.gameObject.layer == LayerMask.NameToLayer("Brick"))
         {
-            Destroy(other.gameObject);
-            return;
+            GameManager.Instance?.HandleGameOver();
         }
-
-        var ballController = other.GetComponent<BallController>();
-        if (ballController == null)
-            return;
-
-        BallManager.Instance?.QueueForRelaunch(ballController);
     }
 }

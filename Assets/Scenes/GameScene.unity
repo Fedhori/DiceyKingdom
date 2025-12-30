@@ -3013,38 +3013,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
---- !u!1 &568814674
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 568814675}
-  m_Layer: 0
-  m_Name: DeathZones
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &568814675
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 568814674}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1265942338}
-  m_Father: {fileID: 1644066639}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &570699546
 GameObject:
   m_ObjectHideFlags: 0
@@ -6830,11 +6798,11 @@ Transform:
   m_GameObject: {fileID: 1265942337}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -14, y: -896, z: 0}
+  m_LocalPosition: {x: -14, y: -776, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 568814675}
+  m_Father: {fileID: 1644066639}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &1265942339
 BoxCollider2D:
@@ -9727,7 +9695,7 @@ Transform:
   - {fileID: 741026069}
   - {fileID: 1644864085}
   - {fileID: 1137718676}
-  - {fileID: 568814675}
+  - {fileID: 1265942338}
   - {fileID: 2123182479}
   - {fileID: 665436232}
   m_Father: {fileID: 0}

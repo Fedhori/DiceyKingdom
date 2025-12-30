@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1119339393901414208}
   - component: {fileID: 112280028068122016}
   - component: {fileID: 13672171728307425}
+  - component: {fileID: 5748353507522075565}
   m_Layer: 10
   m_Name: Brick
   m_TagString: Untagged
@@ -153,6 +154,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BrickController
   spriteRenderer: {fileID: 1119339393901414208}
   hpText: {fileID: 3865563149693419177}
+--- !u!50 &5748353507522075565
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6079230621432947834}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 1
+  m_SleepingMode: 1
+  m_CollisionDetection: 1
+  m_Constraints: 0
 --- !u!1 &7295902507656377457
 GameObject:
   m_ObjectHideFlags: 0
