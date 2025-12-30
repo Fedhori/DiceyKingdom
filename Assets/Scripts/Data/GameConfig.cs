@@ -10,6 +10,11 @@ public static class GameConfig
     public static int TokenSlotCount = 8;
     public static float BallSpeed = 1000f;
     public static float BallRadius = 16f;
+
+    // Player/Item base stats
+    public static float PlayerBaseMoveSpeed = 500f;
+    public static float ItemBaseBulletSize = 1f;
+    public static float ItemBaseBulletSpeed = 1000f;
 }
 
 public static class LayerMaskUtil

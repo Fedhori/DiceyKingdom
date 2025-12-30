@@ -16,9 +16,9 @@
   - [x] 1.1 Items.json 스키마 확정(id, damageMultiplier, attackSpeed, bulletSize, bulletSpeed 등) 및 기본 item.default 추가
   - [x] 1.2 Players.json에 itemIds(배열)와 이동 속도 배율 필드 추가, DTO/Instance에 반영
   - [x] 1.3 Item DTO/Repository/Instance 계층 추가
-  - [ ] 1.4 Player DTO/Instance 확장(이동 배율, itemIds 보유)
+  - [x] 1.4 Player DTO/Instance 확장(이동 배율, itemIds 보유)
 - [ ] 2.0 GameConfig에 플레이어 이동/탄환 크기·속도 base 수치 추가
-  - [ ] 2.1 PlayerBaseMoveSpeed, ItemBaseBulletSize, ItemBaseBulletSpeed 필드 추가
+  - [x] 2.1 PlayerBaseMoveSpeed, ItemBaseBulletSize, ItemBaseBulletSpeed 필드 추가
   - [ ] 2.2 아이템/탄환 계산 시 base × 배율 적용
 - [ ] 3.0 플레이어 시스템 구현 (배치, 이동 입력, 범위 클램프, 시작 위치 설정)
   - [ ] 3.1 플레이어 시작 위치(x=0, y=PlayArea 하단+64) 배치
