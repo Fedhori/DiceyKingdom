@@ -272,6 +272,15 @@ public sealed class BrickManager : MonoBehaviour
             activeBricks.Add(brick);
     }
 
+    public void NotifyBrickDestroyed(BrickController brick)
+    {
+        if (brick == null)
+            return;
+
+        activeBricks.Remove(brick);
+        CheckClearCondition();
+    }
+
     void BeginSpawnRamp()
     {
         spawnWindowActive = true;
@@ -285,9 +294,7 @@ public sealed class BrickManager : MonoBehaviour
             return;
 
         spawnElapsed += Time.deltaTime;
-
-        float duration = Mathf.Max(0.001f, spawnDurationSeconds);
-        float t = Mathf.Clamp01(spawnElapsed / duration);
+        float t = Mathf.Clamp01(spawnElapsed / spawnDurationSeconds);
         float rate = Mathf.Lerp(spawnRateStartPerSec, spawnRateEndPerSec, t);
 
         spawnAccumulator += rate * Time.deltaTime;
@@ -299,7 +306,20 @@ public sealed class BrickManager : MonoBehaviour
         for (int i = 0; i < spawnCount; i++)
             SpawnRandomBrickFromTop();
 
-        if (spawnElapsed >= duration)
+        if (spawnElapsed >= spawnDurationSeconds)
             spawnWindowActive = false;
+
+        CheckClearCondition();
+    }
+
+    void CheckClearCondition()
+    {
+        if (spawnWindowActive)
+            return;
+
+        if (activeBricks.Count > 0)
+            return;
+
+        FlowManager.Instance?.OnPlayFinished();
     }
 }

@@ -35,6 +35,7 @@ public sealed class BrickController : MonoBehaviour
         if (Instance.IsDead)
         {
             AudioManager.Instance.Play("Pop");
+            BrickManager.Instance?.NotifyBrickDestroyed(this);
             Destroy(gameObject);
         }
             
