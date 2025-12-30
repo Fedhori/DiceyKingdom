@@ -92,7 +92,7 @@ public class BallManager : MonoBehaviour
 
             if (liveBallCount == 0)
             {
-                StageManager.Instance?.NotifyAllBallsDestroyed();
+                PlayManager.Instance?.NotifyAllBallsDestroyed();
             }
 
             return;
@@ -115,7 +115,7 @@ public class BallManager : MonoBehaviour
 
         if (liveBallCount == 0)
         {
-            StageManager.Instance?.NotifyAllBallsDestroyed();
+            PlayManager.Instance?.NotifyAllBallsDestroyed();
         }
     }
     
@@ -197,7 +197,7 @@ public class BallManager : MonoBehaviour
         // 모든 볼이 이미 소환되었고, 현재 살아있는 볼이 0이라면 라운드 종료
         if (AllSpawned && liveBallCount == 0)
         {
-            StageManager.Instance?.NotifyAllBallsDestroyed();
+            PlayManager.Instance?.NotifyAllBallsDestroyed();
         }
     }
 

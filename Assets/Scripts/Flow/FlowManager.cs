@@ -33,8 +33,8 @@ public sealed class FlowManager : MonoBehaviour
         }
     }
 
-    public bool CanDragPins => !StageManager.Instance.playActive;
-    public bool CanDragTokens => !StageManager.Instance.playActive;
+    public bool CanDragPins => !PlayManager.Instance.playActive;
+    public bool CanDragTokens => !PlayManager.Instance.playActive;
     public bool CanAimBalls => currentPhase == FlowPhase.Ready || currentPhase == FlowPhase.Play;
 
     void Awake()
@@ -75,7 +75,7 @@ public sealed class FlowManager : MonoBehaviour
         }
 
         currentStage = new StageInstance(dto);
-        StageManager.Instance?.SetStage(currentStage);
+        PlayManager.Instance?.SetStage(currentStage);
         
         BrickManager.Instance?.ShiftDownAndSpawn();
 
@@ -100,7 +100,7 @@ public sealed class FlowManager : MonoBehaviour
         }
 
         CurrentPhase = FlowPhase.Ready;
-        StageManager.Instance?.StartStagePlay(currentStage);
+        PlayManager.Instance?.StartStagePlay(currentStage);
     }
 
     public void OnPlayStarted()

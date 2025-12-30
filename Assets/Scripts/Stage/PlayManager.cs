@@ -5,9 +5,9 @@ using UnityEngine.Localization.Components;
 using UnityEngine.Localization.SmartFormat.PersistentVariables;
 using UnityEngine.UI;
 
-public sealed class StageManager : MonoBehaviour
+public sealed class PlayManager : MonoBehaviour
 {
-    public static StageManager Instance { get; private set; }
+    public static PlayManager Instance { get; private set; }
 
     [SerializeField] private StageHudView stageHudView;
     [SerializeField] private LocalizeStringEvent stallNoticeText;
@@ -265,11 +265,12 @@ public sealed class StageManager : MonoBehaviour
         FinishPlay();
     }
 
-    void FinishPlay()
+    public void FinishPlay()
     {
         playActive = false;
         ResetStallState();
         UpdateBallCount(PlayerManager.Instance.Current.BallCount);
+        BallManager.Instance?.DestroyAllBalls();
         FlowManager.Instance?.OnPlayFinished();
     }
 

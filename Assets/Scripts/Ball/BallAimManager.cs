@@ -192,7 +192,7 @@ public sealed class BallAimManager : MonoBehaviour
         }
 
         dragging = false;
-        StageManager.Instance?.OnAimConfirmed(AimOrigin, AimDirection);
+        PlayManager.Instance?.OnAimConfirmed(AimOrigin, AimDirection);
     }
 
     void CancelDrag()

@@ -123,8 +123,8 @@ public sealed class BrickManager : MonoBehaviour
 
     public void ShiftDownAndSpawn()
     {
-        currentHp = StageManager.Instance != null && StageManager.Instance.CurrentStage != null
-            ? StageManager.Instance.CurrentStage.BlockHealth
+        currentHp = PlayManager.Instance != null && PlayManager.Instance.CurrentStage != null
+            ? PlayManager.Instance.CurrentStage.BlockHealth
             : defaultHp;
 
         // 기존 줄 이동/스폰은 사용하지 않음
@@ -320,6 +320,6 @@ public sealed class BrickManager : MonoBehaviour
         if (activeBricks.Count > 0)
             return;
 
-        FlowManager.Instance?.OnPlayFinished();
+        PlayManager.Instance?.FinishPlay();
     }
 }
