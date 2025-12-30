@@ -1,80 +1,41 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public sealed class ItemController : MonoBehaviour
 {
     [SerializeField] private Transform firePoint;
-    [SerializeField] private BulletFactory bulletFactory;
 
-    readonly List<ItemRuntime> runtimes = new();
+    ItemInstance item;
+    float fireTimer;
 
-    public void BindItems(IReadOnlyList<ItemInstance> items, Transform attachTarget)
+    public void BindItem(ItemInstance item, Transform attachTarget)
     {
-        runtimes.Clear();
-        if (items == null || items.Count == 0)
+        if (item == null || attachTarget == null)
             return;
 
-        for (int i = 0; i < items.Count; i++)
-        {
-            var inst = items[i];
-            if (inst == null)
-                continue;
-
-            var rt = new ItemRuntime(inst);
-            runtimes.Add(rt);
-        }
-
+        this.item = item;
+        fireTimer = 0f;
         transform.SetParent(attachTarget, worldPositionStays: true);
         transform.localPosition = Vector3.zero;
     }
 
     void Update()
     {
-        if (runtimes.Count == 0 || bulletFactory == null || firePoint == null)
+        if (item == null || BulletFactory.Instance == null || firePoint == null)
             return;
 
-        float dt = Time.deltaTime;
-        for (int i = 0; i < runtimes.Count; i++)
+        float interval = 1f / Mathf.Max(0.1f, item.AttackSpeed);
+        fireTimer += Time.deltaTime;
+        if (fireTimer >= interval)
         {
-            var rt = runtimes[i];
-            rt.Tick(dt, TryFire);
+            fireTimer -= interval;
+            Fire();
         }
     }
 
-    void TryFire(ItemInstance inst)
+    void Fire()
     {
-        if (inst == null || bulletFactory == null || firePoint == null)
-            return;
-
         Vector3 pos = firePoint.position;
         Vector2 dir = Vector2.up;
-
-        bulletFactory.SpawnBullet(pos, dir, inst);
-    }
-
-    sealed class ItemRuntime
-    {
-        public ItemInstance Inst { get; }
-        float timer;
-
-        public ItemRuntime(ItemInstance inst)
-        {
-            Inst = inst;
-            timer = 0f;
-        }
-
-        public void Tick(float dt, System.Action<ItemInstance> onFire)
-        {
-            if (Inst == null || onFire == null)
-                return;
-
-            float interval = 1f / Mathf.Max(0.1f, Inst.AttackSpeed);
-            timer += dt;
-            if (timer >= interval)
-            {
-                timer -= interval;
-                onFire.Invoke(Inst);
-            }
-        }
+        BulletFactory.Instance.SpawnBullet(pos, dir, item);
     }
 }

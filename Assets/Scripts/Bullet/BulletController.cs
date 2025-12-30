@@ -24,7 +24,7 @@ public sealed class BulletController : MonoBehaviour
         if (rb == null || item == null)
             return;
 
-        rb.velocity = direction * item.WorldBulletSpeed;
+        rb.linearVelocity = direction * item.WorldBulletSpeed;
 
         float s = item.WorldBulletSize;
         transform.localScale = new Vector3(s, s, 1f);

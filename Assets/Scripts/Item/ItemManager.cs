@@ -8,8 +8,10 @@ public sealed class ItemManager : MonoBehaviour
 
     [SerializeField] private string defaultItemId = "item.default";
     [SerializeField] private Transform attachTarget; // 플레이어 transform 등
+    [SerializeField] private ItemController itemControllerPrefab;
 
     readonly List<ItemInstance> items = new();
+    readonly List<ItemController> controllers = new();
 
     void Awake()
     {
@@ -31,6 +33,7 @@ public sealed class ItemManager : MonoBehaviour
 
     public void InitializeFromPlayer(PlayerInstance player)
     {
+        ClearControllers();
         items.Clear();
 
         if (!ItemRepository.IsInitialized)
@@ -56,7 +59,37 @@ public sealed class ItemManager : MonoBehaviour
 
             var inst = new ItemInstance(dto);
             items.Add(inst);
+            SpawnController(inst);
         }
+    }
+
+    void SpawnController(ItemInstance inst)
+    {
+        if (itemControllerPrefab == null || inst == null || attachTarget == null)
+        {
+            Debug.LogWarning("[ItemManager] Missing prefab/instance/attachTarget");
+            return;
+        }
+
+        var ctrl = Instantiate(itemControllerPrefab, attachTarget.position, Quaternion.identity, attachTarget);
+        ctrl.BindItem(inst, attachTarget);
+        controllers.Add(ctrl);
+    }
+
+    void ClearControllers()
+    {
+        for (int i = controllers.Count - 1; i >= 0; i--)
+        {
+            var c = controllers[i];
+            if (c != null)
+                Destroy(c.gameObject);
+        }
+        controllers.Clear();
+    }
+
+    void OnDisable()
+    {
+        ClearControllers();
     }
 
     public Transform GetAttachTarget()
