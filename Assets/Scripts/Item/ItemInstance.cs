@@ -10,6 +10,9 @@ public sealed class ItemInstance
     public float BulletSize { get; private set; }
     public float BulletSpeed { get; private set; }
 
+    public float WorldBulletSize => GameConfig.ItemBaseBulletSize * Mathf.Max(0.1f, BulletSize);
+    public float WorldBulletSpeed => GameConfig.ItemBaseBulletSpeed * Mathf.Max(0.1f, BulletSpeed);
+
     public ItemInstance(ItemDto dto)
     {
         if (dto == null || string.IsNullOrEmpty(dto.id))

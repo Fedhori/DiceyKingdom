@@ -17,6 +17,7 @@ public sealed class PlayerInstance
     public double CriticalMultiplier => Stats.GetValue(PlayerStatIds.CriticalMultiplier);
     public double MoveSpeed => Stats.GetValue(PlayerStatIds.MoveSpeed);
     public IReadOnlyList<string> ItemIds => itemIds;
+    public float WorldMoveSpeed => GameConfig.PlayerBaseMoveSpeed * Mathf.Max(0.1f, (float)MoveSpeed);
     
     public IReadOnlyList<float> RarityProbabilities => rarityProbabilities;
     
