@@ -102,6 +102,8 @@ public sealed class PlayManager : MonoBehaviour
 
         var player = PlayerManager.Instance.Current;
 
+        ItemManager.Instance?.InitializeFromPlayer(player);
+
         var rng = GameManager.Instance != null
             ? GameManager.Instance.Rng
             : new System.Random();
@@ -271,6 +273,7 @@ public sealed class PlayManager : MonoBehaviour
         ResetStallState();
         UpdateBallCount(PlayerManager.Instance.Current.BallCount);
         BallManager.Instance?.DestroyAllBalls();
+        ItemManager.Instance?.ClearAll();
         FlowManager.Instance?.OnPlayFinished();
     }
 

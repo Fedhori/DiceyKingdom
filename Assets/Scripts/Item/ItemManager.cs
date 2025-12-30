@@ -92,6 +92,12 @@ public sealed class ItemManager : MonoBehaviour
         ClearControllers();
     }
 
+    public void ClearAll()
+    {
+        items.Clear();
+        ClearControllers();
+    }
+
     public Transform GetAttachTarget()
     {
         return attachTarget;
