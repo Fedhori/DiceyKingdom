@@ -1,0 +1,11 @@
+{
+	"items": [
+		{
+			"id": "item.default",
+			"damageMultiplier": 1.0,
+			"attackSpeed": 1.0,
+			"bulletSize": 1.0,
+			"bulletSpeed": 1.0
+		}
+	]
+}
