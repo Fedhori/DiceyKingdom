@@ -17,6 +17,8 @@ namespace Data
         public float critChance = 5f;
         public float criticalMultiplier = 2f;
 
+        public float moveSpeed = 1f;
+
         // 런 시작 시 지급되는 통화
         public int startCurrency = 0;
 
@@ -24,6 +26,8 @@ namespace Data
         public int initialBallCount = 50;
         public float rarityGrowth = 2f;
         public List<float> rarityProbabilities;
+
+        public List<string> itemIds;
     }
 
     [Serializable]

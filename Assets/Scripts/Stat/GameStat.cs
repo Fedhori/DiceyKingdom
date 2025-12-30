@@ -21,6 +21,7 @@ namespace GameStats
         public const string ScoreMultiplier = "scoreMultiplier";
         public const string CriticalChance = "criticalChance";
         public const string CriticalMultiplier = "criticalMultiplier";
+        public const string MoveSpeed = "moveSpeed";
     }
 
     public static class PinStatIds
