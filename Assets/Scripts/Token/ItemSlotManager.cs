@@ -412,7 +412,7 @@ public sealed class ItemSlotManager : MonoBehaviour
             return;
 
         int price = ShopManager.CalculateSellPrice(dto.price);
-        if (price <= 0)
+        if (price < 0)
             return;
 
         var args = new Dictionary<string, object>
