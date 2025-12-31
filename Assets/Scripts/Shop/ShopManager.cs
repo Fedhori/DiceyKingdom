@@ -22,9 +22,9 @@ public sealed class ShopManager : MonoBehaviour
     bool isOpen;
 
     readonly List<IShopItem> rosterItems = new();
-    readonly List<TokenDto> sellableTokens = new();
-    readonly HashSet<string> rosterTokenIds = new();
-    readonly HashSet<string> ownedTokenIds = new();
+    readonly List<ItemDto> sellableItems = new();
+    readonly HashSet<string> rosterItemIds = new();
+    readonly HashSet<string> ownedItemIds = new();
 
     IShopItem[] currentShopItems;
     int currentRerollCost;
@@ -86,8 +86,8 @@ public sealed class ShopManager : MonoBehaviour
 
         ClearSelection();
 
-        BuildSellableTokens();
-        CollectOwnedTokens();
+        BuildSellableItems();
+        CollectOwnedItems();
         EnsureArrays();
         currentRerollCost = Mathf.Max(1, baseRerollCost);
 
@@ -97,32 +97,43 @@ public sealed class ShopManager : MonoBehaviour
         shopView.Open();   
     }
 
-    void CollectOwnedTokens()
+    void CollectOwnedItems()
     {
-        ownedTokenIds.Clear();
-        rosterTokenIds.Clear();
+        ownedItemIds.Clear();
+        rosterItemIds.Clear();
 
-        if (TokenManager.Instance != null)
-            TokenManager.Instance.CollectOwnedTokenIds(ownedTokenIds);
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory == null)
+            return;
+
+        for (int i = 0; i < inventory.SlotCount; i++)
+        {
+            var inst = inventory.GetSlot(i);
+            if (inst == null || string.IsNullOrEmpty(inst.Id))
+                continue;
+
+            ownedItemIds.Add(inst.Id);
+        }
     }
 
-    void BuildSellableTokens()
+    void BuildSellableItems()
     {
-        sellableTokens.Clear();
+        sellableItems.Clear();
 
-        if (!TokenRepository.IsInitialized)
+        if (!ItemRepository.IsInitialized)
         {
-            Debug.LogWarning("[ShopManager] TokenRepository not initialized.");
+            Debug.LogWarning("[ShopManager] ItemRepository not initialized.");
             return;
         }
 
-        foreach (var dto in TokenRepository.All)
+        foreach (var entry in ItemRepository.All)
         {
+            var dto = entry.Value;
             if (dto == null)
                 continue;
 
             // 추후 isNotSell 같은 플래그가 생기면 필터 추가
-            sellableTokens.Add(dto);
+            sellableItems.Add(dto);
         }
     }
 
@@ -141,7 +152,7 @@ public sealed class ShopManager : MonoBehaviour
     void BuildRoster()
     {
         rosterItems.Clear();
-        rosterTokenIds.Clear();
+        rosterItemIds.Clear();
 
         var factory = ShopItemFactory.Instance;
         if (factory == null)
@@ -150,7 +161,7 @@ public sealed class ShopManager : MonoBehaviour
             return;
         }
 
-        var tokenPool = BuildTokenPool();
+        var itemPool = BuildItemPool();
 
         for (int slot = 0; slot < itemsPerShop; slot++)
         {
@@ -158,15 +169,15 @@ public sealed class ShopManager : MonoBehaviour
             if (type != ShopItemType.Item)
                 continue;
 
-            if (tokenPool.Count == 0)
+            if (itemPool.Count == 0)
                 continue;
 
-            var dto = PopToken(tokenPool);
+            var dto = PopItem(itemPool);
             var item = factory.CreateItem(dto);
             if (item != null)
             {
                 rosterItems.Add(item);
-                rosterTokenIds.Add(dto.id);
+                rosterItemIds.Add(dto.id);
             }
         }
 
@@ -187,20 +198,20 @@ public sealed class ShopManager : MonoBehaviour
         }
     }
 
-    List<TokenDto> BuildTokenPool()
+    List<ItemDto> BuildItemPool()
     {
-        var pool = new List<TokenDto>();
+        var pool = new List<ItemDto>();
 
-        if (sellableTokens == null || sellableTokens.Count == 0)
+        if (sellableItems == null || sellableItems.Count == 0)
             return pool;
 
-        for (int i = 0; i < sellableTokens.Count; i++)
+        for (int i = 0; i < sellableItems.Count; i++)
         {
-            var dto = sellableTokens[i];
+            var dto = sellableItems[i];
             if (dto == null)
                 continue;
 
-            if (!IsTokenAllowed(dto.id))
+            if (!IsItemAllowed(dto.id))
                 continue;
 
             pool.Add(dto);
@@ -216,7 +227,7 @@ public sealed class ShopManager : MonoBehaviour
         return pool;
     }
 
-    TokenDto PopToken(List<TokenDto> pool)
+    ItemDto PopItem(List<ItemDto> pool)
     {
         if (pool == null || pool.Count == 0)
             return null;
@@ -227,15 +238,15 @@ public sealed class ShopManager : MonoBehaviour
         return dto;
     }
 
-    bool IsTokenAllowed(string tokenId)
+    bool IsItemAllowed(string itemId)
     {
-        if (string.IsNullOrEmpty(tokenId))
+        if (string.IsNullOrEmpty(itemId))
             return false;
 
-        if (ownedTokenIds.Contains(tokenId))
+        if (ownedItemIds.Contains(itemId))
             return false;
 
-        if (rosterTokenIds.Contains(tokenId))
+        if (rosterItemIds.Contains(itemId))
             return false;
 
         return true;
@@ -319,7 +330,29 @@ public sealed class ShopManager : MonoBehaviour
         }
 
         int slotIndex = overrideSlot >= 0 ? overrideSlot : FindFirstEmptyTokenSlot();
-        if (slotIndex < 0 || !TokenManager.Instance.TryAddTokenAt(item.Id, slotIndex, out _))
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory == null)
+        {
+            currencyMgr.AddCurrency(price);
+            RefreshView();
+            return false;
+        }
+
+        if (slotIndex < 0)
+        {
+            currencyMgr.AddCurrency(price);
+            RefreshView();
+            return false;
+        }
+
+        if (!ItemRepository.TryGet(item.Id, out var dto) || dto == null)
+        {
+            currencyMgr.AddCurrency(price);
+            RefreshView();
+            return false;
+        }
+
+        if (!inventory.TrySetSlot(slotIndex, new ItemInstance(dto)))
         {
             currencyMgr.AddCurrency(price);
             RefreshView();
@@ -334,10 +367,11 @@ public sealed class ShopManager : MonoBehaviour
 
     int FindFirstEmptyTokenSlot()
     {
-        if (TokenManager.Instance == null)
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory == null)
             return -1;
 
-        if (TokenManager.Instance.TryGetFirstEmptySlot(out int idx))
+        if (inventory.TryGetFirstEmptySlot(out int idx))
             return idx;
 
         return -1;
@@ -359,7 +393,8 @@ public sealed class ShopManager : MonoBehaviour
             ? CurrencyManager.Instance.CurrentCurrency
             : 0;
 
-        bool hasEmptyTokenSlot = TokenManager.Instance != null && TokenManager.Instance.TryGetFirstEmptySlot(out _);
+        bool hasEmptyTokenSlot = ItemManager.Instance?.Inventory != null
+            && ItemManager.Instance.Inventory.TryGetFirstEmptySlot(out _);
 
         shopView.SetItems(currentShopItems, currency, false, hasEmptyTokenSlot, currentRerollCost);
         shopView.RefreshAll();
@@ -409,7 +444,7 @@ public sealed class ShopManager : MonoBehaviour
         if (item.ItemType == ShopItemType.Item)
         {
             // 토큰 슬롯 하이라이트, 핀 선택 해제
-            TokenManager.Instance?.HighlightEmptySlots();
+            // TODO: ItemInventory 기반 하이라이트로 교체 예정
             shopView?.ClearSelectionVisuals();
         }
     }
@@ -436,8 +471,8 @@ public sealed class ShopManager : MonoBehaviour
 
         currentRerollCost = Mathf.Max(1, currentRerollCost + Mathf.Max(1, rerollCostIncrement));
 
-        BuildSellableTokens();
-        CollectOwnedTokens();
+        BuildSellableItems();
+        CollectOwnedItems();
         BuildRoster();
         RefreshView();
     }
@@ -493,7 +528,7 @@ public sealed class ShopManager : MonoBehaviour
         if (item.ItemType == ShopItemType.Item)
         {
             draggingTokenIndex = itemIndex;
-            TokenManager.Instance?.HighlightEmptySlots();
+            // TODO: ItemInventory 기반 하이라이트로 교체 예정
             shopView.ShowItemDragGhost(item, screenPos);
         }
         else
@@ -529,8 +564,7 @@ public sealed class ShopManager : MonoBehaviour
         if (itemIndex == draggingTokenIndex)
         {
             int targetSlot = -1;
-            if (TokenManager.Instance != null && TokenManager.Instance.TryGetSlotFromScreenPos(screenPos, out var idx))
-                targetSlot = idx;
+            // TODO: ItemInventory 기반 슬롯 드롭 판정으로 교체 예정
 
             if (targetSlot >= 0)
                 TryPurchaseTokenItemAt(itemIndex, targetSlot);
@@ -538,7 +572,7 @@ public sealed class ShopManager : MonoBehaviour
 
         shopView.HideItemDragGhost();
         draggingTokenIndex = -1;
-        TokenManager.Instance?.ClearHighlights();
+        // TODO: ItemInventory 기반 하이라이트 클리어로 교체 예정
     }
 
 }
