@@ -33,7 +33,7 @@ public sealed class ShopManager : MonoBehaviour
 
     public int CurrentSelectionIndex { get; private set; } = -1;
 
-    int draggingTokenIndex = -1;
+    int draggingItemIndex = -1;
 
     void Awake()
     {
@@ -286,7 +286,7 @@ public sealed class ShopManager : MonoBehaviour
         return false;
     }
 
-    public bool TryPurchaseSelectedTokenAt(int slotIndex)
+    public bool TryPurchaseSelectedItemAt(int slotIndex)
     {
         if (!isOpen)
             return false;
@@ -303,10 +303,10 @@ public sealed class ShopManager : MonoBehaviour
 
         shopView?.ClearSelectionVisuals();
         TokenManager.Instance?.ClearHighlights();
-        return TryPurchaseTokenItemAt(CurrentSelectionIndex, slotIndex);
+        return TryPurchaseItemAt(CurrentSelectionIndex, slotIndex);
     }
 
-    bool TryPurchaseTokenItemAt(int itemIndex, int overrideSlot = -1)
+    bool TryPurchaseItemAt(int itemIndex, int overrideSlot = -1)
     {
         if (!isOpen)
             return false;
@@ -329,7 +329,7 @@ public sealed class ShopManager : MonoBehaviour
             return false;
         }
 
-        int slotIndex = overrideSlot >= 0 ? overrideSlot : FindFirstEmptyTokenSlot();
+        int slotIndex = overrideSlot >= 0 ? overrideSlot : FindFirstEmptyItemSlot();
         var inventory = ItemManager.Instance?.Inventory;
         if (inventory == null)
         {
@@ -365,7 +365,7 @@ public sealed class ShopManager : MonoBehaviour
         return true;
     }
 
-    int FindFirstEmptyTokenSlot()
+    int FindFirstEmptyItemSlot()
     {
         var inventory = ItemManager.Instance?.Inventory;
         if (inventory == null)
@@ -489,7 +489,7 @@ public sealed class ShopManager : MonoBehaviour
 
         isOpen = false;
 
-        draggingTokenIndex = -1;
+        draggingItemIndex = -1;
 
         if (shopView != null)
         {
@@ -527,13 +527,13 @@ public sealed class ShopManager : MonoBehaviour
 
         if (item.ItemType == ShopItemType.Item)
         {
-            draggingTokenIndex = itemIndex;
+            draggingItemIndex = itemIndex;
             // TODO: ItemInventory 기반 하이라이트로 교체 예정
             shopView.ShowItemDragGhost(item, screenPos);
         }
         else
         {
-            draggingTokenIndex = -1;
+            draggingItemIndex = -1;
         }
     }
 
@@ -542,7 +542,7 @@ public sealed class ShopManager : MonoBehaviour
         if (!isOpen || shopView == null)
             return;
 
-        if (itemIndex == draggingTokenIndex)
+        if (itemIndex == draggingItemIndex)
             shopView.UpdateItemDragGhostPosition(screenPos);
     }
 
@@ -550,28 +550,28 @@ public sealed class ShopManager : MonoBehaviour
     {
         if (shopView == null)
         {
-            draggingTokenIndex = -1;
+            draggingItemIndex = -1;
             return;
         }
 
         if (!isOpen)
         {
             shopView.HideItemDragGhost();
-            draggingTokenIndex = -1;
+            draggingItemIndex = -1;
             return;
         }
 
-        if (itemIndex == draggingTokenIndex)
+        if (itemIndex == draggingItemIndex)
         {
             int targetSlot = -1;
             // TODO: ItemInventory 기반 슬롯 드롭 판정으로 교체 예정
 
             if (targetSlot >= 0)
-                TryPurchaseTokenItemAt(itemIndex, targetSlot);
+                TryPurchaseItemAt(itemIndex, targetSlot);
         }
 
         shopView.HideItemDragGhost();
-        draggingTokenIndex = -1;
+        draggingItemIndex = -1;
         // TODO: ItemInventory 기반 하이라이트 클리어로 교체 예정
     }
 

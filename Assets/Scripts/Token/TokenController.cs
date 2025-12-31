@@ -45,7 +45,7 @@ public sealed class TokenController : MonoBehaviour, IBeginDragHandler, IEndDrag
         if (shop == null)
             return;
 
-        shop.TryPurchaseSelectedTokenAt(SlotIndex);
+        shop.TryPurchaseSelectedItemAt(SlotIndex);
     }
 
     public void SetSlotIndex(int index)

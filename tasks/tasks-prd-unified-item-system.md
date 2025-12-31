@@ -14,6 +14,7 @@
 - `Assets/Scripts/Item/ItemEffectManager.cs` - (신규 또는 기존 이동) 아이템 효과 적용 파이프라인.
 - `Assets/Scripts/Item/ItemPrefabRegistry.cs` - (신규) item key -> prefab 매핑 테이블(Inspector 연결).
 - `Assets/Scripts/Shop/ShopManager.cs` - itemId 기반 상품/구매/판매/드래그 처리로 통합.
+- `Assets/Scripts/Token/TokenController.cs` - 상점 구매 호출 메서드 명 변경 반영.
 - `Assets/Scripts/Shop/ShopItemFactory.cs` - 아이템 상품 생성 로직으로 통합.
 - `Assets/Scripts/Shop/ShopItemView.cs` - 아이템 툴팁/아이콘/가격 렌더링으로 전환.
 - `Assets/Scripts/Shop/ShopView.cs` - 토큰 분기 제거 및 단일 아이템 UI 흐름 반영.
@@ -65,7 +66,7 @@
   - [x] 4.1 `ShopItemType`의 Token 분기 제거 및 단일 아이템 타입으로 정리한다.
   - [x] 4.2 `TokenShopItem`을 `ItemShopItem`으로 대체하고 아이템 프리뷰 인스턴스를 제공한다.
   - [x] 4.3 `ShopManager`에서 Token 관련 풀/보유 체크 로직을 제거하고 Items.json 전체를 균등 풀로 사용한다.
-  - [ ] 4.4 구매/판매/드래그 흐름을 `ItemInventory` 커맨드 호출로 통일한다.
+  - [x] 4.4 구매/판매/드래그 흐름을 `ItemInventory` 커맨드 호출로 통일한다.
   - [ ] 4.5 판매 가격은 `가격 * 0.5` 소수점 버림 규칙으로 계산한다.
 
 - [ ] 5.0 하단 슬롯 UI/툴팁/고스트를 ItemInventory 기준으로 전환
