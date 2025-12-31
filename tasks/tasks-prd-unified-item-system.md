@@ -14,7 +14,7 @@
 - `Assets/Scripts/Item/ItemEffectManager.cs` - (신규 또는 기존 이동) 아이템 효과 적용 파이프라인.
 - `Assets/Scripts/Item/ItemPrefabRegistry.cs` - (신규) item key -> prefab 매핑 테이블(Inspector 연결).
 - `Assets/Scripts/Shop/ShopManager.cs` - itemId 기반 상품/구매/판매/드래그 처리로 통합.
-- `Assets/Scripts/Token/TokenController.cs` - 상점 구매 호출 메서드 명 변경 반영.
+- `Assets/Scripts/Token/TokenController.cs` - (삭제) ItemSlotController로 대체됨.
 - `Assets/Scripts/Shop/ShopItemFactory.cs` - 아이템 상품 생성 로직으로 통합.
 - `Assets/Scripts/Shop/ShopItemView.cs` - 아이템 툴팁/아이콘/가격 렌더링으로 전환.
 - `Assets/Scripts/Shop/ShopView.cs` - 토큰 분기 제거 및 단일 아이템 UI 흐름 반영.
@@ -76,14 +76,14 @@
   - [x] 5.1 Token 슬롯 UI를 Item 슬롯 UI로 교체하고 인벤토리 데이터를 렌더링한다.
   - [x] 5.2 슬롯 드래그 이동/스왑, 상점 드래그 구매, 드래그 판매를 공통 규칙으로 처리한다.
   - [x] 5.3 `TokenTooltipUtil`을 아이템 기반 툴팁 유틸로 대체한다.
-  - [ ] 5.4 `SpriteCache`와 `LocalizationUtil`을 아이템 기반 조회로 변경한다.
+  - [x] 5.4 `SpriteCache`와 `LocalizationUtil`을 아이템 기반 조회로 변경한다.
   - [ ] 5.5 `GhostKind`의 Token 고스트를 Item 고스트로 변경한다.
 
 - [ ] 6.0 토큰 시스템 제거 및 연결 지점 정리
   - [ ] 6.1 `Assets/Scripts/Token/*` 및 Tokens.json 로딩 경로를 제거한다.
   - [ ] 6.2 `StageManager`의 토큰 트리거 호출을 아이템 트리거 호출로 변경한다.
   - [ ] 6.3 `DevCommandManager`의 addtoken 등 토큰 전용 명령을 제거/대체한다.
-  - [ ] 6.4 관련 Prefab/Scene/Inspector에서 TokenManager/TokenController 참조를 Item 시스템으로 교체한다.
+  - [ ] 6.4 관련 Prefab/Scene/Inspector에서 ItemSlotManager/ItemSlotController 참조를 Item 시스템으로 교체한다.
   - [ ] 6.5 수동 검증: 상점 구매/판매/이동, 스테이지 시작/틱 트리거, 게임 플레이 루프 정상 동작 확인.
 
 - [ ] 7.0 샘플 아이템 3종(볼/미니건/교과서) 구현 및 검증

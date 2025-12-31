@@ -6,8 +6,8 @@ public static class LocalizationUtil
     {
         return new LocalizedString("pin", $"{id}.name").GetLocalizedString();
     }
-    
-    public static string GetTokenName(string id)
+
+    public static string GetItemName(string id)
     {
         return new LocalizedString("token", $"{id}.name").GetLocalizedString();
     }

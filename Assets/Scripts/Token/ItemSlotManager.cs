@@ -417,7 +417,7 @@ public sealed class ItemSlotManager : MonoBehaviour
 
         var args = new Dictionary<string, object>
         {
-            ["pinName"] = LocalizationUtil.GetTokenName(ctrl.Instance.Id),
+            ["pinName"] = LocalizationUtil.GetItemName(ctrl.Instance.Id),
             ["value"] = price
         };
 

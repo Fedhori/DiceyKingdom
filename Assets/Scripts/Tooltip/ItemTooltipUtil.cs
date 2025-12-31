@@ -17,7 +17,7 @@ public static class ItemTooltipUtil
             );
         }
 
-        string title = LocalizationUtil.GetTokenName(item.Id);
+        string title = LocalizationUtil.GetItemName(item.Id);
         if (string.IsNullOrEmpty(title))
             title = item.Id;
 
