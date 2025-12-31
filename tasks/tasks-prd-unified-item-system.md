@@ -1,13 +1,13 @@
 ## Relevant Files
 
-- `Assets/StreamingAssets/Data/Items.json` - 토큰 정의를 흡수하고 object/규칙(트리거/조건/효과), 프리팹 키 등을 추가하는 데이터 소스.
+- `Assets/StreamingAssets/Data/Items.json` - 토큰 정의를 흡수하고 `isObject`/규칙(트리거/조건/효과)을 포함하는 데이터 소스.
 - `Assets/StreamingAssets/Data/Tokens.json` - 완전 제거 대상 데이터.
-- `Assets/Scripts/Item/ItemDto.cs` - object 데이터/규칙 필드 및 projectile 데이터 스키마 보유.
+- `Assets/Scripts/Item/ItemDto.cs` - `isObject`/규칙 필드 및 projectile 데이터 스키마 보유.
 - `Assets/Scripts/Item/ItemInstance.cs` - 규칙 실행 및 런타임 상태 보관 로직 확장.
 - `Assets/Scripts/Data/GameConfig.cs` - projectile 기본 스탯 상수로 네이밍 변경.
 - `Assets/Scripts/Item/ItemRepository.cs` - Items.json 파싱/검증 확장.
 - `Assets/Scripts/Item/ItemManager.cs` - ItemInventory 소유 및 단일 소스 오브 트루스 전환.
-- `Assets/Scripts/Item/ItemController.cs` - object 데이터가 있는 아이템 Attach 동작 유지/확장.
+- `Assets/Scripts/Item/ItemController.cs` - `isObject == true` 아이템 Attach 동작 유지/확장.
 - `Assets/Scripts/Item/ItemInventory.cs` - (신규) 슬롯/이동/스왑/추가/삭제 커맨드 API 및 이벤트.
 - `Assets/Scripts/Item/ItemEffectManager.cs` - (신규 또는 기존 이동) 아이템 효과 적용 파이프라인.
 - `Assets/Scripts/Item/ItemPrefabRegistry.cs` - (신규) item key -> prefab 매핑 테이블(Inspector 연결).
@@ -43,14 +43,14 @@
   - [x] 1.2 `ItemDto`에 `isObject` 및 규칙(트리거/조건/효과) 필드를 추가한다.
   - [x] 1.3 Object 아이템용 프리팹 키 필드(예: `prefabKey`)를 `ItemDto`에 추가한다.
   - [x] 1.4 `ItemRepository` 파싱/검증 로직을 확장해 규칙 구조를 검증한다.
-  - [x] 1.5 `isObject`를 제거하고 Object 데이터를 별도 클래스(`ItemObjectData`)로 분리한다.
+  - [x] 1.5 `isObject` 기반으로 롤백하고 Object 데이터 클래스를 제거한다.
 
 - [ ] 2.0 ItemInventory 도입 및 ItemManager 단일 소스 전환
   - [x] 2.1 `ItemInventory` 클래스를 생성하고 슬롯 수를 `GameConfig.TokenSlotCount`로 고정한다.
   - [x] 2.2 `Add/Remove/Move/Swap/SetSlot` 커맨드 API와 변경 이벤트를 정의한다.
   - [x] 2.3 `ItemManager`가 `ItemInventory`를 소유하고 기존 `PlayerInstance.ItemIds` 초기화 흐름을 이관한다.
   - [x] 2.4 `ItemPrefabRegistry`를 추가하고 item key -> prefab 매핑을 Inspector에서 관리하도록 한다.
-  - [ ] 2.5 `ItemManager`가 인벤토리 변경 이벤트를 받아 Object 아이템을 Attach/Detach한다.
+  - [x] 2.5 `ItemManager`가 인벤토리 변경 이벤트를 받아 Object 아이템을 Attach/Detach한다.
 
 - [ ] 3.0 아이템 규칙 실행 파이프라인 구축
   - [ ] 3.1 기존 Token 규칙 구조(Trigger/Condition/Effect)를 Item 규칙 구조로 이관한다.
@@ -80,7 +80,7 @@
   - [ ] 6.5 수동 검증: 상점 구매/판매/이동, 스테이지 시작/틱 트리거, 게임 플레이 루프 정상 동작 확인.
 
 - [ ] 7.0 샘플 아이템 3종(볼/미니건/교과서) 구현 및 검증
-  - [ ] 7.1 `Items.json`에 볼/미니건/교과서 정의를 추가한다. (object 데이터, `projectile.key`, 규칙 포함)
+  - [ ] 7.1 `Items.json`에 볼/미니건/교과서 정의를 추가한다. (`isObject`, `projectile.key`, 규칙 포함)
   - [ ] 7.2 `projectile.ball` 프리팹을 추가하고 Bounce 동작(반사)을 설정한다.
   - [ ] 7.3 미니건 프리팹을 추가하고 `ItemPrefabRegistry`에 매핑한다.
   - [ ] 7.4 교과서 아이템의 OnStageStart 영구 피해 +10 규칙을 적용한다.

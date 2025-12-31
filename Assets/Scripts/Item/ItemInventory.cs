@@ -8,7 +8,7 @@ public sealed class ItemInventory
     public int SlotCount => slots.Length;
     public IReadOnlyList<ItemInstance> Slots => slots;
 
-    public event Action<int, ItemInstance> OnSlotChanged;
+    public event Action<int, ItemInstance, ItemInstance> OnSlotChanged;
     public event Action OnInventoryChanged;
 
     public ItemInventory()
@@ -30,8 +30,9 @@ public sealed class ItemInventory
             if (slots[i] == null)
                 continue;
 
+            var previous = slots[i];
             slots[i] = null;
-            NotifySlotChanged(i);
+            NotifySlotChanged(i, previous, null);
             changed = true;
         }
 
@@ -72,8 +73,9 @@ public sealed class ItemInventory
         if (ReferenceEquals(slots[index], instance))
             return false;
 
+        var previous = slots[index];
         slots[index] = instance;
-        NotifySlotChanged(index);
+        NotifySlotChanged(index, previous, instance);
         NotifyInventoryChanged();
         return true;
     }
@@ -88,7 +90,7 @@ public sealed class ItemInventory
             return false;
 
         slots[index] = instance;
-        NotifySlotChanged(index);
+        NotifySlotChanged(index, null, instance);
         NotifyInventoryChanged();
         return true;
     }
@@ -104,7 +106,7 @@ public sealed class ItemInventory
 
         removed = slots[index];
         slots[index] = null;
-        NotifySlotChanged(index);
+        NotifySlotChanged(index, removed, null);
         NotifyInventoryChanged();
         return true;
     }
@@ -120,10 +122,11 @@ public sealed class ItemInventory
         if (slots[fromIndex] == null || slots[toIndex] != null)
             return false;
 
-        slots[toIndex] = slots[fromIndex];
+        var moving = slots[fromIndex];
+        slots[toIndex] = moving;
         slots[fromIndex] = null;
-        NotifySlotChanged(fromIndex);
-        NotifySlotChanged(toIndex);
+        NotifySlotChanged(fromIndex, moving, null);
+        NotifySlotChanged(toIndex, null, moving);
         NotifyInventoryChanged();
         return true;
     }
@@ -136,9 +139,12 @@ public sealed class ItemInventory
         if (indexA == indexB)
             return false;
 
-        (slots[indexA], slots[indexB]) = (slots[indexB], slots[indexA]);
-        NotifySlotChanged(indexA);
-        NotifySlotChanged(indexB);
+        var a = slots[indexA];
+        var b = slots[indexB];
+        slots[indexA] = b;
+        slots[indexB] = a;
+        NotifySlotChanged(indexA, a, b);
+        NotifySlotChanged(indexB, b, a);
         NotifyInventoryChanged();
         return true;
     }
@@ -148,9 +154,9 @@ public sealed class ItemInventory
         return index >= 0 && index < slots.Length;
     }
 
-    void NotifySlotChanged(int index)
+    void NotifySlotChanged(int index, ItemInstance previous, ItemInstance current)
     {
-        OnSlotChanged?.Invoke(index, slots[index]);
+        OnSlotChanged?.Invoke(index, previous, current);
     }
 
     void NotifyInventoryChanged()

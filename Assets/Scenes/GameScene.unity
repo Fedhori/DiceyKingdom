@@ -2883,6 +2883,7 @@ GameObject:
   m_Component:
   - component: {fileID: 715098189}
   - component: {fileID: 715098190}
+  - component: {fileID: 715098191}
   m_Layer: 0
   m_Name: Item
   m_TagString: Untagged
@@ -2919,7 +2920,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemManager
   defaultItemId: item.default
   attachTarget: {fileID: 117041021}
-  itemControllerPrefab: {fileID: 3274702437726975461, guid: 56c1f7b4571e0634b9050b0122f0be8c, type: 3}
+--- !u!114 &715098191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 715098188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8af3a0d6a488bad44a780e6efbc1d0bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemPrefabRegistry
+  entries:
+  - key: item.test
+    prefab: {fileID: 8524277218632059139, guid: b061a64d594663f41b203063287b4154, type: 3}
 --- !u!1 &739756293
 GameObject:
   m_ObjectHideFlags: 0
@@ -3771,7 +3786,7 @@ GameObject:
   - component: {fileID: 958006977}
   - component: {fileID: 958006978}
   m_Layer: 0
-  m_Name: Bullet
+  m_Name: Projectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

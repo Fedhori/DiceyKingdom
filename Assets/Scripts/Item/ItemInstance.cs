@@ -13,7 +13,7 @@ public sealed class ItemInstance
     public ProjectileHitBehavior ProjectileHitBehavior { get; private set; }
     public int MaxBounces { get; private set; }
     public float ProjectileLifeTime { get; private set; }
-    public string ObjectPrefabKey { get; private set; }
+    public bool IsObject { get; private set; }
 
     public float WorldProjectileSize => GameConfig.ItemBaseProjectileSize * Mathf.Max(0.1f, ProjectileSize);
     public float WorldProjectileSpeed => GameConfig.ItemBaseProjectileSpeed * Mathf.Max(0.1f, ProjectileSpeed);
@@ -32,14 +32,14 @@ public sealed class ItemInstance
             ProjectileHitBehavior = ProjectileHitBehavior.Destroy;
             MaxBounces = 0;
             ProjectileLifeTime = 0f;
-            ObjectPrefabKey = string.Empty;
+            IsObject = false;
             return;
         }
 
         Id = dto.id;
         DamageMultiplier = Mathf.Max(0.1f, dto.damageMultiplier);
         AttackSpeed = Mathf.Max(0.1f, dto.attackSpeed);
-        ObjectPrefabKey = dto.objectData?.prefabKey ?? string.Empty;
+        IsObject = dto.isObject;
 
         var projectile = dto.projectile;
         if (projectile != null)

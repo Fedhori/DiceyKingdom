@@ -8,9 +8,9 @@ public sealed class ItemManager : MonoBehaviour
 
     [SerializeField] private string defaultItemId = "item.default";
     [SerializeField] private Transform attachTarget; // 플레이어 transform 등
-    [SerializeField] private ItemController itemControllerPrefab;
 
     readonly List<ItemController> controllers = new();
+    readonly Dictionary<ItemInstance, ItemController> controllerMap = new();
     readonly ItemInventory inventory = new();
 
     void Awake()
@@ -27,6 +27,8 @@ public sealed class ItemManager : MonoBehaviour
         {
             Debug.LogWarning("[ItemManager] ItemRepository not initialized.");
         }
+
+        inventory.OnSlotChanged += HandleSlotChanged;
     }
 
     public ItemInventory Inventory => inventory;
@@ -64,21 +66,96 @@ public sealed class ItemManager : MonoBehaviour
                 continue;
             }
 
-            SpawnController(inst);
+            // OnSlotChanged handles attach for object items.
         }
     }
 
     void SpawnController(ItemInstance inst)
     {
-        if (itemControllerPrefab == null || inst == null || attachTarget == null)
+        if (inst == null || attachTarget == null)
         {
-            Debug.LogWarning("[ItemManager] Missing prefab/instance/attachTarget");
+            Debug.LogWarning("[ItemManager] Missing instance/attachTarget");
             return;
         }
 
-        var ctrl = Instantiate(itemControllerPrefab, attachTarget.position, Quaternion.identity, attachTarget);
+        var prefab = ResolveObjectPrefab(inst);
+        if (prefab == null)
+        {
+            Debug.LogWarning($"[ItemManager] Object prefab not found for item '{inst.Id}'.");
+            return;
+        }
+
+        var go = Instantiate(prefab, attachTarget.position, Quaternion.identity, attachTarget);
+        var ctrl = go.GetComponent<ItemController>();
+        if (ctrl == null)
+        {
+            Debug.LogWarning("[ItemManager] ItemController missing on object prefab.");
+            Destroy(go);
+            return;
+        }
+
         ctrl.BindItem(inst, attachTarget);
         controllers.Add(ctrl);
+        controllerMap[inst] = ctrl;
+    }
+
+    GameObject ResolveObjectPrefab(ItemInstance inst)
+    {
+        if (inst == null || string.IsNullOrEmpty(inst.Id))
+            return null;
+
+        var registry = ItemPrefabRegistry.Instance;
+        if (registry == null)
+            return null;
+
+        return registry.TryGet(inst.Id, out var prefab) ? prefab : null;
+    }
+
+    void HandleSlotChanged(int slotIndex, ItemInstance previous, ItemInstance current)
+    {
+        _ = slotIndex;
+
+        if (previous != null && !ContainsInstance(previous))
+            RemoveController(previous);
+
+        if (current == null)
+            return;
+
+        if (!current.IsObject)
+            return;
+
+        if (controllerMap.ContainsKey(current))
+            return;
+
+        SpawnController(current);
+    }
+
+    bool ContainsInstance(ItemInstance inst)
+    {
+        if (inst == null)
+            return false;
+
+        var slots = inventory.Slots;
+        for (int i = 0; i < slots.Count; i++)
+        {
+            if (ReferenceEquals(slots[i], inst))
+                return true;
+        }
+
+        return false;
+    }
+
+    void RemoveController(ItemInstance inst)
+    {
+        if (inst == null)
+            return;
+
+        if (!controllerMap.TryGetValue(inst, out var ctrl) || ctrl == null)
+            return;
+
+        controllerMap.Remove(inst);
+        controllers.Remove(ctrl);
+        Destroy(ctrl.gameObject);
     }
 
     void ClearControllers()
@@ -90,6 +167,7 @@ public sealed class ItemManager : MonoBehaviour
                 Destroy(c.gameObject);
         }
         controllers.Clear();
+        controllerMap.Clear();
     }
 
     void OnDisable()
