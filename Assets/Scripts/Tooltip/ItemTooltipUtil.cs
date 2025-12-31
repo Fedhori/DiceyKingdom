@@ -3,11 +3,11 @@ using System.Text;
 using Data;
 using UnityEngine.Localization;
 
-public static class TokenTooltipUtil
+public static class ItemTooltipUtil
 {
-    public static TooltipModel BuildModel(TokenInstance token)
+    public static TooltipModel BuildModel(ItemInstance item)
     {
-        if (token == null)
+        if (item == null)
         {
             return new TooltipModel(
                 string.Empty,
@@ -17,9 +17,12 @@ public static class TokenTooltipUtil
             );
         }
 
-        var title = LocalizationUtil.GetTokenName(token.Id);
-        var body = BuildBody(token);
-        var icon = SpriteCache.GetItemSprite(token.Id);
+        string title = LocalizationUtil.GetTokenName(item.Id);
+        if (string.IsNullOrEmpty(title))
+            title = item.Id;
+
+        var body = BuildBody(item);
+        var icon = SpriteCache.GetItemSprite(item.Id);
 
         return new TooltipModel(
             title,
@@ -29,10 +32,13 @@ public static class TokenTooltipUtil
         );
     }
 
-    public static string BuildBody(TokenInstance token)
+    public static string BuildBody(ItemInstance item)
     {
+        if (item == null)
+            return string.Empty;
+
         var lines = new List<string>();
-        AppendRuleLines(token, lines);
+        AppendRuleLines(item, lines);
 
         if (lines.Count == 0)
             return string.Empty;
@@ -48,9 +54,9 @@ public static class TokenTooltipUtil
         return sb.ToString();
     }
 
-    static void AppendRuleLines(TokenInstance token, List<string> lines)
+    static void AppendRuleLines(ItemInstance item, List<string> lines)
     {
-        var rules = token.Rules;
+        var rules = item.Rules;
         if (rules == null || rules.Count == 0)
             return;
 
@@ -63,15 +69,15 @@ public static class TokenTooltipUtil
             if (rule.effects == null || rule.effects.Count == 0)
                 continue;
 
-            var line = BuildRuleLine(token, rule, i);
+            var line = BuildRuleLine(item, rule, i);
             if (!string.IsNullOrEmpty(line))
                 lines.Add(line);
         }
     }
 
-    static string BuildRuleLine(TokenInstance token, TokenRuleDto rule, int ruleIndex)
+    static string BuildRuleLine(ItemInstance item, ItemRuleDto rule, int ruleIndex)
     {
-        var key = $"{token.Id}.effect{ruleIndex}";
+        var key = $"{item.Id}.effect{ruleIndex}";
         var loc = new LocalizedString("token", key);
 
         var args = BuildRuleArgs(rule);
@@ -81,14 +87,9 @@ public static class TokenTooltipUtil
         return loc.GetLocalizedString();
     }
 
-    static object BuildRuleArgs(TokenRuleDto rule)
+    static object BuildRuleArgs(ItemRuleDto rule)
     {
         var dict = new Dictionary<string, object>();
-
-        if (rule.condition != null)
-        {
-            // 조건별 추가 파라미터가 생기면 여기에 채운다
-        }
 
         if (rule.effects != null)
         {

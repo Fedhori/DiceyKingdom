@@ -2,20 +2,21 @@ using System.Collections.Generic;
 using Data;
 using UnityEngine;
 
-public sealed class TokenManager : MonoBehaviour
+public sealed class ItemSlotManager : MonoBehaviour
 {
-    public static TokenManager Instance { get; private set; }
+    public static ItemSlotManager Instance { get; private set; }
 
     [SerializeField] Transform slotContainer;
-    [SerializeField] TokenController slotPrefab;
-    TokenController[] slotControllers;
+    [SerializeField] ItemSlotController slotPrefab;
+    ItemSlotController[] slotControllers;
 
-    TokenController draggingController;
+    ItemSlotController draggingController;
     int draggingStartIndex = -1;
     int currentHighlightIndex = -1;
     bool overSellArea;
 
     [SerializeField] Color slotHighlightColor = Color.white;
+    ItemInventory inventory;
 
     void Awake()
     {
@@ -29,12 +30,68 @@ public sealed class TokenManager : MonoBehaviour
         BuildSlots();
     }
 
+    void OnEnable()
+    {
+        TryBindInventory();
+        RefreshFromInventory();
+    }
+
+    void Start()
+    {
+        TryBindInventory();
+        RefreshFromInventory();
+    }
+
+    void OnDisable()
+    {
+        UnbindInventory();
+    }
+
+    void TryBindInventory()
+    {
+        if (inventory != null)
+            return;
+
+        var manager = ItemManager.Instance;
+        if (manager == null)
+            return;
+
+        inventory = manager.Inventory;
+        if (inventory == null)
+            return;
+
+        inventory.OnSlotChanged += HandleSlotChanged;
+    }
+
+    void UnbindInventory()
+    {
+        if (inventory == null)
+            return;
+
+        inventory.OnSlotChanged -= HandleSlotChanged;
+        inventory = null;
+    }
+
+    void HandleSlotChanged(int slotIndex, ItemInstance previous, ItemInstance current)
+    {
+        _ = previous;
+
+        if (!IsValidIndex(slotIndex))
+            return;
+
+        var ctrl = slotControllers[slotIndex];
+        if (ctrl == null)
+            return;
+
+        ctrl.Bind(current);
+    }
+
     void BuildSlots()
     {
         if (slotContainer == null || slotPrefab == null)
         {
-            Debug.LogError("[TokenManager] slotContainer or slotPrefab is not assigned.");
-            slotControllers = System.Array.Empty<TokenController>();
+            Debug.LogError("[ItemSlotManager] slotContainer or slotPrefab is not assigned.");
+            slotControllers = System.Array.Empty<ItemSlotController>();
             return;
         }
 
@@ -47,7 +104,7 @@ public sealed class TokenManager : MonoBehaviour
         }
 
         int slotCount = Mathf.Max(0, GameConfig.TokenSlotCount);
-        slotControllers = new TokenController[slotCount];
+        slotControllers = new ItemSlotController[slotCount];
 
         for (int i = 0; i < slotCount; i++)
         {
@@ -58,65 +115,76 @@ public sealed class TokenManager : MonoBehaviour
 
     }
 
-    public bool TryAddTokenAt(string tokenId, int slotIndex, out TokenInstance instance)
+    void RefreshFromInventory()
+    {
+        if (inventory == null || slotControllers == null)
+            return;
+
+        int count = Mathf.Min(slotControllers.Length, inventory.SlotCount);
+        for (int i = 0; i < count; i++)
+        {
+            var ctrl = slotControllers[i];
+            if (ctrl == null)
+                continue;
+
+            ctrl.Bind(inventory.GetSlot(i));
+        }
+
+        for (int i = count; i < slotControllers.Length; i++)
+            slotControllers[i]?.Bind(null);
+    }
+
+    public bool TryAddTokenAt(string itemId, int slotIndex, out ItemInstance instance)
     {
         instance = null;
 
         if (!IsValidIndex(slotIndex))
         {
-            Debug.LogWarning($"[TokenManager] Invalid slot index: {slotIndex}");
+            Debug.LogWarning($"[ItemSlotManager] Invalid slot index: {slotIndex}");
             return false;
         }
 
-        var controller = slotControllers[slotIndex];
-        if (controller == null)
+        if (inventory == null)
         {
-            Debug.LogWarning($"[TokenManager] Slot {slotIndex} has no controller.");
+            Debug.LogWarning("[ItemSlotManager] ItemInventory not bound.");
             return false;
         }
 
-        if (!TokenRepository.IsInitialized)
+        if (!ItemRepository.IsInitialized)
         {
-            Debug.LogWarning("[TokenManager] TokenRepository not initialized.");
+            Debug.LogWarning("[ItemSlotManager] ItemRepository not initialized.");
             return false;
         }
 
-        if (!TokenRepository.TryGet(tokenId, out var dto) || dto == null)
+        if (!ItemRepository.TryGet(itemId, out var dto) || dto == null)
         {
-            Debug.LogWarning($"[TokenManager] Token id not found: {tokenId}");
+            Debug.LogWarning($"[ItemSlotManager] Item id not found: {itemId}");
             return false;
         }
 
-        if (controller.Instance != null)
+        if (!inventory.IsSlotEmpty(slotIndex))
         {
-            Debug.LogWarning($"[TokenManager] Slot {slotIndex} is not empty.");
+            Debug.LogWarning($"[ItemSlotManager] Slot {slotIndex} is not empty.");
             return false;
         }
 
-        instance = new TokenInstance(dto);
-        controller.Bind(instance);
+        instance = new ItemInstance(dto);
+        if (!inventory.TrySetSlot(slotIndex, instance))
+            return false;
+
         ClearHighlights();
         return true;
     }
 
-    public int SlotCount => slotControllers != null ? slotControllers.Length : 0;
+    public int SlotCount => inventory != null ? inventory.SlotCount : (slotControllers != null ? slotControllers.Length : 0);
 
     public bool TryGetFirstEmptySlot(out int index)
     {
         index = -1;
-        if (slotControllers == null)
+        if (inventory == null)
             return false;
 
-        for (int i = 0; i < slotControllers.Length; i++)
-        {
-            if (slotControllers[i] != null && slotControllers[i].Instance == null)
-            {
-                index = i;
-                return true;
-            }
-        }
-
-        return false;
+        return inventory.TryGetFirstEmptySlot(out index);
     }
 
     public bool IsSlotEmpty(int slotIndex)
@@ -124,7 +192,7 @@ public sealed class TokenManager : MonoBehaviour
         if (!IsValidIndex(slotIndex))
             return false;
 
-        return slotControllers[slotIndex]?.Instance == null;
+        return inventory != null && inventory.IsSlotEmpty(slotIndex);
     }
     
     public bool TryGetSlotFromScreenPos(Vector2 screenPos, out int slotIndex)
@@ -160,7 +228,7 @@ public sealed class TokenManager : MonoBehaviour
             if (ctrl == null)
                 continue;
 
-            bool empty = ctrl.Instance == null;
+            bool empty = inventory != null && inventory.IsSlotEmpty(i);
             if (ctrl.dragHighlightMask != null)
                 ctrl.dragHighlightMask.SetActive(empty);
         }
@@ -185,7 +253,7 @@ public sealed class TokenManager : MonoBehaviour
         currentHighlightIndex = -1;
     }
 
-    public void BeginDrag(TokenController controller, Vector2 screenPos)
+    public void BeginDrag(ItemSlotController controller, Vector2 screenPos)
     {
         if (controller == null)
             return;
@@ -205,7 +273,7 @@ public sealed class TokenManager : MonoBehaviour
         SellOverlayController.Instance?.Show();
     }
 
-    public void EndDrag(TokenController controller, Vector2 screenPos)
+    public void EndDrag(ItemSlotController controller, Vector2 screenPos)
     {
         if (draggingController == null || controller != draggingController)
         {
@@ -263,7 +331,7 @@ public sealed class TokenManager : MonoBehaviour
         return -1;
     }
 
-    public void UpdateDrag(TokenController controller, Vector2 screenPos)
+    public void UpdateDrag(ItemSlotController controller, Vector2 screenPos)
     {
         if (draggingController == null || controller != draggingController)
             return;
@@ -279,30 +347,16 @@ public sealed class TokenManager : MonoBehaviour
 
     void SwapControllers(int indexA, int indexB)
     {
-        if (slotControllers == null)
+        if (inventory == null)
             return;
 
         if (!IsValidIndex(indexA) || !IsValidIndex(indexB) || indexA == indexB)
             return;
 
-        var ctrlA = slotControllers[indexA];
-        var ctrlB = slotControllers[indexB];
-
-        if (ctrlA == null || ctrlB == null)
+        if (!inventory.TrySwap(indexA, indexB))
             return;
 
-        int siblingA = ctrlA.transform.GetSiblingIndex();
-        int siblingB = ctrlB.transform.GetSiblingIndex();
-
-        slotControllers[indexA] = ctrlB;
-        slotControllers[indexB] = ctrlA;
-
-        ctrlA.SetSlotIndex(indexB);
-        ctrlB.SetSlotIndex(indexA);
-
-        ctrlA.transform.SetSiblingIndex(siblingB);
-        ctrlB.transform.SetSiblingIndex(siblingA);
-
+        RefreshFromInventory();
     }
 
     void ResetDrag()
@@ -312,21 +366,25 @@ public sealed class TokenManager : MonoBehaviour
         overSellArea = false;
     }
 
-    public void TriggerTokens(TokenTriggerType trigger)
+    public void TriggerTokens(ItemTriggerType trigger)
     {
-        if (slotControllers == null)
+        if (inventory == null)
             return;
 
-        for (int i = 0; i < slotControllers.Length; i++)
-            slotControllers[i]?.Instance?.HandleTrigger(trigger);
+        var slots = inventory.Slots;
+        for (int i = 0; i < slots.Count; i++)
+            slots[i]?.HandleTrigger(trigger);
     }
 
-    public void RequestSellToken(TokenController ctrl)
+    public void RequestSellToken(ItemSlotController ctrl)
     {
         if (ctrl == null || ctrl.Instance == null)
             return;
 
-        int price = ShopManager.CalculateSellPrice(ctrl.Instance.Price);
+        if (!ItemRepository.TryGet(ctrl.Instance.Id, out var dto) || dto == null)
+            return;
+
+        int price = ShopManager.CalculateSellPrice(dto.price);
         if (price <= 0)
             return;
 
@@ -346,7 +404,7 @@ public sealed class TokenManager : MonoBehaviour
             args);
     }
 
-    void SellToken(TokenController ctrl, int price)
+    void SellToken(ItemSlotController ctrl, int price)
     {
         if (ctrl == null || ctrl.Instance == null)
             return;
@@ -355,22 +413,26 @@ public sealed class TokenManager : MonoBehaviour
         RemoveToken(ctrl);
     }
 
-    void RemoveToken(TokenController ctrl)
+    void RemoveToken(ItemSlotController ctrl)
     {
         if (ctrl == null)
             return;
 
-        ctrl.Bind(null);
+        if (inventory == null)
+            return;
+
+        inventory.TryRemoveAt(ctrl.SlotIndex, out _);
     }
 
     public bool HasToken(string tokenId)
     {
-        if (string.IsNullOrEmpty(tokenId) || slotControllers == null)
+        if (string.IsNullOrEmpty(tokenId) || inventory == null)
             return false;
 
-        for (int i = 0; i < slotControllers.Length; i++)
+        var slots = inventory.Slots;
+        for (int i = 0; i < slots.Count; i++)
         {
-            var inst = slotControllers[i]?.Instance;
+            var inst = slots[i];
             if (inst != null && inst.Id == tokenId)
                 return true;
         }
@@ -383,12 +445,13 @@ public sealed class TokenManager : MonoBehaviour
         if (set == null)
             return;
 
-        if (slotControllers == null)
+        if (inventory == null)
             return;
 
-        for (int i = 0; i < slotControllers.Length; i++)
+        var slots = inventory.Slots;
+        for (int i = 0; i < slots.Count; i++)
         {
-            var inst = slotControllers[i]?.Instance;
+            var inst = slots[i];
             if (inst == null || string.IsNullOrEmpty(inst.Id))
                 continue;
 

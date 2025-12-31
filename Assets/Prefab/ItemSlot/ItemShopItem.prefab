@@ -90,7 +90,7 @@ GameObject:
   - component: {fileID: 6676649803103999892}
   - component: {fileID: 7135958795844342221}
   m_Layer: 5
-  m_Name: TokenShopItem
+  m_Name: ItemShopItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

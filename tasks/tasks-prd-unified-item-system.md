@@ -21,6 +21,7 @@
 - `Assets/Scripts/Shop/ShopItemType.cs` - 토큰 타입 제거 또는 단일 타입 정리.
 - `Assets/Scripts/Shop/TokenShopItem.cs` - 제거 후 ItemShopItem 등으로 대체.
 - `Assets/Scripts/Tooltip/TokenTooltipUtil.cs` - 아이템 기반 툴팁 유틸로 대체/변경.
+- `Assets/Scripts/Tooltip/ItemTooltipUtil.cs` - (신규) 아이템 기반 툴팁 모델 생성 유틸.
 - `Assets/Scripts/Tooltip/TooltipModel.cs` - TooltipKind Token 제거/Item 추가.
 - `Assets/Scripts/Stage/StageManager.cs` - 스테이지 시작 트리거를 아이템 규칙 실행으로 교체.
 - `Assets/Scripts/Data/StaticDataManager.cs` - Tokens.json 로딩 제거 및 Items.json 단일화.
@@ -30,6 +31,8 @@
 - `Assets/Scripts/UI/GhostKind.cs` - Token 고스트를 Item 고스트로 변경.
 - `Assets/Scripts/UI/SellOverlayController.cs` - 판매 오버레이 동작을 아이템 슬롯 기준으로 유지.
 - `Assets/Scripts/Token/` - Token 관련 DTO/Instance/Manager/Controller 제거 대상.
+- `Assets/Scripts/Token/ItemSlotController.cs` - 인벤토리 아이템 데이터를 슬롯 UI에 바인딩하는 컨트롤러.
+- `Assets/Scripts/Token/TokenManager.cs` - 슬롯 UI가 ItemInventory를 구독해 렌더링하도록 전환.
 - `Assets/Scripts/Bullet/` - Projectile 네이밍/행동 옵션으로 리팩터링될 가능성이 있는 기존 총알 코드.
 - `Assets/Scripts/Bullet/BulletController.cs` - projectile 스탯 적용 로직으로 변경.
 - `Assets/Prefabs/` - 미니건/프로젝타일(볼/총알) 프리팹 추가 및 매핑 대상.
@@ -70,7 +73,7 @@
   - [x] 4.5 판매 가격은 `가격 * 0.5` 소수점 버림 규칙으로 계산한다.
 
 - [ ] 5.0 하단 슬롯 UI/툴팁/고스트를 ItemInventory 기준으로 전환
-  - [ ] 5.1 Token 슬롯 UI를 Item 슬롯 UI로 교체하고 인벤토리 데이터를 렌더링한다.
+  - [x] 5.1 Token 슬롯 UI를 Item 슬롯 UI로 교체하고 인벤토리 데이터를 렌더링한다.
   - [ ] 5.2 슬롯 드래그 이동/스왑, 상점 드래그 구매, 드래그 판매를 공통 규칙으로 처리한다.
   - [ ] 5.3 `TokenTooltipUtil`을 아이템 기반 툴팁 유틸로 대체한다.
   - [ ] 5.4 `SpriteCache`와 `LocalizationUtil`을 아이템 기반 조회로 변경한다.

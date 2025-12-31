@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     public int SlotIndex { get; private set; } = -1;
-    public TokenInstance Instance { get; private set; }
+    public ItemInstance Instance { get; private set; }
 
     [SerializeField] RectTransform rectTransform;
     public RectTransform RectTransform => rectTransform != null ? rectTransform : (rectTransform = GetComponent<RectTransform>());
@@ -53,7 +53,7 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
         SlotIndex = index;
     }
 
-    public void Bind(TokenInstance instance)
+    public void Bind(ItemInstance instance)
     {
         Instance = instance;
         UpdateView();
@@ -67,7 +67,7 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
         if (Instance == null)
             return;
 
-        TokenManager.Instance?.BeginDrag(this, eventData.position);
+        ItemSlotManager.Instance?.BeginDrag(this, eventData.position);
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -75,12 +75,12 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
         if (Instance == null)
             return;
 
-        TokenManager.Instance?.EndDrag(this, eventData.position);
+        ItemSlotManager.Instance?.EndDrag(this, eventData.position);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        TokenManager.Instance?.UpdateDrag(this, eventData.position);
+        ItemSlotManager.Instance?.UpdateDrag(this, eventData.position);
     }
 
     void UpdateView()

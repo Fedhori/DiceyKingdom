@@ -4889,7 +4889,7 @@ GameObject:
   - component: {fileID: 1290664735}
   - component: {fileID: 1290664736}
   m_Layer: 5
-  m_Name: TokenPanel
+  m_Name: ItemSlotPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9119,10 +9119,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2112529481}
-  - component: {fileID: 2112529482}
   - component: {fileID: 2112529483}
   m_Layer: 0
-  m_Name: Token
+  m_Name: ItemSlot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9143,18 +9142,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1831022632}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2112529482
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2112529480}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2044acc8a31f3a342aa14fcda1a9f17e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TokenEffectManager
 --- !u!114 &2112529483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9168,7 +9155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TokenManager
   slotContainer: {fileID: 1290664731}
-  slotPrefab: {fileID: 2267633905483461629, guid: 5878da1c44fa9e54687f388f4d4bedef, type: 3}
+  slotPrefab: {fileID: 4767769739835569886, guid: 5878da1c44fa9e54687f388f4d4bedef, type: 3}
   slotHighlightColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &2114596187
 GameObject:

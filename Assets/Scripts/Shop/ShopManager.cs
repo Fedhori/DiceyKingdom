@@ -278,7 +278,7 @@ public sealed class ShopManager : MonoBehaviour
     {
         ApplySelection(null, -1);
         shopView?.ClearSelectionVisuals();
-        TokenManager.Instance?.ClearHighlights();
+        ItemSlotManager.Instance?.ClearHighlights();
     }
 
     void ApplySelection(IShopItem selection, int itemIndex)
@@ -310,7 +310,7 @@ public sealed class ShopManager : MonoBehaviour
             return false;
 
         shopView?.ClearSelectionVisuals();
-        TokenManager.Instance?.ClearHighlights();
+        ItemSlotManager.Instance?.ClearHighlights();
         return TryPurchaseItemAt(CurrentSelectionIndex, slotIndex);
     }
 

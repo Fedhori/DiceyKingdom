@@ -35,9 +35,9 @@ public sealed class DevCommandManager : MonoBehaviour
                 return;
             }
 
-            if (TokenManager.Instance == null)
+            if (ItemSlotManager.Instance == null)
             {
-                Debug.LogWarning("[DevCommand] TokenManager.Instance is null.");
+                Debug.LogWarning("[DevCommand] ItemSlotManager.Instance is null.");
                 return;
             }
 
@@ -48,7 +48,7 @@ public sealed class DevCommandManager : MonoBehaviour
                 return;
             }
 
-            if (!TokenManager.Instance.TryAddTokenAt(tokenId, slotIndex, out _))
+            if (!ItemSlotManager.Instance.TryAddTokenAt(tokenId, slotIndex, out _))
             {
                 Debug.LogWarning($"[DevCommand] addtoken failed: id={tokenId}, slot={slotIndex}");
             }
