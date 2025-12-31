@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 public class StaticDataManager : MonoBehaviour
 {
@@ -29,7 +28,6 @@ public class StaticDataManager : MonoBehaviour
         LoadStage();
         LoadPlayers();
         LoadItems();
-        LoadTokens();
     }
 
     void LoadStage()
@@ -72,27 +70,6 @@ public class StaticDataManager : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"[StaticDataManager] Failed to initialize PlayerRepository from Players.json: {e}");
-        }
-    }
-
-    void LoadTokens()
-    {
-        string filePath = Path.Combine("Data", "Tokens.json");
-        string json = SaCache.ReadText(filePath);
-
-        if (string.IsNullOrEmpty(json))
-        {
-            Debug.LogError($"[StaticDataManager] Tokens.json not found or empty at: {filePath}");
-            return;
-        }
-
-        try
-        {
-            Data.TokenRepository.InitializeFromJson(json);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[StaticDataManager] Failed to initialize TokenRepository from Tokens.json: {e}");
         }
     }
 

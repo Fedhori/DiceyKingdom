@@ -1,7 +1,7 @@
 ## Relevant Files
 
 - `Assets/StreamingAssets/Data/Items.json` - 토큰 정의를 흡수하고 `isObject`/규칙(트리거/조건/효과)을 포함하는 데이터 소스.
-- `Assets/StreamingAssets/Data/Tokens.json` - 완전 제거 대상 데이터.
+- `Assets/StreamingAssets/Data/Tokens.json` - (삭제) Item 데이터로 통합됨.
 - `Assets/Scripts/Item/ItemDto.cs` - `isObject`/규칙 필드 및 projectile 데이터 스키마 보유.
 - `Assets/Scripts/Item/ItemInstance.cs` - 규칙 실행 및 런타임 상태 보관 로직 확장.
 - `Assets/Scripts/Data/GameConfig.cs` - projectile 기본 스탯 상수로 네이밍 변경.
@@ -30,7 +30,7 @@
 - `Assets/Scripts/Data/LocalizationUtil.cs` - 토큰 이름 조회를 아이템 이름 조회로 변경.
 - `Assets/Scripts/UI/GhostKind.cs` - Token 고스트를 Item 고스트로 변경.
 - `Assets/Scripts/UI/SellOverlayController.cs` - 판매 오버레이 동작을 아이템 슬롯 기준으로 유지.
-- `Assets/Scripts/Token/` - Token 관련 DTO/Instance/Manager/Controller 제거 대상.
+- `Assets/Scripts/Token/` - Token 관련 DTO/Instance/Controller 제거됨. (슬롯 UI는 ItemSlot* 유지)
 - `Assets/Scripts/Token/ItemSlotController.cs` - 인벤토리 아이템 데이터를 슬롯 UI에 바인딩하는 컨트롤러.
 - `Assets/Scripts/Token/ItemSlotManager.cs` - 슬롯 UI가 ItemInventory를 구독해 렌더링하도록 전환.
 - `Assets/Scripts/Bullet/` - Projectile 네이밍/행동 옵션으로 리팩터링될 가능성이 있는 기존 총알 코드.
@@ -80,7 +80,7 @@
   - [x] 5.5 `GhostKind`의 Token 고스트를 Item 고스트로 변경한다.
 
 - [ ] 6.0 토큰 시스템 제거 및 연결 지점 정리
-  - [ ] 6.1 `Assets/Scripts/Token/*` 및 Tokens.json 로딩 경로를 제거한다.
+  - [x] 6.1 `Assets/Scripts/Token/*` 및 Tokens.json 로딩 경로를 제거한다.
   - [ ] 6.2 `StageManager`의 토큰 트리거 호출을 아이템 트리거 호출로 변경한다.
   - [ ] 6.3 `DevCommandManager`의 addtoken 등 토큰 전용 명령을 제거/대체한다.
   - [ ] 6.4 관련 Prefab/Scene/Inspector에서 ItemSlotManager/ItemSlotController 참조를 Item 시스템으로 교체한다.
