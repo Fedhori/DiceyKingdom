@@ -8,9 +8,7 @@ public sealed class RewardManager : MonoBehaviour
 {
     public static RewardManager Instance { get; private set; }
     [SerializeField] private GameObject rewardOverlay;
-    [SerializeField] private LocalizeStringEvent earnedScoreText;
     [SerializeField] private LocalizeStringEvent earnedCurrencyText;
-    [SerializeField] private LocalizeStringEvent earnedBallsText;
 
     bool isOpen;
 
@@ -26,16 +24,14 @@ public sealed class RewardManager : MonoBehaviour
     }
 
     // 스테이지당 보상으로 바뀔거니까, 여기 말고 스테이지 끝날 때 띄우게
-    public void Open(bool isStageClear)
+    public void Open()
     {
         isOpen = true;
         
         CurrencyManager.Instance?.AddCurrency(GameConfig.BaseIncome);
         PlayerManager.Instance.Current.BallCount += GameConfig.BaseBallIncome;
-
-        UpdateEarnedScore();
+        
         UpdateEarnedCurrency();
-        UpdateEarnedBalls(isStageClear);
         
         if(rewardOverlay != null)
             rewardOverlay.SetActive(true);
@@ -55,31 +51,9 @@ public sealed class RewardManager : MonoBehaviour
         FlowManager.Instance?.OnRewardClosed();
     }
 
-   private void UpdateEarnedScore()
-    {
-        if (earnedScoreText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
-            sv.Value = (ScoreManager.Instance.TotalScore - ScoreManager.Instance.previousScore).ToString(CultureInfo.InvariantCulture);
-    }
-
     private void UpdateEarnedCurrency()
     {
         if (earnedCurrencyText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
             sv.Value = GameConfig.BaseIncome.ToString(CultureInfo.InvariantCulture);
-    }
-
-    private void UpdateEarnedBalls(bool isShow)
-    {
-        if (earnedBallsText == null)
-            return;
-        
-        if (!isShow)
-        {
-            earnedBallsText.gameObject.SetActive(false);
-            return;
-        }
-        
-        earnedBallsText.gameObject.SetActive(true);
-        if (earnedBallsText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
-            sv.Value = GameConfig.BaseBallIncome.ToString(CultureInfo.InvariantCulture);
     }
 }

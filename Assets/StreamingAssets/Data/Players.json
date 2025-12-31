@@ -2,8 +2,8 @@
 	"players": [
 		{
 			"id": "player.default",
-			"scoreBase": 10,
-			"scoreMultiplier": 1.0,
+			"damage": 10,
+			"damageMultiplier": 1.0,
 			"critChance": 0.0,
 			"criticalMultiplier": 2.0,
 			"startCurrency": 0,

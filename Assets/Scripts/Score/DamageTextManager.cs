@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
 
-public sealed class ScoreManager : MonoBehaviour
+public sealed class DamageTextManager : MonoBehaviour
 {
-    public static ScoreManager Instance { get; private set; }
+    public static DamageTextManager Instance { get; private set; }
 
     [SerializeField] private float minFontSize = 12f;
     [SerializeField] private float maxFontSize = 48f;
@@ -11,38 +11,22 @@ public sealed class ScoreManager : MonoBehaviour
     double minValue = 10;
     double maxValue = 10000;
 
-    public double previousScore;
-
-    double totalScore;
-
-    public double TotalScore
-    {
-        get => totalScore;
-        private set
-        {
-            totalScore = value;
-            OnScoreChanged?.Invoke(TotalScore);
-        }
-    }
-
-    public event Action<double> OnScoreChanged;
-
     void Awake()
     {
         Instance = this;
     }
 
-    public void SetNeedScoreForFontScale(double needScore)
+    public void SetMinMaxValue(double blockHealth)
     {
-        if (needScore <= 0)
+        if (blockHealth <= 0)
         {
             minValue = 10;
             maxValue = 10000;
             return;
         }
 
-        maxValue = needScore;
-        minValue = needScore / 100.0;
+        maxValue = blockHealth;
+        minValue = blockHealth / 100.0;
 
         if (minValue < 0)
             minValue = 0;
@@ -51,16 +35,16 @@ public sealed class ScoreManager : MonoBehaviour
             maxValue = minValue + 1.0;
     }
 
-    float GetFontSizeForScore(double score)
+    float GetFontSizeForDamage(double damage)
     {
-        var value = Math.Clamp(score, minValue, maxValue);
+        var value = Math.Clamp(damage, minValue, maxValue);
 
         double t = (Math.Log(value) - Math.Log(minValue)) / (Math.Log(maxValue) - Math.Log(minValue));
         t = Math.Clamp(t, 0.0, 1.0);
         return Mathf.Lerp(minFontSize, maxFontSize, (float)t);
     }
 
-    public void AddScore(double amount, int criticalLevel, Vector2 position)
+    public void ShowDamageText(double amount, int criticalLevel, Vector2 position)
     {
         if (amount == 0)
             return;
@@ -76,11 +60,9 @@ public sealed class ScoreManager : MonoBehaviour
         FloatingTextManager.Instance.ShowText(
             amount + postFix,
             color,
-            GetFontSizeForScore(amount),
+            GetFontSizeForDamage(amount),
             1f,
             position
         );
-
-        TotalScore += amount;
     }
 }

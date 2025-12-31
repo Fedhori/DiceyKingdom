@@ -41,7 +41,7 @@ public sealed class BulletController : MonoBehaviour
             var player = PlayerManager.Instance?.Current;
             int dmg = 1;
             if (player != null)
-                dmg = Mathf.Max(1, Mathf.FloorToInt((float)(player.ScoreBase * item.DamageMultiplier)));
+                dmg = Mathf.Max(1, Mathf.FloorToInt((float)(player.Damage * item.DamageMultiplier)));
 
             brick.ApplyDamage(dmg);
             Destroy(gameObject);

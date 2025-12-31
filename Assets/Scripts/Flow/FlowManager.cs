@@ -1,5 +1,6 @@
 using System;
 using Data;
+using TMPro;
 using UnityEngine;
 
 public enum FlowPhase
@@ -32,10 +33,10 @@ public sealed class FlowManager : MonoBehaviour
             OnPhaseChanged?.Invoke(currentPhase);
         }
     }
+    
+    [SerializeField] TMP_Text stageText;
 
-    public bool CanDragPins => !PlayManager.Instance.playActive;
-    public bool CanDragTokens => !PlayManager.Instance.playActive;
-    public bool CanAimBalls => currentPhase == FlowPhase.Ready || currentPhase == FlowPhase.Play;
+    public bool CanDragTokens => CurrentPhase != FlowPhase.Play;
 
     void Awake()
     {
@@ -75,7 +76,6 @@ public sealed class FlowManager : MonoBehaviour
         }
 
         currentStage = new StageInstance(dto);
-        PlayManager.Instance?.SetStage(currentStage);
         TokenManager.Instance.TriggerTokens(TokenTriggerType.OnStageStart);
 
         if (stageIndex == 0)
@@ -96,7 +96,7 @@ public sealed class FlowManager : MonoBehaviour
         }
 
         CurrentPhase = FlowPhase.Ready;
-        PlayManager.Instance?.StartStagePlay(currentStage);
+        PlayManager.Instance?.StartPlay();
     }
 
     public void OnPlayStarted()
@@ -118,7 +118,7 @@ public sealed class FlowManager : MonoBehaviour
             return;
         }
 
-        OpenReward(true);
+        OpenReward();
     }
 
     public void OnRewardClosed()
@@ -155,10 +155,10 @@ public sealed class FlowManager : MonoBehaviour
         OnStageReadyStart();
     }
 
-    void OpenReward(bool isStageClear)
+    void OpenReward()
     {
         CurrentPhase = FlowPhase.Reward;
-        RewardManager.Instance?.Open(isStageClear);
+        RewardManager.Instance?.Open();
     }
 
     void OpenShop()

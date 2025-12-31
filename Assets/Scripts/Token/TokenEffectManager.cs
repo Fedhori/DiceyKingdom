@@ -73,14 +73,14 @@ public sealed class TokenEffectManager : MonoBehaviour
 
     void ApplyScore(TokenEffectDto dto)
     {
-        var scoreMgr = ScoreManager.Instance;
+        var scoreMgr = DamageTextManager.Instance;
         if (scoreMgr == null)
             return;
 
         var player = PlayerManager.Instance?.Current;
-        float multiplier = player != null ? (float)player.ScoreMultiplier : 1f;
+        float multiplier = player != null ? (float)player.DamageMultiplier : 1f;
         double amount = dto.value * multiplier;
 
-        scoreMgr.AddScore(amount, 0, Vector2.zero);
+        scoreMgr.ShowDamageText(amount, 0, Vector2.zero);
     }
 }
