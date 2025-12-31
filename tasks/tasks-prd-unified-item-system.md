@@ -42,7 +42,8 @@
   - [x] 1.1 `Tokens.json`의 토큰 정의를 `Items.json`으로 병합하고 ID 중복/가격 필드를 정리한다.
   - [x] 1.2 `ItemDto`에 `isObject` 및 규칙(트리거/조건/효과) 필드를 추가한다.
   - [x] 1.3 Object 아이템용 프리팹 키 필드(예: `prefabKey`)를 `ItemDto`에 추가한다.
-  - [ ] 1.4 `ItemRepository` 파싱/검증 로직을 확장해 규칙 구조를 검증한다.
+  - [x] 1.4 `ItemRepository` 파싱/검증 로직을 확장해 규칙 구조를 검증한다.
+  - [ ] 1.5 `isObject`를 제거하고 Object 데이터를 별도 클래스(`ItemObjectData`)로 분리한다.
 
 - [ ] 2.0 ItemInventory 도입 및 ItemManager 단일 소스 전환
   - [ ] 2.1 `ItemInventory` 클래스를 생성하고 슬롯 수를 `GameConfig.TokenSlotCount`로 고정한다.

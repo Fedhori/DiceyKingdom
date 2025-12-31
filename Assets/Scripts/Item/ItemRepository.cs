@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace Data
@@ -23,27 +25,39 @@ namespace Data
                 return;
             }
 
-            ItemListWrapper wrapper;
+            ItemRoot root;
             try
             {
-                wrapper = JsonUtility.FromJson<ItemListWrapper>(jsonAsset.text);
+                root = JsonConvert.DeserializeObject<ItemRoot>(jsonAsset.text);
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 Debug.LogError($"[ItemRepository] json parse error: {e}");
                 return;
             }
 
-            if (wrapper?.items == null)
+            if (root?.items == null)
             {
                 Debug.LogError("[ItemRepository] json has no items array");
                 return;
             }
 
-            foreach (var dto in wrapper.items)
+            foreach (var dto in root.items)
             {
-                if (dto == null || string.IsNullOrEmpty(dto.id))
+                if (dto == null)
                     continue;
+
+                if (!dto.isValid)
+                {
+                    Debug.LogError($"[ItemRepository] Skipping invalid item definition. id='{dto.id ?? "(null)"}'.");
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(dto.id))
+                {
+                    Debug.LogError("[ItemRepository] Item with empty id encountered. Skipped.");
+                    continue;
+                }
 
                 dict[dto.id] = dto;
             }
@@ -63,7 +77,7 @@ namespace Data
         }
 
         [System.Serializable]
-        class ItemListWrapper
+        class ItemRoot
         {
             public List<ItemDto> items;
         }
