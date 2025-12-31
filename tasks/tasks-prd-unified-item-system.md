@@ -80,15 +80,15 @@
   - [x] 5.4 `SpriteCache`와 `LocalizationUtil`을 아이템 기반 조회로 변경한다.
   - [x] 5.5 `GhostKind`의 Token 고스트를 Item 고스트로 변경한다.
 
-- [ ] 6.0 토큰 시스템 제거 및 연결 지점 정리
+- [x] 6.0 토큰 시스템 제거 및 연결 지점 정리
   - [x] 6.1 `Assets/Scripts/Token/*` 및 Tokens.json 로딩 경로를 제거한다.
   - [x] 6.2 `StageManager`의 토큰 트리거 호출을 아이템 트리거 호출로 변경한다.
-  - [ ] 6.3 `DevCommandManager`의 addtoken 등 토큰 전용 명령을 제거/대체한다.
+  - [x] 6.3 `DevCommandManager`의 addtoken 등 토큰 전용 명령을 제거/대체한다.
   - [x] 6.4 관련 Prefab/Scene/Inspector에서 ItemSlotManager/ItemSlotController 참조를 Item 시스템으로 교체한다.
-  - [ ] 6.5 수동 검증: 상점 구매/판매/이동, 스테이지 시작/틱 트리거, 게임 플레이 루프 정상 동작 확인.
+  - [x] 6.5 수동 검증: 상점 구매/판매/이동, 스테이지 시작/틱 트리거, 게임 플레이 루프 정상 동작 확인.
 
 - [ ] 7.0 샘플 아이템 3종(볼/미니건/교과서) 구현 및 검증
-  - [ ] 7.1 `Items.json`에 볼/미니건/교과서 정의를 추가한다. (`isObject`, `projectile.key`, 규칙 포함)
+  - [x] 7.1 `Items.json`에 볼/미니건/교과서 정의를 추가한다. (`isObject`, `projectile.key`, 규칙 포함)
   - [ ] 7.2 `projectile.ball` 프리팹을 추가하고 Bounce 동작(반사)을 설정한다.
   - [ ] 7.3 미니건 프리팹을 추가하고 `ItemPrefabRegistry`에 매핑한다.
   - [ ] 7.4 교과서 아이템의 OnStageStart 영구 피해 +10 규칙을 적용한다.
