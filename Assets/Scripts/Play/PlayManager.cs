@@ -17,13 +17,13 @@ public sealed class PlayManager : MonoBehaviour
 
     public void StartPlay()
     {
-        ItemManager.Instance?.InitializeFromPlayer(PlayerManager.Instance.Current);
+        ItemManager.Instance?.BeginPlay();
         BlockManager.Instance.BeginSpawnRamp();
     }
 
     public void FinishPlay()
     {
-        ItemManager.Instance?.ClearAll();
+        ItemManager.Instance?.EndPlay();
         StageManager.Instance?.OnPlayFinished();
     }
 }

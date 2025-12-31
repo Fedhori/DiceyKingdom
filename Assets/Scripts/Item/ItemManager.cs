@@ -13,6 +13,7 @@ public sealed class ItemManager : MonoBehaviour
     readonly Dictionary<ItemInstance, ItemController> controllerMap = new();
     readonly HashSet<ItemInstance> effectSources = new();
     readonly ItemInventory inventory = new();
+    bool isPlayActive;
 
     void Awake()
     {
@@ -33,6 +34,19 @@ public sealed class ItemManager : MonoBehaviour
     }
 
     public ItemInventory Inventory => inventory;
+
+    public void BeginPlay()
+    {
+        isPlayActive = true;
+        ClearControllers();
+        BuildControllersFromInventory();
+    }
+
+    public void EndPlay()
+    {
+        isPlayActive = false;
+        ClearControllers();
+    }
 
     public void TriggerAll(ItemTriggerType trigger)
     {
@@ -76,6 +90,22 @@ public sealed class ItemManager : MonoBehaviour
             }
 
             // OnSlotChanged handles attach for object items.
+        }
+    }
+
+    void BuildControllersFromInventory()
+    {
+        var slots = inventory.Slots;
+        for (int i = 0; i < slots.Count; i++)
+        {
+            var inst = slots[i];
+            if (inst == null || !inst.IsObject)
+                continue;
+
+            if (controllerMap.ContainsKey(inst))
+                continue;
+
+            SpawnController(inst);
         }
     }
 
@@ -141,7 +171,8 @@ public sealed class ItemManager : MonoBehaviour
         if (controllerMap.ContainsKey(current))
             return;
 
-        SpawnController(current);
+        if (isPlayActive)
+            SpawnController(current);
     }
 
     void SubscribeEffects(ItemInstance inst)
@@ -231,12 +262,15 @@ public sealed class ItemManager : MonoBehaviour
     void OnDisable()
     {
         ClearControllers();
+        ClearEffectSubscriptions();
     }
 
     public void ClearAll()
     {
+        isPlayActive = false;
         inventory.Clear();
         ClearControllers();
+        ClearEffectSubscriptions();
     }
 
     public Transform GetAttachTarget()

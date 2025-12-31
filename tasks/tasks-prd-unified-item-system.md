@@ -7,6 +7,8 @@
 - `Assets/Scripts/Data/GameConfig.cs` - projectile 기본 스탯 상수로 네이밍 변경.
 - `Assets/Scripts/Item/ItemRepository.cs` - Items.json 파싱/검증 확장.
 - `Assets/Scripts/Item/ItemManager.cs` - ItemInventory 소유 및 단일 소스 오브 트루스 전환.
+- `Assets/Scripts/GameManager.cs` - 게임 시작 시 인벤토리 초기화 시점 조정.
+- `Assets/Scripts/Play/PlayManager.cs` - Play 진입/종료 시 컨트롤러 생성/정리 흐름 반영.
 - `Assets/Scripts/Item/ItemController.cs` - `isObject == true` 아이템 Attach 동작 유지/확장.
 - `Assets/Scripts/Item/ItemInventory.cs` - (신규) 슬롯/이동/스왑/추가/삭제 커맨드 API 및 이벤트.
 - `Assets/Scripts/Item/ItemEffectManager.cs` - (신규 또는 기존 이동) 아이템 효과 적용 파이프라인.
@@ -51,6 +53,7 @@
   - [x] 2.3 `ItemManager`가 `ItemInventory`를 소유하고 기존 `PlayerInstance.ItemIds` 초기화 흐름을 이관한다.
   - [x] 2.4 `ItemPrefabRegistry`를 추가하고 item key -> prefab 매핑을 Inspector에서 관리하도록 한다.
   - [x] 2.5 `ItemManager`가 인벤토리 변경 이벤트를 받아 Object 아이템을 Attach/Detach한다.
+  - [x] 2.6 게임 시작 시 인벤토리 초기화, Play 시작/종료 시 컨트롤러만 생성/정리하도록 흐름을 조정한다.
 
 - [ ] 3.0 아이템 규칙 실행 파이프라인 구축
   - [x] 3.1 기존 Token 규칙 구조(Trigger/Condition/Effect)를 Item 규칙 구조로 이관한다.

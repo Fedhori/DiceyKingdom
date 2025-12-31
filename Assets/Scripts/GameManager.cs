@@ -36,6 +36,7 @@ public class GameManager : MonoBehaviour
 
     void HandleGameStart()
     {
+        ItemManager.Instance?.InitializeFromPlayer(PlayerManager.Instance?.Current);
         StageManager.Instance?.StartRun();
     }
 
