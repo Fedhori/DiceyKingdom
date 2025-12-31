@@ -19,7 +19,6 @@ public sealed class PlayManager : MonoBehaviour
     {
         ItemManager.Instance?.InitializeFromPlayer(PlayerManager.Instance.Current);
         BlockManager.Instance.BeginSpawnRamp();
-        StageManager.Instance?.OnPlayStarted();
     }
 
     public void FinishPlay()

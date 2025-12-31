@@ -6,7 +6,6 @@ using UnityEngine;
 public enum StagePhase
 {
     None,
-    Ready,
     Play,
     Reward,
     Shop
@@ -84,7 +83,7 @@ public sealed class StageManager : MonoBehaviour
         TokenManager.Instance.TriggerTokens(TokenTriggerType.OnStageStart);
 
         if (stageIndex == 0)
-            OnStageReadyStart();
+            OnPlayStart();
         else
             OpenShop();
 
@@ -94,21 +93,16 @@ public sealed class StageManager : MonoBehaviour
     bool IsLastStage =>
         CurrentStage != null && StageRepository.TryGetByIndex(CurrentStage.StageIndex + 1, out _);
 
-    public void OnStageReadyStart()
+    public void OnPlayStart()
     {
         if (CurrentStage == null)
         {
-            Debug.LogError("[StageManager] OnStageReadyStart but currentStage is null.");
+            Debug.LogError("[StageManager] OnPlayStart but currentStage is null.");
             return;
         }
 
-        CurrentPhase = StagePhase.Ready;
-        PlayManager.Instance?.StartPlay();
-    }
-
-    public void OnPlayStarted()
-    {
         CurrentPhase = StagePhase.Play;
+        PlayManager.Instance?.StartPlay();
     }
     
     public void OnPlayFinished()
@@ -142,7 +136,7 @@ public sealed class StageManager : MonoBehaviour
             return;
         }
 
-        AdvanceToNextStage();
+        ToNextStage();
     }
 
     public void OnShopClosed()
@@ -159,7 +153,7 @@ public sealed class StageManager : MonoBehaviour
             return;
         }
 
-        OnStageReadyStart();
+        OnPlayStart();
     }
 
     void OpenReward()
@@ -174,7 +168,7 @@ public sealed class StageManager : MonoBehaviour
         ShopManager.Instance?.Open();
     }
 
-    void AdvanceToNextStage()
+    void ToNextStage()
     {
         if (!IsLastStage)
         {
