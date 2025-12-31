@@ -11,6 +11,7 @@ public sealed class ItemManager : MonoBehaviour
 
     readonly List<ItemController> controllers = new();
     readonly Dictionary<ItemInstance, ItemController> controllerMap = new();
+    readonly HashSet<ItemInstance> effectSources = new();
     readonly ItemInventory inventory = new();
 
     void Awake()
@@ -36,6 +37,7 @@ public sealed class ItemManager : MonoBehaviour
     public void InitializeFromPlayer(PlayerInstance player)
     {
         ClearControllers();
+        ClearEffectSubscriptions();
         inventory.Clear();
 
         if (!ItemRepository.IsInitialized)
@@ -116,10 +118,15 @@ public sealed class ItemManager : MonoBehaviour
         _ = slotIndex;
 
         if (previous != null && !ContainsInstance(previous))
+        {
             RemoveController(previous);
+            UnsubscribeEffects(previous);
+        }
 
         if (current == null)
             return;
+
+        SubscribeEffects(current);
 
         if (!current.IsObject)
             return;
@@ -128,6 +135,50 @@ public sealed class ItemManager : MonoBehaviour
             return;
 
         SpawnController(current);
+    }
+
+    void SubscribeEffects(ItemInstance inst)
+    {
+        if (inst == null)
+            return;
+
+        if (!effectSources.Add(inst))
+            return;
+
+        inst.OnEffectTriggered += HandleItemEffect;
+    }
+
+    void UnsubscribeEffects(ItemInstance inst)
+    {
+        if (inst == null)
+            return;
+
+        if (!effectSources.Remove(inst))
+            return;
+
+        inst.OnEffectTriggered -= HandleItemEffect;
+    }
+
+    void ClearEffectSubscriptions()
+    {
+        foreach (var inst in effectSources)
+        {
+            if (inst != null)
+                inst.OnEffectTriggered -= HandleItemEffect;
+        }
+        effectSources.Clear();
+    }
+
+    void HandleItemEffect(ItemEffectDto effect, ItemInstance source)
+    {
+        var mgr = ItemEffectManager.Instance;
+        if (mgr == null)
+        {
+            Debug.LogWarning("[ItemManager] ItemEffectManager is null.");
+            return;
+        }
+
+        mgr.ApplyEffect(effect, source);
     }
 
     bool ContainsInstance(ItemInstance inst)
