@@ -49,7 +49,7 @@
   - [x] 2.1 `ItemInventory` 클래스를 생성하고 슬롯 수를 `GameConfig.TokenSlotCount`로 고정한다.
   - [x] 2.2 `Add/Remove/Move/Swap/SetSlot` 커맨드 API와 변경 이벤트를 정의한다.
   - [x] 2.3 `ItemManager`가 `ItemInventory`를 소유하고 기존 `PlayerInstance.ItemIds` 초기화 흐름을 이관한다.
-  - [ ] 2.4 `ItemPrefabRegistry`를 추가하고 item key -> prefab 매핑을 Inspector에서 관리하도록 한다.
+  - [x] 2.4 `ItemPrefabRegistry`를 추가하고 item key -> prefab 매핑을 Inspector에서 관리하도록 한다.
   - [ ] 2.5 `ItemManager`가 인벤토리 변경 이벤트를 받아 Object 아이템을 Attach/Detach한다.
 
 - [ ] 3.0 아이템 규칙 실행 파이프라인 구축
