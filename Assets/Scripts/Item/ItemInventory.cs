@@ -22,6 +22,23 @@ public sealed class ItemInventory
         slots = new ItemInstance[count];
     }
 
+    public void Clear()
+    {
+        bool changed = false;
+        for (int i = 0; i < slots.Length; i++)
+        {
+            if (slots[i] == null)
+                continue;
+
+            slots[i] = null;
+            NotifySlotChanged(i);
+            changed = true;
+        }
+
+        if (changed)
+            NotifyInventoryChanged();
+    }
+
     public ItemInstance GetSlot(int index)
     {
         return IsValidIndex(index) ? slots[index] : null;

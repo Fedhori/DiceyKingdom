@@ -10,8 +10,8 @@ public sealed class ItemManager : MonoBehaviour
     [SerializeField] private Transform attachTarget; // 플레이어 transform 등
     [SerializeField] private ItemController itemControllerPrefab;
 
-    readonly List<ItemInstance> items = new();
     readonly List<ItemController> controllers = new();
+    readonly ItemInventory inventory = new();
 
     void Awake()
     {
@@ -29,12 +29,12 @@ public sealed class ItemManager : MonoBehaviour
         }
     }
 
-    public IReadOnlyList<ItemInstance> Items => items;
+    public ItemInventory Inventory => inventory;
 
     public void InitializeFromPlayer(PlayerInstance player)
     {
         ClearControllers();
-        items.Clear();
+        inventory.Clear();
 
         if (!ItemRepository.IsInitialized)
         {
@@ -58,7 +58,12 @@ public sealed class ItemManager : MonoBehaviour
             }
 
             var inst = new ItemInstance(dto);
-            items.Add(inst);
+            if (!inventory.TryAdd(inst, out _))
+            {
+                Debug.LogWarning("[ItemManager] Inventory full. Skipping item add.");
+                continue;
+            }
+
             SpawnController(inst);
         }
     }
@@ -94,7 +99,7 @@ public sealed class ItemManager : MonoBehaviour
 
     public void ClearAll()
     {
-        items.Clear();
+        inventory.Clear();
         ClearControllers();
     }
 
