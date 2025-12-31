@@ -80,6 +80,14 @@ public sealed class ShopManager : MonoBehaviour
     System.Random Rng =>
         GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
 
+    public static int CalculateSellPrice(int price)
+    {
+        if (price <= 0)
+            return 0;
+
+        return Mathf.FloorToInt(price * 0.5f);
+    }
+
     public void Open()
     {
         isOpen = true;

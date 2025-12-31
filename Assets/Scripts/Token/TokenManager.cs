@@ -326,7 +326,7 @@ public sealed class TokenManager : MonoBehaviour
         if (ctrl == null || ctrl.Instance == null)
             return;
 
-        int price = Mathf.FloorToInt(ctrl.Instance.Price / 2f);
+        int price = ShopManager.CalculateSellPrice(ctrl.Instance.Price);
         if (price <= 0)
             return;
 
