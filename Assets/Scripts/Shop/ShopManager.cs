@@ -162,7 +162,7 @@ public sealed class ShopManager : MonoBehaviour
                 continue;
 
             var dto = PopToken(tokenPool);
-            var item = factory.CreateToken(dto);
+            var item = factory.CreateItem(dto);
             if (item != null)
             {
                 rosterItems.Add(item);
@@ -303,7 +303,7 @@ public sealed class ShopManager : MonoBehaviour
         if (currentShopItems == null || itemIndex < 0 || itemIndex >= currentShopItems.Length)
             return false;
 
-        var item = currentShopItems[itemIndex] as TokenShopItem;
+        var item = currentShopItems[itemIndex] as ItemShopItem;
         if (item == null || IsSold(itemIndex))
             return false;
 

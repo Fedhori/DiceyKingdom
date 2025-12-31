@@ -45,11 +45,11 @@ public sealed class ShopItemFactory : MonoBehaviour
         return probabilities[probabilities.Count - 1].type;
     }
 
-    public IShopItem CreateToken(TokenDto dto)
+    public IShopItem CreateItem(ItemDto dto)
     {
         if (dto == null)
             return null;
 
-        return new TokenShopItem(dto);
+        return new ItemShopItem(dto);
     }
 }

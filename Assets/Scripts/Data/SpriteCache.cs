@@ -42,9 +42,9 @@ public static class SpriteCache
         return Get($"Sprites/Equipment/{id}");
     }
 
-    public static Sprite GetTokenSprite(string id)
+    public static Sprite GetItemSprite(string id)
     {
         if (string.IsNullOrEmpty(id)) return null;
-        return Get($"Sprites/Token/{id}");
+        return Get($"Sprites/Item/{id}");
     }
 }
