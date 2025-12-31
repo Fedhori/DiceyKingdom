@@ -13,8 +13,8 @@ public static class GameConfig
 
     // Player/Item base stats
     public static float PlayerBaseMoveSpeed = 500f;
-    public static float ItemBaseBulletSize = 1f;
-    public static float ItemBaseBulletSpeed = 1000f;
+    public static float ItemBaseProjectileSize = 1f;
+    public static float ItemBaseProjectileSpeed = 1000f;
 }
 
 public static class LayerMaskUtil

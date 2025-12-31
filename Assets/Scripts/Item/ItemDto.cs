@@ -68,11 +68,34 @@ namespace Data
         public List<ItemEffectDto> effects;
     }
 
+    public enum ProjectileHitBehavior
+    {
+        Unknown = 0,
+        Destroy,
+        Bounce,
+        Pierce
+    }
+
+    [Serializable]
+    public sealed class ItemProjectileData
+    {
+        public string key;
+        public float size = 1f;
+        public float speed = 1f;
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public ProjectileHitBehavior hitBehavior = ProjectileHitBehavior.Destroy;
+
+        public int maxBounces = 0;
+        public float lifeTime = 0f;
+    }
+
     [Serializable]
     public sealed class ItemDto
     {
         public string id;
         public bool isObject;
+        public string prefabKey;
         public int price;
 
         [JsonConverter(typeof(StringEnumConverter))]
@@ -81,7 +104,6 @@ namespace Data
         public List<ItemRuleDto> rules;
         public float damageMultiplier = 1f;
         public float attackSpeed = 1f;
-        public float bulletSize = 1f;
-        public float bulletSpeed = 1f;
+        public ItemProjectileData projectile;
     }
 }

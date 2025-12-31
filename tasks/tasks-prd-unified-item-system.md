@@ -4,6 +4,7 @@
 - `Assets/StreamingAssets/Data/Tokens.json` - 완전 제거 대상 데이터.
 - `Assets/Scripts/Item/ItemDto.cs` - `isObject` 및 규칙 필드, 프리팹 키 필드 추가.
 - `Assets/Scripts/Item/ItemInstance.cs` - 규칙 실행 및 런타임 상태 보관 로직 확장.
+- `Assets/Scripts/Data/GameConfig.cs` - projectile 기본 스탯 상수로 네이밍 변경.
 - `Assets/Scripts/Item/ItemRepository.cs` - Items.json 파싱/검증 확장.
 - `Assets/Scripts/Item/ItemManager.cs` - ItemInventory 소유 및 단일 소스 오브 트루스 전환.
 - `Assets/Scripts/Item/ItemController.cs` - `isObject == true` 아이템 Attach 동작 유지/확장.
@@ -27,6 +28,7 @@
 - `Assets/Scripts/UI/SellOverlayController.cs` - 판매 오버레이 동작을 아이템 슬롯 기준으로 유지.
 - `Assets/Scripts/Token/` - Token 관련 DTO/Instance/Manager/Controller 제거 대상.
 - `Assets/Scripts/Bullet/` - Projectile 네이밍/행동 옵션으로 리팩터링될 가능성이 있는 기존 총알 코드.
+- `Assets/Scripts/Bullet/BulletController.cs` - projectile 스탯 적용 로직으로 변경.
 - `Assets/Prefabs/` - 미니건/프로젝타일(볼/총알) 프리팹 추가 및 매핑 대상.
 
 ### Notes
@@ -39,7 +41,7 @@
 - [ ] 1.0 Items 데이터 스키마 통합 및 확장
   - [x] 1.1 `Tokens.json`의 토큰 정의를 `Items.json`으로 병합하고 ID 중복/가격 필드를 정리한다.
   - [x] 1.2 `ItemDto`에 `isObject` 및 규칙(트리거/조건/효과) 필드를 추가한다.
-  - [ ] 1.3 Object 아이템용 프리팹 키 필드(예: `prefabKey`)를 `ItemDto`에 추가한다.
+  - [x] 1.3 Object 아이템용 프리팹 키 필드(예: `prefabKey`)를 `ItemDto`에 추가한다.
   - [ ] 1.4 `ItemRepository` 파싱/검증 로직을 확장해 규칙 구조를 검증한다.
 
 - [ ] 2.0 ItemInventory 도입 및 ItemManager 단일 소스 전환

@@ -4,16 +4,20 @@
 			"id": "item.default",
 			"damageMultiplier": 1.0,
 			"attackSpeed": 1.0,
-			"bulletSize": 1.0,
-			"bulletSpeed": 1.0,
-			"price": 0
+			"price": 0,
+			"projectile": {
+				"key": "projectile.bullet",
+				"size": 1.0,
+				"speed": 1.0,
+				"hitBehavior": "Destroy",
+				"maxBounces": 0,
+				"lifeTime": 0.0
+			}
 		},
 		{
 			"id": "token.textbook",
 			"damageMultiplier": 1.0,
 			"attackSpeed": 1.0,
-			"bulletSize": 1.0,
-			"bulletSpeed": 1.0,
 			"price": 5,
 			"rarity": "Common",
 			"rules": [
