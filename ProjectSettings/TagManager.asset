@@ -9,15 +9,15 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Pin
+  - 
   - Water
   - UI
-  - Ball
-  - BallDragZone
-  - SideWall
-  - Ceiling
-  - Brick
+  - Wall
+  - Block
   - Bullet
+  - 
+  - 
+  - 
   - 
   - 
   - 

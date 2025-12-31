@@ -2,14 +2,14 @@ using TMPro;
 using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer), typeof(Collider2D))]
-public sealed class BrickController : MonoBehaviour
+public sealed class BlockController : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private TMP_Text hpText;
 
-    public BrickInstance Instance { get; private set; }
+    public BlockInstance Instance { get; private set; }
 
-    public void Initialize(BrickInstance instance)
+    public void Initialize(BlockInstance instance)
     {
         Instance = instance;
 
@@ -35,7 +35,7 @@ public sealed class BrickController : MonoBehaviour
         if (Instance.IsDead)
         {
             AudioManager.Instance.Play("Pop");
-            BrickManager.Instance?.NotifyBrickDestroyed(this);
+            BlockManager.Instance?.HandleBlockDestroyed(this);
             Destroy(gameObject);
         }
             

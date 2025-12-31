@@ -35,17 +35,16 @@ public sealed class BulletController : MonoBehaviour
         if (item == null)
             return;
 
-        var brick = other.GetComponent<BrickController>();
-        if (brick != null && brick.Instance != null)
+        var block = other.GetComponent<BlockController>();
+        if (block != null && block.Instance != null)
         {
             var player = PlayerManager.Instance?.Current;
             int dmg = 1;
             if (player != null)
                 dmg = Mathf.Max(1, Mathf.FloorToInt((float)(player.Damage * item.DamageMultiplier)));
 
-            brick.ApplyDamage(dmg);
+            block.ApplyDamage(dmg);
             Destroy(gameObject);
-            return;
         }
 
         // 기타 오브젝트는 무시/관통

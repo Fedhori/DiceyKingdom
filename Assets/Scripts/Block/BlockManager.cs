@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed class BrickManager : MonoBehaviour
+public sealed class BlockManager : MonoBehaviour
 {
-    public static BrickManager Instance { get; private set; }
+    public static BlockManager Instance { get; private set; }
 
-    [SerializeField] private BrickFactory brickFactory;
     [SerializeField] private Transform playArea;
-    [SerializeField] private Vector2 brickSize = new Vector2(128f, 64f);
+    [SerializeField] private Vector2 blockSize = new Vector2(128f, 64f);
     private int currentHp;
     [SerializeField] private float fallSpeed = 40f;
 
@@ -15,7 +14,7 @@ public sealed class BrickManager : MonoBehaviour
     [SerializeField] private float spawnDurationSeconds = 30f;
     [SerializeField] private float spawnRateStartPerSec = 1f;
     [SerializeField] private float spawnRateEndPerSec = 2f;
-    private readonly List<BrickController> activeBricks = new();
+    private readonly List<BlockController> activeBlocks = new();
     private Vector2 originTopLeft;
     private Vector2 originTopRight;
     float spawnElapsed;
@@ -43,7 +42,7 @@ public sealed class BrickManager : MonoBehaviour
         if (dy <= 0f)
             return;
 
-        MoveAllBricksDown(dy);
+        MoveAllBlocksDown(dy);
 
         UpdateSpawnRamp();
     }
@@ -74,49 +73,46 @@ public sealed class BrickManager : MonoBehaviour
         }
     }
 
-    // TODO - 이게 manager가 아니라 brickController에서 관리되어야 할게 아닌가?
-    void MoveAllBricksDown(float distance)
+    // TODO - 이게 manager가 아니라 Controller서에서 관리되어야 할게 아닌가?
+    void MoveAllBlocksDown(float distance)
     {
         if (distance <= 0f)
             return;
 
         float delta = distance;
-        for (int i = activeBricks.Count - 1; i >= 0; i--)
+        for (int i = activeBlocks.Count - 1; i >= 0; i--)
         {
-            var brick = activeBricks[i];
-            if (brick == null)
+            var block = activeBlocks[i];
+            if (block == null)
             {
-                activeBricks.RemoveAt(i);
+                activeBlocks.RemoveAt(i);
                 continue;
             }
 
-            brick.transform.position += new Vector3(0f, -delta, 0f);
+            block.transform.position += new Vector3(0f, -delta, 0f);
         }
     }
 
-    void SpawnRandomBrickFromTop()
+    void SpawnBlock()
     {
-        if (brickFactory == null)
-            return;
-
-        float minX = originTopLeft.x + brickSize.x * 0.5f;
-        float maxX = originTopRight.x - brickSize.x * 0.5f;
-        float y = originTopLeft.y - brickSize.y * 0.5f;
+        float minX = originTopLeft.x + blockSize.x * 0.5f;
+        float maxX = originTopRight.x - blockSize.x * 0.5f;
+        float y = originTopLeft.y - blockSize.y * 0.5f;
 
         float x = Random.Range(minX, maxX);
         Vector3 worldPos = new Vector3(x, y, 0f);
 
-        var brick = brickFactory.CreateBrick(currentHp, Vector2Int.zero, worldPos);
-        if (brick != null && !activeBricks.Contains(brick))
-            activeBricks.Add(brick);
+        var block = BlockFactory.Instance.CreateBlock(currentHp, Vector2Int.zero, worldPos);
+        if (block != null && !activeBlocks.Contains(block))
+            activeBlocks.Add(block);
     }
 
-    public void NotifyBrickDestroyed(BrickController brick)
+    public void HandleBlockDestroyed(BlockController block)
     {
-        if (brick == null)
+        if (block == null)
             return;
 
-        activeBricks.Remove(brick);
+        activeBlocks.Remove(block);
         CheckClearCondition();
     }
 
@@ -136,7 +132,7 @@ public sealed class BrickManager : MonoBehaviour
             spawnAccumulator -= spawnCount;
 
         for (int i = 0; i < spawnCount; i++)
-            SpawnRandomBrickFromTop();
+            SpawnBlock();
 
         if (spawnElapsed >= spawnDurationSeconds)
             spawnWindowActive = false;
@@ -149,7 +145,7 @@ public sealed class BrickManager : MonoBehaviour
         if (spawnWindowActive)
             return;
 
-        if (activeBricks.Count > 0)
+        if (activeBlocks.Count > 0)
             return;
 
         PlayManager.Instance?.FinishPlay();
