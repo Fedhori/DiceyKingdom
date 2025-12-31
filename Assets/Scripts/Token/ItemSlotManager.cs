@@ -217,6 +217,33 @@ public sealed class ItemSlotManager : MonoBehaviour
         return false;
     }
 
+    public bool TryGetEmptySlotFromScreenPos(Vector2 screenPos, out int slotIndex)
+    {
+        slotIndex = -1;
+
+        if (!TryGetSlotFromScreenPos(screenPos, out slotIndex))
+            return false;
+
+        if (inventory == null || !inventory.IsSlotEmpty(slotIndex))
+        {
+            slotIndex = -1;
+            return false;
+        }
+
+        return true;
+    }
+
+    public void UpdatePurchaseHover(Vector2 screenPos)
+    {
+        if (!TryGetEmptySlotFromScreenPos(screenPos, out int slotIndex))
+        {
+            ClearHighlight();
+            return;
+        }
+
+        UpdateHighlight(slotIndex);
+    }
+
     public void HighlightEmptySlots()
     {
         if (slotControllers == null)

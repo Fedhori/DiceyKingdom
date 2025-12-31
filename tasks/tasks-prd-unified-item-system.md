@@ -32,7 +32,7 @@
 - `Assets/Scripts/UI/SellOverlayController.cs` - 판매 오버레이 동작을 아이템 슬롯 기준으로 유지.
 - `Assets/Scripts/Token/` - Token 관련 DTO/Instance/Manager/Controller 제거 대상.
 - `Assets/Scripts/Token/ItemSlotController.cs` - 인벤토리 아이템 데이터를 슬롯 UI에 바인딩하는 컨트롤러.
-- `Assets/Scripts/Token/TokenManager.cs` - 슬롯 UI가 ItemInventory를 구독해 렌더링하도록 전환.
+- `Assets/Scripts/Token/ItemSlotManager.cs` - 슬롯 UI가 ItemInventory를 구독해 렌더링하도록 전환.
 - `Assets/Scripts/Bullet/` - Projectile 네이밍/행동 옵션으로 리팩터링될 가능성이 있는 기존 총알 코드.
 - `Assets/Scripts/Bullet/BulletController.cs` - projectile 스탯 적용 로직으로 변경.
 - `Assets/Prefabs/` - 미니건/프로젝타일(볼/총알) 프리팹 추가 및 매핑 대상.
@@ -74,7 +74,7 @@
 
 - [ ] 5.0 하단 슬롯 UI/툴팁/고스트를 ItemInventory 기준으로 전환
   - [x] 5.1 Token 슬롯 UI를 Item 슬롯 UI로 교체하고 인벤토리 데이터를 렌더링한다.
-  - [ ] 5.2 슬롯 드래그 이동/스왑, 상점 드래그 구매, 드래그 판매를 공통 규칙으로 처리한다.
+  - [x] 5.2 슬롯 드래그 이동/스왑, 상점 드래그 구매, 드래그 판매를 공통 규칙으로 처리한다.
   - [ ] 5.3 `TokenTooltipUtil`을 아이템 기반 툴팁 유틸로 대체한다.
   - [ ] 5.4 `SpriteCache`와 `LocalizationUtil`을 아이템 기반 조회로 변경한다.
   - [ ] 5.5 `GhostKind`의 Token 고스트를 Item 고스트로 변경한다.

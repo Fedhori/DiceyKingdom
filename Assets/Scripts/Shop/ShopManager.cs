@@ -285,6 +285,11 @@ public sealed class ShopManager : MonoBehaviour
     {
         CurrentSelectionIndex = selection != null ? itemIndex : -1;
         OnSelectionChanged?.Invoke(CurrentSelectionIndex);
+
+        if (selection is { ItemType: ShopItemType.Item })
+            ItemSlotManager.Instance?.HighlightEmptySlots();
+        else
+            ItemSlotManager.Instance?.ClearHighlights();
     }
 
     public bool TryPurchaseSelectedAt(int row, int col)
@@ -451,8 +456,6 @@ public sealed class ShopManager : MonoBehaviour
 
         if (item.ItemType == ShopItemType.Item)
         {
-            // 토큰 슬롯 하이라이트, 핀 선택 해제
-            // TODO: ItemInventory 기반 하이라이트로 교체 예정
             shopView?.ClearSelectionVisuals();
         }
     }
@@ -536,7 +539,7 @@ public sealed class ShopManager : MonoBehaviour
         if (item.ItemType == ShopItemType.Item)
         {
             draggingItemIndex = itemIndex;
-            // TODO: ItemInventory 기반 하이라이트로 교체 예정
+            ItemSlotManager.Instance?.HighlightEmptySlots();
             shopView.ShowItemDragGhost(item, screenPos);
         }
         else
@@ -551,7 +554,10 @@ public sealed class ShopManager : MonoBehaviour
             return;
 
         if (itemIndex == draggingItemIndex)
+        {
             shopView.UpdateItemDragGhostPosition(screenPos);
+            ItemSlotManager.Instance?.UpdatePurchaseHover(screenPos);
+        }
     }
 
     public void EndItemDrag(int itemIndex, Vector2 screenPos)
@@ -571,16 +577,15 @@ public sealed class ShopManager : MonoBehaviour
 
         if (itemIndex == draggingItemIndex)
         {
+            var slotManager = ItemSlotManager.Instance;
             int targetSlot = -1;
-            // TODO: ItemInventory 기반 슬롯 드롭 판정으로 교체 예정
-
-            if (targetSlot >= 0)
+            if (slotManager != null && slotManager.TryGetEmptySlotFromScreenPos(screenPos, out targetSlot))
                 TryPurchaseItemAt(itemIndex, targetSlot);
         }
 
         shopView.HideItemDragGhost();
         draggingItemIndex = -1;
-        // TODO: ItemInventory 기반 하이라이트 클리어로 교체 예정
+        ItemSlotManager.Instance?.ClearHighlights();
     }
 
 }
