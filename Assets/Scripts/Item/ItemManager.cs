@@ -34,6 +34,13 @@ public sealed class ItemManager : MonoBehaviour
 
     public ItemInventory Inventory => inventory;
 
+    public void TriggerAll(ItemTriggerType trigger)
+    {
+        var slots = inventory.Slots;
+        for (int i = 0; i < slots.Count; i++)
+            slots[i]?.HandleTrigger(trigger);
+    }
+
     public void InitializeFromPlayer(PlayerInstance player)
     {
         ClearControllers();

@@ -11,7 +11,7 @@
 			}
 		},
 		{
-			"id": "token.textbook",
+			"id": "item.textbook",
 			"damageMultiplier": 1.0,
 			"attackSpeed": 1.0,
 			"isObject": false,

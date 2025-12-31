@@ -80,7 +80,7 @@ public sealed class StageManager : MonoBehaviour
         }
 
         CurrentStage = new StageInstance(dto);
-        TokenManager.Instance.TriggerTokens(TokenTriggerType.OnStageStart);
+        ItemManager.Instance?.TriggerAll(ItemTriggerType.OnStageStart);
 
         if (stageIndex == 0)
             OnPlayStart();
