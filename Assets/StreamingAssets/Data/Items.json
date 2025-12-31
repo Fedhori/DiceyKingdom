@@ -22,7 +22,7 @@
 				"size": 1.0,
 				"speed": 1.0,
 				"hitBehavior": "Bounce",
-				"maxBounces": 10,
+				"maxBounces": 0,
 				"lifeTime": 0.0
 			},
 			"rules": []

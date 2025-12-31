@@ -36,6 +36,8 @@
 - `Assets/Scripts/Token/ItemSlotManager.cs` - 슬롯 UI가 ItemInventory를 구독해 렌더링하도록 전환.
 - `Assets/Scripts/Bullet/` - Projectile 네이밍/행동 옵션으로 리팩터링될 가능성이 있는 기존 총알 코드.
 - `Assets/Scripts/Bullet/BulletController.cs` - projectile 스탯 적용 로직으로 변경.
+- `Assets/Scripts/Bullet/BulletFactory.cs` - projectile key -> prefab 매핑을 추가.
+- `Assets/Prefab/Projectile/Ball.prefab` - bounce 전용 볼 프리팹.
 - `Assets/Prefabs/` - 미니건/프로젝타일(볼/총알) 프리팹 추가 및 매핑 대상.
 
 ### Notes
@@ -89,7 +91,7 @@
 
 - [ ] 7.0 샘플 아이템 3종(볼/미니건/교과서) 구현 및 검증
   - [x] 7.1 `Items.json`에 볼/미니건/교과서 정의를 추가한다. (`isObject`, `projectile.key`, 규칙 포함)
-  - [ ] 7.2 `projectile.ball` 프리팹을 추가하고 Bounce 동작(반사)을 설정한다.
+  - [x] 7.2 `projectile.ball` 프리팹을 추가하고 Bounce 동작(반사)을 설정한다.
   - [ ] 7.3 미니건 프리팹을 추가하고 `ItemPrefabRegistry`에 매핑한다.
   - [ ] 7.4 교과서 아이템의 OnStageStart 영구 피해 +10 규칙을 적용한다.
   - [ ] 7.5 수동 검증: 스테이지 시작 시 볼 5개 생성/반사, 미니건 초당 2발 발사, 교과서 피해 +10 적용 확인.

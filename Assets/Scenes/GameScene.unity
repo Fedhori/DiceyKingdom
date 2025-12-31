@@ -2936,6 +2936,8 @@ MonoBehaviour:
   entries:
   - key: item.test
     prefab: {fileID: 8524277218632059139, guid: b061a64d594663f41b203063287b4154, type: 3}
+  - key: item.minigun
+    prefab: {fileID: 8524277218632059139, guid: b061a64d594663f41b203063287b4154, type: 3}
 --- !u!114 &715098192
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3833,6 +3835,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BulletFactory
   bulletPrefab: {fileID: 6801002924329557143, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+  projectilePrefabs:
+  - key: projectile.bullet
+    prefab: {fileID: 6801002924329557143, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+  - key: projectile.ball
+    prefab: {fileID: 6801002924329557143, guid: abb73f98a43390e4890df359ac4b8fdb, type: 3}
   bulletParent: {fileID: 258862835}
 --- !u!1001 &987167309
 PrefabInstance:
