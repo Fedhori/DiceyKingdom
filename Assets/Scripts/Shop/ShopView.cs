@@ -231,7 +231,7 @@ public sealed class ShopView : MonoBehaviour
 
     public void ShowItemDragGhost(IShopItem item, Vector2 screenPos)
     {
-        GhostManager.Instance?.ShowGhost(item?.Icon, screenPos, item?.ItemType == ShopItemType.Item ? GhostKind.Token : GhostKind.Pin);
+        GhostManager.Instance?.ShowGhost(item?.Icon, screenPos, item?.ItemType == ShopItemType.Item ? GhostKind.Item : GhostKind.Pin);
     }
 
     public void UpdateItemDragGhostPosition(Vector2 screenPos)

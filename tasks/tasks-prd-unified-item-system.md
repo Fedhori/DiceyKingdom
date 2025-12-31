@@ -77,7 +77,7 @@
   - [x] 5.2 슬롯 드래그 이동/스왑, 상점 드래그 구매, 드래그 판매를 공통 규칙으로 처리한다.
   - [x] 5.3 `TokenTooltipUtil`을 아이템 기반 툴팁 유틸로 대체한다.
   - [x] 5.4 `SpriteCache`와 `LocalizationUtil`을 아이템 기반 조회로 변경한다.
-  - [ ] 5.5 `GhostKind`의 Token 고스트를 Item 고스트로 변경한다.
+  - [x] 5.5 `GhostKind`의 Token 고스트를 Item 고스트로 변경한다.
 
 - [ ] 6.0 토큰 시스템 제거 및 연결 지점 정리
   - [ ] 6.1 `Assets/Scripts/Token/*` 및 Tokens.json 로딩 경로를 제거한다.

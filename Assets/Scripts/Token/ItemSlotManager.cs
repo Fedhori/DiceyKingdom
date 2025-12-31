@@ -294,7 +294,7 @@ public sealed class ItemSlotManager : MonoBehaviour
 
         draggingController = controller;
         draggingStartIndex = idx;
-        GhostManager.Instance?.ShowGhost(controller.GetIconSprite(), screenPos, GhostKind.Token);
+        GhostManager.Instance?.ShowGhost(controller.GetIconSprite(), screenPos, GhostKind.Item);
         controller.SetIconVisible(false);
         overSellArea = false;
         SellOverlayController.Instance?.Show();
@@ -313,7 +313,7 @@ public sealed class ItemSlotManager : MonoBehaviour
         overSellArea = overlay != null && overlay.ContainsScreenPoint(screenPos);
         if (overSellArea)
         {
-            GhostManager.Instance?.HideGhost(GhostKind.Token);
+            GhostManager.Instance?.HideGhost(GhostKind.Item);
             ClearHighlights();
             draggingController?.SetIconVisible(true);
             overlay?.Hide();
@@ -328,7 +328,7 @@ public sealed class ItemSlotManager : MonoBehaviour
         if (targetIndex >= 0 && targetIndex != draggingStartIndex)
             SwapControllers(draggingStartIndex, targetIndex);
 
-        GhostManager.Instance?.HideGhost(GhostKind.Token);
+        GhostManager.Instance?.HideGhost(GhostKind.Item);
         ClearHighlights();
         draggingController?.SetIconVisible(true);
 
