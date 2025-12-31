@@ -11,11 +11,13 @@ namespace Data
     {
         public string id;
 
-        public float scoreBase = 10f;
-        public float scoreMultiplier = 1f;
+        public float damage = 10f;
+        public float damageMultiplier = 1f;
 
         public float critChance = 5f;
         public float criticalMultiplier = 2f;
+
+        public float moveSpeed = 1f;
 
         // 런 시작 시 지급되는 통화
         public int startCurrency = 0;
@@ -24,6 +26,8 @@ namespace Data
         public int initialBallCount = 50;
         public float rarityGrowth = 2f;
         public List<float> rarityProbabilities;
+
+        public List<string> itemIds;
     }
 
     [Serializable]
@@ -62,8 +66,7 @@ namespace Data
                 {
                     if (dto == null || string.IsNullOrEmpty(dto.id))
                         continue;
-
-                    EnsureDefaults(dto);
+                    
                     map[dto.id] = dto;
                 }
             }
@@ -92,23 +95,6 @@ namespace Data
                 throw new KeyNotFoundException($"[PlayerRepository] Player id not found: {id}");
 
             return dto;
-        }
-
-        static void EnsureDefaults(PlayerDto dto)
-        {
-            if (dto.initialBallCount <= 0)
-            {
-                Debug.LogError($"[PlayerRepository] initialBallCount is invalid (<=0) for player '{dto.id}'.");
-                throw new InvalidOperationException("[PlayerRepository] Invalid initialBallCount.");
-            }
-
-            if (dto.rarityGrowth <= 0f)
-            {
-                Debug.LogError($"[PlayerRepository] rarityGrowth is invalid (<=0) for player '{dto.id}'.");
-                throw new InvalidOperationException("[PlayerRepository] Invalid rarityGrowth.");
-            }
-
-            dto.rarityProbabilities = NormalizeProbabilities(dto.rarityProbabilities);
         }
 
         static List<float> NormalizeProbabilities(List<float> input)

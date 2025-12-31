@@ -85,11 +85,6 @@ MonoBehaviour:
     m_Localized: "\uAC8C\uC784 \uD074\uB9AC\uC5B4!"
     m_Metadata:
       m_Items: []
-  - m_Id: 3526835891089408
-    m_Localized: "\uCD5C\uACE0 \uC810\uC218: {value}"
-    m_Metadata:
-      m_Items:
-      - rid: 2507345031984054468
   - m_Id: 3550732967489536
     m_Localized: "\uB0A8\uC740 \uAE30\uBCF8 \uBCFC\uC774 \uC5C6\uC2B5\uB2C8\uB2E4."
     m_Metadata:
@@ -161,7 +156,6 @@ MonoBehaviour:
         m_SharedEntries:
         - id: 695075618816
         - id: 4240051027968
-        - id: 3526835891089408
         - id: 4317961107550208
         - id: 4318060248313856
         - id: 4318162333478912

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 public class StaticDataManager : MonoBehaviour
 {
@@ -27,9 +26,8 @@ public class StaticDataManager : MonoBehaviour
     void LoadAndProcessData()
     {
         LoadStage();
-        LoadPins();
         LoadPlayers();
-        LoadTokens();
+        LoadItems();
     }
 
     void LoadStage()
@@ -75,45 +73,25 @@ public class StaticDataManager : MonoBehaviour
         }
     }
 
-    void LoadPins()
+    void LoadItems()
     {
-        string filePath = Path.Combine("Data", "Pins.json");
+        string filePath = Path.Combine("Data", "Items.json");
         string json = SaCache.ReadText(filePath);
 
         if (string.IsNullOrEmpty(json))
         {
-            Debug.LogError($"[StaticDataManager] Pins.json not found or empty at: {filePath}");
+            Debug.LogError($"[StaticDataManager] Items.json not found or empty at: {filePath}");
             return;
         }
 
         try
         {
-            Data.PinRepository.InitializeFromJson(json);
+            var asset = new TextAsset(json);
+            Data.ItemRepository.LoadFromJson(asset);
         }
         catch (Exception e)
         {
-            Debug.LogError($"[StaticDataManager] Failed to initialize PinRepository from Pins.json: {e}");
-        }
-    }
-
-    void LoadTokens()
-    {
-        string filePath = Path.Combine("Data", "Tokens.json");
-        string json = SaCache.ReadText(filePath);
-
-        if (string.IsNullOrEmpty(json))
-        {
-            Debug.LogError($"[StaticDataManager] Tokens.json not found or empty at: {filePath}");
-            return;
-        }
-
-        try
-        {
-            Data.TokenRepository.InitializeFromJson(json);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[StaticDataManager] Failed to initialize TokenRepository from Tokens.json: {e}");
+            Debug.LogError($"[StaticDataManager] Failed to initialize ItemRepository from Items.json: {e}");
         }
     }
 }

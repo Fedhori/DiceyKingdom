@@ -17,21 +17,11 @@ namespace GameStats
     
     public static class PlayerStatIds
     {
-        public const string Score = "score";
-        public const string ScoreMultiplier = "scoreMultiplier";
+        public const string Damage = "damage";
+        public const string DamageMultiplier = "damageMultiplier";
         public const string CriticalChance = "criticalChance";
         public const string CriticalMultiplier = "criticalMultiplier";
-    }
-
-    public static class PinStatIds
-    {
-        public const string ScoreMultiplier = "scoreMultiplier";
-    }
-    
-    public static class BallStatIds
-    {
-        public const string ScoreMultiplier = "scoreMultiplier";
-        public const string CriticalMultiplier = "criticalMultiplier";
+        public const string MoveSpeed = "moveSpeed";
     }
 
     public sealed class StatModifier

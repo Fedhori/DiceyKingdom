@@ -16,15 +16,15 @@ public sealed class ShopManager : MonoBehaviour
     [Header("Mixed Item Probabilities (weight-based)")]
     [SerializeField] private ShopItemProbability[] itemProbabilities =
     {
-        new ShopItemProbability { type = ShopItemType.Token, weight = 100 }
+        new ShopItemProbability { type = ShopItemType.Item, weight = 100 }
     };
 
     bool isOpen;
 
     readonly List<IShopItem> rosterItems = new();
-    readonly List<TokenDto> sellableTokens = new();
-    readonly HashSet<string> rosterTokenIds = new();
-    readonly HashSet<string> ownedTokenIds = new();
+    readonly List<ItemDto> sellableItems = new();
+    readonly HashSet<string> rosterItemIds = new();
+    readonly HashSet<string> ownedItemIds = new();
 
     IShopItem[] currentShopItems;
     int currentRerollCost;
@@ -33,7 +33,7 @@ public sealed class ShopManager : MonoBehaviour
 
     public int CurrentSelectionIndex { get; private set; } = -1;
 
-    int draggingTokenIndex = -1;
+    int draggingItemIndex = -1;
 
     void Awake()
     {
@@ -80,14 +80,22 @@ public sealed class ShopManager : MonoBehaviour
     System.Random Rng =>
         GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
 
+    public static int CalculateSellPrice(int price)
+    {
+        if (price <= 0)
+            return 0;
+
+        return Mathf.FloorToInt(price * 0.5f);
+    }
+
     public void Open()
     {
         isOpen = true;
 
         ClearSelection();
 
-        BuildSellableTokens();
-        CollectOwnedTokens();
+        BuildSellableItems();
+        CollectOwnedItems();
         EnsureArrays();
         currentRerollCost = Mathf.Max(1, baseRerollCost);
 
@@ -97,32 +105,43 @@ public sealed class ShopManager : MonoBehaviour
         shopView.Open();   
     }
 
-    void CollectOwnedTokens()
+    void CollectOwnedItems()
     {
-        ownedTokenIds.Clear();
-        rosterTokenIds.Clear();
+        ownedItemIds.Clear();
+        rosterItemIds.Clear();
 
-        if (TokenManager.Instance != null)
-            TokenManager.Instance.CollectOwnedTokenIds(ownedTokenIds);
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory == null)
+            return;
+
+        for (int i = 0; i < inventory.SlotCount; i++)
+        {
+            var inst = inventory.GetSlot(i);
+            if (inst == null || string.IsNullOrEmpty(inst.Id))
+                continue;
+
+            ownedItemIds.Add(inst.Id);
+        }
     }
 
-    void BuildSellableTokens()
+    void BuildSellableItems()
     {
-        sellableTokens.Clear();
+        sellableItems.Clear();
 
-        if (!TokenRepository.IsInitialized)
+        if (!ItemRepository.IsInitialized)
         {
-            Debug.LogWarning("[ShopManager] TokenRepository not initialized.");
+            Debug.LogWarning("[ShopManager] ItemRepository not initialized.");
             return;
         }
 
-        foreach (var dto in TokenRepository.All)
+        foreach (var entry in ItemRepository.All)
         {
+            var dto = entry.Value;
             if (dto == null)
                 continue;
 
             // 추후 isNotSell 같은 플래그가 생기면 필터 추가
-            sellableTokens.Add(dto);
+            sellableItems.Add(dto);
         }
     }
 
@@ -141,7 +160,7 @@ public sealed class ShopManager : MonoBehaviour
     void BuildRoster()
     {
         rosterItems.Clear();
-        rosterTokenIds.Clear();
+        rosterItemIds.Clear();
 
         var factory = ShopItemFactory.Instance;
         if (factory == null)
@@ -150,23 +169,23 @@ public sealed class ShopManager : MonoBehaviour
             return;
         }
 
-        var tokenPool = BuildTokenPool();
+        var itemPool = BuildItemPool();
 
         for (int slot = 0; slot < itemsPerShop; slot++)
         {
             var type = factory.RollType(itemProbabilities);
-            if (type != ShopItemType.Token)
+            if (type != ShopItemType.Item)
                 continue;
 
-            if (tokenPool.Count == 0)
+            if (itemPool.Count == 0)
                 continue;
 
-            var dto = PopToken(tokenPool);
-            var item = factory.CreateToken(dto);
+            var dto = PopItem(itemPool);
+            var item = factory.CreateItem(dto);
             if (item != null)
             {
                 rosterItems.Add(item);
-                rosterTokenIds.Add(dto.id);
+                rosterItemIds.Add(dto.id);
             }
         }
 
@@ -187,20 +206,20 @@ public sealed class ShopManager : MonoBehaviour
         }
     }
 
-    List<TokenDto> BuildTokenPool()
+    List<ItemDto> BuildItemPool()
     {
-        var pool = new List<TokenDto>();
+        var pool = new List<ItemDto>();
 
-        if (sellableTokens == null || sellableTokens.Count == 0)
+        if (sellableItems == null || sellableItems.Count == 0)
             return pool;
 
-        for (int i = 0; i < sellableTokens.Count; i++)
+        for (int i = 0; i < sellableItems.Count; i++)
         {
-            var dto = sellableTokens[i];
+            var dto = sellableItems[i];
             if (dto == null)
                 continue;
 
-            if (!IsTokenAllowed(dto.id))
+            if (!IsItemAllowed(dto.id))
                 continue;
 
             pool.Add(dto);
@@ -216,7 +235,7 @@ public sealed class ShopManager : MonoBehaviour
         return pool;
     }
 
-    TokenDto PopToken(List<TokenDto> pool)
+    ItemDto PopItem(List<ItemDto> pool)
     {
         if (pool == null || pool.Count == 0)
             return null;
@@ -227,15 +246,15 @@ public sealed class ShopManager : MonoBehaviour
         return dto;
     }
 
-    bool IsTokenAllowed(string tokenId)
+    bool IsItemAllowed(string itemId)
     {
-        if (string.IsNullOrEmpty(tokenId))
+        if (string.IsNullOrEmpty(itemId))
             return false;
 
-        if (ownedTokenIds.Contains(tokenId))
+        if (ownedItemIds.Contains(itemId))
             return false;
 
-        if (rosterTokenIds.Contains(tokenId))
+        if (rosterItemIds.Contains(itemId))
             return false;
 
         return true;
@@ -259,13 +278,18 @@ public sealed class ShopManager : MonoBehaviour
     {
         ApplySelection(null, -1);
         shopView?.ClearSelectionVisuals();
-        TokenManager.Instance?.ClearHighlights();
+        ItemSlotManager.Instance?.ClearHighlights();
     }
 
     void ApplySelection(IShopItem selection, int itemIndex)
     {
         CurrentSelectionIndex = selection != null ? itemIndex : -1;
         OnSelectionChanged?.Invoke(CurrentSelectionIndex);
+
+        if (selection is { ItemType: ShopItemType.Item })
+            ItemSlotManager.Instance?.HighlightEmptySlots();
+        else
+            ItemSlotManager.Instance?.ClearHighlights();
     }
 
     public bool TryPurchaseSelectedAt(int row, int col)
@@ -275,7 +299,7 @@ public sealed class ShopManager : MonoBehaviour
         return false;
     }
 
-    public bool TryPurchaseSelectedTokenAt(int slotIndex)
+    public bool TryPurchaseSelectedItemAt(int slotIndex)
     {
         if (!isOpen)
             return false;
@@ -287,15 +311,15 @@ public sealed class ShopManager : MonoBehaviour
             return false;
 
         var item = GetShopItem(CurrentSelectionIndex);
-        if (item == null || item.ItemType != ShopItemType.Token || IsSold(CurrentSelectionIndex))
+        if (item == null || item.ItemType != ShopItemType.Item || IsSold(CurrentSelectionIndex))
             return false;
 
         shopView?.ClearSelectionVisuals();
-        TokenManager.Instance?.ClearHighlights();
-        return TryPurchaseTokenItemAt(CurrentSelectionIndex, slotIndex);
+        ItemSlotManager.Instance?.ClearHighlights();
+        return TryPurchaseItemAt(CurrentSelectionIndex, slotIndex);
     }
 
-    bool TryPurchaseTokenItemAt(int itemIndex, int overrideSlot = -1)
+    bool TryPurchaseItemAt(int itemIndex, int overrideSlot = -1)
     {
         if (!isOpen)
             return false;
@@ -303,7 +327,7 @@ public sealed class ShopManager : MonoBehaviour
         if (currentShopItems == null || itemIndex < 0 || itemIndex >= currentShopItems.Length)
             return false;
 
-        var item = currentShopItems[itemIndex] as TokenShopItem;
+        var item = currentShopItems[itemIndex] as ItemShopItem;
         if (item == null || IsSold(itemIndex))
             return false;
 
@@ -318,8 +342,30 @@ public sealed class ShopManager : MonoBehaviour
             return false;
         }
 
-        int slotIndex = overrideSlot >= 0 ? overrideSlot : FindFirstEmptyTokenSlot();
-        if (slotIndex < 0 || !TokenManager.Instance.TryAddTokenAt(item.Id, slotIndex, out _))
+        int slotIndex = overrideSlot >= 0 ? overrideSlot : FindFirstEmptyItemSlot();
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory == null)
+        {
+            currencyMgr.AddCurrency(price);
+            RefreshView();
+            return false;
+        }
+
+        if (slotIndex < 0)
+        {
+            currencyMgr.AddCurrency(price);
+            RefreshView();
+            return false;
+        }
+
+        if (!ItemRepository.TryGet(item.Id, out var dto) || dto == null)
+        {
+            currencyMgr.AddCurrency(price);
+            RefreshView();
+            return false;
+        }
+
+        if (!inventory.TrySetSlot(slotIndex, new ItemInstance(dto)))
         {
             currencyMgr.AddCurrency(price);
             RefreshView();
@@ -332,12 +378,13 @@ public sealed class ShopManager : MonoBehaviour
         return true;
     }
 
-    int FindFirstEmptyTokenSlot()
+    int FindFirstEmptyItemSlot()
     {
-        if (TokenManager.Instance == null)
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory == null)
             return -1;
 
-        if (TokenManager.Instance.TryGetFirstEmptySlot(out int idx))
+        if (inventory.TryGetFirstEmptySlot(out int idx))
             return idx;
 
         return -1;
@@ -359,7 +406,8 @@ public sealed class ShopManager : MonoBehaviour
             ? CurrencyManager.Instance.CurrentCurrency
             : 0;
 
-        bool hasEmptyTokenSlot = TokenManager.Instance != null && TokenManager.Instance.TryGetFirstEmptySlot(out _);
+        bool hasEmptyTokenSlot = ItemManager.Instance?.Inventory != null
+            && ItemManager.Instance.Inventory.TryGetFirstEmptySlot(out _);
 
         shopView.SetItems(currentShopItems, currency, false, hasEmptyTokenSlot, currentRerollCost);
         shopView.RefreshAll();
@@ -406,10 +454,8 @@ public sealed class ShopManager : MonoBehaviour
         if (item == null)
             return;
 
-        if (item.ItemType == ShopItemType.Token)
+        if (item.ItemType == ShopItemType.Item)
         {
-            // 토큰 슬롯 하이라이트, 핀 선택 해제
-            TokenManager.Instance?.HighlightEmptySlots();
             shopView?.ClearSelectionVisuals();
         }
     }
@@ -436,8 +482,8 @@ public sealed class ShopManager : MonoBehaviour
 
         currentRerollCost = Mathf.Max(1, currentRerollCost + Mathf.Max(1, rerollCostIncrement));
 
-        BuildSellableTokens();
-        CollectOwnedTokens();
+        BuildSellableItems();
+        CollectOwnedItems();
         BuildRoster();
         RefreshView();
     }
@@ -454,7 +500,7 @@ public sealed class ShopManager : MonoBehaviour
 
         isOpen = false;
 
-        draggingTokenIndex = -1;
+        draggingItemIndex = -1;
 
         if (shopView != null)
         {
@@ -464,7 +510,7 @@ public sealed class ShopManager : MonoBehaviour
 
         ClearSelection();
 
-        FlowManager.Instance?.OnShopClosed();
+        StageManager.Instance?.OnShopClosed();
     }
 
     void HandleCurrencyChanged(int value)
@@ -485,21 +531,20 @@ public sealed class ShopManager : MonoBehaviour
         if (item == null || IsSold(itemIndex))
             return;
 
-        var flow = FlowManager.Instance;
-        if (flow != null && flow.CurrentPhase != FlowPhase.Shop)
+        if (StageManager.Instance.CurrentPhase != StagePhase.Shop)
             return;
 
         SetSelection(itemIndex);
 
-        if (item.ItemType == ShopItemType.Token)
+        if (item.ItemType == ShopItemType.Item)
         {
-            draggingTokenIndex = itemIndex;
-            TokenManager.Instance?.HighlightEmptySlots();
+            draggingItemIndex = itemIndex;
+            ItemSlotManager.Instance?.HighlightEmptySlots();
             shopView.ShowItemDragGhost(item, screenPos);
         }
         else
         {
-            draggingTokenIndex = -1;
+            draggingItemIndex = -1;
         }
     }
 
@@ -508,38 +553,39 @@ public sealed class ShopManager : MonoBehaviour
         if (!isOpen || shopView == null)
             return;
 
-        if (itemIndex == draggingTokenIndex)
+        if (itemIndex == draggingItemIndex)
+        {
             shopView.UpdateItemDragGhostPosition(screenPos);
+            ItemSlotManager.Instance?.UpdatePurchaseHover(screenPos);
+        }
     }
 
     public void EndItemDrag(int itemIndex, Vector2 screenPos)
     {
         if (shopView == null)
         {
-            draggingTokenIndex = -1;
+            draggingItemIndex = -1;
             return;
         }
 
         if (!isOpen)
         {
             shopView.HideItemDragGhost();
-            draggingTokenIndex = -1;
+            draggingItemIndex = -1;
             return;
         }
 
-        if (itemIndex == draggingTokenIndex)
+        if (itemIndex == draggingItemIndex)
         {
+            var slotManager = ItemSlotManager.Instance;
             int targetSlot = -1;
-            if (TokenManager.Instance != null && TokenManager.Instance.TryGetSlotFromScreenPos(screenPos, out var idx))
-                targetSlot = idx;
-
-            if (targetSlot >= 0)
-                TryPurchaseTokenItemAt(itemIndex, targetSlot);
+            if (slotManager != null && slotManager.TryGetEmptySlotFromScreenPos(screenPos, out targetSlot))
+                TryPurchaseItemAt(itemIndex, targetSlot);
         }
 
         shopView.HideItemDragGhost();
-        draggingTokenIndex = -1;
-        TokenManager.Instance?.ClearHighlights();
+        draggingItemIndex = -1;
+        ItemSlotManager.Instance?.ClearHighlights();
     }
 
 }

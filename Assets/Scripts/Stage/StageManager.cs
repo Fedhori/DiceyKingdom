@@ -1,29 +1,47 @@
 using System;
-using UnityEngine;
+using Data;
 using TMPro;
-using UnityEngine.Localization.Components;
-using UnityEngine.Localization.SmartFormat.PersistentVariables;
-using UnityEngine.UI;
+using UnityEngine;
+
+public enum StagePhase
+{
+    None,
+    Play,
+    Reward,
+    Shop
+}
 
 public sealed class StageManager : MonoBehaviour
 {
     public static StageManager Instance { get; private set; }
 
-    [SerializeField] private StageHudView stageHudView;
-    [SerializeField] private LocalizeStringEvent stallNoticeText;
-    [SerializeField] private TMP_Text ballCountText;
-    [SerializeField] private Button startSpawnButton;
-    [SerializeField] private BallAimManager ballAimManager;
-
-    // Stage 상태
     StageInstance currentStage;
-    public StageInstance CurrentStage => currentStage;
-    public bool playActive;
+    public StageInstance CurrentStage
+    {
+        get => currentStage;
+        private set
+        {
+            currentStage = value;
+            UpdateStageText();
+        }
+    }
+    public event Action<StagePhase> OnPhaseChanged;
+    private StagePhase currentPhase = StagePhase.None;
+
+    public StagePhase CurrentPhase
+    {
+        get => currentPhase;
+        private set
+        {
+            if (currentPhase == value) return;
+            currentPhase = value;
+            OnPhaseChanged?.Invoke(currentPhase);
+        }
+    }
     
-    [SerializeField] private float stallWarningTime = 60f;
-    [SerializeField] private float stallForceTime = 90f;
-    bool stallTimerRunning;
-    float stallTimer;
+    [SerializeField] TMP_Text stageText;
+
+    public bool CanDragTokens => CurrentPhase != StagePhase.Play;
 
     void Awake()
     {
@@ -36,254 +54,140 @@ public sealed class StageManager : MonoBehaviour
         Instance = this;
     }
 
-    void Start()
+    public void StartRun()
     {
-        if (BallManager.Instance != null)
-            BallManager.Instance.OnRemainingSpawnCountChanged += UpdateBallCount;
-        
-        var player = PlayerManager.Instance?.Current;
-        if (player != null)
+        if (!StageRepository.IsInitialized)
         {
-            player.OnBallCountChanged += UpdateBallCount;
-            UpdateBallCount(player.BallCount);
-        }
-    }
-
-    void OnDisable()
-    {
-        if (BallManager.Instance != null)
-            BallManager.Instance.OnRemainingSpawnCountChanged -= UpdateBallCount;
-        
-        var player = PlayerManager.Instance?.Current;
-        if (player != null)
-            player.OnBallCountChanged -= UpdateBallCount;
-    }
-
-    public void SetStage(StageInstance stage)
-    {
-        currentStage = stage;
-        playActive = false;
-        ballAimManager?.ResetAim();
-        ScoreManager.Instance.previousScore = ScoreManager.Instance.TotalScore;
-
-        if (ScoreManager.Instance != null && stage != null)
-            ScoreManager.Instance.SetNeedScoreForFontScale(stage.NeedScore);
-
-        if (stageHudView != null && stage != null)
-        {
-            var displayStageNumber = stage.StageIndex + 1;
-            stageHudView.SetStageInfo(
-                displayStageNumber,
-                StageRepository.Count,
-                stage.NeedScore
-            );
-
-            UpdateStageHud();
-        }
-    }
-
-    void Update()
-    {
-        if (!playActive)
+            Debug.LogError("[StageManager] StageRepository not initialized.");
             return;
-
-        HandleStallTimer();
-    }
-
-    public void StartStagePlay(StageInstance stage)
-    {
-        currentStage = stage;
-        ResetStallState();
-        UpdateStartSpawnButton(false, false);
-        
-        BallManager.Instance.ResetForNewStage();
-
-        var player = PlayerManager.Instance.Current;
-
-        var rng = GameManager.Instance != null
-            ? GameManager.Instance.Rng
-            : new System.Random();
-
-        var sequence = BuildRaritySequence(player, rng);
-
-        BallManager.Instance.PrepareSpawnSequence(sequence);
-        
-        BallManager.Instance.SetSpawnPosition(Vector2.zero);
-        UpdateStartSpawnButton(true, true);
-    }
-
-    void StartBallSpawning()
-    {
-        playActive = true;
-        FlowManager.Instance?.OnPlayStarted();
-        BallManager.Instance.StartSpawning();
-    }
-
-    public void OnStartSpawnButtonClicked()
-    {
-        if (FlowManager.Instance != null && !FlowManager.Instance.CanAimBalls)
-            return;
-
-        UpdateStartSpawnButton(false, false);
-        StartBallSpawning();
-    }
-
-    public void OnAimConfirmed(Vector2 origin, Vector2 direction)
-    {
-        if (FlowManager.Instance != null && !FlowManager.Instance.CanAimBalls)
-            return;
-
-        BallManager.Instance?.SetSpawnPosition(origin);
-        BallManager.Instance?.SetLaunchDirection(direction);
-
-        UpdateStartSpawnButton(false, false);
-        StartBallSpawning();
-        ballAimManager?.ResetAim();
-    }
-
-    void UpdateStartSpawnButton(bool show, bool interactable)
-    {
-        if (startSpawnButton == null)
-            return;
-
-        startSpawnButton.gameObject.SetActive(show);
-        startSpawnButton.interactable = interactable;
-    }
-
-    void HandleStallTimer()
-    {
-        if (!playActive)
-            return;
-
-        var ballMgr = BallManager.Instance;
-        bool stillSpawning = ballMgr != null && ballMgr.IsSpawning;
-
-        if (!stallTimerRunning)
-        {
-            if (stillSpawning)
-                return;
-
-            StartStallTimer();
         }
 
-        stallTimer += Time.deltaTime;
-
-        if (stallTimer >= stallWarningTime)
+        if (StageRepository.Count == 0)
         {
-            float remaining = Mathf.Max(0f, stallForceTime - stallTimer);
-            UpdateStallNotice(remaining);
-        }
-
-        if (stallTimer >= stallForceTime)
-            BallManager.Instance.DestroyAllBalls();
-    }
-
-    void StartStallTimer()
-    {
-        stallTimerRunning = true;
-        stallTimer = 0f;
-        SetStallNoticeVisible(false);
-    }
-
-    void UpdateStallNotice(float remainingSeconds)
-    {
-        if (stallNoticeText == null)
+            Debug.LogError("[StageManager] No stages defined.");
             return;
+        }
 
-        int seconds = Mathf.CeilToInt(remainingSeconds);
-        if (seconds < 0)
-            seconds = 0;
-
-        if (stallNoticeText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
-            sv.Value = seconds.ToString();
-        SetStallNoticeVisible(true);
+        StartStage(0);
     }
 
-    void SetStallNoticeVisible(bool show)
+    void StartStage(int stageIndex)
     {
-        if (stallNoticeText != null)
-            stallNoticeText.gameObject.SetActive(show);
-    }
-
-    void UpdateBallCount(int count)
-    {
-        if (ballCountText == null)
+        if (!StageRepository.TryGetByIndex(stageIndex, out var dto))
+        {
+            Debug.LogError($"[StageManager] stage not defined. stageIndex:{stageIndex}");
             return;
-
-        if (count < 0)
-            count = 0;
-
-        ballCountText.text = $"x{count}";
-    }
-
-    static System.Collections.Generic.List<BallRarity> BuildRaritySequence(PlayerInstance player, System.Random rng)
-    {
-        var list = new System.Collections.Generic.List<BallRarity>();
-        int count = Mathf.Max(0, player.BallCount);
-        var probs = player.RarityProbabilities;
-
-        rng ??= new System.Random();
-
-        for (int i = 0; i < count; i++)
-        {
-            var rarity = RollRarity(probs, rng);
-            list.Add(rarity);
         }
 
-        return list;
+        CurrentStage = new StageInstance(dto);
+        ItemManager.Instance?.TriggerAll(ItemTriggerType.OnStageStart);
+
+        if (stageIndex == 0)
+            OnPlayStart();
+        else
+            OpenShop();
+
+        UpdateStageText();
     }
 
-    static BallRarity RollRarity(System.Collections.Generic.IReadOnlyList<float> probs, System.Random rng)
-    {
-        if (probs == null || probs.Count == 0)
-            return BallRarity.Common;
+    bool IsLastStage =>
+        CurrentStage != null && StageRepository.TryGetByIndex(CurrentStage.StageIndex + 1, out _);
 
-        double roll = rng.NextDouble() * 100.0;
-        double acc = 0.0;
-        for (int i = 0; i < probs.Count; i++)
+    public void OnPlayStart()
+    {
+        if (CurrentStage == null)
         {
-            acc += probs[i];
-            if (roll <= acc)
-                return (BallRarity)i;
+            Debug.LogError("[StageManager] OnPlayStart but currentStage is null.");
+            return;
         }
 
-        return BallRarity.Common;
+        CurrentPhase = StagePhase.Play;
+        PlayManager.Instance?.StartPlay();
     }
     
-    public void NotifyAllBallsDestroyed()
+    public void OnPlayFinished()
     {
-        if (!playActive)
+        if (currentPhase != StagePhase.Play)
+        {
+            Debug.LogWarning($"[StageManager] OnPlayFinished in phase {currentPhase}");
+        }
+
+        if (CurrentStage == null)
+        {
+            Debug.LogError("[StageManager] OnPlayFinished but currentStage is null.");
+            CurrentPhase = StagePhase.None;
+            return;
+        }
+
+        OpenReward();
+    }
+
+    public void OnRewardClosed()
+    {
+        if (currentPhase != StagePhase.Reward)
+        {
+            Debug.LogWarning($"[StageManager] OnRewardClosed in phase {currentPhase}");
+        }
+
+        if (CurrentStage == null)
+        {
+            Debug.LogError("[StageManager] OnRewardClosed but currentStage is null.");
+            CurrentPhase = StagePhase.None;
+            return;
+        }
+
+        ToNextStage();
+    }
+
+    public void OnShopClosed()
+    {
+        if (currentPhase != StagePhase.Shop)
+        {
+            Debug.LogWarning($"[StageManager] OnShopClosed in phase {currentPhase}");
+        }
+
+        if (CurrentStage == null)
+        {
+            Debug.LogError("[StageManager] OnShopClosed but currentStage is null.");
+            CurrentPhase = StagePhase.None;
+            return;
+        }
+
+        OnPlayStart();
+    }
+
+    void OpenReward()
+    {
+        CurrentPhase = StagePhase.Reward;
+        RewardManager.Instance?.Open();
+    }
+
+    void OpenShop()
+    {
+        CurrentPhase = StagePhase.Shop;
+        ShopManager.Instance?.Open();
+    }
+
+    void ToNextStage()
+    {
+        if (!IsLastStage)
+        {
+            CurrentPhase = StagePhase.None;
+            GameManager.Instance?.HandleGameClear();
+            return;
+        }
+
+        PlayerManager.Instance.ResetPlayer();
+        StartStage(CurrentStage.StageIndex + 1);
+    }
+
+    void UpdateStageText()
+    {
+        if (stageText == null)
             return;
 
-        FinishPlay();
-    }
-
-    void FinishPlay()
-    {
-        playActive = false;
-        ResetStallState();
-        UpdateBallCount(PlayerManager.Instance.Current.BallCount);
-        FlowManager.Instance?.OnPlayFinished();
-    }
-
-    void ResetStallState()
-    {
-        stallTimerRunning = false;
-        stallTimer = 0f;
-        SetStallNoticeVisible(false);
-        UpdateStartSpawnButton(false, false);
-    }
-
-    void UpdateStageHud()
-    {
-        if (stageHudView == null || currentStage == null)
-            return;
-
-        var displayStageNumber = currentStage.StageIndex + 1;
-        stageHudView.SetStageInfo(
-            displayStageNumber,
-            StageRepository.Count,
-            currentStage.NeedScore
-        );
+        int total = StageRepository.Count;
+        int displayIndex = CurrentStage != null ? CurrentStage.StageIndex + 1 : 0;
+        stageText.text = $"{displayIndex}/{total}";
     }
 }

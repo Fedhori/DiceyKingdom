@@ -36,7 +36,8 @@ public class GameManager : MonoBehaviour
 
     void HandleGameStart()
     {
-        FlowManager.Instance?.StartRun();
+        ItemManager.Instance?.InitializeFromPlayer(PlayerManager.Instance?.Current);
+        StageManager.Instance?.StartRun();
     }
 
     public void HandleGameOver()
@@ -48,8 +49,6 @@ public class GameManager : MonoBehaviour
     public void HandleGameClear()
     {
         AudioManager.Instance.Play("GameClear");
-        if (gameClearDescription.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
-            sv.Value = ScoreManager.Instance.TotalScore.ToString(CultureInfo.InvariantCulture);
         gameClearOverlay.SetActive(true);
     }
 }

@@ -1,0 +1,83 @@
+{
+	"items": [
+		{
+			"id": "item.test",
+			"isObject": true,
+			"attackSpeed": 3.0,
+			"projectile": {
+				"key": "projectile.bullet",
+				"size": 1.0,
+				"speed": 1.0
+			}
+		},
+		{
+			"id": "item.ball",
+			"damageMultiplier": 1.0,
+			"attackSpeed": 1.0,
+			"isObject": false,
+			"price": 4,
+			"rarity": "Common",
+			"projectile": {
+				"key": "projectile.ball",
+				"size": 1.0,
+				"speed": 1.0,
+				"hitBehavior": "Bounce",
+				"maxBounces": 0,
+				"lifeTime": 0.0
+			},
+			"rules": [
+				{
+					"triggerType": "OnStageStart",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "SpawnProjectile",
+							"value": 5.0
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.minigun",
+			"damageMultiplier": 1.0,
+			"attackSpeed": 2.0,
+			"isObject": true,
+			"price": 6,
+			"rarity": "Uncommon",
+			"projectile": {
+				"key": "projectile.bullet",
+				"size": 1.0,
+				"speed": 1.0
+			},
+			"rules": []
+		},
+		{
+			"id": "item.textbook",
+			"damageMultiplier": 1.0,
+			"attackSpeed": 1.0,
+			"isObject": false,
+			"price": 5,
+			"rarity": "Common",
+			"rules": [
+				{
+					"triggerType": "OnStageStart",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "damage",
+							"effectMode": "Add",
+							"value": 10.0,
+							"temporary": false
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -138,7 +138,7 @@ public sealed class ShopView : MonoBehaviour
     {
         return type switch
         {
-            ShopItemType.Token => tokenItemPrefab != null ? tokenItemPrefab : pinItemPrefab,
+            ShopItemType.Item => tokenItemPrefab != null ? tokenItemPrefab : pinItemPrefab,
             _ => pinItemPrefab
         };
     }
@@ -231,7 +231,7 @@ public sealed class ShopView : MonoBehaviour
 
     public void ShowItemDragGhost(IShopItem item, Vector2 screenPos)
     {
-        GhostManager.Instance?.ShowGhost(item?.Icon, screenPos, item?.ItemType == ShopItemType.Token ? GhostKind.Token : GhostKind.Pin);
+        GhostManager.Instance?.ShowGhost(item?.Icon, screenPos, item?.ItemType == ShopItemType.Item ? GhostKind.Item : GhostKind.Pin);
     }
 
     public void UpdateItemDragGhostPosition(Vector2 screenPos)

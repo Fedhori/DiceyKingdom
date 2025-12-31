@@ -40,8 +40,7 @@ public sealed class SimpleTooltipTarget : MonoBehaviour, IPointerEnterHandler, I
             title,
             body,
             null,
-            TooltipKind.Simple,
-            0
+            TooltipKind.Simple
         );
 
         var anchor = TooltipAnchor.FromScreen(screenRightTop, screenLeftTop);

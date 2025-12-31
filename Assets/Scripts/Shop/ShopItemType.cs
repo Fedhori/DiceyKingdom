@@ -4,7 +4,7 @@ using UnityEngine;
 public enum ShopItemType
 {
     Pin = 0,
-    Token = 1
+    Item = 1
 }
 
 [Serializable]

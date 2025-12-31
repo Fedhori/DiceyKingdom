@@ -5,8 +5,6 @@ public sealed class StageInstance
 {
     public StageDto StageDto { get; }
     public int StageIndex => StageDto.index;
-
-    public double NeedScore => StageDto.needScore;
     public int BlockHealth => StageDto.blockHealth;
     public StageInstance(StageDto stageDto)
     {

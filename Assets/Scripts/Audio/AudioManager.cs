@@ -31,7 +31,7 @@ public class AudioManager : MonoBehaviour
     [Header("SFX Limiter")]
     [Tooltip("true면 모든 SFX에 제한 적용. false면 limitedKeys에만 적용")]
     public bool limitAllSfx = false;
-    public string[] limitedKeys = new[] { "Score" };
+    public string[] limitedKeys;
     [Tooltip("같은 키 재생 최소 간격(초). 0.08~0.12 권장")]
     [Range(0f, 0.5f)] public float sfxMinIntervalSec = 0.10f;
     [Tooltip("같은 키의 최대 동시 재생 수(보이스). 3~5 권장")]

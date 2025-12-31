@@ -9,11 +9,8 @@ public sealed class PlayerManager : MonoBehaviour
 
     [SerializeField] string defaultPlayerId = "player.default";
 
-    [SerializeField] private TMP_Text baseScoreText;
-    [SerializeField] private TMP_Text scoreMultiplierText;
-    [SerializeField] private TMP_Text criticalChanceText;
-    [SerializeField] private TMP_Text criticalMultiplierText;
-    private float statUIUpdateCycle = 0.1f;
+    [SerializeField] private TMP_Text damageText;
+    private readonly float statUIUpdateCycle = 0.1f;
     private float currentStatUIUpdateCycle = 0f;
 
     public PlayerInstance Current { get; private set; }
@@ -80,10 +77,7 @@ public sealed class PlayerManager : MonoBehaviour
 
     void UpdateStatUI()
     {
-        baseScoreText.text = $"{Current.ScoreBase}";
-        scoreMultiplierText.text = $"x{Current.ScoreMultiplier:N1}";
-        criticalChanceText.text = $"{Current.CriticalChance}%";
-        criticalMultiplierText.text = $"x{Current.CriticalMultiplier:N1}";
+        damageText.text = $"{Current.Damage}";
     }
 
     public void ResetPlayer()
