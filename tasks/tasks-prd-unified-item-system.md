@@ -29,6 +29,7 @@
 - `Assets/Scripts/Data/SpriteCache.cs` - 토큰 스프라이트 참조를 아이템 스프라이트로 변경.
 - `Assets/Scripts/Data/LocalizationUtil.cs` - 토큰 이름 조회를 아이템 이름 조회로 변경.
 - `Assets/Scripts/UI/GhostKind.cs` - Token 고스트를 Item 고스트로 변경.
+- `Assets/Scenes/GameScene.unity` - 슬롯 매니저 참조를 ItemSlotManager로 교체.
 - `Assets/Scripts/UI/SellOverlayController.cs` - 판매 오버레이 동작을 아이템 슬롯 기준으로 유지.
 - `Assets/Scripts/Token/` - Token 관련 DTO/Instance/Controller 제거됨. (슬롯 UI는 ItemSlot* 유지)
 - `Assets/Scripts/Token/ItemSlotController.cs` - 인벤토리 아이템 데이터를 슬롯 UI에 바인딩하는 컨트롤러.
@@ -81,9 +82,9 @@
 
 - [ ] 6.0 토큰 시스템 제거 및 연결 지점 정리
   - [x] 6.1 `Assets/Scripts/Token/*` 및 Tokens.json 로딩 경로를 제거한다.
-  - [ ] 6.2 `StageManager`의 토큰 트리거 호출을 아이템 트리거 호출로 변경한다.
+  - [x] 6.2 `StageManager`의 토큰 트리거 호출을 아이템 트리거 호출로 변경한다.
   - [ ] 6.3 `DevCommandManager`의 addtoken 등 토큰 전용 명령을 제거/대체한다.
-  - [ ] 6.4 관련 Prefab/Scene/Inspector에서 ItemSlotManager/ItemSlotController 참조를 Item 시스템으로 교체한다.
+  - [x] 6.4 관련 Prefab/Scene/Inspector에서 ItemSlotManager/ItemSlotController 참조를 Item 시스템으로 교체한다.
   - [ ] 6.5 수동 검증: 상점 구매/판매/이동, 스테이지 시작/틱 트리거, 게임 플레이 루프 정상 동작 확인.
 
 - [ ] 7.0 샘플 아이템 3종(볼/미니건/교과서) 구현 및 검증
