@@ -37,7 +37,7 @@
 ## Tasks
 
 - [ ] 1.0 Items 데이터 스키마 통합 및 확장
-  - [ ] 1.1 `Tokens.json`의 토큰 정의를 `Items.json`으로 병합하고 ID 중복/가격 필드를 정리한다.
+  - [x] 1.1 `Tokens.json`의 토큰 정의를 `Items.json`으로 병합하고 ID 중복/가격 필드를 정리한다.
   - [ ] 1.2 `ItemDto`에 `isObject` 및 규칙(트리거/조건/효과) 필드를 추가한다.
   - [ ] 1.3 Object 아이템용 프리팹 키 필드(예: `prefabKey`)를 `ItemDto`에 추가한다.
   - [ ] 1.4 `ItemRepository` 파싱/검증 로직을 확장해 규칙 구조를 검증한다.
