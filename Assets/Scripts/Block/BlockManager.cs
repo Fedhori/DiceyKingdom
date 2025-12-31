@@ -152,4 +152,33 @@ public sealed class BlockManager : MonoBehaviour
 
         PlayManager.Instance?.FinishPlay();
     }
+
+    public bool TryGetPlayAreaBounds(out Bounds bounds)
+    {
+        bounds = default;
+
+        if (playArea == null)
+            return false;
+
+        var sr = playArea.GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            bounds = sr.bounds;
+            return true;
+        }
+
+        var p = playArea.position;
+        bounds = new Bounds(p, new Vector3(1000f, 1000f, 0f));
+        return true;
+    }
+
+    public Vector3 GetRandomPositionInPlayArea()
+    {
+        if (!TryGetPlayAreaBounds(out var bounds))
+            return Vector3.zero;
+
+        float x = Random.Range(bounds.min.x, bounds.max.x);
+        float y = Random.Range(bounds.min.y, bounds.max.y);
+        return new Vector3(x, y, 0f);
+    }
 }

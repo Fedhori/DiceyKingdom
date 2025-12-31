@@ -38,6 +38,8 @@
 - `Assets/Scripts/Bullet/BulletController.cs` - projectile 스탯 적용 로직으로 변경.
 - `Assets/Scripts/Bullet/BulletFactory.cs` - projectile key -> prefab 매핑을 추가.
 - `Assets/Prefab/Projectile/Ball.prefab` - bounce 전용 볼 프리팹.
+- `Assets/Scripts/Block/BlockManager.cs` - PlayArea 랜덤 좌표 제공 함수 추가.
+- `Assets/Scripts/Item/ItemEffectManager.cs` - SpawnProjectile 효과 처리 추가.
 - `Assets/Prefabs/` - 미니건/프로젝타일(볼/총알) 프리팹 추가 및 매핑 대상.
 
 ### Notes
@@ -95,3 +97,4 @@
   - [ ] 7.3 미니건 프리팹을 추가하고 `ItemPrefabRegistry`에 매핑한다.
   - [ ] 7.4 교과서 아이템의 OnStageStart 영구 피해 +10 규칙을 적용한다.
   - [ ] 7.5 수동 검증: 스테이지 시작 시 볼 5개 생성/반사, 미니건 초당 2발 발사, 교과서 피해 +10 적용 확인.
+  - [x] 7.6 `SpawnProjectile` 효과를 추가하고 PlayArea 랜덤 위치/랜덤 방향으로 소환한다.

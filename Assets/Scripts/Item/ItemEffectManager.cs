@@ -30,6 +30,9 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.AddCurrency:
                 ApplyCurrency(dto);
                 break;
+            case ItemEffectType.SpawnProjectile:
+                SpawnProjectiles(dto, item);
+                break;
             default:
                 Debug.LogWarning($"[ItemEffectManager] Unsupported effect type: {dto.effectType}");
                 break;
@@ -66,5 +69,33 @@ public sealed class ItemEffectManager : MonoBehaviour
             return;
 
         currencyMgr.AddCurrency(Mathf.RoundToInt(dto.value));
+    }
+
+    void SpawnProjectiles(ItemEffectDto dto, ItemInstance item)
+    {
+        if (item == null || dto == null)
+            return;
+
+        var factory = BulletFactory.Instance;
+        if (factory == null)
+            return;
+
+        var playArea = BlockManager.Instance;
+        if (playArea == null)
+            return;
+
+        int count = Mathf.Max(0, Mathf.FloorToInt(dto.value));
+        if (count <= 0)
+            return;
+
+        for (int i = 0; i < count; i++)
+        {
+            var pos = playArea.GetRandomPositionInPlayArea();
+            Vector2 dir = Random.insideUnitCircle.normalized;
+            if (dir.sqrMagnitude <= 0.001f)
+                dir = Vector2.up;
+
+            factory.SpawnBullet(pos, dir, item);
+        }
     }
 }

@@ -25,7 +25,20 @@
 				"maxBounces": 0,
 				"lifeTime": 0.0
 			},
-			"rules": []
+			"rules": [
+				{
+					"triggerType": "OnStageStart",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "SpawnProjectile",
+							"value": 5.0
+						}
+					]
+				}
+			]
 		},
 		{
 			"id": "item.minigun",

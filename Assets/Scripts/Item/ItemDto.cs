@@ -25,7 +25,8 @@ namespace Data
     {
         Unknown = 0,
         ModifyStat,
-        AddCurrency
+        AddCurrency,
+        SpawnProjectile
     }
 
     public enum ItemRarity
