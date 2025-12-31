@@ -53,8 +53,8 @@
   - [x] 2.5 `ItemManager`가 인벤토리 변경 이벤트를 받아 Object 아이템을 Attach/Detach한다.
 
 - [ ] 3.0 아이템 규칙 실행 파이프라인 구축
-  - [ ] 3.1 기존 Token 규칙 구조(Trigger/Condition/Effect)를 Item 규칙 구조로 이관한다.
-  - [ ] 3.2 `ItemInstance`에서 규칙 평가 로직을 구현하고 Object/NonObject 모두 동일 규칙을 따른다.
+  - [x] 3.1 기존 Token 규칙 구조(Trigger/Condition/Effect)를 Item 규칙 구조로 이관한다.
+  - [x] 3.2 `ItemInstance`에서 규칙 평가 로직을 구현하고 Object/NonObject 모두 동일 규칙을 따른다.
   - [ ] 3.3 `ItemEffectManager`를 통해 플레이어 스탯/통화 효과를 적용한다.
   - [ ] 3.4 스테이지 시작/틱 트리거를 `ItemManager`에서 브로드캐스트한다.
 
