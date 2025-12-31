@@ -19,7 +19,7 @@ public sealed class BlockManager : MonoBehaviour
     private Vector2 originTopRight;
     float spawnElapsed;
     float spawnAccumulator;
-    bool spawnWindowActive;
+    bool isSpawning;
 
     void Awake()
     {
@@ -49,7 +49,7 @@ public sealed class BlockManager : MonoBehaviour
     
     public void BeginSpawnRamp()
     {
-        spawnWindowActive = true;
+        isSpawning = true;
         spawnElapsed = 0f;
         spawnAccumulator = 0f;
     }
@@ -102,7 +102,9 @@ public sealed class BlockManager : MonoBehaviour
         float x = Random.Range(minX, maxX);
         Vector3 worldPos = new Vector3(x, y, 0f);
 
-        var block = BlockFactory.Instance.CreateBlock(currentHp, Vector2Int.zero, worldPos);
+        var blockHealth = StageManager.Instance.CurrentStage.BlockHealth;
+
+        var block = BlockFactory.Instance.CreateBlock(blockHealth, Vector2Int.zero, worldPos);
         if (block != null && !activeBlocks.Contains(block))
             activeBlocks.Add(block);
     }
@@ -118,7 +120,7 @@ public sealed class BlockManager : MonoBehaviour
 
     void UpdateSpawnRamp()
     {
-        if (!spawnWindowActive)
+        if (!isSpawning)
             return;
 
         spawnElapsed += Time.deltaTime;
@@ -135,14 +137,14 @@ public sealed class BlockManager : MonoBehaviour
             SpawnBlock();
 
         if (spawnElapsed >= spawnDurationSeconds)
-            spawnWindowActive = false;
+            isSpawning = false;
 
         CheckClearCondition();
     }
 
     void CheckClearCondition()
     {
-        if (spawnWindowActive)
+        if (isSpawning)
             return;
 
         if (activeBlocks.Count > 0)
