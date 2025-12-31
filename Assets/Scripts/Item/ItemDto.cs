@@ -93,11 +93,15 @@ namespace Data
     }
 
     [Serializable]
+    public sealed class ItemObjectData
+    {
+        public string prefabKey;
+    }
+
+    [Serializable]
     public sealed class ItemDto
     {
         public string id;
-        public bool isObject;
-        public string prefabKey;
         public int price;
 
         [JsonConverter(typeof(StringEnumConverter))]
@@ -107,6 +111,9 @@ namespace Data
         public float damageMultiplier = 1f;
         public float attackSpeed = 1f;
         public ItemProjectileData projectile;
+
+        [JsonProperty("object")]
+        public ItemObjectData objectData;
 
         [JsonIgnore]
         public bool isValid = true;
@@ -157,6 +164,12 @@ namespace Data
                     Debug.LogError($"[ItemDto] '{id}': projectile.lifeTime < 0 is not allowed.");
                     isValid = false;
                 }
+            }
+
+            if (objectData != null && string.IsNullOrEmpty(objectData.prefabKey))
+            {
+                Debug.LogError($"[ItemDto] '{id}': object.prefabKey is null or empty.");
+                isValid = false;
             }
 
             for (int i = 0; i < rules.Count; i++)
