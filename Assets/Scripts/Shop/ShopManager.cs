@@ -16,7 +16,7 @@ public sealed class ShopManager : MonoBehaviour
     [Header("Mixed Item Probabilities (weight-based)")]
     [SerializeField] private ShopItemProbability[] itemProbabilities =
     {
-        new ShopItemProbability { type = ShopItemType.Token, weight = 100 }
+        new ShopItemProbability { type = ShopItemType.Item, weight = 100 }
     };
 
     bool isOpen;
@@ -155,7 +155,7 @@ public sealed class ShopManager : MonoBehaviour
         for (int slot = 0; slot < itemsPerShop; slot++)
         {
             var type = factory.RollType(itemProbabilities);
-            if (type != ShopItemType.Token)
+            if (type != ShopItemType.Item)
                 continue;
 
             if (tokenPool.Count == 0)
@@ -287,7 +287,7 @@ public sealed class ShopManager : MonoBehaviour
             return false;
 
         var item = GetShopItem(CurrentSelectionIndex);
-        if (item == null || item.ItemType != ShopItemType.Token || IsSold(CurrentSelectionIndex))
+        if (item == null || item.ItemType != ShopItemType.Item || IsSold(CurrentSelectionIndex))
             return false;
 
         shopView?.ClearSelectionVisuals();
@@ -406,7 +406,7 @@ public sealed class ShopManager : MonoBehaviour
         if (item == null)
             return;
 
-        if (item.ItemType == ShopItemType.Token)
+        if (item.ItemType == ShopItemType.Item)
         {
             // 토큰 슬롯 하이라이트, 핀 선택 해제
             TokenManager.Instance?.HighlightEmptySlots();
@@ -490,7 +490,7 @@ public sealed class ShopManager : MonoBehaviour
 
         SetSelection(itemIndex);
 
-        if (item.ItemType == ShopItemType.Token)
+        if (item.ItemType == ShopItemType.Item)
         {
             draggingTokenIndex = itemIndex;
             TokenManager.Instance?.HighlightEmptySlots();

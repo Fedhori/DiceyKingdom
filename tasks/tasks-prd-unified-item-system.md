@@ -62,7 +62,7 @@
   - [x] 3.4 스테이지 시작/틱 트리거를 `ItemManager`에서 브로드캐스트한다.
 
 - [ ] 4.0 상점 로직을 itemId 기반 단일 흐름으로 통합
-  - [ ] 4.1 `ShopItemType`의 Token 분기 제거 및 단일 아이템 타입으로 정리한다.
+  - [x] 4.1 `ShopItemType`의 Token 분기 제거 및 단일 아이템 타입으로 정리한다.
   - [ ] 4.2 `TokenShopItem`을 `ItemShopItem`으로 대체하고 아이템 프리뷰 인스턴스를 제공한다.
   - [ ] 4.3 `ShopManager`에서 Token 관련 풀/보유 체크 로직을 제거하고 Items.json 전체를 균등 풀로 사용한다.
   - [ ] 4.4 구매/판매/드래그 흐름을 `ItemInventory` 커맨드 호출로 통일한다.

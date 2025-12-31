@@ -3,7 +3,7 @@ using UnityEngine;
 
 public sealed class TokenShopItem : IShopItem
 {
-    public ShopItemType ItemType => ShopItemType.Token;
+    public ShopItemType ItemType => ShopItemType.Item;
     public string Id => token?.id;
     public int Price { get; }
     public Sprite Icon { get; }
