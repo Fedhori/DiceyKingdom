@@ -48,7 +48,7 @@ public sealed class RewardManager : MonoBehaviour
         rewardOverlay.SetActive(false);
         isOpen = false;
 
-        FlowManager.Instance?.OnRewardClosed();
+        StageManager.Instance?.OnRewardClosed();
     }
 
     private void UpdateEarnedCurrency()

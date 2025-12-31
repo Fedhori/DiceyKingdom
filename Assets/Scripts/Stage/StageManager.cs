@@ -1,0 +1,199 @@
+using System;
+using Data;
+using TMPro;
+using UnityEngine;
+
+public enum StagePhase
+{
+    None,
+    Ready,
+    Play,
+    Reward,
+    Shop
+}
+
+public sealed class StageManager : MonoBehaviour
+{
+    public static StageManager Instance { get; private set; }
+
+    StageInstance currentStage;
+    public StageInstance CurrentStage
+    {
+        get => currentStage;
+        private set
+        {
+            currentStage = value;
+            UpdateStageText();
+        }
+    }
+    public event Action<StagePhase> OnPhaseChanged;
+    private StagePhase currentPhase = StagePhase.None;
+
+    public StagePhase CurrentPhase
+    {
+        get => currentPhase;
+        private set
+        {
+            if (currentPhase == value) return;
+            currentPhase = value;
+            OnPhaseChanged?.Invoke(currentPhase);
+        }
+    }
+    
+    [SerializeField] TMP_Text stageText;
+
+    public bool CanDragTokens => CurrentPhase != StagePhase.Play;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+    }
+
+    public void StartRun()
+    {
+        if (!StageRepository.IsInitialized)
+        {
+            Debug.LogError("[StageManager] StageRepository not initialized.");
+            return;
+        }
+
+        if (StageRepository.Count == 0)
+        {
+            Debug.LogError("[StageManager] No stages defined.");
+            return;
+        }
+
+        StartStage(0);
+    }
+
+    void StartStage(int stageIndex)
+    {
+        if (!StageRepository.TryGetByIndex(stageIndex, out var dto))
+        {
+            Debug.LogError($"[StageManager] stage not defined. stageIndex:{stageIndex}");
+            return;
+        }
+
+        CurrentStage = new StageInstance(dto);
+        TokenManager.Instance.TriggerTokens(TokenTriggerType.OnStageStart);
+
+        if (stageIndex == 0)
+            OnStageReadyStart();
+        else
+            OpenShop();
+
+        UpdateStageText();
+    }
+
+    bool IsLastStage =>
+        CurrentStage != null && StageRepository.TryGetByIndex(CurrentStage.StageIndex + 1, out _);
+
+    public void OnStageReadyStart()
+    {
+        if (CurrentStage == null)
+        {
+            Debug.LogError("[StageManager] OnStageReadyStart but currentStage is null.");
+            return;
+        }
+
+        CurrentPhase = StagePhase.Ready;
+        PlayManager.Instance?.StartPlay();
+    }
+
+    public void OnPlayStarted()
+    {
+        CurrentPhase = StagePhase.Play;
+    }
+    
+    public void OnPlayFinished()
+    {
+        if (currentPhase != StagePhase.Play)
+        {
+            Debug.LogWarning($"[StageManager] OnPlayFinished in phase {currentPhase}");
+        }
+
+        if (CurrentStage == null)
+        {
+            Debug.LogError("[StageManager] OnPlayFinished but currentStage is null.");
+            CurrentPhase = StagePhase.None;
+            return;
+        }
+
+        OpenReward();
+    }
+
+    public void OnRewardClosed()
+    {
+        if (currentPhase != StagePhase.Reward)
+        {
+            Debug.LogWarning($"[StageManager] OnRewardClosed in phase {currentPhase}");
+        }
+
+        if (CurrentStage == null)
+        {
+            Debug.LogError("[StageManager] OnRewardClosed but currentStage is null.");
+            CurrentPhase = StagePhase.None;
+            return;
+        }
+
+        AdvanceToNextStage();
+    }
+
+    public void OnShopClosed()
+    {
+        if (currentPhase != StagePhase.Shop)
+        {
+            Debug.LogWarning($"[StageManager] OnShopClosed in phase {currentPhase}");
+        }
+
+        if (CurrentStage == null)
+        {
+            Debug.LogError("[StageManager] OnShopClosed but currentStage is null.");
+            CurrentPhase = StagePhase.None;
+            return;
+        }
+
+        OnStageReadyStart();
+    }
+
+    void OpenReward()
+    {
+        CurrentPhase = StagePhase.Reward;
+        RewardManager.Instance?.Open();
+    }
+
+    void OpenShop()
+    {
+        CurrentPhase = StagePhase.Shop;
+        ShopManager.Instance?.Open();
+    }
+
+    void AdvanceToNextStage()
+    {
+        if (!IsLastStage)
+        {
+            CurrentPhase = StagePhase.None;
+            GameManager.Instance?.HandleGameClear();
+            return;
+        }
+
+        PlayerManager.Instance.ResetPlayer();
+        StartStage(CurrentStage.StageIndex + 1);
+    }
+
+    void UpdateStageText()
+    {
+        if (stageText == null)
+            return;
+
+        int total = StageRepository.Count;
+        int displayIndex = CurrentStage != null ? CurrentStage.StageIndex + 1 : 0;
+        stageText.text = $"{displayIndex}/{total}";
+    }
+}

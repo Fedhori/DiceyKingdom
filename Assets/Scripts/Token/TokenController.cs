@@ -37,9 +37,8 @@ public sealed class TokenController : MonoBehaviour, IBeginDragHandler, IEndDrag
 
         if (Instance != null)
             return;
-
-        var flow = FlowManager.Instance;
-        if (flow != null && flow.CurrentPhase != FlowPhase.Shop)
+        
+        if (StageManager.Instance.CurrentPhase != StagePhase.Shop)
             return;
 
         var shop = ShopManager.Instance;

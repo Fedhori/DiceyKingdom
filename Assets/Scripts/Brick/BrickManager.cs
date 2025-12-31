@@ -36,9 +36,7 @@ public sealed class BrickManager : MonoBehaviour
 
     void Update()
     {
-        // Play 중에만 하강
-        var flow = FlowManager.Instance;
-        if (flow == null || flow.CurrentPhase != FlowPhase.Play)
+        if (StageManager.Instance.CurrentPhase != StagePhase.Play)
             return;
 
         float dy = fallSpeed * Time.deltaTime;

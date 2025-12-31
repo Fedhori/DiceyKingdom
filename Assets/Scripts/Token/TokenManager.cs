@@ -185,18 +185,17 @@ public sealed class TokenManager : MonoBehaviour
         currentHighlightIndex = -1;
     }
 
-    public bool BeginDrag(TokenController controller, Vector2 screenPos)
+    public void BeginDrag(TokenController controller, Vector2 screenPos)
     {
         if (controller == null)
-            return false;
+            return;
 
-        var flow = FlowManager.Instance;
-        if (flow != null && !flow.CanDragTokens)
-            return false;
+        if (!StageManager.Instance.CanDragTokens)
+            return;
 
         int idx = controller.SlotIndex;
         if (controller.Instance == null)
-            return false;
+            return;
 
         draggingController = controller;
         draggingStartIndex = idx;
@@ -204,7 +203,6 @@ public sealed class TokenManager : MonoBehaviour
         controller.SetIconVisible(false);
         overSellArea = false;
         SellOverlayController.Instance?.Show();
-        return true;
     }
 
     public void EndDrag(TokenController controller, Vector2 screenPos)

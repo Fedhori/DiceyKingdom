@@ -19,12 +19,12 @@ public sealed class PlayManager : MonoBehaviour
     {
         ItemManager.Instance?.InitializeFromPlayer(PlayerManager.Instance.Current);
         BrickManager.Instance.BeginSpawnRamp();
-        FlowManager.Instance?.OnPlayStarted();
+        StageManager.Instance?.OnPlayStarted();
     }
 
     public void FinishPlay()
     {
         ItemManager.Instance?.ClearAll();
-        FlowManager.Instance?.OnPlayFinished();
+        StageManager.Instance?.OnPlayFinished();
     }
 }

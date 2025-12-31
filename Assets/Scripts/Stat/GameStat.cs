@@ -24,17 +24,6 @@ namespace GameStats
         public const string MoveSpeed = "moveSpeed";
     }
 
-    public static class PinStatIds
-    {
-        public const string ScoreMultiplier = "damageMultiplier";
-    }
-    
-    public static class BallStatIds
-    {
-        public const string ScoreMultiplier = "damageMultiplier";
-        public const string CriticalMultiplier = "criticalMultiplier";
-    }
-
     public sealed class StatModifier
     {
         public string StatId { get; }

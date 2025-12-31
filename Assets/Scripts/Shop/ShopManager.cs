@@ -464,7 +464,7 @@ public sealed class ShopManager : MonoBehaviour
 
         ClearSelection();
 
-        FlowManager.Instance?.OnShopClosed();
+        StageManager.Instance?.OnShopClosed();
     }
 
     void HandleCurrencyChanged(int value)
@@ -485,8 +485,7 @@ public sealed class ShopManager : MonoBehaviour
         if (item == null || IsSold(itemIndex))
             return;
 
-        var flow = FlowManager.Instance;
-        if (flow != null && flow.CurrentPhase != FlowPhase.Shop)
+        if (StageManager.Instance.CurrentPhase != StagePhase.Shop)
             return;
 
         SetSelection(itemIndex);

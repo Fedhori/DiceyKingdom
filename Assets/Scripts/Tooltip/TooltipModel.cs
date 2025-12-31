@@ -14,14 +14,12 @@ public readonly struct TooltipModel
     public readonly string Body;
     public readonly Sprite Icon;
     public readonly TooltipKind Kind;
-    public readonly double scoreMultiplier;
 
-    public TooltipModel(string title, string body, Sprite icon, TooltipKind kind, double scoreMultiplier)
+    public TooltipModel(string title, string body, Sprite icon, TooltipKind kind)
     {
         Title = title;
         Body = body;
         Icon = icon;
         Kind = kind;
-        this.scoreMultiplier = scoreMultiplier;
     }
 }

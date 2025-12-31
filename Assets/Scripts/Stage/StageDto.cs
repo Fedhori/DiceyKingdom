@@ -7,7 +7,6 @@ using UnityEngine;
 public sealed class StageDto
 {
     public int index = -1;
-    public double needScore;
     public int blockHealth = 100;
 }
 

@@ -1888,7 +1888,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 960
+  orthographic size: 848.8073
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2800,12 +2800,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 708886695}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1831022632}
+  m_Father: {fileID: 1107324457}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &708886697
 MonoBehaviour:
@@ -4205,7 +4205,7 @@ GameObject:
   - component: {fileID: 1107324457}
   - component: {fileID: 1107324458}
   m_Layer: 0
-  m_Name: Flow
+  m_Name: Stage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4223,7 +4223,10 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1126608303}
+  - {fileID: 708886696}
+  - {fileID: 1633961188}
   m_Father: {fileID: 1831022632}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1107324458
@@ -4310,12 +4313,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1126608302}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1831022632}
+  m_Father: {fileID: 1107324457}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1126608304
 MonoBehaviour:
@@ -6692,9 +6695,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1633961188}
   - component: {fileID: 1633961190}
-  - component: {fileID: 1633961189}
   m_Layer: 0
-  m_Name: Stage
+  m_Name: Play
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6708,28 +6710,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1633961187}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1831022632}
+  m_Father: {fileID: 1107324457}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1633961189
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1633961187}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ec00ad6ef3d48c48a0924f130a48191, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StageHudView
-  stageText: {fileID: 1882458717}
-  targetScoreText: {fileID: 0}
-  currentScoreText: {fileID: 0}
 --- !u!114 &1633961190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7656,11 +7643,8 @@ Transform:
   - {fileID: 1118263956}
   - {fileID: 513418571}
   - {fileID: 1847119818}
-  - {fileID: 1126608303}
-  - {fileID: 708886696}
-  - {fileID: 1633961188}
-  - {fileID: 1212689310}
   - {fileID: 1107324457}
+  - {fileID: 1212689310}
   - {fileID: 516877347}
   - {fileID: 958006977}
   - {fileID: 715098189}

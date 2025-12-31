@@ -13,8 +13,7 @@ public static class TokenTooltipUtil
                 string.Empty,
                 string.Empty,
                 null,
-                TooltipKind.Token,
-                0
+                TooltipKind.Token
             );
         }
 
@@ -26,8 +25,7 @@ public static class TokenTooltipUtil
             title,
             body,
             icon,
-            TooltipKind.Token,
-            0
+            TooltipKind.Token
         );
     }
 

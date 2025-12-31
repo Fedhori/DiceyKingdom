@@ -2,9 +2,9 @@ using UnityEngine;
 
 public static class Colors
 {
-    public static readonly Color NormalScore = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-    public static readonly Color CritScore = new Color32(0xFF, 0x8A, 0x80, 0xFF);
-    public static readonly Color OverCrit = new Color32(0xFF, 0x17, 0x44, 0xFF);
+    public static readonly Color Normal = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
+    public static readonly Color Critical = new Color32(0xFF, 0x8A, 0x80, 0xFF);
+    public static readonly Color OverCritical = new Color32(0xFF, 0x17, 0x44, 0xFF);
     
     public static readonly Color White = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
     public static readonly Color Black = new Color32(0x00, 0x00, 0x00, 0xFF); // #FFFFFF
@@ -26,11 +26,11 @@ public static class Colors
         switch (criticalLevel)
         {
             case 0:
-                return NormalScore;
+                return Normal;
             case 1:
-                return CritScore;
+                return Critical;
             default:
-                return OverCrit;
+                return OverCritical;
         }
     }
 }

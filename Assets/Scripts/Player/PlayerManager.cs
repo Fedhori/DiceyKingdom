@@ -9,7 +9,7 @@ public sealed class PlayerManager : MonoBehaviour
 
     [SerializeField] string defaultPlayerId = "player.default";
 
-    [SerializeField] private TMP_Text baseScoreText;
+    [SerializeField] private TMP_Text damageText;
     private readonly float statUIUpdateCycle = 0.1f;
     private float currentStatUIUpdateCycle = 0f;
 
@@ -77,7 +77,7 @@ public sealed class PlayerManager : MonoBehaviour
 
     void UpdateStatUI()
     {
-        baseScoreText.text = $"{Current.Damage}";
+        damageText.text = $"{Current.Damage}";
     }
 
     public void ResetPlayer()

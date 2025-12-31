@@ -14,11 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
   m_TableCollectionName: tooltip
   m_TableCollectionNameGuidString: dcfb1e55b2b6c0743a1bac814d804857
-  m_Entries:
-  - m_Id: 7675330560
-    m_Key: tooltip.scoremultiplier.label
-    m_Metadata:
-      m_Items: []
+  m_Entries: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

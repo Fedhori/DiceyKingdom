@@ -24,14 +24,11 @@ public sealed class TokenEffectManager : MonoBehaviour
 
         switch (dto.effectType)
         {
-            case TokenEffectType.ModifyPlayerStat:
+            case TokenEffectType.ModifyStat:
                 ApplyPlayerStat(dto, token);
                 break;
             case TokenEffectType.AddCurrency:
                 ApplyCurrency(dto);
-                break;
-            case TokenEffectType.AddScore:
-                ApplyScore(dto);
                 break;
             default:
                 Debug.LogWarning($"[TokenEffectManager] Unsupported effect type: {dto.effectType}");
@@ -47,7 +44,7 @@ public sealed class TokenEffectManager : MonoBehaviour
 
         if (string.IsNullOrEmpty(dto.statId))
         {
-            Debug.LogWarning("[TokenEffectManager] ModifyPlayerStat with empty statId.");
+            Debug.LogWarning("[TokenEffectManager] ModifyStat with empty statId.");
             return;
         }
 
@@ -69,18 +66,5 @@ public sealed class TokenEffectManager : MonoBehaviour
             return;
 
         currencyMgr.AddCurrency(Mathf.RoundToInt(dto.value));
-    }
-
-    void ApplyScore(TokenEffectDto dto)
-    {
-        var scoreMgr = DamageTextManager.Instance;
-        if (scoreMgr == null)
-            return;
-
-        var player = PlayerManager.Instance?.Current;
-        float multiplier = player != null ? (float)player.DamageMultiplier : 1f;
-        double amount = dto.value * multiplier;
-
-        scoreMgr.ShowDamageText(amount, 0, Vector2.zero);
     }
 }

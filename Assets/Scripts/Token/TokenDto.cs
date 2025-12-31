@@ -23,9 +23,8 @@ namespace Data
     public enum TokenEffectType
     {
         Unknown = 0,
-        ModifyPlayerStat,
-        AddCurrency,
-        AddScore
+        ModifyStat,
+        AddCurrency
     }
 
     public enum TokenRarity

@@ -36,7 +36,7 @@ public class GameManager : MonoBehaviour
 
     void HandleGameStart()
     {
-        FlowManager.Instance?.StartRun();
+        StageManager.Instance?.StartRun();
     }
 
     public void HandleGameOver()
