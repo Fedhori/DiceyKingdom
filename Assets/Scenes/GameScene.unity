@@ -2933,7 +2933,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemPrefabRegistry
   entries:
-  - key: item.test
+  - key: item.pistol
     prefab: {fileID: 8524277218632059139, guid: b061a64d594663f41b203063287b4154, type: 3}
   - key: item.minigun
     prefab: {fileID: 8524277218632059139, guid: b061a64d594663f41b203063287b4154, type: 3}
@@ -7543,6 +7543,7 @@ Transform:
   m_Children:
   - {fileID: 1050363044}
   - {fileID: 1612725524}
+  - {fileID: 715098189}
   - {fileID: 2112529481}
   - {fileID: 1118263956}
   - {fileID: 513418571}
@@ -7551,7 +7552,6 @@ Transform:
   - {fileID: 1212689310}
   - {fileID: 516877347}
   - {fileID: 958006977}
-  - {fileID: 715098189}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1847119817

@@ -1,8 +1,9 @@
 {
 	"items": [
 		{
-			"id": "item.test",
+			"id": "item.pistol",
 			"isObject": true,
+			"isNotSell": true,
 			"attackSpeed": 3.0,
 			"projectile": {
 				"key": "projectile.bullet",

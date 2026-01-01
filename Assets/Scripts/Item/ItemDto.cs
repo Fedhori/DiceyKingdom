@@ -98,6 +98,7 @@ namespace Data
     {
         public string id;
         public bool isObject;
+        public bool isNotSell;
         public int price;
 
         [JsonConverter(typeof(StringEnumConverter))]

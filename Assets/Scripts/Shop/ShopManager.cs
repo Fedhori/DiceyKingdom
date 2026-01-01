@@ -141,15 +141,15 @@ public sealed class ShopManager : MonoBehaviour
                 continue;
 
             // 추후 isNotSell 같은 플래그가 생기면 필터 추가
+            if (dto.isNotSell)
+                continue;
+
             sellableItems.Add(dto);
         }
     }
 
     void EnsureArrays()
     {
-        if (itemsPerShop <= 0)
-            itemsPerShop = 3;
-
         if (currentShopItems == null || currentShopItems.Length != itemsPerShop)
             currentShopItems = new IProduct[itemsPerShop];
 
@@ -290,13 +290,6 @@ public sealed class ShopManager : MonoBehaviour
             ItemSlotManager.Instance?.HighlightEmptySlots();
         else
             ItemSlotManager.Instance?.ClearHighlights();
-    }
-
-    public bool TryPurchaseSelectedAt(int row, int col)
-    {
-        _ = row;
-        _ = col;
-        return false;
     }
 
     public bool TryPurchaseSelectedItemAt(int slotIndex)
