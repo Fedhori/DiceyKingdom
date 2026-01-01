@@ -2,9 +2,9 @@ using System;
 using Data;
 using UnityEngine;
 
-public sealed class ItemShopItem : IShopItem
+public sealed class ItemProduct : IProduct
 {
-    public ShopItemType ItemType => ShopItemType.Item;
+    public ProductType ProductType => ProductType.Item;
     public string Id => item?.id;
     public int Price { get; }
     public Sprite Icon { get; }
@@ -14,7 +14,7 @@ public sealed class ItemShopItem : IShopItem
 
     readonly ItemDto item;
 
-    public ItemShopItem(ItemDto dto)
+    public ItemProduct(ItemDto dto)
     {
         item = dto ?? throw new ArgumentNullException(nameof(dto));
         PreviewInstance = new ItemInstance(dto);

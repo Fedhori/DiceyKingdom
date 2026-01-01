@@ -27,11 +27,11 @@ public sealed class DevCommandManager : MonoBehaviour
         open = !startClosed;
 
         // 명령어
-        Register("addtoken", param =>
+        Register("additem", param =>
         {
             if (param.Length != 2)
             {
-                Debug.LogWarning("[DevCommand] Usage: addtoken <tokenId> <slotIndex>");
+                Debug.LogWarning("[DevCommand] Usage: additem <itemId> <slotIndex>");
                 return;
             }
 
@@ -41,16 +41,16 @@ public sealed class DevCommandManager : MonoBehaviour
                 return;
             }
 
-            string tokenId = param[0];
+            string itemId = param[0];
             if (!int.TryParse(param[1], out int slotIndex))
             {
-                Debug.LogWarning($"[DevCommand] addtoken invalid slotIndex: {param[1]}");
+                Debug.LogWarning($"[DevCommand] additem invalid slotIndex: {param[1]}");
                 return;
             }
 
-            if (!ItemSlotManager.Instance.TryAddTokenAt(tokenId, slotIndex, out _))
+            if (!ItemSlotManager.Instance.TryAddItemAt(itemId, slotIndex, out _))
             {
-                Debug.LogWarning($"[DevCommand] addtoken failed: id={tokenId}, slot={slotIndex}");
+                Debug.LogWarning($"[DevCommand] additem failed: id={itemId}, slot={slotIndex}");
             }
         });
 

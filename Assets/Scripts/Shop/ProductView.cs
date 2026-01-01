@@ -4,12 +4,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public sealed class ShopItemView : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
+public sealed class ProductView : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private Image iconImage;
     [SerializeField] private TMP_Text priceText;
 
-    public ShopItemType ViewType { get; private set; } = ShopItemType.Pin;
+    public ProductType ViewType { get; private set; }
 
     Action<int> onClick;
     Action<int, Vector2> onBeginDrag;
@@ -23,8 +23,8 @@ public sealed class ShopItemView : MonoBehaviour, IPointerClickHandler, IBeginDr
     bool baseColorInitialized;
 
     int index = -1;
-    IShopItem boundItem;
-    ItemShopItem boundItemShop;
+    IProduct boundProduct;
+    ItemProduct boundItem;
 
     void Awake()
     {
@@ -40,7 +40,7 @@ public sealed class ShopItemView : MonoBehaviour, IPointerClickHandler, IBeginDr
         index = i;
     }
 
-    public void SetViewType(ShopItemType type)
+    public void SetViewType(ProductType type)
     {
         ViewType = type;
     }
@@ -53,17 +53,17 @@ public sealed class ShopItemView : MonoBehaviour, IPointerClickHandler, IBeginDr
         onEndDrag = endDrag;
     }
 
-    public void SetData(IShopItem item, int price, bool canBuy, bool sold)
+    public void SetData(IProduct product, int price, bool canBuy, bool sold)
     {
-        boundItem = item;
-        boundItemShop = item as ItemShopItem;
-        ViewType = item != null ? item.ItemType : ViewType;
+        boundProduct = product;
+        boundItem = product as ItemProduct;
+        ViewType = product?.ProductType ?? ViewType;
 
-        bool canInteract = (item != null) && canBuy && !sold;
+        bool canInteract = (product != null) && canBuy && !sold;
         canDrag = canInteract;
         canClick = canInteract;
 
-        if (item == null)
+        if (product == null)
         {
             gameObject.SetActive(false);
             return;
@@ -73,7 +73,7 @@ public sealed class ShopItemView : MonoBehaviour, IPointerClickHandler, IBeginDr
 
         if (iconImage != null)
         {
-            iconImage.sprite = item.Icon;
+            iconImage.sprite = product.Icon;
 
             if (!baseColorInitialized)
             {
@@ -140,7 +140,7 @@ public sealed class ShopItemView : MonoBehaviour, IPointerClickHandler, IBeginDr
         if (eventData.button != PointerEventData.InputButton.Left)
             return;
 
-        if (!canDrag || boundItem == null)
+        if (!canDrag || boundProduct == null)
             return;
 
         if (index < 0)
@@ -190,14 +190,13 @@ public sealed class ShopItemView : MonoBehaviour, IPointerClickHandler, IBeginDr
     void ShowTooltip(PointerEventData eventData)
     {
         var manager = TooltipManager.Instance;
-        if (manager == null || boundItem == null)
+        if (manager == null || boundProduct == null)
             return;
 
-        TooltipModel model;
-        if (boundItemShop == null)
+        if (boundItem == null)
             return;
 
-        model = ItemTooltipUtil.BuildModel(boundItemShop.PreviewInstance);
+        var model = ItemTooltipUtil.BuildModel(boundItem.PreviewInstance);
 
         var anchor = TooltipAnchor.FromScreen(eventData.position, eventData.position);
         manager.BeginHover(this, model, anchor);

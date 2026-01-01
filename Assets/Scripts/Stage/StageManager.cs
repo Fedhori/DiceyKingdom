@@ -41,7 +41,7 @@ public sealed class StageManager : MonoBehaviour
     
     [SerializeField] TMP_Text stageText;
 
-    public bool CanDragTokens => CurrentPhase != StagePhase.Play;
+    public bool CanDragItems => CurrentPhase != StagePhase.Play;
 
     void Awake()
     {

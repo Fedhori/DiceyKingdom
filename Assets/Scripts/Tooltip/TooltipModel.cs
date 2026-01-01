@@ -2,10 +2,8 @@ using UnityEngine;
 
 public enum TooltipKind
 {
-    Pin,
-    Ball,
     Simple,
-    Token
+    Item
 }
 
 public readonly struct TooltipModel

@@ -12,7 +12,7 @@ public sealed class ItemInventory
     public event Action OnInventoryChanged;
 
     public ItemInventory()
-        : this(GameConfig.TokenSlotCount)
+        : this(GameConfig.ItemSlotCount)
     {
     }
 

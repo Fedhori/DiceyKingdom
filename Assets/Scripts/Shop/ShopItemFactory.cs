@@ -21,17 +21,17 @@ public sealed class ShopItemFactory : MonoBehaviour
         rng = GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
     }
 
-    public ShopItemType RollType(IReadOnlyList<ShopItemProbability> probabilities)
+    public ProductType RollType(IReadOnlyList<ProductProbability> probabilities)
     {
         if (probabilities == null || probabilities.Count == 0)
-            return ShopItemType.Pin;
+            return ProductType.Item;
 
         int totalWeight = 0;
         for (int i = 0; i < probabilities.Count; i++)
             totalWeight += Mathf.Max(0, probabilities[i].weight);
 
         if (totalWeight <= 0)
-            return ShopItemType.Pin;
+            return ProductType.Item;
 
         int roll = rng.Next(0, totalWeight);
         int acc = 0;
@@ -45,11 +45,11 @@ public sealed class ShopItemFactory : MonoBehaviour
         return probabilities[probabilities.Count - 1].type;
     }
 
-    public IShopItem CreateItem(ItemDto dto)
+    public IProduct CreateItem(ItemDto dto)
     {
         if (dto == null)
             return null;
 
-        return new ItemShopItem(dto);
+        return new ItemProduct(dto);
     }
 }

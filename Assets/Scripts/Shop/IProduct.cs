@@ -1,6 +1,6 @@
-public interface IShopItem
+public interface IProduct
 {
-    ShopItemType ItemType { get; }
+    ProductType ProductType { get; }
     string Id { get; }
     int Price { get; }
     UnityEngine.Sprite Icon { get; }

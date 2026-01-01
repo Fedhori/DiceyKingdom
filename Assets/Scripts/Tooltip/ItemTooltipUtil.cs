@@ -13,7 +13,7 @@ public static class ItemTooltipUtil
                 string.Empty,
                 string.Empty,
                 null,
-                TooltipKind.Token
+                TooltipKind.Item
             );
         }
 
@@ -28,7 +28,7 @@ public static class ItemTooltipUtil
             title,
             body,
             icon,
-            TooltipKind.Token
+            TooltipKind.Item
         );
     }
 
@@ -78,7 +78,7 @@ public static class ItemTooltipUtil
     static string BuildRuleLine(ItemInstance item, ItemRuleDto rule, int ruleIndex)
     {
         var key = $"{item.Id}.effect{ruleIndex}";
-        var loc = new LocalizedString("token", key);
+        var loc = new LocalizedString("item", key);
 
         var args = BuildRuleArgs(rule);
         if (args != null)

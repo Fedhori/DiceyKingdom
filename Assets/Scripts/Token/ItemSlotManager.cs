@@ -103,7 +103,7 @@ public sealed class ItemSlotManager : MonoBehaviour
                 Destroy(child.gameObject);
         }
 
-        int slotCount = Mathf.Max(0, GameConfig.TokenSlotCount);
+        int slotCount = Mathf.Max(0, GameConfig.ItemSlotCount);
         slotControllers = new ItemSlotController[slotCount];
 
         for (int i = 0; i < slotCount; i++)
@@ -134,7 +134,7 @@ public sealed class ItemSlotManager : MonoBehaviour
             slotControllers[i]?.Bind(null);
     }
 
-    public bool TryAddTokenAt(string itemId, int slotIndex, out ItemInstance instance)
+    public bool TryAddItemAt(string itemId, int slotIndex, out ItemInstance instance)
     {
         instance = null;
 
@@ -285,7 +285,7 @@ public sealed class ItemSlotManager : MonoBehaviour
         if (controller == null)
             return;
 
-        if (!StageManager.Instance.CanDragTokens)
+        if (!StageManager.Instance.CanDragItems)
             return;
 
         int idx = controller.SlotIndex;
@@ -320,7 +320,7 @@ public sealed class ItemSlotManager : MonoBehaviour
 
             var toSell = draggingController;
             ResetDrag();
-            RequestSellToken(toSell);
+            RequestSellItem(toSell);
             return;
         }
 
@@ -393,17 +393,7 @@ public sealed class ItemSlotManager : MonoBehaviour
         overSellArea = false;
     }
 
-    public void TriggerTokens(ItemTriggerType trigger)
-    {
-        if (inventory == null)
-            return;
-
-        var slots = inventory.Slots;
-        for (int i = 0; i < slots.Count; i++)
-            slots[i]?.HandleTrigger(trigger);
-    }
-
-    public void RequestSellToken(ItemSlotController ctrl)
+    private void RequestSellItem(ItemSlotController ctrl)
     {
         if (ctrl == null || ctrl.Instance == null)
             return;
@@ -426,21 +416,21 @@ public sealed class ItemSlotManager : MonoBehaviour
             "modal.sellpin.title",
             "modal",
             "modal.sellpin.message",
-            () => SellToken(ctrl, price),
+            () => SellItem(ctrl, price),
             () => { },
             args);
     }
 
-    void SellToken(ItemSlotController ctrl, int price)
+    void SellItem(ItemSlotController ctrl, int price)
     {
         if (ctrl == null || ctrl.Instance == null)
             return;
 
         CurrencyManager.Instance?.AddCurrency(price);
-        RemoveToken(ctrl);
+        RemoveItem(ctrl);
     }
 
-    void RemoveToken(ItemSlotController ctrl)
+    void RemoveItem(ItemSlotController ctrl)
     {
         if (ctrl == null)
             return;
@@ -449,41 +439,6 @@ public sealed class ItemSlotManager : MonoBehaviour
             return;
 
         inventory.TryRemoveAt(ctrl.SlotIndex, out _);
-    }
-
-    public bool HasToken(string tokenId)
-    {
-        if (string.IsNullOrEmpty(tokenId) || inventory == null)
-            return false;
-
-        var slots = inventory.Slots;
-        for (int i = 0; i < slots.Count; i++)
-        {
-            var inst = slots[i];
-            if (inst != null && inst.Id == tokenId)
-                return true;
-        }
-
-        return false;
-    }
-
-    public void CollectOwnedTokenIds(System.Collections.Generic.HashSet<string> set)
-    {
-        if (set == null)
-            return;
-
-        if (inventory == null)
-            return;
-
-        var slots = inventory.Slots;
-        for (int i = 0; i < slots.Count; i++)
-        {
-            var inst = slots[i];
-            if (inst == null || string.IsNullOrEmpty(inst.Id))
-                continue;
-
-            set.Add(inst.Id);
-        }
     }
 
     bool IsValidIndex(int index)

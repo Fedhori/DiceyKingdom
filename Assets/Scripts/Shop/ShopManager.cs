@@ -14,19 +14,19 @@ public sealed class ShopManager : MonoBehaviour
     [SerializeField] private int rerollCostIncrement = 1;
 
     [Header("Mixed Item Probabilities (weight-based)")]
-    [SerializeField] private ShopItemProbability[] itemProbabilities =
+    [SerializeField] private ProductProbability[] itemProbabilities =
     {
-        new ShopItemProbability { type = ShopItemType.Item, weight = 100 }
+        new ProductProbability { type = ProductType.Item, weight = 100 }
     };
 
     bool isOpen;
 
-    readonly List<IShopItem> rosterItems = new();
+    readonly List<IProduct> rosterItems = new();
     readonly List<ItemDto> sellableItems = new();
     readonly HashSet<string> rosterItemIds = new();
     readonly HashSet<string> ownedItemIds = new();
 
-    IShopItem[] currentShopItems;
+    IProduct[] currentShopItems;
     int currentRerollCost;
 
     public event Action<int> OnSelectionChanged;
@@ -151,7 +151,7 @@ public sealed class ShopManager : MonoBehaviour
             itemsPerShop = 3;
 
         if (currentShopItems == null || currentShopItems.Length != itemsPerShop)
-            currentShopItems = new IShopItem[itemsPerShop];
+            currentShopItems = new IProduct[itemsPerShop];
 
         for (int i = 0; i < itemsPerShop; i++)
             currentShopItems[i] = null;
@@ -174,7 +174,7 @@ public sealed class ShopManager : MonoBehaviour
         for (int slot = 0; slot < itemsPerShop; slot++)
         {
             var type = factory.RollType(itemProbabilities);
-            if (type != ShopItemType.Item)
+            if (type != ProductType.Item)
                 continue;
 
             if (itemPool.Count == 0)
@@ -189,7 +189,7 @@ public sealed class ShopManager : MonoBehaviour
             }
         }
 
-        rosterItems.Sort((a, b) => a.ItemType.CompareTo(b.ItemType));
+        rosterItems.Sort((a, b) => a.ProductType.CompareTo(b.ProductType));
 
         // currentShopItems에 복사
         EnsureArrays();
@@ -262,7 +262,7 @@ public sealed class ShopManager : MonoBehaviour
 
     public void SetSelection(int itemIndex)
     {
-        IShopItem selection = null;
+        IProduct selection = null;
 
         if (currentShopItems != null && itemIndex >= 0 && itemIndex < currentShopItems.Length)
         {
@@ -281,12 +281,12 @@ public sealed class ShopManager : MonoBehaviour
         ItemSlotManager.Instance?.ClearHighlights();
     }
 
-    void ApplySelection(IShopItem selection, int itemIndex)
+    void ApplySelection(IProduct selection, int itemIndex)
     {
         CurrentSelectionIndex = selection != null ? itemIndex : -1;
         OnSelectionChanged?.Invoke(CurrentSelectionIndex);
 
-        if (selection is { ItemType: ShopItemType.Item })
+        if (selection is { ProductType: ProductType.Item })
             ItemSlotManager.Instance?.HighlightEmptySlots();
         else
             ItemSlotManager.Instance?.ClearHighlights();
@@ -311,7 +311,7 @@ public sealed class ShopManager : MonoBehaviour
             return false;
 
         var item = GetShopItem(CurrentSelectionIndex);
-        if (item == null || item.ItemType != ShopItemType.Item || IsSold(CurrentSelectionIndex))
+        if (item == null || item.ProductType != ProductType.Item || IsSold(CurrentSelectionIndex))
             return false;
 
         shopView?.ClearSelectionVisuals();
@@ -327,7 +327,7 @@ public sealed class ShopManager : MonoBehaviour
         if (currentShopItems == null || itemIndex < 0 || itemIndex >= currentShopItems.Length)
             return false;
 
-        var item = currentShopItems[itemIndex] as ItemShopItem;
+        var item = currentShopItems[itemIndex] as ItemProduct;
         if (item == null || IsSold(itemIndex))
             return false;
 
@@ -406,14 +406,14 @@ public sealed class ShopManager : MonoBehaviour
             ? CurrencyManager.Instance.CurrentCurrency
             : 0;
 
-        bool hasEmptyTokenSlot = ItemManager.Instance?.Inventory != null
+        bool hasEmptyItemSlot = ItemManager.Instance?.Inventory != null
             && ItemManager.Instance.Inventory.TryGetFirstEmptySlot(out _);
 
-        shopView.SetItems(currentShopItems, currency, false, hasEmptyTokenSlot, currentRerollCost);
+        shopView.SetItems(currentShopItems, currency, hasEmptyItemSlot, currentRerollCost);
         shopView.RefreshAll();
     }
 
-    IShopItem GetShopItem(int index)
+    IProduct GetShopItem(int index)
     {
         if (currentShopItems == null || index < 0 || index >= currentShopItems.Length)
             return null;
@@ -426,7 +426,7 @@ public sealed class ShopManager : MonoBehaviour
         return item?.Sold ?? true;
     }
 
-    public IShopItem GetSelectedItem()
+    public IProduct GetSelectedItem()
     {
         if (CurrentSelectionIndex < 0 || currentShopItems == null)
             return null;
@@ -454,7 +454,7 @@ public sealed class ShopManager : MonoBehaviour
         if (item == null)
             return;
 
-        if (item.ItemType == ShopItemType.Item)
+        if (item.ProductType == ProductType.Item)
         {
             shopView?.ClearSelectionVisuals();
         }
@@ -536,7 +536,7 @@ public sealed class ShopManager : MonoBehaviour
 
         SetSelection(itemIndex);
 
-        if (item.ItemType == ShopItemType.Item)
+        if (item.ProductType == ProductType.Item)
         {
             draggingItemIndex = itemIndex;
             ItemSlotManager.Instance?.HighlightEmptySlots();

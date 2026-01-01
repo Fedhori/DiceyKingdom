@@ -8,20 +8,19 @@ using UnityEngine.UI;
 
 public sealed class ShopView : MonoBehaviour
 {
-    [Header("Overlay Root")]
-    [SerializeField] private GameObject shopOverlay;
+    [Header("Overlay Root")] [SerializeField]
+    private GameObject shopOverlay;
 
-    [Header("Item UI")]
-    [SerializeField] private ShopItemView pinItemPrefab;
-    [SerializeField] private ShopItemView tokenItemPrefab;
-    [SerializeField] private Transform itemsParent;
+    [Header("Item UI")] [SerializeField] private ProductView itemProductPrefab;
+    [SerializeField] private Transform productsParent;
 
-    [Header("Reroll / Close UI")]
-    [SerializeField] private LocalizeStringEvent rerollCostText;
+    [Header("Reroll / Close UI")] [SerializeField]
+    private LocalizeStringEvent rerollCostText;
+
     [SerializeField] private Button rerollButton;
     [SerializeField] private Button closeButton;
 
-    readonly List<ShopItemView> itemViews = new();
+    readonly List<ProductView> itemViews = new();
 
     int selectedItemIndex = -1;
 
@@ -56,11 +55,11 @@ public sealed class ShopView : MonoBehaviour
     {
         itemViews.Clear();
 
-        if (itemsParent != null)
+        if (productsParent != null)
         {
-            for (int i = itemsParent.childCount - 1; i >= 0; i--)
+            for (int i = productsParent.childCount - 1; i >= 0; i--)
             {
-                var child = itemsParent.GetChild(i);
+                var child = productsParent.GetChild(i);
                 if (child != null)
                     Destroy(child.gameObject);
             }
@@ -78,9 +77,9 @@ public sealed class ShopView : MonoBehaviour
         this.onEndDragItem = onEndDragItem;
     }
 
-    void EnsureItemViews(IShopItem[] items)
+    void EnsureItemViews(IProduct[] items)
     {
-        if (itemsParent == null)
+        if (productsParent == null)
             return;
 
         int count = items != null ? items.Length : 0;
@@ -91,7 +90,7 @@ public sealed class ShopView : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            var desiredType = items != null && items[i] != null ? items[i].ItemType : ShopItemType.Pin;
+            var desiredType = items?[i]?.ProductType ?? ProductType.Item;
             var currentView = itemViews[i];
 
             bool needNew = currentView == null || currentView.ViewType != desiredType;
@@ -104,7 +103,7 @@ public sealed class ShopView : MonoBehaviour
                 if (prefab == null)
                     continue;
 
-                var view = Instantiate(prefab, itemsParent);
+                var view = Instantiate(prefab, productsParent);
                 view.SetViewType(desiredType);
                 view.SetIndex(i);
                 view.SetHandlers(
@@ -134,16 +133,16 @@ public sealed class ShopView : MonoBehaviour
         }
     }
 
-    ShopItemView GetPrefab(ShopItemType type)
+    ProductView GetPrefab(ProductType type)
     {
         return type switch
         {
-            ShopItemType.Item => tokenItemPrefab != null ? tokenItemPrefab : pinItemPrefab,
-            _ => pinItemPrefab
+            ProductType.Item => itemProductPrefab,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
         };
     }
 
-    public void SetItems(IShopItem[] items, int currentCurrency, bool hasEmptyPinSlot, bool hasEmptyTokenSlot, int rerollCost)
+    public void SetItems(IProduct[] items, int currentCurrency, bool hasEmptyItemSlot, int rerollCost)
     {
         int count = (items != null) ? items.Length : 0;
 
@@ -163,11 +162,9 @@ public sealed class ShopView : MonoBehaviour
                 continue;
             }
 
-            bool canBuy;
-            if (item.ItemType == ShopItemType.Pin)
-                canBuy = !sold && hasEmptyPinSlot && currentCurrency >= item.Price;
-            else
-                canBuy = !sold && hasEmptyTokenSlot && currentCurrency >= item.Price;
+            var canBuy = false;
+            if (item.ProductType == ProductType.Item)
+                canBuy = !sold && hasEmptyItemSlot && currentCurrency >= item.Price;
 
             view.gameObject.SetActive(true);
             view.SetData(item, item.Price, canBuy, sold);
@@ -229,9 +226,10 @@ public sealed class ShopView : MonoBehaviour
     // Pin drag UI
     // ======================
 
-    public void ShowItemDragGhost(IShopItem item, Vector2 screenPos)
+    public void ShowItemDragGhost(IProduct item, Vector2 screenPos)
     {
-        GhostManager.Instance?.ShowGhost(item?.Icon, screenPos, item?.ItemType == ShopItemType.Item ? GhostKind.Item : GhostKind.Pin);
+        GhostManager.Instance?.ShowGhost(item?.Icon, screenPos,
+            item?.ProductType == ProductType.Item ? GhostKind.Item : GhostKind.Pin);
     }
 
     public void UpdateItemDragGhostPosition(Vector2 screenPos)
