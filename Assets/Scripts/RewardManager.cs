@@ -1,4 +1,5 @@
 using System.Globalization;
+using Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Components;
@@ -27,11 +28,16 @@ public sealed class RewardManager : MonoBehaviour
     public void Open()
     {
         isOpen = true;
-        
+
+        int startCurrency = CurrencyManager.Instance != null ? CurrencyManager.Instance.CurrentCurrency : 0;
+
         CurrencyManager.Instance?.AddCurrency(GameConfig.BaseIncome);
         PlayerManager.Instance.Current.BallCount += GameConfig.BaseBallIncome;
-        
-        UpdateEarnedCurrency();
+
+        ItemManager.Instance?.TriggerAll(ItemTriggerType.OnRewardOpen);
+
+        int endCurrency = CurrencyManager.Instance != null ? CurrencyManager.Instance.CurrentCurrency : startCurrency;
+        UpdateEarnedCurrency(Mathf.Max(0, endCurrency - startCurrency));
         
         if(rewardOverlay != null)
             rewardOverlay.SetActive(true);
@@ -51,9 +57,9 @@ public sealed class RewardManager : MonoBehaviour
         StageManager.Instance?.OnRewardClosed();
     }
 
-    private void UpdateEarnedCurrency()
+    private void UpdateEarnedCurrency(int earned)
     {
         if (earnedCurrencyText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
-            sv.Value = GameConfig.BaseIncome.ToString(CultureInfo.InvariantCulture);
+            sv.Value = earned.ToString(CultureInfo.InvariantCulture);
     }
 }

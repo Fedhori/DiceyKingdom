@@ -81,5 +81,26 @@
 				}
 			]
 		}
+		,
+		{
+			"id": "item.piggybank",
+			"isObject": false,
+			"price": 5,
+			"rarity": "Uncommon",
+			"rules": [
+				{
+					"triggerType": "OnRewardOpen",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "AddCurrency",
+							"value": 1.0
+						}
+					]
+				}
+			]
+		}
 	]
 }
