@@ -579,7 +579,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   playArea: {fileID: 1644066639}
-  startYOffset: 64
+  startYOffset: 32
 --- !u!1 &147300224
 GameObject:
   m_ObjectHideFlags: 0
