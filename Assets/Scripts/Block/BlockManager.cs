@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Data;
 using UnityEngine;
 
 public sealed class BlockManager : MonoBehaviour
@@ -114,6 +115,7 @@ public sealed class BlockManager : MonoBehaviour
         if (block == null)
             return;
 
+        ItemManager.Instance?.TriggerAll(ItemTriggerType.OnBlockDestroyed);
         activeBlocks.Remove(block);
         CheckClearCondition();
     }

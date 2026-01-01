@@ -102,5 +102,29 @@
 				}
 			]
 		}
+		,
+		{
+			"id": "item.angel",
+			"isObject": false,
+			"price": 7,
+			"rarity": "Common",
+			"rules": [
+				{
+					"triggerType": "OnBlockDestroyed",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "damage",
+							"effectMode": "Add",
+							"value": 1.0,
+							"temporary": true
+						}
+					]
+				}
+			]
+		}
 	]
 }

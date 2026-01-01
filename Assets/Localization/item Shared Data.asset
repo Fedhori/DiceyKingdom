@@ -55,6 +55,14 @@ MonoBehaviour:
     m_Key: item.piggybank.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 3962800000000002
+    m_Key: item.angel.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3962800000000003
+    m_Key: item.angel.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
