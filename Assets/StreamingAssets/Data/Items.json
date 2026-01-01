@@ -126,5 +126,29 @@
 				}
 			]
 		}
+		,
+		{
+			"id": "item.plank",
+			"isObject": false,
+			"price": 6,
+			"rarity": "Rare",
+			"rules": [
+				{
+					"triggerType": "OnTick",
+					"condition": {
+						"conditionKind": "PlayerIdle"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "damage",
+							"effectMode": "Add",
+							"value": 5.0,
+							"temporary": true
+						}
+					]
+				}
+			]
+		}
 	]
 }

@@ -3,6 +3,8 @@ using UnityEngine.InputSystem;
 
 public sealed class PlayerController : MonoBehaviour
 {
+    public static PlayerController Instance { get; private set; }
+
     [SerializeField] private Transform playArea;
     [SerializeField] private float startYOffset = 64f;
 
@@ -10,9 +12,18 @@ public sealed class PlayerController : MonoBehaviour
     SpriteRenderer playAreaRenderer;
     Vector2 minBounds;
     Vector2 maxBounds;
+    public bool IsMoveInputActive { get; private set; }
 
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+
         if (playArea != null)
             playAreaRenderer = playArea.GetComponent<SpriteRenderer>();
     }
@@ -28,12 +39,16 @@ public sealed class PlayerController : MonoBehaviour
     {
         player ??= PlayerManager.Instance?.Current;
         if (player == null)
+        {
+            IsMoveInputActive = false;
             return;
+        }
 
         CacheBounds();
 
         float dir = GetMoveInput();
-        if (Mathf.Approximately(dir, 0f))
+        IsMoveInputActive = !Mathf.Approximately(dir, 0f);
+        if (!IsMoveInputActive)
             return;
 
         float speed = player.WorldMoveSpeed;

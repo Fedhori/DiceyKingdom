@@ -20,7 +20,8 @@ namespace Data
     public enum ItemConditionKind
     {
         Unknown = 0,
-        Always
+        Always,
+        PlayerIdle
     }
 
     public enum ItemEffectType

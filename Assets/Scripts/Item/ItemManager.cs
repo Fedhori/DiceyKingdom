@@ -8,12 +8,14 @@ public sealed class ItemManager : MonoBehaviour
 
     [SerializeField] private string defaultItemId = "item.default";
     [SerializeField] private Transform attachTarget; // 플레이어 transform 등
+    [SerializeField] private float tickIntervalSeconds = 1f;
 
     readonly List<ItemController> controllers = new();
     readonly Dictionary<ItemInstance, ItemController> controllerMap = new();
     readonly HashSet<ItemInstance> effectSources = new();
     readonly ItemInventory inventory = new();
     bool isPlayActive;
+    float tickTimer;
 
     void Awake()
     {
@@ -38,6 +40,7 @@ public sealed class ItemManager : MonoBehaviour
     public void BeginPlay()
     {
         isPlayActive = true;
+        tickTimer = 0f;
         ClearControllers();
         BuildControllersFromInventory();
     }
@@ -45,6 +48,7 @@ public sealed class ItemManager : MonoBehaviour
     public void EndPlay()
     {
         isPlayActive = false;
+        tickTimer = 0f;
         ClearControllers();
     }
 
@@ -217,6 +221,22 @@ public sealed class ItemManager : MonoBehaviour
         }
 
         mgr.ApplyEffect(effect, source);
+    }
+
+    void Update()
+    {
+        if (!isPlayActive)
+            return;
+
+        if (tickIntervalSeconds <= 0f)
+            return;
+
+        tickTimer += Time.deltaTime;
+        while (tickTimer >= tickIntervalSeconds)
+        {
+            tickTimer -= tickIntervalSeconds;
+            TriggerAll(ItemTriggerType.OnTick);
+        }
     }
 
     bool ContainsInstance(ItemInstance inst)

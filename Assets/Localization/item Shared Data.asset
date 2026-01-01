@@ -63,6 +63,14 @@ MonoBehaviour:
     m_Key: item.angel.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 3962800000000004
+    m_Key: item.plank.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3962800000000005
+    m_Key: item.plank.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

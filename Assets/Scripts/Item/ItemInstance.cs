@@ -102,6 +102,9 @@ public sealed class ItemInstance
         {
             case ItemConditionKind.Always:
                 return true;
+            case ItemConditionKind.PlayerIdle:
+                var controller = PlayerController.Instance;
+                return controller != null && !controller.IsMoveInputActive;
             default:
                 Debug.LogWarning($"[ItemInstance] Unsupported condition {condition.conditionKind} for trigger {trigger}");
                 return false;
