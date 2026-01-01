@@ -23,6 +23,30 @@ MonoBehaviour:
     m_Key: item.textbook.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 3962397877874688
+    m_Key: item.ball.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3962466660265984
+    m_Key: item.ball.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3962600194322432
+    m_Key: item.minigun.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3962645090152448
+    m_Key: item.minigun.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3962699427360768
+    m_Key: item.pistol.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3962741852745728
+    m_Key: item.pistol.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

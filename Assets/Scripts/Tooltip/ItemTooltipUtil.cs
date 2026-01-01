@@ -66,9 +66,6 @@ public static class ItemTooltipUtil
             if (rule == null)
                 continue;
 
-            if (rule.effects == null || rule.effects.Count == 0)
-                continue;
-
             var line = BuildRuleLine(item, rule, i);
             if (!string.IsNullOrEmpty(line))
                 lines.Add(line);
