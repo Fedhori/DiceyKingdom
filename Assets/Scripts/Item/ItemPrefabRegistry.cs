@@ -14,6 +14,7 @@ public sealed class ItemPrefabRegistry : MonoBehaviour
     public static ItemPrefabRegistry Instance { get; private set; }
 
     [SerializeField] private List<Entry> entries = new();
+    [SerializeField] private GameObject defaultPrefab;
 
     readonly Dictionary<string, GameObject> map = new(StringComparer.OrdinalIgnoreCase);
 
@@ -49,5 +50,13 @@ public sealed class ItemPrefabRegistry : MonoBehaviour
             return false;
 
         return map.TryGetValue(key, out prefab);
+    }
+
+    public GameObject GetOrDefault(string key)
+    {
+        if (!string.IsNullOrEmpty(key) && map.TryGetValue(key, out var prefab))
+            return prefab;
+
+        return defaultPrefab;
     }
 }

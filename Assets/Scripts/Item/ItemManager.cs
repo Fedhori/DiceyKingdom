@@ -147,7 +147,7 @@ public sealed class ItemManager : MonoBehaviour
         if (registry == null)
             return null;
 
-        return registry.TryGet(inst.Id, out var prefab) ? prefab : null;
+        return registry.GetOrDefault(inst.Id);
     }
 
     void HandleSlotChanged(int slotIndex, ItemInstance previous, ItemInstance current)

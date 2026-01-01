@@ -30,11 +30,11 @@ MonoBehaviour:
       m_Items:
       - rid: 2507345486982938704
   - m_Id: 3962397877874688
-    m_Localized: "\uAD6C\uC2AC"
+    m_Localized: "\uBCFC"
     m_Metadata:
       m_Items: []
   - m_Id: 3962466660265984
-    m_Localized: "\uBCBD\uACFC \uBE14\uB7ED\uC5D0 \uD295\uAE30\uB294 5\uAC1C\uB97C
+    m_Localized: "\uBCBD\uACFC \uBE14\uB7ED\uC5D0 \uD295\uAE30\uB294 \uBCFC 5\uAC1C\uB97C
       \uC18C\uD658\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []

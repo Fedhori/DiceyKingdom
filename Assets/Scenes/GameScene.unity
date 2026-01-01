@@ -2932,11 +2932,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8af3a0d6a488bad44a780e6efbc1d0bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemPrefabRegistry
-  entries:
-  - key: item.pistol
-    prefab: {fileID: 8524277218632059139, guid: b061a64d594663f41b203063287b4154, type: 3}
-  - key: item.minigun
-    prefab: {fileID: 8524277218632059139, guid: b061a64d594663f41b203063287b4154, type: 3}
+  entries: []
+  defaultPrefab: {fileID: 1772306015642552443, guid: 56c1f7b4571e0634b9050b0122f0be8c, type: 3}
 --- !u!114 &715098192
 MonoBehaviour:
   m_ObjectHideFlags: 0
