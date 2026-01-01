@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
-  m_Name: token Shared Data
+  m_Name: item Shared Data
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
-  m_TableCollectionName: token
+  m_TableCollectionName: item
   m_TableCollectionNameGuidString: e843216d666828442b8f07e584a6810f
   m_Entries:
   - m_Id: 6605516800
-    m_Key: token.textbook.name
+    m_Key: i.textbook.name
     m_Metadata:
       m_Items: []
   - m_Id: 432495144960
-    m_Key: token.textbook.effect0
+    m_Key: i.textbook.effect0
     m_Metadata:
       m_Items: []
   m_Metadata:

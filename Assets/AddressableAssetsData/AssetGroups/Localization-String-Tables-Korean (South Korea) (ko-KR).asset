@@ -53,7 +53,7 @@ MonoBehaviour:
     - Locale-ko-KR
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f69c7286024e7764bba6fb24c53cd157
-    m_Address: token_ko-KR
+    m_Address: item_ko-KR
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ko-KR

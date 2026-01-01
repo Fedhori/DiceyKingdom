@@ -20,7 +20,7 @@ public sealed class ItemController : MonoBehaviour
 
     void Update()
     {
-        if (item == null || BulletFactory.Instance == null || firePoint == null)
+        if (item == null || ProjectileFactory.Instance == null || firePoint == null)
             return;
 
         float interval = 1f / Mathf.Max(0.1f, item.AttackSpeed);
@@ -36,6 +36,6 @@ public sealed class ItemController : MonoBehaviour
     {
         Vector3 pos = firePoint.position;
         Vector2 dir = Vector2.up;
-        BulletFactory.Instance.SpawnBullet(pos, dir, item);
+        ProjectileFactory.Instance.SpawnProjectile(pos, dir, item);
     }
 }

@@ -76,7 +76,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (item == null || dto == null)
             return;
 
-        var factory = BulletFactory.Instance;
+        var factory = ProjectileFactory.Instance;
         if (factory == null)
             return;
 
@@ -95,7 +95,7 @@ public sealed class ItemEffectManager : MonoBehaviour
             if (dir.sqrMagnitude <= 0.001f)
                 dir = Vector2.up;
 
-            factory.SpawnBullet(pos, dir, item);
+            factory.SpawnProjectile(pos, dir, item);
         }
     }
 }

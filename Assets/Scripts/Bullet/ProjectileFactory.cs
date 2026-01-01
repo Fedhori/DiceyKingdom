@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed class BulletFactory : MonoBehaviour
+public sealed class ProjectileFactory : MonoBehaviour
 {
-    public static BulletFactory Instance { get; private set; }
+    public static ProjectileFactory Instance { get; private set; }
 
-    [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private List<ProjectilePrefabEntry> projectilePrefabs = new();
-    [SerializeField] private Transform bulletParent;
+    [SerializeField] private Transform parent;
 
     readonly Dictionary<string, GameObject> prefabMap = new();
 
@@ -38,7 +37,7 @@ public sealed class BulletFactory : MonoBehaviour
 
             if (prefabMap.ContainsKey(entry.key))
             {
-                Debug.LogWarning($"[BulletFactory] Duplicate projectile key '{entry.key}'.");
+                Debug.LogWarning($"[ProjectileFactory] Duplicate projectile key '{entry.key}'.");
                 continue;
             }
 
@@ -54,23 +53,23 @@ public sealed class BulletFactory : MonoBehaviour
                 return mapped;
         }
 
-        return bulletPrefab;
+        return null;
     }
 
-    public void SpawnBullet(Vector3 position, Vector2 direction, ItemInstance item)
+    public void SpawnProjectile(Vector3 position, Vector2 direction, ItemInstance item)
     {
         var prefab = ResolvePrefab(item);
         if (prefab == null)
         {
-            Debug.LogError("[BulletFactory] bullet prefab not assigned");
+            Debug.LogError("[ProjectileFactory] projectile prefab not assigned");
             return;
         }
 
-        var go = Instantiate(prefab, position, Quaternion.identity, bulletParent);
-        var ctrl = go.GetComponent<BulletController>();
+        var go = Instantiate(prefab, position, Quaternion.identity, parent);
+        var ctrl = go.GetComponent<ProjectileController>();
         if (ctrl == null)
         {
-            Debug.LogError("[BulletFactory] BulletController missing on prefab");
+            Debug.LogError("[ProjectileFactory] ProjectileController missing on prefab");
             Destroy(go);
             return;
         }

@@ -10,24 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
-  m_Name: token_en
+  m_Name: item_ko-KR
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
   m_LocaleId:
-    m_Code: en
+    m_Code: ko-KR
   m_SharedData: {fileID: 11400000, guid: e843216d666828442b8f07e584a6810f, type: 2}
   m_Metadata:
     m_Items:
-    - rid: 2507345486982938703
+    - rid: 2507345486982938704
   m_TableData:
+  - m_Id: 6605516800
+    m_Localized: "\uAD50\uACFC\uC11C"
+    m_Metadata:
+      m_Items: []
   - m_Id: 432495144960
-    m_Localized: 
+    m_Localized: "\uC2A4\uD14C\uC774\uC9C0 \uB05D\uB0A0 \uB54C: \uACF5\uACA9\uB825\uC774
+      \uC601\uAD6C\uC801\uC73C\uB85C {value0} \uC99D\uAC00\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
-      - rid: 2507345486982938703
+      - rid: 2507345486982938704
   references:
     version: 2
     RefIds:
-    - rid: 2507345486982938703
+    - rid: 2507345486982938704
       type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
         m_Entries: 

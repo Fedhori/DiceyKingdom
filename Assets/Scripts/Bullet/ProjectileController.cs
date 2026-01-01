@@ -2,7 +2,7 @@ using Data;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
-public sealed class BulletController : MonoBehaviour
+public sealed class ProjectileController : MonoBehaviour
 {
     ItemInstance item;
     Rigidbody2D rb;
