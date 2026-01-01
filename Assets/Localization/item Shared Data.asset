@@ -16,11 +16,11 @@ MonoBehaviour:
   m_TableCollectionNameGuidString: e843216d666828442b8f07e584a6810f
   m_Entries:
   - m_Id: 6605516800
-    m_Key: i.textbook.name
+    m_Key: item.textbook.name
     m_Metadata:
       m_Items: []
   - m_Id: 432495144960
-    m_Key: i.textbook.effect0
+    m_Key: item.textbook.effect0
     m_Metadata:
       m_Items: []
   m_Metadata:

@@ -2841,9 +2841,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopView
   shopOverlay: {fileID: 1288486031}
-  pinItemPrefab: {fileID: 7135958795844342221, guid: 637e10208db27d848a1c6ba773b7eadd, type: 3}
-  tokenItemPrefab: {fileID: 7135958795844342221, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
-  itemsParent: {fileID: 1241167450}
+  itemProductPrefab: {fileID: 7135958795844342221, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
+  productsParent: {fileID: 1241167450}
   rerollCostText: {fileID: 147300228}
   rerollButton: {fileID: 1999143222}
   closeButton: {fileID: 1644759787}
