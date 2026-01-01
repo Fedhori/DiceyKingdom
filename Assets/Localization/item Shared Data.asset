@@ -71,6 +71,14 @@ MonoBehaviour:
     m_Key: item.plank.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 3962800000000006
+    m_Key: item.shotgun.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3962800000000007
+    m_Key: item.shotgun.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -80,8 +80,7 @@
 					]
 				}
 			]
-		}
-		,
+		},
 		{
 			"id": "item.piggybank",
 			"isObject": false,
@@ -101,8 +100,7 @@
 					]
 				}
 			]
-		}
-		,
+		},
 		{
 			"id": "item.angel",
 			"isObject": false,
@@ -125,8 +123,7 @@
 					]
 				}
 			]
-		}
-		,
+		},
 		{
 			"id": "item.plank",
 			"isObject": false,
@@ -149,6 +146,21 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "item.shotgun",
+			"isObject": true,
+			"price": 8,
+			"rarity": "Common",
+			"attackSpeed": 1.0,
+			"projectile": {
+				"key": "projectile.bullet",
+				"size": 1.0,
+				"speed": 1.0,
+				"pelletCount": 5,
+				"spreadAngle": 10.0
+			},
+			"rules": []
 		}
 	]
 }

@@ -88,6 +88,8 @@ namespace Data
         public string key;
         public float size = 1f;
         public float speed = 1f;
+        public int pelletCount = 1;
+        public float spreadAngle = 0f;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ProjectileHitBehavior hitBehavior = ProjectileHitBehavior.Destroy;
@@ -159,6 +161,12 @@ namespace Data
                 if (projectile.lifeTime < 0f)
                 {
                     Debug.LogError($"[ItemDto] '{id}': projectile.lifeTime < 0 is not allowed.");
+                    isValid = false;
+                }
+
+                if (projectile.pelletCount < 1)
+                {
+                    Debug.LogError($"[ItemDto] '{id}': projectile.pelletCount < 1 is not allowed.");
                     isValid = false;
                 }
             }

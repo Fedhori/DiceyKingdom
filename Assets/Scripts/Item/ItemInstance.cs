@@ -15,6 +15,8 @@ public sealed class ItemInstance
     public ProjectileHitBehavior ProjectileHitBehavior { get; private set; }
     public int MaxBounces { get; private set; }
     public float ProjectileLifeTime { get; private set; }
+    public int PelletCount { get; private set; }
+    public float SpreadAngle { get; private set; }
     public bool IsObject { get; private set; }
 
     private readonly List<ItemRuleDto> rules = new();
@@ -39,6 +41,8 @@ public sealed class ItemInstance
             ProjectileHitBehavior = ProjectileHitBehavior.Destroy;
             MaxBounces = 0;
             ProjectileLifeTime = 0f;
+            PelletCount = 1;
+            SpreadAngle = 0f;
             IsObject = false;
             return;
         }
@@ -60,6 +64,8 @@ public sealed class ItemInstance
             ProjectileHitBehavior = projectile.hitBehavior;
             MaxBounces = Mathf.Max(0, projectile.maxBounces);
             ProjectileLifeTime = Mathf.Max(0f, projectile.lifeTime);
+            PelletCount = Mathf.Max(1, projectile.pelletCount);
+            SpreadAngle = Mathf.Max(0f, projectile.spreadAngle);
         }
         else
         {
@@ -69,6 +75,8 @@ public sealed class ItemInstance
             ProjectileHitBehavior = ProjectileHitBehavior.Destroy;
             MaxBounces = 0;
             ProjectileLifeTime = 0f;
+            PelletCount = 1;
+            SpreadAngle = 0f;
         }
     }
 

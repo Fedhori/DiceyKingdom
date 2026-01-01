@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Data;
@@ -41,6 +42,13 @@ public static class ItemTooltipUtil
         AppendRuleLines(item, lines);
 
         if (lines.Count == 0)
+        {
+            var fallback = BuildFallbackLine(item);
+            if (!string.IsNullOrEmpty(fallback))
+                lines.Add(fallback);
+        }
+
+        if (lines.Count == 0)
             return string.Empty;
 
         var sb = new StringBuilder();
@@ -77,18 +85,36 @@ public static class ItemTooltipUtil
         var key = $"{item.Id}.effect{ruleIndex}";
         var loc = new LocalizedString("item", key);
 
-        var args = BuildRuleArgs(rule);
+        var args = BuildRuleArgs(item, rule);
         if (args != null)
             loc.Arguments = new object[] { args };
 
         return loc.GetLocalizedString();
     }
 
-    static object BuildRuleArgs(ItemRuleDto rule)
+    static string BuildFallbackLine(ItemInstance item)
+    {
+        if (item == null)
+            return string.Empty;
+
+        var key = $"{item.Id}.effect0";
+        var loc = new LocalizedString("item", key);
+        var args = BuildRuleArgs(item, null);
+        if (args != null)
+            loc.Arguments = new object[] { args };
+
+        var line = loc.GetLocalizedString();
+        if (string.IsNullOrEmpty(line) || string.Equals(line, key, StringComparison.Ordinal))
+            return string.Empty;
+
+        return line;
+    }
+
+    static object BuildRuleArgs(ItemInstance item, ItemRuleDto rule)
     {
         var dict = new Dictionary<string, object>();
 
-        if (rule.effects != null)
+        if (rule != null && rule.effects != null)
         {
             for (int i = 0; i < rule.effects.Count; i++)
             {
@@ -100,6 +126,9 @@ public static class ItemTooltipUtil
                 dict[key] = e.value.ToString("0.##");
             }
         }
+
+        if (item is { PelletCount: > 1 })
+            dict["pelletCount"] = item.PelletCount;
 
         return dict.Count == 0 ? null : dict;
     }
