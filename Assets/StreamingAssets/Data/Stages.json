@@ -6,7 +6,7 @@
 		},
 		{
 			"index": 1,
-			"blockHealth": 30
+			"blockHealth": 20
 		},
 		{
 			"index": 2,
@@ -14,35 +14,31 @@
 		},
 		{
 			"index": 3,
-			"blockHealth": 50
-		},
-		{
-			"index": 4,
-			"blockHealth": 60
-		},
-		{
-			"index": 5,
 			"blockHealth": 70
 		},
 		{
-			"index": 6,
-			"blockHealth": 80
-		},
-		{
-			"index": 7,
+			"index": 4,
 			"blockHealth": 90
 		},
 		{
+			"index": 5,
+			"blockHealth": 110
+		},
+		{
+			"index": 6,
+			"blockHealth": 130
+		},
+		{
+			"index": 7,
+			"blockHealth": 150
+		},
+		{
 			"index": 8,
-			"blockHealth": 100
+			"blockHealth": 170
 		},
 		{
 			"index": 9,
-			"blockHealth": 100
-		},
-		{
-			"index": 10,
-			"blockHealth": 100
+			"blockHealth": 200
 		}
 	]
 }

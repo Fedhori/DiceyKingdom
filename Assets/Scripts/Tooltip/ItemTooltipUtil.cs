@@ -131,7 +131,7 @@ public static class ItemTooltipUtil
             dict["pelletCount"] = item.PelletCount;
 
         if (item is { PierceBouns: > 0 })
-            dict["pierceBouns"] = item.PierceBouns;
+            dict["pierceBonus"] = item.PierceBouns;
 
         return dict.Count == 0 ? null : dict;
     }

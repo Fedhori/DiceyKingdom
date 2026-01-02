@@ -64,6 +64,24 @@ public sealed class DevCommandManager : MonoBehaviour
 
             CurrencyManager.Instance.AddCurrency(int.Parse(param[0]));
         });
+
+        Register("clearplay", param =>
+        {
+            if (param.Length != 0)
+            {
+                Debug.LogWarning("[DevCommand] Usage: clearplay");
+                return;
+            }
+
+            if (StageManager.Instance != null && StageManager.Instance.CurrentPhase != StagePhase.Play)
+            {
+                Debug.LogWarning("[DevCommand] clearplay is only available during Play phase.");
+                return;
+            }
+
+            BlockManager.Instance?.ClearAllBlocks();
+            PlayManager.Instance?.FinishPlay();
+        });
     }
 
     [Header("Toggle")] public KeyCode toggleKey = KeyCode.BackQuote;

@@ -184,6 +184,24 @@ public sealed class BlockManager : MonoBehaviour
         return new Vector3(x, y, 0f);
     }
 
+    public void ClearAllBlocks()
+    {
+        isSpawning = false;
+        spawnElapsed = 0f;
+        spawnAccumulator = 0f;
+
+        for (int i = activeBlocks.Count - 1; i >= 0; i--)
+        {
+            var block = activeBlocks[i];
+            if (block == null)
+                continue;
+
+            Destroy(block.gameObject);
+        }
+
+        activeBlocks.Clear();
+    }
+
     public BlockController GetLowestBlock(Vector3 fromPosition)
     {
         BlockController best = null;

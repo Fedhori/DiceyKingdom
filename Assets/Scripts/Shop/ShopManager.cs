@@ -14,7 +14,7 @@ public sealed class ShopManager : MonoBehaviour
     [SerializeField] private int rerollCostIncrement = 1;
 
     [Header("Mixed Item Probabilities (weight-based)")]
-    [SerializeField] private ProductProbability[] itemProbabilities =
+    private readonly ProductProbability[] itemProbabilities =
     {
         new ProductProbability { type = ProductType.Item, weight = 100 }
     };
@@ -392,7 +392,7 @@ public sealed class ShopManager : MonoBehaviour
 
     void RefreshView()
     {
-        if (shopView == null)
+        if (shopView == null) 
             return;
 
         int currency = CurrencyManager.Instance != null

@@ -4,7 +4,7 @@
 			"id": "item.pistol",
 			"isObject": true,
 			"isNotSell": true,
-			"attackSpeed": 3.0,
+			"attackSpeed": 2.0,
 			"projectile": {
 				"key": "projectile.bullet",
 				"size": 1.0,
@@ -45,7 +45,7 @@
 		{
 			"id": "item.minigun",
 			"damageMultiplier": 1.0,
-			"attackSpeed": 2.0,
+			"attackSpeed": 5.0,
 			"isObject": true,
 			"price": 6,
 			"rarity": "Uncommon",

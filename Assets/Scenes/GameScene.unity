@@ -1888,7 +1888,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 855.8182
+  orthographic size: 960
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2820,14 +2820,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopManager
   shopView: {fileID: 708886698}
-  itemsPerShop: 6
+  itemsPerShop: 4
   baseRerollCost: 1
   rerollCostIncrement: 1
-  itemProbabilities:
-  - type: 0
-    weight: 50
-  - type: 1
-    weight: 50
 --- !u!114 &708886698
 MonoBehaviour:
   m_ObjectHideFlags: 0
