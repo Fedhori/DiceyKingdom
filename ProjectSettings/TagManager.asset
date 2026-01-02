@@ -45,5 +45,14 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Block
+    uniqueID: 4024006411
+    locked: 0
+  - name: Projectile
+    uniqueID: 2084927347
+    locked: 0
+  - name: Wall
+    uniqueID: 2946250051
+    locked: 0
   m_RenderingLayers:
   - Default

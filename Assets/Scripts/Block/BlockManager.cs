@@ -98,7 +98,7 @@ public sealed class BlockManager : MonoBehaviour
     {
         float minX = originTopLeft.x + blockSize.x * 0.5f;
         float maxX = originTopRight.x - blockSize.x * 0.5f;
-        float y = originTopLeft.y - blockSize.y * 0.5f;
+        float y = originTopLeft.y + blockSize.y * 0.5f;
 
         float x = Random.Range(minX, maxX);
         Vector3 worldPos = new Vector3(x, y, 0f);

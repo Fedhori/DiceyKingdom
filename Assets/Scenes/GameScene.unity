@@ -399,7 +399,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchorMin.x
@@ -407,15 +407,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 192
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 192
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -447,11 +447,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 652
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -332.09396
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -790,7 +790,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchorMin.x
@@ -798,15 +798,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 192
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 192
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -838,11 +838,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 364
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -332.09396
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1624,11 +1624,11 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1348717245
+  m_SortingLayer: 3
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: b0317eefb4670e14eaeeae85d63c006c, type: 3}
-  m_Color: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 0}
+  m_Color: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
@@ -2469,7 +2469,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 00000000fb57fe72
+  m_ApplyToSortingLayers: 00000000fb57fe720b77d9ef7377457c43359caf
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -4177,11 +4177,11 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1348717245
+  m_SortingLayer: 3
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: b0317eefb4670e14eaeeae85d63c006c, type: 3}
-  m_Color: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 0}
+  m_Color: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
@@ -4749,7 +4749,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1288486032
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5569,7 +5569,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchorMin.x
@@ -5577,15 +5577,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 192
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 192
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5617,11 +5617,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 364
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -620.094
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -6840,7 +6840,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1644759788}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 708886697}
+        m_TargetAssemblyTypeName: ShopManager, Assembly-CSharp
+        m_MethodName: OnClickCloseButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1644759788
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8292,11 +8304,11 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1348717245
+  m_SortingLayer: 3
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: b0317eefb4670e14eaeeae85d63c006c, type: 3}
-  m_Color: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 0}
+  m_Color: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
@@ -8612,7 +8624,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1999143223}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 708886697}
+        m_TargetAssemblyTypeName: ShopManager, Assembly-CSharp
+        m_MethodName: OnClickReroll
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1999143223
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8820,11 +8844,11 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1348717245
+  m_SortingLayer: 3
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: b0317eefb4670e14eaeeae85d63c006c, type: 3}
-  m_Color: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 0}
+  m_Color: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
@@ -8906,7 +8930,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchorMin.x
@@ -8914,15 +8938,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 192
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 192
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -8954,11 +8978,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 652
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -620.094
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4484877120713957811, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
