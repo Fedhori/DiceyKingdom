@@ -113,8 +113,8 @@ namespace Data
         public ItemRarity rarity = ItemRarity.Common;
 
         public List<ItemRuleDto> rules;
-        public float damageMultiplier = 1f;
-        public float attackSpeed = 1f;
+        public float damageMultiplier = 0f;
+        public float attackSpeed = 0f;
         public ItemProjectileData projectile;
         public int pierceBouns = 0;
 

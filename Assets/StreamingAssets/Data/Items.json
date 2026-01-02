@@ -160,7 +160,7 @@
 				"pelletCount": 5,
 				"spreadAngle": 10.0
 			},
-			"rules": []
+			"rules": [{}]
 		},
 		{
 			"id": "item.sniperrifle",
@@ -177,7 +177,7 @@
 				"maxPierces": -1,
 				"lifeTime": 0.0
 			},
-			"rules": []
+			"rules": [{}]
 		},
 		{
 			"id": "item.armorpiercer",
@@ -185,7 +185,7 @@
 			"price": 8,
 			"rarity": "Rare",
 			"pierceBouns": 1,
-			"rules": []
+			"rules": [{}]
 		},
 		{
 			"id": "item.smartgun",
@@ -199,7 +199,7 @@
 				"speed": 1.0,
 				"homingTurnRate": 720.0
 			},
-			"rules": []
+			"rules": [{}]
 		}
 	]
 }
