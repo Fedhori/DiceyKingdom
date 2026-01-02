@@ -77,6 +77,29 @@ public sealed class ProjectileFactory : MonoBehaviour
         ctrl.Initialize(item, direction);
     }
 
+    public void ClearAllProjectiles()
+    {
+        if (parent != null)
+        {
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                var child = parent.GetChild(i);
+                if (child != null)
+                    Destroy(child.gameObject);
+            }
+
+            return;
+        }
+
+        var projectiles = FindObjectsByType<ProjectileController>(FindObjectsSortMode.None);
+        for (int i = 0; i < projectiles.Length; i++)
+        {
+            var projectile = projectiles[i];
+            if (projectile != null)
+                Destroy(projectile.gameObject);
+        }
+    }
+
     [System.Serializable]
     public struct ProjectilePrefabEntry
     {

@@ -29,7 +29,7 @@
 			},
 			"rules": [
 				{
-					"triggerType": "OnStageStart",
+					"triggerType": "OnPlayStart",
 					"condition": {
 						"conditionKind": "Always"
 					},

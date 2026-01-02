@@ -1,8 +1,10 @@
 // ... 기존 using 생략
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 [DefaultExecutionOrder(-10000)]
 public sealed class DevCommandManager : MonoBehaviour
@@ -193,6 +195,28 @@ public sealed class DevCommandManager : MonoBehaviour
         {
             Debug.LogWarning($"[DevConsole] Unknown command: {cmd}");
         }
+
+        SuppressUiSubmitForOneFrame();
+    }
+
+    // 상점 나가기 버튼이 포커스된 상태에서, Enter키를 누를 경우 submit 되면서 상점이 나가지는 버그가 있었음.
+    // 콘솔창에서 Enter 입력 시 1프레임을 무시하는 식으로 대응.
+    void SuppressUiSubmitForOneFrame()
+    {
+        var es = EventSystem.current;
+        if (es == null)
+            return;
+
+        StartCoroutine(SuppressSubmitCoroutine(es));
+    }
+
+    IEnumerator SuppressSubmitCoroutine(EventSystem es)
+    {
+        bool prev = es.sendNavigationEvents;
+        es.sendNavigationEvents = false;
+        yield return null;
+        if (es != null)
+            es.sendNavigationEvents = prev;
     }
 #endif
 }

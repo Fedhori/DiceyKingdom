@@ -49,8 +49,6 @@ public sealed class ShopManager : MonoBehaviour
         {
             shopView.SetCallbacks(
                 onClickItem: OnClickItem,
-                onClickReroll: OnClickReroll,
-                onClickClose: OnClickCloseButton,
                 onBeginDragItem: BeginItemDrag,
                 onDragItem: UpdateItemDrag,
                 onEndDragItem: EndItemDrag
@@ -453,7 +451,7 @@ public sealed class ShopManager : MonoBehaviour
         }
     }
 
-    void OnClickReroll()
+    public void OnClickReroll()
     {
         if (!isOpen)
             return;
@@ -481,7 +479,7 @@ public sealed class ShopManager : MonoBehaviour
         RefreshView();
     }
 
-    void OnClickCloseButton()
+    public void OnClickCloseButton()
     {
         Close();
     }

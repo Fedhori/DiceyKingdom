@@ -24,6 +24,7 @@ public sealed class PlayManager : MonoBehaviour
     public void FinishPlay()
     {
         ItemManager.Instance?.EndPlay();
+        ProjectileFactory.Instance?.ClearAllProjectiles();
         StageManager.Instance?.OnPlayFinished();
     }
 }

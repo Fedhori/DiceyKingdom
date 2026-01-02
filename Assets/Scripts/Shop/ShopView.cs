@@ -28,24 +28,10 @@ public sealed class ShopView : MonoBehaviour
     Action<int, Vector2> onBeginDragItem;
     Action<int, Vector2> onDragItem;
     Action<int, Vector2> onEndDragItem;
-    Action onClickReroll;
-    Action onClickClose;
 
     void Awake()
     {
         ClearEditorPlacedItems();
-
-        if (rerollButton != null)
-        {
-            rerollButton.onClick.RemoveAllListeners();
-            rerollButton.onClick.AddListener(() => onClickReroll?.Invoke());
-        }
-
-        if (closeButton != null)
-        {
-            closeButton.onClick.RemoveAllListeners();
-            closeButton.onClick.AddListener(() => onClickClose?.Invoke());
-        }
 
         if (shopOverlay != null)
             shopOverlay.SetActive(false);
@@ -66,12 +52,10 @@ public sealed class ShopView : MonoBehaviour
         }
     }
 
-    public void SetCallbacks(Action<int> onClickItem, Action onClickReroll, Action onClickClose,
+    public void SetCallbacks(Action<int> onClickItem,
         Action<int, Vector2> onBeginDragItem, Action<int, Vector2> onDragItem, Action<int, Vector2> onEndDragItem)
     {
         this.onClickItem = onClickItem;
-        this.onClickReroll = onClickReroll;
-        this.onClickClose = onClickClose;
         this.onBeginDragItem = onBeginDragItem;
         this.onDragItem = onDragItem;
         this.onEndDragItem = onEndDragItem;

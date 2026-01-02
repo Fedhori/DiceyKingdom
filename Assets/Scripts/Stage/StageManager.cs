@@ -103,6 +103,7 @@ public sealed class StageManager : MonoBehaviour
 
         CurrentPhase = StagePhase.Play;
         PlayManager.Instance?.StartPlay();
+        ItemManager.Instance?.TriggerAll(ItemTriggerType.OnPlayStart);
     }
     
     public void OnPlayFinished()
