@@ -8,6 +8,7 @@ public sealed class StageDto
 {
     public int index = -1;
     public int blockHealth = 100;
+    public float spawnSecond = 30f;
 }
 
 [Serializable]

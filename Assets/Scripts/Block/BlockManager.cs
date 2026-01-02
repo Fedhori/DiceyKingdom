@@ -50,6 +50,10 @@ public sealed class BlockManager : MonoBehaviour
     
     public void BeginSpawnRamp()
     {
+        var stage = StageManager.Instance?.CurrentStage;
+        float duration = stage != null ? stage.SpawnSecond : spawnDurationSeconds;
+        spawnDurationSeconds = Mathf.Max(1f, duration);
+
         isSpawning = true;
         spawnElapsed = 0f;
         spawnAccumulator = 0f;

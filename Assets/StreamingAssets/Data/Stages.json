@@ -2,15 +2,18 @@
 	"stages": [
 		{
 			"index": 0,
-			"blockHealth": 10
+			"blockHealth": 10,
+			"spawnSecond": 15
 		},
 		{
 			"index": 1,
-			"blockHealth": 20
+			"blockHealth": 20,
+			"spawnSecond": 20
 		},
 		{
 			"index": 2,
-			"blockHealth": 30
+			"blockHealth": 30,
+			"spawnSecond": 25
 		},
 		{
 			"index": 3,
