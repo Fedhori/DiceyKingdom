@@ -29,11 +29,14 @@ public sealed class ShopManager : MonoBehaviour
     IProduct[] currentShopItems;
     int currentRerollCost;
 
+    public event Action OnShopItemChanged;
+
     public event Action<int> OnSelectionChanged;
 
     public int CurrentSelectionIndex { get; private set; } = -1;
 
     int draggingItemIndex = -1;
+    ItemInventory subscribedInventory;
 
     void Awake()
     {
@@ -56,6 +59,7 @@ public sealed class ShopManager : MonoBehaviour
             OnSelectionChanged += shopView.HandleSelectionChanged;
             shopView.Close();  
         }
+        OnShopItemChanged += RefreshView;
     }
 
     void Start()
@@ -63,6 +67,13 @@ public sealed class ShopManager : MonoBehaviour
         var player = PlayerManager.Instance?.Current;
         if (player != null)
             player.OnCurrencyChanged += HandleCurrencyChanged;
+
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory != null)
+        {
+            subscribedInventory = inventory;
+            subscribedInventory.OnInventoryChanged += RefreshView;
+        }
     }
 
     void OnDisable()
@@ -73,6 +84,13 @@ public sealed class ShopManager : MonoBehaviour
         var player = PlayerManager.Instance?.Current;
         if (player != null)
             player.OnCurrencyChanged -= HandleCurrencyChanged;
+
+        OnShopItemChanged -= RefreshView;
+        if (subscribedInventory != null)
+        {
+            subscribedInventory.OnInventoryChanged -= RefreshView;
+            subscribedInventory = null;
+        }
     }
 
     System.Random Rng =>
@@ -98,9 +116,7 @@ public sealed class ShopManager : MonoBehaviour
         currentRerollCost = Mathf.Max(1, baseRerollCost);
 
         BuildRoster();
-        RefreshView();
-
-        shopView.Open();   
+        shopView.Open();
     }
 
     void CollectOwnedItems()
@@ -202,6 +218,8 @@ public sealed class ShopManager : MonoBehaviour
             if (currentShopItems[i] != null)
                 currentShopItems[i].Sold = false;
         }
+
+        NotifyShopItemChanged();
     }
 
     List<ItemDto> BuildItemPool()
@@ -328,44 +346,36 @@ public sealed class ShopManager : MonoBehaviour
 
         int price = item.Price;
         if (!currencyMgr.TrySpend(price))
-        {
-            RefreshView();
             return false;
-        }
 
         int slotIndex = overrideSlot >= 0 ? overrideSlot : FindFirstEmptyItemSlot();
         var inventory = ItemManager.Instance?.Inventory;
         if (inventory == null)
         {
             currencyMgr.AddCurrency(price);
-            RefreshView();
             return false;
         }
 
         if (slotIndex < 0)
         {
             currencyMgr.AddCurrency(price);
-            RefreshView();
             return false;
         }
 
         if (!ItemRepository.TryGet(item.Id, out var dto) || dto == null)
         {
             currencyMgr.AddCurrency(price);
-            RefreshView();
             return false;
         }
 
         if (!inventory.TrySetSlot(slotIndex, new ItemInstance(dto)))
         {
             currencyMgr.AddCurrency(price);
-            RefreshView();
             return false;
         }
 
         MarkSold(itemIndex);
         ClearSelection();
-        RefreshView();
         return true;
     }
 
@@ -386,11 +396,13 @@ public sealed class ShopManager : MonoBehaviour
         var item = GetShopItem(index);
         if (item != null)
             item.Sold = true;
+
+        NotifyShopItemChanged();
     }
 
     void RefreshView()
     {
-        if (shopView == null) 
+        if (!isOpen || shopView == null)
             return;
 
         int currency = CurrencyManager.Instance != null
@@ -403,6 +415,7 @@ public sealed class ShopManager : MonoBehaviour
         shopView.SetItems(currentShopItems, currency, hasEmptyItemSlot, currentRerollCost);
         shopView.RefreshAll();
     }
+
 
     IProduct GetShopItem(int index)
     {
@@ -458,25 +471,18 @@ public sealed class ShopManager : MonoBehaviour
 
         var currencyMgr = CurrencyManager.Instance;
         if (currencyMgr == null)
-        {
-            RefreshView();
             return;
-        }
 
         int cost = Mathf.Max(1, currentRerollCost);
 
         if (!currencyMgr.TrySpend(cost))
-        {
-            RefreshView();
             return;
-        }
 
         currentRerollCost = Mathf.Max(1, currentRerollCost + Mathf.Max(1, rerollCostIncrement));
 
         BuildSellableItems();
         CollectOwnedItems();
         BuildRoster();
-        RefreshView();
     }
 
     public void OnClickCloseButton()
@@ -500,13 +506,17 @@ public sealed class ShopManager : MonoBehaviour
         }
 
         ClearSelection();
-
         StageManager.Instance?.OnShopClosed();
     }
 
     void HandleCurrencyChanged(int value)
     {
         RefreshView();
+    }
+
+    void NotifyShopItemChanged()
+    {
+        OnShopItemChanged?.Invoke();
     }
 
     // ======================

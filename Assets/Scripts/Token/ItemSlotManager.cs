@@ -427,6 +427,7 @@ public sealed class ItemSlotManager : MonoBehaviour
             return;
 
         CurrencyManager.Instance?.AddCurrency(price);
+        AudioManager.Instance?.Play("Buy");
         RemoveItem(ctrl);
     }
 
