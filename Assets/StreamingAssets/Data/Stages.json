@@ -10,35 +10,35 @@
 		},
 		{
 			"index": 2,
-			"blockHealth": 40
+			"blockHealth": 30
 		},
 		{
 			"index": 3,
-			"blockHealth": 70
+			"blockHealth": 50
 		},
 		{
 			"index": 4,
-			"blockHealth": 90
+			"blockHealth": 80
 		},
 		{
 			"index": 5,
-			"blockHealth": 110
+			"blockHealth": 120
 		},
 		{
 			"index": 6,
-			"blockHealth": 130
+			"blockHealth": 200
 		},
 		{
 			"index": 7,
-			"blockHealth": 150
+			"blockHealth": 300
 		},
 		{
 			"index": 8,
-			"blockHealth": 170
+			"blockHealth": 450
 		},
 		{
 			"index": 9,
-			"blockHealth": 200
+			"blockHealth": 600
 		}
 	]
 }

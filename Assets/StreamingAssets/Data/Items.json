@@ -140,7 +140,7 @@
 							"effectType": "ModifyStat",
 							"statId": "damage",
 							"effectMode": "Add",
-							"value": 5.0,
+							"value": 3.0,
 							"temporary": true
 						}
 					]
@@ -167,7 +167,7 @@
 			"isObject": true,
 			"price": 8,
 			"rarity": "Uncommon",
-			"damageMultiplier": 5.0,
+			"damageMultiplier": 2.0,
 			"attackSpeed": 0.5,
 			"projectile": {
 				"key": "projectile.sniper",
