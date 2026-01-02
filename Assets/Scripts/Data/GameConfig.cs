@@ -3,13 +3,8 @@ using UnityEngine;
 
 public static class GameConfig
 {
-    public static string BasicPinId = "pin.basic";
     public static int BaseIncome = 10;
-    public static int MaxRuleCount = 4;
-    public static int BaseBallIncome = 1;
     public static int ItemSlotCount = 8;
-    public static float BallSpeed = 1000f;
-    public static float BallRadius = 16f;
 
     // Player/Item base stats
     public static float PlayerBaseMoveSpeed = 500f;

@@ -18,34 +18,11 @@ public sealed class PlayerInstance
     public double MoveSpeed => Stats.GetValue(PlayerStatIds.MoveSpeed);
     public IReadOnlyList<string> ItemIds => itemIds;
     public float WorldMoveSpeed => GameConfig.PlayerBaseMoveSpeed * Mathf.Max(0.1f, (float)MoveSpeed);
-    
-    public IReadOnlyList<float> RarityProbabilities => rarityProbabilities;
-    
-    int ballCount;
-    public int BallCount
-    {
-        get => ballCount;
-        set
-        {
-            int newValue = Math.Max(0, value);
-            if (ballCount == newValue)
-                return;
-
-            ballCount = newValue;
-            OnBallCountChanged?.Invoke(ballCount);
-        }
-    }
-    public event Action<int> OnBallCountChanged;
-    public float RarityGrowth { get; private set; }
-    public IReadOnlyList<float> RarityMultipliers => rarityMultipliers;
 
     // 상점/보상에 사용하는 통화
     public int Currency { get; private set; }
 
     public event Action<int> OnCurrencyChanged;
-
-    readonly List<float> rarityProbabilities;
-    readonly List<float> rarityMultipliers = new();
     readonly List<string> itemIds;
 
     public PlayerInstance(PlayerDto dto)
@@ -59,78 +36,10 @@ public sealed class PlayerInstance
         Stats.SetBase(PlayerStatIds.CriticalMultiplier, BaseDto.criticalMultiplier, 1d);
         Stats.SetBase(PlayerStatIds.MoveSpeed, Mathf.Max(0.1f, BaseDto.moveSpeed), 0.1d);
 
-        BallCount = BaseDto.initialBallCount;
-        RarityGrowth = BaseDto.rarityGrowth;
-        rarityProbabilities = BaseDto.rarityProbabilities != null
-            ? new List<float>(BaseDto.rarityProbabilities)
-            : new List<float>();
-        NormalizeRarityProbabilities(rarityProbabilities);
-        RecalculateRarityMultipliers();
-
         itemIds = BaseDto.itemIds != null ? new List<string>(BaseDto.itemIds) : new List<string>();
 
         // 시작 통화 셋업
         Currency = Mathf.Max(0, BaseDto.startCurrency);
-    }
-
-    void NormalizeRarityProbabilities(List<float> list)
-    {
-        if (list == null || list.Count == 0)
-        {
-            Debug.LogError("[PlayerInstance] rarityProbabilities is empty.");
-            throw new InvalidOperationException("[PlayerInstance] rarityProbabilities is empty.");
-        }
-
-        float sum = 0f;
-        for (int i = 0; i < list.Count; i++)
-        {
-            if (list[i] < 0f)
-            {
-                Debug.LogError("[PlayerInstance] rarityProbabilities contains negative value.");
-                throw new InvalidOperationException("[PlayerInstance] rarityProbabilities invalid.");
-            }
-            sum += list[i];
-        }
-
-        if (sum <= 0f)
-        {
-            Debug.LogError("[PlayerInstance] rarityProbabilities sum <= 0.");
-            throw new InvalidOperationException("[PlayerInstance] rarityProbabilities sum invalid.");
-        }
-
-        if (Mathf.Abs(sum - 100f) > 0.001f)
-        {
-            Debug.LogError($"[PlayerInstance] rarityProbabilities sum != 100 (sum={sum}). Normalizing.");
-            for (int i = 0; i < list.Count; i++)
-            {
-                list[i] = list[i] / sum * 100f;
-            }
-        }
-    }
-
-    public void SetRarityGrowth(float newGrowth)
-    {
-        if (newGrowth <= 0f)
-        {
-            Debug.LogError($"[PlayerInstance] Invalid rarityGrowth: {newGrowth}");
-            throw new InvalidOperationException("[PlayerInstance] rarityGrowth must be > 0.");
-        }
-
-        RarityGrowth = newGrowth;
-        RecalculateRarityMultipliers();
-    }
-
-    void RecalculateRarityMultipliers()
-    {
-        rarityMultipliers.Clear();
-        if (rarityProbabilities == null || rarityProbabilities.Count == 0)
-            return;
-
-        for (int i = 0; i < rarityProbabilities.Count; i++)
-        {
-            float multiplier = Mathf.Pow(RarityGrowth, i);
-            rarityMultipliers.Add(multiplier);
-        }
     }
 
     public void ResetData()

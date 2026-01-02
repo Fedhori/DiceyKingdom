@@ -22,11 +22,6 @@ namespace Data
         // 런 시작 시 지급되는 통화
         public int startCurrency = 0;
 
-        // 희귀도 기반 볼 생성 파라미터
-        public int initialBallCount = 50;
-        public float rarityGrowth = 2f;
-        public List<float> rarityProbabilities;
-
         public List<string> itemIds;
     }
 
@@ -74,18 +69,6 @@ namespace Data
             initialized = true;
         }
 
-        public static bool TryGet(string id, out PlayerDto dto)
-        {
-            if (!initialized)
-            {
-                Debug.LogError("[PlayerRepository] Not initialized.");
-                dto = null;
-                return false;
-            }
-
-            return map.TryGetValue(id, out dto);
-        }
-
         public static PlayerDto GetOrThrow(string id)
         {
             if (!initialized)
@@ -95,48 +78,6 @@ namespace Data
                 throw new KeyNotFoundException($"[PlayerRepository] Player id not found: {id}");
 
             return dto;
-        }
-
-        static List<float> NormalizeProbabilities(List<float> input)
-        {
-            if (input == null)
-            {
-                Debug.LogError("[PlayerRepository] rarityProbabilities is null.");
-                throw new InvalidOperationException("[PlayerRepository] rarityProbabilities is null.");
-            }
-
-            var probs = new List<float>(input);
-
-            if (probs.Count != 5)
-            {
-                Debug.LogError($"[PlayerRepository] rarityProbabilities must have 5 entries. count={probs.Count}");
-                throw new InvalidOperationException("[PlayerRepository] rarityProbabilities length invalid.");
-            }
-
-            for (int i = 0; i < probs.Count; i++)
-            {
-                if (probs[i] < 0f)
-                {
-                    Debug.LogError($"[PlayerRepository] rarityProbabilities contains negative value at {i}.");
-                    throw new InvalidOperationException("[PlayerRepository] rarityProbabilities contains negative value.");
-                }
-            }
-
-            float sum = probs.Sum();
-            if (sum <= 0.0001f)
-            {
-                Debug.LogError("[PlayerRepository] rarityProbabilities sum <= 0.");
-                throw new InvalidOperationException("[PlayerRepository] rarityProbabilities sum invalid.");
-            }
-
-            if (Mathf.Abs(sum - 100f) > 0.001f)
-            {
-                Debug.LogError($"[PlayerRepository] rarityProbabilities sum != 100 (sum={sum}). Normalizing.");
-                for (int i = 0; i < probs.Count; i++)
-                    probs[i] = probs[i] / sum * 100f;
-            }
-
-            return probs;
         }
     }
 }
