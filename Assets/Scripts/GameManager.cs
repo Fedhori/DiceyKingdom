@@ -44,11 +44,13 @@ public class GameManager : MonoBehaviour
     {
         AudioManager.Instance.Play("GameOver");
         gameOverOverlay.SetActive(true);
+        GameSpeedManager.Instance.ForcePaused = true;
     }
 
     public void HandleGameClear()
     {
         AudioManager.Instance.Play("GameClear");
         gameClearOverlay.SetActive(true);
+        GameSpeedManager.Instance.ForcePaused = true;
     }
 }
