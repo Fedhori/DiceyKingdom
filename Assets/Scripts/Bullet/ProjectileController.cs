@@ -101,7 +101,7 @@ public sealed class ProjectileController : MonoBehaviour
         if (player != null)
             dmg = Mathf.Max(1, Mathf.FloorToInt((float)(player.Damage * item.DamageMultiplier)));
 
-        block.ApplyDamage(dmg);
+        block.ApplyDamage(dmg, transform.position);
     }
 
     void HandleBounce()

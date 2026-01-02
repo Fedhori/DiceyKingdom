@@ -24,13 +24,16 @@ public sealed class BlockController : MonoBehaviour
         transform.position = worldPos;
     }
 
-    public void ApplyDamage(int amount)
+    public void ApplyDamage(int amount, Vector2? position)
     {
         if (Instance == null)
             return;
 
         Instance.ApplyDamage(amount);
         RefreshHpText();
+
+        var pos = position ?? (Vector2)transform.position;
+        DamageTextManager.Instance?.ShowDamageText(amount, 0, pos);
 
         if (Instance.IsDead)
         {
