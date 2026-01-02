@@ -161,6 +161,23 @@
 				"spreadAngle": 10.0
 			},
 			"rules": []
+		},
+		{
+			"id": "item.sniperrifle",
+			"isObject": true,
+			"price": 8,
+			"rarity": "Uncommon",
+			"damageMultiplier": 5.0,
+			"attackSpeed": 0.5,
+			"projectile": {
+				"key": "projectile.sniper",
+				"size": 1.0,
+				"speed": 5.0,
+				"hitBehavior": "Pierce",
+				"maxPierces": -1,
+				"lifeTime": 0.0
+			},
+			"rules": []
 		}
 	]
 }

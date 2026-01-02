@@ -14,6 +14,7 @@ public sealed class ItemInstance
     public string ProjectileKey { get; private set; }
     public ProjectileHitBehavior ProjectileHitBehavior { get; private set; }
     public int MaxBounces { get; private set; }
+    public int MaxPierces { get; private set; }
     public float ProjectileLifeTime { get; private set; }
     public int PelletCount { get; private set; }
     public float SpreadAngle { get; private set; }
@@ -40,6 +41,7 @@ public sealed class ItemInstance
             ProjectileKey = string.Empty;
             ProjectileHitBehavior = ProjectileHitBehavior.Destroy;
             MaxBounces = 0;
+            MaxPierces = 0;
             ProjectileLifeTime = 0f;
             PelletCount = 1;
             SpreadAngle = 0f;
@@ -63,6 +65,7 @@ public sealed class ItemInstance
             ProjectileSpeed = Mathf.Max(0.1f, projectile.speed);
             ProjectileHitBehavior = projectile.hitBehavior;
             MaxBounces = Mathf.Max(0, projectile.maxBounces);
+            MaxPierces = projectile.maxPierces;
             ProjectileLifeTime = Mathf.Max(0f, projectile.lifeTime);
             PelletCount = Mathf.Max(1, projectile.pelletCount);
             SpreadAngle = Mathf.Max(0f, projectile.spreadAngle);
@@ -74,6 +77,7 @@ public sealed class ItemInstance
             ProjectileSpeed = 1f;
             ProjectileHitBehavior = ProjectileHitBehavior.Destroy;
             MaxBounces = 0;
+            MaxPierces = 0;
             ProjectileLifeTime = 0f;
             PelletCount = 1;
             SpreadAngle = 0f;

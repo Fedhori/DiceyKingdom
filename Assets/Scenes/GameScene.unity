@@ -1888,7 +1888,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 960
+  orthographic size: 855.8182
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2920,6 +2920,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemManager
   defaultItemId: item.default
   attachTarget: {fileID: 117041021}
+  tickIntervalSeconds: 1
 --- !u!114 &715098191
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3801,9 +3802,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BulletFactory
   projectilePrefabs:
   - key: projectile.bullet
-    prefab: {fileID: 6801002924329557143, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+    prefab: {fileID: 742512290624772740, guid: f2efdbfc5c06637408ab14a585c2b562, type: 3}
   - key: projectile.ball
-    prefab: {fileID: 6801002924329557143, guid: abb73f98a43390e4890df359ac4b8fdb, type: 3}
+    prefab: {fileID: 6391739315063596302, guid: abb73f98a43390e4890df359ac4b8fdb, type: 3}
+  - key: projectile.sniper
+    prefab: {fileID: 1490000589346278806, guid: e2d2f145a629c5f44b357552bdf25464, type: 3}
   parent: {fileID: 258862835}
 --- !u!1001 &987167309
 PrefabInstance:

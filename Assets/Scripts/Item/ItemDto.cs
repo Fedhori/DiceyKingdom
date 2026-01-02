@@ -95,6 +95,7 @@ namespace Data
         public ProjectileHitBehavior hitBehavior = ProjectileHitBehavior.Destroy;
 
         public int maxBounces = 0;
+        public int maxPierces = 0;
         public float lifeTime = 0f;
     }
 
@@ -155,6 +156,12 @@ namespace Data
                 if (projectile.maxBounces < 0)
                 {
                     Debug.LogError($"[ItemDto] '{id}': projectile.maxBounces < 0 is not allowed.");
+                    isValid = false;
+                }
+
+                if (projectile.maxPierces < -1)
+                {
+                    Debug.LogError($"[ItemDto] '{id}': projectile.maxPierces < -1 is not allowed.");
                     isValid = false;
                 }
 

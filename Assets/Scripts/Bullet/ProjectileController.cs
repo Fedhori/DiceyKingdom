@@ -9,6 +9,7 @@ public sealed class ProjectileController : MonoBehaviour
     Collider2D hitCollider;
     Vector2 direction;
     int bounceCount;
+    int pierceRemaining;
     float lifeTimer;
 
     void Awake()
@@ -22,6 +23,7 @@ public sealed class ProjectileController : MonoBehaviour
         item = inst;
         direction = dir.normalized;
         bounceCount = 0;
+        pierceRemaining = item != null ? item.MaxPierces : 0;
         lifeTimer = 0f;
 
         if (hitCollider != null && item != null)
@@ -70,6 +72,9 @@ public sealed class ProjectileController : MonoBehaviour
 
         if (item.ProjectileHitBehavior == ProjectileHitBehavior.Destroy)
             Destroy(gameObject);
+
+        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Pierce)
+            HandlePierce();
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -112,5 +117,22 @@ public sealed class ProjectileController : MonoBehaviour
         bounceCount++;
         if (bounceCount >= item.MaxBounces)
             Destroy(gameObject);
+    }
+
+    void HandlePierce()
+    {
+        if (item == null)
+            return;
+
+        if (item.MaxPierces < 0)
+            return;
+
+        if (pierceRemaining <= 0)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        pierceRemaining--;
     }
 }
