@@ -59,6 +59,11 @@ public sealed class BlockManager : MonoBehaviour
         spawnAccumulator = 0f;
     }
 
+    public float SpawnDurationSeconds => spawnDurationSeconds;
+    public float SpawnElapsedSeconds => spawnElapsed;
+    public float SpawnRemainingSeconds => Mathf.Max(0f, spawnDurationSeconds - spawnElapsed);
+    public bool IsSpawning => isSpawning;
+
     void ComputeOrigin()
     {
         if (playArea == null)
