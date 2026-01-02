@@ -90,6 +90,7 @@ namespace Data
         public float speed = 1f;
         public int pelletCount = 1;
         public float spreadAngle = 0f;
+        public float homingTurnRate = 0f;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ProjectileHitBehavior hitBehavior = ProjectileHitBehavior.Normal;
@@ -175,6 +176,12 @@ namespace Data
                 if (projectile.pelletCount < 1)
                 {
                     Debug.LogError($"[ItemDto] '{id}': projectile.pelletCount < 1 is not allowed.");
+                    isValid = false;
+                }
+
+                if (projectile.homingTurnRate < 0f)
+                {
+                    Debug.LogError($"[ItemDto] '{id}': projectile.homingTurnRate < 0 is not allowed.");
                     isValid = false;
                 }
             }

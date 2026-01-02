@@ -38,6 +38,8 @@ public sealed class ProjectileController : MonoBehaviour
         if (item == null)
             return;
 
+        UpdateHoming();
+
         if (item.ProjectileLifeTime > 0f)
         {
             lifeTimer += Time.deltaTime;
@@ -141,6 +143,39 @@ public sealed class ProjectileController : MonoBehaviour
         }
 
         pierceRemaining = bonus;
+    }
+
+    void UpdateHoming()
+    {
+        if (item == null || rb == null)
+            return;
+
+        if (item.ProjectileHomingTurnRate <= 0f)
+            return;
+
+        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
+            return;
+
+        var blockManager = BlockManager.Instance;
+        if (blockManager == null)
+            return;
+
+        var target = blockManager.GetLowestBlock(transform.position);
+        if (target == null)
+            return;
+
+        Vector3 toTarget = target.transform.position - transform.position;
+        if (toTarget.sqrMagnitude <= 0.0001f)
+            return;
+
+        Vector3 current = new Vector3(direction.x, direction.y, 0f);
+        if (current.sqrMagnitude <= 0.0001f)
+            current = toTarget.normalized;
+
+        float maxRadians = item.ProjectileHomingTurnRate * Mathf.Deg2Rad * Time.deltaTime;
+        Vector3 next = Vector3.RotateTowards(current, toTarget.normalized, maxRadians, 0f);
+        direction = new Vector2(next.x, next.y).normalized;
+        rb.linearVelocity = direction * item.WorldProjectileSpeed;
     }
 
     void HandlePierce()

@@ -20,6 +20,7 @@ public sealed class ItemInstance
     public float SpreadAngle { get; private set; }
     public bool IsObject { get; private set; }
     public int PierceBouns { get; private set; }
+    public float ProjectileHomingTurnRate { get; private set; }
 
     private readonly List<ItemRuleDto> rules = new();
     public IReadOnlyList<ItemRuleDto> Rules => rules;
@@ -48,6 +49,7 @@ public sealed class ItemInstance
             SpreadAngle = 0f;
             IsObject = false;
             PierceBouns = 0;
+            ProjectileHomingTurnRate = 0f;
             return;
         }
 
@@ -72,6 +74,7 @@ public sealed class ItemInstance
             ProjectileLifeTime = Mathf.Max(0f, projectile.lifeTime);
             PelletCount = Mathf.Max(1, projectile.pelletCount);
             SpreadAngle = Mathf.Max(0f, projectile.spreadAngle);
+            ProjectileHomingTurnRate = Mathf.Max(0f, projectile.homingTurnRate);
         }
         else
         {
@@ -84,6 +87,7 @@ public sealed class ItemInstance
             ProjectileLifeTime = 0f;
             PelletCount = 1;
             SpreadAngle = 0f;
+            ProjectileHomingTurnRate = 0f;
         }
     }
 

@@ -95,6 +95,14 @@ MonoBehaviour:
     m_Key: item.armorpiercer.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 3962800000000012
+    m_Key: item.smartgun.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3962800000000013
+    m_Key: item.smartgun.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

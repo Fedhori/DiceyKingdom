@@ -186,6 +186,20 @@
 			"rarity": "Rare",
 			"pierceBouns": 1,
 			"rules": []
+		},
+		{
+			"id": "item.smartgun",
+			"isObject": true,
+			"price": 10,
+			"rarity": "Rare",
+			"attackSpeed": 1.0,
+			"projectile": {
+				"key": "projectile.bullet",
+				"size": 1.0,
+				"speed": 1.0,
+				"homingTurnRate": 720.0
+			},
+			"rules": []
 		}
 	]
 }
