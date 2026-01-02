@@ -37,6 +37,24 @@ public sealed class ItemManager : MonoBehaviour
 
     public ItemInventory Inventory => inventory;
 
+    public int GetPierceBouns()
+    {
+        int total = 0;
+        var slots = inventory.Slots;
+        for (int i = 0; i < slots.Count; i++)
+        {
+            var inst = slots[i];
+            if (inst == null)
+                continue;
+
+            int bonus = inst.PierceBouns;
+            if (bonus > 0)
+                total += bonus;
+        }
+
+        return total;
+    }
+
     public void BeginPlay()
     {
         isPlayActive = true;

@@ -77,7 +77,7 @@ namespace Data
     public enum ProjectileHitBehavior
     {
         Unknown = 0,
-        Destroy,
+        Normal,
         Bounce,
         Pierce
     }
@@ -92,7 +92,7 @@ namespace Data
         public float spreadAngle = 0f;
 
         [JsonConverter(typeof(StringEnumConverter))]
-        public ProjectileHitBehavior hitBehavior = ProjectileHitBehavior.Destroy;
+        public ProjectileHitBehavior hitBehavior = ProjectileHitBehavior.Normal;
 
         public int maxBounces = 0;
         public int maxPierces = 0;
@@ -114,6 +114,7 @@ namespace Data
         public float damageMultiplier = 1f;
         public float attackSpeed = 1f;
         public ItemProjectileData projectile;
+        public int pierceBouns = 0;
 
         [JsonIgnore]
         public bool isValid = true;
@@ -176,6 +177,12 @@ namespace Data
                     Debug.LogError($"[ItemDto] '{id}': projectile.pelletCount < 1 is not allowed.");
                     isValid = false;
                 }
+            }
+
+            if (pierceBouns < 0)
+            {
+                Debug.LogError($"[ItemDto] '{id}': pierceBouns < 0 is not allowed.");
+                isValid = false;
             }
         }
     }

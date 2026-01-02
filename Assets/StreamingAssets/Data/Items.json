@@ -178,6 +178,14 @@
 				"lifeTime": 0.0
 			},
 			"rules": []
+		},
+		{
+			"id": "item.armorpiercer",
+			"isObject": false,
+			"price": 8,
+			"rarity": "Rare",
+			"pierceBouns": 1,
+			"rules": []
 		}
 	]
 }

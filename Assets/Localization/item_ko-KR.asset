@@ -102,6 +102,16 @@ MonoBehaviour:
       \uBC1C\uC0AC\uD558\uBA70 \uD53C\uD574\uB7C9\uC774 \uD07D\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
+  - m_Id: 3962800000000010
+    m_Localized: "AP\uD0C4"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3962800000000011
+    m_Localized: "\uBAA8\uB4E0 \uD22C\uC0AC\uCCB4\uAC00 \uCD94\uAC00\uB85C {pierceBouns}\uD68C
+      \uB354 \uAD00\uD1B5\uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938704
   references:
     version: 2
     RefIds:
@@ -115,3 +125,4 @@ MonoBehaviour:
         - id: 3962800000000001
         - id: 3962800000000005
         - id: 3962800000000007
+        - id: 3962800000000011

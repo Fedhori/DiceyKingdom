@@ -19,6 +19,7 @@ public sealed class ItemInstance
     public int PelletCount { get; private set; }
     public float SpreadAngle { get; private set; }
     public bool IsObject { get; private set; }
+    public int PierceBouns { get; private set; }
 
     private readonly List<ItemRuleDto> rules = new();
     public IReadOnlyList<ItemRuleDto> Rules => rules;
@@ -39,13 +40,14 @@ public sealed class ItemInstance
             ProjectileSize = 1f;
             ProjectileSpeed = 1f;
             ProjectileKey = string.Empty;
-            ProjectileHitBehavior = ProjectileHitBehavior.Destroy;
+            ProjectileHitBehavior = ProjectileHitBehavior.Normal;
             MaxBounces = 0;
             MaxPierces = 0;
             ProjectileLifeTime = 0f;
             PelletCount = 1;
             SpreadAngle = 0f;
             IsObject = false;
+            PierceBouns = 0;
             return;
         }
 
@@ -53,6 +55,7 @@ public sealed class ItemInstance
         DamageMultiplier = Mathf.Max(0.1f, dto.damageMultiplier);
         AttackSpeed = Mathf.Max(0.1f, dto.attackSpeed);
         IsObject = dto.isObject;
+        PierceBouns = Mathf.Max(0, dto.pierceBouns);
 
         if (dto.rules != null)
             rules.AddRange(dto.rules);
@@ -75,7 +78,7 @@ public sealed class ItemInstance
             ProjectileKey = string.Empty;
             ProjectileSize = 1f;
             ProjectileSpeed = 1f;
-            ProjectileHitBehavior = ProjectileHitBehavior.Destroy;
+            ProjectileHitBehavior = ProjectileHitBehavior.Normal;
             MaxBounces = 0;
             MaxPierces = 0;
             ProjectileLifeTime = 0f;

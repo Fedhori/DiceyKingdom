@@ -130,6 +130,9 @@ public static class ItemTooltipUtil
         if (item is { PelletCount: > 1 })
             dict["pelletCount"] = item.PelletCount;
 
+        if (item is { PierceBouns: > 0 })
+            dict["pierceBouns"] = item.PierceBouns;
+
         return dict.Count == 0 ? null : dict;
     }
 }

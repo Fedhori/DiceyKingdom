@@ -23,12 +23,13 @@ public sealed class ProjectileController : MonoBehaviour
         item = inst;
         direction = dir.normalized;
         bounceCount = 0;
-        pierceRemaining = item != null ? item.MaxPierces : 0;
+        pierceRemaining = 0;
         lifeTimer = 0f;
 
         if (hitCollider != null && item != null)
             hitCollider.isTrigger = item.ProjectileHitBehavior != ProjectileHitBehavior.Bounce;
 
+        ApplyPierceCount();
         ApplyStats();
     }
 
@@ -69,12 +70,7 @@ public sealed class ProjectileController : MonoBehaviour
         }
 
         ApplyDamage(other);
-
-        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Destroy)
-            Destroy(gameObject);
-
-        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Pierce)
-            HandlePierce();
+        HandlePierce();
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -119,12 +115,37 @@ public sealed class ProjectileController : MonoBehaviour
             Destroy(gameObject);
     }
 
-    void HandlePierce()
+    void ApplyPierceCount()
     {
         if (item == null)
             return;
 
-        if (item.MaxPierces < 0)
+        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
+        {
+            pierceRemaining = 0;
+            return;
+        }
+
+        int bonus = ItemManager.Instance != null ? ItemManager.Instance.GetPierceBouns() : 0;
+
+        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Pierce)
+        {
+            if (item.MaxPierces < 0)
+            {
+                pierceRemaining = -1;
+                return;
+            }
+
+            pierceRemaining = item.MaxPierces + bonus;
+            return;
+        }
+
+        pierceRemaining = bonus;
+    }
+
+    void HandlePierce()
+    {
+        if (pierceRemaining < 0)
             return;
 
         if (pierceRemaining <= 0)

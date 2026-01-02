@@ -9,7 +9,10 @@
 			"startCurrency": 0,
 			"initialBallCount": 0,
 			"moveSpeed": 1.0,
-			"itemIds": ["item.sniperrifle"],
+			"itemIds": [
+				"item.pistol",
+				"item.armorpiercer"
+			],
 			"rarityGrowth": 2.0,
 			"rarityProbabilities": [
 				100.0, 0.0, 0.0, 0.0, 0.0
