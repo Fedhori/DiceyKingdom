@@ -26,7 +26,7 @@
   - [x] 1.1 ItemView 스크립트 생성(아이콘/배경/하이라이트/드래그 하이라이트 표시 API 정의)
   - [x] 1.2 ItemView에 Sprite/rarity/선택 상태 입력 시각 적용 로직 구현
   - [x] 1.3 ItemTooltipTarget 스크립트 생성(ItemInstance 입력, 호버 시 TooltipManager 호출)
-  - [ ] 1.4 ItemTooltipTarget이 ItemView와 분리되어 독립적으로 동작하도록 연결 포인트 정리
+  - [x] 1.4 ItemTooltipTarget이 ItemView와 분리되어 독립적으로 동작하도록 연결 포인트 정리
 
 - [ ] 2.0 ItemSlotController/ProductController/GhostView 로직 분리 리팩터링
   - [ ] 2.1 ItemSlotController의 시각 처리 제거, ItemView/ItemTooltipTarget 사용으로 교체

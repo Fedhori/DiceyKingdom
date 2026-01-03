@@ -10,6 +10,14 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
     public void Bind(ItemInstance boundInstance)
     {
         instance = boundInstance;
+        if (instance == null)
+            TooltipManager.Instance?.EndHover(this);
+    }
+
+    public void Clear()
+    {
+        instance = null;
+        TooltipManager.Instance?.EndHover(this);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
