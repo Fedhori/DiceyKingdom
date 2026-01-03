@@ -40,12 +40,12 @@ public sealed class TooltipView : MonoBehaviour
 
         if (damageMultiplierText != null)
         {
-            bool showDamage = model is { Kind: TooltipKind.Item, DamageMultiplier: > 0f };
+            bool showDamage = model is { Kind: TooltipKind.Item, Damage: > 0f };
             damageMultiplierText.gameObject.SetActive(showDamage);
             if (damageContainer != null)
                 damageContainer.SetActive(showDamage);
             if (showDamage)
-                damageMultiplierText.text = $"x{model.DamageMultiplier:0.0}";
+                damageMultiplierText.text = $"{model.Damage:0.##}";
         }
 
         if (iconImage != null)

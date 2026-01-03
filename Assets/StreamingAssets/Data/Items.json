@@ -4,7 +4,7 @@
 			"id": "item.pistol",
 			"isObject": true,
 			"isNotSell": true,
-			"damageMultiplier": 1.0,
+			"damage": 10.0,
 			"attackSpeed": 2.0,
 			"projectile": {
 				"key": "projectile.bullet",
@@ -15,7 +15,7 @@
 		},
 		{
 			"id": "item.ball",
-			"damageMultiplier": 1.0,
+			"damage": 10.0,
 			"isObject": false,
 			"price": 4,
 			"rarity": "Common",
@@ -36,7 +36,7 @@
 					"effects": [
 						{
 							"effectType": "SpawnProjectile",
-							"value": 5.0
+							"value": 2.0
 						}
 					]
 				}
@@ -44,7 +44,7 @@
 		},
 		{
 			"id": "item.minigun",
-			"damageMultiplier": 1.0,
+			"damage": 10.0,
 			"attackSpeed": 5.0,
 			"isObject": true,
 			"price": 6,
@@ -70,9 +70,9 @@
 					"effects": [
 						{
 							"effectType": "ModifyStat",
-							"statId": "damage",
+							"statId": "damageMultiplier",
 							"effectMode": "Add",
-							"value": 10.0,
+							"value": 1.0,
 							"temporary": false
 						}
 					]
@@ -113,9 +113,9 @@
 					"effects": [
 						{
 							"effectType": "ModifyStat",
-							"statId": "damage",
+							"statId": "damageMultiplier",
 							"effectMode": "Add",
-							"value": 1.0,
+							"value": 0.1,
 							"temporary": true
 						}
 					]
@@ -136,9 +136,9 @@
 					"effects": [
 						{
 							"effectType": "ModifyStat",
-							"statId": "damage",
+							"statId": "damageMultiplier",
 							"effectMode": "Add",
-							"value": 3.0,
+							"value": 0.3,
 							"temporary": true
 						}
 					]
@@ -150,7 +150,7 @@
 			"isObject": true,
 			"price": 8,
 			"rarity": "Common",
-			"damageMultiplier": 1.0,
+			"damage": 10.0,
 			"attackSpeed": 1.0,
 			"projectile": {
 				"key": "projectile.bullet",
@@ -166,7 +166,7 @@
 			"isObject": true,
 			"price": 8,
 			"rarity": "Uncommon",
-			"damageMultiplier": 2.0,
+			"damage": 20.0,
 			"attackSpeed": 0.5,
 			"projectile": {
 				"key": "projectile.sniper",
@@ -191,7 +191,7 @@
 			"isObject": true,
 			"price": 10,
 			"rarity": "Rare",
-			"damageMultiplier": 1.0,
+			"damage": 10.0,
 			"attackSpeed": 1.0,
 			"projectile": {
 				"key": "projectile.bullet",

@@ -143,7 +143,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 8981073463095296
-    m_Localized: "\uD53C\uD574\uB7C9"
+    m_Localized: "\uD53C\uD574 \uBC30\uC728"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11901776441126912
+    m_Localized: "\uC0C1\uC810"
     m_Metadata:
       m_Items: []
   references:

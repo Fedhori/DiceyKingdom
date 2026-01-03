@@ -11,7 +11,6 @@ public sealed class PlayerInstance
 
     public StatSet Stats { get; }
 
-    public double Damage => Stats.GetValue(PlayerStatIds.Damage);
     public double DamageMultiplier => Stats.GetValue(PlayerStatIds.DamageMultiplier);
     public double CriticalChance => Stats.GetValue(PlayerStatIds.CriticalChance);
     public double CriticalMultiplier => Stats.GetValue(PlayerStatIds.CriticalMultiplier);
@@ -30,7 +29,6 @@ public sealed class PlayerInstance
         BaseDto = dto ?? throw new ArgumentNullException(nameof(dto));
 
         Stats = new StatSet();
-        Stats.SetBase(PlayerStatIds.Damage, BaseDto.damage, 1d);
         Stats.SetBase(PlayerStatIds.DamageMultiplier, BaseDto.damageMultiplier, 1d);
         Stats.SetBase(PlayerStatIds.CriticalChance, BaseDto.critChance, 0d, 200d);
         Stats.SetBase(PlayerStatIds.CriticalMultiplier, BaseDto.criticalMultiplier, 1d);

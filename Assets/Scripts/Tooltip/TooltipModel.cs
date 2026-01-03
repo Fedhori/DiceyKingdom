@@ -12,7 +12,7 @@ public readonly struct TooltipModel
     public readonly string Body;
     public readonly Sprite Icon;
     public readonly TooltipKind Kind;
-    public readonly float DamageMultiplier;
+    public readonly float Damage;
 
     public TooltipModel(string title, string body, Sprite icon, TooltipKind kind)
     {
@@ -20,15 +20,15 @@ public readonly struct TooltipModel
         Body = body;
         Icon = icon;
         Kind = kind;
-        DamageMultiplier = 0f;
+        Damage = 0f;
     }
 
-    public TooltipModel(string title, string body, Sprite icon, TooltipKind kind, float damageMultiplier)
+    public TooltipModel(string title, string body, Sprite icon, TooltipKind kind, float damage)
     {
         Title = title;
         Body = body;
         Icon = icon;
         Kind = kind;
-        DamageMultiplier = damageMultiplier;
+        Damage = damage;
     }
 }

@@ -132,7 +132,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 8981073463095296
-    m_Key: game.damage.label
+    m_Key: game.damagemultiplier.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 11901776441126912
+    m_Key: game.shop.title
     m_Metadata:
       m_Items: []
   m_Metadata:

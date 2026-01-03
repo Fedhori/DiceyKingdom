@@ -3,17 +3,17 @@
 		{
 			"index": 0,
 			"blockHealth": 10,
-			"spawnSecond": 15
+			"spawnSecond": 10
 		},
 		{
 			"index": 1,
 			"blockHealth": 20,
-			"spawnSecond": 20
+			"spawnSecond": 10
 		},
 		{
 			"index": 2,
 			"blockHealth": 30,
-			"spawnSecond": 25
+			"spawnSecond": 10
 		},
 		{
 			"index": 3,

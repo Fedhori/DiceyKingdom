@@ -17,7 +17,6 @@ namespace GameStats
     
     public static class PlayerStatIds
     {
-        public const string Damage = "damage";
         public const string DamageMultiplier = "damageMultiplier";
         public const string CriticalChance = "criticalChance";
         public const string CriticalMultiplier = "criticalMultiplier";
