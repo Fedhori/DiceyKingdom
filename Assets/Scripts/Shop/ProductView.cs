@@ -9,6 +9,7 @@ public sealed class ProductView : MonoBehaviour, IPointerClickHandler, IBeginDra
 {
     [SerializeField] private Image iconImage;
     [SerializeField] private Image backgroundImage;
+    [SerializeField] private GameObject highlightMask;
     [SerializeField] private TMP_Text priceText;
 
     public ProductType ViewType { get; private set; }
@@ -115,6 +116,8 @@ public sealed class ProductView : MonoBehaviour, IPointerClickHandler, IBeginDra
     {
         isSelected = selected;
         ApplySelectionColor();
+        if (highlightMask != null)
+            highlightMask.SetActive(isSelected);
     }
 
     void ApplySelectionColor()

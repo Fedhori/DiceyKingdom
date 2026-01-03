@@ -256,8 +256,8 @@ public sealed class ItemSlotManager : MonoBehaviour
                 continue;
 
             bool empty = inventory != null && inventory.IsSlotEmpty(i);
-            if (ctrl.dragHighlightMask != null)
-                ctrl.dragHighlightMask.SetActive(empty);
+            if (ctrl.highlightMask != null)
+                ctrl.highlightMask.SetActive(empty);
         }
     }
 
@@ -272,9 +272,8 @@ public sealed class ItemSlotManager : MonoBehaviour
             if (ctrl == null)
                 continue;
 
-            if (ctrl.dragHighlightMask != null)
-                ctrl.dragHighlightMask.SetActive(false);
-            ctrl.SetHighlight(false, slotHighlightColor);
+            if (ctrl.highlightMask != null)
+                ctrl.highlightMask.SetActive(false);
         }
 
         currentHighlightIndex = -1;
@@ -461,9 +460,8 @@ public sealed class ItemSlotManager : MonoBehaviour
         if (ctrl == null)
             return;
 
-        ctrl.SetHighlight(true, slotHighlightColor);
-        if (ctrl.dragHighlightMask != null)
-            ctrl.dragHighlightMask.SetActive(true);
+        if (ctrl.highlightMask != null)
+            ctrl.highlightMask.SetActive(true);
         currentHighlightIndex = targetIndex;
     }
 
@@ -474,9 +472,8 @@ public sealed class ItemSlotManager : MonoBehaviour
             var ctrl = slotControllers[currentHighlightIndex];
             if (ctrl != null)
             {
-                ctrl.SetHighlight(false, slotHighlightColor);
-                if (ctrl.dragHighlightMask != null)
-                    ctrl.dragHighlightMask.SetActive(false);
+                if (ctrl.highlightMask != null)
+                    ctrl.highlightMask.SetActive(false);
             }
         }
 

@@ -93,7 +93,7 @@ MonoBehaviour:
   rectTransform: {fileID: 3210754796174557776}
   iconImage: {fileID: 184008336891948239}
   backgroundImage: {fileID: 5880917953732587673}
-  dragHighlightMask: {fileID: 4692142039270946658}
+  highlightMask: {fileID: 4692142039270946658}
   anchorType: 1
 --- !u!1 &4692142039270946658
 GameObject:

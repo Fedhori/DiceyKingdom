@@ -13,7 +13,7 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
     public RectTransform RectTransform => rectTransform != null ? rectTransform : (rectTransform = GetComponent<RectTransform>());
     [SerializeField] Image iconImage;
     [SerializeField] Image backgroundImage;
-    public GameObject dragHighlightMask;
+    public GameObject highlightMask;
     [SerializeField] TooltipAnchorType anchorType = TooltipAnchorType.Screen;
     Color baseBackgroundColor;
     bool baseBackgroundInitialized;
@@ -139,11 +139,6 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
     public Sprite GetIconSprite()
     {
         return iconImage != null ? iconImage.sprite : null;
-    }
-
-    public void SetHighlight(bool active, Color highlightColor)
-    {
-        // Deprecated: visual highlight now handled via dragHighlightMask
     }
 
     public void ShowTooltip(PointerEventData eventData)
