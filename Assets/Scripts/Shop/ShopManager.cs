@@ -453,15 +453,6 @@ public sealed class ShopManager : MonoBehaviour
             ClearSelection();
         else
             SetSelection(index);
-
-        var item = GetShopItem(index);
-        if (item == null)
-            return;
-
-        if (item.ProductType == ProductType.Item)
-        {
-            shopView?.ClearSelectionVisuals();
-        }
     }
 
     public void OnClickReroll()
