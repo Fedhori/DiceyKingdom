@@ -3040,7 +3040,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopView
   shopOverlay: {fileID: 1288486031}
-  itemProductPrefab: {fileID: 7135958795844342221, guid: acb99c428f6464648ae59efc46652e9d, type: 3}
+  itemProductPrefab: {fileID: 5694267813989115983, guid: b4dd7a57b7400c84e9671f15d84c9c0c, type: 3}
   productsParent: {fileID: 1241167450}
   rerollCostText: {fileID: 147300228}
   rerollButton: {fileID: 1999143222}
@@ -10222,7 +10222,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemSlotManager
   slotContainer: {fileID: 1290664731}
-  slotPrefab: {fileID: 4767769739835569886, guid: 5878da1c44fa9e54687f388f4d4bedef, type: 3}
+  slotPrefab: {fileID: -3810691327358890982, guid: ca3d846f53224c449b9215051e0b9b82, type: 3}
   slotHighlightColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &2114596187
 GameObject:

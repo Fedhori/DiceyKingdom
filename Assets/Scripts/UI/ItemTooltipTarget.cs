@@ -4,8 +4,16 @@ using UnityEngine.EventSystems;
 public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private TooltipAnchorType anchorType = TooltipAnchorType.Screen;
+    [SerializeField] RectTransform anchorRect;
 
     ItemInstance instance;
+    readonly Vector3[] corners = new Vector3[4];
+
+    void Awake()
+    {
+        if (anchorRect == null)
+            anchorRect = transform as RectTransform;
+    }
 
     public void Bind(ItemInstance boundInstance)
     {
@@ -30,9 +38,25 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
             return;
 
         var model = ItemTooltipUtil.BuildModel(instance);
-        TooltipAnchor anchor = anchorType == TooltipAnchorType.World
-            ? TooltipAnchor.FromWorld(transform.position)
-            : TooltipAnchor.FromScreen(eventData.position, eventData.position);
+        TooltipAnchor anchor;
+        if (anchorType == TooltipAnchorType.World)
+        {
+            anchor = TooltipAnchor.FromWorld(transform.position);
+        }
+        else
+        {
+            var rect = anchorRect != null ? anchorRect : transform as RectTransform;
+            if (rect == null)
+                return;
+
+            rect.GetWorldCorners(corners);
+            Vector3 topLeftWorld = corners[1];
+            Vector3 topRightWorld = corners[2];
+
+            Vector2 screenRightTop = RectTransformUtility.WorldToScreenPoint(null, topRightWorld);
+            Vector2 screenLeftTop = RectTransformUtility.WorldToScreenPoint(null, topLeftWorld);
+            anchor = TooltipAnchor.FromScreen(screenRightTop, screenLeftTop);
+        }
 
         manager.BeginHover(this, model, anchor);
     }
