@@ -250,13 +250,10 @@ public sealed class ItemSlotManager : MonoBehaviour
     {
         if (!TryGetEmptySlotFromScreenPos(screenPos, out int slotIndex))
         {
-            ClearHighlight();
             ClearPreviews();
-            HighlightEmptySlots();
             return false;
         }
 
-        UpdateHighlight(slotIndex);
         ClearPreviews();
 
         if (IsValidIndex(slotIndex))

@@ -118,11 +118,6 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
         }
     }
 
-    public void SetIconVisible(bool visible)
-    {
-        itemView?.SetIconVisible(visible);
-    }
-
     public Sprite GetIconSprite()
     {
         return itemView != null ? itemView.GetIconSprite() : null;
