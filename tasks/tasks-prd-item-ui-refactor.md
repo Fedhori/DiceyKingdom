@@ -29,7 +29,7 @@
   - [x] 1.4 ItemTooltipTarget이 ItemView와 분리되어 독립적으로 동작하도록 연결 포인트 정리
 
 - [ ] 2.0 ItemSlotController/ProductController/GhostView 로직 분리 리팩터링
-  - [ ] 2.1 ItemSlotController의 시각 처리 제거, ItemView/ItemTooltipTarget 사용으로 교체
+  - [x] 2.1 ItemSlotController의 시각 처리 제거, ItemView/ItemTooltipTarget 사용으로 교체
   - [ ] 2.2 ProductView를 ProductController로 분리하고, ItemView를 통한 시각 처리로 교체
   - [ ] 2.3 GhostView를 ItemView 기반으로 변경(아이콘/배경/하이라이트 사용)
   - [ ] 2.4 기존 하이라이트/선택 로직을 컨트롤러에서 ItemView로 전달하도록 변경

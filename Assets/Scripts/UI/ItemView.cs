@@ -17,6 +17,11 @@ public sealed class ItemView : MonoBehaviour
         iconImage.enabled = sprite != null;
     }
 
+    public Sprite GetIconSprite()
+    {
+        return iconImage != null ? iconImage.sprite : null;
+    }
+
     public void SetIconVisible(bool visible)
     {
         if (iconImage != null)

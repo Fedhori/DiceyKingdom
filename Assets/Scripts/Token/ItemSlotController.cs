@@ -1,43 +1,24 @@
-using Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
+using Data;
 
 [RequireComponent(typeof(RectTransform))]
-public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerClickHandler
 {
     public int SlotIndex { get; private set; } = -1;
     public ItemInstance Instance { get; private set; }
 
     [SerializeField] RectTransform rectTransform;
     public RectTransform RectTransform => rectTransform != null ? rectTransform : (rectTransform = GetComponent<RectTransform>());
-    [SerializeField] Image iconImage;
-    [SerializeField] Image backgroundImage;
-    public GameObject highlightMask;
-    [SerializeField] TooltipAnchorType anchorType = TooltipAnchorType.Screen;
-    Color baseBackgroundColor;
-    bool baseBackgroundInitialized;
+    [SerializeField] ItemView itemView;
+    [SerializeField] ItemTooltipTarget tooltipTarget;
 
     void Awake()
     {
-        if (iconImage != null)
-            iconImage.gameObject.SetActive(false);
-
-        if (backgroundImage != null)
-        {
-            baseBackgroundColor = backgroundImage.color;
-            baseBackgroundInitialized = true;
-        }
-    }
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        ShowTooltip(eventData);
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        HideTooltip();
+        if (itemView == null)
+            itemView = GetComponentInChildren<ItemView>(true);
+        if (tooltipTarget == null)
+            tooltipTarget = GetComponentInChildren<ItemTooltipTarget>(true);
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -95,75 +76,38 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
 
     void UpdateView()
     {
-        if (iconImage != null)
+        if (itemView != null)
         {
-            iconImage.gameObject.SetActive(Instance != null);
-            iconImage.sprite = SpriteCache.GetItemSprite(Instance?.Id);
+            itemView.SetIcon(SpriteCache.GetItemSprite(Instance?.Id));
+
+            if (Instance != null && ItemRepository.TryGet(Instance.Id, out var dto) && dto != null)
+                itemView.SetRarity(dto.rarity);
+            else
+                itemView.SetRarity(ItemRarity.Common);
         }
 
-        UpdateBackgroundColor();
-    }
-
-    void UpdateBackgroundColor()
-    {
-        if (backgroundImage == null)
-            return;
-
-        if (!baseBackgroundInitialized)
+        if (tooltipTarget != null)
         {
-            baseBackgroundColor = backgroundImage.color;
-            baseBackgroundInitialized = true;
+            if (Instance != null)
+                tooltipTarget.Bind(Instance);
+            else
+                tooltipTarget.Clear();
         }
-
-        if (Instance == null)
-        {
-            backgroundImage.color = baseBackgroundColor;
-            return;
-        }
-
-        if (!ItemRepository.TryGet(Instance.Id, out var dto) || dto == null)
-        {
-            backgroundImage.color = baseBackgroundColor;
-            return;
-        }
-
-        backgroundImage.color = Colors.GetRarityColor(dto.rarity);
     }
 
     public void SetIconVisible(bool visible)
     {
-        if (iconImage != null)
-            iconImage.enabled = visible;
+        itemView?.SetIconVisible(visible);
     }
 
     public Sprite GetIconSprite()
     {
-        return iconImage != null ? iconImage.sprite : null;
+        return itemView != null ? itemView.GetIconSprite() : null;
     }
 
-    public void ShowTooltip(PointerEventData eventData)
+    public void SetHighlight(bool active, Color highlightColor)
     {
-        if (Instance == null)
-            return;
-
-        var manager = TooltipManager.Instance;
-        if (manager == null)
-            return;
-
-        TooltipModel model = ItemTooltipUtil.BuildModel(Instance);
-        TooltipAnchor anchor = anchorType == TooltipAnchorType.World
-            ? TooltipAnchor.FromWorld(transform.position)
-            : TooltipAnchor.FromScreen(eventData.position, eventData.position);
-
-        manager.BeginHover(this, model, anchor);
-    }
-
-    public void HideTooltip()
-    {
-        var manager = TooltipManager.Instance;
-        if (manager == null)
-            return;
-
-        manager.EndHover(this);
+        _ = highlightColor;
+        itemView?.SetHighlight(active);
     }
 }
