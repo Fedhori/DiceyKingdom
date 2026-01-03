@@ -11,7 +11,7 @@ public sealed class ShopView : MonoBehaviour
     [Header("Overlay Root")] [SerializeField]
     private GameObject shopOverlay;
 
-    [Header("Item UI")] [SerializeField] private ProductView itemProductPrefab;
+    [Header("Item UI")] [SerializeField] private ProductController itemProductPrefab;
     [SerializeField] private Transform productsParent;
 
     [Header("Reroll / Close UI")] [SerializeField]
@@ -20,7 +20,7 @@ public sealed class ShopView : MonoBehaviour
     [SerializeField] private Button rerollButton;
     [SerializeField] private Button closeButton;
 
-    readonly List<ProductView> itemViews = new();
+    readonly List<ProductController> itemViews = new();
 
     int selectedItemIndex = -1;
 
@@ -117,7 +117,7 @@ public sealed class ShopView : MonoBehaviour
         }
     }
 
-    ProductView GetPrefab(ProductType type)
+    ProductController GetPrefab(ProductType type)
     {
         return type switch
         {
