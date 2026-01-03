@@ -1,3 +1,4 @@
+using Data;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,9 +29,20 @@ public sealed class ItemView : MonoBehaviour
             backgroundImage.color = color;
     }
 
+    public void SetRarity(ItemRarity rarity)
+    {
+        if (backgroundImage != null)
+            backgroundImage.color = Colors.GetRarityColor(rarity);
+    }
+
     public void SetHighlight(bool active)
     {
         if (highlightMask != null)
             highlightMask.SetActive(active);
+    }
+
+    public void SetSelected(bool selected)
+    {
+        SetHighlight(selected);
     }
 }

@@ -24,7 +24,7 @@
 
 - [ ] 1.0 ItemView/ItemTooltipTarget 공통 컴포넌트 설계 및 추가
   - [x] 1.1 ItemView 스크립트 생성(아이콘/배경/하이라이트/드래그 하이라이트 표시 API 정의)
-  - [ ] 1.2 ItemView에 Sprite/rarity/선택 상태 입력 시각 적용 로직 구현
+  - [x] 1.2 ItemView에 Sprite/rarity/선택 상태 입력 시각 적용 로직 구현
   - [ ] 1.3 ItemTooltipTarget 스크립트 생성(ItemInstance 입력, 호버 시 TooltipManager 호출)
   - [ ] 1.4 ItemTooltipTarget이 ItemView와 분리되어 독립적으로 동작하도록 연결 포인트 정리
 
