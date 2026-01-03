@@ -39,7 +39,6 @@ namespace Data
         Common,
         Uncommon,
         Rare,
-        Epic,
         Legendary
     }
 

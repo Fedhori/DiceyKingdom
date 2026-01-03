@@ -1,4 +1,5 @@
 using System;
+using Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 public sealed class ProductView : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private Image iconImage;
+    [SerializeField] private Image backgroundImage;
     [SerializeField] private TMP_Text priceText;
 
     public ProductType ViewType { get; private set; }
@@ -21,6 +23,8 @@ public sealed class ProductView : MonoBehaviour, IPointerClickHandler, IBeginDra
     bool isSelected;
     Color baseIconColor;
     bool baseColorInitialized;
+    Color baseBackgroundColor;
+    bool baseBackgroundInitialized;
 
     int index = -1;
     IProduct boundProduct;
@@ -32,6 +36,12 @@ public sealed class ProductView : MonoBehaviour, IPointerClickHandler, IBeginDra
         {
             baseIconColor = iconImage.color;
             baseColorInitialized = true;
+        }
+
+        if (backgroundImage != null)
+        {
+            baseBackgroundColor = backgroundImage.color;
+            baseBackgroundInitialized = true;
         }
     }
 
@@ -84,17 +94,19 @@ public sealed class ProductView : MonoBehaviour, IPointerClickHandler, IBeginDra
             ApplySelectionColor();
         }
 
+        ApplyBackgroundColor();
+
         if (priceText != null)
         {
             if (sold)
             {
                 priceText.text = LocalizationUtil.SoldString;
-                priceText.color = Colors.Green;
+                priceText.color = Colors.White;
             }
             else
             {
                 priceText.text = $"${price}";
-                priceText.color = canBuy ? Colors.Green : Colors.Red;
+                priceText.color = canBuy ? Colors.White : Colors.Red;
             }
         }
     }
@@ -122,6 +134,26 @@ public sealed class ProductView : MonoBehaviour, IPointerClickHandler, IBeginDra
         c.g = Mathf.Clamp01(c.g * factor);
         c.b = Mathf.Clamp01(c.b * factor);
         iconImage.color = c;
+    }
+
+    void ApplyBackgroundColor()
+    {
+        if (backgroundImage == null)
+            return;
+
+        if (!baseBackgroundInitialized)
+        {
+            baseBackgroundColor = backgroundImage.color;
+            baseBackgroundInitialized = true;
+        }
+
+        if (boundItem == null)
+        {
+            backgroundImage.color = baseBackgroundColor;
+            return;
+        }
+
+        backgroundImage.color = Colors.GetRarityColor(boundItem.Rarity);
     }
 
     public void OnPointerClick(PointerEventData eventData)

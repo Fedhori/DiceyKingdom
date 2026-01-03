@@ -1,3 +1,4 @@
+using Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -11,13 +12,22 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
     [SerializeField] RectTransform rectTransform;
     public RectTransform RectTransform => rectTransform != null ? rectTransform : (rectTransform = GetComponent<RectTransform>());
     [SerializeField] Image iconImage;
+    [SerializeField] Image backgroundImage;
     public GameObject dragHighlightMask;
     [SerializeField] TooltipAnchorType anchorType = TooltipAnchorType.Screen;
+    Color baseBackgroundColor;
+    bool baseBackgroundInitialized;
 
     void Awake()
     {
         if (iconImage != null)
             iconImage.gameObject.SetActive(false);
+
+        if (backgroundImage != null)
+        {
+            baseBackgroundColor = backgroundImage.color;
+            baseBackgroundInitialized = true;
+        }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -85,12 +95,39 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
 
     void UpdateView()
     {
-        if (iconImage == null)
+        if (iconImage != null)
+        {
+            iconImage.gameObject.SetActive(Instance != null);
+            iconImage.sprite = SpriteCache.GetItemSprite(Instance?.Id);
+        }
+
+        UpdateBackgroundColor();
+    }
+
+    void UpdateBackgroundColor()
+    {
+        if (backgroundImage == null)
             return;
 
-        iconImage.gameObject.SetActive(Instance != null);
+        if (!baseBackgroundInitialized)
+        {
+            baseBackgroundColor = backgroundImage.color;
+            baseBackgroundInitialized = true;
+        }
 
-        iconImage.sprite = SpriteCache.GetItemSprite(Instance?.Id);
+        if (Instance == null)
+        {
+            backgroundImage.color = baseBackgroundColor;
+            return;
+        }
+
+        if (!ItemRepository.TryGet(Instance.Id, out var dto) || dto == null)
+        {
+            backgroundImage.color = baseBackgroundColor;
+            return;
+        }
+
+        backgroundImage.color = Colors.GetRarityColor(dto.rarity);
     }
 
     public void SetIconVisible(bool visible)

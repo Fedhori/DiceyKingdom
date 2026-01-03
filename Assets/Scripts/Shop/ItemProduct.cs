@@ -9,6 +9,7 @@ public sealed class ItemProduct : IProduct
     public int Price { get; }
     public Sprite Icon { get; }
     public bool Sold { get; set; }
+    public ItemRarity Rarity => item?.rarity ?? ItemRarity.Common;
 
     public ItemInstance PreviewInstance { get; }
 

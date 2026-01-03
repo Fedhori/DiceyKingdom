@@ -1,3 +1,4 @@
+using Data;
 using UnityEngine;
 
 public static class Colors
@@ -7,12 +8,11 @@ public static class Colors
     public static readonly Color OverCritical = new Color32(0xFF, 0x17, 0x44, 0xFF);
     
     public static readonly Color White = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
-    public static readonly Color Black = new Color32(0x00, 0x00, 0x00, 0xFF); // #FFFFFF
+    public static readonly Color Black = new Color32(0x00, 0x00, 0x00, 0xFF);
     
-    public static readonly Color Common = new Color32(0xFF, 0xFF, 0xFF, 0xFF);     // #FFFFFF
+    public static readonly Color Common = new Color32(0xCC, 0xCC, 0xCC, 0xFF);     // #CCCCCC
     public static readonly Color Uncommon = new Color32(0x00, 0xFF, 0x66, 0xFF);   // #00FF66
     public static readonly Color Rare = new Color32(0x00, 0xC8, 0xFF, 0xFF);       // #00C8FF
-    public static readonly Color Epic = new Color32(0xB3, 0x00, 0xFF, 0xFF);       // #B300FF
     public static readonly Color Legendary = new Color32(0xFF, 0xD4, 0x00, 0xFF);  // #FFD400
     
     public static readonly Color Red = new Color32(0xE7, 0x4C, 0x3C, 0xFF); //#E74C3C
@@ -31,6 +31,23 @@ public static class Colors
                 return Critical;
             default:
                 return OverCritical;
+        }
+    }
+
+    public static Color GetRarityColor(ItemRarity rarity)
+    {
+        switch (rarity)
+        {
+            case ItemRarity.Common:
+                return Common;
+            case ItemRarity.Uncommon:
+                return Uncommon;
+            case ItemRarity.Rare:
+                return Rare;
+            case ItemRarity.Legendary:
+                return Legendary;
+            default:
+                return Common;
         }
     }
 }
