@@ -29,7 +29,8 @@ public static class ItemTooltipUtil
             title,
             body,
             icon,
-            TooltipKind.Item
+            TooltipKind.Item,
+            item.DamageMultiplier
         );
     }
 
@@ -39,7 +40,6 @@ public static class ItemTooltipUtil
             return string.Empty;
 
         var lines = new List<string>();
-        AppendStatLines(item, lines);
         AppendRuleLines(item, lines);
 
         if (lines.Count == 0)
@@ -72,45 +72,6 @@ public static class ItemTooltipUtil
             if (!string.IsNullOrEmpty(line))
                 lines.Add(line);
         }
-    }
-
-    static void AppendStatLines(ItemInstance item, List<string> lines)
-    {
-        if (item == null)
-            return;
-
-        if (item.DamageMultiplier > 0f)
-        {
-            var line = BuildStatLine("tooltip.damageMultiplier.description", item.DamageMultiplier);
-            if (!string.IsNullOrEmpty(line))
-                lines.Add(line);
-        }
-
-        if (item.AttackSpeed > 0f)
-        {
-            var line = BuildStatLine("tooltip.attackSpeed.description", item.AttackSpeed);
-            if (!string.IsNullOrEmpty(line))
-                lines.Add(line);
-        }
-    }
-
-    static string BuildStatLine(string key, float value)
-    {
-        if (string.IsNullOrEmpty(key))
-            return string.Empty;
-
-        var loc = new LocalizedString("tooltip", key);
-        var dict = new Dictionary<string, object>
-        {
-            ["value"] = value.ToString("0.##")
-        };
-        loc.Arguments = new object[] { dict };
-
-        var line = loc.GetLocalizedString();
-        if (string.IsNullOrEmpty(line) || string.Equals(line, key, StringComparison.Ordinal))
-            return string.Empty;
-
-        return line;
     }
 
     static string BuildRuleLine(ItemInstance item, ItemRuleDto rule, int ruleIndex)

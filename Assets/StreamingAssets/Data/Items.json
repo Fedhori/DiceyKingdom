@@ -4,6 +4,7 @@
 			"id": "item.pistol",
 			"isObject": true,
 			"isNotSell": true,
+			"damageMultiplier": 1.0,
 			"attackSpeed": 2.0,
 			"projectile": {
 				"key": "projectile.bullet",
@@ -15,7 +16,6 @@
 		{
 			"id": "item.ball",
 			"damageMultiplier": 1.0,
-			"attackSpeed": 1.0,
 			"isObject": false,
 			"price": 4,
 			"rarity": "Common",
@@ -58,8 +58,6 @@
 		},
 		{
 			"id": "item.textbook",
-			"damageMultiplier": 1.0,
-			"attackSpeed": 1.0,
 			"isObject": false,
 			"price": 5,
 			"rarity": "Common",
@@ -152,6 +150,7 @@
 			"isObject": true,
 			"price": 8,
 			"rarity": "Common",
+			"damageMultiplier": 1.0,
 			"attackSpeed": 1.0,
 			"projectile": {
 				"key": "projectile.bullet",
@@ -192,6 +191,7 @@
 			"isObject": true,
 			"price": 10,
 			"rarity": "Rare",
+			"damageMultiplier": 1.0,
 			"attackSpeed": 1.0,
 			"projectile": {
 				"key": "projectile.bullet",
