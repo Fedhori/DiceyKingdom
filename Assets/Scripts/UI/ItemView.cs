@@ -24,8 +24,16 @@ public sealed class ItemView : MonoBehaviour
 
     public void SetIconVisible(bool visible)
     {
-        if (iconImage != null)
-            iconImage.enabled = visible;
+        if (iconImage == null)
+            return;
+
+        if (!visible)
+        {
+            iconImage.enabled = false;
+            return;
+        }
+
+        iconImage.enabled = iconImage.sprite != null;
     }
 
     public void SetBackgroundColor(Color color)
