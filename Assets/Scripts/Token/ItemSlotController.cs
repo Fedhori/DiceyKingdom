@@ -7,6 +7,8 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
 {
     public int SlotIndex { get; private set; } = -1;
     public ItemInstance Instance { get; private set; }
+    ItemInstance previewInstance;
+    bool hasPreview;
 
     [SerializeField] RectTransform rectTransform;
     public RectTransform RectTransform => rectTransform != null ? rectTransform : (rectTransform = GetComponent<RectTransform>());
@@ -50,6 +52,23 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
         UpdateView();
     }
 
+    public void SetPreview(ItemInstance preview)
+    {
+        hasPreview = true;
+        previewInstance = preview;
+        UpdateView();
+    }
+
+    public void ClearPreview()
+    {
+        if (!hasPreview)
+            return;
+
+        hasPreview = false;
+        previewInstance = null;
+        UpdateView();
+    }
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (eventData.button != PointerEventData.InputButton.Left)
@@ -76,11 +95,13 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
 
     void UpdateView()
     {
+        var displayInstance = hasPreview ? previewInstance : Instance;
+
         if (itemView != null)
         {
-            itemView.SetIcon(SpriteCache.GetItemSprite(Instance?.Id));
+            itemView.SetIcon(SpriteCache.GetItemSprite(displayInstance?.Id));
 
-            if (Instance != null && ItemRepository.TryGet(Instance.Id, out var dto) && dto != null)
+            if (displayInstance != null && ItemRepository.TryGet(displayInstance.Id, out var dto) && dto != null)
                 itemView.SetRarity(dto.rarity);
             else
                 itemView.SetRarity(ItemRarity.Common);
@@ -88,8 +109,8 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
 
         if (tooltipTarget != null)
         {
-            if (Instance != null)
-                tooltipTarget.Bind(Instance);
+            if (displayInstance != null)
+                tooltipTarget.Bind(displayInstance);
             else
                 tooltipTarget.Clear();
         }

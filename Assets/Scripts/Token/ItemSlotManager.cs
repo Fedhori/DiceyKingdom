@@ -14,6 +14,10 @@ public sealed class ItemSlotManager : MonoBehaviour
     int draggingStartIndex = -1;
     int currentHighlightIndex = -1;
     bool overSellArea;
+    Sprite draggingGhostSprite;
+    ItemRarity draggingGhostRarity = ItemRarity.Common;
+    GhostKind draggingGhostKind = GhostKind.None;
+    bool ghostHidden;
 
     [SerializeField] Color slotHighlightColor = Color.white;
     ItemInventory inventory;
@@ -233,15 +237,27 @@ public sealed class ItemSlotManager : MonoBehaviour
         return true;
     }
 
-    public void UpdatePurchaseHover(Vector2 screenPos)
+    public bool UpdatePurchaseHover(Vector2 screenPos)
+    {
+        return UpdatePurchaseHover(screenPos, null);
+    }
+
+    public bool UpdatePurchaseHover(Vector2 screenPos, ItemInstance previewInstance)
     {
         if (!TryGetEmptySlotFromScreenPos(screenPos, out int slotIndex))
         {
             ClearHighlight();
-            return;
+            ClearPreviews();
+            return false;
         }
 
         UpdateHighlight(slotIndex);
+        ClearPreviews();
+
+        if (IsValidIndex(slotIndex))
+            slotControllers[slotIndex]?.SetPreview(previewInstance);
+
+        return true;
     }
 
     public void HighlightEmptySlots()
@@ -294,8 +310,11 @@ public sealed class ItemSlotManager : MonoBehaviour
         var rarity = ItemRarity.Common;
         if (ItemRepository.TryGet(controller.Instance.Id, out var dto) && dto != null)
             rarity = dto.rarity;
-        GhostManager.Instance?.ShowGhost(controller.GetIconSprite(), screenPos, GhostKind.Item, rarity);
-        controller.SetIconVisible(false);
+        draggingGhostSprite = controller.GetIconSprite();
+        draggingGhostRarity = rarity;
+        draggingGhostKind = GhostKind.Item;
+        ghostHidden = false;
+        GhostManager.Instance?.ShowGhost(draggingGhostSprite, screenPos, draggingGhostKind, draggingGhostRarity);
         overSellArea = false;
         SellOverlayController.Instance?.Show();
     }
@@ -315,7 +334,7 @@ public sealed class ItemSlotManager : MonoBehaviour
         {
             GhostManager.Instance?.HideGhost(GhostKind.Item);
             ClearHighlights();
-            draggingController?.SetIconVisible(true);
+            ClearPreviews();
             overlay?.Hide();
 
             var toSell = draggingController;
@@ -330,7 +349,7 @@ public sealed class ItemSlotManager : MonoBehaviour
 
         GhostManager.Instance?.HideGhost(GhostKind.Item);
         ClearHighlights();
-        draggingController?.SetIconVisible(true);
+        ClearPreviews();
 
         ResetDrag();
         overlay?.Hide();
@@ -367,6 +386,8 @@ public sealed class ItemSlotManager : MonoBehaviour
 
         int targetIndex = FindSlotIndexAtScreenPos(screenPos);
         UpdateHighlight(targetIndex);
+        UpdateDragPreview(targetIndex);
+        UpdateGhostVisibility(targetIndex, screenPos);
 
         var overlay = SellOverlayController.Instance;
         overSellArea = overlay != null && overlay.ContainsScreenPoint(screenPos);
@@ -391,6 +412,72 @@ public sealed class ItemSlotManager : MonoBehaviour
         draggingController = null;
         draggingStartIndex = -1;
         overSellArea = false;
+        draggingGhostSprite = null;
+        draggingGhostRarity = ItemRarity.Common;
+        draggingGhostKind = GhostKind.None;
+        ghostHidden = false;
+    }
+
+    void UpdateGhostVisibility(int targetIndex, Vector2 screenPos)
+    {
+        if (draggingGhostKind == GhostKind.None)
+            return;
+
+        bool validTarget = IsValidIndex(targetIndex) && targetIndex != draggingStartIndex;
+        if (validTarget)
+        {
+            if (!ghostHidden)
+            {
+                GhostManager.Instance?.HideGhost(draggingGhostKind);
+                ghostHidden = true;
+            }
+
+            return;
+        }
+
+        if (ghostHidden)
+        {
+            GhostManager.Instance?.ShowGhost(draggingGhostSprite, screenPos, draggingGhostKind, draggingGhostRarity);
+            ghostHidden = false;
+        }
+    }
+
+    void UpdateDragPreview(int targetIndex)
+    {
+        if (draggingController == null || slotControllers == null)
+            return;
+
+        ClearPreviews();
+
+        if (!IsValidIndex(targetIndex) || targetIndex == draggingStartIndex)
+            return;
+
+        var targetCtrl = slotControllers[targetIndex];
+        if (targetCtrl == null)
+            return;
+
+        targetCtrl.SetPreview(draggingController.Instance);
+
+        if (IsValidIndex(draggingStartIndex))
+        {
+            var startCtrl = slotControllers[draggingStartIndex];
+            if (startCtrl != null)
+            {
+                if (targetCtrl.Instance != null)
+                    startCtrl.SetPreview(targetCtrl.Instance);
+                else
+                    startCtrl.SetPreview(null);
+            }
+        }
+    }
+
+    public void ClearPreviews()
+    {
+        if (slotControllers == null)
+            return;
+
+        for (int i = 0; i < slotControllers.Length; i++)
+            slotControllers[i]?.ClearPreview();
     }
 
     private void RequestSellItem(ItemSlotController ctrl)

@@ -547,8 +547,21 @@ public sealed class ShopManager : MonoBehaviour
 
         if (itemIndex == draggingItemIndex)
         {
-            shopView.UpdateItemDragGhostPosition(screenPos);
-            ItemSlotManager.Instance?.UpdatePurchaseHover(screenPos);
+            ItemInstance previewInstance = null;
+            if (GetShopItem(itemIndex) is ItemProduct itemProduct)
+                previewInstance = itemProduct.PreviewInstance;
+            bool hasValidTarget = ItemSlotManager.Instance != null
+                && ItemSlotManager.Instance.UpdatePurchaseHover(screenPos, previewInstance);
+
+            if (hasValidTarget)
+            {
+                shopView.HideItemDragGhost();
+            }
+            else
+            {
+                shopView.ShowItemDragGhost(GetShopItem(itemIndex), screenPos);
+                shopView.UpdateItemDragGhostPosition(screenPos);
+            }
         }
     }
 
@@ -578,6 +591,7 @@ public sealed class ShopManager : MonoBehaviour
         shopView.HideItemDragGhost();
         draggingItemIndex = -1;
         ItemSlotManager.Instance?.ClearHighlights();
+        ItemSlotManager.Instance?.ClearPreviews();
     }
 
 }
