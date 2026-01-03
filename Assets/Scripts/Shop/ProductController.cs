@@ -91,12 +91,12 @@ public sealed class ProductController : MonoBehaviour, IPointerClickHandler, IBe
             if (sold)
             {
                 priceText.text = LocalizationUtil.SoldString;
-                priceText.color = Colors.Green;
+                priceText.color = Colors.White;
             }
             else
             {
                 priceText.text = $"${price}";
-                priceText.color = canBuy ? Colors.Green : Colors.Red;
+                priceText.color = canBuy ? Colors.White : Colors.Red;
             }
         }
     }

@@ -1,3 +1,4 @@
+using Data;
 using UnityEngine;
 
 [RequireComponent(typeof(RectTransform))]
@@ -17,6 +18,11 @@ public sealed class GhostView : MonoBehaviour
     public void SetIcon(Sprite sprite)
     {
         itemView?.SetIcon(sprite);
+    }
+
+    public void SetRarity(ItemRarity rarity)
+    {
+        itemView?.SetRarity(rarity);
     }
 
     public void SetScreenPosition(Vector2 screenPos, Canvas canvas)

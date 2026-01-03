@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Components;
@@ -212,8 +213,12 @@ public sealed class ShopView : MonoBehaviour
 
     public void ShowItemDragGhost(IProduct item, Vector2 screenPos)
     {
+        var rarity = ItemRarity.Common;
+        if (item is ItemProduct itemProduct)
+            rarity = itemProduct.Rarity;
+
         GhostManager.Instance?.ShowGhost(item?.Icon, screenPos,
-            item?.ProductType == ProductType.Item ? GhostKind.Item : GhostKind.Pin);
+            item?.ProductType == ProductType.Item ? GhostKind.Item : GhostKind.Pin, rarity);
     }
 
     public void UpdateItemDragGhostPosition(Vector2 screenPos)

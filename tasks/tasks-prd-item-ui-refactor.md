@@ -36,9 +36,10 @@
 
 - [ ] 3.0 Shop/Slot/Ghost 연결 코드 갱신 및 데이터 바인딩 정리
   - [x] 3.1 ShopView가 ProductController 프리팹을 생성하도록 변경
-  - [ ] 3.2 ShopManager의 선택/드래그 이벤트가 ProductController와 일관되게 연결되도록 갱신
-  - [ ] 3.3 ItemSlotManager가 ItemView 기반 바인딩/하이라이트 갱신을 사용하도록 수정
-  - [ ] 3.4 GhostManager의 Show/Update API가 ItemView 입력에 맞게 변경
+  - [x] 3.2 ShopManager의 선택/드래그 이벤트가 ProductController와 일관되게 연결되도록 갱신
+  - [x] 3.3 ItemSlotManager가 ItemView 기반 바인딩/하이라이트 갱신을 사용하도록 수정
+  - [x] 3.4 GhostManager의 Show/Update API가 ItemView 입력에 맞게 변경
+  - [x] 3.5 DragGhost에 아이템 희귀도 전달(배경색 반영)
 
 - [ ] 4.0 프리팹 교체 가이드 정리 및 수동 검증 항목 정리
   - [ ] 4.1 BaseItemView + Variant 프리팹 교체 절차 문서화(에디터 작업 목록)

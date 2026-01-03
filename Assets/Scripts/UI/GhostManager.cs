@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Data;
 using UnityEngine;
 
 public sealed class GhostManager : MonoBehaviour
@@ -54,7 +55,7 @@ public sealed class GhostManager : MonoBehaviour
         return instance;
     }
 
-    public void ShowGhost(Sprite sprite, Vector2 screenPos, GhostKind kind)
+    public void ShowGhost(Sprite sprite, Vector2 screenPos, GhostKind kind, ItemRarity rarity)
     {
         var view = GetOrCreateGhost(kind);
         if (view == null)
@@ -64,6 +65,7 @@ public sealed class GhostManager : MonoBehaviour
         CurrentKind = kind;
 
         view.SetIcon(sprite);
+        view.SetRarity(rarity);
         view.gameObject.SetActive(true);
         UpdateGhostPosition(screenPos);
     }

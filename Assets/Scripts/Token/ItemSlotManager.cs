@@ -291,7 +291,10 @@ public sealed class ItemSlotManager : MonoBehaviour
 
         draggingController = controller;
         draggingStartIndex = idx;
-        GhostManager.Instance?.ShowGhost(controller.GetIconSprite(), screenPos, GhostKind.Item);
+        var rarity = ItemRarity.Common;
+        if (ItemRepository.TryGet(controller.Instance.Id, out var dto) && dto != null)
+            rarity = dto.rarity;
+        GhostManager.Instance?.ShowGhost(controller.GetIconSprite(), screenPos, GhostKind.Item, rarity);
         controller.SetIconVisible(false);
         overSellArea = false;
         SellOverlayController.Instance?.Show();
