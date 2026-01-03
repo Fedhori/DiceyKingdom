@@ -1,27 +1,22 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(RectTransform))]
 public sealed class GhostView : MonoBehaviour
 {
-    [SerializeField] private Image iconImage;
+    [SerializeField] private ItemView itemView;
 
     RectTransform rectTransform;
 
     void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
-        if (iconImage == null)
-            iconImage = GetComponentInChildren<Image>(true);
+        if (itemView == null)
+            itemView = GetComponentInChildren<ItemView>(true);
     }
 
     public void SetIcon(Sprite sprite)
     {
-        if (iconImage == null)
-            return;
-
-        iconImage.sprite = sprite;
-        iconImage.enabled = sprite != null;
+        itemView?.SetIcon(sprite);
     }
 
     public void SetScreenPosition(Vector2 screenPos, Canvas canvas)
