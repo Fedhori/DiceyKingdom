@@ -12,6 +12,8 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
 
     [SerializeField] RectTransform rectTransform;
     public RectTransform RectTransform => rectTransform != null ? rectTransform : (rectTransform = GetComponent<RectTransform>());
+    [SerializeField] RectTransform dropArea;
+    public RectTransform DropArea => dropArea != null ? dropArea : RectTransform;
     [SerializeField] ItemView itemView;
     [SerializeField] ItemTooltipTarget tooltipTarget;
 

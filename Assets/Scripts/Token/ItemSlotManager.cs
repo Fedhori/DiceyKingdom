@@ -208,10 +208,14 @@ public sealed class ItemSlotManager : MonoBehaviour
         for (int i = 0; i < slotControllers.Length; i++)
         {
             var ctrl = slotControllers[i];
-            if (ctrl == null || ctrl.RectTransform == null)
+            if (ctrl == null)
                 continue;
 
-            if (RectTransformUtility.RectangleContainsScreenPoint(ctrl.RectTransform, screenPos))
+            var rt = ctrl.DropArea != null ? ctrl.DropArea : ctrl.RectTransform;
+            if (rt == null)
+                continue;
+
+            if (RectTransformUtility.RectangleContainsScreenPoint(rt, screenPos))
             {
                 slotIndex = i;
                 return true;
@@ -248,6 +252,7 @@ public sealed class ItemSlotManager : MonoBehaviour
         {
             ClearHighlight();
             ClearPreviews();
+            HighlightEmptySlots();
             return false;
         }
 
@@ -315,6 +320,7 @@ public sealed class ItemSlotManager : MonoBehaviour
         draggingGhostKind = GhostKind.Item;
         ghostHidden = false;
         GhostManager.Instance?.ShowGhost(draggingGhostSprite, screenPos, draggingGhostKind, draggingGhostRarity);
+        controller.SetPreview(null);
         overSellArea = false;
         SellOverlayController.Instance?.Show();
     }
@@ -366,7 +372,7 @@ public sealed class ItemSlotManager : MonoBehaviour
             if (ctrl == null)
                 continue;
 
-            var rt = ctrl.RectTransform;
+            var rt = ctrl.DropArea != null ? ctrl.DropArea : ctrl.RectTransform;
             if (rt == null)
                 continue;
 
@@ -448,6 +454,9 @@ public sealed class ItemSlotManager : MonoBehaviour
             return;
 
         ClearPreviews();
+
+        if (IsValidIndex(draggingStartIndex))
+            slotControllers[draggingStartIndex]?.SetPreview(null);
 
         if (!IsValidIndex(targetIndex) || targetIndex == draggingStartIndex)
             return;
