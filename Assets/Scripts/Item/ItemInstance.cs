@@ -19,7 +19,7 @@ public sealed class ItemInstance
     public int PelletCount { get; private set; }
     public float SpreadAngle { get; private set; }
     public bool IsObject { get; private set; }
-    public int PierceBouns { get; private set; }
+    public int PierceBonus { get; private set; }
     public float ProjectileHomingTurnRate { get; private set; }
 
     private readonly List<ItemRuleDto> rules = new();
@@ -48,7 +48,7 @@ public sealed class ItemInstance
             PelletCount = 1;
             SpreadAngle = 0f;
             IsObject = false;
-            PierceBouns = 0;
+            PierceBonus = 0;
             ProjectileHomingTurnRate = 0f;
             return;
         }
@@ -57,7 +57,7 @@ public sealed class ItemInstance
         Damage = Mathf.Max(0f, dto.damage);
         AttackSpeed = Mathf.Max(0f, dto.attackSpeed);
         IsObject = dto.isObject;
-        PierceBouns = Mathf.Max(0, dto.pierceBouns);
+        PierceBonus = Mathf.Max(0, dto.pierceBouns);
 
         if (dto.rules != null)
             rules.AddRange(dto.rules);
@@ -75,19 +75,6 @@ public sealed class ItemInstance
             PelletCount = Mathf.Max(1, projectile.pelletCount);
             SpreadAngle = Mathf.Max(0f, projectile.spreadAngle);
             ProjectileHomingTurnRate = Mathf.Max(0f, projectile.homingTurnRate);
-        }
-        else
-        {
-            ProjectileKey = string.Empty;
-            ProjectileSize = 1f;
-            ProjectileSpeed = 1f;
-            ProjectileHitBehavior = ProjectileHitBehavior.Normal;
-            MaxBounces = 0;
-            MaxPierces = 0;
-            ProjectileLifeTime = 0f;
-            PelletCount = 1;
-            SpreadAngle = 0f;
-            ProjectileHomingTurnRate = 0f;
         }
     }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Data;
+using UnityEngine;
 using UnityEngine.Localization;
 
 public static class ItemTooltipUtil
@@ -40,6 +41,7 @@ public static class ItemTooltipUtil
             return string.Empty;
 
         var lines = new List<string>();
+        AppendStatLines(item, lines);
         AppendRuleLines(item, lines);
 
         if (lines.Count == 0)
@@ -54,6 +56,72 @@ public static class ItemTooltipUtil
         }
 
         return sb.ToString();
+    }
+
+    static void AppendStatLines(ItemInstance item, List<string> lines)
+    {
+        if (item == null)
+            return;
+
+        float finalDamage = GetFinalDamage(item);
+        if (finalDamage > 0f)
+        {
+            float multiplier = GetDamageMultiplier();
+            var args = new Dictionary<string, object>
+            {
+                ["damage"] = finalDamage.ToString("0.##"),
+                ["multiplier"] = multiplier.ToString("0.##")
+            };
+            lines.Add(BuildStatLine("tooltip.damage.description", args));
+        }
+
+        float finalAttackSpeed = GetFinalAttackSpeed(item);
+        if (finalAttackSpeed > 0f)
+        {
+            var args = new Dictionary<string, object>
+            {
+                ["value"] = finalAttackSpeed.ToString("0.##")
+            };
+            lines.Add(BuildStatLine("tooltip.attackSpeed.description", args));
+        }
+    }
+
+    static float GetFinalDamage(ItemInstance item)
+    {
+        if (item == null || item.Damage <= 0f)
+            return 0f;
+
+        float multiplier = GetDamageMultiplier();
+
+        float raw = item.Damage * multiplier;
+        return Mathf.Max(1f, Mathf.Floor(raw));
+    }
+
+    static float GetDamageMultiplier()
+    {
+        float multiplier = 1f;
+        var player = PlayerManager.Instance?.Current;
+        if (player != null)
+            multiplier = Mathf.Max(0f, (float)player.DamageMultiplier);
+
+        return multiplier;
+    }
+
+    static float GetFinalAttackSpeed(ItemInstance item)
+    {
+        if (item == null || item.AttackSpeed <= 0f)
+            return 0f;
+
+        return item.AttackSpeed;
+    }
+
+    static string BuildStatLine(string key, Dictionary<string, object> args)
+    {
+        var loc = new LocalizedString("tooltip", key);
+        if (args != null)
+            loc.Arguments = new object[] { args };
+
+        return loc.GetLocalizedString();
     }
 
     static void AppendRuleLines(ItemInstance item, List<string> lines)
@@ -107,8 +175,8 @@ public static class ItemTooltipUtil
         if (item is { PelletCount: > 1 })
             dict["pelletCount"] = item.PelletCount;
 
-        if (item is { PierceBouns: > 0 })
-            dict["pierceBonus"] = item.PierceBouns;
+        if (item is { PierceBonus: > 0 })
+            dict["pierceBonus"] = item.PierceBonus;
 
         return dict.Count == 0 ? null : dict;
     }

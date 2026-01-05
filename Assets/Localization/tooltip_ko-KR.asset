@@ -20,7 +20,7 @@ MonoBehaviour:
     - rid: 1113825116433678412
   m_TableData:
   - m_Id: 9134255610802176
-    m_Localized: "\uD53C\uD574 \uBC30\uC218 : x{value}"
+    m_Localized: "\uB370\uBBF8\uC9C0 : {damage} (x{multiplier})"
     m_Metadata:
       m_Items:
       - rid: 1113825116433678412

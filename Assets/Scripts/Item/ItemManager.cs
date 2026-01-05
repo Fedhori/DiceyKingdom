@@ -47,7 +47,7 @@ public sealed class ItemManager : MonoBehaviour
             if (inst == null)
                 continue;
 
-            int bonus = inst.PierceBouns;
+            int bonus = inst.PierceBonus;
             if (bonus > 0)
                 total += bonus;
         }

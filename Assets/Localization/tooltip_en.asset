@@ -25,7 +25,7 @@ MonoBehaviour:
       m_Items:
       - rid: 1113825116433678411
   - m_Id: 9134255610802176
-    m_Localized: 
+    m_Localized: "Damage : {damage} (x{multiplier})"
     m_Metadata:
       m_Items:
       - rid: 1113825116433678411

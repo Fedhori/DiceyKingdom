@@ -16,7 +16,7 @@ MonoBehaviour:
   m_TableCollectionNameGuidString: dcfb1e55b2b6c0743a1bac814d804857
   m_Entries:
   - m_Id: 9134255610802176
-    m_Key: tooltip.damageMultiplier.description
+    m_Key: tooltip.damage.description
     m_Metadata:
       m_Items: []
   - m_Id: 9134393871839232

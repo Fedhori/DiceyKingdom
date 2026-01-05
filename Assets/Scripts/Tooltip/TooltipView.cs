@@ -9,8 +9,6 @@ public sealed class TooltipView : MonoBehaviour
     [SerializeField] Image iconImage;
     [SerializeField] TMP_Text nameText;
     [SerializeField] TMP_Text descriptionText;
-    [SerializeField] TMP_Text damageMultiplierText;
-    [SerializeField] GameObject damageContainer;
 
     public RectTransform rectTransform;
 
@@ -37,16 +35,6 @@ public sealed class TooltipView : MonoBehaviour
 
         if (descriptionText != null)
             descriptionText.text = model.Body ?? string.Empty;
-
-        if (damageMultiplierText != null)
-        {
-            bool showDamage = model is { Kind: TooltipKind.Item, Damage: > 0f };
-            damageMultiplierText.gameObject.SetActive(showDamage);
-            if (damageContainer != null)
-                damageContainer.SetActive(showDamage);
-            if (showDamage)
-                damageMultiplierText.text = $"{model.Damage:0.##}";
-        }
 
         if (iconImage != null)
         {
