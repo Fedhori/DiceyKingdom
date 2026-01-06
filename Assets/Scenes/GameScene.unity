@@ -3937,7 +3937,7 @@ GameObject:
   - component: {fileID: 1057764092}
   - component: {fileID: 1057764094}
   - component: {fileID: 1057764093}
-  m_Layer: 6
+  m_Layer: 11
   m_Name: Bottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9846,7 +9846,7 @@ GameObject:
   - component: {fileID: 2025243435}
   - component: {fileID: 2025243436}
   - component: {fileID: 2025243437}
-  m_Layer: 6
+  m_Layer: 11
   m_Name: Ceiling
   m_TagString: Untagged
   m_Icon: {fileID: 0}

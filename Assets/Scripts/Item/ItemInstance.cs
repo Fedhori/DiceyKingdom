@@ -20,6 +20,7 @@ public sealed class ItemInstance
     public float SpreadAngle { get; private set; }
     public float ProjectileRandomAngle { get; private set; }
     public bool IsObject { get; private set; }
+    public bool EnableSideWallCollision { get; private set; }
     public int PierceBonus { get; private set; }
     public float ProjectileHomingTurnRate { get; private set; }
 
@@ -50,6 +51,7 @@ public sealed class ItemInstance
             SpreadAngle = 0f;
             ProjectileRandomAngle = 0f;
             IsObject = false;
+            EnableSideWallCollision = false;
             PierceBonus = 0;
             ProjectileHomingTurnRate = 0f;
             return;
@@ -59,6 +61,7 @@ public sealed class ItemInstance
         DamageMultiplier = Mathf.Max(0f, dto.damageMultiplier);
         AttackSpeed = Mathf.Max(0f, dto.attackSpeed);
         IsObject = dto.isObject;
+        EnableSideWallCollision = dto.enableSideWallCollision;
         PierceBonus = Mathf.Max(0, dto.pierceBouns);
 
         if (dto.rules != null)

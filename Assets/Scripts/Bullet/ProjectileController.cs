@@ -11,6 +11,11 @@ public sealed class ProjectileController : MonoBehaviour
     int bounceCount;
     int pierceRemaining;
     float lifeTimer;
+    LayerMask baseRbInclude;
+    LayerMask baseRbExclude;
+    LayerMask baseColliderInclude;
+    LayerMask baseColliderExclude;
+    int baseColliderOverridePriority;
 
     void Awake()
     {
@@ -26,8 +31,8 @@ public sealed class ProjectileController : MonoBehaviour
         pierceRemaining = 0;
         lifeTimer = 0f;
 
-        if (hitCollider != null && item != null)
-            hitCollider.isTrigger = item.ProjectileHitBehavior != ProjectileHitBehavior.Bounce;
+        // if (hitCollider != null && item != null)
+        //     hitCollider.isTrigger = item.ProjectileHitBehavior != ProjectileHitBehavior.Bounce;
 
         ApplyPierceCount();
         ApplyStats();
@@ -59,9 +64,41 @@ public sealed class ProjectileController : MonoBehaviour
         transform.localScale = new Vector3(s, s, 1f);
     }
 
+    public void SetSideWallCollisionEnabled(bool enabled)
+    {
+        if (!enabled)
+            return;
+
+        int sideWallLayer = LayerMask.NameToLayer("SideWall");
+        if (sideWallLayer < 0)
+            return;
+
+        int bit = 1 << sideWallLayer;
+
+        if (rb != null)
+        {
+            rb.includeLayers = baseRbInclude.value | bit;
+            rb.excludeLayers = baseRbExclude.value & ~bit;
+        }
+
+        if (hitCollider != null)
+        {
+            hitCollider.includeLayers = baseColliderInclude.value | bit;
+            hitCollider.excludeLayers = baseColliderExclude.value & ~bit;
+            hitCollider.layerOverridePriority = baseColliderOverridePriority;
+        }
+    }
+
     void OnTriggerEnter2D(Collider2D other)
     {
         if (item == null)
+            return;
+
+        if (other == null)
+            return;
+
+        int blockLayer = LayerMask.NameToLayer("Block");
+        if (blockLayer < 0 || other.gameObject.layer != blockLayer)
             return;
 
         if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)

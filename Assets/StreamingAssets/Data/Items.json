@@ -220,6 +220,14 @@
 				"randomAngle": 0.0
 			},
 			"rules": [{}]
+		},
+		{
+			"id": "item.spring",
+			"isObject": false,
+			"price": 7,
+			"rarity": "Rare",
+			"enableSideWallCollision": true,
+			"rules": [{}]
 		}
 	]
 }

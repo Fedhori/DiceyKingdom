@@ -12,12 +12,12 @@ TagManager:
   - 
   - Water
   - UI
-  - Wall
+  - SideWall
   - Block
   - Projectile
   - ProjetileDestroyZone
   - BlockDestroyZone
-  - 
+  - Wall
   - 
   - 
   - 

@@ -55,6 +55,19 @@ public sealed class ItemManager : MonoBehaviour
         return total;
     }
 
+    public bool HasSideWallCollisionItem()
+    {
+        var slots = inventory.Slots;
+        for (int i = 0; i < slots.Count; i++)
+        {
+            var inst = slots[i];
+            if (inst != null && inst.EnableSideWallCollision)
+                return true;
+        }
+
+        return false;
+    }
+
     public void BeginPlay()
     {
         isPlayActive = true;
@@ -187,14 +200,25 @@ public sealed class ItemManager : MonoBehaviour
 
         SubscribeEffects(current);
 
-        if (!current.IsObject)
-            return;
-
-        if (controllerMap.ContainsKey(current))
-            return;
-
-        if (isPlayActive)
+        if (isPlayActive && current.IsObject)
             SpawnController(current);
+
+        if (HasSideWallCollisionFlag(previous) || HasSideWallCollisionFlag(current))
+            RefreshSideWallCollision();
+    }
+
+    void RefreshSideWallCollision()
+    {
+        var factory = ProjectileFactory.Instance;
+        if (factory == null)
+            return;
+
+        factory.SetSideWallCollisionEnabled(HasSideWallCollisionItem());
+    }
+
+    static bool HasSideWallCollisionFlag(ItemInstance inst)
+    {
+        return inst != null && inst.EnableSideWallCollision;
     }
 
     void SubscribeEffects(ItemInstance inst)

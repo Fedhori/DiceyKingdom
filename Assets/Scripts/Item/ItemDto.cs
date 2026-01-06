@@ -107,6 +107,7 @@ namespace Data
         public string id;
         public bool isObject;
         public bool isNotSell;
+        public bool enableSideWallCollision;
         public int price;
 
         [JsonConverter(typeof(StringEnumConverter))]
