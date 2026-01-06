@@ -2,7 +2,7 @@
 	"players": [
 		{
 			"id": "player.default",
-			"damageMultiplier": 1.0,
+			"power": 10.0,
 			"critChance": 0.0,
 			"criticalMultiplier": 2.0,
 			"startCurrency": 0,

@@ -19,15 +19,6 @@ MonoBehaviour:
     m_Items:
     - rid: 2507345031984054467
   m_TableData:
-  - m_Id: 695075618816
-    m_Localized: 
-    m_Metadata:
-      m_Items:
-      - rid: 2507345031984054467
-  - m_Id: 605443342336
-    m_Localized: 
-    m_Metadata:
-      m_Items: []
   - m_Id: 538124763136
     m_Localized: 
     m_Metadata:
@@ -65,7 +56,6 @@ MonoBehaviour:
       data:
         m_Entries: 
         m_SharedEntries:
-        - id: 695075618816
         - id: 4240051027968
         - id: 4317961107550208
         - id: 4318060248313856

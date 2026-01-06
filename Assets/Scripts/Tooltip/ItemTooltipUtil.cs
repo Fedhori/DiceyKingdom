@@ -31,7 +31,7 @@ public static class ItemTooltipUtil
             body,
             icon,
             TooltipKind.Item,
-            item.Damage
+            item.DamageMultiplier
         );
     }
 
@@ -66,7 +66,7 @@ public static class ItemTooltipUtil
         float finalDamage = GetFinalDamage(item);
         if (finalDamage > 0f)
         {
-            float multiplier = GetDamageMultiplier();
+            float multiplier = item.DamageMultiplier;
             var args = new Dictionary<string, object>
             {
                 ["damage"] = finalDamage.ToString("0.##"),
@@ -88,23 +88,23 @@ public static class ItemTooltipUtil
 
     static float GetFinalDamage(ItemInstance item)
     {
-        if (item == null || item.Damage <= 0f)
+        if (item == null || item.DamageMultiplier <= 0f)
             return 0f;
 
-        float multiplier = GetDamageMultiplier();
+        float power = GetPlayerPower();
 
-        float raw = item.Damage * multiplier;
+        float raw = item.DamageMultiplier * power;
         return Mathf.Max(1f, Mathf.Floor(raw));
     }
 
-    static float GetDamageMultiplier()
+    static float GetPlayerPower()
     {
-        float multiplier = 1f;
+        float power = 0f;
         var player = PlayerManager.Instance?.Current;
         if (player != null)
-            multiplier = Mathf.Max(0f, (float)player.DamageMultiplier);
+            power = Mathf.Max(0f, (float)player.Power);
 
-        return multiplier;
+        return power;
     }
 
     static float GetFinalAttackSpeed(ItemInstance item)

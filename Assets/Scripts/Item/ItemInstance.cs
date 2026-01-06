@@ -7,7 +7,7 @@ public sealed class ItemInstance
 {
     public string Id { get; }
 
-    public float Damage { get; private set; }
+    public float DamageMultiplier { get; private set; }
     public float AttackSpeed { get; private set; }
     public float ProjectileSize { get; private set; }
     public float ProjectileSpeed { get; private set; }
@@ -36,7 +36,7 @@ public sealed class ItemInstance
         {
             Debug.LogError("[ItemInstance] Invalid dto");
             Id = string.Empty;
-            Damage = 0f;
+            DamageMultiplier = 0f;
             AttackSpeed = 0f;
             ProjectileSize = 1f;
             ProjectileSpeed = 1f;
@@ -54,7 +54,7 @@ public sealed class ItemInstance
         }
 
         Id = dto.id;
-        Damage = Mathf.Max(0f, dto.damage);
+        DamageMultiplier = Mathf.Max(0f, dto.damageMultiplier);
         AttackSpeed = Mathf.Max(0f, dto.attackSpeed);
         IsObject = dto.isObject;
         PierceBonus = Mathf.Max(0, dto.pierceBouns);

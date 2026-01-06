@@ -2,6 +2,7 @@ using System;
 using Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public sealed class PlayerManager : MonoBehaviour
 {
@@ -9,7 +10,8 @@ public sealed class PlayerManager : MonoBehaviour
 
     [SerializeField] string defaultPlayerId = "player.default";
 
-    [SerializeField] private TMP_Text damageMultiplierText;
+    [FormerlySerializedAs("damageMultiplierText")]
+    [SerializeField] private TMP_Text powerText;
     private readonly float statUIUpdateCycle = 0.1f;
     private float currentStatUIUpdateCycle = 0f;
 
@@ -77,8 +79,8 @@ public sealed class PlayerManager : MonoBehaviour
 
     void UpdateStatUI()
     {
-        if (damageMultiplierText != null && Current != null)
-            damageMultiplierText.text = $"x{Current.DamageMultiplier:0.#}";
+        if (powerText != null && Current != null)
+            powerText.text = $"{Current.Power:0.#}";
     }
 
     public void ResetPlayer()

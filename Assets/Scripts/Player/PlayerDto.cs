@@ -11,7 +11,7 @@ namespace Data
     {
         public string id;
 
-        public float damageMultiplier = 1f;
+        public float power = 10f;
 
         public float critChance = 5f;
         public float criticalMultiplier = 2f;

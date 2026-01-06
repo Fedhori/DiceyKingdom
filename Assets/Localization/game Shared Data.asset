@@ -15,20 +15,8 @@ MonoBehaviour:
   m_TableCollectionName: game
   m_TableCollectionNameGuidString: 8abef000e1d7d584b8bcdb155d7766d4
   m_Entries:
-  - m_Id: 6349930496
-    m_Key: game.roll.button
-    m_Metadata:
-      m_Items: []
   - m_Id: 538124763136
     m_Key: game.stage.label
-    m_Metadata:
-      m_Items: []
-  - m_Id: 605443342336
-    m_Key: game.round.label
-    m_Metadata:
-      m_Items: []
-  - m_Id: 695075618816
-    m_Key: game.currency.label
     m_Metadata:
       m_Items: []
   - m_Id: 4240051027968
@@ -132,7 +120,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 8981073463095296
-    m_Key: game.damagemultiplier.label
+    m_Key: game.power.label
     m_Metadata:
       m_Items: []
   - m_Id: 11901776441126912

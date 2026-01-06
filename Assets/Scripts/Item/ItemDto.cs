@@ -112,7 +112,7 @@ namespace Data
         public ItemRarity rarity = ItemRarity.Common;
 
         public List<ItemRuleDto> rules;
-        public float damage = 0f;
+        public float damageMultiplier = 0f;
         public float attackSpeed = 0f;
         public ItemProjectileData projectile;
         public int pierceBouns = 0;
@@ -141,9 +141,9 @@ namespace Data
                 isValid = false;
             }
 
-            if (damage < 0f)
+            if (damageMultiplier < 0f)
             {
-                Debug.LogError($"[ItemDto] '{id}': damage < 0 is not allowed.");
+                Debug.LogError($"[ItemDto] '{id}': damageMultiplier < 0 is not allowed.");
                 isValid = false;
             }
 
