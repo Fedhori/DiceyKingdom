@@ -89,7 +89,7 @@
 							"statId": "power",
 							"effectMode": "Add",
 							"value": 1.0,
-							"temporary": false
+							"duration": "Permanent"
 						}
 					]
 				}
@@ -132,7 +132,7 @@
 							"statId": "power",
 							"effectMode": "Add",
 							"value": 0.1,
-							"temporary": true
+							"duration": "Temporary"
 						}
 					]
 				}
@@ -155,7 +155,7 @@
 							"statId": "power",
 							"effectMode": "Add",
 							"value": 0.3,
-							"temporary": true
+							"duration": "Temporary"
 						}
 					]
 				}
@@ -244,7 +244,30 @@
 							"statId": "power",
 							"effectMode": "Add",
 							"value": 1.0,
-							"temporary": true
+							"duration": "Temporary"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.magnifier",
+			"isObject": false,
+			"price": 10,
+			"rarity": "Rare",
+			"rules": [
+				{
+					"triggerType": "OnItemAdded",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "projectileSizeMultiplier",
+							"effectMode": "Mult",
+							"value": 0.5,
+							"duration": "Owned"
 						}
 					]
 				}

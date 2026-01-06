@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Data;
+using GameStats;
 
 public sealed class ItemManager : MonoBehaviour
 {
@@ -195,12 +196,15 @@ public sealed class ItemManager : MonoBehaviour
         {
             RemoveController(previous);
             UnsubscribeEffects(previous);
+            RemoveOwnedModifiers(previous);
         }
 
         if (current == null)
             return;
 
-        SubscribeEffects(current);
+        bool isNew = SubscribeEffects(current);
+        if (isNew)
+            current.HandleTrigger(ItemTriggerType.OnItemAdded);
 
         if (isPlayActive && current.IsObject)
             SpawnController(current);
@@ -223,15 +227,16 @@ public sealed class ItemManager : MonoBehaviour
         return inst != null && inst.EnableSideWallCollision;
     }
 
-    void SubscribeEffects(ItemInstance inst)
+    bool SubscribeEffects(ItemInstance inst)
     {
         if (inst == null)
-            return;
+            return false;
 
         if (!effectSources.Add(inst))
-            return;
+            return false;
 
         inst.OnEffectTriggered += HandleItemEffect;
+        return true;
     }
 
     void UnsubscribeEffects(ItemInstance inst)
@@ -253,6 +258,18 @@ public sealed class ItemManager : MonoBehaviour
                 inst.OnEffectTriggered -= HandleItemEffect;
         }
         effectSources.Clear();
+    }
+
+    void RemoveOwnedModifiers(ItemInstance inst)
+    {
+        if (inst == null)
+            return;
+
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+            return;
+
+        player.Stats.RemoveModifiers(layer: StatLayer.Owned, source: inst);
     }
 
     void HandleItemEffect(ItemEffectDto effect, ItemInstance source)

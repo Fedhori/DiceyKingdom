@@ -13,6 +13,7 @@ namespace GameStats
     {
         Permanent,
         Temporary,
+        Owned,
     }
     
     public static class PlayerStatIds
@@ -21,6 +22,7 @@ namespace GameStats
         public const string CriticalChance = "criticalChance";
         public const string CriticalMultiplier = "criticalMultiplier";
         public const string MoveSpeed = "moveSpeed";
+        public const string ProjectileSizeMultiplier = "projectileSizeMultiplier";
     }
 
     public sealed class StatModifier

@@ -15,6 +15,7 @@ public sealed class PlayerInstance
     public double CriticalChance => Stats.GetValue(PlayerStatIds.CriticalChance);
     public double CriticalMultiplier => Stats.GetValue(PlayerStatIds.CriticalMultiplier);
     public double MoveSpeed => Stats.GetValue(PlayerStatIds.MoveSpeed);
+    public double ProjectileSizeMultiplier => Stats.GetValue(PlayerStatIds.ProjectileSizeMultiplier);
     public IReadOnlyList<string> ItemIds => itemIds;
     public float WorldMoveSpeed => GameConfig.PlayerBaseMoveSpeed * Mathf.Max(0.1f, (float)MoveSpeed);
 
@@ -33,6 +34,7 @@ public sealed class PlayerInstance
         Stats.SetBase(PlayerStatIds.CriticalChance, BaseDto.critChance, 0d, 200d);
         Stats.SetBase(PlayerStatIds.CriticalMultiplier, BaseDto.criticalMultiplier, 1d);
         Stats.SetBase(PlayerStatIds.MoveSpeed, Mathf.Max(0.1f, BaseDto.moveSpeed), 0.1d);
+        Stats.SetBase(PlayerStatIds.ProjectileSizeMultiplier, 1d, 0.1d);
 
         itemIds = BaseDto.itemIds != null ? new List<string>(BaseDto.itemIds) : new List<string>();
 

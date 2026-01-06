@@ -42,6 +42,9 @@ public sealed class ProjectileController : MonoBehaviour
         rb.linearVelocity = direction * item.WorldProjectileSpeed;
 
         float s = item.WorldProjectileSize;
+        var player = PlayerManager.Instance?.Current;
+        if (player != null)
+            s *= Mathf.Max(0.1f, (float)player.ProjectileSizeMultiplier);
         transform.localScale = new Vector3(s, s, 1f);
     }
 

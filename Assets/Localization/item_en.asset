@@ -56,6 +56,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
+  - m_Id: 5815909901414401
+    m_Localized: Magnifier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414402
+    m_Localized: "All projectiles are {value0}% larger."
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
   references:
     version: 2
     RefIds:
@@ -69,3 +78,4 @@ MonoBehaviour:
         - id: 3962800000000001
         - id: 3962466660265984
         - id: 5740740298158084
+        - id: 5815909901414402

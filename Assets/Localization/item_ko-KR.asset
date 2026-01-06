@@ -144,6 +144,15 @@ MonoBehaviour:
     m_Localized: "\uB300\uD3EC"
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414401
+    m_Localized: "\uB3CB\uBCF4\uAE30"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414402
+    m_Localized: "\uBAA8\uB4E0 \uD22C\uC0AC\uCCB4\uAC00 {value0}% \uCEE4\uC9D1\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938704
   references:
     version: 2
     RefIds:
@@ -160,3 +169,4 @@ MonoBehaviour:
         - id: 3962800000000011
         - id: 3962466660265984
         - id: 5740740298158084
+        - id: 5815909901414402

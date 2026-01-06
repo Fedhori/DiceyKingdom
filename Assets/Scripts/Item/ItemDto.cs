@@ -11,6 +11,7 @@ namespace Data
     public enum ItemTriggerType
     {
         Unknown = 0,
+        OnItemAdded,
         OnStageStart,
         OnPlayStart,
         OnProjectileSpawned,
@@ -65,7 +66,9 @@ namespace Data
         public StatOpKind effectMode;
 
         public float value;
-        public bool temporary = true;
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public StatLayer duration = StatLayer.Temporary;
     }
 
     [Serializable]

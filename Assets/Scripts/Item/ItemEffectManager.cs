@@ -51,12 +51,14 @@ public sealed class ItemEffectManager : MonoBehaviour
             return;
         }
 
-        var layer = dto.temporary ? StatLayer.Temporary : StatLayer.Permanent;
+        var layer = dto.duration;
+
+        double value = dto.value;
 
         player.Stats.AddModifier(new StatModifier(
             statId: dto.statId,
             opKind: dto.effectMode,
-            value: dto.value,
+            value: value,
             layer: layer,
             source: item
         ));
