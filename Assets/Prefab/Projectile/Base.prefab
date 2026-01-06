@@ -169,6 +169,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53e7e7ac28805244e986da2e6ecdf1ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BulletController
+  blockCollider: {fileID: 8737263778808646020}
+  sideWallCollider: {fileID: 765185078837415236}
 --- !u!58 &765185078837415236
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -182,7 +184,7 @@ CircleCollider2D:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0

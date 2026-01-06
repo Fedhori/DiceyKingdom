@@ -1,41 +1,40 @@
 using Data;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
+[RequireComponent(typeof(Rigidbody2D))]
 public sealed class ProjectileController : MonoBehaviour
 {
+    [SerializeField] Collider2D blockCollider;
+    [SerializeField] Collider2D sideWallCollider;
+
     ItemInstance item;
     Rigidbody2D rb;
-    Collider2D hitCollider;
     Vector2 direction;
-    int bounceCount;
     int pierceRemaining;
-    float lifeTimer;
-    LayerMask baseRbInclude;
-    LayerMask baseRbExclude;
-    LayerMask baseColliderInclude;
-    LayerMask baseColliderExclude;
-    int baseColliderOverridePriority;
+    private ProjectileHitBehavior activeHitBehavior;
+    private ProjectileHitBehavior baseHitBehavior;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        hitCollider = GetComponent<Collider2D>();
+        if (!ValidateColliders())
+            enabled = false;
     }
 
     public void Initialize(ItemInstance inst, Vector2 dir)
     {
+        if (!enabled)
+            return;
+
         item = inst;
         direction = dir.normalized;
-        bounceCount = 0;
         pierceRemaining = 0;
-        lifeTimer = 0f;
-
-        // if (hitCollider != null && item != null)
-        //     hitCollider.isTrigger = item.ProjectileHitBehavior != ProjectileHitBehavior.Bounce;
+        baseHitBehavior = item?.ProjectileHitBehavior ?? ProjectileHitBehavior.Normal;
+        activeHitBehavior = baseHitBehavior;
 
         ApplyPierceCount();
         ApplyStats();
+        ApplyHitBehavior();
     }
 
     void Update()
@@ -44,13 +43,6 @@ public sealed class ProjectileController : MonoBehaviour
             return;
 
         UpdateHoming();
-
-        if (item.ProjectileLifeTime > 0f)
-        {
-            lifeTimer += Time.deltaTime;
-            if (lifeTimer >= item.ProjectileLifeTime)
-                Destroy(gameObject);
-        }
     }
 
     void ApplyStats()
@@ -66,62 +58,67 @@ public sealed class ProjectileController : MonoBehaviour
 
     public void SetSideWallCollisionEnabled(bool enabled)
     {
+        if (!this.enabled)
+            return;
+        
+        
+
         if (!enabled)
-            return;
+            activeHitBehavior = baseHitBehavior;
+        else if (baseHitBehavior == ProjectileHitBehavior.Normal)
+            activeHitBehavior = ProjectileHitBehavior.BounceSideWall;
+        else
+            activeHitBehavior = baseHitBehavior;
 
-        int sideWallLayer = LayerMask.NameToLayer("SideWall");
-        if (sideWallLayer < 0)
-            return;
-
-        int bit = 1 << sideWallLayer;
-
-        if (rb != null)
-        {
-            rb.includeLayers = baseRbInclude.value | bit;
-            rb.excludeLayers = baseRbExclude.value & ~bit;
-        }
-
-        if (hitCollider != null)
-        {
-            hitCollider.includeLayers = baseColliderInclude.value | bit;
-            hitCollider.excludeLayers = baseColliderExclude.value & ~bit;
-            hitCollider.layerOverridePriority = baseColliderOverridePriority;
-        }
+        ApplyHitBehavior();
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (item == null)
-            return;
-
-        if (other == null)
-            return;
-
-        int blockLayer = LayerMask.NameToLayer("Block");
-        if (blockLayer < 0 || other.gameObject.layer != blockLayer)
-            return;
-
-        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
-        {
-            ApplyDamage(other);
-            HandleBounce();
-            return;
-        }
-
-        ApplyDamage(other);
-        HandlePierce();
+        HandleHit(other, blockCollider, isTrigger: true);
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (item == null)
+        if (collision == null)
             return;
 
-        if (item.ProjectileHitBehavior != ProjectileHitBehavior.Bounce)
+        HandleHit(collision.collider, collision.otherCollider, isTrigger: false);
+    }
+
+    void HandleHit(Collider2D other, Collider2D selfCollider, bool isTrigger)
+    {
+        if (!enabled || item == null || other == null || selfCollider == null)
             return;
 
-        ApplyDamage(collision.collider);
-        HandleBounce();
+        if (isTrigger)
+        {
+            if (activeHitBehavior == ProjectileHitBehavior.Bounce)
+                return;
+
+            ApplyDamage(other);
+            HandlePierce();
+            return;
+        }
+
+        if (selfCollider == sideWallCollider)
+        {
+            if (activeHitBehavior is ProjectileHitBehavior.Bounce or ProjectileHitBehavior.BounceSideWall) 
+                return;
+        }
+
+        if (selfCollider == blockCollider)
+        {
+            if (activeHitBehavior == ProjectileHitBehavior.Bounce)
+            {
+                ApplyDamage(other);
+            }
+            else
+            {
+                ApplyDamage(other);
+                HandlePierce();
+            }
+        }
     }
 
     void ApplyDamage(Collider2D other)
@@ -141,45 +138,26 @@ public sealed class ProjectileController : MonoBehaviour
         block.ApplyDamage(dmg, transform.position);
     }
 
-    void HandleBounce()
-    {
-        if (item == null)
-            return;
-
-        if (item.MaxBounces <= 0)
-            return;
-
-        bounceCount++;
-        if (bounceCount >= item.MaxBounces)
-            Destroy(gameObject);
-    }
-
     void ApplyPierceCount()
     {
         if (item == null)
             return;
 
-        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
+        if (baseHitBehavior == ProjectileHitBehavior.Bounce)
         {
-            pierceRemaining = 0;
+            pierceRemaining = -1;
             return;
         }
 
-        int bonus = ItemManager.Instance != null ? ItemManager.Instance.GetPierceBouns() : 0;
+        int bonus = ItemManager.Instance != null ? ItemManager.Instance.GetPierceBonus() : 0;
 
-        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Pierce)
+        if (item.MaxPierces < 0)
         {
-            if (item.MaxPierces < 0)
-            {
-                pierceRemaining = -1;
-                return;
-            }
-
-            pierceRemaining = item.MaxPierces + bonus;
+            pierceRemaining = -1;
             return;
         }
 
-        pierceRemaining = bonus;
+        pierceRemaining = item.MaxPierces + bonus;
     }
 
     void UpdateHoming()
@@ -190,7 +168,7 @@ public sealed class ProjectileController : MonoBehaviour
         if (item.ProjectileHomingTurnRate <= 0f)
             return;
 
-        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
+        if (baseHitBehavior == ProjectileHitBehavior.Bounce)
             return;
 
         var blockManager = BlockManager.Instance;
@@ -220,12 +198,33 @@ public sealed class ProjectileController : MonoBehaviour
         if (pierceRemaining < 0)
             return;
 
-        if (pierceRemaining <= 0)
+        if (pierceRemaining == 0)
         {
             Destroy(gameObject);
             return;
         }
 
         pierceRemaining--;
+        if (pierceRemaining == 0)
+            Destroy(gameObject);
+    }
+
+    void ApplyHitBehavior()
+    {
+        if (!ValidateColliders())
+            return;
+
+        blockCollider.enabled = true;
+        blockCollider.isTrigger = activeHitBehavior != ProjectileHitBehavior.Bounce;
+        sideWallCollider.enabled = activeHitBehavior != ProjectileHitBehavior.Normal;
+    }
+
+    bool ValidateColliders()
+    {
+        if (blockCollider != null && sideWallCollider != null)
+            return true;
+
+        Debug.LogWarning("[ProjectileController] BlockCollider/SideWallCollider not assigned.");
+        return false;
     }
 }

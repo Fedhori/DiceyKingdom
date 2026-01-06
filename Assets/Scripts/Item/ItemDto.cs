@@ -79,7 +79,7 @@ namespace Data
         Unknown = 0,
         Normal,
         Bounce,
-        Pierce
+        BounceSideWall
     }
 
     [Serializable]
@@ -95,10 +95,7 @@ namespace Data
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ProjectileHitBehavior hitBehavior = ProjectileHitBehavior.Normal;
-
-        public int maxBounces = 0;
-        public int maxPierces = 0;
-        public float lifeTime = 0f;
+        public int maxPierces = 1;
     }
 
     [Serializable]
@@ -117,7 +114,7 @@ namespace Data
         public float damageMultiplier = 0f;
         public float attackSpeed = 0f;
         public ItemProjectileData projectile;
-        public int pierceBouns = 0;
+        public int pierceBonus = 0;
 
         [JsonIgnore]
         public bool isValid = true;
@@ -163,21 +160,9 @@ namespace Data
                     isValid = false;
                 }
 
-                if (projectile.maxBounces < 0)
-                {
-                    Debug.LogError($"[ItemDto] '{id}': projectile.maxBounces < 0 is not allowed.");
-                    isValid = false;
-                }
-
                 if (projectile.maxPierces < -1)
                 {
                     Debug.LogError($"[ItemDto] '{id}': projectile.maxPierces < -1 is not allowed.");
-                    isValid = false;
-                }
-
-                if (projectile.lifeTime < 0f)
-                {
-                    Debug.LogError($"[ItemDto] '{id}': projectile.lifeTime < 0 is not allowed.");
                     isValid = false;
                 }
 
@@ -200,9 +185,9 @@ namespace Data
                 }
             }
 
-            if (pierceBouns < 0)
+            if (pierceBonus < 0)
             {
-                Debug.LogError($"[ItemDto] '{id}': pierceBouns < 0 is not allowed.");
+                Debug.LogError($"[ItemDto] '{id}': pierceBonus < 0 is not allowed.");
                 isValid = false;
             }
         }

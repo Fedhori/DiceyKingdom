@@ -37,7 +37,7 @@ public sealed class ItemManager : MonoBehaviour
 
     public ItemInventory Inventory => inventory;
 
-    public int GetPierceBouns()
+    public int GetPierceBonus()
     {
         int total = 0;
         var slots = inventory.Slots;

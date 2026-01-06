@@ -190,7 +190,6 @@
 				"key": "projectile.sniper",
 				"size": 1.0,
 				"speed": 5.0,
-				"hitBehavior": "Pierce",
 				"maxPierces": -1,
 				"lifeTime": 0.0,
 				"randomAngle": 1.0
@@ -202,7 +201,7 @@
 			"isObject": false,
 			"price": 8,
 			"rarity": "Rare",
-			"pierceBouns": 1,
+			"pierceBonus": 1,
 			"rules": [{}]
 		},
 		{

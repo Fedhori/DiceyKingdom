@@ -13,9 +13,7 @@ public sealed class ItemInstance
     public float ProjectileSpeed { get; private set; }
     public string ProjectileKey { get; private set; }
     public ProjectileHitBehavior ProjectileHitBehavior { get; private set; }
-    public int MaxBounces { get; private set; }
     public int MaxPierces { get; private set; }
-    public float ProjectileLifeTime { get; private set; }
     public int PelletCount { get; private set; }
     public float SpreadAngle { get; private set; }
     public float ProjectileRandomAngle { get; private set; }
@@ -44,9 +42,7 @@ public sealed class ItemInstance
             ProjectileSpeed = 1f;
             ProjectileKey = string.Empty;
             ProjectileHitBehavior = ProjectileHitBehavior.Normal;
-            MaxBounces = 0;
             MaxPierces = 0;
-            ProjectileLifeTime = 0f;
             PelletCount = 1;
             SpreadAngle = 0f;
             ProjectileRandomAngle = 0f;
@@ -62,7 +58,7 @@ public sealed class ItemInstance
         AttackSpeed = Mathf.Max(0f, dto.attackSpeed);
         IsObject = dto.isObject;
         EnableSideWallCollision = dto.enableSideWallCollision;
-        PierceBonus = Mathf.Max(0, dto.pierceBouns);
+        PierceBonus = Mathf.Max(0, dto.pierceBonus);
 
         if (dto.rules != null)
             rules.AddRange(dto.rules);
@@ -74,9 +70,7 @@ public sealed class ItemInstance
             ProjectileSize = Mathf.Max(0.1f, projectile.size);
             ProjectileSpeed = Mathf.Max(0.1f, projectile.speed);
             ProjectileHitBehavior = projectile.hitBehavior;
-            MaxBounces = Mathf.Max(0, projectile.maxBounces);
             MaxPierces = projectile.maxPierces;
-            ProjectileLifeTime = Mathf.Max(0f, projectile.lifeTime);
             PelletCount = Mathf.Max(1, projectile.pelletCount);
             SpreadAngle = Mathf.Max(0f, projectile.spreadAngle);
             ProjectileRandomAngle = Mathf.Max(0f, projectile.randomAngle);
