@@ -3878,7 +3878,10 @@ MonoBehaviour:
     prefab: {fileID: 6391739315063596302, guid: abb73f98a43390e4890df359ac4b8fdb, type: 3}
   - key: projectile.sniper
     prefab: {fileID: 1490000589346278806, guid: e2d2f145a629c5f44b357552bdf25464, type: 3}
+  - key: projectile.cannonball
+    prefab: {fileID: 91226030591785844, guid: 3b45d898469c4f344ad3aa15ceb35b22, type: 3}
   parent: {fileID: 258862835}
+  sideWallCollisionEnabled: 0
 --- !u!1 &1050363043
 GameObject:
   m_ObjectHideFlags: 0
@@ -4763,7 +4766,7 @@ Transform:
   m_GameObject: {fileID: 1163286775}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1530, y: 15.2655945, z: 0}
+  m_LocalPosition: {x: 1658, y: 15.2655945, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6124,7 +6127,7 @@ Transform:
   m_GameObject: {fileID: 1406475281}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -18, y: 764, z: 0}
+  m_LocalPosition: {x: -18, y: 892, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7190,7 +7193,7 @@ Transform:
   m_GameObject: {fileID: 1639518422}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1530, y: 15.2655945, z: 0}
+  m_LocalPosition: {x: -1658, y: 15.2655945, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

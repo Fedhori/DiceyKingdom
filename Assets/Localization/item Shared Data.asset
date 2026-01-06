@@ -83,10 +83,6 @@ MonoBehaviour:
     m_Key: item.sniperrifle.name
     m_Metadata:
       m_Items: []
-  - m_Id: 3962800000000009
-    m_Key: item.sniperrifle.effect0
-    m_Metadata:
-      m_Items: []
   - m_Id: 3962800000000010
     m_Key: item.armorpiercer.name
     m_Metadata:
@@ -121,6 +117,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 5740740298158084
     m_Key: item.magazine.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414400
+    m_Key: item.cannon.name
     m_Metadata:
       m_Items: []
   m_Metadata:

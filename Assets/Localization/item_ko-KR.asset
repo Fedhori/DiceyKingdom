@@ -99,10 +99,6 @@ MonoBehaviour:
     m_Localized: "\uC800\uACA9\uCD1D"
     m_Metadata:
       m_Items: []
-  - m_Id: 3962800000000009
-    m_Localized: "\uAD00\uD1B5\uD558\uB294 \uD0C4\uC744 \uBC1C\uC0AC\uD569\uB2C8\uB2E4."
-    m_Metadata:
-      m_Items: []
   - m_Id: 3962800000000010
     m_Localized: "\uCCA0\uAC11\uD0C4"
     m_Metadata:
@@ -144,6 +140,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
+  - m_Id: 5815909901414400
+    m_Localized: "\uB300\uD3EC"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
