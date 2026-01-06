@@ -9,7 +9,8 @@
 			"projectile": {
 				"key": "projectile.bullet",
 				"size": 1.0,
-				"speed": 1.0
+				"speed": 1.0,
+				"randomAngle": 5.0
 			},
 			"rules": []
 		},
@@ -52,7 +53,8 @@
 			"projectile": {
 				"key": "projectile.bullet",
 				"size": 1.0,
-				"speed": 1.0
+				"speed": 1.0,
+				"randomAngle": 15.0
 			},
 			"rules": [{}]
 		},
@@ -66,7 +68,8 @@
 			"projectile": {
 				"key": "projectile.bullet",
 				"size": 1.0,
-				"speed": 1.0
+				"speed": 1.0,
+				"randomAngle": 5.0
 			},
 			"rules": []
 		},
@@ -171,7 +174,8 @@
 				"size": 1.0,
 				"speed": 1.0,
 				"pelletCount": 5,
-				"spreadAngle": 10.0
+				"spreadAngle": 10.0,
+				"randomAngle": 5.0
 			},
 			"rules": [{}]
 		},
@@ -188,7 +192,8 @@
 				"speed": 5.0,
 				"hitBehavior": "Pierce",
 				"maxPierces": -1,
-				"lifeTime": 0.0
+				"lifeTime": 0.0,
+				"randomAngle": 1.0
 			},
 			"rules": [{}]
 		},
@@ -211,7 +216,8 @@
 				"key": "projectile.bullet",
 				"size": 1.0,
 				"speed": 1.0,
-				"homingTurnRate": 720.0
+				"homingTurnRate": 720.0,
+				"randomAngle": 0.0
 			},
 			"rules": [{}]
 		}

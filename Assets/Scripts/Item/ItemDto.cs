@@ -90,6 +90,7 @@ namespace Data
         public float speed = 1f;
         public int pelletCount = 1;
         public float spreadAngle = 0f;
+        public float randomAngle = 0f;
         public float homingTurnRate = 0f;
 
         [JsonConverter(typeof(StringEnumConverter))]
@@ -188,6 +189,12 @@ namespace Data
                 if (projectile.homingTurnRate < 0f)
                 {
                     Debug.LogError($"[ItemDto] '{id}': projectile.homingTurnRate < 0 is not allowed.");
+                    isValid = false;
+                }
+
+                if (projectile.randomAngle < 0f)
+                {
+                    Debug.LogError($"[ItemDto] '{id}': projectile.randomAngle < 0 is not allowed.");
                     isValid = false;
                 }
             }

@@ -38,12 +38,7 @@ public sealed class ItemController : MonoBehaviour
         Vector2 dir = Vector2.up;
         int count = Mathf.Max(1, item.PelletCount);
         float spread = Mathf.Max(0f, item.SpreadAngle);
-
-        if (count == 1 || spread <= 0f)
-        {
-            ProjectileFactory.Instance.SpawnProjectile(pos, dir, item);
-            return;
-        }
+        float randomAngle = Mathf.Max(0f, item.ProjectileRandomAngle);
 
         float total = spread * (count - 1);
         float start = -total * 0.5f;
@@ -51,6 +46,11 @@ public sealed class ItemController : MonoBehaviour
         {
             float angle = start + spread * i;
             Vector2 shotDir = Quaternion.Euler(0f, 0f, angle) * dir;
+            if (randomAngle > 0f)
+            {
+                float noise = Random.Range(-randomAngle, randomAngle);
+                shotDir = Quaternion.Euler(0f, 0f, noise) * shotDir;
+            }
             ProjectileFactory.Instance.SpawnProjectile(pos, shotDir, item);
         }
     }

@@ -18,6 +18,7 @@ public sealed class ItemInstance
     public float ProjectileLifeTime { get; private set; }
     public int PelletCount { get; private set; }
     public float SpreadAngle { get; private set; }
+    public float ProjectileRandomAngle { get; private set; }
     public bool IsObject { get; private set; }
     public int PierceBonus { get; private set; }
     public float ProjectileHomingTurnRate { get; private set; }
@@ -47,6 +48,7 @@ public sealed class ItemInstance
             ProjectileLifeTime = 0f;
             PelletCount = 1;
             SpreadAngle = 0f;
+            ProjectileRandomAngle = 0f;
             IsObject = false;
             PierceBonus = 0;
             ProjectileHomingTurnRate = 0f;
@@ -74,6 +76,7 @@ public sealed class ItemInstance
             ProjectileLifeTime = Mathf.Max(0f, projectile.lifeTime);
             PelletCount = Mathf.Max(1, projectile.pelletCount);
             SpreadAngle = Mathf.Max(0f, projectile.spreadAngle);
+            ProjectileRandomAngle = Mathf.Max(0f, projectile.randomAngle);
             ProjectileHomingTurnRate = Mathf.Max(0f, projectile.homingTurnRate);
         }
     }
