@@ -5,13 +5,13 @@
 			"isObject": true,
 			"isNotSell": true,
 			"damageMultiplier": 1.0,
-			"attackSpeed": 2.0,
+			"attackSpeed": 1.0,
 			"projectile": {
 				"key": "projectile.bullet",
 				"size": 1.0,
 				"speed": 1.0
 			},
-			"rules": [{}]
+			"rules": []
 		},
 		{
 			"id": "item.ball",
@@ -55,6 +55,20 @@
 				"speed": 1.0
 			},
 			"rules": [{}]
+		},
+		{
+			"id": "item.assultrifle",
+			"damageMultiplier": 1.0,
+			"attackSpeed": 3.0,
+			"isObject": true,
+			"price": 3,
+			"rarity": "Common",
+			"projectile": {
+				"key": "projectile.bullet",
+				"size": 1.0,
+				"speed": 1.0
+			},
+			"rules": []
 		},
 		{
 			"id": "item.textbook",

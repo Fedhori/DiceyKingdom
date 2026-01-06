@@ -103,6 +103,10 @@ MonoBehaviour:
     m_Key: item.smartgun.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 5740740298158080
+    m_Key: item.assultrifle.name
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
