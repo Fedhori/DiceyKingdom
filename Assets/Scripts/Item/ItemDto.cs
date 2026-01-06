@@ -23,7 +23,8 @@ namespace Data
     {
         Unknown = 0,
         Always,
-        PlayerIdle
+        PlayerIdle,
+        EveryNthTrigger
     }
 
     public enum ItemEffectType
@@ -48,6 +49,8 @@ namespace Data
     {
         [JsonConverter(typeof(StringEnumConverter))]
         public ItemConditionKind conditionKind;
+
+        public int count;
     }
 
     [Serializable]

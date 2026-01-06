@@ -172,6 +172,9 @@ public static class ItemTooltipUtil
             }
         }
 
+        if (rule?.condition != null && rule.condition.count > 0)
+            dict["count"] = rule.condition.count;
+
         if (item is { PelletCount: > 1 })
             dict["pelletCount"] = item.PelletCount;
 

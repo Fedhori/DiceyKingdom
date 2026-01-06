@@ -30,6 +30,8 @@ public sealed class ItemInstance
     public float WorldProjectileSize => GameConfig.ItemBaseProjectileSize * Mathf.Max(0.1f, ProjectileSize);
     public float WorldProjectileSpeed => GameConfig.ItemBaseProjectileSpeed * Mathf.Max(0.1f, ProjectileSpeed);
 
+    readonly Dictionary<ItemTriggerType, int> triggerCounts = new();
+
     public ItemInstance(ItemDto dto)
     {
         if (dto == null || string.IsNullOrEmpty(dto.id))
@@ -83,6 +85,8 @@ public sealed class ItemInstance
         if (rules.Count == 0)
             return;
 
+        IncrementTriggerCount(trigger);
+
         for (int i = 0; i < rules.Count; i++)
         {
             var rule = rules[i];
@@ -111,10 +115,35 @@ public sealed class ItemInstance
             case ItemConditionKind.PlayerIdle:
                 var controller = PlayerController.Instance;
                 return controller != null && !controller.IsMoveInputActive;
+            case ItemConditionKind.EveryNthTrigger:
+                if (condition.count <= 0)
+                    return false;
+                var triggerCount = GetTriggerCount(trigger);
+                if (triggerCount <= 0)
+                    return false;
+                return triggerCount % condition.count == 0;
             default:
                 Debug.LogWarning($"[ItemInstance] Unsupported condition {condition.conditionKind} for trigger {trigger}");
                 return false;
         }
+    }
+
+    public void ResetRuntimeState()
+    {
+        triggerCounts.Clear();
+    }
+
+    void IncrementTriggerCount(ItemTriggerType trigger)
+    {
+        if (triggerCounts.TryGetValue(trigger, out var count))
+            triggerCounts[trigger] = count + 1;
+        else
+            triggerCounts[trigger] = 1;
+    }
+
+    int GetTriggerCount(ItemTriggerType trigger)
+    {
+        return triggerCounts.TryGetValue(trigger, out var count) ? count : 0;
     }
 
     void ApplyEffects(List<ItemEffectDto> effects)

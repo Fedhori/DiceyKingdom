@@ -72,6 +72,7 @@ public sealed class ItemManager : MonoBehaviour
     {
         isPlayActive = true;
         tickTimer = 0f;
+        ResetItemRuntimeState();
         ClearControllers();
         BuildControllersFromInventory();
     }
@@ -80,6 +81,7 @@ public sealed class ItemManager : MonoBehaviour
     {
         isPlayActive = false;
         tickTimer = 0f;
+        ResetItemRuntimeState();
         ClearControllers();
     }
 
@@ -327,16 +329,10 @@ public sealed class ItemManager : MonoBehaviour
         ClearEffectSubscriptions();
     }
 
-    public void ClearAll()
+    void ResetItemRuntimeState()
     {
-        isPlayActive = false;
-        inventory.Clear();
-        ClearControllers();
-        ClearEffectSubscriptions();
-    }
-
-    public Transform GetAttachTarget()
-    {
-        return attachTarget;
+        var slots = inventory.Slots;
+        for (int i = 0; i < slots.Count; i++)
+            slots[i]?.ResetRuntimeState();
     }
 }

@@ -237,14 +237,15 @@
 				{
 					"triggerType": "OnProjectileSpawned",
 					"condition": {
-						"conditionKind": "Always"
+						"conditionKind": "EveryNthTrigger",
+						"count": 10
 					},
 					"effects": [
 						{
 							"effectType": "ModifyStat",
 							"statId": "power",
 							"effectMode": "Add",
-							"value": 0.1,
+							"value": 1.0,
 							"temporary": true
 						}
 					]
