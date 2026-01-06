@@ -6,20 +6,11 @@ public sealed class ProjectileController : MonoBehaviour
 {
     [SerializeField] Collider2D blockCollider;
     [SerializeField] Collider2D sideWallCollider;
-
+    [SerializeField] Rigidbody2D rb;
+    
     ItemInstance item;
-    Rigidbody2D rb;
     Vector2 direction;
     int pierceRemaining;
-    private ProjectileHitBehavior activeHitBehavior;
-    private ProjectileHitBehavior baseHitBehavior;
-
-    void Awake()
-    {
-        rb = GetComponent<Rigidbody2D>();
-        if (!ValidateColliders())
-            enabled = false;
-    }
 
     public void Initialize(ItemInstance inst, Vector2 dir)
     {
@@ -29,8 +20,6 @@ public sealed class ProjectileController : MonoBehaviour
         item = inst;
         direction = dir.normalized;
         pierceRemaining = 0;
-        baseHitBehavior = item?.ProjectileHitBehavior ?? ProjectileHitBehavior.Normal;
-        activeHitBehavior = baseHitBehavior;
 
         ApplyPierceCount();
         ApplyStats();
@@ -56,23 +45,6 @@ public sealed class ProjectileController : MonoBehaviour
         transform.localScale = new Vector3(s, s, 1f);
     }
 
-    public void SetSideWallCollisionEnabled(bool enabled)
-    {
-        if (!this.enabled)
-            return;
-        
-        
-
-        if (!enabled)
-            activeHitBehavior = baseHitBehavior;
-        else if (baseHitBehavior == ProjectileHitBehavior.Normal)
-            activeHitBehavior = ProjectileHitBehavior.BounceSideWall;
-        else
-            activeHitBehavior = baseHitBehavior;
-
-        ApplyHitBehavior();
-    }
-
     void OnTriggerEnter2D(Collider2D other)
     {
         HandleHit(other, blockCollider, isTrigger: true);
@@ -93,7 +65,7 @@ public sealed class ProjectileController : MonoBehaviour
 
         if (isTrigger)
         {
-            if (activeHitBehavior == ProjectileHitBehavior.Bounce)
+            if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
                 return;
 
             ApplyDamage(other);
@@ -103,13 +75,13 @@ public sealed class ProjectileController : MonoBehaviour
 
         if (selfCollider == sideWallCollider)
         {
-            if (activeHitBehavior is ProjectileHitBehavior.Bounce or ProjectileHitBehavior.BounceSideWall) 
+            if (item.ProjectileHitBehavior is ProjectileHitBehavior.Bounce or ProjectileHitBehavior.BounceSideWall) 
                 return;
         }
 
         if (selfCollider == blockCollider)
         {
-            if (activeHitBehavior == ProjectileHitBehavior.Bounce)
+            if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
             {
                 ApplyDamage(other);
             }
@@ -143,7 +115,7 @@ public sealed class ProjectileController : MonoBehaviour
         if (item == null)
             return;
 
-        if (baseHitBehavior == ProjectileHitBehavior.Bounce)
+        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
         {
             pierceRemaining = -1;
             return;
@@ -168,7 +140,7 @@ public sealed class ProjectileController : MonoBehaviour
         if (item.ProjectileHomingTurnRate <= 0f)
             return;
 
-        if (baseHitBehavior == ProjectileHitBehavior.Bounce)
+        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
             return;
 
         var blockManager = BlockManager.Instance;
@@ -211,20 +183,36 @@ public sealed class ProjectileController : MonoBehaviour
 
     void ApplyHitBehavior()
     {
-        if (!ValidateColliders())
-            return;
+        var hitBehavior = item.ProjectileHitBehavior;
+        if (ProjectileFactory.Instance.sideWallCollisionEnabled &&
+            item.ProjectileHitBehavior == ProjectileHitBehavior.Normal)
+            hitBehavior = ProjectileHitBehavior.BounceSideWall;
 
-        blockCollider.enabled = true;
-        blockCollider.isTrigger = activeHitBehavior != ProjectileHitBehavior.Bounce;
-        sideWallCollider.enabled = activeHitBehavior != ProjectileHitBehavior.Normal;
-    }
-
-    bool ValidateColliders()
-    {
-        if (blockCollider != null && sideWallCollider != null)
-            return true;
-
-        Debug.LogWarning("[ProjectileController] BlockCollider/SideWallCollider not assigned.");
-        return false;
+        switch (hitBehavior)
+        {
+            case ProjectileHitBehavior.Normal:
+            {
+                blockCollider.enabled = true;
+                sideWallCollider.enabled = false;
+                break;
+            }
+            case ProjectileHitBehavior.Bounce:
+            {
+                blockCollider.isTrigger = false;
+                sideWallCollider.enabled = true;
+                break;
+            }
+            case ProjectileHitBehavior.BounceSideWall:
+            {
+                blockCollider.isTrigger = true;
+                sideWallCollider.enabled = true;
+                break;
+            }
+            default:
+            {
+                Debug.LogError("Unhandled ProjectileHitBehavior: " + hitBehavior);
+                break;
+            }
+        }
     }
 }

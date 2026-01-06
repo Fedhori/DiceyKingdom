@@ -171,6 +171,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BulletController
   blockCollider: {fileID: 8737263778808646020}
   sideWallCollider: {fileID: 765185078837415236}
+  rb: {fileID: 6761502501062353118}
 --- !u!58 &765185078837415236
 CircleCollider2D:
   m_ObjectHideFlags: 0
