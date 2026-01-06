@@ -115,6 +115,14 @@ MonoBehaviour:
     m_Key: item.spring.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 5740740298158083
+    m_Key: item.magazine.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5740740298158084
+    m_Key: item.magazine.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

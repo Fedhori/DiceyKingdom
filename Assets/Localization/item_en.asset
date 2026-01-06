@@ -47,6 +47,15 @@ MonoBehaviour:
     m_Localized: "Projectiles collide with side walls."
     m_Metadata:
       m_Items: []
+  - m_Id: 5740740298158083
+    m_Localized: "Magazine"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5740740298158084
+    m_Localized: "Power increases by {value0} on each projectile fired."
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
   references:
     version: 2
     RefIds:
@@ -59,3 +68,4 @@ MonoBehaviour:
         - id: 3962800000000003
         - id: 3962800000000001
         - id: 3962466660265984
+        - id: 5740740298158084

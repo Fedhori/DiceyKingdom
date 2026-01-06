@@ -13,6 +13,7 @@ namespace Data
         Unknown = 0,
         OnStageStart,
         OnPlayStart,
+        OnProjectileSpawned,
         OnRewardOpen,
         OnBlockDestroyed,
         OnTick

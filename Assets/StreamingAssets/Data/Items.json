@@ -227,6 +227,29 @@
 			"rarity": "Rare",
 			"enableSideWallCollision": true,
 			"rules": [{}]
+		},
+		{
+			"id": "item.magazine",
+			"isObject": false,
+			"price": 5,
+			"rarity": "Uncommon",
+			"rules": [
+				{
+					"triggerType": "OnProjectileSpawned",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 0.1,
+							"temporary": true
+						}
+					]
+				}
+			]
 		}
 	]
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Data;
 
 public sealed class ProjectileFactory : MonoBehaviour
 {
@@ -76,6 +77,7 @@ public sealed class ProjectileFactory : MonoBehaviour
         }
 
         ctrl.Initialize(item, direction);
+        ItemManager.Instance?.TriggerAll(ItemTriggerType.OnProjectileSpawned);
     }
 
     public void SetSideWallCollisionEnabled(bool value)

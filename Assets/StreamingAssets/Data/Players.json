@@ -8,7 +8,10 @@
 			"startCurrency": 0,
 			"initialBallCount": 0,
 			"moveSpeed": 1.0,
-			"itemIds": ["item.ball"],
+			"itemIds": [
+				"item.minigun",
+				"item.magazine"
+			],
 			"rarityGrowth": 2.0,
 			"rarityProbabilities": [
 				100.0, 0.0, 0.0, 0.0, 0.0
