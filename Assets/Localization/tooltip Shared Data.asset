@@ -23,6 +23,10 @@ MonoBehaviour:
     m_Key: tooltip.attackSpeed.description
     m_Metadata:
       m_Items: []
+  - m_Id: 10581387094011904
+    m_Key: tooltip.pierce.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

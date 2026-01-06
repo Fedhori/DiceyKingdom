@@ -190,11 +190,11 @@
 				"key": "projectile.sniper",
 				"size": 1.0,
 				"speed": 5.0,
-				"maxPierces": -1,
+				"pierce": 1,
 				"lifeTime": 0.0,
 				"randomAngle": 1.0
 			},
-			"rules": [{}]
+			"rules": []
 		},
 		{
 			"id": "item.armorpiercer",

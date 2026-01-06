@@ -116,20 +116,10 @@ public sealed class ProjectileController : MonoBehaviour
             return;
 
         if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
-        {
-            pierceRemaining = -1;
             return;
-        }
 
         int bonus = ItemManager.Instance != null ? ItemManager.Instance.GetPierceBonus() : 0;
-
-        if (item.MaxPierces < 0)
-        {
-            pierceRemaining = -1;
-            return;
-        }
-
-        pierceRemaining = item.MaxPierces + bonus;
+        pierceRemaining = item.Pierce + bonus + 1;
     }
 
     void UpdateHoming()
@@ -167,17 +157,8 @@ public sealed class ProjectileController : MonoBehaviour
 
     void HandlePierce()
     {
-        if (pierceRemaining < 0)
-            return;
-
-        if (pierceRemaining == 0)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
         pierceRemaining--;
-        if (pierceRemaining == 0)
+        if (pierceRemaining <= 0)
             Destroy(gameObject);
     }
 

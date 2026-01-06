@@ -29,6 +29,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 1113825116433678411
+  - m_Id: 10581387094011904
+    m_Localized: "Pierce : {value}"
+    m_Metadata:
+      m_Items:
+      - rid: 1113825116433678411
   references:
     version: 2
     RefIds:
@@ -39,3 +44,4 @@ MonoBehaviour:
         m_SharedEntries:
         - id: 9134393871839232
         - id: 9134255610802176
+        - id: 10581387094011904

@@ -99,7 +99,7 @@ namespace Data
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ProjectileHitBehavior hitBehavior = ProjectileHitBehavior.Normal;
-        public int maxPierces = 1;
+        public int pierce = 0;
     }
 
     [Serializable]
@@ -164,9 +164,9 @@ namespace Data
                     isValid = false;
                 }
 
-                if (projectile.maxPierces < -1)
+                if (projectile.pierce < 0)
                 {
-                    Debug.LogError($"[ItemDto] '{id}': projectile.maxPierces < -1 is not allowed.");
+                    Debug.LogError($"[ItemDto] '{id}': projectile.pierce < 0 is not allowed.");
                     isValid = false;
                 }
 

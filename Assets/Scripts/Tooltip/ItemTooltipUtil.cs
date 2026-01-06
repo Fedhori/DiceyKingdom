@@ -84,6 +84,15 @@ public static class ItemTooltipUtil
             };
             lines.Add(BuildStatLine("tooltip.attackSpeed.description", args));
         }
+
+        if (item.Pierce > 0)
+        {
+            var args = new Dictionary<string, object>
+            {
+                ["value"] = item.Pierce.ToString("0")
+            };
+            lines.Add(BuildStatLine("tooltip.pierce.description", args));
+        }
     }
 
     static float GetFinalDamage(ItemInstance item)
