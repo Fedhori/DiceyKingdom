@@ -39,6 +39,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
+  - m_Id: 3962800000000010
+    m_Localized: Armor Piercer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3962800000000011
+    m_Localized: "All projectiles pierce {value0} more time(s)."
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
   - m_Id: 5740740298158081
     m_Localized: Spring
     m_Metadata:
@@ -85,5 +94,6 @@ MonoBehaviour:
         - id: 3962800000000003
         - id: 3962800000000001
         - id: 3962466660265984
+        - id: 3962800000000011
         - id: 5740740298158084
         - id: 5815909901414402

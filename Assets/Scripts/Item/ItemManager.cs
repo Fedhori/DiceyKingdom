@@ -40,20 +40,8 @@ public sealed class ItemManager : MonoBehaviour
 
     public int GetPierceBonus()
     {
-        int total = 0;
-        var slots = inventory.Slots;
-        for (int i = 0; i < slots.Count; i++)
-        {
-            var inst = slots[i];
-            if (inst == null)
-                continue;
-
-            int bonus = inst.PierceBonus;
-            if (bonus > 0)
-                total += bonus;
-        }
-
-        return total;
+        var player = PlayerManager.Instance?.Current;
+        return player != null ? player.PierceBonus : 0;
     }
 
     public bool HasSideWallCollisionItem()

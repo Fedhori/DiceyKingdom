@@ -199,8 +199,23 @@
 			"isObject": false,
 			"price": 8,
 			"rarity": "Rare",
-			"pierceBonus": 1,
-			"rules": [{}]
+			"rules": [
+				{
+					"triggerType": "OnItemAdded",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "pierceBonus",
+							"effectMode": "Add",
+							"value": 1.0,
+							"duration": "Owned"
+						}
+					]
+				}
+			]
 		},
 		{
 			"id": "item.smartgun",
