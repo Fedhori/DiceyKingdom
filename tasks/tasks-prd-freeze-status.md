@@ -3,7 +3,7 @@
 - `Assets/Scripts/Block/BlockController.cs` - 블럭 피격 시 상태이상 적용 및 마스크 토글 처리.
 - `Assets/Scripts/Block/BlockManager.cs` - Play 단계에서 상태이상 지속시간 감소 및 이동 속도 반영.
 - `Assets/Scripts/Block/BlockInstance.cs` - 블럭 상태이상 데이터 보관(남은 시간 등).
-- `Assets/Scripts/Block/BlockStatus.cs` - 상태이상 enum/상태 컨테이너 신규 추가 파일 후보.
+- `Assets/Scripts/Block/BlockStatus.cs` - 상태이상 enum/상태 컨테이너 정의.
 - `Assets/Scripts/Bullet/ProjectileController.cs` - 투사체 피격 시 빙결 적용 트리거.
 - `Assets/Scripts/Item/ItemDto.cs` - 아이템/투사체에 상태이상 정보 확장 시 사용.
 - `Assets/Scripts/Item/ItemInstance.cs` - 아이템 인스턴스에 상태이상 데이터 반영.
@@ -19,7 +19,7 @@
 ## Tasks
 
 - [ ] 1.0 블럭 상태이상 시스템 뼈대 추가
-  - [ ] 1.1 상태이상 enum/컨테이너 정의 파일 추가 및 BlockInstance에 상태 저장 구조 연결
+  - [x] 1.1 상태이상 enum/컨테이너 정의 파일 추가 및 BlockInstance에 상태 저장 구조 연결
   - [ ] 1.2 BlockInstance에 상태이상 갱신/조회 API 추가(지속시간 비교 포함)
   - [ ] 1.3 BlockManager에 상태이상 업데이트 루프 추가(Play 단계에서만 감소)
 - [ ] 2.0 빙결 상태이상(지속시간/감속/갱신) 및 마스크 표시 구현

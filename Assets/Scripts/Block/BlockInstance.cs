@@ -1,11 +1,16 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public sealed class BlockInstance
 {
+    readonly Dictionary<BlockStatusType, BlockStatusState> statuses = new();
+
     public int MaxHp { get; private set; }
     public int Hp { get; private set; }
 
     public Vector2Int GridPos { get; private set; }
+
+    public IReadOnlyDictionary<BlockStatusType, BlockStatusState> Statuses => statuses;
 
     public BlockInstance(int hp, Vector2Int gridPos)
     {
