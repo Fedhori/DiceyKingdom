@@ -98,9 +98,6 @@ namespace Data
         public float spreadAngle = 0f;
         public float randomAngle = 0f;
         public float homingTurnRate = 0f;
-        [JsonConverter(typeof(StringEnumConverter))]
-        public BlockStatusType statusType = BlockStatusType.Unknown;
-        public float statusDuration = 0f;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ProjectileHitBehavior hitBehavior = ProjectileHitBehavior.Normal;
@@ -123,6 +120,9 @@ namespace Data
         public float attackSpeed = 0f;
         public ItemProjectileData projectile;
         public int pierceBonus = 0;
+        [JsonConverter(typeof(StringEnumConverter))]
+        public BlockStatusType statusType = BlockStatusType.Unknown;
+        public float statusDuration = 0f;
 
         [JsonIgnore]
         public bool isValid = true;
@@ -191,17 +191,17 @@ namespace Data
                     Debug.LogError($"[ItemDto] '{id}': projectile.randomAngle < 0 is not allowed.");
                     isValid = false;
                 }
-
-                if (projectile.statusDuration < 0f)
-                {
-                    Debug.LogError($"[ItemDto] '{id}': projectile.statusDuration < 0 is not allowed.");
-                    isValid = false;
-                }
             }
 
             if (pierceBonus < 0)
             {
                 Debug.LogError($"[ItemDto] '{id}': pierceBonus < 0 is not allowed.");
+                isValid = false;
+            }
+
+            if (statusDuration < 0f)
+            {
+                Debug.LogError($"[ItemDto] '{id}': statusDuration < 0 is not allowed.");
                 isValid = false;
             }
         }

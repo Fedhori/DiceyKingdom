@@ -46,6 +46,11 @@ public sealed class BlockController : MonoBehaviour
 
     public void ApplyDamage(int amount, Vector2? position)
     {
+        ApplyDamage(amount, position, null);
+    }
+
+    public void ApplyDamage(int amount, Vector2? position, ItemInstance sourceItem)
+    {
         if (Instance == null)
             return;
 
@@ -55,6 +60,8 @@ public sealed class BlockController : MonoBehaviour
 
         var pos = position ?? (Vector2)transform.position;
         DamageTextManager.Instance?.ShowDamageText(amount, 0, pos);
+
+        ApplyStatusFromItem(sourceItem);
 
         if (Instance.IsDead)
         {
@@ -66,6 +73,21 @@ public sealed class BlockController : MonoBehaviour
                 ItemManager.Instance?.TriggerOverflowDamage(overflow);
         }
             
+    }
+
+    void ApplyStatusFromItem(ItemInstance sourceItem)
+    {
+        if (sourceItem == null)
+            return;
+
+        if (sourceItem.StatusType == BlockStatusType.Unknown)
+            return;
+
+        float duration = sourceItem.StatusDuration;
+        if (duration <= 0f)
+            return;
+
+        ApplyStatus(sourceItem.StatusType, duration);
     }
 
     public void ApplyStatus(BlockStatusType type, float durationSeconds)

@@ -20,8 +20,8 @@ public sealed class ItemInstance
     public bool IsObject { get; private set; }
     public int PierceBonus { get; private set; }
     public float ProjectileHomingTurnRate { get; private set; }
-    public BlockStatusType ProjectileStatusType { get; private set; }
-    public float ProjectileStatusDuration { get; private set; }
+    public BlockStatusType StatusType { get; private set; }
+    public float StatusDuration { get; private set; }
 
     private readonly List<ItemRuleDto> rules = new();
     public IReadOnlyList<ItemRuleDto> Rules => rules;
@@ -52,8 +52,8 @@ public sealed class ItemInstance
             IsObject = false;
             PierceBonus = 0;
             ProjectileHomingTurnRate = 0f;
-            ProjectileStatusType = BlockStatusType.Unknown;
-            ProjectileStatusDuration = 0f;
+            StatusType = BlockStatusType.Unknown;
+            StatusDuration = 0f;
             return;
         }
 
@@ -62,6 +62,8 @@ public sealed class ItemInstance
         AttackSpeed = Mathf.Max(0f, dto.attackSpeed);
         IsObject = dto.isObject;
         PierceBonus = Mathf.Max(0, dto.pierceBonus);
+        StatusType = dto.statusType;
+        StatusDuration = Mathf.Max(0f, dto.statusDuration);
 
         if (dto.rules != null)
             rules.AddRange(dto.rules);
@@ -78,8 +80,6 @@ public sealed class ItemInstance
             SpreadAngle = Mathf.Max(0f, projectile.spreadAngle);
             ProjectileRandomAngle = Mathf.Max(0f, projectile.randomAngle);
             ProjectileHomingTurnRate = Mathf.Max(0f, projectile.homingTurnRate);
-            ProjectileStatusType = projectile.statusType;
-            ProjectileStatusDuration = Mathf.Max(0f, projectile.statusDuration);
         }
     }
 
