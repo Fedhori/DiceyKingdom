@@ -44,19 +44,6 @@ public sealed class ItemManager : MonoBehaviour
         return player != null ? player.PierceBonus : 0;
     }
 
-    public bool HasSideWallCollisionItem()
-    {
-        var slots = inventory.Slots;
-        for (int i = 0; i < slots.Count; i++)
-        {
-            var inst = slots[i];
-            if (inst != null && inst.EnableSideWallCollision)
-                return true;
-        }
-
-        return false;
-    }
-
     public void BeginPlay()
     {
         isPlayActive = true;
@@ -99,6 +86,15 @@ public sealed class ItemManager : MonoBehaviour
             return false;
 
         return player.IsOverflowDamageEnabled;
+    }
+
+    bool IsSideWallCollisionEnabled()
+    {
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+            return false;
+
+        return player.IsSideWallCollisionEnabled;
     }
 
     public void InitializeFromPlayer(PlayerInstance player)
@@ -218,8 +214,7 @@ public sealed class ItemManager : MonoBehaviour
                 if (isPlayActive && current.IsObject)
                     SpawnController(current);
 
-                if (HasSideWallCollisionFlag(current))
-                    RefreshSideWallCollision();
+                RefreshSideWallCollision();
                 break;
             case ItemInventory.SlotChangeType.Remove:
                 if (previous == null)
@@ -229,8 +224,7 @@ public sealed class ItemManager : MonoBehaviour
                 UnsubscribeEffects(previous);
                 RemoveOwnedModifiers(previous);
 
-                if (HasSideWallCollisionFlag(previous))
-                    RefreshSideWallCollision();
+                RefreshSideWallCollision();
                 break;
         }
     }
@@ -241,12 +235,7 @@ public sealed class ItemManager : MonoBehaviour
         if (factory == null)
             return;
 
-        factory.SetSideWallCollisionEnabled(HasSideWallCollisionItem());
-    }
-
-    static bool HasSideWallCollisionFlag(ItemInstance inst)
-    {
-        return inst != null && inst.EnableSideWallCollision;
+        factory.SetSideWallCollisionEnabled(IsSideWallCollisionEnabled());
     }
 
     bool SubscribeEffects(ItemInstance inst)

@@ -25,6 +25,7 @@ namespace GameStats
         public const string ProjectileSizeMultiplier = "projectileSizeMultiplier";
         public const string IsOverflowDamage = "isOverflowDamage";
         public const string PierceBonus = "pierceBonus";
+        public const string SideWallCollisionEnabled = "sideWallCollisionEnabled";
     }
 
     public sealed class StatModifier

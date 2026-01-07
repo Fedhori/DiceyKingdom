@@ -238,8 +238,23 @@
 			"isObject": false,
 			"price": 7,
 			"rarity": "Rare",
-			"enableSideWallCollision": true,
-			"rules": [{}]
+			"rules": [
+				{
+					"triggerType": "OnItemAdded",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "sideWallCollisionEnabled",
+							"effectMode": "Add",
+							"value": 1.0,
+							"duration": "Owned"
+						}
+					]
+				}
+			]
 		},
 		{
 			"id": "item.magazine",
