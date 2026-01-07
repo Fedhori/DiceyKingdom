@@ -65,6 +65,17 @@ public sealed class BlockController : MonoBehaviour
             
     }
 
+    public void ApplyStatus(BlockStatusType type, float durationSeconds)
+    {
+        if (Instance == null)
+            return;
+
+        if (Instance.TryApplyStatus(type, durationSeconds))
+            return;
+
+        Instance.TryUpdateStatusDuration(type, durationSeconds);
+    }
+
     void RefreshHpText()
     {
         if (hpText == null || Instance == null)

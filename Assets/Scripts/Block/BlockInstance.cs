@@ -79,16 +79,8 @@ public sealed class BlockInstance
             return false;
 
         bool usesDuration = durationSeconds > 0f;
-        if (statuses.TryGetValue(type, out var existing))
-        {
-            if (existing.UsesDuration && usesDuration)
-            {
-                if (durationSeconds > existing.RemainingSeconds)
-                    existing.SetRemainingSeconds(durationSeconds);
-            }
-
+        if (statuses.TryGetValue(type, out var _))
             return false;
-        }
 
         statuses[type] = new BlockStatusState(type, durationSeconds, usesDuration);
         return true;
