@@ -144,6 +144,15 @@ MonoBehaviour:
     m_Localized: "\uB300\uD3EC"
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414403
+    m_Localized: "\uB3C4\uBBF8\uB178"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414404
+    m_Localized: "\uBE14\uB85D\uC744 \uD30C\uAD34\uD560 \uB54C \uCD08\uACFC \uD53C\uD574\uB7C9\uB9CC\uD07C
+      \uB79C\uB364\uD55C \uBE14\uB85D\uC5D0 \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
   - m_Id: 5815909901414401
     m_Localized: "\uB3CB\uBCF4\uAE30"
     m_Metadata:

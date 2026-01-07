@@ -23,6 +23,7 @@ namespace GameStats
         public const string CriticalMultiplier = "criticalMultiplier";
         public const string MoveSpeed = "moveSpeed";
         public const string ProjectileSizeMultiplier = "projectileSizeMultiplier";
+        public const string IsOverflowDamage = "isOverflowDamage";
     }
 
     public sealed class StatModifier

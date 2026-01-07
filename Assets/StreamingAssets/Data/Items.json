@@ -266,7 +266,30 @@
 							"effectType": "ModifyStat",
 							"statId": "projectileSizeMultiplier",
 							"effectMode": "Mult",
-							"value": 0.5,
+							"value": 50.0,
+							"duration": "Owned"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.domino",
+			"isObject": false,
+			"price": 8,
+			"rarity": "Rare",
+			"rules": [
+				{
+					"triggerType": "OnItemAdded",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "isOverflowDamage",
+							"effectMode": "Add",
+							"value": 1.0,
 							"duration": "Owned"
 						}
 					]

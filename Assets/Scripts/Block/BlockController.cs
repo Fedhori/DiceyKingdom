@@ -29,6 +29,7 @@ public sealed class BlockController : MonoBehaviour
         if (Instance == null)
             return;
 
+        int currentHp = Instance.Hp;
         Instance.ApplyDamage(amount);
         RefreshHpText();
 
@@ -40,6 +41,9 @@ public sealed class BlockController : MonoBehaviour
             AudioManager.Instance.Play("Pop");
             BlockManager.Instance?.HandleBlockDestroyed(this);
             Destroy(gameObject);
+            int overflow = Mathf.Max(0, amount - currentHp);
+            if (overflow > 0)
+                ItemManager.Instance?.TriggerOverflowDamage(overflow);
         }
             
     }

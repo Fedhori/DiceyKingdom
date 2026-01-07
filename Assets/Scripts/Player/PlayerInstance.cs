@@ -16,6 +16,7 @@ public sealed class PlayerInstance
     public double CriticalMultiplier => Stats.GetValue(PlayerStatIds.CriticalMultiplier);
     public double MoveSpeed => Stats.GetValue(PlayerStatIds.MoveSpeed);
     public double ProjectileSizeMultiplier => Stats.GetValue(PlayerStatIds.ProjectileSizeMultiplier);
+    public bool IsOverflowDamageEnabled => Stats.GetValue(PlayerStatIds.IsOverflowDamage) > 0.5d;
     public IReadOnlyList<string> ItemIds => itemIds;
     public float WorldMoveSpeed => GameConfig.PlayerBaseMoveSpeed * Mathf.Max(0.1f, (float)MoveSpeed);
 
@@ -35,6 +36,7 @@ public sealed class PlayerInstance
         Stats.SetBase(PlayerStatIds.CriticalMultiplier, BaseDto.criticalMultiplier, 1d);
         Stats.SetBase(PlayerStatIds.MoveSpeed, Mathf.Max(0.1f, BaseDto.moveSpeed), 0.1d);
         Stats.SetBase(PlayerStatIds.ProjectileSizeMultiplier, 1d, 0.1d);
+        Stats.SetBase(PlayerStatIds.IsOverflowDamage, 0d, 0d, 1d);
 
         itemIds = BaseDto.itemIds != null ? new List<string>(BaseDto.itemIds) : new List<string>();
 

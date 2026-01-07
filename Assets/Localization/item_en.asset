@@ -65,6 +65,14 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
+  - m_Id: 5815909901414403
+    m_Localized: Domino
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414404
+    m_Localized: Overflow damage hits a random block.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

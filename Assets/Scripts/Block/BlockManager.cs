@@ -129,6 +129,33 @@ public sealed class BlockManager : MonoBehaviour
         CheckClearCondition();
     }
 
+    public void ApplyOverflowDamage(int damage)
+    {
+        if (damage <= 0)
+            return;
+
+        var target = GetRandomActiveBlock();
+        if (target == null)
+            return;
+
+        target.ApplyDamage(damage, target.transform.position);
+    }
+
+    BlockController GetRandomActiveBlock()
+    {
+        for (int i = activeBlocks.Count - 1; i >= 0; i--)
+        {
+            if (activeBlocks[i] == null)
+                activeBlocks.RemoveAt(i);
+        }
+
+        if (activeBlocks.Count == 0)
+            return null;
+
+        int index = Random.Range(0, activeBlocks.Count);
+        return activeBlocks[index];
+    }
+
     void UpdateSpawnRamp()
     {
         if (!isSpawning)
