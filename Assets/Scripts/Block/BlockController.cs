@@ -106,13 +106,11 @@ public sealed class BlockController : MonoBehaviour
 
         if (Instance.TryApplyStatus(type, durationSeconds))
         {
-            UpdateFreezeMask();
             ItemManager.Instance?.TriggerAll(ItemTriggerType.OnBlockStatusApplied);
             return;
         }
 
         Instance.TryUpdateStatusDuration(type, durationSeconds);
-        UpdateFreezeMask();
     }
 
     void RefreshHpText()

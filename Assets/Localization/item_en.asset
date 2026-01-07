@@ -105,9 +105,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5815909901414412
-    m_Localized: Deal 2x damage to afflicted blocks.
+    m_Localized: Deal x{statusDamageMultiplier} damage to afflicted blocks.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 2507345486982938703
   - m_Id: 5815909901414405
     m_Localized: Snowballer
     m_Metadata:
@@ -133,3 +134,4 @@ MonoBehaviour:
         - id: 5815909901414402
         - id: 5740740298158082
         - id: 5815909901414408
+        - id: 5815909901414412

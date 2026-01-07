@@ -207,6 +207,9 @@ public static class ItemTooltipUtil
         if (item is { PierceBonus: > 0 })
             dict["pierceBonus"] = item.PierceBonus;
 
+        if (item.StatusDamageMultiplier > 1f)
+            dict["statusDamageMultiplier"] = item.StatusDamageMultiplier.ToString("0.##");
+
         return dict.Count == 0 ? null : dict;
     }
 }
