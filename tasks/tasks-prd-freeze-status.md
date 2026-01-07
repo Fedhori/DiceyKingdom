@@ -1,9 +1,10 @@
 ## Relevant Files
 
-- `Assets/Scripts/Block/BlockController.cs` - 블럭 피격 시 상태이상 적용 및 마스크 토글 처리.
-- `Assets/Scripts/Block/BlockManager.cs` - Play 단계에서 상태이상 지속시간 감소 및 이동 속도 반영.
+- `Assets/Scripts/Block/BlockController.cs` - 블럭 상태이상 틱/낙하 이동 및 피격 처리.
+- `Assets/Scripts/Block/BlockManager.cs` - 블럭 스폰/정리 및 플레이 영역 관리.
 - `Assets/Scripts/Block/BlockInstance.cs` - 블럭 상태이상 데이터 보관(남은 시간 등).
 - `Assets/Scripts/Block/BlockStatus.cs` - 상태이상 enum/상태 컨테이너 정의.
+- `Assets/Scripts/Data/GameConfig.cs` - 블럭 낙하 기본 속도 설정.
 - `Assets/Scripts/Bullet/ProjectileController.cs` - 투사체 피격 시 빙결 적용 트리거.
 - `Assets/Scripts/Item/ItemDto.cs` - 아이템/투사체에 상태이상 정보 확장 시 사용.
 - `Assets/Scripts/Item/ItemInstance.cs` - 아이템 인스턴스에 상태이상 데이터 반영.
@@ -21,7 +22,7 @@
 - [ ] 1.0 블럭 상태이상 시스템 뼈대 추가
   - [x] 1.1 상태이상 enum/컨테이너 정의 파일 추가 및 BlockInstance에 상태 저장 구조 연결
   - [x] 1.2 BlockInstance에 상태이상 갱신/조회 API 추가(지속시간 비교 포함)
-  - [ ] 1.3 BlockManager에 상태이상 업데이트 루프 추가(Play 단계에서만 감소)
+  - [x] 1.3 BlockController에서 상태이상/낙하 업데이트 처리(Play 단계에서만)
 - [ ] 2.0 빙결 상태이상(지속시간/감속/갱신) 및 마스크 표시 구현
   - [ ] 2.1 빙결 적용 시 지속시간 갱신 규칙(더 긴 쪽 유지) 구현
   - [ ] 2.2 빙결 상태일 때 이동 속도 배율(0.7) 적용

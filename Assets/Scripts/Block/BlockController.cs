@@ -19,9 +19,26 @@ public sealed class BlockController : MonoBehaviour
         RefreshHpText();
     }
 
-    public void SetGridPosition(Vector3 worldPos)
+    void Update()
     {
-        transform.position = worldPos;
+        var stage = StageManager.Instance;
+        if (stage == null || stage.CurrentPhase != StagePhase.Play)
+            return;
+
+        if (Instance == null)
+            return;
+
+        float delta = Time.deltaTime;
+        if (delta <= 0f)
+            return;
+
+        Instance.TickStatuses(delta);
+
+        float dy = GameConfig.BlockFallSpeed * delta;
+        if (dy <= 0f)
+            return;
+
+        transform.position += new Vector3(0f, -dy, 0f);
     }
 
     public void ApplyDamage(int amount, Vector2? position)

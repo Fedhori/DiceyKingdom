@@ -9,8 +9,6 @@ public sealed class BlockManager : MonoBehaviour
     [SerializeField] private Transform playArea;
     [SerializeField] private Vector2 blockSize = new Vector2(128f, 64f);
     private int currentHp;
-    [SerializeField] private float fallSpeed = 40f;
-
     [Header("Spawn Ramp")]
     [SerializeField] private float spawnDurationSeconds = 30f;
     [SerializeField] private float spawnRateStartPerSec = 1f;
@@ -39,15 +37,9 @@ public sealed class BlockManager : MonoBehaviour
         if (StageManager.Instance.CurrentPhase != StagePhase.Play)
             return;
 
-        float dy = fallSpeed * Time.deltaTime;
-        if (dy <= 0f)
-            return;
-
-        MoveAllBlocksDown(dy);
-
         UpdateSpawnRamp();
     }
-    
+
     public void BeginSpawnRamp()
     {
         var stage = StageManager.Instance?.CurrentStage;
@@ -80,26 +72,6 @@ public sealed class BlockManager : MonoBehaviour
             originTopLeft = new Vector2(center.x - size.x * 0.5f, center.y + size.y * 0.5f);
             originTopRight = new Vector2(center.x + size.x * 0.5f, center.y + size.y * 0.5f);
             
-        }
-    }
-
-    // TODO - 이게 manager가 아니라 Controller서에서 관리되어야 할게 아닌가?
-    void MoveAllBlocksDown(float distance)
-    {
-        if (distance <= 0f)
-            return;
-
-        float delta = distance;
-        for (int i = activeBlocks.Count - 1; i >= 0; i--)
-        {
-            var block = activeBlocks[i];
-            if (block == null)
-            {
-                activeBlocks.RemoveAt(i);
-                continue;
-            }
-
-            block.transform.position += new Vector3(0f, -delta, 0f);
         }
     }
 

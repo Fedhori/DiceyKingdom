@@ -10,6 +10,7 @@ public static class GameConfig
     public static float PlayerBaseMoveSpeed = 500f;
     public static float ItemBaseProjectileSize = 1f;
     public static float ItemBaseProjectileSpeed = 1000f;
+    public static float BlockFallSpeed = 40f;
 }
 
 public static class LayerMaskUtil
