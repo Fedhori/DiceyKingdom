@@ -10,7 +10,7 @@
 			"moveSpeed": 1.0,
 			"itemIds": [
 				"item.snowballer",
-				"item.catalyst"
+				"item.dryice"
 			],
 			"rarityGrowth": 2.0,
 			"rarityProbabilities": [

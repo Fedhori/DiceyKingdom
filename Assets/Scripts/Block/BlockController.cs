@@ -37,7 +37,15 @@ public sealed class BlockController : MonoBehaviour
         Instance.TickStatuses(delta);
         UpdateFreezeMask();
 
-        float speedMultiplier = Instance.HasStatus(BlockStatusType.Freeze) ? 0.7f : 1f;
+        float speedMultiplier = 1f;
+        if (Instance.HasStatus(BlockStatusType.Freeze))
+        {
+            float freezeMultiplier = 0.7f;
+            var player = PlayerManager.Instance?.Current;
+            if (player != null && player.IsDryIceEnabled)
+                freezeMultiplier = 0.4f;
+            speedMultiplier = freezeMultiplier;
+        }
         float dy = GameConfig.BlockFallSpeed * speedMultiplier * delta;
         if (dy <= 0f)
             return;

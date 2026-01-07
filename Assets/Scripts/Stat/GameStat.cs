@@ -26,6 +26,7 @@ namespace GameStats
         public const string IsOverflowDamage = "isOverflowDamage";
         public const string PierceBonus = "pierceBonus";
         public const string WallBounceCount = "wallBounceCount";
+        public const string IsDryIceEnabled = "isDryIceEnabled";
     }
 
     public sealed class StatModifier

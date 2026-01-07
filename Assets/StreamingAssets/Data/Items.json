@@ -366,6 +366,29 @@
 			]
 		},
 		{
+			"id": "item.dryice",
+			"isObject": false,
+			"price": 9,
+			"rarity": "Rare",
+			"rules": [
+				{
+					"triggerType": "OnItemAdded",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "isDryIceEnabled",
+							"effectMode": "Add",
+							"value": 1.0,
+							"duration": "Owned"
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "item.cannon",
 			"isObject": true,
 			"price": 8,

@@ -17,6 +17,7 @@ public sealed class PlayerInstance
     public double MoveSpeed => Stats.GetValue(PlayerStatIds.MoveSpeed);
     public double ProjectileSizeMultiplier => Stats.GetValue(PlayerStatIds.ProjectileSizeMultiplier);
     public bool IsOverflowDamageEnabled => Stats.GetValue(PlayerStatIds.IsOverflowDamage) > 0.5d;
+    public bool IsDryIceEnabled => Stats.GetValue(PlayerStatIds.IsDryIceEnabled) > 0.5d;
     public int PierceBonus => Mathf.Max(0, Mathf.FloorToInt((float)Stats.GetValue(PlayerStatIds.PierceBonus)));
     public int WallBounceCount => Mathf.Max(0, Mathf.FloorToInt((float)Stats.GetValue(PlayerStatIds.WallBounceCount)));
     public IReadOnlyList<string> ItemIds => itemIds;
@@ -39,6 +40,7 @@ public sealed class PlayerInstance
         Stats.SetBase(PlayerStatIds.MoveSpeed, Mathf.Max(0.1f, BaseDto.moveSpeed), 0.1d);
         Stats.SetBase(PlayerStatIds.ProjectileSizeMultiplier, 1d, 0.1d);
         Stats.SetBase(PlayerStatIds.IsOverflowDamage, 0d, 0d, 1d);
+        Stats.SetBase(PlayerStatIds.IsDryIceEnabled, 0d, 0d, 1d);
         Stats.SetBase(PlayerStatIds.PierceBonus, 0d, 0d);
         Stats.SetBase(PlayerStatIds.WallBounceCount, 0d, 0d);
 
