@@ -1,3 +1,4 @@
+using Data;
 using TMPro;
 using UnityEngine;
 
@@ -98,6 +99,7 @@ public sealed class BlockController : MonoBehaviour
         if (Instance.TryApplyStatus(type, durationSeconds))
         {
             UpdateFreezeMask();
+            ItemManager.Instance?.TriggerAll(ItemTriggerType.OnBlockStatusApplied);
             return;
         }
 

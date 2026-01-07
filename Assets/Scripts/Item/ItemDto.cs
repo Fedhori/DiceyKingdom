@@ -17,6 +17,7 @@ namespace Data
         OnProjectileSpawned,
         OnRewardOpen,
         OnBlockDestroyed,
+        OnBlockStatusApplied,
         OnTick
     }
 

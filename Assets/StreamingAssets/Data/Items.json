@@ -343,6 +343,29 @@
 			]
 		},
 		{
+			"id": "item.catalyst",
+			"isObject": false,
+			"price": 6,
+			"rarity": "Uncommon",
+			"rules": [
+				{
+					"triggerType": "OnBlockStatusApplied",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 1.0,
+							"duration": "Temporary"
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "item.cannon",
 			"isObject": true,
 			"price": 8,
