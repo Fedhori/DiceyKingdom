@@ -88,14 +88,6 @@ public sealed class ItemManager : MonoBehaviour
         return player.IsOverflowDamageEnabled;
     }
 
-    bool IsSideWallCollisionEnabled()
-    {
-        var player = PlayerManager.Instance?.Current;
-        if (player == null)
-            return false;
-
-        return player.IsSideWallCollisionEnabled;
-    }
 
     public void InitializeFromPlayer(PlayerInstance player)
     {
@@ -213,8 +205,6 @@ public sealed class ItemManager : MonoBehaviour
 
                 if (isPlayActive && current.IsObject)
                     SpawnController(current);
-
-                RefreshSideWallCollision();
                 break;
             case ItemInventory.SlotChangeType.Remove:
                 if (previous == null)
@@ -223,19 +213,8 @@ public sealed class ItemManager : MonoBehaviour
                 RemoveController(previous);
                 UnsubscribeEffects(previous);
                 RemoveOwnedModifiers(previous);
-
-                RefreshSideWallCollision();
                 break;
         }
-    }
-
-    void RefreshSideWallCollision()
-    {
-        var factory = ProjectileFactory.Instance;
-        if (factory == null)
-            return;
-
-        factory.SetSideWallCollisionEnabled(IsSideWallCollisionEnabled());
     }
 
     bool SubscribeEffects(ItemInstance inst)

@@ -247,7 +247,7 @@
 					"effects": [
 						{
 							"effectType": "ModifyStat",
-							"statId": "sideWallCollisionEnabled",
+							"statId": "wallBounceCount",
 							"effectMode": "Add",
 							"value": 1.0,
 							"duration": "Owned"

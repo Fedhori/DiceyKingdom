@@ -44,7 +44,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 3962800000000011
-    m_Localized: "All projectiles pierce {value0} more time(s)."
+    m_Localized: All projectiles pierce {value0} more time(s).
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
@@ -53,9 +53,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5740740298158082
-    m_Localized: Projectiles collide with side walls.
+    m_Localized: Projectiles bounce off walls {value0} time(s).
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 2507345486982938703
   - m_Id: 5740740298158083
     m_Localized: Magazine
     m_Metadata:
@@ -70,7 +71,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5815909901414402
-    m_Localized: "All projectiles are {value0}% larger."
+    m_Localized: All projectiles are {value0}% larger.
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
@@ -97,3 +98,4 @@ MonoBehaviour:
         - id: 3962800000000011
         - id: 5740740298158084
         - id: 5815909901414402
+        - id: 5740740298158082

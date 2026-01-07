@@ -1,16 +1,18 @@
 using Data;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public sealed class ProjectileController : MonoBehaviour
 {
     [SerializeField] Collider2D blockCollider;
-    [SerializeField] Collider2D sideWallCollider;
+    [SerializeField] Collider2D wallCollider;
     [SerializeField] Rigidbody2D rb;
     
     ItemInstance item;
     Vector2 direction;
     int pierceRemaining;
+    int wallBounceRemaining;
 
     public void Initialize(ItemInstance inst, Vector2 dir)
     {
@@ -22,6 +24,7 @@ public sealed class ProjectileController : MonoBehaviour
         pierceRemaining = 0;
 
         ApplyPierceCount();
+        ApplyWallBounceCount();
         ApplyStats();
         ApplyHitBehavior();
     }
@@ -76,10 +79,15 @@ public sealed class ProjectileController : MonoBehaviour
             return;
         }
 
-        if (selfCollider == sideWallCollider)
+        if (selfCollider == wallCollider)
         {
-            if (item.ProjectileHitBehavior is ProjectileHitBehavior.Bounce or ProjectileHitBehavior.BounceSideWall) 
+            if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
                 return;
+
+            wallBounceRemaining--;
+            if (wallBounceRemaining <= 0)
+                wallCollider.enabled = false;
+            return;
         }
 
         if (selfCollider == blockCollider)
@@ -125,6 +133,23 @@ public sealed class ProjectileController : MonoBehaviour
         pierceRemaining = item.Pierce + bonus + 1;
     }
 
+    void ApplyWallBounceCount()
+    {
+        wallBounceRemaining = 0;
+
+        if (item == null)
+            return;
+
+        if (item.ProjectileHitBehavior != ProjectileHitBehavior.Normal)
+            return;
+
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+            return;
+
+        wallBounceRemaining = player.WallBounceCount;
+    }
+
     void UpdateHoming()
     {
         if (item == null || rb == null)
@@ -167,34 +192,23 @@ public sealed class ProjectileController : MonoBehaviour
 
     void ApplyHitBehavior()
     {
-        var hitBehavior = item.ProjectileHitBehavior;
-        if (ProjectileFactory.Instance.sideWallCollisionEnabled &&
-            item.ProjectileHitBehavior == ProjectileHitBehavior.Normal)
-            hitBehavior = ProjectileHitBehavior.BounceSideWall;
-
-        switch (hitBehavior)
+        switch (item.ProjectileHitBehavior)
         {
             case ProjectileHitBehavior.Normal:
             {
-                blockCollider.enabled = true;
-                sideWallCollider.enabled = false;
+                blockCollider.isTrigger = true;
+                wallCollider.enabled = wallBounceRemaining > 0;
                 break;
             }
             case ProjectileHitBehavior.Bounce:
             {
                 blockCollider.isTrigger = false;
-                sideWallCollider.enabled = true;
-                break;
-            }
-            case ProjectileHitBehavior.BounceSideWall:
-            {
-                blockCollider.isTrigger = true;
-                sideWallCollider.enabled = true;
+                wallCollider.enabled = true;
                 break;
             }
             default:
             {
-                Debug.LogError("Unhandled ProjectileHitBehavior: " + hitBehavior);
+                Debug.LogError("Unhandled ProjectileHitBehavior: " + item.ProjectileHitBehavior);
                 break;
             }
         }

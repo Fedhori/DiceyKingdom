@@ -85,8 +85,7 @@ namespace Data
     {
         Unknown = 0,
         Normal,
-        Bounce,
-        BounceSideWall
+        Bounce
     }
 
     [Serializable]

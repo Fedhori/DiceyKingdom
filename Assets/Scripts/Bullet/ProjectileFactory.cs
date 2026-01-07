@@ -10,8 +10,6 @@ public sealed class ProjectileFactory : MonoBehaviour
     [SerializeField] private Transform parent;
 
     readonly Dictionary<string, GameObject> prefabMap = new();
-    public bool sideWallCollisionEnabled;
-
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -78,14 +76,6 @@ public sealed class ProjectileFactory : MonoBehaviour
 
         ctrl.Initialize(item, direction);
         ItemManager.Instance?.TriggerAll(ItemTriggerType.OnProjectileSpawned);
-    }
-
-    public void SetSideWallCollisionEnabled(bool value)
-    {
-        if (sideWallCollisionEnabled.Equals(value))
-            return;
-
-        sideWallCollisionEnabled = value;
     }
 
     public void ClearAllProjectiles()
