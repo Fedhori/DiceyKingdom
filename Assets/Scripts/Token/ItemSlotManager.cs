@@ -76,9 +76,10 @@ public sealed class ItemSlotManager : MonoBehaviour
         inventory = null;
     }
 
-    void HandleSlotChanged(int slotIndex, ItemInstance previous, ItemInstance current)
+    void HandleSlotChanged(int slotIndex, ItemInstance previous, ItemInstance current, ItemInventory.SlotChangeType changeType)
     {
         _ = previous;
+        _ = changeType;
 
         if (!IsValidIndex(slotIndex))
             return;

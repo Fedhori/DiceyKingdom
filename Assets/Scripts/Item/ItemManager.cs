@@ -121,13 +121,19 @@ public sealed class ItemManager : MonoBehaviour
             }
 
             var inst = new ItemInstance(dto);
-            if (!inventory.TryAdd(inst, out _))
+            if (!inventory.TryGetFirstEmptySlot(out var index))
             {
                 Debug.LogWarning("[ItemManager] Inventory full. Skipping item add.");
                 continue;
             }
 
-            // OnSlotChanged handles attach for object items.
+            if (!inventory.TrySetSlot(index, inst))
+            {
+                Debug.LogWarning("[ItemManager] Failed to set item slot.");
+                continue;
+            }
+
+            // OnItemAdded handles object attach.
         }
     }
 
@@ -188,29 +194,37 @@ public sealed class ItemManager : MonoBehaviour
         return registry.GetOrDefault(inst.Id);
     }
 
-    void HandleSlotChanged(int slotIndex, ItemInstance previous, ItemInstance current)
+    void HandleSlotChanged(int slotIndex, ItemInstance previous, ItemInstance current, ItemInventory.SlotChangeType changeType)
     {
         _ = slotIndex;
 
-        if (previous != null && !ContainsInstance(previous))
+        switch (changeType)
         {
-            RemoveController(previous);
-            UnsubscribeEffects(previous);
-            RemoveOwnedModifiers(previous);
+            case ItemInventory.SlotChangeType.Add:
+                if (current == null)
+                    return;
+
+                SubscribeEffects(current);
+                current.HandleTrigger(ItemTriggerType.OnItemAdded);
+
+                if (isPlayActive && current.IsObject)
+                    SpawnController(current);
+
+                if (HasSideWallCollisionFlag(current))
+                    RefreshSideWallCollision();
+                break;
+            case ItemInventory.SlotChangeType.Remove:
+                if (previous == null)
+                    return;
+
+                RemoveController(previous);
+                UnsubscribeEffects(previous);
+                RemoveOwnedModifiers(previous);
+
+                if (HasSideWallCollisionFlag(previous))
+                    RefreshSideWallCollision();
+                break;
         }
-
-        if (current == null)
-            return;
-
-        bool isNew = SubscribeEffects(current);
-        if (isNew)
-            current.HandleTrigger(ItemTriggerType.OnItemAdded);
-
-        if (isPlayActive && current.IsObject)
-            SpawnController(current);
-
-        if (HasSideWallCollisionFlag(previous) || HasSideWallCollisionFlag(current))
-            RefreshSideWallCollision();
     }
 
     void RefreshSideWallCollision()
@@ -298,21 +312,6 @@ public sealed class ItemManager : MonoBehaviour
             tickTimer -= tickIntervalSeconds;
             TriggerAll(ItemTriggerType.OnTick);
         }
-    }
-
-    bool ContainsInstance(ItemInstance inst)
-    {
-        if (inst == null)
-            return false;
-
-        var slots = inventory.Slots;
-        for (int i = 0; i < slots.Count; i++)
-        {
-            if (ReferenceEquals(slots[i], inst))
-                return true;
-        }
-
-        return false;
     }
 
     void RemoveController(ItemInstance inst)

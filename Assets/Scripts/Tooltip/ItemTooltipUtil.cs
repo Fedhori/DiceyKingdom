@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Data;
+using GameStats;
 using UnityEngine;
 using UnityEngine.Localization;
 
@@ -177,7 +178,14 @@ public static class ItemTooltipUtil
                     continue;
 
                 string key = $"value{i}";
-                dict[key] = e.value.ToString("0.##");
+                if (e.effectMode == StatOpKind.Mult)
+                {
+                    dict[key] = (e.value * 100f).ToString("0.##");
+                }
+                else
+                {
+                    dict[key] = e.value.ToString("0.##");
+                }
             }
         }
 
