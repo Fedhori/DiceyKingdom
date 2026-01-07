@@ -6,6 +6,7 @@ public sealed class BlockController : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private TMP_Text hpText;
+    [SerializeField] private GameObject freezeMask;
 
     public BlockInstance Instance { get; private set; }
 
@@ -33,6 +34,7 @@ public sealed class BlockController : MonoBehaviour
             return;
 
         Instance.TickStatuses(delta);
+        UpdateFreezeMask();
 
         float speedMultiplier = Instance.HasStatus(BlockStatusType.Freeze) ? 0.7f : 1f;
         float dy = GameConfig.BlockFallSpeed * speedMultiplier * delta;
@@ -72,9 +74,13 @@ public sealed class BlockController : MonoBehaviour
             return;
 
         if (Instance.TryApplyStatus(type, durationSeconds))
+        {
+            UpdateFreezeMask();
             return;
+        }
 
         Instance.TryUpdateStatusDuration(type, durationSeconds);
+        UpdateFreezeMask();
     }
 
     void RefreshHpText()
@@ -83,5 +89,13 @@ public sealed class BlockController : MonoBehaviour
             return;
 
         hpText.text = Instance.Hp.ToString();
+    }
+
+    void UpdateFreezeMask()
+    {
+        if (freezeMask == null || Instance == null)
+            return;
+
+        freezeMask.SetActive(Instance.HasStatus(BlockStatusType.Freeze));
     }
 }
