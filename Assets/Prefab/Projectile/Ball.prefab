@@ -64,10 +64,6 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 7a317686b353f3c49a3f98160506b060, type: 3}
-    - target: {fileID: 6761502501062353118, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
-      propertyPath: m_IncludeLayers.m_Bits
-      value: 2112
-      objectReference: {fileID: 0}
     - target: {fileID: 6801002924329557143, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_Name
       value: Ball

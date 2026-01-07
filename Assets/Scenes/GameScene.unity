@@ -1558,7 +1558,7 @@ GameObject:
   - component: {fileID: 407153862}
   - component: {fileID: 407153863}
   - component: {fileID: 407153864}
-  m_Layer: 6
+  m_Layer: 11
   m_Name: Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1888,7 +1888,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 960
+  orthographic size: 855.8182
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -9173,7 +9173,7 @@ GameObject:
   - component: {fileID: 1972683698}
   - component: {fileID: 1972683699}
   - component: {fileID: 1972683700}
-  m_Layer: 6
+  m_Layer: 11
   m_Name: Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
