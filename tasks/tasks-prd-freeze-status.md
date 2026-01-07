@@ -30,7 +30,7 @@
 - [ ] 3.0 item.snowballer + projectile.snowball 연동 추가
   - [x] 3.1 item.snowballer 데이터 추가(가격/희귀도/스펙/투사체 키)
   - [x] 3.2 projectile.snowball 피격 시 빙결 적용 로직 연결
-  - [ ] 3.3 아이템 로컬라이징 키 추가(ko/en)
+  - [x] 3.3 아이템 로컬라이징 키 추가(ko/en)
 - [ ] 4.0 동작 검증 및 플레이 흐름 QA 체크
   - [ ] 4.1 눈덩이 피격 시 빙결 적용 및 지속시간 갱신 확인
   - [ ] 4.2 빙결 중 속도 감속/해제 복귀 확인

@@ -83,6 +83,14 @@ MonoBehaviour:
     m_Localized: Overflow damage hits a random block.
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414405
+    m_Localized: Snowballer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414406
+    m_Localized: Hits slow blocks briefly.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
