@@ -34,7 +34,8 @@ public sealed class BlockController : MonoBehaviour
 
         Instance.TickStatuses(delta);
 
-        float dy = GameConfig.BlockFallSpeed * delta;
+        float speedMultiplier = Instance.HasStatus(BlockStatusType.Freeze) ? 0.7f : 1f;
+        float dy = GameConfig.BlockFallSpeed * speedMultiplier * delta;
         if (dy <= 0f)
             return;
 
