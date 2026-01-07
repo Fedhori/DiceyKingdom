@@ -1888,7 +1888,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 855.8182
+  orthographic size: 960
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -3880,8 +3880,9 @@ MonoBehaviour:
     prefab: {fileID: 1490000589346278806, guid: e2d2f145a629c5f44b357552bdf25464, type: 3}
   - key: projectile.cannonball
     prefab: {fileID: 91226030591785844, guid: 3b45d898469c4f344ad3aa15ceb35b22, type: 3}
+  - key: projectile.snowball
+    prefab: {fileID: 8748276644587432212, guid: 7784e68ddf1ce2d4081bab1fc4588482, type: 3}
   parent: {fileID: 258862835}
-  sideWallCollisionEnabled: 0
 --- !u!1 &1050363043
 GameObject:
   m_ObjectHideFlags: 0
@@ -7104,7 +7105,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BrickManager
   playArea: {fileID: 1644066639}
   blockSize: {x: 128, y: 64}
-  fallSpeed: 40
   spawnDurationSeconds: 30
   spawnRateStartPerSec: 1
   spawnRateEndPerSec: 2

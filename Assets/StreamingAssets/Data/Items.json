@@ -43,6 +43,20 @@
 			]
 		},
 		{
+			"id": "item.snowballer",
+			"isObject": true,
+			"price": 5,
+			"rarity": "Common",
+			"damageMultiplier": 1.0,
+			"attackSpeed": 1.0,
+			"projectile": {
+				"key": "projectile.snowball",
+				"size": 1.0,
+				"speed": 1.0
+			},
+			"rules": []
+		},
+		{
 			"id": "item.minigun",
 			"damageMultiplier": 1.0,
 			"attackSpeed": 5.0,

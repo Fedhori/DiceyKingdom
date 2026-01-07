@@ -28,7 +28,7 @@
   - [x] 2.2 빙결 상태일 때 이동 속도 배율(0.7) 적용
   - [x] 2.3 블럭 프리팹 마스크 토글 연동(빙결 상태에 따라 활성/비활성)
 - [ ] 3.0 item.snowballer + projectile.snowball 연동 추가
-  - [ ] 3.1 item.snowballer 데이터 추가(가격/희귀도/스펙/투사체 키)
+  - [x] 3.1 item.snowballer 데이터 추가(가격/희귀도/스펙/투사체 키)
   - [ ] 3.2 projectile.snowball 피격 시 빙결 적용 로직 연결
   - [ ] 3.3 아이템 로컬라이징 키 추가(ko/en)
 - [ ] 4.0 동작 검증 및 플레이 흐름 QA 체크
