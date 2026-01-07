@@ -100,6 +100,14 @@ MonoBehaviour:
     m_Localized: Freeze slow increases from 30% to 60%.
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414411
+    m_Localized: Stake
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414412
+    m_Localized: Deal 2x damage to afflicted blocks.
+    m_Metadata:
+      m_Items: []
   - m_Id: 5815909901414405
     m_Localized: Snowballer
     m_Metadata:

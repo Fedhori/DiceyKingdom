@@ -104,6 +104,8 @@ public sealed class ProjectileController : MonoBehaviour
         }
     }
 
+    // TODO - ApplyDamage를 ProjectileController에서 관리하면 중복이 늘어나 유지보수 피곤해짐.
+    // AttackContext로 분리해서, 통일되게 동작하도록 개선 필요
     void ApplyDamage(Collider2D other)
     {
         if (item == null || other == null)
@@ -116,7 +118,12 @@ public sealed class ProjectileController : MonoBehaviour
         var player = PlayerManager.Instance?.Current;
         int dmg = 1;
         if (player != null)
-            dmg = Mathf.Max(1, Mathf.FloorToInt((float)(item.DamageMultiplier * player.Power)));
+        {
+            float itemMultiplier = item.DamageMultiplier;
+            if (item.StatusDamageMultiplier > 0f && block.Instance.Statuses.Count > 0)
+                itemMultiplier *= item.StatusDamageMultiplier;
+            dmg = Mathf.Max(1, Mathf.FloorToInt((float)(itemMultiplier * player.Power)));
+        }
 
         block.ApplyDamage(dmg, transform.position, item);
     }

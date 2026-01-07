@@ -389,6 +389,21 @@
 			]
 		},
 		{
+			"id": "item.stake",
+			"isObject": true,
+			"price": 6,
+			"rarity": "Uncommon",
+			"damageMultiplier": 1.0,
+			"statusDamageMultiplier": 2.0,
+			"attackSpeed": 2.0,
+			"projectile": {
+				"key": "projectile.stake",
+				"size": 1.0,
+				"speed": 1.0
+			},
+			"rules": [{}]
+		},
+		{
 			"id": "item.cannon",
 			"isObject": true,
 			"price": 8,

@@ -8,6 +8,7 @@ public sealed class ItemInstance
     public string Id { get; }
 
     public float DamageMultiplier { get; private set; }
+    public float StatusDamageMultiplier { get; private set; }
     public float AttackSpeed { get; private set; }
     public float ProjectileSize { get; private set; }
     public float ProjectileSpeed { get; private set; }
@@ -54,11 +55,13 @@ public sealed class ItemInstance
             ProjectileHomingTurnRate = 0f;
             StatusType = BlockStatusType.Unknown;
             StatusDuration = 0f;
+            StatusDamageMultiplier = 1f;
             return;
         }
 
         Id = dto.id;
         DamageMultiplier = Mathf.Max(0f, dto.damageMultiplier);
+        StatusDamageMultiplier = Mathf.Max(0f, dto.statusDamageMultiplier);
         AttackSpeed = Mathf.Max(0f, dto.attackSpeed);
         IsObject = dto.isObject;
         PierceBonus = Mathf.Max(0, dto.pierceBonus);

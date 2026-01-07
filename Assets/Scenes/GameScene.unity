@@ -3882,6 +3882,8 @@ MonoBehaviour:
     prefab: {fileID: 91226030591785844, guid: 3b45d898469c4f344ad3aa15ceb35b22, type: 3}
   - key: projectile.snowball
     prefab: {fileID: 8748276644587432212, guid: 7784e68ddf1ce2d4081bab1fc4588482, type: 3}
+  - key: projectile.stake
+    prefab: {fileID: 5678199368567996697, guid: f0a2daf8ba886a746bb16d6153de9fea, type: 3}
   parent: {fileID: 258862835}
 --- !u!1 &1050363043
 GameObject:

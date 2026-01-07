@@ -118,6 +118,7 @@ namespace Data
 
         public List<ItemRuleDto> rules;
         public float damageMultiplier = 0f;
+        public float statusDamageMultiplier = 1f;
         public float attackSpeed = 0f;
         public ItemProjectileData projectile;
         public int pierceBonus = 0;
@@ -152,6 +153,12 @@ namespace Data
             if (damageMultiplier < 0f)
             {
                 Debug.LogError($"[ItemDto] '{id}': damageMultiplier < 0 is not allowed.");
+                isValid = false;
+            }
+
+            if (statusDamageMultiplier < 0f)
+            {
+                Debug.LogError($"[ItemDto] '{id}': statusDamageMultiplier < 0 is not allowed.");
                 isValid = false;
             }
 
