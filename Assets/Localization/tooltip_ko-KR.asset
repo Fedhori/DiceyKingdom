@@ -34,6 +34,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 1113825116433678412
+  - m_Id: 10581387094011905
+    m_Localized: "\uc0c1\ud0dc\uc774\uc0c1: \ube59\uacb0 ({seconds}\ucd08)"
+    m_Metadata:
+      m_Items:
+      - rid: 1113825116433678412
   references:
     version: 2
     RefIds:
@@ -45,3 +50,4 @@ MonoBehaviour:
         - id: 9134393871839232
         - id: 9134255610802176
         - id: 10581387094011904
+        - id: 10581387094011905

@@ -12,6 +12,10 @@
 - `Assets/Localization/item Shared Data.asset` - 아이템 키 추가.
 - `Assets/Localization/item_ko-KR.asset` - 한글 로컬라이징 추가.
 - `Assets/Localization/item_en.asset` - 영문 로컬라이징 추가.
+- `Assets/Scripts/Tooltip/ItemTooltipUtil.cs` - 상태이상 툴팁 라인 추가.
+- `Assets/Localization/tooltip Shared Data.asset` - 상태이상 툴팁 키 추가.
+- `Assets/Localization/tooltip_ko-KR.asset` - 상태이상 툴팁 한글 추가.
+- `Assets/Localization/tooltip_en.asset` - 상태이상 툴팁 영문 추가.
 
 ### Notes
 
@@ -36,3 +40,5 @@
   - [ ] 4.1 눈덩이 피격 시 빙결 적용 및 지속시간 갱신 확인
   - [ ] 4.2 빙결 중 속도 감속/해제 복귀 확인
   - [ ] 4.3 스테이지/플레이 단계 전환 시 상태이상 감소 타이밍 확인
+- [ ] 5.0 아이템 툴팁에 상태이상 표시
+  - [x] 5.1 빙결 상태이상 라인 추가(상태이상: 빙결 (N초))
