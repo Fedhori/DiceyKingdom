@@ -98,6 +98,9 @@ namespace Data
         public float spreadAngle = 0f;
         public float randomAngle = 0f;
         public float homingTurnRate = 0f;
+        [JsonConverter(typeof(StringEnumConverter))]
+        public BlockStatusType statusType = BlockStatusType.Unknown;
+        public float statusDuration = 0f;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ProjectileHitBehavior hitBehavior = ProjectileHitBehavior.Normal;
@@ -186,6 +189,12 @@ namespace Data
                 if (projectile.randomAngle < 0f)
                 {
                     Debug.LogError($"[ItemDto] '{id}': projectile.randomAngle < 0 is not allowed.");
+                    isValid = false;
+                }
+
+                if (projectile.statusDuration < 0f)
+                {
+                    Debug.LogError($"[ItemDto] '{id}': projectile.statusDuration < 0 is not allowed.");
                     isValid = false;
                 }
             }

@@ -52,7 +52,9 @@
 			"projectile": {
 				"key": "projectile.snowball",
 				"size": 1.0,
-				"speed": 1.0
+				"speed": 1.0,
+				"statusType": "Freeze",
+				"statusDuration": 2.0
 			},
 			"rules": []
 		},

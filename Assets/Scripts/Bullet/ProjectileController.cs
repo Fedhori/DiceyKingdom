@@ -119,6 +119,21 @@ public sealed class ProjectileController : MonoBehaviour
             dmg = Mathf.Max(1, Mathf.FloorToInt((float)(item.DamageMultiplier * player.Power)));
 
         block.ApplyDamage(dmg, transform.position);
+        ApplyStatus(block);
+    }
+
+    void ApplyStatus(BlockController block)
+    {
+        if (item == null || block == null)
+            return;
+
+        if (item.ProjectileStatusType == BlockStatusType.Unknown)
+            return;
+
+        if (item.ProjectileStatusDuration <= 0f)
+            return;
+
+        block.ApplyStatus(item.ProjectileStatusType, item.ProjectileStatusDuration);
     }
 
     void ApplyPierceCount()

@@ -5,9 +5,9 @@
 - `Assets/Scripts/Block/BlockInstance.cs` - 블럭 상태이상 데이터 보관(남은 시간 등).
 - `Assets/Scripts/Block/BlockStatus.cs` - 상태이상 enum/상태 컨테이너 정의.
 - `Assets/Scripts/Data/GameConfig.cs` - 블럭 낙하 기본 속도 설정.
-- `Assets/Scripts/Bullet/ProjectileController.cs` - 투사체 피격 시 빙결 적용 트리거.
-- `Assets/Scripts/Item/ItemDto.cs` - 아이템/투사체에 상태이상 정보 확장 시 사용.
-- `Assets/Scripts/Item/ItemInstance.cs` - 아이템 인스턴스에 상태이상 데이터 반영.
+- `Assets/Scripts/Bullet/ProjectileController.cs` - 투사체 피격 시 상태이상 적용 트리거.
+- `Assets/Scripts/Item/ItemDto.cs` - 투사체 상태이상 데이터 정의/검증.
+- `Assets/Scripts/Item/ItemInstance.cs` - 투사체 상태이상 데이터 런타임 반영.
 - `Assets/StreamingAssets/Data/Items.json` - item.snowballer 데이터 추가.
 - `Assets/Localization/item Shared Data.asset` - 아이템 키 추가.
 - `Assets/Localization/item_ko-KR.asset` - 한글 로컬라이징 추가.
@@ -29,7 +29,7 @@
   - [x] 2.3 블럭 프리팹 마스크 토글 연동(빙결 상태에 따라 활성/비활성)
 - [ ] 3.0 item.snowballer + projectile.snowball 연동 추가
   - [x] 3.1 item.snowballer 데이터 추가(가격/희귀도/스펙/투사체 키)
-  - [ ] 3.2 projectile.snowball 피격 시 빙결 적용 로직 연결
+  - [x] 3.2 projectile.snowball 피격 시 빙결 적용 로직 연결
   - [ ] 3.3 아이템 로컬라이징 키 추가(ko/en)
 - [ ] 4.0 동작 검증 및 플레이 흐름 QA 체크
   - [ ] 4.1 눈덩이 피격 시 빙결 적용 및 지속시간 갱신 확인
