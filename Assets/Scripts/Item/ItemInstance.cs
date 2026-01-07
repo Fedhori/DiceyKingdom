@@ -33,6 +33,7 @@ public sealed class ItemInstance
     public float WorldProjectileSpeed => GameConfig.ItemBaseProjectileSpeed * Mathf.Max(0.1f, ProjectileSpeed);
 
     readonly Dictionary<ItemTriggerType, int> triggerCounts = new();
+    readonly Dictionary<int, float> ruleElapsedSeconds = new();
 
     public ItemInstance(ItemDto dto)
     {
@@ -128,15 +129,55 @@ public sealed class ItemInstance
                 if (triggerCount <= 0)
                     return false;
                 return triggerCount % condition.count == 0;
+            case ItemConditionKind.Time:
+                return false;
             default:
                 Debug.LogWarning($"[ItemInstance] Unsupported condition {condition.conditionKind} for trigger {trigger}");
                 return false;
         }
     }
 
+    public void HandleTime(float deltaSeconds)
+    {
+        if (deltaSeconds <= 0f || rules.Count == 0)
+            return;
+
+        for (int i = 0; i < rules.Count; i++)
+        {
+            var rule = rules[i];
+            if (rule == null)
+                continue;
+
+            if (rule.triggerType != ItemTriggerType.OnTimeChanged)
+                continue;
+
+            var condition = rule.condition;
+            if (condition == null || condition.conditionKind != ItemConditionKind.Time)
+                continue;
+
+            float interval = condition.intervalSeconds;
+            if (interval <= 0f)
+                continue;
+
+            float elapsed = GetRuleElapsedSeconds(i) + deltaSeconds;
+            int triggerCount = 0;
+            while (elapsed >= interval)
+            {
+                elapsed -= interval;
+                triggerCount++;
+            }
+
+            SetRuleElapsedSeconds(i, elapsed);
+
+            for (int t = 0; t < triggerCount; t++)
+                ApplyEffects(rule.effects);
+        }
+    }
+
     public void ResetRuntimeState()
     {
         triggerCounts.Clear();
+        ruleElapsedSeconds.Clear();
     }
 
     void IncrementTriggerCount(ItemTriggerType trigger)
@@ -150,6 +191,16 @@ public sealed class ItemInstance
     int GetTriggerCount(ItemTriggerType trigger)
     {
         return triggerCounts.TryGetValue(trigger, out var count) ? count : 0;
+    }
+
+    float GetRuleElapsedSeconds(int ruleIndex)
+    {
+        return ruleElapsedSeconds.TryGetValue(ruleIndex, out var elapsed) ? elapsed : 0f;
+    }
+
+    void SetRuleElapsedSeconds(int ruleIndex, float elapsed)
+    {
+        ruleElapsedSeconds[ruleIndex] = Mathf.Max(0f, elapsed);
     }
 
     void ApplyEffects(List<ItemEffectDto> effects)

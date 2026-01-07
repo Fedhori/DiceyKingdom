@@ -248,4 +248,44 @@ public sealed class BlockManager : MonoBehaviour
 
         return best;
     }
+
+    public int ApplyStatusToRandomBlocks(BlockStatusType type, float durationSeconds, int count)
+    {
+        if (type == BlockStatusType.Unknown || durationSeconds <= 0f || count <= 0)
+            return 0;
+
+        List<BlockController> candidates = null;
+
+        for (int i = activeBlocks.Count - 1; i >= 0; i--)
+        {
+            var block = activeBlocks[i];
+            if (block == null)
+            {
+                activeBlocks.RemoveAt(i);
+                continue;
+            }
+
+            var inst = block.Instance;
+            if (inst == null || inst.HasStatus(type))
+                continue;
+
+            candidates ??= new List<BlockController>();
+            candidates.Add(block);
+        }
+
+        if (candidates == null || candidates.Count == 0)
+            return 0;
+
+        int applyCount = Mathf.Min(count, candidates.Count);
+        for (int i = 0; i < applyCount; i++)
+        {
+            int index = Random.Range(0, candidates.Count);
+            var target = candidates[index];
+            candidates[index] = candidates[candidates.Count - 1];
+            candidates.RemoveAt(candidates.Count - 1);
+            target.ApplyStatus(type, durationSeconds);
+        }
+
+        return applyCount;
+    }
 }

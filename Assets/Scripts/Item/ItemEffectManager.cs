@@ -33,6 +33,9 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.SpawnProjectile:
                 SpawnProjectiles(dto, item);
                 break;
+            case ItemEffectType.ApplyStatusToRandomBlocks:
+                ApplyStatusToRandomBlocks(dto, item);
+                break;
             default:
                 Debug.LogWarning($"[ItemEffectManager] Unsupported effect type: {dto.effectType}");
                 break;
@@ -99,5 +102,24 @@ public sealed class ItemEffectManager : MonoBehaviour
 
             factory.SpawnProjectile(pos, dir, item);
         }
+    }
+
+    void ApplyStatusToRandomBlocks(ItemEffectDto dto, ItemInstance item)
+    {
+        if (item == null || dto == null)
+            return;
+
+        if (item.StatusType == BlockStatusType.Unknown || item.StatusDuration <= 0f)
+            return;
+
+        int count = Mathf.Max(0, Mathf.FloorToInt(dto.value));
+        if (count <= 0)
+            return;
+
+        var manager = BlockManager.Instance;
+        if (manager == null)
+            return;
+
+        manager.ApplyStatusToRandomBlocks(item.StatusType, item.StatusDuration, count);
     }
 }

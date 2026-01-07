@@ -18,6 +18,7 @@ namespace Data
         OnRewardOpen,
         OnBlockDestroyed,
         OnBlockStatusApplied,
+        OnTimeChanged,
         OnTick
     }
 
@@ -26,7 +27,8 @@ namespace Data
         Unknown = 0,
         Always,
         PlayerIdle,
-        EveryNthTrigger
+        EveryNthTrigger,
+        Time
     }
 
     public enum ItemEffectType
@@ -34,7 +36,8 @@ namespace Data
         Unknown = 0,
         ModifyStat,
         AddCurrency,
-        SpawnProjectile
+        SpawnProjectile,
+        ApplyStatusToRandomBlocks
     }
 
     public enum ItemRarity
@@ -53,6 +56,7 @@ namespace Data
         public ItemConditionKind conditionKind;
 
         public int count;
+        public float intervalSeconds;
     }
 
     [Serializable]

@@ -279,15 +279,26 @@ public sealed class ItemManager : MonoBehaviour
         if (!isPlayActive)
             return;
 
+        float delta = Time.deltaTime;
+        if (delta > 0f)
+            HandleTime(delta);
+
         if (tickIntervalSeconds <= 0f)
             return;
 
-        tickTimer += Time.deltaTime;
+        tickTimer += delta;
         while (tickTimer >= tickIntervalSeconds)
         {
             tickTimer -= tickIntervalSeconds;
             TriggerAll(ItemTriggerType.OnTick);
         }
+    }
+
+    void HandleTime(float deltaSeconds)
+    {
+        var slots = inventory.Slots;
+        for (int i = 0; i < slots.Count; i++)
+            slots[i]?.HandleTime(deltaSeconds);
     }
 
     void RemoveController(ItemInstance inst)

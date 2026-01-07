@@ -366,6 +366,29 @@
 			]
 		},
 		{
+			"id": "item.liquidnitrogen",
+			"isObject": false,
+			"price": 8,
+			"rarity": "Rare",
+			"statusType": "Freeze",
+			"statusDuration": 2.0,
+			"rules": [
+				{
+					"triggerType": "OnTimeChanged",
+					"condition": {
+						"conditionKind": "Time",
+						"intervalSeconds": 1.0
+					},
+					"effects": [
+						{
+							"effectType": "ApplyStatusToRandomBlocks",
+							"value": 3.0
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "item.dryice",
 			"isObject": false,
 			"price": 9,
