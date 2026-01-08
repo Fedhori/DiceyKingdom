@@ -32,7 +32,8 @@ public static class ItemTooltipUtil
             body,
             icon,
             TooltipKind.Item,
-            item.DamageMultiplier
+            item.DamageMultiplier,
+            item.Rarity
         );
     }
 

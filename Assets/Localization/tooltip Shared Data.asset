@@ -31,6 +31,22 @@ MonoBehaviour:
     m_Key: tooltip.status.freeze.description
     m_Metadata:
       m_Items: []
+  - m_Id: 10581387094011906
+    m_Key: tooltip.normal.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10581387094011907
+    m_Key: tooltip.special.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10581387094011908
+    m_Key: tooltip.rare.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10581387094011909
+    m_Key: tooltip.legendary.label
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -39,6 +39,22 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 1113825116433678412
+  - m_Id: 10581387094011906
+    m_Localized: "\uc77c\ubc18"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10581387094011907
+    m_Localized: "\ud2b9\ubcc4"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10581387094011908
+    m_Localized: "\ud76c\uadc0"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10581387094011909
+    m_Localized: "\uc804\uc124"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
@@ -51,3 +67,7 @@ MonoBehaviour:
         - id: 9134255610802176
         - id: 10581387094011904
         - id: 10581387094011905
+        - id: 10581387094011906
+        - id: 10581387094011907
+        - id: 10581387094011908
+        - id: 10581387094011909

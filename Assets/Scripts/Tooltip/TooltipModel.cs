@@ -1,3 +1,4 @@
+using Data;
 using UnityEngine;
 
 public enum TooltipKind
@@ -13,6 +14,7 @@ public readonly struct TooltipModel
     public readonly Sprite Icon;
     public readonly TooltipKind Kind;
     public readonly float Damage;
+    public readonly ItemRarity Rarity;
 
     public TooltipModel(string title, string body, Sprite icon, TooltipKind kind)
     {
@@ -21,6 +23,7 @@ public readonly struct TooltipModel
         Icon = icon;
         Kind = kind;
         Damage = 0f;
+        Rarity = ItemRarity.Unknown;
     }
 
     public TooltipModel(string title, string body, Sprite icon, TooltipKind kind, float damage)
@@ -30,5 +33,16 @@ public readonly struct TooltipModel
         Icon = icon;
         Kind = kind;
         Damage = damage;
+        Rarity = ItemRarity.Unknown;
+    }
+
+    public TooltipModel(string title, string body, Sprite icon, TooltipKind kind, float damage, ItemRarity rarity)
+    {
+        Title = title;
+        Body = body;
+        Icon = icon;
+        Kind = kind;
+        Damage = damage;
+        Rarity = rarity;
     }
 }

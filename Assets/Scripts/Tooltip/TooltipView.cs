@@ -1,14 +1,15 @@
+using Data;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization.Components;
-using UnityEngine.Localization.SmartFormat.PersistentVariables;
 using UnityEngine.UI;
 
 public sealed class TooltipView : MonoBehaviour
 {
-    [SerializeField] Image iconImage;
+    // [SerializeField] Image iconImage;
     [SerializeField] TMP_Text nameText;
     [SerializeField] TMP_Text descriptionText;
+    [SerializeField] Image rarityPanelImage;
+    [SerializeField] TMP_Text rarityText;
 
     public RectTransform rectTransform;
 
@@ -36,23 +37,66 @@ public sealed class TooltipView : MonoBehaviour
         if (descriptionText != null)
             descriptionText.text = model.Body ?? string.Empty;
 
-        if (iconImage != null)
-        {
-            if (model.Icon != null)
-            {
-                iconImage.sprite = model.Icon;
-                iconImage.enabled = true;
-            }
-            else
-            {
-                iconImage.sprite = null;
-                iconImage.enabled = false;
-            }
-        }
+        ApplyRarity(model.Rarity);
+
+        // if (iconImage != null)
+        // {
+        //     if (model.Icon != null)
+        //     {
+        //         iconImage.sprite = model.Icon;
+        //         iconImage.enabled = true;
+        //     }
+        //     else
+        //     {
+        //         iconImage.sprite = null;
+        //         iconImage.enabled = false;
+        //     }
+        // }
     }
 
     public void Hide()
     {
         gameObject.SetActive(false);
+    }
+
+    void ApplyRarity(ItemRarity rarity)
+    {
+        if (rarityPanelImage != null)
+            rarityPanelImage.color = GetRarityColor(rarity);
+
+        if (rarityText != null)
+            rarityText.text = GetRarityLabel(rarity);
+    }
+
+    Color GetRarityColor(ItemRarity rarity)
+    {
+        switch (rarity)
+        {
+            case ItemRarity.Common:
+                return Colors.Common;
+            case ItemRarity.Uncommon:
+                return Colors.Uncommon;
+            case ItemRarity.Rare:
+                return Colors.Rare;
+            case ItemRarity.Legendary:
+                return Colors.Legendary;
+            default:
+                return Colors.Common;
+        }
+    }
+
+    string GetRarityLabel(ItemRarity rarity)
+    {
+        string key = rarity switch
+        {
+            ItemRarity.Common => "tooltip.normal.label",
+            ItemRarity.Uncommon => "tooltip.special.label",
+            ItemRarity.Rare => "tooltip.rare.label",
+            ItemRarity.Legendary => "tooltip.legendary.label",
+            _ => "tooltip.normal.label"
+        };
+
+        var loc = new UnityEngine.Localization.LocalizedString("tooltip", key);
+        return loc.GetLocalizedString();
     }
 }
