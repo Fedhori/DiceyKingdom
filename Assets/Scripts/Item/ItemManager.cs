@@ -130,8 +130,6 @@ public sealed class ItemManager : MonoBehaviour
                 Debug.LogWarning("[ItemManager] Failed to set item slot.");
                 continue;
             }
-
-            // OnItemAdded handles object attach.
         }
     }
 
@@ -203,10 +201,12 @@ public sealed class ItemManager : MonoBehaviour
                     return;
 
                 SubscribeEffects(current);
-                current.HandleTrigger(ItemTriggerType.OnItemAdded);
+                current.HandleTrigger(ItemTriggerType.OnAcquire);
 
                 if (isPlayActive && current.IsObject)
                     SpawnController(current);
+
+                TriggerAll(ItemTriggerType.OnItemChanged);
                 break;
             case ItemInventory.SlotChangeType.Remove:
                 if (previous == null)
@@ -215,6 +215,8 @@ public sealed class ItemManager : MonoBehaviour
                 RemoveController(previous);
                 UnsubscribeEffects(previous);
                 RemoveOwnedModifiers(previous);
+
+                TriggerAll(ItemTriggerType.OnItemChanged);
                 break;
         }
     }

@@ -11,10 +11,11 @@ namespace Data
     public enum ItemTriggerType
     {
         Unknown = 0,
-        OnItemAdded,
+        OnAcquire,
         OnStageStart,
         OnPlayStart,
         OnPlayEnd,
+        OnItemChanged,
         OnProjectileSpawned,
         OnRewardOpen,
         OnBlockDestroyed,
@@ -40,7 +41,8 @@ namespace Data
         SpawnProjectile,
         ApplyStatusToRandomBlocks,
         AddSellValue,
-        ModifyRightItemStat
+        ModifyRightItemStat,
+        SetStat
     }
 
     public enum ItemRarity
@@ -77,6 +79,8 @@ namespace Data
 
         [JsonConverter(typeof(StringEnumConverter))]
         public StatLayer duration = StatLayer.Temporary;
+
+        public string multiplier;
     }
 
     [Serializable]

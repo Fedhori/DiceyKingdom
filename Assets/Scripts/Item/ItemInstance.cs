@@ -23,6 +23,7 @@ public sealed class ItemInstance
     public BlockStatusType StatusType { get; private set; }
     public float StatusDuration { get; private set; }
     public int SellValueBonus { get; private set; }
+    public ItemRarity Rarity { get; private set; }
 
     public StatSet Stats { get; }
     public float DamageMultiplier => (float)Stats.GetValue(ItemStatIds.DamageMultiplier);
@@ -64,6 +65,7 @@ public sealed class ItemInstance
             StatusDuration = 0f;
             StatusDamageMultiplier = 1f;
             SellValueBonus = 0;
+            Rarity = ItemRarity.Unknown;
             return;
         }
 
@@ -76,6 +78,7 @@ public sealed class ItemInstance
         StatusType = dto.statusType;
         StatusDuration = Mathf.Max(0f, dto.statusDuration);
         SellValueBonus = 0;
+        Rarity = dto.rarity;
 
         if (dto.rules != null)
             rules.AddRange(dto.rules);

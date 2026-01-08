@@ -1,3 +1,4 @@
+using System;
 using Data;
 using GameStats;
 using UnityEngine;
@@ -41,6 +42,9 @@ public sealed class ItemEffectManager : MonoBehaviour
                 break;
             case ItemEffectType.ModifyRightItemStat:
                 ModifyRightItemStat(dto, item);
+                break;
+            case ItemEffectType.SetStat:
+                ApplySetStat(dto, item);
                 break;
             default:
                 Debug.LogWarning($"[ItemEffectManager] Unsupported effect type: {dto.effectType}");
@@ -102,7 +106,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             var pos = playArea.GetRandomPositionInPlayArea();
-            Vector2 dir = Random.insideUnitCircle.normalized;
+            Vector2 dir = UnityEngine.Random.insideUnitCircle.normalized;
             if (dir.sqrMagnitude <= 0.001f)
                 dir = Vector2.up;
 
@@ -196,5 +200,68 @@ public sealed class ItemEffectManager : MonoBehaviour
         }
 
         return -1;
+    }
+
+    void ApplySetStat(ItemEffectDto dto, ItemInstance item)
+    {
+        if (dto == null || item == null)
+            return;
+
+        if (string.IsNullOrEmpty(dto.statId))
+        {
+            Debug.LogWarning("[ItemEffectManager] SetStat with empty statId.");
+            return;
+        }
+
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+            return;
+
+        double multiplier = ResolveMultiplier(dto.multiplier);
+        double value = dto.value * multiplier;
+
+        player.Stats.RemoveModifiers(dto.statId, dto.duration, item);
+
+        if (Math.Abs(value) <= 0d)
+            return;
+
+        player.Stats.AddModifier(new StatModifier(
+            dto.statId,
+            dto.effectMode,
+            value,
+            dto.duration,
+            item));
+    }
+
+    double ResolveMultiplier(string key)
+    {
+        if (string.IsNullOrEmpty(key))
+            return 1d;
+
+        switch (key)
+        {
+            case "normalItemCount":
+                return GetNormalItemCount();
+            default:
+                Debug.LogWarning($"[ItemEffectManager] Unknown multiplier '{key}'.");
+                return 1d;
+        }
+    }
+
+    int GetNormalItemCount()
+    {
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory == null)
+            return 0;
+
+        int count = 0;
+        for (int i = 0; i < inventory.SlotCount; i++)
+        {
+            var inst = inventory.GetSlot(i);
+            if (inst != null && inst.Rarity == ItemRarity.Common)
+                count++;
+        }
+
+        return count;
     }
 }

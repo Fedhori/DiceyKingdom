@@ -217,7 +217,7 @@
 			"rarity": "Rare",
 			"rules": [
 				{
-					"triggerType": "OnItemAdded",
+					"triggerType": "OnAcquire",
 					"condition": {
 						"conditionKind": "Always"
 					},
@@ -256,7 +256,7 @@
 			"rarity": "Rare",
 			"rules": [
 				{
-					"triggerType": "OnItemAdded",
+					"triggerType": "OnAcquire",
 					"condition": {
 						"conditionKind": "Always"
 					},
@@ -303,7 +303,7 @@
 			"rarity": "Rare",
 			"rules": [
 				{
-					"triggerType": "OnItemAdded",
+					"triggerType": "OnAcquire",
 					"condition": {
 						"conditionKind": "Always"
 					},
@@ -326,7 +326,7 @@
 			"rarity": "Rare",
 			"rules": [
 				{
-					"triggerType": "OnItemAdded",
+					"triggerType": "OnAcquire",
 					"condition": {
 						"conditionKind": "Always"
 					},
@@ -409,6 +409,30 @@
 			]
 		},
 		{
+			"id": "item.ant",
+			"isObject": false,
+			"price": 4,
+			"rarity": "Common",
+			"rules": [
+				{
+					"triggerType": "OnItemChanged",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "SetStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 10.0,
+							"duration": "Owned",
+							"multiplier": "normalItemCount"
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "item.whetstone",
 			"isObject": false,
 			"price": 4,
@@ -425,7 +449,7 @@
 							"statId": "damageMultiplier",
 							"effectMode": "Add",
 							"value": 0.1,
-							"duration": "Permanent"
+							"duration": "Owned"
 						}
 					]
 				}
@@ -438,7 +462,7 @@
 			"rarity": "Rare",
 			"rules": [
 				{
-					"triggerType": "OnItemAdded",
+					"triggerType": "OnAcquire",
 					"condition": {
 						"conditionKind": "Always"
 					},

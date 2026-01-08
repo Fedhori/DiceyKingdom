@@ -223,5 +223,15 @@ namespace GameStats
                 totalRemoved += slot.RemoveModifiers(layer, source);
             return totalRemoved;
         }
+
+        public int RemoveModifiers(string statId, StatLayer? layer = null, object source = null)
+        {
+            if (string.IsNullOrEmpty(statId))
+                return 0;
+
+            return _slots.TryGetValue(statId, out var slot)
+                ? slot.RemoveModifiers(layer, source)
+                : 0;
+        }
     }
 }
