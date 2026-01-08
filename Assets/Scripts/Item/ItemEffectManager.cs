@@ -39,6 +39,9 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.AddSellValue:
                 ApplySellValue(dto, item);
                 break;
+            case ItemEffectType.ModifyRightItemStat:
+                ModifyRightItemStat(dto, item);
+                break;
             default:
                 Debug.LogWarning($"[ItemEffectManager] Unsupported effect type: {dto.effectType}");
                 break;
@@ -136,5 +139,62 @@ public sealed class ItemEffectManager : MonoBehaviour
             return;
 
         item.AddSellValueBonus(amount);
+    }
+
+    void ModifyRightItemStat(ItemEffectDto dto, ItemInstance sourceItem)
+    {
+        if (dto == null || sourceItem == null)
+            return;
+
+        if (string.IsNullOrEmpty(dto.statId))
+        {
+            Debug.LogWarning("[ItemEffectManager] ModifyRightItemStat with empty statId.");
+            return;
+        }
+
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory == null)
+            return;
+
+        int sourceIndex = FindItemIndex(inventory, sourceItem);
+        if (sourceIndex < 0)
+            return;
+
+        int slotsPerRow = Mathf.Max(1, GameConfig.ItemSlotsPerRow);
+        if ((sourceIndex + 1) % slotsPerRow == 0)
+            return;
+
+        int rightIndex = sourceIndex + 1;
+        if (rightIndex >= inventory.SlotCount)
+            return;
+
+        var targetItem = inventory.GetSlot(rightIndex);
+        if (targetItem == null)
+            return;
+
+        if (dto.statId == ItemStatIds.DamageMultiplier && targetItem.DamageMultiplier <= 0f)
+            return;
+
+        var modifier = new StatModifier(
+            dto.statId,
+            dto.effectMode,
+            dto.value,
+            dto.duration,
+            targetItem);
+        targetItem.Stats.AddModifier(modifier);
+    }
+
+    int FindItemIndex(ItemInventory inventory, ItemInstance item)
+    {
+        if (inventory == null || item == null)
+            return -1;
+
+        for (int i = 0; i < inventory.SlotCount; i++)
+        {
+            if (ReferenceEquals(inventory.GetSlot(i), item))
+                return i;
+        }
+
+        return -1;
     }
 }

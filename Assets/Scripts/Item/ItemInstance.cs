@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Data;
+using GameStats;
 
 public sealed class ItemInstance
 {
     public string Id { get; }
 
-    public float DamageMultiplier { get; private set; }
     public float StatusDamageMultiplier { get; private set; }
-    public float AttackSpeed { get; private set; }
     public float ProjectileSize { get; private set; }
     public float ProjectileSpeed { get; private set; }
     public string ProjectileKey { get; private set; }
@@ -25,6 +24,10 @@ public sealed class ItemInstance
     public float StatusDuration { get; private set; }
     public int SellValueBonus { get; private set; }
 
+    public StatSet Stats { get; }
+    public float DamageMultiplier => (float)Stats.GetValue(ItemStatIds.DamageMultiplier);
+    public float AttackSpeed => (float)Stats.GetValue(ItemStatIds.AttackSpeed);
+
     private readonly List<ItemRuleDto> rules = new();
     public IReadOnlyList<ItemRuleDto> Rules => rules;
 
@@ -38,12 +41,14 @@ public sealed class ItemInstance
 
     public ItemInstance(ItemDto dto)
     {
+        Stats = new StatSet();
+
         if (dto == null || string.IsNullOrEmpty(dto.id))
         {
             Debug.LogError("[ItemInstance] Invalid dto");
             Id = string.Empty;
-            DamageMultiplier = 0f;
-            AttackSpeed = 0f;
+            Stats.SetBase(ItemStatIds.DamageMultiplier, 0d, 0d);
+            Stats.SetBase(ItemStatIds.AttackSpeed, 0d, 0d);
             ProjectileSize = 1f;
             ProjectileSpeed = 1f;
             ProjectileKey = string.Empty;
@@ -63,9 +68,9 @@ public sealed class ItemInstance
         }
 
         Id = dto.id;
-        DamageMultiplier = Mathf.Max(0f, dto.damageMultiplier);
         StatusDamageMultiplier = Mathf.Max(0f, dto.statusDamageMultiplier);
-        AttackSpeed = Mathf.Max(0f, dto.attackSpeed);
+        Stats.SetBase(ItemStatIds.DamageMultiplier, Mathf.Max(0f, dto.damageMultiplier), 0d);
+        Stats.SetBase(ItemStatIds.AttackSpeed, Mathf.Max(0f, dto.attackSpeed), 0d);
         IsObject = dto.isObject;
         PierceBonus = Mathf.Max(0, dto.pierceBonus);
         StatusType = dto.statusType;

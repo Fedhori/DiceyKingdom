@@ -127,6 +127,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
+  - m_Id: 5815909901414417
+    m_Localized: Whetstone
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414418
+    m_Localized: At stage end, permanently increase the right item's damage multiplier by {value0}.
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
   - m_Id: 5815909901414405
     m_Localized: Snowballer
     m_Metadata:
@@ -155,3 +164,4 @@ MonoBehaviour:
         - id: 5815909901414412
         - id: 5815909901414414
         - id: 5815909901414416
+        - id: 5815909901414418

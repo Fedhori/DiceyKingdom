@@ -39,7 +39,8 @@ namespace Data
         AddCurrency,
         SpawnProjectile,
         ApplyStatusToRandomBlocks,
-        AddSellValue
+        AddSellValue,
+        ModifyRightItemStat
     }
 
     public enum ItemRarity

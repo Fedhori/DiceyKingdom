@@ -29,6 +29,12 @@ namespace GameStats
         public const string IsDryIceEnabled = "isDryIceEnabled";
     }
 
+    public static class ItemStatIds
+    {
+        public const string DamageMultiplier = "damageMultiplier";
+        public const string AttackSpeed = "attackSpeed";
+    }
+
     public sealed class StatModifier
     {
         public string StatId { get; }
