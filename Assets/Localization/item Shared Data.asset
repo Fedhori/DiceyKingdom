@@ -223,6 +223,14 @@ MonoBehaviour:
     m_Key: item.alarmclock.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414426
+    m_Key: item.battery.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414427
+    m_Key: item.battery.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

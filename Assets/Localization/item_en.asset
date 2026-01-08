@@ -168,6 +168,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
+  - m_Id: 5815909901414426
+    m_Localized: Battery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414427
+    m_Localized: At each stage end, damage multiplier increases by {value0}.
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
   - m_Id: 5815909901414405
     m_Localized: Snowballer
     m_Metadata:
@@ -201,3 +210,4 @@ MonoBehaviour:
         - id: 5815909901414422
         - id: 5815909901414423
         - id: 5815909901414425
+        - id: 5815909901414427

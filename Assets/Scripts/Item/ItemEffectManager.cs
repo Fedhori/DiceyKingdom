@@ -40,8 +40,8 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.AddSellValue:
                 ApplySellValue(dto, item);
                 break;
-            case ItemEffectType.ModifyRightItemStat:
-                ModifyRightItemStat(dto, item);
+            case ItemEffectType.ModifyItemStat:
+                ModifyItemStat(dto, item);
                 break;
             case ItemEffectType.SetStat:
                 ApplySetStat(dto, item);
@@ -151,34 +151,18 @@ public sealed class ItemEffectManager : MonoBehaviour
         item.AddSellValueBonus(amount);
     }
 
-    void ModifyRightItemStat(ItemEffectDto dto, ItemInstance sourceItem)
+    void ModifyItemStat(ItemEffectDto dto, ItemInstance sourceItem)
     {
         if (dto == null || sourceItem == null)
             return;
 
         if (string.IsNullOrEmpty(dto.statId))
         {
-            Debug.LogWarning("[ItemEffectManager] ModifyRightItemStat with empty statId.");
+            Debug.LogWarning("[ItemEffectManager] ModifyItemStat with empty statId.");
             return;
         }
 
-        var inventory = ItemManager.Instance?.Inventory;
-        if (inventory == null)
-            return;
-
-        int sourceIndex = FindItemIndex(inventory, sourceItem);
-        if (sourceIndex < 0)
-            return;
-
-        int slotsPerRow = Mathf.Max(1, GameConfig.ItemSlotsPerRow);
-        if ((sourceIndex + 1) % slotsPerRow == 0)
-            return;
-
-        int rightIndex = sourceIndex + 1;
-        if (rightIndex >= inventory.SlotCount)
-            return;
-
-        var targetItem = inventory.GetSlot(rightIndex);
+        var targetItem = ResolveTargetItem(dto.target, sourceItem);
         if (targetItem == null)
             return;
 
@@ -192,6 +176,45 @@ public sealed class ItemEffectManager : MonoBehaviour
             dto.duration,
             targetItem);
         targetItem.Stats.AddModifier(modifier);
+    }
+
+    ItemInstance ResolveTargetItem(ItemEffectTarget target, ItemInstance sourceItem)
+    {
+        switch (target)
+        {
+            case ItemEffectTarget.Self:
+                return sourceItem;
+            case ItemEffectTarget.Right:
+                return GetRightItem(sourceItem);
+            default:
+                Debug.LogWarning($"[ItemEffectManager] Unsupported target '{target}'.");
+                return null;
+        }
+    }
+
+    ItemInstance GetRightItem(ItemInstance sourceItem)
+    {
+        if (sourceItem == null)
+            return null;
+
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory == null)
+            return null;
+
+        int sourceIndex = FindItemIndex(inventory, sourceItem);
+        if (sourceIndex < 0)
+            return null;
+
+        int slotsPerRow = Mathf.Max(1, GameConfig.ItemSlotsPerRow);
+        if ((sourceIndex + 1) % slotsPerRow == 0)
+            return null;
+
+        int rightIndex = sourceIndex + 1;
+        if (rightIndex >= inventory.SlotCount)
+            return null;
+
+        var targetItem = inventory.GetSlot(rightIndex);
+        return targetItem;
     }
 
     int FindItemIndex(ItemInventory inventory, ItemInstance item)

@@ -41,10 +41,17 @@ namespace Data
         SpawnProjectile,
         ApplyStatusToRandomBlocks,
         AddSellValue,
-        ModifyRightItemStat,
+        ModifyItemStat,
         SetStat,
         ModifyBaseIncome,
         ApplyDamageToAllBlocks
+    }
+
+    public enum ItemEffectTarget
+    {
+        Unknown = 0,
+        Self,
+        Right
     }
 
     public enum ItemRarity
@@ -71,6 +78,9 @@ namespace Data
     {
         [JsonConverter(typeof(StringEnumConverter))]
         public ItemEffectType effectType;
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public ItemEffectTarget target = ItemEffectTarget.Self;
 
         public string statId;
 

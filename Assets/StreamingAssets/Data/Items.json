@@ -448,6 +448,38 @@
 			]
 		},
 		{
+			"id": "item.battery",
+			"isObject": true,
+			"price": 6,
+			"rarity": "Uncommon",
+			"damageMultiplier": 1.0,
+			"attackSpeed": 1.0,
+			"projectile": {
+				"key": "projectile.bullet",
+				"size": 1.0,
+				"speed": 1.0,
+				"randomAngle": 5.0
+			},
+			"rules": [
+				{
+					"triggerType": "OnPlayEnd",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyItemStat",
+							"target": "Self",
+							"statId": "damageMultiplier",
+							"effectMode": "Add",
+							"value": 0.5,
+							"duration": "Permanent"
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "item.alarmclock",
 			"isObject": false,
 			"price": 5,
@@ -506,7 +538,8 @@
 					},
 					"effects": [
 						{
-							"effectType": "ModifyRightItemStat",
+							"effectType": "ModifyItemStat",
+							"target": "Right",
 							"statId": "damageMultiplier",
 							"effectMode": "Add",
 							"value": 0.1,
