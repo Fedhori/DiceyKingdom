@@ -2,26 +2,26 @@
 	"stages": [
 		{
 			"index": 0,
-			"blockHealth": 100,
+			"blockHealth": 10,
 			"spawnSecond": 10
 		},
 		{
 			"index": 1,
-			"blockHealth": 20,
-			"spawnSecond": 10
+			"blockHealth": 10,
+			"spawnSecond": 12
 		},
 		{
 			"index": 2,
-			"blockHealth": 30,
-			"spawnSecond": 10
+			"blockHealth": 20,
+			"spawnSecond": 14
 		},
 		{
 			"index": 3,
-			"blockHealth": 50
+			"blockHealth": 40
 		},
 		{
 			"index": 4,
-			"blockHealth": 80
+			"blockHealth": 70
 		},
 		{
 			"index": 5,
@@ -42,6 +42,26 @@
 		{
 			"index": 9,
 			"blockHealth": 600
+		},
+		{
+			"index": 10,
+			"blockHealth": 800
+		},
+		{
+			"index": 11,
+			"blockHealth": 1000
+		},
+		{
+			"index": 12,
+			"blockHealth": 1400
+		},
+		{
+			"index": 13,
+			"blockHealth": 1800
+		},
+		{
+			"index": 14,
+			"blockHealth": 2500
 		}
 	]
 }

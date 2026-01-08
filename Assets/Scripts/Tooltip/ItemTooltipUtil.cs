@@ -190,7 +190,7 @@ public static class ItemTooltipUtil
                 string key = $"value{i}";
                 if (e.effectMode == StatOpKind.Mult)
                 {
-                    dict[key] = (e.value * 100f).ToString("0.##");
+                    dict[key] = e.value.ToString("0.##");
                 }
                 else
                 {

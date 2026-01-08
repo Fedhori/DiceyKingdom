@@ -13,15 +13,3 @@ public static class GameConfig
     public static float ItemBaseProjectileSpeed = 1000f;
     public static float BlockFallSpeed = 40f;
 }
-
-public static class LayerMaskUtil
-{
-    public static readonly int PinLayer = LayerMask.NameToLayer("Pin");
-    public static readonly LayerMask PinMask = 1 << PinLayer;
-
-    public static bool Contains(this LayerMask mask, GameObject go)
-    {
-        int bit = 1 << go.layer;
-        return (mask.value & bit) != 0;
-    }
-}

@@ -215,7 +215,9 @@ public sealed class ItemManager : MonoBehaviour
                 if (isPlayActive && current.IsObject)
                     SpawnController(current);
 
+                // TODO - 한 아이템에 N개의 트리거 지원하게
                 TriggerAll(ItemTriggerType.OnItemChanged);
+                TriggerAll(ItemTriggerType.OnCurrencyChanged);
                 break;
             case ItemInventory.SlotChangeType.Remove:
                 if (previous == null)
