@@ -36,6 +36,9 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.ApplyStatusToRandomBlocks:
                 ApplyStatusToRandomBlocks(dto, item);
                 break;
+            case ItemEffectType.AddSellValue:
+                ApplySellValue(dto, item);
+                break;
             default:
                 Debug.LogWarning($"[ItemEffectManager] Unsupported effect type: {dto.effectType}");
                 break;
@@ -121,5 +124,17 @@ public sealed class ItemEffectManager : MonoBehaviour
             return;
 
         manager.ApplyStatusToRandomBlocks(item.StatusType, item.StatusDuration, count);
+    }
+
+    void ApplySellValue(ItemEffectDto dto, ItemInstance item)
+    {
+        if (item == null || dto == null)
+            return;
+
+        int amount = Mathf.FloorToInt(dto.value);
+        if (amount <= 0)
+            return;
+
+        item.AddSellValueBonus(amount);
     }
 }

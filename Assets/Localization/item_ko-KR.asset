@@ -193,11 +193,21 @@ MonoBehaviour:
       m_Items:
       - rid: 2507345486982938704
   - m_Id: 5815909901414413
-    m_Localized: "\uc561\uccb4\uc9c8\uc18c"
+    m_Localized: "\uC561\uCCB4\uC9C8\uC18C"
     m_Metadata:
       m_Items: []
   - m_Id: 5815909901414414
-    m_Localized: "\ub9e4 {intervalSeconds}\ucd08\ub9c8\ub2e4 \ube59\uacb0\ub418\uc9c0 \uc54a\uc740 \ube14\ub7ed {value0}\uac1c\ub97c \ube59\uacb0\uc2dc\ud0b5\ub2c8\ub2e4."
+    m_Localized: "\uB9E4 {intervalSeconds}\uCD08\uB9C8\uB2E4 \uBE59\uACB0\uB418\uC9C0
+      \uC54A\uC740 \uBE14\uB7ED {value0}\uAC1C\uB97C \uBE59\uACB0\uC2DC\uD0B5\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938704
+  - m_Id: 5815909901414415
+    m_Localized: "\uD669\uAE08 \uC54C"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414416
+    m_Localized: "\uc2a4\ud14c\uc774\uc9c0\uac00 \ub05d\ub0a0 \ub54c\ub9c8\ub2e4 \ud310\ub9e4 \uac00\uce58\uac00 {value0}$ \uc99d\uac00\ud569\ub2c8\ub2e4.\n(\ud604\uc7ac: +{additionalSellValue}$)"
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
@@ -230,3 +240,4 @@ MonoBehaviour:
         - id: 5815909901414408
         - id: 5815909901414412
         - id: 5815909901414414
+        - id: 5815909901414416

@@ -14,6 +14,7 @@ namespace Data
         OnItemAdded,
         OnStageStart,
         OnPlayStart,
+        OnPlayEnd,
         OnProjectileSpawned,
         OnRewardOpen,
         OnBlockDestroyed,
@@ -37,7 +38,8 @@ namespace Data
         ModifyStat,
         AddCurrency,
         SpawnProjectile,
-        ApplyStatusToRandomBlocks
+        ApplyStatusToRandomBlocks,
+        AddSellValue
     }
 
     public enum ItemRarity

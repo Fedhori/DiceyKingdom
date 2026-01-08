@@ -389,6 +389,26 @@
 			]
 		},
 		{
+			"id": "item.goldenegg",
+			"isObject": false,
+			"price": 6,
+			"rarity": "Common",
+			"rules": [
+				{
+					"triggerType": "OnPlayEnd",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "AddSellValue",
+							"value": 2.0
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "item.dryice",
 			"isObject": false,
 			"price": 9,

@@ -23,6 +23,7 @@ public sealed class ItemInstance
     public float ProjectileHomingTurnRate { get; private set; }
     public BlockStatusType StatusType { get; private set; }
     public float StatusDuration { get; private set; }
+    public int SellValueBonus { get; private set; }
 
     private readonly List<ItemRuleDto> rules = new();
     public IReadOnlyList<ItemRuleDto> Rules => rules;
@@ -57,6 +58,7 @@ public sealed class ItemInstance
             StatusType = BlockStatusType.Unknown;
             StatusDuration = 0f;
             StatusDamageMultiplier = 1f;
+            SellValueBonus = 0;
             return;
         }
 
@@ -68,6 +70,7 @@ public sealed class ItemInstance
         PierceBonus = Mathf.Max(0, dto.pierceBonus);
         StatusType = dto.statusType;
         StatusDuration = Mathf.Max(0f, dto.statusDuration);
+        SellValueBonus = 0;
 
         if (dto.rules != null)
             rules.AddRange(dto.rules);
@@ -178,6 +181,14 @@ public sealed class ItemInstance
     {
         triggerCounts.Clear();
         ruleElapsedSeconds.Clear();
+    }
+
+    public void AddSellValueBonus(int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        SellValueBonus += amount;
     }
 
     void IncrementTriggerCount(ItemTriggerType trigger)

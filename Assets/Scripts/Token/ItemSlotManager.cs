@@ -495,7 +495,8 @@ public sealed class ItemSlotManager : MonoBehaviour
         if (!ItemRepository.TryGet(ctrl.Instance.Id, out var dto) || dto == null)
             return;
 
-        int price = ShopManager.CalculateSellPrice(dto.price);
+        int basePrice = ShopManager.CalculateSellPrice(dto.price);
+        int price = basePrice + ctrl.Instance.SellValueBonus;
         if (price < 0)
             return;
 

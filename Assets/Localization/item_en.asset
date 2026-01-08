@@ -118,6 +118,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
+  - m_Id: 5815909901414415
+    m_Localized: Golden Egg
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414416
+    m_Localized: "After each play, sell value increases by ${value0}.\n(Current: +${additionalSellValue})"
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
   - m_Id: 5815909901414405
     m_Localized: Snowballer
     m_Metadata:
@@ -145,3 +154,4 @@ MonoBehaviour:
         - id: 5815909901414408
         - id: 5815909901414412
         - id: 5815909901414414
+        - id: 5815909901414416

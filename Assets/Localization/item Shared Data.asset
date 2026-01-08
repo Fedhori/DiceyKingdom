@@ -179,6 +179,14 @@ MonoBehaviour:
     m_Key: item.liquidnitrogen.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414415
+    m_Key: item.goldenegg.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414416
+    m_Key: item.goldenegg.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

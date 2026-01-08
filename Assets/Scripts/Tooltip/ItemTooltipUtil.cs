@@ -213,6 +213,8 @@ public static class ItemTooltipUtil
         if (item.StatusDamageMultiplier > 1f)
             dict["statusDamageMultiplier"] = item.StatusDamageMultiplier.ToString("0.##");
 
+        dict["additionalSellValue"] = item.SellValueBonus.ToString("0");
+
         return dict.Count == 0 ? null : dict;
     }
 }
