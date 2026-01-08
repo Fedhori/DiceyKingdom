@@ -26,7 +26,7 @@ public static class Colors
         switch (criticalLevel)
         {
             case 0:
-                return Normal;
+                return Critical;
             case 1:
                 return Critical;
             default:

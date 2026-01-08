@@ -86,7 +86,7 @@ public sealed class ProjectileController : MonoBehaviour
 
             wallBounceRemaining--;
             if (wallBounceRemaining <= 0)
-                wallCollider.enabled = false;
+                 wallCollider.enabled = false;
             return;
         }
 
@@ -200,7 +200,7 @@ public sealed class ProjectileController : MonoBehaviour
 
     void ApplyHitBehavior()
     {
-        switch (item.ProjectileHitBehavior)
+         switch (item.ProjectileHitBehavior)
         {
             case ProjectileHitBehavior.Normal:
             {

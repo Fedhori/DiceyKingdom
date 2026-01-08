@@ -12,6 +12,22 @@ PrefabInstance:
       propertyPath: m_Radius
       value: 32
       objectReference: {fileID: 0}
+    - target: {fileID: 1447436249293568917, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+      propertyPath: rb
+      value: 
+      objectReference: {fileID: 212710438604097341}
+    - target: {fileID: 1447436249293568917, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+      propertyPath: wallCollider
+      value: 
+      objectReference: {fileID: 6176799526019918503}
+    - target: {fileID: 1447436249293568917, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+      propertyPath: blockCollider
+      value: 
+      objectReference: {fileID: 2767148242221772391}
+    - target: {fileID: 1447436249293568917, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+      propertyPath: m_EditorClassIdentifier
+      value: Assembly-CSharp::ProjectileController
+      objectReference: {fileID: 0}
     - target: {fileID: 4683509977074592277, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -204,3 +220,18 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 1
+--- !u!50 &212710438604097341 stripped
+Rigidbody2D:
+  m_CorrespondingSourceObject: {fileID: 6761502501062353118, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+  m_PrefabInstance: {fileID: 6856200155452893155}
+  m_PrefabAsset: {fileID: 0}
+--- !u!58 &2767148242221772391 stripped
+CircleCollider2D:
+  m_CorrespondingSourceObject: {fileID: 8737263778808646020, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+  m_PrefabInstance: {fileID: 6856200155452893155}
+  m_PrefabAsset: {fileID: 0}
+--- !u!58 &6176799526019918503 stripped
+CircleCollider2D:
+  m_CorrespondingSourceObject: {fileID: 765185078837415236, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+  m_PrefabInstance: {fileID: 6856200155452893155}
+  m_PrefabAsset: {fileID: 0}
