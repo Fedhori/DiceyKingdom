@@ -23,6 +23,8 @@ namespace GameStats
         public const string CriticalMultiplier = "criticalMultiplier";
         public const string MoveSpeed = "moveSpeed";
         public const string ProjectileSizeMultiplier = "projectileSizeMultiplier";
+        public const string ProjectileRandomAngleMultiplier = "projectileRandomAngleMultiplier";
+        public const string ProjectileDamageMultiplier = "projectileDamageMultiplier";
         public const string IsOverflowDamage = "isOverflowDamage";
         public const string PierceBonus = "pierceBonus";
         public const string WallBounceCount = "wallBounceCount";

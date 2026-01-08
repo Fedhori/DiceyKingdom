@@ -122,6 +122,7 @@ public sealed class ProjectileController : MonoBehaviour
             float itemMultiplier = item.DamageMultiplier;
             if (item.StatusDamageMultiplier > 0f && block.Instance.Statuses.Count > 0)
                 itemMultiplier *= item.StatusDamageMultiplier;
+            itemMultiplier *= Mathf.Max(0f, (float)player.ProjectileDamageMultiplier);
             dmg = Mathf.Max(1, Mathf.FloorToInt((float)(itemMultiplier * player.Power)));
         }
 

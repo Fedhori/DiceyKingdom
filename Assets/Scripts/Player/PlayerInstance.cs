@@ -16,6 +16,8 @@ public sealed class PlayerInstance
     public double CriticalMultiplier => Stats.GetValue(PlayerStatIds.CriticalMultiplier);
     public double MoveSpeed => Stats.GetValue(PlayerStatIds.MoveSpeed);
     public double ProjectileSizeMultiplier => Stats.GetValue(PlayerStatIds.ProjectileSizeMultiplier);
+    public double ProjectileRandomAngleMultiplier => Stats.GetValue(PlayerStatIds.ProjectileRandomAngleMultiplier);
+    public double ProjectileDamageMultiplier => Stats.GetValue(PlayerStatIds.ProjectileDamageMultiplier);
     public bool IsOverflowDamageEnabled => Stats.GetValue(PlayerStatIds.IsOverflowDamage) > 0.5d;
     public bool IsDryIceEnabled => Stats.GetValue(PlayerStatIds.IsDryIceEnabled) > 0.5d;
     public int BaseIncomeBonus => Mathf.FloorToInt((float)Stats.GetValue(PlayerStatIds.BaseIncomeBonus));
@@ -40,6 +42,8 @@ public sealed class PlayerInstance
         Stats.SetBase(PlayerStatIds.CriticalMultiplier, BaseDto.criticalMultiplier, 1d);
         Stats.SetBase(PlayerStatIds.MoveSpeed, Mathf.Max(0.1f, BaseDto.moveSpeed), 0.1d);
         Stats.SetBase(PlayerStatIds.ProjectileSizeMultiplier, 1d, 0.1d);
+        Stats.SetBase(PlayerStatIds.ProjectileRandomAngleMultiplier, 1d, 0d);
+        Stats.SetBase(PlayerStatIds.ProjectileDamageMultiplier, 1d, 0d);
         Stats.SetBase(PlayerStatIds.IsOverflowDamage, 0d, 0d, 1d);
         Stats.SetBase(PlayerStatIds.IsDryIceEnabled, 0d, 0d, 1d);
         Stats.SetBase(PlayerStatIds.BaseIncomeBonus, 0d);

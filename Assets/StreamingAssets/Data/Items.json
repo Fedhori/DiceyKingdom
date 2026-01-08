@@ -505,6 +505,36 @@
 			]
 		},
 		{
+			"id": "item.spray",
+			"isObject": false,
+			"price": 8,
+			"rarity": "Rare",
+			"rules": [
+				{
+					"triggerType": "OnAcquire",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "projectileRandomAngleMultiplier",
+							"effectMode": "Mult",
+							"value": 1.0,
+							"duration": "Owned"
+						},
+						{
+							"effectType": "ModifyStat",
+							"statId": "projectileDamageMultiplier",
+							"effectMode": "Mult",
+							"value": 0.5,
+							"duration": "Owned"
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "item.alarmclock",
 			"isObject": false,
 			"price": 5,

@@ -239,6 +239,14 @@ MonoBehaviour:
     m_Key: item.wornedshoes.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414430
+    m_Key: item.spray.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414431
+    m_Key: item.spray.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

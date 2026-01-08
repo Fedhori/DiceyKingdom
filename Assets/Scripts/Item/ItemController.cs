@@ -39,6 +39,9 @@ public sealed class ItemController : MonoBehaviour
         int count = Mathf.Max(1, item.PelletCount);
         float spread = Mathf.Max(0f, item.SpreadAngle);
         float randomAngle = Mathf.Max(0f, item.ProjectileRandomAngle);
+        var player = PlayerManager.Instance?.Current;
+        if (player != null)
+            randomAngle *= Mathf.Max(0f, (float)player.ProjectileRandomAngleMultiplier);
 
         float total = spread * (count - 1);
         float start = -total * 0.5f;
