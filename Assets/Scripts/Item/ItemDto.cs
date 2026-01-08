@@ -16,6 +16,7 @@ namespace Data
         OnPlayStart,
         OnPlayEnd,
         OnItemChanged,
+        OnCurrencyChanged,
         OnProjectileSpawned,
         OnRewardOpen,
         OnBlockDestroyed,
@@ -93,6 +94,7 @@ namespace Data
         public StatLayer duration = StatLayer.Temporary;
 
         public string multiplier;
+        public int threshold;
     }
 
     [Serializable]

@@ -231,6 +231,14 @@ MonoBehaviour:
     m_Key: item.battery.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414428
+    m_Key: item.wornedshoes.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414429
+    m_Key: item.wornedshoes.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

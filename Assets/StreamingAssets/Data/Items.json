@@ -480,6 +480,31 @@
 			]
 		},
 		{
+			"id": "item.wornedshoes",
+			"isObject": false,
+			"price": 6,
+			"rarity": "Uncommon",
+			"rules": [
+				{
+					"triggerType": "OnCurrencyChanged",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "SetStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 30.0,
+							"duration": "Owned",
+							"multiplier": "currencyAtMost",
+							"threshold": 10
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "item.alarmclock",
 			"isObject": false,
 			"price": 5,

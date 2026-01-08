@@ -246,7 +246,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (player == null)
             return;
 
-        double multiplier = ResolveMultiplier(dto.multiplier);
+        double multiplier = ResolveMultiplier(dto);
         double value = dto.value * multiplier;
 
         player.Stats.RemoveModifiers(dto.statId, dto.duration, item);
@@ -262,17 +262,19 @@ public sealed class ItemEffectManager : MonoBehaviour
             item));
     }
 
-    double ResolveMultiplier(string key)
+    double ResolveMultiplier(ItemEffectDto dto)
     {
-        if (string.IsNullOrEmpty(key))
+        if (dto == null || string.IsNullOrEmpty(dto.multiplier))
             return 1d;
 
-        switch (key)
+        switch (dto.multiplier)
         {
             case "normalItemCount":
                 return GetNormalItemCount();
+            case "currencyAtMost":
+                return GetCurrencyAtMostMultiplier(dto.threshold);
             default:
-                Debug.LogWarning($"[ItemEffectManager] Unknown multiplier '{key}'.");
+                Debug.LogWarning($"[ItemEffectManager] Unknown multiplier '{dto.multiplier}'.");
                 return 1d;
         }
     }
@@ -292,6 +294,21 @@ public sealed class ItemEffectManager : MonoBehaviour
         }
 
         return count;
+    }
+
+    double GetCurrencyAtMostMultiplier(int threshold)
+    {
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+            return 0d;
+
+        if (threshold < 0)
+        {
+            Debug.LogWarning($"[ItemEffectManager] currencyAtMost threshold < 0: {threshold}");
+            threshold = 0;
+        }
+
+        return player.Currency <= threshold ? 1d : 0d;
     }
 
     void ApplyBaseIncome(ItemEffectDto dto, ItemInstance item)

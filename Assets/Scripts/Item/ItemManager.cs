@@ -15,6 +15,7 @@ public sealed class ItemManager : MonoBehaviour
     readonly Dictionary<ItemInstance, ItemController> controllerMap = new();
     readonly HashSet<ItemInstance> effectSources = new();
     readonly ItemInventory inventory = new();
+    PlayerInstance subscribedPlayer;
     bool isPlayActive;
     float tickTimer;
 
@@ -34,6 +35,11 @@ public sealed class ItemManager : MonoBehaviour
         }
 
         inventory.OnSlotChanged += HandleSlotChanged;
+    }
+
+    void OnEnable()
+    {
+        SubscribePlayer();
     }
 
     public ItemInventory Inventory => inventory;
@@ -131,6 +137,9 @@ public sealed class ItemManager : MonoBehaviour
                 continue;
             }
         }
+
+        SubscribePlayer();
+        TriggerAll(ItemTriggerType.OnCurrencyChanged);
     }
 
     void BuildControllersFromInventory()
@@ -332,6 +341,7 @@ public sealed class ItemManager : MonoBehaviour
 
     void OnDisable()
     {
+        UnsubscribePlayer();
         ClearControllers();
         ClearEffectSubscriptions();
     }
@@ -341,5 +351,32 @@ public sealed class ItemManager : MonoBehaviour
         var slots = inventory.Slots;
         for (int i = 0; i < slots.Count; i++)
             slots[i]?.ResetRuntimeState();
+    }
+
+    void SubscribePlayer()
+    {
+        UnsubscribePlayer();
+
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+            return;
+
+        subscribedPlayer = player;
+        subscribedPlayer.OnCurrencyChanged += HandleCurrencyChanged;
+    }
+
+    void UnsubscribePlayer()
+    {
+        if (subscribedPlayer == null)
+            return;
+
+        subscribedPlayer.OnCurrencyChanged -= HandleCurrencyChanged;
+        subscribedPlayer = null;
+    }
+
+    void HandleCurrencyChanged(int value)
+    {
+        _ = value;
+        TriggerAll(ItemTriggerType.OnCurrencyChanged);
     }
 }

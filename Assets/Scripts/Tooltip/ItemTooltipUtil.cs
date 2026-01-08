@@ -196,6 +196,9 @@ public static class ItemTooltipUtil
                 {
                     dict[key] = e.value.ToString("0.##");
                 }
+
+                if (e.threshold > 0)
+                    dict["threshold"] = e.threshold.ToString("0");
             }
         }
 

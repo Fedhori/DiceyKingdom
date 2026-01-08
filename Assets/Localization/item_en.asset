@@ -177,6 +177,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
+  - m_Id: 5815909901414428
+    m_Localized: Tin Can
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414429
+    m_Localized: Gain {value0} power while your money is at or below ${threshold}.
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
   - m_Id: 5815909901414405
     m_Localized: Snowballer
     m_Metadata:
@@ -211,3 +220,4 @@ MonoBehaviour:
         - id: 5815909901414423
         - id: 5815909901414425
         - id: 5815909901414427
+        - id: 5815909901414429
