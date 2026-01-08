@@ -49,6 +49,9 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.ModifyBaseIncome:
                 ApplyBaseIncome(dto, item);
                 break;
+            case ItemEffectType.ApplyDamageToAllBlocks:
+                ApplyDamageToAllBlocks(dto, item);
+                break;
             default:
                 Debug.LogWarning($"[ItemEffectManager] Unsupported effect type: {dto.effectType}");
                 break;
@@ -283,5 +286,25 @@ public sealed class ItemEffectManager : MonoBehaviour
             dto.value,
             dto.duration,
             item));
+    }
+
+    void ApplyDamageToAllBlocks(ItemEffectDto dto, ItemInstance item)
+    {
+        if (dto == null || item == null)
+            return;
+
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+            return;
+
+        float multiplier = item.DamageMultiplier;
+        if (dto.value > 0f)
+            multiplier *= dto.value;
+
+        int damage = Mathf.Max(1, Mathf.FloorToInt((float)(multiplier * player.Power)));
+        if (damage <= 0)
+            return;
+
+        BlockManager.Instance?.ApplyDamageToAllBlocks(damage, item);
     }
 }

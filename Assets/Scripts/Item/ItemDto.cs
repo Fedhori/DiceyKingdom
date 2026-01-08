@@ -43,7 +43,8 @@ namespace Data
         AddSellValue,
         ModifyRightItemStat,
         SetStat,
-        ModifyBaseIncome
+        ModifyBaseIncome,
+        ApplyDamageToAllBlocks
     }
 
     public enum ItemRarity

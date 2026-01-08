@@ -288,4 +288,28 @@ public sealed class BlockManager : MonoBehaviour
 
         return applyCount;
     }
+
+    public int ApplyDamageToAllBlocks(int damage, ItemInstance sourceItem)
+    {
+        if (damage <= 0)
+            return 0;
+
+        if (activeBlocks.Count == 0)
+            return 0;
+
+        var targets = new List<BlockController>(activeBlocks);
+        int applied = 0;
+
+        for (int i = 0; i < targets.Count; i++)
+        {
+            var block = targets[i];
+            if (block == null)
+                continue;
+
+            block.ApplyDamage(damage, block.transform.position, sourceItem);
+            applied++;
+        }
+
+        return applied;
+    }
 }

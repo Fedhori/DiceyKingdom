@@ -159,6 +159,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
+  - m_Id: 5815909901414424
+    m_Localized: Alarm Clock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414425
+    m_Localized: Every {intervalSeconds}s, deal damage to all blocks.
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
   - m_Id: 5815909901414405
     m_Localized: Snowballer
     m_Metadata:
@@ -191,3 +200,4 @@ MonoBehaviour:
         - id: 5815909901414420
         - id: 5815909901414422
         - id: 5815909901414423
+        - id: 5815909901414425

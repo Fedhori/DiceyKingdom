@@ -448,6 +448,28 @@
 			]
 		},
 		{
+			"id": "item.alarmclock",
+			"isObject": false,
+			"price": 5,
+			"rarity": "Uncommon",
+			"damageMultiplier": 1.0,
+			"rules": [
+				{
+					"triggerType": "OnTimeChanged",
+					"condition": {
+						"conditionKind": "Time",
+						"intervalSeconds": 5.0
+					},
+					"effects": [
+						{
+							"effectType": "ApplyDamageToAllBlocks",
+							"value": 1.0
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "item.ant",
 			"isObject": false,
 			"price": 4,
