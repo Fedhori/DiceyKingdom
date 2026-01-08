@@ -145,6 +145,20 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
+  - m_Id: 5815909901414421
+    m_Localized: Membership
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414422
+    m_Localized: Gain {value0} power at each stage end.
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
+  - m_Id: 5815909901414423
+    m_Localized: Base income decreases by {value0}$.
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
   - m_Id: 5815909901414405
     m_Localized: Snowballer
     m_Metadata:
@@ -175,3 +189,5 @@ MonoBehaviour:
         - id: 5815909901414416
         - id: 5815909901414418
         - id: 5815909901414420
+        - id: 5815909901414422
+        - id: 5815909901414423

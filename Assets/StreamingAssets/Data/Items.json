@@ -118,14 +118,16 @@
 			"rarity": "Uncommon",
 			"rules": [
 				{
-					"triggerType": "OnRewardOpen",
+					"triggerType": "OnAcquire",
 					"condition": {
 						"conditionKind": "Always"
 					},
 					"effects": [
 						{
-							"effectType": "AddCurrency",
-							"value": 1.0
+							"effectType": "ModifyBaseIncome",
+							"effectMode": "Add",
+							"value": 1.0,
+							"duration": "Owned"
 						}
 					]
 				}
@@ -403,6 +405,43 @@
 						{
 							"effectType": "AddSellValue",
 							"value": 2.0
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.membership",
+			"isObject": false,
+			"price": 6,
+			"rarity": "Rare",
+			"rules": [
+				{
+					"triggerType": "OnPlayEnd",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 20.0,
+							"duration": "Permanent"
+						}
+					]
+				},
+				{
+					"triggerType": "OnAcquire",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyBaseIncome",
+							"effectMode": "Add",
+							"value": -1.0,
+							"duration": "Owned"
 						}
 					]
 				}

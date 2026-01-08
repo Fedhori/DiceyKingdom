@@ -31,7 +31,11 @@ public sealed class RewardManager : MonoBehaviour
 
         int startCurrency = CurrencyManager.Instance != null ? CurrencyManager.Instance.CurrentCurrency : 0;
 
-        CurrencyManager.Instance?.AddCurrency(GameConfig.BaseIncome);
+        int income = GameConfig.BaseIncome;
+        var player = PlayerManager.Instance?.Current;
+        if (player != null)
+            income += player.BaseIncomeBonus;
+        CurrencyManager.Instance?.AddCurrency(income);
         ItemManager.Instance?.TriggerAll(ItemTriggerType.OnRewardOpen);
 
         int endCurrency = CurrencyManager.Instance != null ? CurrencyManager.Instance.CurrentCurrency : startCurrency;

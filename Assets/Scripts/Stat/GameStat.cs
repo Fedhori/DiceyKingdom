@@ -27,6 +27,7 @@ namespace GameStats
         public const string PierceBonus = "pierceBonus";
         public const string WallBounceCount = "wallBounceCount";
         public const string IsDryIceEnabled = "isDryIceEnabled";
+        public const string BaseIncomeBonus = "baseIncomeBonus";
     }
 
     public static class ItemStatIds

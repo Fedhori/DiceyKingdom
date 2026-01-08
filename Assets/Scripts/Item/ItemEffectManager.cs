@@ -46,6 +46,9 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.SetStat:
                 ApplySetStat(dto, item);
                 break;
+            case ItemEffectType.ModifyBaseIncome:
+                ApplyBaseIncome(dto, item);
+                break;
             default:
                 Debug.LogWarning($"[ItemEffectManager] Unsupported effect type: {dto.effectType}");
                 break;
@@ -263,5 +266,22 @@ public sealed class ItemEffectManager : MonoBehaviour
         }
 
         return count;
+    }
+
+    void ApplyBaseIncome(ItemEffectDto dto, ItemInstance item)
+    {
+        if (dto == null || item == null)
+            return;
+
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+            return;
+
+        player.Stats.AddModifier(new StatModifier(
+            PlayerStatIds.BaseIncomeBonus,
+            dto.effectMode,
+            dto.value,
+            dto.duration,
+            item));
     }
 }

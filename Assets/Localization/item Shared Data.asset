@@ -203,6 +203,18 @@ MonoBehaviour:
     m_Key: item.ant.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414421
+    m_Key: item.membership.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414422
+    m_Key: item.membership.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414423
+    m_Key: item.membership.effect1
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

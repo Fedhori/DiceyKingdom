@@ -170,7 +170,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.78431374, b: 1, a: 1}
+  m_Color: {r: 0.2627451, g: 0.5921569, b: 0.81960785, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4294,6 +4294,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PinTooltipView
   nameText: {fileID: 751012027257740096}
   descriptionText: {fileID: 9019181423558236249}
+  rarityPanelImage: {fileID: 3151937}
+  rarityText: {fileID: 43622505}
   rectTransform: {fileID: 7034255424747963546}
 --- !u!222 &5805991339610435775
 CanvasRenderer:
@@ -4392,7 +4394,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.35686275, g: 0.38431373, b: 0.44313726, a: 1}
+  m_Color: {r: 0.76177996, g: 0.77890354, b: 0.82, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
