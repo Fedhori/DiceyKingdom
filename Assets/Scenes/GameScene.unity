@@ -2025,7 +2025,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 960
+  orthographic size: 1078.3206
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2085,9 +2085,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFitter
   cam: {fileID: 519420031}
-  boardSize: 1080
-  margin: 0
-  landscapeSize: 960
+  playArea: {fileID: 1644066639}
+  horizontalMargin: 32
+  verticalMargin: 192
 --- !u!1 &568611840
 GameObject:
   m_ObjectHideFlags: 0
