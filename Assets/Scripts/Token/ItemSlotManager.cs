@@ -21,6 +21,7 @@ public sealed class ItemSlotManager : MonoBehaviour
 
     [SerializeField] Color slotHighlightColor = Color.white;
     ItemInventory inventory;
+    StageManager subscribedStageManager;
 
     void Awake()
     {
@@ -44,11 +45,18 @@ public sealed class ItemSlotManager : MonoBehaviour
     {
         TryBindInventory();
         RefreshFromInventory();
+        SubscribeStageManager();
+        RefreshSlotContainerVisibility();
     }
 
     void OnDisable()
     {
         UnbindInventory();
+    }
+
+    void OnDestroy()
+    {
+        UnsubscribeStageManager();
     }
 
     void TryBindInventory()
@@ -74,6 +82,50 @@ public sealed class ItemSlotManager : MonoBehaviour
 
         inventory.OnSlotChanged -= HandleSlotChanged;
         inventory = null;
+    }
+
+    void SubscribeStageManager()
+    {
+        if (subscribedStageManager != null)
+            return;
+
+        var stageManager = StageManager.Instance;
+        if (stageManager == null)
+            return;
+
+        subscribedStageManager = stageManager;
+        subscribedStageManager.OnPhaseChanged += HandlePhaseChanged;
+    }
+
+    void UnsubscribeStageManager()
+    {
+        if (subscribedStageManager == null)
+            return;
+
+        subscribedStageManager.OnPhaseChanged -= HandlePhaseChanged;
+        subscribedStageManager = null;
+    }
+
+    void HandlePhaseChanged(StagePhase phase)
+    {
+        SetSlotContainerVisible(phase != StagePhase.Play);
+    }
+
+    void RefreshSlotContainerVisibility()
+    {
+        var stageManager = StageManager.Instance;
+        if (stageManager == null)
+            return;
+
+        SetSlotContainerVisible(stageManager.CurrentPhase != StagePhase.Play);
+    }
+
+    void SetSlotContainerVisible(bool visible)
+    {
+        if (slotContainer == null)
+            return;
+
+        slotContainer.gameObject.SetActive(visible);
     }
 
     void HandleSlotChanged(int slotIndex, ItemInstance previous, ItemInstance current, ItemInventory.SlotChangeType changeType)

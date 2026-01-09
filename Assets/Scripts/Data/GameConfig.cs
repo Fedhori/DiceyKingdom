@@ -4,7 +4,7 @@ using UnityEngine;
 public static class GameConfig
 {
     public static int BaseIncome = 5;
-    public static int ItemSlotCount = 8;
+    public static int ItemSlotCount = 12;
     public static int ItemSlotsPerRow = 4;
 
     // Player/Item base stats   
