@@ -502,7 +502,7 @@ Transform:
   m_GameObject: {fileID: 117041020}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3, y: -516, z: 0}
+  m_LocalPosition: {x: 3, y: -720, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -579,7 +579,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   playArea: {fileID: 1644066639}
-  startYOffset: 32
+  startYOffset: 64
+--- !u!1 &144002550
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 144002551}
+  m_Layer: 0
+  m_Name: ProjectileDestroyZones
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &144002551
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 144002550}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1102514700}
+  - {fileID: 1406475282}
+  - {fileID: 1639518423}
+  - {fileID: 1163286776}
+  m_Father: {fileID: 1644066639}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &147300224
 GameObject:
   m_ObjectHideFlags: 0
@@ -1676,7 +1711,7 @@ Transform:
   m_GameObject: {fileID: 407153861}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1980, y: 174, z: 0}
+  m_LocalPosition: {x: 1980, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1990,7 +2025,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: NaN
+  orthographic size: 960
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2935,8 +2970,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -64}
-  m_SizeDelta: {x: 960, y: 160}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 1080, y: 160}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &659254755
 MonoBehaviour:
@@ -4163,7 +4198,7 @@ Transform:
   m_GameObject: {fileID: 1057764091}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -56, y: -1996, z: 0}
+  m_LocalPosition: {x: 0, y: -2220, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4291,7 +4326,7 @@ GameObject:
   - component: {fileID: 1102514702}
   - component: {fileID: 1102514704}
   m_Layer: 9
-  m_Name: ProjectileDestroyZone
+  m_Name: Bottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4306,11 +4341,11 @@ Transform:
   m_GameObject: {fileID: 1102514699}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -18, y: -828, z: 0}
+  m_LocalPosition: {x: 0, y: -2300, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1644066639}
+  m_Father: {fileID: 144002551}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &1102514702
 BoxCollider2D:
@@ -4351,12 +4386,12 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 1, y: 1}
-    newSize: {x: 2000, y: 500}
+    newSize: {x: 3000, y: 3000}
     adaptiveTilingThreshold: 0.5
     drawMode: 1
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2000, y: 500}
+  m_Size: {x: 3000, y: 3000}
   m_EdgeRadius: 0
 --- !u!212 &1102514703
 SpriteRenderer:
@@ -4410,7 +4445,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 2000, y: 500}
+  m_Size: {x: 3000, y: 3000}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -4958,7 +4993,7 @@ GameObject:
   - component: {fileID: 1163286778}
   - component: {fileID: 1163286777}
   m_Layer: 9
-  m_Name: ProjectileDestroyZone (2)
+  m_Name: Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4973,11 +5008,11 @@ Transform:
   m_GameObject: {fileID: 1163286775}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1658, y: 15.2655945, z: 0}
+  m_LocalPosition: {x: 2080, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1644066639}
+  m_Father: {fileID: 144002551}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1163286777
 MonoBehaviour:
@@ -5030,12 +5065,12 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 1, y: 1}
-    newSize: {x: 2000, y: 1149.4689}
+    newSize: {x: 3000, y: 3000}
     adaptiveTilingThreshold: 0.5
     drawMode: 1
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2000, y: 1149.469}
+  m_Size: {x: 3000, y: 3000}
   m_EdgeRadius: 0
 --- !u!212 &1163286779
 SpriteRenderer:
@@ -5089,7 +5124,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 2000, y: 1149.4689}
+  m_Size: {x: 3000, y: 3000}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -5373,7 +5408,7 @@ Transform:
   m_GameObject: {fileID: 1265942337}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -18, y: -732, z: 0}
+  m_LocalPosition: {x: 0, y: -2220, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5418,12 +5453,12 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 1, y: 1}
-    newSize: {x: 2000, y: 500}
+    newSize: {x: 3000, y: 3000}
     adaptiveTilingThreshold: 0.5
     drawMode: 1
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2000, y: 500}
+  m_Size: {x: 3000, y: 3000}
   m_EdgeRadius: 0
 --- !u!212 &1265942341
 SpriteRenderer:
@@ -5477,7 +5512,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 2000, y: 500}
+  m_Size: {x: 3000, y: 3000}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -5535,8 +5570,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 224.49458}
-  m_SizeDelta: {x: 960, y: 767.011}
+  m_AnchoredPosition: {x: 0, y: 256}
+  m_SizeDelta: {x: 1080, y: 800}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1288486033
 MonoBehaviour:
@@ -5625,7 +5660,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: 64}
-  m_SizeDelta: {x: 960, y: 0}
+  m_SizeDelta: {x: 1080, y: 0}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1290664732
 MonoBehaviour:
@@ -6323,7 +6358,7 @@ GameObject:
   - component: {fileID: 1406475284}
   - component: {fileID: 1406475283}
   m_Layer: 9
-  m_Name: ProjectileDestroyZone (1)
+  m_Name: Top
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6338,11 +6373,11 @@ Transform:
   m_GameObject: {fileID: 1406475281}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -18, y: 892, z: 0}
+  m_LocalPosition: {x: 0, y: -2300, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1644066639}
+  m_Father: {fileID: 144002551}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1406475283
 MonoBehaviour:
@@ -6395,12 +6430,12 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 1, y: 1}
-    newSize: {x: 2000, y: 500}
+    newSize: {x: 3000, y: 3000}
     adaptiveTilingThreshold: 0.5
     drawMode: 1
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2000, y: 500}
+  m_Size: {x: 3000, y: 3000}
   m_EdgeRadius: 0
 --- !u!212 &1406475285
 SpriteRenderer:
@@ -6454,7 +6489,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 2000, y: 500}
+  m_Size: {x: 3000, y: 3000}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -7490,7 +7525,7 @@ GameObject:
   - component: {fileID: 1639518425}
   - component: {fileID: 1639518424}
   m_Layer: 9
-  m_Name: ProjectileDestroyZone
+  m_Name: Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7505,11 +7540,11 @@ Transform:
   m_GameObject: {fileID: 1639518422}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1658, y: 15.2655945, z: 0}
+  m_LocalPosition: {x: -2080, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1644066639}
+  m_Father: {fileID: 144002551}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1639518424
 MonoBehaviour:
@@ -7562,12 +7597,12 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 1, y: 1}
-    newSize: {x: 2000, y: 1149.4689}
+    newSize: {x: 3000, y: 3000}
     adaptiveTilingThreshold: 0.5
     drawMode: 1
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2000, y: 1149.469}
+  m_Size: {x: 3000, y: 3000}
   m_EdgeRadius: 0
 --- !u!212 &1639518426
 SpriteRenderer:
@@ -7621,7 +7656,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 2000, y: 1149.4689}
+  m_Size: {x: 3000, y: 3000}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -7653,16 +7688,13 @@ Transform:
   m_GameObject: {fileID: 1644066638}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 128, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2123182479}
   - {fileID: 1265942338}
-  - {fileID: 1102514700}
-  - {fileID: 1406475282}
-  - {fileID: 1639518423}
-  - {fileID: 1163286776}
+  - {fileID: 144002551}
   - {fileID: 117041021}
   - {fileID: 258862835}
   m_Father: {fileID: 0}
@@ -7719,7 +7751,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 960, y: 960}
+  m_Size: {x: 960, y: 1440}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -7760,11 +7792,11 @@ RectTransform:
   - {fileID: 568611841}
   m_Father: {fileID: 1288486032}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 232.00002, y: 32}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 232.00002, y: -256}
   m_SizeDelta: {x: 400, y: 192}
-  m_Pivot: {x: 0.5, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1644759787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9603,7 +9635,7 @@ Transform:
   m_GameObject: {fileID: 1972683697}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1980, y: 195, z: 0}
+  m_LocalPosition: {x: -1980, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9925,11 +9957,11 @@ RectTransform:
   - {fileID: 147300225}
   m_Father: {fileID: 1288486032}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -232, y: 32}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -232, y: -256}
   m_SizeDelta: {x: 400, y: 192}
-  m_Pivot: {x: 0.5, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1999143222
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10279,7 +10311,7 @@ Transform:
   m_GameObject: {fileID: 2025243434}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: -45.5, y: 1980, z: 0}
+  m_LocalPosition: {x: 0, y: 2220, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

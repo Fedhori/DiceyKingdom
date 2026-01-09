@@ -21,47 +21,47 @@
 		},
 		{
 			"index": 4,
-			"blockHealth": 70
+			"blockHealth": 80
 		},
 		{
 			"index": 5,
-			"blockHealth": 120
+			"blockHealth": 160
 		},
 		{
 			"index": 6,
-			"blockHealth": 200
-		},
-		{
-			"index": 7,
 			"blockHealth": 300
 		},
 		{
+			"index": 7,
+			"blockHealth": 500
+		},
+		{
 			"index": 8,
-			"blockHealth": 450
+			"blockHealth": 700
 		},
 		{
 			"index": 9,
-			"blockHealth": 600
-		},
-		{
-			"index": 10,
-			"blockHealth": 800
-		},
-		{
-			"index": 11,
 			"blockHealth": 1000
 		},
 		{
+			"index": 10,
+			"blockHealth": 1500
+		},
+		{
+			"index": 11,
+			"blockHealth": 3000
+		},
+		{
 			"index": 12,
-			"blockHealth": 1400
+			"blockHealth": 4500
 		},
 		{
 			"index": 13,
-			"blockHealth": 1800
+			"blockHealth": 7000
 		},
 		{
 			"index": 14,
-			"blockHealth": 2500
+			"blockHealth": 10000
 		}
 	]
 }
