@@ -1,11 +1,11 @@
 {
     "appVersion": "1.0",
-    "generatedAt": "2025-12-31 17:59:39",
+    "generatedAt": "2026-01-09 13:18:46",
     "files": [
         {
             "path": "sa_state.json",
             "size": 70,
-            "md5": "159f12901616c4ccca26e7e70b823399"
+            "md5": "0103490c52b91ed57237beb612283c85"
         },
         {
             "path": "Data/config.JSON",
@@ -14,18 +14,18 @@
         },
         {
             "path": "Data/Items.json",
-            "size": 635,
-            "md5": "e12679953722aac383ebff69ae8dbe58"
+            "size": 12599,
+            "md5": "2fd09f26e368206d051ce6cd6588ab9d"
         },
         {
             "path": "Data/Players.json",
-            "size": 339,
-            "md5": "555313621c22867dba387319bdeb4891"
+            "size": 259,
+            "md5": "51582e46a15fe2572dbddbf919aec445"
         },
         {
             "path": "Data/Stages.json",
-            "size": 566,
-            "md5": "83324fb715796388205744a1ef2e042d"
+            "size": 849,
+            "md5": "e26ebfcb2db854f858a09882d95bcbc9"
         }
     ]
 }
