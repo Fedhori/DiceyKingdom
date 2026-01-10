@@ -219,9 +219,9 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5815909901414418
-    m_Localized: "\uC2A4\uD14C\uC774\uC9C0 \uC885\uB8CC\uB9C8\uB2E4 \uC624\uB978\uCABD
-      \uC544\uC774\uD15C\uC758 \uD53C\uD574 \uBC30\uC218\uAC00 \uC601\uAD6C\uC801\uC73C\uB85C
-      {value0} \uC99D\uAC00\uD569\uB2C8\uB2E4."
+    m_Localized: "\uC2A4\uD14C\uC774\uC9C0 \uC885\uB8CC\uB9C8\uB2E4 \uBC14\uB85C
+      \uC624\uB978\uCABD \uC544\uC774\uD15C\uC758 \uD53C\uD574 \uBC30\uC218\uAC00
+      \uC601\uAD6C\uC801\uC73C\uB85C {value0} \uC99D\uAC00\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704

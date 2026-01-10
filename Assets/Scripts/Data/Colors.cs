@@ -18,6 +18,10 @@ public static class Colors
     public static readonly Color Red = new Color32(0xE7, 0x4C, 0x3C, 0xFF); //#E74C3C
     public static readonly Color Blue = new Color32(0x64, 0x94, 0xFF, 0xFF); //#6494FF
     public static readonly Color Green = new Color32(0x27, 0xAE, 0x60, 0xFF);
+
+    public static readonly Color DamageFlash = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
+    public static readonly Color FreezeTint = new Color32(0x6F, 0xD8, 0xFF, 0xFF);
+    public const float FreezeAlpha = 0.4f;
     
     public static readonly Color HighlightColor = Color.cyan;
 

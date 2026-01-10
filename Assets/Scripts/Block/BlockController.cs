@@ -7,9 +7,12 @@ public sealed class BlockController : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private TMP_Text hpText;
-    [SerializeField] private GameObject freezeMask;
+    [SerializeField] private float hitFlashDuration = 0.08f;
 
     public BlockInstance Instance { get; private set; }
+
+    Color baseColor = Color.white;
+    float hitFlashTimer;
 
     public void Initialize(BlockInstance instance)
     {
@@ -18,6 +21,7 @@ public sealed class BlockController : MonoBehaviour
         if (spriteRenderer == null)
             spriteRenderer = GetComponent<SpriteRenderer>();
 
+        CacheBaseColor();
         RefreshHpText();
     }
 
@@ -35,7 +39,8 @@ public sealed class BlockController : MonoBehaviour
             return;
 
         Instance.TickStatuses(delta);
-        UpdateFreezeMask();
+        UpdateHitFlash(delta);
+        UpdateVisuals();
 
         float speedMultiplier = 1f;
         if (Instance.HasStatus(BlockStatusType.Freeze))
@@ -143,11 +148,44 @@ public sealed class BlockController : MonoBehaviour
         hpText.text = Instance.Hp.ToString();
     }
 
-    void UpdateFreezeMask()
+    public void PlayHitFlash()
     {
-        if (freezeMask == null || Instance == null)
+        if (hitFlashDuration <= 0f)
             return;
 
-        freezeMask.SetActive(Instance.HasStatus(BlockStatusType.Freeze));
+        hitFlashTimer = Mathf.Max(hitFlashTimer, hitFlashDuration);
+    }
+
+    void UpdateHitFlash(float deltaSeconds)
+    {
+        if (hitFlashTimer <= 0f || deltaSeconds <= 0f)
+            return;
+
+        hitFlashTimer = Mathf.Max(0f, hitFlashTimer - deltaSeconds);
+    }
+
+    void UpdateVisuals()
+    {
+        if (spriteRenderer == null || Instance == null)
+            return;
+
+        Color color = baseColor;
+
+        if (Instance.HasStatus(BlockStatusType.Freeze))
+            color = Color.Lerp(color, Colors.FreezeTint, Colors.FreezeAlpha);
+
+        if (hitFlashTimer > 0f && hitFlashDuration > 0f)
+        {
+            float t = hitFlashTimer / hitFlashDuration;
+            color = Color.Lerp(color, Colors.DamageFlash, t);
+        }
+
+        spriteRenderer.color = color;
+    }
+
+    void CacheBaseColor()
+    {
+        if (spriteRenderer != null)
+            baseColor = spriteRenderer.color;
     }
 }

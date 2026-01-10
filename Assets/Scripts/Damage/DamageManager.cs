@@ -25,6 +25,8 @@ public sealed class DamageManager : MonoBehaviour
         if (result.AppliedDamage <= 0)
             return result;
 
+        context.Target.PlayHitFlash();
+
         Vector2 pos = context.HitPosition ?? (Vector2)context.Target.transform.position;
         DamageTextManager.Instance?.ShowDamageText(result.AppliedDamage, 0, pos);
 
