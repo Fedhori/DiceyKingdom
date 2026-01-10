@@ -189,8 +189,8 @@
 			"projectile": {
 				"key": "projectile.bullet",
 				"size": 1.0,
-				"speed": 1.0,
-				"pelletCount": 5,
+				"speed": 0.8,
+				"pelletCount": 4,
 				"spreadAngle": 10.0,
 				"randomAngle": 5.0
 			},

@@ -214,9 +214,9 @@ public sealed class ItemManager : MonoBehaviour
 
                 if (isPlayActive && current.IsObject)
                     SpawnController(current);
-
-                // TODO - 한 아이템에 N개의 트리거 지원하게
+                
                 TriggerAll(ItemTriggerType.OnItemChanged);
+                // 아이템 구매보다 재화 사용이 타이밍이 빠르므로, 이에 대응하기 위해 여기서 한번 트리거
                 TriggerAll(ItemTriggerType.OnCurrencyChanged);
                 break;
             case ItemInventory.SlotChangeType.Remove:
