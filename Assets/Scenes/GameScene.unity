@@ -2025,7 +2025,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 1078.3206
+  orthographic size: 912
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -4521,6 +4521,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1118263956}
   - component: {fileID: 1118263957}
+  - component: {fileID: 1118263958}
   m_Layer: 0
   m_Name: Damage
   m_TagString: Untagged
@@ -4557,6 +4558,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScoreManager
   minFontSize: 12
   maxFontSize: 48
+--- !u!114 &1118263958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1118263955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 878cfc15eef86914ebeba0f0091cea77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DamageManager
 --- !u!1 &1126608302
 GameObject:
   m_ObjectHideFlags: 0

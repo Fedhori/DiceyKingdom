@@ -103,9 +103,7 @@ public sealed class ProjectileController : MonoBehaviour
             }
         }
     }
-
-    // TODO - ApplyDamage를 ProjectileController에서 관리하면 중복이 늘어나 유지보수 피곤해짐.
-    // AttackContext로 분리해서, 통일되게 동작하도록 개선 필요
+    
     void ApplyDamage(Collider2D other)
     {
         if (item == null || other == null)
@@ -115,18 +113,20 @@ public sealed class ProjectileController : MonoBehaviour
         if (block == null || block.Instance == null)
             return;
 
-        var player = PlayerManager.Instance?.Current;
-        int dmg = 1;
-        if (player != null)
-        {
-            float itemMultiplier = item.DamageMultiplier;
-            if (item.StatusDamageMultiplier > 0f && block.Instance.Statuses.Count > 0)
-                itemMultiplier *= item.StatusDamageMultiplier;
-            itemMultiplier *= Mathf.Max(0f, (float)player.ProjectileDamageMultiplier);
-            dmg = Mathf.Max(1, Mathf.FloorToInt((float)(itemMultiplier * player.Power)));
-        }
+        var damageManager = DamageManager.Instance;
+        if (damageManager == null)
+            return;
 
-        block.ApplyDamage(dmg, transform.position, item);
+        var context = new DamageContext(
+            block,
+            baseDamage: null,
+            sourceItem: item,
+            sourceType: DamageSourceType.Projectile,
+            hitPosition: transform.position,
+            allowOverflow: true,
+            applyStatusFromItem: true,
+            sourceOwner: this);
+        damageManager.ApplyDamage(context);
     }
 
     void ApplyPierceCount()

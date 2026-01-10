@@ -101,19 +101,7 @@ public sealed class BlockManager : MonoBehaviour
         CheckClearCondition();
     }
 
-    public void ApplyOverflowDamage(int damage)
-    {
-        if (damage <= 0)
-            return;
-
-        var target = GetRandomActiveBlock();
-        if (target == null)
-            return;
-
-        target.ApplyDamage(damage, target.transform.position);
-    }
-
-    BlockController GetRandomActiveBlock()
+    public BlockController GetRandomActiveBlock()
     {
         for (int i = activeBlocks.Count - 1; i >= 0; i--)
         {
@@ -283,7 +271,9 @@ public sealed class BlockManager : MonoBehaviour
             var target = candidates[index];
             candidates[index] = candidates[candidates.Count - 1];
             candidates.RemoveAt(candidates.Count - 1);
-            target.ApplyStatus(type, durationSeconds);
+            bool applied = target.ApplyStatus(type, durationSeconds);
+            if (applied)
+                ItemManager.Instance?.TriggerAll(ItemTriggerType.OnBlockStatusApplied);
         }
 
         return applyCount;
@@ -299,6 +289,9 @@ public sealed class BlockManager : MonoBehaviour
 
         var targets = new List<BlockController>(activeBlocks);
         int applied = 0;
+        var damageManager = DamageManager.Instance;
+        if (damageManager == null)
+            return 0;
 
         for (int i = 0; i < targets.Count; i++)
         {
@@ -306,8 +299,17 @@ public sealed class BlockManager : MonoBehaviour
             if (block == null)
                 continue;
 
-            block.ApplyDamage(damage, block.transform.position, sourceItem);
-            applied++;
+            var context = new DamageContext(
+                block,
+                damage,
+                sourceItem,
+                DamageSourceType.ItemEffect,
+                block.transform.position,
+                allowOverflow: true,
+                applyStatusFromItem: false);
+            var result = damageManager.ApplyDamage(context);
+            if (result != null && result.AppliedDamage > 0)
+                applied++;
         }
 
         return applied;

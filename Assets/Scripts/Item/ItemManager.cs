@@ -76,26 +76,6 @@ public sealed class ItemManager : MonoBehaviour
             slots[i]?.HandleTrigger(trigger);
     }
 
-    public void TriggerOverflowDamage(int overflow)
-    {
-        if (overflow <= 0)
-            return;
-
-        if (!IsOverflowDamageEnabled())
-            return;
-
-        BlockManager.Instance?.ApplyOverflowDamage(overflow);
-    }
-
-    bool IsOverflowDamageEnabled()
-    {
-        var player = PlayerManager.Instance?.Current;
-        if (player == null)
-            return false;
-
-        return player.IsOverflowDamageEnabled;
-    }
-
 
     public void InitializeFromPlayer(PlayerInstance player)
     {

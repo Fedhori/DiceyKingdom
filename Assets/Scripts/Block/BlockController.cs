@@ -53,64 +53,86 @@ public sealed class BlockController : MonoBehaviour
         transform.position += new Vector3(0f, -dy, 0f);
     }
 
-    public void ApplyDamage(int amount, Vector2? position)
+    public DamageResult ApplyDamage(DamageContext context)
     {
-        ApplyDamage(amount, position, null);
-    }
-
-    public void ApplyDamage(int amount, Vector2? position, ItemInstance sourceItem)
-    {
-        if (Instance == null)
-            return;
-
-        int currentHp = Instance.Hp;
-        Instance.ApplyDamage(amount);
-        RefreshHpText();
-
-        var pos = position ?? (Vector2)transform.position;
-        DamageTextManager.Instance?.ShowDamageText(amount, 0, pos);
-
-        ApplyStatusFromItem(sourceItem);
+        if (Instance == null || context == null)
+            return new DamageResult(0, 0, false, false);
 
         if (Instance.IsDead)
-        {
-            AudioManager.Instance.Play("Pop");
-            BlockManager.Instance?.HandleBlockDestroyed(this);
-            Destroy(gameObject);
-            int overflow = Mathf.Max(0, amount - currentHp);
-            if (overflow > 0)
-                ItemManager.Instance?.TriggerOverflowDamage(overflow);
-        }
-            
+            return new DamageResult(0, 0, true, false);
+
+        int damage = ResolveDamage(context);
+        if (damage <= 0)
+            return new DamageResult(0, 0, false, false);
+
+        int currentHp = Instance.Hp;
+        Instance.ApplyDamage(damage);
+        RefreshHpText();
+
+        bool statusApplied = false;
+        if (context.ApplyStatusFromItem)
+            statusApplied = ApplyStatusFromItem(context.SourceItem);
+
+        bool isDead = Instance.IsDead;
+        int overflow = isDead ? Mathf.Max(0, damage - currentHp) : 0;
+
+        return new DamageResult(damage, overflow, isDead, statusApplied);
     }
 
-    void ApplyStatusFromItem(ItemInstance sourceItem)
+    int ResolveDamage(DamageContext context)
+    {
+        if (context.BaseDamage.HasValue)
+            return Mathf.Max(0, context.BaseDamage.Value);
+
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+            return 0;
+
+        float itemMultiplier = 1f;
+        if (context.SourceItem != null)
+            itemMultiplier = context.SourceItem.DamageMultiplier;
+
+        if (context.SourceType == DamageSourceType.Projectile)
+        {
+            if (context.SourceItem != null
+                && context.SourceItem.StatusDamageMultiplier > 0f
+                && Instance.Statuses.Count > 0)
+            {
+                itemMultiplier *= context.SourceItem.StatusDamageMultiplier;
+            }
+
+            itemMultiplier *= Mathf.Max(0f, (float)player.ProjectileDamageMultiplier);
+        }
+
+        float raw = itemMultiplier * (float)player.Power;
+        return Mathf.Max(1, Mathf.FloorToInt(raw));
+    }
+
+    bool ApplyStatusFromItem(ItemInstance sourceItem)
     {
         if (sourceItem == null)
-            return;
+            return false;
 
         if (sourceItem.StatusType == BlockStatusType.Unknown)
-            return;
+            return false;
 
         float duration = sourceItem.StatusDuration;
         if (duration <= 0f)
-            return;
+            return false;
 
-        ApplyStatus(sourceItem.StatusType, duration);
+        return ApplyStatus(sourceItem.StatusType, duration);
     }
 
-    public void ApplyStatus(BlockStatusType type, float durationSeconds)
+    public bool ApplyStatus(BlockStatusType type, float durationSeconds)
     {
         if (Instance == null)
-            return;
+            return false;
 
         if (Instance.TryApplyStatus(type, durationSeconds))
-        {
-            ItemManager.Instance?.TriggerAll(ItemTriggerType.OnBlockStatusApplied);
-            return;
-        }
+            return true;
 
         Instance.TryUpdateStatusDuration(type, durationSeconds);
+        return false;
     }
 
     void RefreshHpText()
