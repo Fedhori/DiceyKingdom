@@ -398,6 +398,8 @@ public sealed class ItemSlotManager : MonoBehaviour
             return;
         }
 
+        UiSelectionEvents.RaiseSelectionCleared();
+
         var overlay = SellOverlayController.Instance;
         overSellArea = overlay != null && overlay.ContainsScreenPoint(screenPos);
         if (overSellArea)

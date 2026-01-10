@@ -617,7 +617,20 @@ public sealed class ShopManager : MonoBehaviour
         draggingItemIndex = -1;
         ItemSlotManager.Instance?.ClearHighlights();
         ItemSlotManager.Instance?.ClearPreviews();
+        RestoreSlotHighlightsForSelection();
         TooltipManager.Instance?.RestoreAfterDrag();
+    }
+
+    void RestoreSlotHighlightsForSelection()
+    {
+        if (CurrentSelectionIndex < 0)
+            return;
+
+        var selected = GetShopItem(CurrentSelectionIndex);
+        if (selected == null || selected.Sold || selected.ProductType != ProductType.Item)
+            return;
+
+        ItemSlotManager.Instance?.HighlightEmptySlots();
     }
 
 }
