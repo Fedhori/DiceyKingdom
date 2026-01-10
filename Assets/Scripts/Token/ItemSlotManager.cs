@@ -13,6 +13,8 @@ public sealed class ItemSlotManager : MonoBehaviour
     ItemSlotController draggingController;
     int draggingStartIndex = -1;
     int currentHighlightIndex = -1;
+    int selectedSlotIndex = -1;
+    ItemInstance selectedItem;
     bool overSellArea;
     Sprite draggingGhostSprite;
     ItemRarity draggingGhostRarity = ItemRarity.Common;
@@ -47,11 +49,13 @@ public sealed class ItemSlotManager : MonoBehaviour
         RefreshFromInventory();
         SubscribeStageManager();
         RefreshSlotContainerVisibility();
+        UiSelectionEvents.OnSelectionCleared += HandleSelectionCleared;
     }
 
     void OnDisable()
     {
         UnbindInventory();
+        UiSelectionEvents.OnSelectionCleared -= HandleSelectionCleared;
     }
 
     void OnDestroy()
@@ -130,7 +134,6 @@ public sealed class ItemSlotManager : MonoBehaviour
 
     void HandleSlotChanged(int slotIndex, ItemInstance previous, ItemInstance current, ItemInventory.SlotChangeType changeType)
     {
-        _ = previous;
         _ = changeType;
 
         if (!IsValidIndex(slotIndex))
@@ -141,6 +144,9 @@ public sealed class ItemSlotManager : MonoBehaviour
             return;
 
         ctrl.Bind(current);
+
+        if (slotIndex == selectedSlotIndex && previous != current)
+            UiSelectionEvents.RaiseSelectionCleared();
     }
 
     void BuildSlots()
@@ -189,6 +195,8 @@ public sealed class ItemSlotManager : MonoBehaviour
 
         for (int i = count; i < slotControllers.Length; i++)
             slotControllers[i]?.Bind(null);
+
+        RefreshSelectionVisuals();
     }
 
     public bool TryAddItemAt(string itemId, int slotIndex, out ItemInstance instance)
@@ -234,6 +242,9 @@ public sealed class ItemSlotManager : MonoBehaviour
     }
 
     public int SlotCount => inventory != null ? inventory.SlotCount : (slotControllers != null ? slotControllers.Length : 0);
+
+    public int SelectedSlotIndex => selectedSlotIndex;
+    public ItemInstance SelectedItem => selectedItem;
 
     public bool TryGetFirstEmptySlot(out int index)
     {
@@ -542,6 +553,55 @@ public sealed class ItemSlotManager : MonoBehaviour
 
         for (int i = 0; i < slotControllers.Length; i++)
             slotControllers[i]?.ClearPreview();
+    }
+
+    public void ToggleSlotSelection(ItemSlotController controller)
+    {
+        if (controller == null || controller.Instance == null)
+            return;
+
+        if (selectedSlotIndex == controller.SlotIndex)
+        {
+            UiSelectionEvents.RaiseSelectionCleared();
+            return;
+        }
+
+        UiSelectionEvents.RaiseSelectionCleared();
+
+        selectedSlotIndex = controller.SlotIndex;
+        selectedItem = controller.Instance;
+        RefreshSelectionVisuals();
+        controller.PinTooltip();
+    }
+
+    void RefreshSelectionVisuals()
+    {
+        if (slotControllers == null)
+            return;
+
+        for (int i = 0; i < slotControllers.Length; i++)
+        {
+            var ctrl = slotControllers[i];
+            if (ctrl == null)
+                continue;
+
+            ctrl.SetSelected(i == selectedSlotIndex);
+        }
+    }
+
+    void ClearSlotSelection()
+    {
+        if (selectedSlotIndex < 0)
+            return;
+
+        selectedSlotIndex = -1;
+        selectedItem = null;
+        RefreshSelectionVisuals();
+    }
+
+    void HandleSelectionCleared()
+    {
+        ClearSlotSelection();
     }
 
     private void RequestSellItem(ItemSlotController ctrl)

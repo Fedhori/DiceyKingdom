@@ -111,7 +111,7 @@ public sealed class ShopManager : MonoBehaviour
     {
         isOpen = true;
 
-        ClearSelection();
+        UiSelectionEvents.RaiseSelectionCleared();
 
         BuildSellableItems();
         CollectOwnedItems();
@@ -281,6 +281,8 @@ public sealed class ShopManager : MonoBehaviour
 
     public void SetSelection(int itemIndex)
     {
+        UiSelectionEvents.RaiseSelectionCleared();
+
         IProduct selection = null;
 
         if (currentShopItems != null && itemIndex >= 0 && itemIndex < currentShopItems.Length)
@@ -309,6 +311,9 @@ public sealed class ShopManager : MonoBehaviour
             ItemSlotManager.Instance?.HighlightEmptySlots();
         else
             ItemSlotManager.Instance?.ClearHighlights();
+
+        if (selection != null)
+            shopView?.PinTooltipForSelection(itemIndex);
     }
 
     public bool TryPurchaseSelectedItemAt(int slotIndex)
@@ -378,7 +383,7 @@ public sealed class ShopManager : MonoBehaviour
         }
 
         MarkSold(itemIndex);
-        ClearSelection();
+        UiSelectionEvents.RaiseSelectionCleared();
         return true;
     }
 
@@ -453,7 +458,10 @@ public sealed class ShopManager : MonoBehaviour
             return;
 
         if (CurrentSelectionIndex == index)
-            ClearSelection();
+        {
+            UiSelectionEvents.RaiseSelectionCleared();
+            return;
+        }
         else
             SetSelection(index);
     }
@@ -462,6 +470,8 @@ public sealed class ShopManager : MonoBehaviour
     {
         if (!isOpen)
             return;
+
+        UiSelectionEvents.RaiseSelectionCleared();
 
         var currencyMgr = CurrencyManager.Instance;
         if (currencyMgr == null)
@@ -489,6 +499,8 @@ public sealed class ShopManager : MonoBehaviour
         if (!isOpen)
             return;
 
+        UiSelectionEvents.RaiseSelectionCleared();
+
         isOpen = false;
 
         draggingItemIndex = -1;
@@ -499,7 +511,6 @@ public sealed class ShopManager : MonoBehaviour
             shopView.HideItemDragGhost();
         }
 
-        ClearSelection();
         StageManager.Instance?.OnShopClosed();
     }
 

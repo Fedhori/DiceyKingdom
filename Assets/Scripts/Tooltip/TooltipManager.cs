@@ -168,6 +168,27 @@ public sealed class TooltipManager : MonoBehaviour
         ShowNow();
     }
 
+    public void Pin(object owner, TooltipModel model, TooltipAnchor anchor)
+    {
+        if (owner == null)
+            return;
+
+        isPinned = true;
+        dragHidden = false;
+        currentOwner = owner;
+        currentModel = model;
+        currentAnchor = anchor;
+        hasCurrentModel = true;
+
+        if (showRoutine != null)
+        {
+            StopCoroutine(showRoutine);
+            showRoutine = null;
+        }
+
+        ShowNow();
+    }
+
     public void ClearPin()
     {
         if (!isPinned)

@@ -107,6 +107,11 @@ public sealed class ProductController : MonoBehaviour, IPointerClickHandler, IBe
         itemView?.SetSelected(isSelected);
     }
 
+    public void PinTooltip()
+    {
+        tooltipTarget?.Pin();
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
         if (eventData.button != PointerEventData.InputButton.Left)

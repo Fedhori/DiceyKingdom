@@ -9,6 +9,8 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
     public ItemInstance Instance { get; private set; }
     ItemInstance previewInstance;
     bool hasPreview;
+    bool isSelected;
+    bool isHighlighted;
 
     [SerializeField] RectTransform rectTransform;
     public RectTransform RectTransform => rectTransform != null ? rectTransform : (rectTransform = GetComponent<RectTransform>());
@@ -31,7 +33,10 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
             return;
 
         if (Instance != null)
+        {
+            ItemSlotManager.Instance?.ToggleSlotSelection(this);
             return;
+        }
 
         if (StageManager.Instance.CurrentPhase != StagePhase.Shop)
             return;
@@ -123,9 +128,27 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
         return itemView != null ? itemView.GetIconSprite() : null;
     }
 
+    public void SetSelected(bool selected)
+    {
+        isSelected = selected;
+        UpdateHighlightMask();
+    }
+
     public void SetHighlight(bool active, Color highlightColor)
     {
         _ = highlightColor;
-        itemView?.SetHighlight(active);
+        isHighlighted = active;
+        UpdateHighlightMask();
+    }
+
+    void UpdateHighlightMask()
+    {
+        if (itemView != null)
+            itemView.SetHighlight(isSelected || isHighlighted);
+    }
+
+    public void PinTooltip()
+    {
+        tooltipTarget?.Pin();
     }
 }

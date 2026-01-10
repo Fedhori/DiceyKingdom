@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private TooltipAnchorType anchorType = TooltipAnchorType.Screen;
     [SerializeField] RectTransform anchorRect;
@@ -52,25 +52,7 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
         manager.EndHover(this);
     }
 
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (eventData.button != PointerEventData.InputButton.Left)
-            return;
-
-        if (instance == null)
-            return;
-
-        var manager = TooltipManager.Instance;
-        if (manager == null)
-            return;
-
-        if (!TryBuildTooltip(out var model, out var anchor))
-            return;
-
-        manager.TogglePin(this, model, anchor);
-    }
-
-    bool TryBuildTooltip(out TooltipModel model, out TooltipAnchor anchor)
+    public bool TryBuildTooltip(out TooltipModel model, out TooltipAnchor anchor)
     {
         model = default;
         anchor = default;
@@ -98,5 +80,13 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
         Vector2 screenLeftTop = RectTransformUtility.WorldToScreenPoint(null, topLeftWorld);
         anchor = TooltipAnchor.FromScreen(screenRightTop, screenLeftTop);
         return true;
+    }
+
+    public void Pin()
+    {
+        if (!TryBuildTooltip(out var model, out var anchor))
+            return;
+
+        TooltipManager.Instance?.Pin(this, model, anchor);
     }
 }

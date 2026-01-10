@@ -207,6 +207,18 @@ public sealed class ShopView : MonoBehaviour
         RefreshItemSelectionVisuals();
     }
 
+    public void PinTooltipForSelection(int selectedIndex)
+    {
+        if (selectedIndex < 0 || selectedIndex >= itemViews.Count)
+            return;
+
+        var view = itemViews[selectedIndex];
+        if (view == null || !view.gameObject.activeSelf)
+            return;
+
+        view.PinTooltip();
+    }
+
     // ======================
     // Pin drag UI
     // ======================
