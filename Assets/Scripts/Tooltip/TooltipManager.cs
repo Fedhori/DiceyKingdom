@@ -20,6 +20,8 @@ public sealed class TooltipManager : MonoBehaviour
     TooltipModel currentModel;
     TooltipAnchor currentAnchor;
     bool hasCurrentModel;
+    bool isPinned;
+    bool dragHidden;
 
     Coroutine showRoutine;
 
@@ -52,6 +54,7 @@ public sealed class TooltipManager : MonoBehaviour
     void OnEnable()
     {
         SceneManager.activeSceneChanged += OnActiveSceneChanged;
+        UiSelectionEvents.OnSelectionCleared += HandleSelectionCleared;
         UpdateWorldCamera();
     }
 
@@ -59,6 +62,7 @@ public sealed class TooltipManager : MonoBehaviour
     {
         if (Instance == this)
             SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+        UiSelectionEvents.OnSelectionCleared -= HandleSelectionCleared;
     }
 
     void OnActiveSceneChanged(Scene oldScene, Scene newScene)
@@ -67,6 +71,8 @@ public sealed class TooltipManager : MonoBehaviour
 
         currentOwner = null;
         hasCurrentModel = false;
+        isPinned = false;
+        dragHidden = false;
 
         if (showRoutine != null)
         {
@@ -98,6 +104,9 @@ public sealed class TooltipManager : MonoBehaviour
         if (owner == null)
             return;
 
+        if (isPinned)
+            return;
+
         currentOwner = owner;
         currentModel = model;
         currentAnchor = anchor;
@@ -114,6 +123,9 @@ public sealed class TooltipManager : MonoBehaviour
         if (owner == null)
             return;
 
+        if (isPinned)
+            return;
+
         if (!ReferenceEquals(owner, currentOwner))
             return;
 
@@ -127,6 +139,100 @@ public sealed class TooltipManager : MonoBehaviour
         hasCurrentModel = false;
 
         HideImmediate();
+    }
+
+    public void TogglePin(object owner, TooltipModel model, TooltipAnchor anchor)
+    {
+        if (owner == null)
+            return;
+
+        if (isPinned && ReferenceEquals(owner, currentOwner))
+        {
+            ClearPin();
+            return;
+        }
+
+        isPinned = true;
+        dragHidden = false;
+        currentOwner = owner;
+        currentModel = model;
+        currentAnchor = anchor;
+        hasCurrentModel = true;
+
+        if (showRoutine != null)
+        {
+            StopCoroutine(showRoutine);
+            showRoutine = null;
+        }
+
+        ShowNow();
+    }
+
+    public void ClearPin()
+    {
+        if (!isPinned)
+            return;
+
+        isPinned = false;
+        dragHidden = false;
+        currentOwner = null;
+        hasCurrentModel = false;
+
+        if (showRoutine != null)
+        {
+            StopCoroutine(showRoutine);
+            showRoutine = null;
+        }
+
+        HideImmediate();
+    }
+
+    public void ClearOwner(object owner)
+    {
+        if (owner == null)
+            return;
+
+        if (isPinned && ReferenceEquals(owner, currentOwner))
+        {
+            ClearPin();
+            return;
+        }
+
+        EndHover(owner);
+    }
+
+    public void HideForDrag()
+    {
+        if (showRoutine != null)
+        {
+            StopCoroutine(showRoutine);
+            showRoutine = null;
+        }
+
+        if (isPinned)
+        {
+            dragHidden = true;
+            HideImmediate();
+            return;
+        }
+
+        currentOwner = null;
+        hasCurrentModel = false;
+        HideImmediate();
+    }
+
+    public void RestoreAfterDrag()
+    {
+        if (!isPinned || !dragHidden)
+            return;
+
+        dragHidden = false;
+        ShowNow();
+    }
+
+    void HandleSelectionCleared()
+    {
+        ClearPin();
     }
 
     IEnumerator ShowDelayed()

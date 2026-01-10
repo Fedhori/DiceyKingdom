@@ -360,6 +360,8 @@ public sealed class ItemSlotManager : MonoBehaviour
         if (controller.Instance == null)
             return;
 
+        TooltipManager.Instance?.HideForDrag();
+
         draggingController = controller;
         draggingStartIndex = idx;
         var rarity = ItemRarity.Common;
@@ -379,6 +381,7 @@ public sealed class ItemSlotManager : MonoBehaviour
     {
         if (draggingController == null || controller != draggingController)
         {
+            TooltipManager.Instance?.RestoreAfterDrag();
             SellOverlayController.Instance?.Hide();
             ResetDrag();
             return;
@@ -396,6 +399,7 @@ public sealed class ItemSlotManager : MonoBehaviour
             var toSell = draggingController;
             ResetDrag();
             RequestSellItem(toSell);
+            TooltipManager.Instance?.RestoreAfterDrag();
             return;
         }
 
@@ -409,6 +413,7 @@ public sealed class ItemSlotManager : MonoBehaviour
 
         ResetDrag();
         overlay?.Hide();
+        TooltipManager.Instance?.RestoreAfterDrag();
     }
 
     int FindSlotIndexAtScreenPos(Vector2 screenPos)

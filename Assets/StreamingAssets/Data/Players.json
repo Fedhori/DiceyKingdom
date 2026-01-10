@@ -8,10 +8,7 @@
 			"startCurrency": 10,
 			"initialBallCount": 0,
 			"moveSpeed": 1.0,
-			"itemIds": [
-				"item.snowballer",
-				"item.minigun"
-			]
+			"itemIds": ["item.pistol"]
 		}
 	]
 }

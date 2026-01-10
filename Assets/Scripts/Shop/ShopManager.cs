@@ -68,6 +68,8 @@ public sealed class ShopManager : MonoBehaviour
         if (player != null)
             player.OnCurrencyChanged += HandleCurrencyChanged;
 
+        UiSelectionEvents.OnSelectionCleared += HandleSelectionCleared;
+
         var inventory = ItemManager.Instance?.Inventory;
         if (inventory != null)
         {
@@ -85,6 +87,7 @@ public sealed class ShopManager : MonoBehaviour
         if (player != null)
             player.OnCurrencyChanged -= HandleCurrencyChanged;
 
+        UiSelectionEvents.OnSelectionCleared -= HandleSelectionCleared;
         OnShopItemChanged -= RefreshView;
         if (subscribedInventory != null)
         {
@@ -510,6 +513,14 @@ public sealed class ShopManager : MonoBehaviour
         OnShopItemChanged?.Invoke();
     }
 
+    void HandleSelectionCleared()
+    {
+        if (!isOpen)
+            return;
+
+        ClearSelection();
+    }
+
     // ======================
     // Item drag (토큰)
     // ======================
@@ -527,6 +538,7 @@ public sealed class ShopManager : MonoBehaviour
             return;
 
         SetSelection(itemIndex);
+        TooltipManager.Instance?.HideForDrag();
 
         if (item.ProductType == ProductType.Item)
         {
@@ -570,6 +582,7 @@ public sealed class ShopManager : MonoBehaviour
         if (shopView == null)
         {
             draggingItemIndex = -1;
+            TooltipManager.Instance?.RestoreAfterDrag();
             return;
         }
 
@@ -577,6 +590,7 @@ public sealed class ShopManager : MonoBehaviour
         {
             shopView.HideItemDragGhost();
             draggingItemIndex = -1;
+            TooltipManager.Instance?.RestoreAfterDrag();
             return;
         }
 
@@ -592,6 +606,7 @@ public sealed class ShopManager : MonoBehaviour
         draggingItemIndex = -1;
         ItemSlotManager.Instance?.ClearHighlights();
         ItemSlotManager.Instance?.ClearPreviews();
+        TooltipManager.Instance?.RestoreAfterDrag();
     }
 
 }
