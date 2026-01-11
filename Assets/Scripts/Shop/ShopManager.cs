@@ -307,10 +307,7 @@ public sealed class ShopManager : MonoBehaviour
         CurrentSelectionIndex = selection != null ? itemIndex : -1;
         OnSelectionChanged?.Invoke(CurrentSelectionIndex);
 
-        if (selection is { ProductType: ProductType.Item })
-            ItemSlotManager.Instance?.HighlightEmptySlots();
-        else
-            ItemSlotManager.Instance?.ClearHighlights();
+        UpdateSlotHighlightsForSelection();
 
         if (selection != null)
             shopView?.PinTooltipForSelection(itemIndex);
@@ -422,6 +419,11 @@ public sealed class ShopManager : MonoBehaviour
 
         shopView.SetItems(currentShopItems, currency, hasEmptyItemSlot, currentRerollCost);
         shopView.RefreshAll();
+
+        if (IsSelectedItemInvalid())
+            UiSelectionEvents.RaiseSelectionCleared();
+        else
+            UpdateSlotHighlightsForSelection();
     }
 
 
@@ -554,7 +556,6 @@ public sealed class ShopManager : MonoBehaviour
         if (item.ProductType == ProductType.Item)
         {
             draggingItemIndex = itemIndex;
-            ItemSlotManager.Instance?.HighlightEmptySlots();
             shopView.ShowItemDragGhost(item, screenPos);
         }
         else
@@ -617,20 +618,48 @@ public sealed class ShopManager : MonoBehaviour
         draggingItemIndex = -1;
         ItemSlotManager.Instance?.ClearHighlights();
         ItemSlotManager.Instance?.ClearPreviews();
-        RestoreSlotHighlightsForSelection();
+        UpdateSlotHighlightsForSelection();
         TooltipManager.Instance?.RestoreAfterDrag();
     }
 
-    void RestoreSlotHighlightsForSelection()
+    void UpdateSlotHighlightsForSelection()
     {
         if (CurrentSelectionIndex < 0)
+        {
+            ItemSlotManager.Instance?.ClearHighlights();
             return;
+        }
 
         var selected = GetShopItem(CurrentSelectionIndex);
-        if (selected == null || selected.Sold || selected.ProductType != ProductType.Item)
-            return;
+        if (CanPurchaseSelectedItem(selected))
+            ItemSlotManager.Instance?.HighlightEmptySlots();
+        else
+            ItemSlotManager.Instance?.ClearHighlights();
+    }
 
-        ItemSlotManager.Instance?.HighlightEmptySlots();
+    bool CanPurchaseSelectedItem(IProduct selected)
+    {
+        if (selected == null || selected.Sold || selected.ProductType != ProductType.Item)
+            return false;
+
+        var currency = CurrencyManager.Instance;
+        if (currency == null || currency.CurrentCurrency < selected.Price)
+            return false;
+
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory == null)
+            return false;
+
+        return inventory.TryGetFirstEmptySlot(out _);
+    }
+
+    bool IsSelectedItemInvalid()
+    {
+        if (CurrentSelectionIndex < 0)
+            return false;
+
+        var selected = GetShopItem(CurrentSelectionIndex);
+        return selected == null || selected.Sold;
     }
 
 }

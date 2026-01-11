@@ -57,8 +57,8 @@ public sealed class ProductController : MonoBehaviour, IPointerClickHandler, IBe
         boundItem = product as ItemProduct;
         ViewType = product?.ProductType ?? ViewType;
 
-        bool canInteract = (product != null) && canBuy && !sold;
-        canDrag = canInteract;
+        bool canInteract = (product != null) && !sold;
+        canDrag = canBuy && canInteract;
         canClick = canInteract;
 
         if (product == null)
