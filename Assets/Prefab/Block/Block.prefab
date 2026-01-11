@@ -155,6 +155,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 1119339393901414208}
   hpText: {fileID: 3865563149693419177}
   hitFlashDuration: 0.2
+  hitCollider: {fileID: 112280028068122016}
 --- !u!50 &5748353507522075565
 Rigidbody2D:
   serializedVersion: 5

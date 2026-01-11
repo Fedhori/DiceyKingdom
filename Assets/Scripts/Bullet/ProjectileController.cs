@@ -74,8 +74,9 @@ public sealed class ProjectileController : MonoBehaviour
             if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
                 return;
 
-            ApplyDamage(other);
-            HandlePierce();
+            var result = ApplyDamage(other);
+            if (result.AppliedDamage > 0)
+                HandlePierce();
             return;
         }
 
@@ -98,24 +99,25 @@ public sealed class ProjectileController : MonoBehaviour
             }
             else
             {
-                ApplyDamage(other);
-                HandlePierce();
+                var result = ApplyDamage(other);
+                if (result.AppliedDamage > 0)
+                    HandlePierce();
             }
         }
     }
     
-    void ApplyDamage(Collider2D other)
+    DamageResult ApplyDamage(Collider2D other)
     {
         if (item == null || other == null)
-            return;
+            return new DamageResult(0, 0, false, false);
 
         var block = other.GetComponent<BlockController>();
         if (block == null || block.Instance == null)
-            return;
+            return new DamageResult(0, 0, false, false);
 
         var damageManager = DamageManager.Instance;
         if (damageManager == null)
-            return;
+            return new DamageResult(0, 0, false, false);
 
         var context = new DamageContext(
             block,
@@ -126,7 +128,7 @@ public sealed class ProjectileController : MonoBehaviour
             allowOverflow: true,
             applyStatusFromItem: true,
             sourceOwner: this);
-        damageManager.ApplyDamage(context);
+        return damageManager.ApplyDamage(context);
     }
 
     void ApplyPierceCount()

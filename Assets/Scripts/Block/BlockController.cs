@@ -8,11 +8,13 @@ public sealed class BlockController : MonoBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private TMP_Text hpText;
     [SerializeField] private float hitFlashDuration = 0.08f;
+    [SerializeField] private Collider2D hitCollider;
 
     public BlockInstance Instance { get; private set; }
 
     Color baseColor = Color.white;
     float hitFlashTimer;
+    bool isPendingDestroy;
 
     public void Initialize(BlockInstance instance)
     {
@@ -20,6 +22,9 @@ public sealed class BlockController : MonoBehaviour
 
         if (spriteRenderer == null)
             spriteRenderer = GetComponent<SpriteRenderer>();
+
+        SetColliderEnabled(true);
+        isPendingDestroy = false;
 
         CacheBaseColor();
         RefreshHpText();
@@ -63,8 +68,14 @@ public sealed class BlockController : MonoBehaviour
         if (Instance == null || context == null)
             return new DamageResult(0, 0, false, false);
 
-        if (Instance.IsDead)
+        if (isPendingDestroy)
             return new DamageResult(0, 0, true, false);
+
+        if (Instance.IsDead)
+        {
+            MarkPendingDestroy();
+            return new DamageResult(0, 0, true, false);
+        }
 
         int damage = ResolveDamage(context);
         if (damage <= 0)
@@ -79,6 +90,8 @@ public sealed class BlockController : MonoBehaviour
             statusApplied = ApplyStatusFromItem(context.SourceItem);
 
         bool isDead = Instance.IsDead;
+        if (isDead)
+            MarkPendingDestroy();
         int overflow = isDead ? Mathf.Max(0, damage - currentHp) : 0;
 
         return new DamageResult(damage, overflow, isDead, statusApplied);
@@ -187,5 +200,20 @@ public sealed class BlockController : MonoBehaviour
     {
         if (spriteRenderer != null)
             baseColor = spriteRenderer.color;
+    }
+
+    void SetColliderEnabled(bool enabled)
+    {
+        if (hitCollider != null)
+            hitCollider.enabled = enabled;
+    }
+
+    void MarkPendingDestroy()
+    {
+        if (isPendingDestroy)
+            return;
+
+        isPendingDestroy = true;
+        SetColliderEnabled(false);
     }
 }
