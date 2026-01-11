@@ -62,6 +62,18 @@
 		{
 			"index": 14,
 			"blockHealth": 10000
+		},
+		{
+			"index": 15,
+			"blockHealth": 15000
+		},
+		{
+			"index": 16,
+			"blockHealth": 20000
+		},
+		{
+			"index": 17,
+			"blockHealth": 30000
 		}
 	]
 }
