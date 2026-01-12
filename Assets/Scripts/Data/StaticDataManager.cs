@@ -28,6 +28,7 @@ public class StaticDataManager : MonoBehaviour
         LoadStage();
         LoadPlayers();
         LoadItems();
+        LoadUpgrades();
     }
 
     void LoadStage()
@@ -92,6 +93,28 @@ public class StaticDataManager : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"[StaticDataManager] Failed to initialize ItemRepository from Items.json: {e}");
+        }
+    }
+
+    void LoadUpgrades()
+    {
+        string filePath = Path.Combine("Data", "Upgrades.json");
+        string json = SaCache.ReadText(filePath);
+
+        if (string.IsNullOrEmpty(json))
+        {
+            Debug.LogError($"[StaticDataManager] Upgrades.json not found or empty at: {filePath}");
+            return;
+        }
+
+        try
+        {
+            var asset = new TextAsset(json);
+            Data.UpgradeRepository.LoadFromJson(asset);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[StaticDataManager] Failed to initialize UpgradeRepository from Upgrades.json: {e}");
         }
     }
 }

@@ -29,7 +29,7 @@
 - [ ] 1.0 강화 데이터 파이프라인 구축
   - [x] 1.1 `Upgrades.json` 스키마 정의 및 샘플 강화(힘의 돌/바람의 돌) 데이터 추가
   - [x] 1.2 `UpgradeDto`/조건/효과 구조 설계 및 JSON 파싱 로직 구현
-  - [ ] 1.3 `UpgradeRepository` 초기화/조회 API 추가 및 로더 연동
+  - [x] 1.3 `UpgradeRepository` 초기화/조회 API 추가 및 로더 연동
   - [ ] 1.4 `UpgradeInstance` 생성 및 조건 체크/효과 데이터 보관 구조 구현
 - [ ] 2.0 상점에 강화 상품 혼합 등장 및 전용 UI 연결
   - [ ] 2.1 `ProductType`에 `Upgrade` 추가 및 `UpgradeProduct` 모델 도입
