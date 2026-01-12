@@ -89,6 +89,7 @@ GameObject:
   - component: {fileID: 6016486003405788142}
   - component: {fileID: 4405346500044329777}
   - component: {fileID: 2802467715807013686}
+  - component: {fileID: -6899895811056252566}
   m_Layer: 5
   m_Name: UpgradeProduct
   m_TagString: Untagged
@@ -184,7 +185,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeProductController
   itemView: {fileID: 4405346500044329777}
+  tooltipTarget: {fileID: 0}
   priceText: {fileID: 49748079663549652}
+  rarityText: {fileID: 0}
+--- !u!114 &-6899895811056252566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2853605924355977005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99ab4f6b08ca80c4aaf770248fba0b3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemTooltipTarget
+  anchorType: 1
+  anchorRect: {fileID: 0}
 --- !u!1 &4899419208527762453
 GameObject:
   m_ObjectHideFlags: 0
