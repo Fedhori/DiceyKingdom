@@ -36,6 +36,7 @@ public sealed class DamageManager : MonoBehaviour
         if (result.IsDead)
         {
             AudioManager.Instance?.Play("Pop");
+            ParticleManager.Instance?.PlayBlockDestroy(context.Target.transform.position);
             BlockManager.Instance?.HandleBlockDestroyed(context.Target);
             Destroy(context.Target.gameObject);
 
