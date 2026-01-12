@@ -13,19 +13,18 @@ public sealed class ShopManager : MonoBehaviour
     [SerializeField] private int baseRerollCost = 1;
     [SerializeField] private int rerollCostIncrement = 1;
 
-    [Header("Mixed Item Probabilities (weight-based)")]
-    private readonly ProductProbability[] itemProbabilities =
-    {
-        new ProductProbability { type = ProductType.Item, weight = 100 }
-    };
-
     [Header("Rarity Probabilities (weight-based)")]
     [SerializeField] private int[] rarityWeights = new int[] { 60, 30, 10, 0 };
+
+    [Header("Product Probabilities (weight-based)")]
+    [SerializeField] private int itemProductWeight = 80;
+    [SerializeField] private int upgradeProductWeight = 20;
 
     bool isOpen;
 
     readonly List<IProduct> rosterItems = new();
     readonly List<ItemDto> sellableItems = new();
+    readonly List<UpgradeDto> sellableUpgrades = new();
     readonly HashSet<string> rosterItemIds = new();
     readonly HashSet<string> ownedItemIds = new();
 
@@ -117,6 +116,7 @@ public sealed class ShopManager : MonoBehaviour
         UiSelectionEvents.RaiseSelectionCleared();
 
         BuildSellableItems();
+        BuildSellableUpgrades();
         CollectOwnedItems();
         EnsureArrays();
         currentRerollCost = Mathf.Max(1, baseRerollCost);
@@ -168,6 +168,26 @@ public sealed class ShopManager : MonoBehaviour
         }
     }
 
+    void BuildSellableUpgrades()
+    {
+        sellableUpgrades.Clear();
+
+        if (!UpgradeRepository.IsInitialized)
+        {
+            Debug.LogWarning("[ShopManager] UpgradeRepository not initialized.");
+            return;
+        }
+
+        foreach (var entry in UpgradeRepository.All)
+        {
+            var dto = entry.Value;
+            if (dto == null)
+                continue;
+
+            sellableUpgrades.Add(dto);
+        }
+    }
+
     void EnsureArrays()
     {
         if (currentShopItems == null || currentShopItems.Length != itemsPerShop)
@@ -190,27 +210,35 @@ public sealed class ShopManager : MonoBehaviour
         }
 
         var itemPools = BuildItemPoolsByRarity();
+        var upgradePool = BuildUpgradePool();
 
         for (int slot = 0; slot < itemsPerShop; slot++)
         {
-            var type = factory.RollType(itemProbabilities);
-            if (type != ProductType.Item)
-                continue;
-
-            if (!HasAvailableItems(itemPools))
-                continue;
-
-            if (!TryRollRarity(itemPools, out var rarity))
-                continue;
-
-            if (!TryPopItem(itemPools, rarity, out var dto))
-                continue;
-
-            var item = factory.CreateItem(dto);
-            if (item != null)
+            var type = RollProductType(itemPools, upgradePool);
+            if (type == ProductType.Item)
             {
-                rosterItems.Add(item);
-                rosterItemIds.Add(dto.id);
+                if (!TryRollRarity(itemPools, out var rarity))
+                    continue;
+
+                if (!TryPopItem(itemPools, rarity, out var dto))
+                    continue;
+
+                var item = factory.CreateItem(dto);
+                if (item != null)
+                {
+                    rosterItems.Add(item);
+                    rosterItemIds.Add(dto.id);
+                }
+            }
+            else if (type == ProductType.Upgrade)
+            {
+                var upgrade = PopUpgrade(upgradePool);
+                if (upgrade == null)
+                    continue;
+
+                var product = factory.CreateUpgrade(upgrade);
+                if (product != null)
+                    rosterItems.Add(product);
             }
         }
 
@@ -264,6 +292,31 @@ public sealed class ShopManager : MonoBehaviour
         return pools;
     }
 
+    List<UpgradeDto> BuildUpgradePool()
+    {
+        var pool = new List<UpgradeDto>();
+
+        if (sellableUpgrades == null || sellableUpgrades.Count == 0)
+            return pool;
+
+        for (int i = 0; i < sellableUpgrades.Count; i++)
+        {
+            var dto = sellableUpgrades[i];
+            if (dto == null)
+                continue;
+
+            pool.Add(dto);
+        }
+
+        for (int i = pool.Count - 1; i > 0; i--)
+        {
+            int j = Rng.Next(i + 1);
+            (pool[i], pool[j]) = (pool[j], pool[i]);
+        }
+
+        return pool;
+    }
+
     bool TryPopItem(Dictionary<ItemRarity, List<ItemDto>> pools, ItemRarity rarity, out ItemDto dto)
     {
         dto = null;
@@ -281,6 +334,17 @@ public sealed class ShopManager : MonoBehaviour
             pools.Remove(rarity);
 
         return dto != null;
+    }
+
+    UpgradeDto PopUpgrade(List<UpgradeDto> pool)
+    {
+        if (pool == null || pool.Count == 0)
+            return null;
+
+        int last = pool.Count - 1;
+        var dto = pool[last];
+        pool.RemoveAt(last);
+        return dto;
     }
 
     bool IsItemAllowed(string itemId)
@@ -362,6 +426,30 @@ public sealed class ShopManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    ProductType RollProductType(Dictionary<ItemRarity, List<ItemDto>> itemPools, List<UpgradeDto> upgradePool)
+    {
+        bool hasItems = HasAvailableItems(itemPools);
+        bool hasUpgrades = upgradePool != null && upgradePool.Count > 0;
+
+        if (hasItems && !hasUpgrades)
+            return ProductType.Item;
+
+        if (!hasItems && hasUpgrades)
+            return ProductType.Upgrade;
+
+        if (!hasItems && !hasUpgrades)
+            return ProductType.Item;
+
+        int itemWeight = Mathf.Max(0, itemProductWeight);
+        int upgradeWeight = Mathf.Max(0, upgradeProductWeight);
+        int total = itemWeight + upgradeWeight;
+        if (total <= 0)
+            return ProductType.Item;
+
+        int roll = Rng.Next(0, total);
+        return roll < itemWeight ? ProductType.Item : ProductType.Upgrade;
     }
 
     void ShuffleList(List<ItemDto> list)
@@ -584,6 +672,7 @@ public sealed class ShopManager : MonoBehaviour
         currentRerollCost = Mathf.Max(1, currentRerollCost + Mathf.Max(1, rerollCostIncrement));
 
         BuildSellableItems();
+        BuildSellableUpgrades();
         CollectOwnedItems();
         BuildRoster();
     }
