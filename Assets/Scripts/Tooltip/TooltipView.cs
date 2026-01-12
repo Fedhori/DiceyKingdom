@@ -37,7 +37,7 @@ public sealed class TooltipView : MonoBehaviour
         if (descriptionText != null)
             descriptionText.text = model.Body ?? string.Empty;
 
-        ApplyRarity(model.Rarity);
+        ApplyRarity(model.Rarity, model.RarityLabelOverride);
 
         // if (iconImage != null)
         // {
@@ -59,13 +59,13 @@ public sealed class TooltipView : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    void ApplyRarity(ItemRarity rarity)
+    void ApplyRarity(ItemRarity rarity, string labelOverride)
     {
         if (rarityPanelImage != null)
             rarityPanelImage.color = GetRarityColor(rarity);
 
         if (rarityText != null)
-            rarityText.text = GetRarityLabel(rarity);
+            rarityText.text = string.IsNullOrEmpty(labelOverride) ? GetRarityLabel(rarity) : labelOverride;
     }
 
     Color GetRarityColor(ItemRarity rarity)

@@ -7,6 +7,7 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
     [SerializeField] RectTransform anchorRect;
 
     ItemInstance instance;
+    UpgradeInstance upgrade;
     readonly Vector3[] corners = new Vector3[4];
 
     void Awake()
@@ -18,6 +19,7 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
     public void Bind(ItemInstance boundInstance)
     {
         instance = boundInstance;
+        upgrade = null;
         if (instance == null)
             TooltipManager.Instance?.ClearOwner(this);
     }
@@ -25,7 +27,16 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
     public void Clear()
     {
         instance = null;
+        upgrade = null;
         TooltipManager.Instance?.ClearOwner(this);
+    }
+
+    public void BindUpgrade(UpgradeInstance boundUpgrade)
+    {
+        upgrade = boundUpgrade;
+        instance = null;
+        if (upgrade == null)
+            TooltipManager.Instance?.ClearOwner(this);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -57,10 +68,12 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
         model = default;
         anchor = default;
 
-        if (instance == null)
+        if (instance == null && upgrade == null)
             return false;
 
-        model = ItemTooltipUtil.BuildModel(instance);
+        model = instance != null
+            ? ItemTooltipUtil.BuildModel(instance)
+            : UpgradeTooltipUtil.BuildModel(upgrade);
 
         if (anchorType == TooltipAnchorType.World)
         {

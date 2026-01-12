@@ -24,6 +24,9 @@
 - `Assets/Scripts/Tooltip/UpgradeTooltipUtil.cs` - 강화 툴팁 생성(신규).
 - `Assets/Scripts/Tooltip/TooltipManager.cs` - 강화 툴팁 노출 흐름 연동.
 - `Assets/Scripts/Data/LocalizationUtil.cs` - 강화 이름/효과 로컬라이징 접근.
+- `Assets/Scripts/Tooltip/TooltipModel.cs` - 강화 라벨 오버라이드 지원.
+- `Assets/Scripts/Tooltip/TooltipView.cs` - 강화 라벨 표시 처리.
+- `Assets/Scripts/UI/ItemTooltipTarget.cs` - 강화 툴팁 바인딩 지원.
 
 ### Notes
 
@@ -49,6 +52,6 @@
   - [x] 3.4 강화 선택 시 유효 슬롯 하이라이트 및 드래그/클릭 적용 흐름 추가
   - [x] 3.5 강화 적용 시 `ItemEffect` 기반으로 아이템 스탯 변경 적용/해제
 - [ ] 4.0 강화/아이템 툴팁 표시 로직 추가
-  - [ ] 4.1 강화 툴팁 모델/유틸 생성(이름/효과/“강화” 라벨)
+  - [x] 4.1 강화 툴팁 모델/유틸 생성(이름/효과/“강화” 라벨)
   - [ ] 4.2 강화 상품 hover 시 툴팁 노출 연동
   - [ ] 4.3 아이템 툴팁 제목에 강화명 표시 로직 추가

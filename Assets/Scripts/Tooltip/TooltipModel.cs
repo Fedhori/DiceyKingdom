@@ -15,6 +15,7 @@ public readonly struct TooltipModel
     public readonly TooltipKind Kind;
     public readonly float Damage;
     public readonly ItemRarity Rarity;
+    public readonly string RarityLabelOverride;
 
     public TooltipModel(string title, string body, Sprite icon, TooltipKind kind)
     {
@@ -24,6 +25,7 @@ public readonly struct TooltipModel
         Kind = kind;
         Damage = 0f;
         Rarity = ItemRarity.Common;
+        RarityLabelOverride = null;
     }
 
     public TooltipModel(string title, string body, Sprite icon, TooltipKind kind, float damage)
@@ -34,6 +36,7 @@ public readonly struct TooltipModel
         Kind = kind;
         Damage = damage;
         Rarity = ItemRarity.Common;
+        RarityLabelOverride = null;
     }
 
     public TooltipModel(string title, string body, Sprite icon, TooltipKind kind, float damage, ItemRarity rarity)
@@ -44,5 +47,17 @@ public readonly struct TooltipModel
         Kind = kind;
         Damage = damage;
         Rarity = rarity;
+        RarityLabelOverride = null;
+    }
+
+    public TooltipModel(string title, string body, Sprite icon, TooltipKind kind, float damage, ItemRarity rarity, string rarityLabelOverride)
+    {
+        Title = title;
+        Body = body;
+        Icon = icon;
+        Kind = kind;
+        Damage = damage;
+        Rarity = rarity;
+        RarityLabelOverride = rarityLabelOverride;
     }
 }
