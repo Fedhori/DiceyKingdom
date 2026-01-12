@@ -23,7 +23,7 @@ public readonly struct TooltipModel
         Icon = icon;
         Kind = kind;
         Damage = 0f;
-        Rarity = ItemRarity.Unknown;
+        Rarity = ItemRarity.Common;
     }
 
     public TooltipModel(string title, string body, Sprite icon, TooltipKind kind, float damage)
@@ -33,7 +33,7 @@ public readonly struct TooltipModel
         Icon = icon;
         Kind = kind;
         Damage = damage;
-        Rarity = ItemRarity.Unknown;
+        Rarity = ItemRarity.Common;
     }
 
     public TooltipModel(string title, string body, Sprite icon, TooltipKind kind, float damage, ItemRarity rarity)

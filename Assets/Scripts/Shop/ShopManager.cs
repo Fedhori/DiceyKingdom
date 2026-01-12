@@ -19,6 +19,9 @@ public sealed class ShopManager : MonoBehaviour
         new ProductProbability { type = ProductType.Item, weight = 100 }
     };
 
+    [Header("Rarity Probabilities (weight-based)")]
+    [SerializeField] private int[] rarityWeights = new int[] { 60, 30, 10, 0 };
+
     bool isOpen;
 
     readonly List<IProduct> rosterItems = new();
@@ -186,7 +189,7 @@ public sealed class ShopManager : MonoBehaviour
             return;
         }
 
-        var itemPool = BuildItemPool();
+        var itemPools = BuildItemPoolsByRarity();
 
         for (int slot = 0; slot < itemsPerShop; slot++)
         {
@@ -194,10 +197,15 @@ public sealed class ShopManager : MonoBehaviour
             if (type != ProductType.Item)
                 continue;
 
-            if (itemPool.Count == 0)
+            if (!HasAvailableItems(itemPools))
                 continue;
 
-            var dto = PopItem(itemPool);
+            if (!TryRollRarity(itemPools, out var rarity))
+                continue;
+
+            if (!TryPopItem(itemPools, rarity, out var dto))
+                continue;
+
             var item = factory.CreateItem(dto);
             if (item != null)
             {
@@ -225,12 +233,12 @@ public sealed class ShopManager : MonoBehaviour
         NotifyShopItemChanged();
     }
 
-    List<ItemDto> BuildItemPool()
+    Dictionary<ItemRarity, List<ItemDto>> BuildItemPoolsByRarity()
     {
-        var pool = new List<ItemDto>();
+        var pools = new Dictionary<ItemRarity, List<ItemDto>>();
 
         if (sellableItems == null || sellableItems.Count == 0)
-            return pool;
+            return pools;
 
         for (int i = 0; i < sellableItems.Count; i++)
         {
@@ -241,28 +249,38 @@ public sealed class ShopManager : MonoBehaviour
             if (!IsItemAllowed(dto.id))
                 continue;
 
-            pool.Add(dto);
+            if (!pools.TryGetValue(dto.rarity, out var list))
+            {
+                list = new List<ItemDto>();
+                pools[dto.rarity] = list;
+            }
+
+            list.Add(dto);
         }
 
-        // 셔플
-        for (int i = pool.Count - 1; i > 0; i--)
-        {
-            int j = Rng.Next(i + 1);
-            (pool[i], pool[j]) = (pool[j], pool[i]);
-        }
+        foreach (var entry in pools)
+            ShuffleList(entry.Value);
 
-        return pool;
+        return pools;
     }
 
-    ItemDto PopItem(List<ItemDto> pool)
+    bool TryPopItem(Dictionary<ItemRarity, List<ItemDto>> pools, ItemRarity rarity, out ItemDto dto)
     {
-        if (pool == null || pool.Count == 0)
-            return null;
+        dto = null;
+        if (pools == null)
+            return false;
 
-        int last = pool.Count - 1;
-        var dto = pool[last];
-        pool.RemoveAt(last);
-        return dto;
+        if (!pools.TryGetValue(rarity, out var list) || list == null || list.Count == 0)
+            return false;
+
+        int last = list.Count - 1;
+        dto = list[last];
+        list.RemoveAt(last);
+
+        if (list.Count == 0)
+            pools.Remove(rarity);
+
+        return dto != null;
     }
 
     bool IsItemAllowed(string itemId)
@@ -277,6 +295,85 @@ public sealed class ShopManager : MonoBehaviour
             return false;
 
         return true;
+    }
+
+    bool TryRollRarity(Dictionary<ItemRarity, List<ItemDto>> pools, out ItemRarity rarity)
+    {
+        rarity = ItemRarity.Common;
+        if (pools == null || pools.Count == 0)
+            return false;
+
+        int totalWeight = 0;
+        var available = new List<ItemRarity>();
+
+        foreach (var entry in pools)
+        {
+            if (entry.Value == null || entry.Value.Count == 0)
+                continue;
+
+            available.Add(entry.Key);
+            totalWeight += Mathf.Max(0, GetRarityWeight(entry.Key));
+        }
+
+        if (available.Count == 0)
+            return false;
+
+        if (totalWeight <= 0)
+            return false;
+
+        int roll = Rng.Next(0, totalWeight);
+        int acc = 0;
+        for (int i = 0; i < available.Count; i++)
+        {
+            int weight = Mathf.Max(0, GetRarityWeight(available[i]));
+            acc += weight;
+            if (roll < acc)
+            {
+                rarity = available[i];
+                return true;
+            }
+        }
+
+        rarity = available[available.Count - 1];
+        return true;
+    }
+
+    int GetRarityWeight(ItemRarity rarity)
+    {
+        if (rarityWeights == null || rarityWeights.Length == 0)
+            return 0;
+
+        int index = (int)rarity;
+        if (index < 0 || index >= rarityWeights.Length)
+            return 0;
+
+        return rarityWeights[index];
+    }
+
+    bool HasAvailableItems(Dictionary<ItemRarity, List<ItemDto>> pools)
+    {
+        if (pools == null)
+            return false;
+
+        foreach (var entry in pools)
+        {
+            if (entry.Value != null && entry.Value.Count > 0)
+                return true;
+        }
+
+        return false;
+    }
+
+    void ShuffleList(List<ItemDto> list)
+    {
+        if (list == null || list.Count <= 1)
+            return;
+
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = Rng.Next(i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
     }
 
     public void SetSelection(int itemIndex)

@@ -65,7 +65,7 @@ public sealed class ItemInstance
             StatusDuration = 0f;
             StatusDamageMultiplier = 1f;
             SellValueBonus = 0;
-            Rarity = ItemRarity.Unknown;
+            Rarity = ItemRarity.Common;
             return;
         }
 

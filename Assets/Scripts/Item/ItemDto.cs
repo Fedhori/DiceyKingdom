@@ -57,11 +57,10 @@ namespace Data
 
     public enum ItemRarity
     {
-        Unknown = 0,
-        Common,
-        Uncommon,
-        Rare,
-        Legendary
+        Common = 0,
+        Uncommon = 1,
+        Rare = 2,
+        Legendary = 3
     }
 
     [Serializable]
