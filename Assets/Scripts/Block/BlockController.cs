@@ -6,6 +6,7 @@ using UnityEngine;
 public sealed class BlockController : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private SpriteRenderer hpBarRenderer;
     [SerializeField] private TMP_Text hpText;
     [SerializeField] private float hitFlashDuration = 0.08f;
     [SerializeField] private Collider2D hitCollider;
@@ -13,6 +14,7 @@ public sealed class BlockController : MonoBehaviour
     public BlockInstance Instance { get; private set; }
 
     Color baseColor = Color.white;
+    Vector3 hpBarBaseScale;
     float hitFlashTimer;
     bool isPendingDestroy;
 
@@ -27,6 +29,7 @@ public sealed class BlockController : MonoBehaviour
         isPendingDestroy = false;
 
         CacheBaseColor();
+        CacheHpBarScale();
         RefreshHpText();
     }
 
@@ -155,10 +158,13 @@ public sealed class BlockController : MonoBehaviour
 
     void RefreshHpText()
     {
-        if (hpText == null || Instance == null)
+        if (Instance == null)
             return;
 
-        hpText.text = Instance.Hp.ToString();
+        if (hpText != null)
+            hpText.text = Instance.Hp.ToString();
+
+        UpdateHpBar();
     }
 
     public void PlayHitFlash()
@@ -200,6 +206,28 @@ public sealed class BlockController : MonoBehaviour
     {
         if (spriteRenderer != null)
             baseColor = spriteRenderer.color;
+    }
+
+    void CacheHpBarScale()
+    {
+        if (hpBarRenderer == null)
+            return;
+
+        hpBarBaseScale = hpBarRenderer.transform.localScale;
+    }
+
+    void UpdateHpBar()
+    {
+        if (hpBarRenderer == null || Instance == null)
+            return;
+
+        float ratio = Instance.MaxHp > 0
+            ? Mathf.Clamp01(Instance.Hp / (float)Instance.MaxHp)
+            : 0f;
+
+        var scale = hpBarBaseScale;
+        scale.x *= ratio;
+        hpBarRenderer.transform.localScale = scale;
     }
 
     void SetColliderEnabled(bool enabled)

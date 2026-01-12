@@ -3109,6 +3109,7 @@ MonoBehaviour:
   itemsPerShop: 3
   baseRerollCost: 1
   rerollCostIncrement: 1
+  rarityWeights: 3c0000001e0000000a00000000000000
 --- !u!114 &708886698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7528,7 +7529,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f23a878fb61ebe44a83f9af042a4bc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BrickFactory
-  blockPrefab: {fileID: 13672171728307425, guid: a6506f9c221ee9641bee7de3cbf57aa4, type: 3}
+  blockPrefab: {fileID: 2705501123950751030, guid: a6506f9c221ee9641bee7de3cbf57aa4, type: 3}
 --- !u!1001 &1622613170
 PrefabInstance:
   m_ObjectHideFlags: 0
