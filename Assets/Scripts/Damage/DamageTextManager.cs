@@ -1,13 +1,12 @@
 using System;
 using UnityEngine;
 
-// TODO - 스테이지 구조가 확립되면 스테이지 난이도에 맞춰 텍스트 크기가 가변적으로 조정되게 한다.
 public sealed class DamageTextManager : MonoBehaviour
 {
     public static DamageTextManager Instance { get; private set; }
 
-    [SerializeField] private float minFontSize = 12f;
-    [SerializeField] private float maxFontSize = 48f;
+    [SerializeField] private float minFontSize = 16f;
+    [SerializeField] private float maxFontSize = 32f;
 
     double minValue = 1;
     double maxValue = 1000;
@@ -19,15 +18,8 @@ public sealed class DamageTextManager : MonoBehaviour
 
     public void SetMinMaxValue(double blockHealth)
     {
-        if (blockHealth <= 0)
-        {
-            minValue = 10;
-            maxValue = 10000;
-            return;
-        }
-
         maxValue = blockHealth;
-        minValue = blockHealth / 100.0;
+        minValue = blockHealth / 10.0;
 
         if (minValue < 0)
             minValue = 0;

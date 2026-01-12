@@ -3528,8 +3528,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: $$$
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 746f86218c845bb49a98169d005126fe, type: 2}
-  m_sharedMaterial: {fileID: -8383589127567067901, guid: 746f86218c845bb49a98169d005126fe, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: af29c603ea9ac6b408cf6260d3307c18, type: 2}
+  m_sharedMaterial: {fileID: 8618836993111102986, guid: af29c603ea9ac6b408cf6260d3307c18, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4559,7 +4559,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScoreManager
   minFontSize: 12
-  maxFontSize: 48
+  maxFontSize: 24
 --- !u!114 &1118263958
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7063,8 +7063,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 100
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 746f86218c845bb49a98169d005126fe, type: 2}
-  m_sharedMaterial: {fileID: -8383589127567067901, guid: 746f86218c845bb49a98169d005126fe, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: af29c603ea9ac6b408cf6260d3307c18, type: 2}
+  m_sharedMaterial: {fileID: 8618836993111102986, guid: af29c603ea9ac6b408cf6260d3307c18, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9228,8 +9228,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 0 / 0
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 746f86218c845bb49a98169d005126fe, type: 2}
-  m_sharedMaterial: {fileID: -8383589127567067901, guid: 746f86218c845bb49a98169d005126fe, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: af29c603ea9ac6b408cf6260d3307c18, type: 2}
+  m_sharedMaterial: {fileID: 8618836993111102986, guid: af29c603ea9ac6b408cf6260d3307c18, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
