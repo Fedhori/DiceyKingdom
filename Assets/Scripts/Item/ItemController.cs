@@ -3,6 +3,7 @@ using UnityEngine;
 public sealed class ItemController : MonoBehaviour
 {
     [SerializeField] private Transform firePoint;
+    [SerializeField] private SpriteRenderer iconRenderer;
 
     ItemInstance item;
     float fireTimer;
@@ -16,6 +17,7 @@ public sealed class ItemController : MonoBehaviour
         fireTimer = 0f;
         transform.SetParent(attachTarget, worldPositionStays: true);
         transform.localPosition = Vector3.zero;
+        ApplyIcon(item);
     }
 
     void Update()
@@ -56,5 +58,21 @@ public sealed class ItemController : MonoBehaviour
             }
             ProjectileFactory.Instance.SpawnProjectile(pos, shotDir, item);
         }
+    }
+
+    void ApplyIcon(ItemInstance source)
+    {
+        if (source == null)
+            return;
+
+        if (iconRenderer == null)
+            iconRenderer = GetComponent<SpriteRenderer>();
+
+        if (iconRenderer == null)
+            return;
+
+        var sprite = SpriteCache.GetItemSprite(source.Id);
+        iconRenderer.sprite = sprite;
+        iconRenderer.enabled = sprite != null;
     }
 }

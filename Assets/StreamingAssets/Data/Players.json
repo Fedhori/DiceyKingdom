@@ -8,7 +8,20 @@
 			"startCurrency": 10,
 			"initialBallCount": 0,
 			"moveSpeed": 1.0,
-			"itemIds": ["item.pistol"]
+			"itemIds": [
+				"item.pistol",
+				"item.minigun",
+				"item.shotgun",
+				"item.sniperrifle",
+				"item.cannon",
+				"item.pistol",
+				"item.minigun",
+				"item.shotgun",
+				"item.sniperrifle",
+				"item.cannon",
+				"item.sniperrifle",
+				"item.cannon"
+			]
 		}
 	]
 }

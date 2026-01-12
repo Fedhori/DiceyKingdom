@@ -10,6 +10,8 @@ public sealed class ItemManager : MonoBehaviour
     [SerializeField] private string defaultItemId = "item.default";
     [SerializeField] private Transform attachTarget; // 플레이어 transform 등
     [SerializeField] private float tickIntervalSeconds = 1f;
+    [SerializeField] private float orbitRadius = 64f;
+    [SerializeField] private float orbitPeriodSeconds = 4f;
 
     readonly List<ItemController> controllers = new();
     readonly Dictionary<ItemInstance, ItemController> controllerMap = new();
@@ -136,21 +138,23 @@ public sealed class ItemManager : MonoBehaviour
 
             SpawnController(inst);
         }
+
+        ArrangeOrbitControllers();
     }
 
-    void SpawnController(ItemInstance inst)
+    ItemController SpawnController(ItemInstance inst)
     {
         if (inst == null || attachTarget == null)
         {
             Debug.LogWarning("[ItemManager] Missing instance/attachTarget");
-            return;
+            return null;
         }
 
         var prefab = ResolveObjectPrefab(inst);
         if (prefab == null)
         {
             Debug.LogWarning($"[ItemManager] Object prefab not found for item '{inst.Id}'.");
-            return;
+            return null;
         }
 
         var go = Instantiate(prefab, attachTarget.position, Quaternion.identity, attachTarget);
@@ -159,12 +163,14 @@ public sealed class ItemManager : MonoBehaviour
         {
             Debug.LogWarning("[ItemManager] ItemController missing on object prefab.");
             Destroy(go);
-            return;
+            return null;
         }
 
         ctrl.BindItem(inst, attachTarget);
         controllers.Add(ctrl);
         controllerMap[inst] = ctrl;
+        InitializeOrbit(ctrl, controllers.Count - 1, controllers.Count);
+        return ctrl;
     }
 
     GameObject ResolveObjectPrefab(ItemInstance inst)
@@ -319,6 +325,31 @@ public sealed class ItemManager : MonoBehaviour
         }
         controllers.Clear();
         controllerMap.Clear();
+    }
+
+    void ArrangeOrbitControllers()
+    {
+        int total = controllers.Count;
+        for (int i = 0; i < total; i++)
+        {
+            var ctrl = controllers[i];
+            if (ctrl == null)
+                continue;
+
+            InitializeOrbit(ctrl, i, total);
+        }
+    }
+
+    void InitializeOrbit(ItemController controller, int index, int total)
+    {
+        if (controller == null || attachTarget == null)
+            return;
+
+        var orbit = controller.GetComponent<ItemOrbitController>();
+        if (orbit == null)
+            return;
+
+        orbit.Initialize(attachTarget, index, total, orbitRadius, orbitPeriodSeconds);
     }
 
     void OnDisable()

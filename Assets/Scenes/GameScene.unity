@@ -579,7 +579,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   playArea: {fileID: 1644066639}
-  startYOffset: 64
+  startYOffset: 128
 --- !u!1 &144002550
 GameObject:
   m_ObjectHideFlags: 0
@@ -3257,6 +3257,8 @@ MonoBehaviour:
   defaultItemId: item.default
   attachTarget: {fileID: 117041021}
   tickIntervalSeconds: 1
+  orbitRadius: 64
+  orbitPeriodSeconds: 4
 --- !u!114 &715098191
 MonoBehaviour:
   m_ObjectHideFlags: 0
