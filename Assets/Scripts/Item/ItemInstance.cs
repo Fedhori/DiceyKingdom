@@ -24,6 +24,7 @@ public sealed class ItemInstance
     public float StatusDuration { get; private set; }
     public int SellValueBonus { get; private set; }
     public ItemRarity Rarity { get; private set; }
+    public UpgradeInstance Upgrade { get; private set; }
 
     public StatSet Stats { get; }
     public float DamageMultiplier => (float)Stats.GetValue(ItemStatIds.DamageMultiplier);
@@ -66,6 +67,7 @@ public sealed class ItemInstance
             StatusDamageMultiplier = 1f;
             SellValueBonus = 0;
             Rarity = ItemRarity.Common;
+            Upgrade = null;
             return;
         }
 
@@ -79,6 +81,7 @@ public sealed class ItemInstance
         StatusDuration = Mathf.Max(0f, dto.statusDuration);
         SellValueBonus = 0;
         Rarity = dto.rarity;
+        Upgrade = null;
 
         if (dto.rules != null)
             rules.AddRange(dto.rules);
@@ -197,6 +200,18 @@ public sealed class ItemInstance
             return;
 
         SellValueBonus += amount;
+    }
+
+    public UpgradeInstance SetUpgrade(UpgradeInstance upgrade)
+    {
+        var previous = Upgrade;
+        Upgrade = upgrade;
+        return previous;
+    }
+
+    public void ClearUpgrade()
+    {
+        Upgrade = null;
     }
 
     void IncrementTriggerCount(ItemTriggerType trigger)
