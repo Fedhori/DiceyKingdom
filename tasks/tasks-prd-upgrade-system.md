@@ -4,6 +4,7 @@
 - `Assets/Scripts/Upgrade/UpgradeDto.cs` - 강화 DTO/조건/효과 정의(신규).
 - `Assets/Scripts/Upgrade/UpgradeInstance.cs` - 강화 인스턴스 및 룰 처리(신규).
 - `Assets/Scripts/Upgrade/UpgradeRepository.cs` - 강화 데이터 로드/조회(신규).
+- `Assets/Scripts/Upgrade/UpgradeConditionEvaluator.cs` - 강화 조건 판정 유틸(신규).
 - `Assets/Scripts/Upgrade/UpgradeManager.cs` - 강화 적용/교체 처리(신규).
 - `Assets/Scripts/Shop/ProductType.cs` - 상점 상품 타입에 Upgrade 추가 필요.
 - `Assets/Scripts/Shop/ShopItemFactory.cs` - Upgrade 상품 생성 로직 추가.
@@ -42,7 +43,7 @@
 - [ ] 3.0 강화 적용/교체 및 아이템 스탯 반영 처리
   - [x] 3.1 `StatLayer.Upgrade` 추가 및 아이템 스탯 적용 경로 정리
   - [x] 3.2 아이템에 강화 1개 보관 필드 추가(교체 시 기존 제거)
-  - [ ] 3.3 강화 적용 조건(HasDamageMultiplier/HasAttackSpeed/HasProjectile) 판정 로직 구현
+  - [x] 3.3 강화 적용 조건(HasDamageMultiplier/HasAttackSpeed/HasProjectile) 판정 로직 구현
   - [ ] 3.4 강화 선택 시 유효 슬롯 하이라이트 및 드래그/클릭 적용 흐름 추가
   - [ ] 3.5 강화 적용 시 `ItemEffect` 기반으로 아이템 스탯 변경 적용/해제
 - [ ] 4.0 강화/아이템 툴팁 표시 로직 추가

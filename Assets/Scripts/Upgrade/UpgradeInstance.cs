@@ -45,25 +45,10 @@ public sealed class UpgradeInstance
             if (condition == null)
                 continue;
 
-            if (!IsConditionMet(condition, target))
+            if (!UpgradeConditionEvaluator.IsSatisfied(condition, target))
                 return false;
         }
 
         return true;
-    }
-
-    bool IsConditionMet(UpgradeConditionDto condition, ItemInstance target)
-    {
-        switch (condition.conditionKind)
-        {
-            case UpgradeConditionKind.HasDamageMultiplier:
-                return target.DamageMultiplier > 0f;
-            case UpgradeConditionKind.HasAttackSpeed:
-                return target.AttackSpeed > 0f;
-            case UpgradeConditionKind.HasProjectile:
-                return !string.IsNullOrEmpty(target.ProjectileKey);
-            default:
-                return false;
-        }
     }
 }
