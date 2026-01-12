@@ -34,7 +34,7 @@
   - [x] 1.4 `UpgradeInstance` 생성 및 조건 체크/효과 데이터 보관 구조 구현
 - [ ] 2.0 상점에 강화 상품 혼합 등장 및 전용 UI 연결
   - [x] 2.1 `ProductType`에 `Upgrade` 추가 및 `UpgradeProduct` 모델 도입
-  - [ ] 2.2 `ShopItemFactory`에 강화 상품 생성 로직 추가
+  - [x] 2.2 `ShopItemFactory`에 강화 상품 생성 로직 추가
   - [ ] 2.3 `ShopManager`에서 슬롯마다 아이템 80%/강화 20% 롤링 적용
   - [ ] 2.4 강화 전용 UI 프리팹을 사용하도록 `ShopView`/`UpgradeProductController` 연결
   - [ ] 2.5 강화 상품의 아이콘 표시 및 “강화” 라벨 표시(희귀도 자리)

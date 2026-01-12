@@ -52,4 +52,12 @@ public sealed class ShopItemFactory : MonoBehaviour
 
         return new ItemProduct(dto);
     }
+
+    public IProduct CreateUpgrade(UpgradeDto dto)
+    {
+        if (dto == null)
+            return null;
+
+        return new UpgradeProduct(dto);
+    }
 }
