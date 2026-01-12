@@ -14,6 +14,7 @@ namespace GameStats
         Permanent,
         Temporary,
         Owned,
+        Upgrade,
     }
     
     public static class PlayerStatIds

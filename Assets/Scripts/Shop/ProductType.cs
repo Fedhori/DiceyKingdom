@@ -3,7 +3,8 @@ using UnityEngine;
 
 public enum ProductType
 {
-    Item = 0
+    Item = 0,
+    Upgrade = 1
 }
 
 [Serializable]

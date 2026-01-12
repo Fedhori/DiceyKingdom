@@ -47,4 +47,10 @@ public static class SpriteCache
         if (string.IsNullOrEmpty(id)) return null;
         return Get($"Sprites/Item/{id}");
     }
+
+    public static Sprite GetUpgradeSprite(string id)
+    {
+        if (string.IsNullOrEmpty(id)) return null;
+        return Get($"Sprites/Upgrade/{id}");
+    }
 }
