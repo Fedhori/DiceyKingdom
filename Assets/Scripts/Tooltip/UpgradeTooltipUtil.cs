@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Data;
+using GameStats;
 using UnityEngine;
 using UnityEngine.Localization;
 
@@ -69,9 +70,13 @@ public static class UpgradeTooltipUtil
         if (effect == null)
             return null;
 
+        float value = effect.value;
+        if (effect.effectMode == StatOpKind.Mult)
+            value = 1f + value;
+
         var dict = new Dictionary<string, object>
         {
-            ["value0"] = effect.value.ToString("0.##")
+            ["value0"] = value.ToString("0.##")
         };
 
         return dict;
