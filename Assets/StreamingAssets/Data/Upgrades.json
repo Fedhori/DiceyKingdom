@@ -1,0 +1,42 @@
+{
+	"upgrades": [
+		{
+			"id": "upgrade.powerstone",
+			"price": 5,
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "damageMultiplier",
+					"effectMode": "Mult",
+					"value": 1.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.windstone",
+			"price": 5,
+			"conditions": [
+				{
+					"conditionKind": "HasAttackSpeed"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "attackSpeed",
+					"effectMode": "Mult",
+					"value": 1.0,
+					"duration": "Upgrade"
+				}
+			]
+		}
+	]
+}
