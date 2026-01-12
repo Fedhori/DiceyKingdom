@@ -32,6 +32,15 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
         if (eventData.button != PointerEventData.InputButton.Left)
             return;
 
+        if (StageManager.Instance.CurrentPhase == StagePhase.Shop)
+        {
+            if (ShopManager.Instance.IsUpgradeSelectionActive)
+            {
+                ShopManager.Instance.TryApplySelectedUpgradeAt(SlotIndex);
+                return;
+            }
+        }
+
         if (Instance != null)
         {
             ItemSlotManager.Instance?.ToggleSlotSelection(this);
@@ -41,11 +50,7 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
         if (StageManager.Instance.CurrentPhase != StagePhase.Shop)
             return;
 
-        var shop = ShopManager.Instance;
-        if (shop == null)
-            return;
-
-        shop.TryPurchaseSelectedItemAt(SlotIndex);
+        ShopManager.Instance.TryPurchaseSelectedItemAt(SlotIndex);
     }
 
     public void SetSlotIndex(int index)

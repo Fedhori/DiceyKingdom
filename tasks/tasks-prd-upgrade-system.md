@@ -14,7 +14,9 @@
 - `Assets/Scripts/Shop/UpgradeProductController.cs` - 강화 상품 UI 컨트롤러(신규).
 - `Assets/Scripts/Shop/UpgradeProduct.cs` - 강화 상품 모델(신규).
 - `Assets/Scripts/Data/SpriteCache.cs` - 강화 아이콘 스프라이트 로딩 경로 추가.
+- `Assets/Scripts/UI/GhostKind.cs` - 강화 전용 고스트 타입 추가.
 - `Assets/Scripts/Token/ItemSlotManager.cs` - 강화 유효 슬롯 하이라이트/드래그 적용 처리.
+- `Assets/Scripts/Token/ItemSlotController.cs` - 강화 선택 시 슬롯 클릭 적용 처리.
 - `Assets/Scripts/Item/ItemInstance.cs` - 적용된 강화 보관 및 아이템 스탯 반영 지점.
 - `Assets/Scripts/Item/ItemEffectManager.cs` - 강화 효과를 ItemEffect로 적용.
 - `Assets/Scripts/Stat/GameStat.cs` - `StatLayer.Upgrade` 추가.
@@ -34,7 +36,7 @@
   - [x] 1.2 `UpgradeDto`/조건/효과 구조 설계 및 JSON 파싱 로직 구현
   - [x] 1.3 `UpgradeRepository` 초기화/조회 API 추가 및 로더 연동
   - [x] 1.4 `UpgradeInstance` 생성 및 조건 체크/효과 데이터 보관 구조 구현
-- [ ] 2.0 상점에 강화 상품 혼합 등장 및 전용 UI 연결
+- [x] 2.0 상점에 강화 상품 혼합 등장 및 전용 UI 연결
   - [x] 2.1 `ProductType`에 `Upgrade` 추가 및 `UpgradeProduct` 모델 도입
   - [x] 2.2 `ShopItemFactory`에 강화 상품 생성 로직 추가
   - [x] 2.3 `ShopManager`에서 슬롯마다 아이템 80%/강화 20% 롤링 적용
@@ -44,7 +46,7 @@
   - [x] 3.1 `StatLayer.Upgrade` 추가 및 아이템 스탯 적용 경로 정리
   - [x] 3.2 아이템에 강화 1개 보관 필드 추가(교체 시 기존 제거)
   - [x] 3.3 강화 적용 조건(HasDamageMultiplier/HasAttackSpeed/HasProjectile) 판정 로직 구현
-  - [ ] 3.4 강화 선택 시 유효 슬롯 하이라이트 및 드래그/클릭 적용 흐름 추가
+  - [x] 3.4 강화 선택 시 유효 슬롯 하이라이트 및 드래그/클릭 적용 흐름 추가
   - [ ] 3.5 강화 적용 시 `ItemEffect` 기반으로 아이템 스탯 변경 적용/해제
 - [ ] 4.0 강화/아이템 툴팁 표시 로직 추가
   - [ ] 4.1 강화 툴팁 모델/유틸 생성(이름/효과/“강화” 라벨)

@@ -342,6 +342,23 @@ public sealed class ItemSlotManager : MonoBehaviour
         }
     }
 
+    public void HighlightUpgradeSlots(UpgradeInstance upgrade)
+    {
+        if (slotControllers == null)
+            return;
+
+        for (int i = 0; i < slotControllers.Length; i++)
+        {
+            var ctrl = slotControllers[i];
+            if (ctrl == null)
+                continue;
+
+            var inst = inventory != null ? inventory.GetSlot(i) : null;
+            bool highlight = inst != null && upgrade != null && upgrade.IsApplicable(inst);
+            ctrl.SetHighlight(highlight, slotHighlightColor);
+        }
+    }
+
     public void ClearHighlights()
     {
         if (slotControllers == null)
@@ -357,6 +374,54 @@ public sealed class ItemSlotManager : MonoBehaviour
         }
 
         currentHighlightIndex = -1;
+    }
+
+    public bool HasApplicableUpgradeSlot(UpgradeInstance upgrade)
+    {
+        if (upgrade == null || inventory == null)
+            return false;
+
+        for (int i = 0; i < inventory.SlotCount; i++)
+        {
+            var inst = inventory.GetSlot(i);
+            if (inst == null)
+                continue;
+
+            if (upgrade.IsApplicable(inst))
+                return true;
+        }
+
+        return false;
+    }
+
+    public bool TryGetUpgradeSlotFromScreenPos(Vector2 screenPos, UpgradeInstance upgrade, out int slotIndex)
+    {
+        slotIndex = -1;
+        if (upgrade == null)
+            return false;
+
+        if (!TryGetSlotFromScreenPos(screenPos, out slotIndex))
+            return false;
+
+        if (inventory == null)
+            return false;
+
+        var inst = inventory.GetSlot(slotIndex);
+        if (inst == null || !upgrade.IsApplicable(inst))
+        {
+            slotIndex = -1;
+            return false;
+        }
+
+        return true;
+    }
+
+    public bool UpdateUpgradeHover(Vector2 screenPos, UpgradeInstance upgrade)
+    {
+        if (upgrade == null)
+            return false;
+
+        return TryGetUpgradeSlotFromScreenPos(screenPos, upgrade, out _);
     }
 
     public void BeginDrag(ItemSlotController controller, Vector2 screenPos)

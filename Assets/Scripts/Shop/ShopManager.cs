@@ -40,6 +40,8 @@ public sealed class ShopManager : MonoBehaviour
     int draggingItemIndex = -1;
     ItemInventory subscribedInventory;
 
+    public bool IsUpgradeSelectionActive => GetSelectedItem()?.ProductType == ProductType.Upgrade;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -518,6 +520,49 @@ public sealed class ShopManager : MonoBehaviour
         return TryPurchaseItemAt(CurrentSelectionIndex, slotIndex);
     }
 
+    public bool TryApplySelectedUpgradeAt(int slotIndex)
+    {
+        if (!isOpen)
+            return false;
+
+        if (CurrentSelectionIndex < 0 || currentShopItems == null)
+            return false;
+
+        if (CurrentSelectionIndex >= currentShopItems.Length)
+            return false;
+
+        var upgrade = GetShopItem(CurrentSelectionIndex) as UpgradeProduct;
+        if (upgrade == null || upgrade.Sold)
+            return false;
+
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory == null)
+            return false;
+
+        if (slotIndex < 0 || slotIndex >= inventory.SlotCount)
+            return false;
+
+        var targetItem = inventory.GetSlot(slotIndex);
+        if (targetItem == null)
+            return false;
+
+        var preview = upgrade.PreviewInstance;
+        if (preview == null || !preview.IsApplicable(targetItem))
+            return false;
+
+        var currencyMgr = CurrencyManager.Instance;
+        if (currencyMgr == null)
+            return false;
+
+        if (!currencyMgr.TrySpend(upgrade.Price))
+            return false;
+
+        targetItem.SetUpgrade(preview);
+        MarkSold(CurrentSelectionIndex);
+        UiSelectionEvents.RaiseSelectionCleared();
+        return true;
+    }
+
     bool TryPurchaseItemAt(int itemIndex, int overrideSlot = -1)
     {
         if (!isOpen)
@@ -599,16 +644,47 @@ public sealed class ShopManager : MonoBehaviour
             ? CurrencyManager.Instance.CurrentCurrency
             : 0;
 
-        bool hasEmptyItemSlot = ItemManager.Instance?.Inventory != null
-            && ItemManager.Instance.Inventory.TryGetFirstEmptySlot(out _);
+        bool[] canBuyFlags = BuildCanBuyFlags(currentShopItems, currency);
 
-        shopView.SetItems(currentShopItems, currency, hasEmptyItemSlot, currentRerollCost);
+        shopView.SetItems(currentShopItems, canBuyFlags, currency, currentRerollCost);
         shopView.RefreshAll();
 
         if (IsSelectedItemInvalid())
             UiSelectionEvents.RaiseSelectionCleared();
         else
             UpdateSlotHighlightsForSelection();
+    }
+
+    bool[] BuildCanBuyFlags(IProduct[] items, int currency)
+    {
+        if (items == null)
+            return null;
+
+        var flags = new bool[items.Length];
+        bool hasEmptyItemSlot = ItemManager.Instance?.Inventory != null
+            && ItemManager.Instance.Inventory.TryGetFirstEmptySlot(out _);
+
+        for (int i = 0; i < items.Length; i++)
+        {
+            var product = items[i];
+            if (product == null || product.Sold)
+                continue;
+
+            if (currency < product.Price)
+                continue;
+
+            if (product.ProductType == ProductType.Item)
+            {
+                flags[i] = hasEmptyItemSlot;
+            }
+            else if (product.ProductType == ProductType.Upgrade)
+            {
+                var upgrade = product as UpgradeProduct;
+                flags[i] = upgrade != null && HasApplicableUpgradeSlot(upgrade);
+            }
+        }
+
+        return flags;
     }
 
 
@@ -739,7 +815,7 @@ public sealed class ShopManager : MonoBehaviour
         SetSelection(itemIndex);
         TooltipManager.Instance?.HideForDrag();
 
-        if (item.ProductType == ProductType.Item)
+        if (item.ProductType == ProductType.Item || item.ProductType == ProductType.Upgrade)
         {
             draggingItemIndex = itemIndex;
             shopView.ShowItemDragGhost(item, screenPos);
@@ -757,11 +833,18 @@ public sealed class ShopManager : MonoBehaviour
 
         if (itemIndex == draggingItemIndex)
         {
-            ItemInstance previewInstance = null;
-            if (GetShopItem(itemIndex) is ItemProduct itemProduct)
-                previewInstance = itemProduct.PreviewInstance;
-            bool hasValidTarget = ItemSlotManager.Instance != null
-                && ItemSlotManager.Instance.UpdatePurchaseHover(screenPos, previewInstance);
+            bool hasValidTarget = false;
+            var selected = GetShopItem(itemIndex);
+            if (selected is ItemProduct itemProduct)
+            {
+                hasValidTarget = ItemSlotManager.Instance != null
+                    && ItemSlotManager.Instance.UpdatePurchaseHover(screenPos, itemProduct.PreviewInstance);
+            }
+            else if (selected is UpgradeProduct upgradeProduct)
+            {
+                hasValidTarget = ItemSlotManager.Instance != null
+                    && ItemSlotManager.Instance.UpdateUpgradeHover(screenPos, upgradeProduct.PreviewInstance);
+            }
 
             if (hasValidTarget)
             {
@@ -795,9 +878,19 @@ public sealed class ShopManager : MonoBehaviour
         if (itemIndex == draggingItemIndex)
         {
             var slotManager = ItemSlotManager.Instance;
-            int targetSlot = -1;
-            if (slotManager != null && slotManager.TryGetEmptySlotFromScreenPos(screenPos, out targetSlot))
-                TryPurchaseItemAt(itemIndex, targetSlot);
+            var product = GetShopItem(itemIndex);
+            if (product is ItemProduct)
+            {
+                int targetSlot = -1;
+                if (slotManager != null && slotManager.TryGetEmptySlotFromScreenPos(screenPos, out targetSlot))
+                    TryPurchaseItemAt(itemIndex, targetSlot);
+            }
+            else if (product is UpgradeProduct upgradeProduct)
+            {
+                int targetSlot = -1;
+                if (slotManager != null && slotManager.TryGetUpgradeSlotFromScreenPos(screenPos, upgradeProduct.PreviewInstance, out targetSlot))
+                    TryApplySelectedUpgradeAt(targetSlot);
+            }
         }
 
         shopView.HideItemDragGhost();
@@ -817,10 +910,29 @@ public sealed class ShopManager : MonoBehaviour
         }
 
         var selected = GetShopItem(CurrentSelectionIndex);
-        if (CanPurchaseSelectedItem(selected))
-            ItemSlotManager.Instance?.HighlightEmptySlots();
-        else
+        if (selected == null)
+        {
             ItemSlotManager.Instance?.ClearHighlights();
+            return;
+        }
+
+        if (selected.ProductType == ProductType.Item)
+        {
+            if (CanPurchaseSelectedItem(selected))
+                ItemSlotManager.Instance?.HighlightEmptySlots();
+            else
+                ItemSlotManager.Instance?.ClearHighlights();
+            return;
+        }
+
+        if (selected.ProductType == ProductType.Upgrade)
+        {
+            var upgrade = selected as UpgradeProduct;
+            if (CanApplySelectedUpgrade(upgrade))
+                ItemSlotManager.Instance?.HighlightUpgradeSlots(upgrade?.PreviewInstance);
+            else
+                ItemSlotManager.Instance?.ClearHighlights();
+        }
     }
 
     bool CanPurchaseSelectedItem(IProduct selected)
@@ -837,6 +949,27 @@ public sealed class ShopManager : MonoBehaviour
             return false;
 
         return inventory.TryGetFirstEmptySlot(out _);
+    }
+
+    bool CanApplySelectedUpgrade(UpgradeProduct upgrade)
+    {
+        if (upgrade == null || upgrade.Sold)
+            return false;
+
+        var currency = CurrencyManager.Instance;
+        if (currency == null || currency.CurrentCurrency < upgrade.Price)
+            return false;
+
+        return HasApplicableUpgradeSlot(upgrade);
+    }
+
+    bool HasApplicableUpgradeSlot(UpgradeProduct upgrade)
+    {
+        if (upgrade == null)
+            return false;
+
+        return ItemSlotManager.Instance != null
+            && ItemSlotManager.Instance.HasApplicableUpgradeSlot(upgrade.PreviewInstance);
     }
 
     bool IsSelectedItemInvalid()

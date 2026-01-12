@@ -1961,9 +1961,9 @@ MonoBehaviour:
   rootCanvas: {fileID: 2114596190}
   ghostPrefabs:
   - kind: 1
-    prefab: {fileID: 4995440681784313555, guid: 5c69a181d4c413c47aca9eb2ac63d727, type: 3}
-  - kind: 2
     prefab: {fileID: -7990155259082348272, guid: cab72b71bfc04b84bb59a2c5f81583f1, type: 3}
+  - kind: 2
+    prefab: {fileID: 5833025624860210990, guid: 13872895525d58d4eb0db630ae9064c4, type: 3}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -3126,7 +3126,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShopView
   shopOverlay: {fileID: 1288486031}
   itemProductPrefab: {fileID: 5694267813989115983, guid: b4dd7a57b7400c84e9671f15d84c9c0c, type: 3}
-  upgradeProductPrefab: {fileID: 5694267813989115983, guid: ee1d0da5f9e589a4f89ba4878f932090, type: 3}
+  upgradeProductPrefab: {fileID: 2802467715807013686, guid: ee1d0da5f9e589a4f89ba4878f932090, type: 3}
   productsParent: {fileID: 1241167450}
   rerollCostText: {fileID: 147300228}
   rerollButton: {fileID: 1999143222}

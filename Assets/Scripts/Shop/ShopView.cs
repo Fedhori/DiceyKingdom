@@ -129,7 +129,7 @@ public sealed class ShopView : MonoBehaviour
         };
     }
 
-    public void SetItems(IProduct[] items, int currentCurrency, bool hasEmptyItemSlot, int rerollCost)
+    public void SetItems(IProduct[] items, bool[] canBuyFlags, int currentCurrency, int rerollCost)
     {
         int count = (items != null) ? items.Length : 0;
 
@@ -149,9 +149,10 @@ public sealed class ShopView : MonoBehaviour
                 continue;
             }
 
-            var canBuy = false;
-            if (item.ProductType == ProductType.Item)
-                canBuy = !sold && hasEmptyItemSlot && currentCurrency >= item.Price;
+            bool canBuy = canBuyFlags != null
+                && i >= 0
+                && i < canBuyFlags.Length
+                && canBuyFlags[i];
 
             view.gameObject.SetActive(true);
             view.SetData(item, item.Price, canBuy, sold);
@@ -231,8 +232,8 @@ public sealed class ShopView : MonoBehaviour
         if (item is ItemProduct itemProduct)
             rarity = itemProduct.Rarity;
 
-        GhostManager.Instance?.ShowGhost(item?.Icon, screenPos,
-            item?.ProductType == ProductType.Item ? GhostKind.Item : GhostKind.Pin, rarity);
+        var kind = item?.ProductType == ProductType.Upgrade ? GhostKind.Upgrade : GhostKind.Item;
+        GhostManager.Instance?.ShowGhost(item?.Icon, screenPos, kind, rarity);
     }
 
     public void UpdateItemDragGhostPosition(Vector2 screenPos)
