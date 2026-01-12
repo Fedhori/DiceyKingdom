@@ -557,7 +557,9 @@ public sealed class ShopManager : MonoBehaviour
         if (!currencyMgr.TrySpend(upgrade.Price))
             return false;
 
-        targetItem.SetUpgrade(preview);
+        var upgradeManager = UpgradeManager.Instance;
+        if (upgradeManager == null || !upgradeManager.ApplyUpgrade(targetItem, preview))
+            return false;
         MarkSold(CurrentSelectionIndex);
         UiSelectionEvents.RaiseSelectionCleared();
         return true;
@@ -846,7 +848,7 @@ public sealed class ShopManager : MonoBehaviour
                     && ItemSlotManager.Instance.UpdateUpgradeHover(screenPos, upgradeProduct.PreviewInstance);
             }
 
-            if (hasValidTarget)
+            if (hasValidTarget && selected is ItemProduct)
             {
                 shopView.HideItemDragGhost();
             }

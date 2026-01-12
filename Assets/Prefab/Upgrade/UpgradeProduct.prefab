@@ -185,7 +185,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeProductController
   itemView: {fileID: 4405346500044329777}
   priceText: {fileID: 49748079663549652}
-  rarityText: {fileID: 0}
 --- !u!1 &4899419208527762453
 GameObject:
   m_ObjectHideFlags: 0
@@ -252,8 +251,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2a79d017bd108064ebc85bbaf2ba18c3, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 546a603ac1c9a054abae7024ef4d420f, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4

@@ -54,5 +54,8 @@ TagManager:
   - name: Wall
     uniqueID: 2946250051
     locked: 0
+  - name: Particle
+    uniqueID: 3218194181
+    locked: 0
   m_RenderingLayers:
   - Default
