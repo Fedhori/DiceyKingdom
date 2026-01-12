@@ -2,28 +2,23 @@ using Data;
 using TMPro;
 using UnityEngine;
 
-public sealed class ProductController : ProductViewBase
+public sealed class UpgradeProductController : ProductViewBase
 {
     [SerializeField] private ItemView itemView;
-    [SerializeField] private ItemTooltipTarget tooltipTarget;
     [SerializeField] private TMP_Text priceText;
 
     bool isSelected;
-    IProduct boundProduct;
-    ItemProduct boundItem;
+    UpgradeProduct boundUpgrade;
 
     void Awake()
     {
         if (itemView == null)
             itemView = GetComponentInChildren<ItemView>(true);
-        if (tooltipTarget == null)
-            tooltipTarget = GetComponentInChildren<ItemTooltipTarget>(true);
     }
 
     public override void SetData(IProduct product, int price, bool canBuy, bool sold)
     {
-        boundProduct = product;
-        boundItem = product as ItemProduct;
+        boundUpgrade = product as UpgradeProduct;
         SetViewType(product?.ProductType ?? ViewType);
 
         bool canInteract = (product != null) && !sold;
@@ -33,8 +28,6 @@ public sealed class ProductController : ProductViewBase
         if (product == null)
         {
             gameObject.SetActive(false);
-            if (tooltipTarget != null)
-                tooltipTarget.Clear();
             return;
         }
 
@@ -43,16 +36,8 @@ public sealed class ProductController : ProductViewBase
         if (itemView != null)
         {
             itemView.SetIcon(product.Icon);
-            itemView.SetRarity(boundItem != null ? boundItem.Rarity : ItemRarity.Common);
+            itemView.SetRarity(ItemRarity.Common);
             itemView.SetSelected(isSelected);
-        }
-
-        if (tooltipTarget != null)
-        {
-            if (boundItem != null)
-                tooltipTarget.Bind(boundItem.PreviewInstance);
-            else
-                tooltipTarget.Clear();
         }
 
         if (priceText != null)
@@ -78,6 +63,5 @@ public sealed class ProductController : ProductViewBase
 
     public override void PinTooltip()
     {
-        tooltipTarget?.Pin();
     }
 }

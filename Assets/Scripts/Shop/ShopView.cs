@@ -12,7 +12,8 @@ public sealed class ShopView : MonoBehaviour
     [Header("Overlay Root")] [SerializeField]
     private GameObject shopOverlay;
 
-    [Header("Item UI")] [SerializeField] private ProductController itemProductPrefab;
+    [Header("Item UI")] [SerializeField] private ProductViewBase itemProductPrefab;
+    [SerializeField] private ProductViewBase upgradeProductPrefab;
     [SerializeField] private Transform productsParent;
 
     [Header("Reroll / Close UI")] [SerializeField]
@@ -21,7 +22,7 @@ public sealed class ShopView : MonoBehaviour
     [SerializeField] private Button rerollButton;
     [SerializeField] private Button closeButton;
 
-    readonly List<ProductController> itemViews = new();
+    readonly List<ProductViewBase> itemViews = new();
 
     int selectedItemIndex = -1;
 
@@ -118,12 +119,13 @@ public sealed class ShopView : MonoBehaviour
         }
     }
 
-    ProductController GetPrefab(ProductType type)
+    ProductViewBase GetPrefab(ProductType type)
     {
         return type switch
         {
             ProductType.Item => itemProductPrefab,
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            ProductType.Upgrade => upgradeProductPrefab,
+            _ => null
         };
     }
 

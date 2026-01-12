@@ -9,6 +9,7 @@
 - `Assets/Scripts/Shop/ShopItemFactory.cs` - Upgrade 상품 생성 로직 추가.
 - `Assets/Scripts/Shop/ShopManager.cs` - 상점 슬롯 80/20 롤링 및 강화 구매/적용 흐름.
 - `Assets/Scripts/Shop/ShopView.cs` - 강화 상품 전용 UI 프리팹 생성/바인딩.
+- `Assets/Scripts/Shop/ProductViewBase.cs` - 상점 상품 공통 뷰 베이스(신규).
 - `Assets/Scripts/Shop/UpgradeProductController.cs` - 강화 상품 UI 컨트롤러(신규).
 - `Assets/Scripts/Shop/UpgradeProduct.cs` - 강화 상품 모델(신규).
 - `Assets/Scripts/Data/SpriteCache.cs` - 강화 아이콘 스프라이트 로딩 경로 추가.
@@ -36,7 +37,7 @@
   - [x] 2.1 `ProductType`에 `Upgrade` 추가 및 `UpgradeProduct` 모델 도입
   - [x] 2.2 `ShopItemFactory`에 강화 상품 생성 로직 추가
   - [x] 2.3 `ShopManager`에서 슬롯마다 아이템 80%/강화 20% 롤링 적용
-  - [ ] 2.4 강화 전용 UI 프리팹을 사용하도록 `ShopView`/`UpgradeProductController` 연결
+  - [x] 2.4 강화 전용 UI 프리팹을 사용하도록 `ShopView`/`UpgradeProductController` 연결
   - [ ] 2.5 강화 상품의 아이콘 표시 및 “강화” 라벨 표시(희귀도 자리)
 - [ ] 3.0 강화 적용/교체 및 아이템 스탯 반영 처리
   - [x] 3.1 `StatLayer.Upgrade` 추가 및 아이템 스탯 적용 경로 정리
