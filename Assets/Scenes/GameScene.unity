@@ -3091,7 +3091,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1107324457}
+  m_Father: {fileID: 1831022632}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &708886697
 MonoBehaviour:
@@ -3110,6 +3110,8 @@ MonoBehaviour:
   baseRerollCost: 1
   rerollCostIncrement: 1
   rarityWeights: 3c0000001e0000000a00000000000000
+  itemProductWeight: 80
+  upgradeProductWeight: 20
 --- !u!114 &708886698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3124,6 +3126,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShopView
   shopOverlay: {fileID: 1288486031}
   itemProductPrefab: {fileID: 5694267813989115983, guid: b4dd7a57b7400c84e9671f15d84c9c0c, type: 3}
+  upgradeProductPrefab: {fileID: 5694267813989115983, guid: ee1d0da5f9e589a4f89ba4878f932090, type: 3}
   productsParent: {fileID: 1241167450}
   rerollCostText: {fileID: 147300228}
   rerollButton: {fileID: 1999143222}
@@ -4542,10 +4545,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1126608303}
-  - {fileID: 708886696}
-  - {fileID: 1633961188}
+  m_Children: []
   m_Father: {fileID: 1831022632}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1107324458
@@ -4650,7 +4650,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1107324457}
+  m_Father: {fileID: 1831022632}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1126608304
 MonoBehaviour:
@@ -7662,7 +7662,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1107324457}
+  m_Father: {fileID: 1831022632}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1633961190
 MonoBehaviour:
@@ -8896,6 +8896,9 @@ Transform:
   - {fileID: 1118263956}
   - {fileID: 513418571}
   - {fileID: 1847119818}
+  - {fileID: 1126608303}
+  - {fileID: 708886696}
+  - {fileID: 1633961188}
   - {fileID: 1107324457}
   - {fileID: 1212689310}
   - {fileID: 516877347}
