@@ -50,7 +50,7 @@ public sealed class UpgradeManager : MonoBehaviour
             }
         }
 
-        target.SetUpgrade(upgrade);
+        target.Upgrade = upgrade;
         return true;
     }
 
@@ -60,6 +60,6 @@ public sealed class UpgradeManager : MonoBehaviour
             return;
 
         target.Stats.RemoveModifiers(layer: StatLayer.Upgrade, source: target);
-        target.ClearUpgrade();
+        target.Upgrade = null;
     }
 }

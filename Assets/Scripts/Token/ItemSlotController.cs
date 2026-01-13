@@ -18,6 +18,7 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
     public RectTransform DropArea => dropArea != null ? dropArea : RectTransform;
     [SerializeField] ItemView itemView;
     [SerializeField] ItemTooltipTarget tooltipTarget;
+    [SerializeField] GameObject upgradeVfxRoot;
 
     void Awake()
     {
@@ -60,7 +61,17 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
 
     public void Bind(ItemInstance instance)
     {
-        Instance = instance;
+        if (!ReferenceEquals(Instance, instance))
+        {
+            if (Instance != null)
+                Instance.OnUpgradeChanged -= HandleUpgradeChanged;
+
+            Instance = instance;
+
+            if (Instance != null)
+                Instance.OnUpgradeChanged += HandleUpgradeChanged;
+        }
+
         UpdateView();
     }
 
@@ -126,6 +137,20 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
             else
                 tooltipTarget.Clear();
         }
+
+        if (upgradeVfxRoot != null)
+        {
+            bool hasUpgrade = displayInstance != null && displayInstance.Upgrade != null;
+            upgradeVfxRoot.SetActive(hasUpgrade);
+        }
+    }
+
+    void HandleUpgradeChanged(ItemInstance instance)
+    {
+        if (!ReferenceEquals(Instance, instance))
+            return;
+
+        UpdateView();
     }
 
     public Sprite GetIconSprite()

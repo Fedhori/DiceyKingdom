@@ -15,7 +15,7 @@ public static class Colors
     public static readonly Color Rare      = new Color32(0x43, 0x97, 0xD1, 0xFF); // #4397D1 (muted sky blue)
     public static readonly Color Legendary = new Color32(0xD0, 0xA8, 0x3A, 0xFF); // #D0A83A (muted gold)
     
-    public static readonly Color Upgrade = new Color32(0x7E, 0x5A, 0xA6, 0xFF);
+    public static readonly Color Upgrade = new Color32(0x7E, 0x5A, 0xA6, 0xFF); // #7E5AA6
     
     public static readonly Color Red = new Color32(0xE7, 0x4C, 0x3C, 0xFF); //#E74C3C
     public static readonly Color Blue = new Color32(0x64, 0x94, 0xFF, 0xFF); //#6494FF
