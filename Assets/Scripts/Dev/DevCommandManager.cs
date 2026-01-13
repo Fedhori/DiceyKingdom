@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -53,6 +54,80 @@ public sealed class DevCommandManager : MonoBehaviour
             if (!ItemSlotManager.Instance.TryAddItemAt(itemId, slotIndex, out _))
             {
                 Debug.LogWarning($"[DevCommand] additem failed: id={itemId}, slot={slotIndex}");
+            }
+        });
+
+        Register("addupgrade", param =>
+        {
+            if (param.Length != 2)
+            {
+                Debug.LogWarning("[DevCommand] Usage: upgrade <upgradeId> <slotIndex>");
+                return;
+            }
+
+            if (!UpgradeRepository.IsInitialized)
+            {
+                Debug.LogWarning("[DevCommand] UpgradeRepository not initialized.");
+                return;
+            }
+
+            var itemManager = ItemManager.Instance;
+            if (itemManager == null)
+            {
+                Debug.LogWarning("[DevCommand] ItemManager.Instance is null.");
+                return;
+            }
+
+            var inventory = itemManager.Inventory;
+            if (inventory == null)
+            {
+                Debug.LogWarning("[DevCommand] ItemManager.Inventory is null.");
+                return;
+            }
+
+            string upgradeId = param[0];
+            if (!UpgradeRepository.TryGet(upgradeId, out var dto) || dto == null)
+            {
+                Debug.LogWarning($"[DevCommand] upgrade not found: {upgradeId}");
+                return;
+            }
+
+            if (!int.TryParse(param[1], out int slotIndex))
+            {
+                Debug.LogWarning($"[DevCommand] upgrade invalid slotIndex: {param[1]}");
+                return;
+            }
+
+            if (slotIndex < 0 || slotIndex >= inventory.SlotCount)
+            {
+                Debug.LogWarning($"[DevCommand] upgrade invalid slotIndex: {slotIndex}");
+                return;
+            }
+
+            var targetItem = inventory.GetSlot(slotIndex);
+            if (targetItem == null)
+            {
+                Debug.LogWarning($"[DevCommand] upgrade slot is empty: {slotIndex}");
+                return;
+            }
+
+            var upgrade = new UpgradeInstance(dto);
+            if (!upgrade.IsApplicable(targetItem))
+            {
+                Debug.LogWarning($"[DevCommand] upgrade not applicable: id={upgradeId}, slot={slotIndex}");
+                return;
+            }
+
+            var upgradeManager = UpgradeManager.Instance;
+            if (upgradeManager == null)
+            {
+                Debug.LogWarning("[DevCommand] UpgradeManager.Instance is null.");
+                return;
+            }
+
+            if (!upgradeManager.ApplyUpgrade(targetItem, upgrade))
+            {
+                Debug.LogWarning($"[DevCommand] upgrade apply failed: id={upgradeId}, slot={slotIndex}");
             }
         });
 
