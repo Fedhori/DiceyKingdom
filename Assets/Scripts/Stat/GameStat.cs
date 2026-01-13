@@ -6,7 +6,8 @@ namespace GameStats
     public enum StatOpKind
     {
         Add,
-        Mult
+        Mult,
+        Override
     }
 
     public enum StatLayer
@@ -153,17 +154,31 @@ namespace GameStats
         {
             double addSum = 0f;
             double multSum = 0f;
+            double? overrideValue = null;
+            int overridePriority = int.MinValue;
 
             for (int i = 0; i < _modifiers.Count; i++)
             {
                 var m = _modifiers[i];
-                if (m.OpKind == StatOpKind.Add)
-                    addSum += m.Value;
-                else
-                    multSum += m.Value;
+                switch (m.OpKind)
+                {
+                    case StatOpKind.Add:
+                        addSum += m.Value;
+                        break;
+                    case StatOpKind.Mult:
+                        multSum += m.Value;
+                        break;
+                    case StatOpKind.Override:
+                        if (!overrideValue.HasValue || m.Priority >= overridePriority)
+                        {
+                            overrideValue = m.Value;
+                            overridePriority = m.Priority;
+                        }
+                        break;
+                }
             }
 
-            double v = (_baseValue + addSum) * (1f + multSum);
+            double v = overrideValue ?? (_baseValue + addSum) * (1f + multSum);
 
             if (_minValue.HasValue)
                 v = Math.Max(_minValue.Value, v);

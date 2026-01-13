@@ -37,6 +37,25 @@
 					"duration": "Upgrade"
 				}
 			]
+		},
+		{
+			"id": "upgrade.anchor",
+			"price": 6,
+			"conditions": [
+				{
+					"conditionKind": "HasAttackSpeed"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "attackSpeed",
+					"effectMode": "Override",
+					"value": 1.0,
+					"duration": "Upgrade"
+				}
+			]
 		}
 	]
 }

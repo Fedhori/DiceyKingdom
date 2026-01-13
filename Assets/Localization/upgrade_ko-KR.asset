@@ -37,6 +37,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 1113825343581192274
+  - m_Id: 181419913217
+    m_Localized: "\uB2FB"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181419913218
+    m_Localized: "\uACF5\uACA9 \uC18D\uB3C4\uB97C {value0}\uB85C \uACE0\uC815\uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 1113825343581192274
   references:
     version: 2
     RefIds:
@@ -47,3 +56,4 @@ MonoBehaviour:
         m_SharedEntries:
         - id: 181403136000
         - id: 181419913216
+        - id: 181419913218
