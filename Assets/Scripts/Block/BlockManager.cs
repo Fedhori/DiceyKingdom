@@ -9,8 +9,10 @@ public sealed class BlockManager : MonoBehaviour
     [SerializeField] private Transform playArea;
     [SerializeField] private Vector2 blockSize = new Vector2(128f, 64f);
     private int currentHp;
-    [Header("Spawn Ramp")]
-    [SerializeField] private float spawnDurationSeconds = 30f;
+
+    [Header("Spawn Ramp")] [SerializeField]
+    private float spawnDurationSeconds = 30f;
+
     [SerializeField] private float spawnRateStartPerSec = 1f;
     [SerializeField] private float spawnRateEndPerSec = 2f;
     private readonly List<BlockController> activeBlocks = new();
@@ -71,7 +73,6 @@ public sealed class BlockManager : MonoBehaviour
             var center = sr.bounds.center;
             originTopLeft = new Vector2(center.x - size.x * 0.5f, center.y + size.y * 0.5f);
             originTopRight = new Vector2(center.x + size.x * 0.5f, center.y + size.y * 0.5f);
-            
         }
     }
 
@@ -306,7 +307,7 @@ public sealed class BlockManager : MonoBehaviour
                 DamageSourceType.ItemEffect,
                 block.transform.position,
                 allowOverflow: true,
-                applyStatusFromItem: false);
+                applyStatusFromItem: true);
             var result = damageManager.ApplyDamage(context);
             if (result != null && result.AppliedDamage > 0)
                 applied++;

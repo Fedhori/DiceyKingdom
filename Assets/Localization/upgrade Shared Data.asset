@@ -39,6 +39,14 @@ MonoBehaviour:
     m_Key: upgrade.anchor.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 181419913219
+    m_Key: upgrade.snowflake.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181419913220
+    m_Key: upgrade.snowflake.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

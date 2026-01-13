@@ -45,7 +45,8 @@ namespace Data
         ModifyItemStat,
         SetStat,
         ModifyBaseIncome,
-        ApplyDamageToAllBlocks
+        ApplyDamageToAllBlocks,
+        SetItemStatus
     }
 
     public enum ItemEffectTarget
@@ -94,6 +95,9 @@ namespace Data
 
         public string multiplier;
         public int threshold;
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public BlockStatusType statusType = BlockStatusType.Unknown;
     }
 
     [Serializable]

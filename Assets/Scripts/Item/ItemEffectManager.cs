@@ -52,6 +52,9 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.ApplyDamageToAllBlocks:
                 ApplyDamageToAllBlocks(dto, item);
                 break;
+            case ItemEffectType.SetItemStatus:
+                SetItemStatus(dto, item);
+                break;
             default:
                 Debug.LogWarning($"[ItemEffectManager] Unsupported effect type: {dto.effectType}");
                 break;
@@ -346,5 +349,23 @@ public sealed class ItemEffectManager : MonoBehaviour
             return;
 
         BlockManager.Instance?.ApplyDamageToAllBlocks(damage, item);
+    }
+
+    void SetItemStatus(ItemEffectDto dto, ItemInstance sourceItem)
+    {
+        if (dto == null || sourceItem == null)
+            return;
+
+        var targetItem = ResolveTargetItem(dto.target, sourceItem);
+        if (targetItem == null)
+            return;
+
+        if (dto.statusType == BlockStatusType.Unknown)
+        {
+            Debug.LogWarning("[ItemEffectManager] SetItemStatus with Unknown statusType.");
+            return;
+        }
+
+        targetItem.SetStatusOverride(dto.statusType);
     }
 }

@@ -40,13 +40,16 @@ public sealed class UpgradeManager : MonoBehaviour
                 if (effect == null)
                     continue;
 
-                if (effect.effectType != ItemEffectType.ModifyItemStat)
+                switch (effect.effectType)
                 {
-                    Debug.LogWarning($"[UpgradeManager] Unsupported effect type: {effect.effectType}");
-                    continue;
+                    case ItemEffectType.ModifyItemStat:
+                    case ItemEffectType.SetItemStatus:
+                        effectManager.ApplyEffect(effect, target);
+                        break;
+                    default:
+                        Debug.LogWarning($"[UpgradeManager] Unsupported effect type: {effect.effectType}");
+                        break;
                 }
-
-                effectManager.ApplyEffect(effect, target);
             }
         }
 
@@ -60,6 +63,7 @@ public sealed class UpgradeManager : MonoBehaviour
             return;
 
         target.Stats.RemoveModifiers(layer: StatLayer.Upgrade, source: target);
+        target.ClearStatusOverride();
         target.Upgrade = null;
     }
 }

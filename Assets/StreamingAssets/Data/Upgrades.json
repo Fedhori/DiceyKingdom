@@ -56,6 +56,22 @@
 					"duration": "Upgrade"
 				}
 			]
+		},
+		{
+			"id": "upgrade.snowflake",
+			"price": 5,
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "SetItemStatus",
+					"target": "Self",
+					"statusType": "Freeze"
+				}
+			]
 		}
 	]
 }

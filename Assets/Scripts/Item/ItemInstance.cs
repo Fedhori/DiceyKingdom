@@ -20,7 +20,7 @@ public sealed class ItemInstance
     public bool IsObject { get; private set; }
     public int PierceBonus { get; private set; }
     public float ProjectileHomingTurnRate { get; private set; }
-    public BlockStatusType StatusType { get; private set; }
+    public BlockStatusType StatusType => hasStatusOverride ? statusOverride : baseStatusType;
     public int SellValueBonus { get; private set; }
     public ItemRarity Rarity { get; private set; }
     public UpgradeInstance Upgrade
@@ -37,6 +37,9 @@ public sealed class ItemInstance
     }
 
     UpgradeInstance upgrade;
+    BlockStatusType baseStatusType;
+    BlockStatusType statusOverride;
+    bool hasStatusOverride;
 
     public StatSet Stats { get; }
     public float DamageMultiplier => (float)Stats.GetValue(ItemStatIds.DamageMultiplier);
@@ -75,7 +78,9 @@ public sealed class ItemInstance
             IsObject = false;
             PierceBonus = 0;
             ProjectileHomingTurnRate = 0f;
-            StatusType = BlockStatusType.Unknown;
+            baseStatusType = BlockStatusType.Unknown;
+            statusOverride = BlockStatusType.Unknown;
+            hasStatusOverride = false;
             StatusDamageMultiplier = 1f;
             SellValueBonus = 0;
             Rarity = ItemRarity.Common;
@@ -89,7 +94,9 @@ public sealed class ItemInstance
         Stats.SetBase(ItemStatIds.AttackSpeed, Mathf.Max(0f, dto.attackSpeed), 0d);
         IsObject = dto.isObject;
         PierceBonus = Mathf.Max(0, dto.pierceBonus);
-        StatusType = dto.statusType;
+        baseStatusType = dto.statusType;
+        statusOverride = BlockStatusType.Unknown;
+        hasStatusOverride = false;
         SellValueBonus = 0;
         Rarity = dto.rarity;
         upgrade = null;
@@ -211,6 +218,18 @@ public sealed class ItemInstance
             return;
 
         SellValueBonus += amount;
+    }
+
+    public void SetStatusOverride(BlockStatusType type)
+    {
+        hasStatusOverride = true;
+        statusOverride = type;
+    }
+
+    public void ClearStatusOverride()
+    {
+        hasStatusOverride = false;
+        statusOverride = BlockStatusType.Unknown;
     }
 
     void IncrementTriggerCount(ItemTriggerType trigger)
