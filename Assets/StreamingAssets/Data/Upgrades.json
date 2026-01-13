@@ -1,7 +1,7 @@
 {
 	"upgrades": [
 		{
-			"id": "upgrade.powerstone",
+			"id": "upgrade.sword",
 			"price": 5,
 			"conditions": [
 				{
@@ -20,7 +20,7 @@
 			]
 		},
 		{
-			"id": "upgrade.windstone",
+			"id": "upgrade.wing",
 			"price": 5,
 			"conditions": [
 				{

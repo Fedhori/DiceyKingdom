@@ -20,7 +20,7 @@ MonoBehaviour:
     - rid: 1113825343581192274
   m_TableData:
   - m_Id: 23177211904
-    m_Localized: "\uBC14\uB78C\uC758 \uB3CC"
+    m_Localized: "\uB0A0\uAC1C"
     m_Metadata:
       m_Items: []
   - m_Id: 181403136000
@@ -29,7 +29,7 @@ MonoBehaviour:
       m_Items:
       - rid: 1113825343581192274
   - m_Id: 94883033088
-    m_Localized: "\uD798\uC758 \uB3CC"
+    m_Localized: "\uAC80"
     m_Metadata:
       m_Items: []
   - m_Id: 181419913216
