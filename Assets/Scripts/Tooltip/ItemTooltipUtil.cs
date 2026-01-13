@@ -96,14 +96,8 @@ public static class ItemTooltipUtil
             lines.Add(BuildStatLine("tooltip.pierce.description", args));
         }
 
-        if (item.StatusType == BlockStatusType.Freeze && item.StatusDuration > 0f)
-        {
-            var args = new Dictionary<string, object>
-            {
-                ["seconds"] = item.StatusDuration.ToString("0.##")
-            };
-            lines.Add(BuildStatLine("tooltip.status.freeze.description", args));
-        }
+        if (item.StatusType == BlockStatusType.Freeze)
+            lines.Add(BuildStatLine("tooltip.status.freeze.description", null));
     }
 
     static float GetFinalDamage(ItemInstance item)

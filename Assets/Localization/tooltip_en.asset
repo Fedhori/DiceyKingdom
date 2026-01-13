@@ -35,7 +35,7 @@ MonoBehaviour:
       m_Items:
       - rid: 1113825116433678411
   - m_Id: 10581387094011905
-    m_Localized: 'Status: Freeze ({seconds}s)'
+    m_Localized: 'Status: Freeze'
     m_Metadata:
       m_Items:
       - rid: 1113825116433678411

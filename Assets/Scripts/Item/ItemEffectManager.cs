@@ -125,7 +125,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (item == null || dto == null)
             return;
 
-        if (item.StatusType == BlockStatusType.Unknown || item.StatusDuration <= 0f)
+        if (item.StatusType == BlockStatusType.Unknown)
             return;
 
         int count = Mathf.Max(0, Mathf.FloorToInt(dto.value));
@@ -136,7 +136,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (manager == null)
             return;
 
-        manager.ApplyStatusToRandomBlocks(item.StatusType, item.StatusDuration, count);
+        manager.ApplyStatusToRandomBlocks(item.StatusType, count);
     }
 
     void ApplySellValue(ItemEffectDto dto, ItemInstance item)

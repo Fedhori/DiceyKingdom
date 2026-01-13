@@ -237,9 +237,9 @@ public sealed class BlockManager : MonoBehaviour
         return best;
     }
 
-    public int ApplyStatusToRandomBlocks(BlockStatusType type, float durationSeconds, int count)
+    public int ApplyStatusToRandomBlocks(BlockStatusType type, int count)
     {
-        if (type == BlockStatusType.Unknown || durationSeconds <= 0f || count <= 0)
+        if (type == BlockStatusType.Unknown || count <= 0)
             return 0;
 
         List<BlockController> candidates = null;
@@ -271,7 +271,7 @@ public sealed class BlockManager : MonoBehaviour
             var target = candidates[index];
             candidates[index] = candidates[candidates.Count - 1];
             candidates.RemoveAt(candidates.Count - 1);
-            bool applied = target.ApplyStatus(type, durationSeconds);
+            bool applied = target.ApplyStatus(type);
             if (applied)
                 ItemManager.Instance?.TriggerAll(ItemTriggerType.OnBlockStatusApplied);
         }

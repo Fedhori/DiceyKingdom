@@ -148,7 +148,6 @@ namespace Data
         public int pierceBonus = 0;
         [JsonConverter(typeof(StringEnumConverter))]
         public BlockStatusType statusType = BlockStatusType.Unknown;
-        public float statusDuration = 0f;
 
         [JsonIgnore]
         public bool isValid = true;
@@ -231,11 +230,6 @@ namespace Data
                 isValid = false;
             }
 
-            if (statusDuration < 0f)
-            {
-                Debug.LogError($"[ItemDto] '{id}': statusDuration < 0 is not allowed.");
-                isValid = false;
-            }
         }
     }
 }

@@ -21,7 +21,6 @@ public sealed class ItemInstance
     public int PierceBonus { get; private set; }
     public float ProjectileHomingTurnRate { get; private set; }
     public BlockStatusType StatusType { get; private set; }
-    public float StatusDuration { get; private set; }
     public int SellValueBonus { get; private set; }
     public ItemRarity Rarity { get; private set; }
     public UpgradeInstance Upgrade
@@ -77,7 +76,6 @@ public sealed class ItemInstance
             PierceBonus = 0;
             ProjectileHomingTurnRate = 0f;
             StatusType = BlockStatusType.Unknown;
-            StatusDuration = 0f;
             StatusDamageMultiplier = 1f;
             SellValueBonus = 0;
             Rarity = ItemRarity.Common;
@@ -92,7 +90,6 @@ public sealed class ItemInstance
         IsObject = dto.isObject;
         PierceBonus = Mathf.Max(0, dto.pierceBonus);
         StatusType = dto.statusType;
-        StatusDuration = Mathf.Max(0f, dto.statusDuration);
         SellValueBonus = 0;
         Rarity = dto.rarity;
         upgrade = null;

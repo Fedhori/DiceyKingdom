@@ -27,38 +27,6 @@ public sealed class BlockInstance
         Hp = Mathf.Max(0, Hp - amount);
     }
 
-    public void TickStatuses(float deltaSeconds)
-    {
-        if (deltaSeconds <= 0f || statuses.Count == 0)
-            return;
-
-        List<BlockStatusType> toRemove = null;
-
-        foreach (var pair in statuses)
-        {
-            var status = pair.Value;
-            if (status == null || !status.UsesDuration)
-                continue;
-
-            float next = status.RemainingSeconds - deltaSeconds;
-            if (next <= 0f)
-            {
-                toRemove ??= new List<BlockStatusType>();
-                toRemove.Add(pair.Key);
-            }
-            else
-            {
-                status.SetRemainingSeconds(next);
-            }
-        }
-
-        if (toRemove == null)
-            return;
-
-        for (int i = 0; i < toRemove.Count; i++)
-            statuses.Remove(toRemove[i]);
-    }
-
     public BlockStatusState GetStatus(BlockStatusType type)
     {
         if (type == BlockStatusType.Unknown)
@@ -73,34 +41,15 @@ public sealed class BlockInstance
         return GetStatus(type) != null;
     }
 
-    public bool TryApplyStatus(BlockStatusType type, float durationSeconds)
+    public bool TryApplyStatus(BlockStatusType type)
     {
         if (type == BlockStatusType.Unknown)
             return false;
 
-        bool usesDuration = durationSeconds > 0f;
         if (statuses.TryGetValue(type, out var _))
             return false;
 
-        statuses[type] = new BlockStatusState(type, durationSeconds, usesDuration);
-        return true;
-    }
-
-    public bool TryUpdateStatusDuration(BlockStatusType type, float durationSeconds)
-    {
-        if (type == BlockStatusType.Unknown)
-            return false;
-
-        if (!statuses.TryGetValue(type, out var existing))
-            return false;
-
-        if (!existing.UsesDuration)
-            return false;
-
-        if (durationSeconds <= existing.RemainingSeconds)
-            return false;
-
-        existing.SetRemainingSeconds(durationSeconds);
+        statuses[type] = new BlockStatusState(type);
         return true;
     }
 

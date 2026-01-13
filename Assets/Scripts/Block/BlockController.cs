@@ -46,7 +46,6 @@ public sealed class BlockController : MonoBehaviour
         if (delta <= 0f)
             return;
 
-        Instance.TickStatuses(delta);
         UpdateHitFlash(delta);
         UpdateVisuals();
 
@@ -137,23 +136,15 @@ public sealed class BlockController : MonoBehaviour
         if (sourceItem.StatusType == BlockStatusType.Unknown)
             return false;
 
-        float duration = sourceItem.StatusDuration;
-        if (duration <= 0f)
-            return false;
-
-        return ApplyStatus(sourceItem.StatusType, duration);
+        return ApplyStatus(sourceItem.StatusType);
     }
 
-    public bool ApplyStatus(BlockStatusType type, float durationSeconds)
+    public bool ApplyStatus(BlockStatusType type)
     {
         if (Instance == null)
             return false;
 
-        if (Instance.TryApplyStatus(type, durationSeconds))
-            return true;
-
-        Instance.TryUpdateStatusDuration(type, durationSeconds);
-        return false;
+        return Instance.TryApplyStatus(type);
     }
 
     void RefreshHpText()
