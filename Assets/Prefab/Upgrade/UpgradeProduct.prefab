@@ -147,7 +147,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 546a603ac1c9a054abae7024ef4d420f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 69eabcf48fc85154e97abce0cf0a7a83, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -185,7 +185,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeProductController
   itemView: {fileID: 4405346500044329777}
-  tooltipTarget: {fileID: 0}
+  tooltipTarget: {fileID: -6899895811056252566}
   priceText: {fileID: 49748079663549652}
   rarityText: {fileID: 0}
 --- !u!114 &-6899895811056252566
@@ -268,7 +268,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 546a603ac1c9a054abae7024ef4d420f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 69eabcf48fc85154e97abce0cf0a7a83, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -494,7 +494,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: acf935d08c0c0e442b2a3ddb66c48529, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 36a455519160b124eb8218fc2ad9f457, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
