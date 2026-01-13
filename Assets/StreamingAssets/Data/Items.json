@@ -94,7 +94,7 @@
 			"rarity": "Common",
 			"rules": [
 				{
-					"triggerType": "OnStageStart",
+					"triggerType": "OnPlayEnd",
 					"condition": {
 						"conditionKind": "Always"
 					},

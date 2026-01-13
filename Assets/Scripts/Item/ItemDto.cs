@@ -12,7 +12,6 @@ namespace Data
     {
         Unknown = 0,
         OnAcquire,
-        OnStageStart,
         OnPlayStart,
         OnPlayEnd,
         OnItemChanged,
