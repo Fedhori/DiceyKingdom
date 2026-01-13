@@ -1,6 +1,7 @@
 using Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.UI;
 
 public sealed class TooltipView : MonoBehaviour
@@ -10,6 +11,9 @@ public sealed class TooltipView : MonoBehaviour
     [SerializeField] TMP_Text descriptionText;
     [SerializeField] Image rarityPanelImage;
     [SerializeField] TMP_Text rarityText;
+    [SerializeField] GameObject toggleButtonRoot;
+    [SerializeField] Button toggleButton;
+    [SerializeField] TMP_Text toggleButtonText;
 
     public RectTransform rectTransform;
 
@@ -20,6 +24,9 @@ public sealed class TooltipView : MonoBehaviour
 
         if (rectTransform != null)
             rectTransform.pivot = new Vector2(0f, 1f);
+
+        if (toggleButton != null)
+            toggleButton.onClick.AddListener(HandleToggleButtonClicked);
 
         gameObject.SetActive(false);
     }
@@ -56,7 +63,36 @@ public sealed class TooltipView : MonoBehaviour
 
     public void Hide()
     {
+        SetToggleButton(false, false);
         gameObject.SetActive(false);
+    }
+
+    public void SetToggleButton(bool visible, bool showingUpgrade)
+    {
+        var root = toggleButtonRoot != null
+            ? toggleButtonRoot
+            : (toggleButton != null ? toggleButton.gameObject : null);
+
+        if (root != null)
+            root.SetActive(visible);
+
+        if (!visible || toggleButtonText == null)
+            return;
+
+        string key = showingUpgrade ? "tooltip.item.view" : "tooltip.upgrade.view";
+        var loc = new LocalizedString("tooltip", key);
+        toggleButtonText.text = loc.GetLocalizedString();
+    }
+
+    void HandleToggleButtonClicked()
+    {
+        TooltipManager.Instance?.TogglePinnedView();
+    }
+
+    void OnDestroy()
+    {
+        if (toggleButton != null)
+            toggleButton.onClick.RemoveListener(HandleToggleButtonClicked);
     }
 
     void ApplyRarity(ItemRarity rarity, string labelOverride, TooltipKind kind)

@@ -10,6 +10,8 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
     UpgradeInstance upgrade;
     readonly Vector3[] corners = new Vector3[4];
 
+    public bool HasUpgradeToggle => instance != null && instance.Upgrade != null;
+
     void Awake()
     {
         if (anchorRect == null)
@@ -65,9 +67,44 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
         model = default;
         anchor = default;
 
-        model = instance != null
-            ? ItemTooltipUtil.BuildModel(instance)
-            : UpgradeTooltipUtil.BuildModel(upgrade);
+        if (instance == null && upgrade == null)
+            return false;
+
+        if (instance != null)
+        {
+            if (!TryBuildTooltip(TooltipDisplayMode.Item, out model, out anchor))
+                return false;
+        }
+        else
+        {
+            if (!TryBuildTooltip(TooltipDisplayMode.Upgrade, out model, out anchor))
+                return false;
+        }
+
+        return true;
+    }
+
+    public bool TryBuildTooltip(TooltipDisplayMode mode, out TooltipModel model, out TooltipAnchor anchor)
+    {
+        model = default;
+        anchor = default;
+
+        switch (mode)
+        {
+            case TooltipDisplayMode.Item:
+                if (instance == null)
+                    return false;
+                model = ItemTooltipUtil.BuildModel(instance);
+                break;
+            case TooltipDisplayMode.Upgrade:
+                var upgradeToShow = upgrade ?? instance?.Upgrade;
+                if (upgradeToShow == null)
+                    return false;
+                model = UpgradeTooltipUtil.BuildModel(upgradeToShow);
+                break;
+            default:
+                return false;
+        }
 
         if (anchorType == TooltipAnchorType.World)
         {

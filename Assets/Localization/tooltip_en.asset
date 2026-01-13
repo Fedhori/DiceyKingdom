@@ -25,17 +25,17 @@ MonoBehaviour:
       m_Items:
       - rid: 1113825116433678411
   - m_Id: 9134255610802176
-    m_Localized: "Damage : {damage} (x{multiplier})"
+    m_Localized: 'Damage : {damage} (x{multiplier})'
     m_Metadata:
       m_Items:
       - rid: 1113825116433678411
   - m_Id: 10581387094011904
-    m_Localized: "Pierce : {value}"
+    m_Localized: 'Pierce : {value}'
     m_Metadata:
       m_Items:
       - rid: 1113825116433678411
   - m_Id: 10581387094011905
-    m_Localized: "Status: Freeze ({seconds}s)"
+    m_Localized: 'Status: Freeze ({seconds}s)'
     m_Metadata:
       m_Items:
       - rid: 1113825116433678411

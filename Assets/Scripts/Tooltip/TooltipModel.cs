@@ -8,6 +8,12 @@ public enum TooltipKind
     Upgrade
 }
 
+public enum TooltipDisplayMode
+{
+    Item,
+    Upgrade
+}
+
 public readonly struct TooltipModel
 {
     public readonly string Title;

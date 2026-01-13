@@ -22,6 +22,7 @@ public sealed class TooltipManager : MonoBehaviour
     bool hasCurrentModel;
     bool isPinned;
     bool dragHidden;
+    TooltipDisplayMode pinnedMode = TooltipDisplayMode.Item;
 
     Coroutine showRoutine;
 
@@ -73,6 +74,7 @@ public sealed class TooltipManager : MonoBehaviour
         hasCurrentModel = false;
         isPinned = false;
         dragHidden = false;
+        pinnedMode = TooltipDisplayMode.Item;
 
         if (showRoutine != null)
         {
@@ -137,6 +139,7 @@ public sealed class TooltipManager : MonoBehaviour
 
         currentOwner = null;
         hasCurrentModel = false;
+        pinnedMode = TooltipDisplayMode.Item;
 
         HideImmediate();
     }
@@ -154,6 +157,7 @@ public sealed class TooltipManager : MonoBehaviour
 
         isPinned = true;
         dragHidden = false;
+        pinnedMode = TooltipDisplayMode.Item;
         currentOwner = owner;
         currentModel = model;
         currentAnchor = anchor;
@@ -175,6 +179,7 @@ public sealed class TooltipManager : MonoBehaviour
 
         isPinned = true;
         dragHidden = false;
+        pinnedMode = TooltipDisplayMode.Item;
         currentOwner = owner;
         currentModel = model;
         currentAnchor = anchor;
@@ -198,6 +203,7 @@ public sealed class TooltipManager : MonoBehaviour
         dragHidden = false;
         currentOwner = null;
         hasCurrentModel = false;
+        pinnedMode = TooltipDisplayMode.Item;
 
         if (showRoutine != null)
         {
@@ -206,6 +212,30 @@ public sealed class TooltipManager : MonoBehaviour
         }
 
         HideImmediate();
+    }
+
+    public void TogglePinnedView()
+    {
+        if (!isPinned || !hasCurrentModel)
+            return;
+
+        if (currentOwner is not ItemTooltipTarget itemTarget)
+            return;
+
+        if (!itemTarget.HasUpgradeToggle)
+            return;
+
+        pinnedMode = pinnedMode == TooltipDisplayMode.Item
+            ? TooltipDisplayMode.Upgrade
+            : TooltipDisplayMode.Item;
+
+        if (!itemTarget.TryBuildTooltip(pinnedMode, out var model, out var anchor))
+            return;
+
+        currentModel = model;
+        currentAnchor = anchor;
+        hasCurrentModel = true;
+        ShowNow();
     }
 
     public void ClearOwner(object owner)
@@ -285,6 +315,7 @@ public sealed class TooltipManager : MonoBehaviour
 
         // 1) 내용 먼저 세팅해서 rect 크기를 최신 상태로 만든다.
         tooltipView.Show(currentModel);
+        UpdateToggleState();
 
         var tooltipRect = tooltipView.rectTransform;
         if (tooltipRect == null)
@@ -406,6 +437,26 @@ public sealed class TooltipManager : MonoBehaviour
 
         // pivot = (0,1) 이므로 localPos는 "툴팁 좌상단" 위치
         tooltipRect.anchoredPosition = localPos;
+    }
+
+    void UpdateToggleState()
+    {
+        if (tooltipView == null)
+            return;
+
+        if (!isPinned)
+        {
+            tooltipView.SetToggleButton(false, false);
+            return;
+        }
+
+        if (currentOwner is ItemTooltipTarget itemTarget && itemTarget.HasUpgradeToggle)
+        {
+            tooltipView.SetToggleButton(true, pinnedMode == TooltipDisplayMode.Upgrade);
+            return;
+        }
+
+        tooltipView.SetToggleButton(false, false);
     }
 
     void HideImmediate()

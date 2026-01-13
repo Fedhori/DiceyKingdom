@@ -47,6 +47,14 @@ MonoBehaviour:
     m_Key: tooltip.legendary.label
     m_Metadata:
       m_Items: []
+  - m_Id: 10581387094011910
+    m_Key: tooltip.item.view
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10581387094011911
+    m_Key: tooltip.upgrade.view
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
