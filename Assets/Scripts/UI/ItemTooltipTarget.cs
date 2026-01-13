@@ -67,9 +67,6 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
         model = default;
         anchor = default;
 
-        if (instance == null && upgrade == null)
-            return false;
-
         if (instance != null)
         {
             if (!TryBuildTooltip(TooltipDisplayMode.Item, out model, out anchor))

@@ -24,16 +24,6 @@ public static class ItemTooltipUtil
         if (string.IsNullOrEmpty(title))
             title = item.Id;
 
-        var upgrade = item.Upgrade;
-        if (upgrade != null)
-        {
-            string upgradeName = LocalizationUtil.GetUpgradeName(upgrade.Id);
-            if (string.IsNullOrEmpty(upgradeName))
-                upgradeName = upgrade.Id;
-
-            title = $"{title} ({upgradeName})";
-        }
-
         var body = BuildBody(item);
         var icon = SpriteCache.GetItemSprite(item.Id);
 
