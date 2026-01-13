@@ -43,7 +43,8 @@ public sealed class ProductController : ProductViewBase
         if (itemView != null)
         {
             itemView.SetIcon(product.Icon);
-            itemView.SetRarity(boundItem != null ? boundItem.Rarity : ItemRarity.Common);
+            if (boundItem != null)
+                itemView.SetRarity(boundItem.Rarity);
             itemView.SetSelected(isSelected);
         }
 
