@@ -44,6 +44,7 @@ public sealed class UpgradeManager : MonoBehaviour
                 {
                     case ItemEffectType.ModifyItemStat:
                     case ItemEffectType.SetItemStatus:
+                    case ItemEffectType.ModifyTriggerRepeat:
                         effectManager.ApplyEffect(effect, target);
                         break;
                     default:
@@ -64,6 +65,7 @@ public sealed class UpgradeManager : MonoBehaviour
 
         target.Stats.RemoveModifiers(layer: StatLayer.Upgrade, source: target);
         target.ClearStatusOverride();
+        target.RemoveTriggerRepeatModifiers(layer: StatLayer.Upgrade, source: target);
         target.Upgrade = null;
     }
 }

@@ -72,6 +72,26 @@
 					"statusType": "Freeze"
 				}
 			]
+		},
+		{
+			"id": "upgrade.mirror",
+			"price": 8,
+			"conditions": [
+				{
+					"conditionKind": "HasTriggerRule",
+					"triggerType": "OnPlayEnd"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyTriggerRepeat",
+					"target": "Self",
+					"triggerType": "OnPlayEnd",
+					"effectMode": "Add",
+					"value": 1,
+					"duration": "Upgrade"
+				}
+			]
 		}
 	]
 }

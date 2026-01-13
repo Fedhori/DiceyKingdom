@@ -75,7 +75,15 @@ public sealed class ItemManager : MonoBehaviour
     {
         var slots = inventory.Slots;
         for (int i = 0; i < slots.Count; i++)
-            slots[i]?.HandleTrigger(trigger);
+        {
+            var inst = slots[i];
+            if (inst == null)
+                continue;
+
+            int repeat = inst.GetTriggerRepeat(trigger);
+            for (int r = 0; r < repeat; r++)
+                inst.HandleTrigger(trigger);
+        }
     }
 
 

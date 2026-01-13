@@ -55,6 +55,9 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.SetItemStatus:
                 SetItemStatus(dto, item);
                 break;
+            case ItemEffectType.ModifyTriggerRepeat:
+                ModifyTriggerRepeat(dto, item);
+                break;
             default:
                 Debug.LogWarning($"[ItemEffectManager] Unsupported effect type: {dto.effectType}");
                 break;
@@ -367,5 +370,24 @@ public sealed class ItemEffectManager : MonoBehaviour
         }
 
         targetItem.SetStatusOverride(dto.statusType);
+    }
+
+    void ModifyTriggerRepeat(ItemEffectDto dto, ItemInstance sourceItem)
+    {
+        if (dto == null || sourceItem == null)
+            return;
+
+        if (dto.triggerType == ItemTriggerType.Unknown)
+        {
+            Debug.LogWarning("[ItemEffectManager] ModifyTriggerRepeat with Unknown triggerType.");
+            return;
+        }
+
+        var targetItem = ResolveTargetItem(dto.target, sourceItem);
+        if (targetItem == null)
+            return;
+
+        double value = Math.Max(0d, dto.value);
+        targetItem.AddTriggerRepeatModifier(dto.triggerType, dto.effectMode, value, dto.duration, targetItem);
     }
 }

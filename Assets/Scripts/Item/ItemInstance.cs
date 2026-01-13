@@ -56,6 +56,7 @@ public sealed class ItemInstance
 
     readonly Dictionary<ItemTriggerType, int> triggerCounts = new();
     readonly Dictionary<int, float> ruleElapsedSeconds = new();
+    readonly StatSet triggerRepeatStats = new();
 
     public ItemInstance(ItemDto dto)
     {
@@ -243,6 +244,37 @@ public sealed class ItemInstance
     int GetTriggerCount(ItemTriggerType trigger)
     {
         return triggerCounts.TryGetValue(trigger, out var count) ? count : 0;
+    }
+
+    public int GetTriggerRepeat(ItemTriggerType trigger)
+    {
+        if (trigger == ItemTriggerType.Unknown)
+            return 1;
+
+        var statId = GetTriggerRepeatStatId(trigger);
+        triggerRepeatStats.SetBase(statId, 1d, 1d, null);
+        double value = triggerRepeatStats.GetValue(statId);
+        return Mathf.Max(1, Mathf.FloorToInt((float)value));
+    }
+
+    public void AddTriggerRepeatModifier(ItemTriggerType trigger, StatOpKind opKind, double value, StatLayer layer, object source, int priority = 0)
+    {
+        if (trigger == ItemTriggerType.Unknown)
+            return;
+
+        var statId = GetTriggerRepeatStatId(trigger);
+        triggerRepeatStats.SetBase(statId, 1d, 1d, null);
+        triggerRepeatStats.AddModifier(new StatModifier(statId, opKind, value, layer, source, priority));
+    }
+
+    public void RemoveTriggerRepeatModifiers(StatLayer? layer = null, object source = null)
+    {
+        triggerRepeatStats.RemoveModifiers(layer, source);
+    }
+
+    static string GetTriggerRepeatStatId(ItemTriggerType trigger)
+    {
+        return $"triggerRepeat.{trigger}";
     }
 
     float GetRuleElapsedSeconds(int ruleIndex)

@@ -45,7 +45,8 @@ namespace Data
         SetStat,
         ModifyBaseIncome,
         ApplyDamageToAllBlocks,
-        SetItemStatus
+        SetItemStatus,
+        ModifyTriggerRepeat
     }
 
     public enum ItemEffectTarget
@@ -97,6 +98,9 @@ namespace Data
 
         [JsonConverter(typeof(StringEnumConverter))]
         public BlockStatusType statusType = BlockStatusType.Unknown;
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public ItemTriggerType triggerType = ItemTriggerType.Unknown;
     }
 
     [Serializable]

@@ -12,7 +12,8 @@ namespace Data
         Unknown = 0,
         HasDamageMultiplier,
         HasAttackSpeed,
-        HasProjectile
+        HasProjectile,
+        HasTriggerRule
     }
 
     [Serializable]
@@ -20,6 +21,9 @@ namespace Data
     {
         [JsonConverter(typeof(StringEnumConverter))]
         public UpgradeConditionKind conditionKind;
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public ItemTriggerType triggerType = ItemTriggerType.Unknown;
     }
 
     [Serializable]
