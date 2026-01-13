@@ -387,7 +387,6 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (targetItem == null)
             return;
 
-        double value = Math.Max(0d, dto.value);
-        targetItem.AddTriggerRepeatModifier(dto.triggerType, dto.effectMode, value, dto.duration, targetItem);
+        targetItem.AddTriggerRepeatModifier(dto.triggerType, dto.effectMode, dto.value, dto.duration, targetItem);
     }
 }

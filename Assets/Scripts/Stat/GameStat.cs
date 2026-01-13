@@ -38,6 +38,7 @@ namespace GameStats
     {
         public const string DamageMultiplier = "damageMultiplier";
         public const string AttackSpeed = "attackSpeed";
+        public const string Pierce = "pierce";
     }
 
     public sealed class StatModifier

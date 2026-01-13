@@ -92,6 +92,25 @@
 					"duration": "Upgrade"
 				}
 			]
+		},
+		{
+			"id": "upgrade.silverbullet",
+			"price": 8,
+			"conditions": [
+				{
+					"conditionKind": "HasProjectile"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "pierce",
+					"effectMode": "Add",
+					"value": 99,
+					"duration": "Upgrade"
+				}
+			]
 		}
 	]
 }

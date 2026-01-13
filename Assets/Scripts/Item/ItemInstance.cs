@@ -13,7 +13,7 @@ public sealed class ItemInstance
     public float ProjectileSpeed { get; private set; }
     public string ProjectileKey { get; private set; }
     public ProjectileHitBehavior ProjectileHitBehavior { get; private set; }
-    public int Pierce { get; private set; }
+    public int Pierce => Mathf.Max(0, Mathf.FloorToInt((float)Stats.GetValue(ItemStatIds.Pierce)));
     public int PelletCount { get; private set; }
     public float SpreadAngle { get; private set; }
     public float ProjectileRandomAngle { get; private set; }
@@ -72,7 +72,6 @@ public sealed class ItemInstance
             ProjectileSpeed = 1f;
             ProjectileKey = string.Empty;
             ProjectileHitBehavior = ProjectileHitBehavior.Normal;
-            Pierce = 0;
             PelletCount = 1;
             SpreadAngle = 0f;
             ProjectileRandomAngle = 0f;
@@ -86,6 +85,7 @@ public sealed class ItemInstance
             SellValueBonus = 0;
             Rarity = ItemRarity.Common;
             upgrade = null;
+            Stats.SetBase(ItemStatIds.Pierce, 0d, 0d);
             return;
         }
 
@@ -106,18 +106,21 @@ public sealed class ItemInstance
             rules.AddRange(dto.rules);
 
         var projectile = dto.projectile;
+        int basePierce = 0;
         if (projectile != null)
         {
             ProjectileKey = projectile.key ?? string.Empty;
             ProjectileSize = Mathf.Max(0.1f, projectile.size);
             ProjectileSpeed = Mathf.Max(0.1f, projectile.speed);
             ProjectileHitBehavior = projectile.hitBehavior;
-            Pierce = projectile.pierce;
+            basePierce = projectile.pierce;
             PelletCount = Mathf.Max(1, projectile.pelletCount);
             SpreadAngle = Mathf.Max(0f, projectile.spreadAngle);
             ProjectileRandomAngle = Mathf.Max(0f, projectile.randomAngle);
             ProjectileHomingTurnRate = Mathf.Max(0f, projectile.homingTurnRate);
         }
+
+        Stats.SetBase(ItemStatIds.Pierce, Mathf.Max(0, basePierce), 0d);
     }
 
     public void HandleTrigger(ItemTriggerType trigger)

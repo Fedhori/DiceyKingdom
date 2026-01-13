@@ -55,6 +55,14 @@ MonoBehaviour:
     m_Key: upgrade.mirror.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 181419913223
+    m_Key: upgrade.silverbullet.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181419913224
+    m_Key: upgrade.silverbullet.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
