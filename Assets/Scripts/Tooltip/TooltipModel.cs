@@ -4,7 +4,8 @@ using UnityEngine;
 public enum TooltipKind
 {
     Simple,
-    Item
+    Item,
+    Upgrade
 }
 
 public readonly struct TooltipModel

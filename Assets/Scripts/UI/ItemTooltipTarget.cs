@@ -41,9 +41,6 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (instance == null && upgrade == null)
-            return;
-
         var manager = TooltipManager.Instance;
         if (manager == null)
             return;

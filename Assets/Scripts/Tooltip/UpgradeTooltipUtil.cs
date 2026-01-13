@@ -10,7 +10,7 @@ public static class UpgradeTooltipUtil
     public static TooltipModel BuildModel(UpgradeInstance upgrade)
     {
         if (upgrade == null)
-            return new TooltipModel(string.Empty, string.Empty, null, TooltipKind.Item);
+            return new TooltipModel(string.Empty, string.Empty, null, TooltipKind.Upgrade);
 
         string title = LocalizationUtil.GetUpgradeName(upgrade.Id);
         if (string.IsNullOrEmpty(title))
@@ -23,7 +23,7 @@ public static class UpgradeTooltipUtil
             title,
             body,
             icon,
-            TooltipKind.Item,
+            TooltipKind.Upgrade,
             0f,
             ItemRarity.Common,
             "강화"
