@@ -7,6 +7,8 @@ public sealed class BlockController : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private SpriteRenderer hpBarRenderer;
+    [SerializeField] private SpriteRenderer statusMaskRenderer;
+    [SerializeField] private SpriteRenderer hitMaskRenderer;
     [SerializeField] private TMP_Text hpText;
     [SerializeField] private float hitFlashDuration = 0.08f;
     [SerializeField] private Collider2D hitCollider;
@@ -179,18 +181,51 @@ public sealed class BlockController : MonoBehaviour
         if (spriteRenderer == null || Instance == null)
             return;
 
-        Color color = baseColor;
+        spriteRenderer.color = baseColor;
 
-        if (Instance.HasStatus(BlockStatusType.Freeze))
-            color = Color.Lerp(color, Colors.FreezeTint, Colors.FreezeAlpha);
+        UpdateFreezeMask();
+        UpdateHitMask();
+    }
 
-        if (hitFlashTimer > 0f && hitFlashDuration > 0f)
+    void UpdateFreezeMask()
+    {
+        if (statusMaskRenderer == null)
+            return;
+
+        bool isFrozen = Instance != null && Instance.HasStatus(BlockStatusType.Freeze);
+        if (!isFrozen)
         {
-            float t = hitFlashTimer / hitFlashDuration;
-            color = Color.Lerp(color, Colors.DamageFlash, t);
+            if (statusMaskRenderer.gameObject.activeSelf)
+                statusMaskRenderer.gameObject.SetActive(false);
+            return;
         }
 
-        spriteRenderer.color = color;
+        if (!statusMaskRenderer.gameObject.activeSelf)
+            statusMaskRenderer.gameObject.SetActive(true);
+
+        statusMaskRenderer.color = Colors.FreezeTint;
+    }
+
+    void UpdateHitMask()
+    {
+        if (hitMaskRenderer == null)
+            return;
+
+        bool hasHit = hitFlashTimer > 0f && hitFlashDuration > 0f;
+        if (!hasHit)
+        {
+            if (hitMaskRenderer.gameObject.activeSelf)
+                hitMaskRenderer.gameObject.SetActive(false);
+            return;
+        }
+
+        if (!hitMaskRenderer.gameObject.activeSelf)
+            hitMaskRenderer.gameObject.SetActive(true);
+
+        float t = hitFlashTimer / hitFlashDuration;
+        Color color = Colors.DamageFlash;
+        color.a *= Mathf.Clamp01(t);
+        hitMaskRenderer.color = color;
     }
 
     void CacheBaseColor()
