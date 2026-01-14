@@ -663,7 +663,7 @@
 				"randomAngle": 5.0,
 				"explosionRadius": 128.0
 			},
-			"rules": []
+			"rules": [{}]
 		},
 		{
 			"id": "item.alarmclock",

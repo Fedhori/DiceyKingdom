@@ -1,9 +1,15 @@
+using System.Collections.Generic;
 using Data;
 using UnityEngine;
 
 public sealed class DamageManager : MonoBehaviour
 {
     public static DamageManager Instance { get; private set; }
+
+    readonly List<Collider2D> areaOverlapResults = new();
+    readonly HashSet<BlockController> areaTargets = new();
+    ContactFilter2D areaFilter;
+    bool areaFilterInitialized;
 
     void Awake()
     {
@@ -58,26 +64,32 @@ public sealed class DamageManager : MonoBehaviour
         if (radius <= 0f)
             return 0;
 
-        var blockManager = BlockManager.Instance;
-        if (blockManager == null)
+        EnsureAreaFilter();
+        if (!areaFilterInitialized)
             return 0;
 
-        var targets = blockManager.GetActiveBlocksSnapshot();
-        if (targets.Count == 0)
+        areaOverlapResults.Clear();
+        Physics2D.OverlapCircle(center, radius, areaFilter, areaOverlapResults);
+        if (areaOverlapResults.Count == 0)
             return 0;
 
-        float sqrRadius = radius * radius;
         int applied = 0;
+        areaTargets.Clear();
 
-        for (int i = 0; i < targets.Count; i++)
+        for (int i = 0; i < areaOverlapResults.Count; i++)
         {
-            var block = targets[i];
-            if (block == null)
+            var hit = areaOverlapResults[i];
+            if (hit == null)
+                continue;
+
+            var block = hit.GetComponent<BlockController>();
+            if (block == null || block.Instance == null)
+                continue;
+
+            if (!areaTargets.Add(block))
                 continue;
 
             Vector2 pos = block.transform.position;
-            if ((pos - center).sqrMagnitude > sqrRadius)
-                continue;
 
             var context = new DamageContext(
                 block,
@@ -97,6 +109,28 @@ public sealed class DamageManager : MonoBehaviour
         }
 
         return applied;
+    }
+
+    void EnsureAreaFilter()
+    {
+        if (areaFilterInitialized)
+            return;
+
+        int blockLayer = LayerMask.NameToLayer("Block");
+        if (blockLayer < 0)
+        {
+            Debug.LogWarning("[DamageManager] Block layer not found.");
+            return;
+        }
+
+        areaFilter = new ContactFilter2D
+        {
+            useLayerMask = true,
+            layerMask = 1 << blockLayer,
+            useTriggers = true
+        };
+
+        areaFilterInitialized = true;
     }
 
     void TryApplyOverflow(DamageContext sourceContext, int overflowDamage)
