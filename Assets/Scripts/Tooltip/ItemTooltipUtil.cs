@@ -182,13 +182,15 @@ public static class ItemTooltipUtil
                     continue;
 
                 string key = $"value{i}";
+                dict[key] = e.value.ToString("0.##");
+
+                string absKey = $"absValue{i}";
+                dict[absKey] = Mathf.Abs(e.value).ToString("0.##");
+
                 if (e.effectMode == StatOpKind.Mult)
                 {
-                    dict[key] = e.value.ToString("0.##");
-                }
-                else
-                {
-                    dict[key] = e.value.ToString("0.##");
+                    string multKey = $"mult{i}";
+                    dict[multKey] = (1f + e.value).ToString("0.##");
                 }
 
                 if (e.threshold > 0)
