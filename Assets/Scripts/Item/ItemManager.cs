@@ -9,6 +9,7 @@ public sealed class ItemManager : MonoBehaviour
 
     [SerializeField] private string defaultItemId = "item.default";
     [SerializeField] private Transform attachTarget; // 플레이어 transform 등
+    [SerializeField] private GameObject objectItemPrefab;
     [SerializeField] private float tickIntervalSeconds = 1f;
     [SerializeField] private float orbitRadius = 64f;
     [SerializeField] private float orbitPeriodSeconds = 4f;
@@ -158,14 +159,13 @@ public sealed class ItemManager : MonoBehaviour
             return null;
         }
 
-        var prefab = ResolveObjectPrefab(inst);
-        if (prefab == null)
+        if (objectItemPrefab == null)
         {
-            Debug.LogWarning($"[ItemManager] Object prefab not found for item '{inst.Id}'.");
+            Debug.LogWarning("[ItemManager] Object item prefab not assigned.");
             return null;
         }
 
-        var go = Instantiate(prefab, attachTarget.position, Quaternion.identity, attachTarget);
+        var go = Instantiate(objectItemPrefab, attachTarget.position, Quaternion.identity, attachTarget);
         var ctrl = go.GetComponent<ItemController>();
         if (ctrl == null)
         {
@@ -179,18 +179,6 @@ public sealed class ItemManager : MonoBehaviour
         controllerMap[inst] = ctrl;
         InitializeOrbit(ctrl, controllers.Count - 1, controllers.Count);
         return ctrl;
-    }
-
-    GameObject ResolveObjectPrefab(ItemInstance inst)
-    {
-        if (inst == null || string.IsNullOrEmpty(inst.Id))
-            return null;
-
-        var registry = ItemPrefabRegistry.Instance;
-        if (registry == null)
-            return null;
-
-        return registry.GetOrDefault(inst.Id);
     }
 
     void HandleSlotChanged(int slotIndex, ItemInstance previous, ItemInstance current, ItemInventory.SlotChangeType changeType)
