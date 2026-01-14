@@ -20,4 +20,8 @@ public static class GameConfig
     public static float BeamFlickerMinAlpha = 0.5f;
     public static float BeamFlickerHzMin = 4f;
     public static float BeamFlickerHzMax = 8f;
+
+    // Explosion VFX
+    public static float ExplosionSpeedPerRadius = 2f;
+    public static float ExplosionSizePerRadius = 0.1f;
 }

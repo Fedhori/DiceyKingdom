@@ -13,6 +13,7 @@ public sealed class ProjectileController : MonoBehaviour
     Vector2 direction;
     int pierceRemaining;
     int wallBounceRemaining;
+    bool hasExploded;
 
     public void Initialize(ItemInstance inst, Vector2 dir)
     {
@@ -22,6 +23,7 @@ public sealed class ProjectileController : MonoBehaviour
         item = inst;
         direction = dir.normalized;
         pierceRemaining = 0;
+        hasExploded = false;
 
         ApplyPierceCount();
         ApplyWallBounceCount();
@@ -74,6 +76,12 @@ public sealed class ProjectileController : MonoBehaviour
             if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
                 return;
 
+            if (item.ProjectileExplosionRadius > 0f)
+            {
+                Explode(other);
+                return;
+            }
+
             var result = ApplyDamage(other);
             if (result.AppliedDamage > 0)
                 HandlePierce();
@@ -95,10 +103,19 @@ public sealed class ProjectileController : MonoBehaviour
         {
             if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
             {
-                ApplyDamage(other);
+                if (item.ProjectileExplosionRadius > 0f)
+                    Explode(other);
+                else
+                    ApplyDamage(other);
             }
             else
             {
+                if (item.ProjectileExplosionRadius > 0f)
+                {
+                    Explode(other);
+                    return;
+                }
+
                 var result = ApplyDamage(other);
                 if (result.AppliedDamage > 0)
                     HandlePierce();
@@ -129,6 +146,30 @@ public sealed class ProjectileController : MonoBehaviour
             applyStatusFromItem: true,
             sourceOwner: this);
         return damageManager.ApplyDamage(context);
+    }
+
+    void Explode(Collider2D other)
+    {
+        if (hasExploded)
+            return;
+
+        hasExploded = true;
+
+        var damageManager = DamageManager.Instance;
+        if (damageManager != null)
+        {
+            Vector2 pos = transform.position;
+            damageManager.ApplyAreaDamage(
+                pos,
+                item.ProjectileExplosionRadius,
+                item,
+                DamageSourceType.Projectile,
+                damageScale: 1f,
+                sourceOwner: this);
+        }
+
+        ParticleManager.Instance?.PlayExplosion(transform.position, item.ProjectileExplosionRadius);
+        Destroy(gameObject);
     }
 
     void ApplyPierceCount()

@@ -14,6 +14,7 @@ public sealed class ParticleManager : MonoBehaviour
     }
 
     public const string BlockDestroyKey = "block.destroy";
+    public const string ExplosionKey = "projectile.explosion";
 
     [SerializeField] private List<Entry> entries = new();
 
@@ -49,7 +50,19 @@ public sealed class ParticleManager : MonoBehaviour
         Play(BlockDestroyKey, position);
     }
 
-    public void Play(string key, Vector3 position, Color? tint = null)
+    public void PlayExplosion(Vector3 position, float radius)
+    {
+        float speed = Mathf.Max(0f, radius * GameConfig.ExplosionSpeedPerRadius);
+        float size = Mathf.Max(0f, radius * GameConfig.ExplosionSizePerRadius);
+        Play(ExplosionKey, position, null, speed, size);
+    }
+
+    public void PlayExplosion(Vector3 position)
+    {
+        Play(ExplosionKey, position);
+    }
+
+    public void Play(string key, Vector3 position, Color? tint = null, float? startSpeed = null, float? startSize = null)
     {
         if (string.IsNullOrEmpty(key))
             return;
@@ -70,6 +83,9 @@ public sealed class ParticleManager : MonoBehaviour
 
         if (tint.HasValue)
             ApplyTint(systems, tint.Value);
+
+        if (startSpeed.HasValue || startSize.HasValue)
+            ApplyOverrides(systems, startSpeed, startSize);
 
         float maxDuration = 0f;
         for (int i = 0; i < systems.Length; i++)
@@ -100,6 +116,22 @@ public sealed class ParticleManager : MonoBehaviour
 
             var main = system.main;
             main.startColor = color;
+        }
+    }
+
+    static void ApplyOverrides(ParticleSystem[] systems, float? startSpeed, float? startSize)
+    {
+        for (int i = 0; i < systems.Length; i++)
+        {
+            var system = systems[i];
+            if (system == null)
+                continue;
+
+            var main = system.main;
+            if (startSpeed.HasValue)
+                main.startSpeed = startSpeed.Value;
+            if (startSize.HasValue)
+                main.startSize = startSize.Value;
         }
     }
 

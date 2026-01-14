@@ -1938,6 +1938,8 @@ MonoBehaviour:
   entries:
   - key: block.destroy
     prefab: {fileID: 6832954786247599767, guid: 135e5c07778d5e74ebd824665ed9d1f2, type: 3}
+  - key: projectile.explosion
+    prefab: {fileID: 6832954786247599767, guid: 6a46e21733cb1894288330aa2d793f34, type: 3}
 --- !u!1 &513418570
 GameObject:
   m_ObjectHideFlags: 0
@@ -3400,7 +3402,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemManager
   defaultItemId: item.default
   attachTarget: {fileID: 117041021}
-  objectItemPrefab: {fileID: 0}
+  objectItemPrefab: {fileID: 1772306015642552443, guid: 56c1f7b4571e0634b9050b0122f0be8c, type: 3}
   tickIntervalSeconds: 1
   orbitRadius: 64
   orbitPeriodSeconds: 4
@@ -4270,6 +4272,8 @@ MonoBehaviour:
     prefab: {fileID: 5678199368567996697, guid: f0a2daf8ba886a746bb16d6153de9fea, type: 3}
   - key: projectile.sword
     prefab: {fileID: 6095249425605532101, guid: d93d5f7c561900544a29bda73c264a5f, type: 3}
+  - key: projectile.grenade
+    prefab: {fileID: 7456553298515202051, guid: f31a767ff6e07ca43a56fb6064d95df1, type: 3}
   parent: {fileID: 258862835}
 --- !u!1 &1050363043
 GameObject:

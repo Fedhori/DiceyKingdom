@@ -315,4 +315,9 @@ public sealed class BlockManager : MonoBehaviour
 
         return applied;
     }
+
+    public List<BlockController> GetActiveBlocksSnapshot()
+    {
+        return new List<BlockController>(activeBlocks);
+    }
 }

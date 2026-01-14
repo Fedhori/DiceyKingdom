@@ -47,6 +47,58 @@ public sealed class DamageManager : MonoBehaviour
         return result;
     }
 
+    public int ApplyAreaDamage(
+        Vector2 center,
+        float radius,
+        ItemInstance sourceItem,
+        DamageSourceType sourceType,
+        float damageScale = 1f,
+        object sourceOwner = null)
+    {
+        if (radius <= 0f)
+            return 0;
+
+        var blockManager = BlockManager.Instance;
+        if (blockManager == null)
+            return 0;
+
+        var targets = blockManager.GetActiveBlocksSnapshot();
+        if (targets.Count == 0)
+            return 0;
+
+        float sqrRadius = radius * radius;
+        int applied = 0;
+
+        for (int i = 0; i < targets.Count; i++)
+        {
+            var block = targets[i];
+            if (block == null)
+                continue;
+
+            Vector2 pos = block.transform.position;
+            if ((pos - center).sqrMagnitude > sqrRadius)
+                continue;
+
+            var context = new DamageContext(
+                block,
+                baseDamage: null,
+                sourceItem: sourceItem,
+                sourceType: sourceType,
+                hitPosition: pos,
+                allowOverflow: true,
+                applyStatusFromItem: true,
+                sourceOwner: sourceOwner,
+                damageScale: damageScale,
+                allowZeroDamage: false);
+
+            var result = ApplyDamage(context);
+            if (result != null && result.AppliedDamage > 0)
+                applied++;
+        }
+
+        return applied;
+    }
+
     void TryApplyOverflow(DamageContext sourceContext, int overflowDamage)
     {
         if (overflowDamage <= 0)

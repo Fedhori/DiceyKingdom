@@ -13,6 +13,7 @@ public sealed class ItemInstance
     public float ProjectileSpeed { get; private set; }
     public string ProjectileKey { get; private set; }
     public ProjectileHitBehavior ProjectileHitBehavior { get; private set; }
+    public float ProjectileExplosionRadius { get; private set; }
     public float BeamThickness { get; private set; }
     public float BeamDuration { get; private set; }
     public int Pierce => Mathf.Max(0, Mathf.FloorToInt((float)Stats.GetValue(ItemStatIds.Pierce)));
@@ -74,6 +75,7 @@ public sealed class ItemInstance
             ProjectileSpeed = 1f;
             ProjectileKey = string.Empty;
             ProjectileHitBehavior = ProjectileHitBehavior.Normal;
+            ProjectileExplosionRadius = 0f;
             BeamThickness = 0f;
             BeamDuration = 0f;
             PelletCount = 1;
@@ -117,6 +119,7 @@ public sealed class ItemInstance
             ProjectileSize = Mathf.Max(0.1f, projectile.size);
             ProjectileSpeed = Mathf.Max(0.1f, projectile.speed);
             ProjectileHitBehavior = projectile.hitBehavior;
+            ProjectileExplosionRadius = Mathf.Max(0f, projectile.explosionRadius);
             basePierce = projectile.pierce;
             PelletCount = Mathf.Max(1, projectile.pelletCount);
             SpreadAngle = Mathf.Max(0f, projectile.spreadAngle);
@@ -129,6 +132,7 @@ public sealed class ItemInstance
             ProjectileSize = 1f;
             ProjectileSpeed = 1f;
             ProjectileHitBehavior = ProjectileHitBehavior.Normal;
+            ProjectileExplosionRadius = 0f;
             PelletCount = 1;
             SpreadAngle = 0f;
             ProjectileRandomAngle = 0f;
