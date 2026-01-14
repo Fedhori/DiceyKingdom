@@ -85,7 +85,7 @@ public sealed class BlockController : MonoBehaviour
         if (damage <= 0)
             return new DamageResult(0, 0, false, false);
 
-        int currentHp = Instance.Hp;
+        double currentHp = Instance.Hp;
         Instance.ApplyDamage(damage);
         RefreshHpText();
 
@@ -96,7 +96,13 @@ public sealed class BlockController : MonoBehaviour
         bool isDead = Instance.IsDead;
         if (isDead)
             MarkPendingDestroy();
-        int overflow = isDead ? Mathf.Max(0, damage - currentHp) : 0;
+        int overflow = 0;
+        if (isDead)
+        {
+            double rawOverflow = damage - currentHp;
+            if (rawOverflow > 0.0)
+                overflow = Mathf.FloorToInt((float)rawOverflow);
+        }
 
         return new DamageResult(damage, overflow, isDead, statusApplied);
     }
@@ -163,7 +169,7 @@ public sealed class BlockController : MonoBehaviour
             return;
 
         if (hpText != null)
-            hpText.text = Instance.Hp.ToString();
+            hpText.text = Mathf.CeilToInt((float)Instance.Hp).ToString();
 
         UpdateHpBar();
     }
@@ -255,8 +261,8 @@ public sealed class BlockController : MonoBehaviour
         if (hpBarRenderer == null || Instance == null)
             return;
 
-        float ratio = Instance.MaxHp > 0
-            ? Mathf.Clamp01(Instance.Hp / (float)Instance.MaxHp)
+        float ratio = Instance.MaxHp > 0.0
+            ? Mathf.Clamp01((float)(Instance.Hp / Instance.MaxHp))
             : 0f;
 
         var scale = hpBarBaseScale;

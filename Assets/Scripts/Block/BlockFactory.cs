@@ -17,7 +17,7 @@ public sealed class BlockFactory : MonoBehaviour
         Instance = this;
     }
 
-    public BlockController CreateBlock(int hp, Vector2Int gridPos, Vector3 worldPos)
+    public BlockController CreateBlock(double hp, Vector2Int gridPos, Vector3 worldPos)
     {
         if (blockPrefab == null)
         {

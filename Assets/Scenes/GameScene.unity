@@ -7661,8 +7661,8 @@ MonoBehaviour:
   playArea: {fileID: 1644066639}
   blockSize: {x: 128, y: 64}
   spawnDurationSeconds: 30
-  spawnRateStartPerSec: 1
-  spawnRateEndPerSec: 2
+  spawnDifficultyRateStart: 3
+  spawnDifficultyRateEnd: 1
 --- !u!114 &1612725526
 MonoBehaviour:
   m_ObjectHideFlags: 0

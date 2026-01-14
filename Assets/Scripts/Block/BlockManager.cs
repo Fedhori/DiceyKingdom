@@ -13,13 +13,17 @@ public sealed class BlockManager : MonoBehaviour
     [Header("Spawn Ramp")] [SerializeField]
     private float spawnDurationSeconds = 30f;
 
-    [SerializeField] private float spawnRateStartPerSec = 1f;
-    [SerializeField] private float spawnRateEndPerSec = 2f;
+    [SerializeField] private float spawnDifficultyRateStart = 10f;
+    [SerializeField] private float spawnDifficultyRateEnd = 30f;
+
     private readonly List<BlockController> activeBlocks = new();
     private Vector2 originTopLeft;
     private Vector2 originTopRight;
     float spawnElapsed;
-    float spawnAccumulator;
+    double accumulatedDifficulty;
+    bool hasPendingBlock;
+    float pendingBlockScale;
+    double pendingBlockHealth;
     bool isSpawning;
 
     void Awake()
@@ -50,13 +54,11 @@ public sealed class BlockManager : MonoBehaviour
 
         isSpawning = true;
         spawnElapsed = 0f;
-        spawnAccumulator = 0f;
+        accumulatedDifficulty = 0.0;
+        hasPendingBlock = false;
+        pendingBlockScale = 1f;
+        pendingBlockHealth = 0.0;
     }
-
-    public float SpawnDurationSeconds => spawnDurationSeconds;
-    public float SpawnElapsedSeconds => spawnElapsed;
-    public float SpawnRemainingSeconds => Mathf.Max(0f, spawnDurationSeconds - spawnElapsed);
-    public bool IsSpawning => isSpawning;
 
     void ComputeOrigin()
     {
@@ -76,20 +78,29 @@ public sealed class BlockManager : MonoBehaviour
         }
     }
 
-    void SpawnBlock()
+    void SpawnBlock(double blockHealth, float scale)
     {
-        float minX = originTopLeft.x + blockSize.x * 0.5f;
-        float maxX = originTopRight.x - blockSize.x * 0.5f;
-        float y = originTopLeft.y + blockSize.y * 0.5f;
+        float halfWidth = blockSize.x * 0.5f * scale;
+        float halfHeight = blockSize.y * 0.5f * scale;
+        float minX = originTopLeft.x + halfWidth;
+        float maxX = originTopRight.x - halfWidth;
+        float y = originTopLeft.y + halfHeight;
 
-        float x = Random.Range(minX, maxX);
+        float x = minX <= maxX ? Random.Range(minX, maxX) : (originTopLeft.x + originTopRight.x) * 0.5f;
         Vector3 worldPos = new Vector3(x, y, 0f);
 
-        var blockHealth = StageManager.Instance.CurrentStage.Difficulty;
-
         var block = BlockFactory.Instance.CreateBlock(blockHealth, Vector2Int.zero, worldPos);
-        if (block != null && !activeBlocks.Contains(block))
-            activeBlocks.Add(block);
+        if (block != null)
+        {
+            var currentScale = block.transform.localScale;
+            block.transform.localScale = new Vector3(
+                currentScale.x * scale,
+                currentScale.y * scale,
+                currentScale.z);
+
+            if (!activeBlocks.Contains(block))
+                activeBlocks.Add(block);
+        }
     }
 
     public void HandleBlockDestroyed(BlockController block)
@@ -122,23 +133,82 @@ public sealed class BlockManager : MonoBehaviour
         if (!isSpawning)
             return;
 
-        spawnElapsed += Time.deltaTime;
-        float t = Mathf.Clamp01(spawnElapsed / spawnDurationSeconds);
-        float rate = Mathf.Lerp(spawnRateStartPerSec, spawnRateEndPerSec, t);
+        float delta = Time.deltaTime;
+        if (delta <= 0f)
+            return;
 
-        spawnAccumulator += rate * Time.deltaTime;
+        float remaining = spawnDurationSeconds - spawnElapsed;
+        if (remaining <= 0f)
+        {
+            isSpawning = false;
+            CheckClearCondition();
+            return;
+        }
 
-        int spawnCount = Mathf.FloorToInt(spawnAccumulator);
-        if (spawnCount > 0)
-            spawnAccumulator -= spawnCount;
+        float effectiveDelta = Mathf.Min(delta, remaining);
+        spawnElapsed += effectiveDelta;
 
-        for (int i = 0; i < spawnCount; i++)
-            SpawnBlock();
+        double difficulty = StageManager.Instance?.CurrentStage?.Difficulty ?? 0.0;
+        if (difficulty > 0.0)
+        {
+            float t = Mathf.Clamp01(spawnElapsed / spawnDurationSeconds);
+            double rateStart = difficulty * spawnDifficultyRateStart;
+            double rateEnd = difficulty * spawnDifficultyRateEnd;
+            double rate = rateStart + (rateEnd - rateStart) * t;
+            accumulatedDifficulty += rate * effectiveDelta;
+
+            int safety = 0;
+            while (TrySpawnPendingBlock(difficulty))
+            {
+                safety++;
+                if (safety >= 1000)
+                {
+                    accumulatedDifficulty = 0.0;
+                    hasPendingBlock = false;
+                    break;
+                }
+            }
+        }
 
         if (spawnElapsed >= spawnDurationSeconds)
             isSpawning = false;
 
         CheckClearCondition();
+    }
+
+    bool TrySpawnPendingBlock(double difficulty)
+    {
+        if (!hasPendingBlock)
+            PreparePendingBlock(difficulty);
+
+        if (!hasPendingBlock || pendingBlockHealth <= 0.0)
+        {
+            hasPendingBlock = false;
+            return false;
+        }
+
+        if (accumulatedDifficulty < pendingBlockHealth)
+            return false;
+
+        accumulatedDifficulty -= pendingBlockHealth;
+        SpawnBlock(pendingBlockHealth, pendingBlockScale);
+        hasPendingBlock = false;
+        return true;
+    }
+
+    void PreparePendingBlock(double difficulty)
+    {
+        if (difficulty <= 0.0)
+        {
+            hasPendingBlock = false;
+            pendingBlockHealth = 0.0;
+            pendingBlockScale = 1f;
+            return;
+        }
+
+        pendingBlockScale = Random.Range(1f, 1.5f);
+        pendingBlockHealth = difficulty * pendingBlockScale * pendingBlockScale;
+        hasPendingBlock = true;
     }
 
     void CheckClearCondition()
@@ -185,7 +255,10 @@ public sealed class BlockManager : MonoBehaviour
     {
         isSpawning = false;
         spawnElapsed = 0f;
-        spawnAccumulator = 0f;
+        accumulatedDifficulty = 0.0;
+        hasPendingBlock = false;
+        pendingBlockScale = 1f;
+        pendingBlockHealth = 0.0;
 
         for (int i = activeBlocks.Count - 1; i >= 0; i--)
         {
