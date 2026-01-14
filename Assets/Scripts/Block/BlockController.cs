@@ -16,7 +16,7 @@ public sealed class BlockController : MonoBehaviour
     public BlockInstance Instance { get; private set; }
 
     Color baseColor = Color.white;
-    Vector3 hpBarBaseScale;
+    Vector2 hpBarBaseSize;
     float hitFlashTimer;
     bool isPendingDestroy;
 
@@ -31,7 +31,7 @@ public sealed class BlockController : MonoBehaviour
         isPendingDestroy = false;
 
         CacheBaseColor();
-        CacheHpBarScale();
+        CacheHpBarSize();
         RefreshHpText();
     }
 
@@ -248,12 +248,12 @@ public sealed class BlockController : MonoBehaviour
             baseColor = spriteRenderer.color;
     }
 
-    void CacheHpBarScale()
+    void CacheHpBarSize()
     {
         if (hpBarRenderer == null)
             return;
 
-        hpBarBaseScale = hpBarRenderer.transform.localScale;
+        hpBarBaseSize = hpBarRenderer.size;
     }
 
     void UpdateHpBar()
@@ -265,9 +265,9 @@ public sealed class BlockController : MonoBehaviour
             ? Mathf.Clamp01((float)(Instance.Hp / Instance.MaxHp))
             : 0f;
 
-        var scale = hpBarBaseScale;
-        scale.x *= ratio;
-        hpBarRenderer.transform.localScale = scale;
+        var size = hpBarBaseSize;
+        size.x *= ratio;
+        hpBarRenderer.size = size;
     }
 
     void SetColliderEnabled(bool enabled)

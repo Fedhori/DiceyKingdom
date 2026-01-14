@@ -641,7 +641,7 @@
 			"isObject": true,
 			"price": 8,
 			"rarity": "Rare",
-			"damageMultiplier": 5.0,
+			"damageMultiplier": 3.0,
 			"attackSpeed": 0.3,
 			"beam": {
 				"thickness": 64.0,

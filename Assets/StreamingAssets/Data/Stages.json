@@ -74,6 +74,14 @@
 		{
 			"index": 17,
 			"difficulty": 30000
+		},
+		{
+			"index": 18,
+			"difficulty": 40000
+		},
+		{
+			"index": 19,
+			"difficulty": 50000
 		}
 	]
 }
