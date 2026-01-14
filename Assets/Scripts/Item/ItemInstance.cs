@@ -13,6 +13,8 @@ public sealed class ItemInstance
     public float ProjectileSpeed { get; private set; }
     public string ProjectileKey { get; private set; }
     public ProjectileHitBehavior ProjectileHitBehavior { get; private set; }
+    public float BeamThickness { get; private set; }
+    public float BeamDuration { get; private set; }
     public int Pierce => Mathf.Max(0, Mathf.FloorToInt((float)Stats.GetValue(ItemStatIds.Pierce)));
     public int PelletCount { get; private set; }
     public float SpreadAngle { get; private set; }
@@ -72,6 +74,8 @@ public sealed class ItemInstance
             ProjectileSpeed = 1f;
             ProjectileKey = string.Empty;
             ProjectileHitBehavior = ProjectileHitBehavior.Normal;
+            BeamThickness = 0f;
+            BeamDuration = 0f;
             PelletCount = 1;
             SpreadAngle = 0f;
             ProjectileRandomAngle = 0f;
@@ -118,6 +122,28 @@ public sealed class ItemInstance
             SpreadAngle = Mathf.Max(0f, projectile.spreadAngle);
             ProjectileRandomAngle = Mathf.Max(0f, projectile.randomAngle);
             ProjectileHomingTurnRate = Mathf.Max(0f, projectile.homingTurnRate);
+        }
+        else
+        {
+            ProjectileKey = string.Empty;
+            ProjectileSize = 1f;
+            ProjectileSpeed = 1f;
+            ProjectileHitBehavior = ProjectileHitBehavior.Normal;
+            PelletCount = 1;
+            SpreadAngle = 0f;
+            ProjectileRandomAngle = 0f;
+            ProjectileHomingTurnRate = 0f;
+        }
+
+        if (dto.beam != null)
+        {
+            BeamThickness = Mathf.Max(0f, dto.beam.thickness);
+            BeamDuration = Mathf.Max(0f, dto.beam.duration);
+        }
+        else
+        {
+            BeamThickness = 0f;
+            BeamDuration = 0f;
         }
 
         Stats.SetBase(ItemStatIds.Pierce, Mathf.Max(0, basePierce), 0d);

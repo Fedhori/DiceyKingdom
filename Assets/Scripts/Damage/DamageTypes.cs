@@ -16,8 +16,10 @@ public sealed class DamageContext
     public DamageSourceType SourceType { get; }
     public Vector2? HitPosition { get; }
     public int? BaseDamage { get; }
+    public float DamageScale { get; }
     public bool AllowOverflow { get; }
     public bool ApplyStatusFromItem { get; }
+    public bool AllowZeroDamage { get; }
     public object SourceOwner { get; }
 
     public DamageContext(
@@ -28,7 +30,9 @@ public sealed class DamageContext
         Vector2? hitPosition = null,
         bool allowOverflow = true,
         bool applyStatusFromItem = true,
-        object sourceOwner = null)
+        object sourceOwner = null,
+        float damageScale = 1f,
+        bool allowZeroDamage = false)
     {
         Target = target;
         BaseDamage = baseDamage;
@@ -38,6 +42,8 @@ public sealed class DamageContext
         AllowOverflow = allowOverflow;
         ApplyStatusFromItem = applyStatusFromItem;
         SourceOwner = sourceOwner;
+        DamageScale = damageScale;
+        AllowZeroDamage = allowZeroDamage;
     }
 }
 

@@ -271,6 +271,14 @@ MonoBehaviour:
     m_Key: item.ammunitionbox.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414440
+    m_Key: item.lasergun.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414441
+    m_Key: item.lasergun.effect0
+    m_Metadata:
+      m_Items: []
   - m_Id: 5815909901414432
     m_Key: item.rollerskate.name
     m_Metadata:

@@ -104,7 +104,15 @@ public sealed class BlockController : MonoBehaviour
     int ResolveDamage(DamageContext context)
     {
         if (context.BaseDamage.HasValue)
-            return Mathf.Max(0, context.BaseDamage.Value);
+        {
+            float rawBase = Mathf.Max(0f, context.BaseDamage.Value);
+            rawBase *= Mathf.Max(0f, context.DamageScale);
+            int baseDamage = Mathf.FloorToInt(rawBase);
+            if (baseDamage <= 0)
+                return 0;
+
+            return context.AllowZeroDamage ? Mathf.Max(0, baseDamage) : Mathf.Max(1, baseDamage);
+        }
 
         var player = PlayerManager.Instance?.Current;
         if (player == null)
@@ -114,20 +122,20 @@ public sealed class BlockController : MonoBehaviour
         if (context.SourceItem != null)
             itemMultiplier = context.SourceItem.DamageMultiplier;
 
-        if (context.SourceType == DamageSourceType.Projectile)
+        if (context.SourceItem != null
+            && context.SourceItem.StatusDamageMultiplier > 0f
+            && Instance.Statuses.Count > 0)
         {
-            if (context.SourceItem != null
-                && context.SourceItem.StatusDamageMultiplier > 0f
-                && Instance.Statuses.Count > 0)
-            {
-                itemMultiplier *= context.SourceItem.StatusDamageMultiplier;
-            }
-
-            itemMultiplier *= Mathf.Max(0f, (float)player.ProjectileDamageMultiplier);
+            itemMultiplier *= context.SourceItem.StatusDamageMultiplier;
         }
 
+        if (context.SourceType == DamageSourceType.Projectile)
+            itemMultiplier *= Mathf.Max(0f, (float)player.ProjectileDamageMultiplier);
+
         float raw = itemMultiplier * (float)player.Power;
-        return Mathf.Max(1, Mathf.FloorToInt(raw));
+        raw *= Mathf.Max(0f, context.DamageScale);
+        int damage = Mathf.FloorToInt(raw);
+        return context.AllowZeroDamage ? Mathf.Max(0, damage) : Mathf.Max(1, damage);
     }
 
     bool ApplyStatusFromItem(ItemInstance sourceItem)

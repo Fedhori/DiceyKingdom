@@ -325,6 +325,14 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
+  - m_Id: 5815909901414440
+    m_Localized: "\uB808\uC774\uC800\uAC74"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414441
+    m_Localized: "\uCDA9\uC804 \uD6C4 2\uCD08 \uB3D9\uC548 \uB808\uC774\uC800\uB97C \uBC1C\uC0AC\uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
   - m_Id: 5815909901414405
     m_Localized: "\uB208\uB369\uC774 \uBC1C\uC0AC\uAE30"
     m_Metadata:

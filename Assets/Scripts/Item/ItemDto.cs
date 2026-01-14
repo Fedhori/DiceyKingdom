@@ -138,6 +138,13 @@ namespace Data
     }
 
     [Serializable]
+    public sealed class ItemBeamData
+    {
+        public float thickness = 0f;
+        public float duration = 0f;
+    }
+
+    [Serializable]
     public sealed class ItemDto
     {
         public string id;
@@ -153,6 +160,7 @@ namespace Data
         public float statusDamageMultiplier = 1f;
         public float attackSpeed = 0f;
         public ItemProjectileData projectile;
+        public ItemBeamData beam;
         public int pierceBonus = 0;
         [JsonConverter(typeof(StringEnumConverter))]
         public BlockStatusType statusType = BlockStatusType.Unknown;
@@ -228,6 +236,21 @@ namespace Data
                 if (projectile.randomAngle < 0f)
                 {
                     Debug.LogError($"[ItemDto] '{id}': projectile.randomAngle < 0 is not allowed.");
+                    isValid = false;
+                }
+            }
+
+            if (beam != null)
+            {
+                if (beam.thickness < 0f)
+                {
+                    Debug.LogError($"[ItemDto] '{id}': beam.thickness < 0 is not allowed.");
+                    isValid = false;
+                }
+
+                if (beam.duration < 0f)
+                {
+                    Debug.LogError($"[ItemDto] '{id}': beam.duration < 0 is not allowed.");
                     isValid = false;
                 }
             }
