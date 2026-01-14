@@ -644,7 +644,7 @@
 			"damageMultiplier": 5.0,
 			"attackSpeed": 0.3,
 			"beam": {
-				"thickness": 200.0,
+				"thickness": 64.0,
 				"duration": 2.0
 			},
 			"rules": []
