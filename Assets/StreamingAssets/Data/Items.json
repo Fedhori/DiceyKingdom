@@ -526,6 +526,30 @@
 			]
 		},
 		{
+			"id": "item.lonewolf",
+			"isObject": false,
+			"price": 8,
+			"rarity": "Rare",
+			"rules": [
+				{
+					"triggerType": "OnPlayEnd",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 5.0,
+							"duration": "Permanent",
+							"multiplier": "adjacentEmptySlotCount"
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "item.spray",
 			"isObject": false,
 			"price": 8,

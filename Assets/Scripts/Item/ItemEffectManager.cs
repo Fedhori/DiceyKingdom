@@ -78,7 +78,10 @@ public sealed class ItemEffectManager : MonoBehaviour
 
         var layer = dto.duration;
 
-        double value = dto.value;
+        double multiplier = ResolveMultiplier(dto, item);
+        double value = dto.value * multiplier;
+        if (Math.Abs(value) <= 0d)
+            return;
 
         player.Stats.AddModifier(new StatModifier(
             statId: dto.statId,
@@ -252,7 +255,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (player == null)
             return;
 
-        double multiplier = ResolveMultiplier(dto);
+        double multiplier = ResolveMultiplier(dto, item);
         double value = dto.value * multiplier;
 
         player.Stats.RemoveModifiers(dto.statId, dto.duration, item);
@@ -268,7 +271,7 @@ public sealed class ItemEffectManager : MonoBehaviour
             item));
     }
 
-    double ResolveMultiplier(ItemEffectDto dto)
+    double ResolveMultiplier(ItemEffectDto dto, ItemInstance sourceItem)
     {
         if (dto == null || string.IsNullOrEmpty(dto.multiplier))
             return 1d;
@@ -279,10 +282,53 @@ public sealed class ItemEffectManager : MonoBehaviour
                 return GetNormalItemCount();
             case "currencyAtMost":
                 return GetCurrencyAtMostMultiplier(dto.threshold);
+            case "adjacentEmptySlotCount":
+                return GetAdjacentEmptySlotCount(sourceItem);
             default:
                 Debug.LogWarning($"[ItemEffectManager] Unknown multiplier '{dto.multiplier}'.");
                 return 1d;
         }
+    }
+
+    int GetAdjacentEmptySlotCount(ItemInstance sourceItem)
+    {
+        if (sourceItem == null)
+            return 0;
+
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory == null)
+            return 0;
+
+        int sourceIndex = FindItemIndex(inventory, sourceItem);
+        if (sourceIndex < 0)
+            return 0;
+
+        int slotsPerRow = Mathf.Max(1, GameConfig.ItemSlotsPerRow);
+        int count = 0;
+
+        if (sourceIndex % slotsPerRow != 0)
+        {
+            int left = sourceIndex - 1;
+            if (left >= 0 && inventory.IsSlotEmpty(left))
+                count++;
+        }
+
+        if ((sourceIndex + 1) % slotsPerRow != 0)
+        {
+            int right = sourceIndex + 1;
+            if (right < inventory.SlotCount && inventory.IsSlotEmpty(right))
+                count++;
+        }
+
+        int up = sourceIndex - slotsPerRow;
+        if (up >= 0 && inventory.IsSlotEmpty(up))
+            count++;
+
+        int down = sourceIndex + slotsPerRow;
+        if (down < inventory.SlotCount && inventory.IsSlotEmpty(down))
+            count++;
+
+        return count;
     }
 
     int GetNormalItemCount()
