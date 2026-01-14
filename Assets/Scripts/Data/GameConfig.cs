@@ -12,4 +12,12 @@ public static class GameConfig
     public static float ItemBaseProjectileSize = 1f;
     public static float ItemBaseProjectileSpeed = 1000f;
     public static float BlockFallSpeed = 40f;
+
+    // Beam VFX
+    public static float BeamPulsePercent = 0.1f;
+    public static float BeamPulseHzMin = 0.5f;
+    public static float BeamPulseHzMax = 1f;
+    public static float BeamFlickerMinAlpha = 0.5f;
+    public static float BeamFlickerHzMin = 4f;
+    public static float BeamFlickerHzMax = 8f;
 }
