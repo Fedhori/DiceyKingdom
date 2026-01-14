@@ -85,7 +85,7 @@ public sealed class BlockManager : MonoBehaviour
         float x = Random.Range(minX, maxX);
         Vector3 worldPos = new Vector3(x, y, 0f);
 
-        var blockHealth = StageManager.Instance.CurrentStage.BlockHealth;
+        var blockHealth = StageManager.Instance.CurrentStage.Difficulty;
 
         var block = BlockFactory.Instance.CreateBlock(blockHealth, Vector2Int.zero, worldPos);
         if (block != null && !activeBlocks.Contains(block))

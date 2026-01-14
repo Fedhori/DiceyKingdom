@@ -7,7 +7,7 @@ using UnityEngine;
 public sealed class StageDto
 {
     public int index = -1;
-    public int blockHealth = 100;
+    public int difficulty = 100;
     public float spawnSecond = 15f;
 }
 

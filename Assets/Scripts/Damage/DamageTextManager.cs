@@ -16,10 +16,10 @@ public sealed class DamageTextManager : MonoBehaviour
         Instance = this;
     }
 
-    public void SetMinMaxValue(double blockHealth)
+    public void SetMinMaxValue(double value)
     {
-        maxValue = blockHealth;
-        minValue = blockHealth / 10.0;
+        maxValue = value;
+        minValue = value / 10.0;
 
         if (minValue < 0)
             minValue = 0;

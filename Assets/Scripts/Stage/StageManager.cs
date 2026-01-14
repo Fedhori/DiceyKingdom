@@ -80,7 +80,7 @@ public sealed class StageManager : MonoBehaviour
         }
 
         CurrentStage = new StageInstance(dto);
-        DamageTextManager.Instance?.SetMinMaxValue(CurrentStage.BlockHealth);
+        DamageTextManager.Instance?.SetMinMaxValue(CurrentStage.Difficulty);
 
         if (stageIndex == 0)
             OnPlayStart();

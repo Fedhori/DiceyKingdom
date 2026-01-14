@@ -5,7 +5,7 @@ public sealed class StageInstance
 {
     public StageDto StageDto { get; }
     public int StageIndex => StageDto.index;
-    public int BlockHealth => StageDto.blockHealth;
+    public int Difficulty => StageDto.difficulty;
     public float SpawnSecond => StageDto.spawnSecond;
     public StageInstance(StageDto stageDto)
     {
