@@ -8,7 +8,7 @@ public static class GameConfig
     public static int ItemSlotsPerRow = 4;
 
     // Player/Item base stats   
-    public static float PlayerBaseMoveSpeed = 500f;
+    public static float PlayerBaseMoveSpeed = 400f;
     public static float ItemBaseProjectileSize = 1f;
     public static float ItemBaseProjectileSpeed = 1000f;
     public static float BlockFallSpeed = 40f;

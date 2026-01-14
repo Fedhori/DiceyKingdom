@@ -503,6 +503,29 @@
 			]
 		},
 		{
+			"id": "item.rollerskate",
+			"isObject": false,
+			"price": 4,
+			"rarity": "Common",
+			"rules": [
+				{
+					"triggerType": "OnAcquire",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "moveSpeed",
+							"effectMode": "Mult",
+							"value": 0.5,
+							"duration": "Owned"
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "item.spray",
 			"isObject": false,
 			"price": 8,
