@@ -37,6 +37,7 @@ public sealed class ProjectileController : MonoBehaviour
             return;
 
         UpdateHoming();
+        UpdateRotation();
     }
 
     void ApplyStats()
@@ -232,6 +233,19 @@ public sealed class ProjectileController : MonoBehaviour
         Vector3 next = Vector3.RotateTowards(current, toTarget.normalized, maxRadians, 0f);
         direction = new Vector2(next.x, next.y).normalized;
         rb.linearVelocity = direction * item.WorldProjectileSpeed;
+    }
+
+    void UpdateRotation()
+    {
+        if (rb == null)
+            return;
+
+        Vector2 velocity = rb.linearVelocity;
+        if (velocity.sqrMagnitude <= 0.0001f)
+            return;
+
+        float angle = Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg - 90f;
+        rb.SetRotation(angle);
     }
 
     void HandlePierce()
