@@ -318,8 +318,8 @@ public sealed class ItemEffectManager : MonoBehaviour
                 return GetCurrencyAtMostMultiplier(dto.threshold);
             case "adjacentEmptySlotCount":
                 return GetAdjacentEmptySlotCount(sourceItem);
-            case "otherWeaponCount":
-                return GetOtherWeaponCount(sourceItem);
+            case "weaponCount":
+                return GetWeaponCount();
             default:
                 Debug.LogWarning($"[ItemEffectManager] Unknown multiplier '{dto.multiplier}'.");
                 return 1d;
@@ -367,11 +367,8 @@ public sealed class ItemEffectManager : MonoBehaviour
         return count;
     }
 
-    int GetOtherWeaponCount(ItemInstance sourceItem)
+    int GetWeaponCount()
     {
-        if (sourceItem == null)
-            return 0;
-
         var inventory = ItemManager.Instance?.Inventory;
         if (inventory == null)
             return 0;
@@ -380,10 +377,10 @@ public sealed class ItemEffectManager : MonoBehaviour
         for (int i = 0; i < inventory.SlotCount; i++)
         {
             var inst = inventory.GetSlot(i);
-            if (inst == null || ReferenceEquals(inst, sourceItem))
+            if (inst == null)
                 continue;
 
-            if (inst.DamageMultiplier > 0f)
+            if (inst.IsWeapon())
                 count++;
         }
 

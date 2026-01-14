@@ -584,7 +584,7 @@
 			"isObject": true,
 			"price": 8,
 			"rarity": "Rare",
-			"damageMultiplier": 5.0,
+			"damageMultiplier": 6.0,
 			"attackSpeed": 3.0,
 			"projectile": {
 				"key": "projectile.sword",
@@ -606,7 +606,31 @@
 							"effectMode": "Add",
 							"value": -1.0,
 							"duration": "Owned",
-							"multiplier": "otherWeaponCount"
+							"multiplier": "weaponCount"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.ammunitionbox",
+			"isObject": false,
+			"price": 7,
+			"rarity": "Uncommon",
+			"rules": [
+				{
+					"triggerType": "OnItemChanged",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "SetStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 10.0,
+							"duration": "Owned",
+							"multiplier": "weaponCount"
 						}
 					]
 				}

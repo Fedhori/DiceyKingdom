@@ -216,6 +216,11 @@ public sealed class ItemInstance
         ruleElapsedSeconds.Clear();
     }
 
+    public bool IsWeapon()
+    {
+        return DamageMultiplier > 0f;
+    }
+
     public void AddSellValueBonus(int amount)
     {
         if (amount <= 0)

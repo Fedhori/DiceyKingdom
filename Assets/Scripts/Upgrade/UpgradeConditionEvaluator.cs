@@ -10,7 +10,7 @@ public static class UpgradeConditionEvaluator
         switch (condition.conditionKind)
         {
             case UpgradeConditionKind.HasDamageMultiplier:
-                return target.DamageMultiplier > 0f;
+                return target.IsWeapon();
             case UpgradeConditionKind.HasAttackSpeed:
                 return target.AttackSpeed > 0f;
             case UpgradeConditionKind.HasProjectile:
