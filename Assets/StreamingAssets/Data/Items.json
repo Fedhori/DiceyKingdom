@@ -580,6 +580,39 @@
 			]
 		},
 		{
+			"id": "item.blasphemy",
+			"isObject": true,
+			"price": 8,
+			"rarity": "Rare",
+			"damageMultiplier": 5.0,
+			"attackSpeed": 3.0,
+			"projectile": {
+				"key": "projectile.sword",
+				"size": 1.0,
+				"speed": 2.0,
+				"randomAngle": 5.0
+			},
+			"rules": [
+				{
+					"triggerType": "OnItemChanged",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "SetItemStat",
+							"target": "Self",
+							"statId": "damageMultiplier",
+							"effectMode": "Add",
+							"value": -1.0,
+							"duration": "Owned",
+							"multiplier": "otherWeaponCount"
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "item.alarmclock",
 			"isObject": false,
 			"price": 5,

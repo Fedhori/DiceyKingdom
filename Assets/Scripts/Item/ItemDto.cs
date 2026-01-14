@@ -42,6 +42,7 @@ namespace Data
         ApplyStatusToRandomBlocks,
         AddSellValue,
         ModifyItemStat,
+        SetItemStat,
         SetStat,
         ModifyBaseIncome,
         ApplyDamageToAllBlocks,

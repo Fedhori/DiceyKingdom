@@ -43,6 +43,9 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.ModifyItemStat:
                 ModifyItemStat(dto, item);
                 break;
+            case ItemEffectType.SetItemStat:
+                SetItemStat(dto, item);
+                break;
             case ItemEffectType.SetStat:
                 ApplySetStat(dto, item);
                 break;
@@ -187,6 +190,37 @@ public sealed class ItemEffectManager : MonoBehaviour
         targetItem.Stats.AddModifier(modifier);
     }
 
+    void SetItemStat(ItemEffectDto dto, ItemInstance sourceItem)
+    {
+        if (dto == null || sourceItem == null)
+            return;
+
+        if (string.IsNullOrEmpty(dto.statId))
+        {
+            Debug.LogWarning("[ItemEffectManager] SetItemStat with empty statId.");
+            return;
+        }
+
+        var targetItem = ResolveTargetItem(dto.target, sourceItem);
+        if (targetItem == null)
+            return;
+
+        double multiplier = ResolveMultiplier(dto, sourceItem);
+        double value = dto.value * multiplier;
+
+        targetItem.Stats.RemoveModifiers(dto.statId, dto.duration, sourceItem);
+
+        if (Math.Abs(value) <= 0d)
+            return;
+
+        targetItem.Stats.AddModifier(new StatModifier(
+            dto.statId,
+            dto.effectMode,
+            value,
+            dto.duration,
+            sourceItem));
+    }
+
     ItemInstance ResolveTargetItem(ItemEffectTarget target, ItemInstance sourceItem)
     {
         switch (target)
@@ -284,6 +318,8 @@ public sealed class ItemEffectManager : MonoBehaviour
                 return GetCurrencyAtMostMultiplier(dto.threshold);
             case "adjacentEmptySlotCount":
                 return GetAdjacentEmptySlotCount(sourceItem);
+            case "otherWeaponCount":
+                return GetOtherWeaponCount(sourceItem);
             default:
                 Debug.LogWarning($"[ItemEffectManager] Unknown multiplier '{dto.multiplier}'.");
                 return 1d;
@@ -327,6 +363,29 @@ public sealed class ItemEffectManager : MonoBehaviour
         int down = sourceIndex + slotsPerRow;
         if (down < inventory.SlotCount && inventory.IsSlotEmpty(down))
             count++;
+
+        return count;
+    }
+
+    int GetOtherWeaponCount(ItemInstance sourceItem)
+    {
+        if (sourceItem == null)
+            return 0;
+
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory == null)
+            return 0;
+
+        int count = 0;
+        for (int i = 0; i < inventory.SlotCount; i++)
+        {
+            var inst = inventory.GetSlot(i);
+            if (inst == null || ReferenceEquals(inst, sourceItem))
+                continue;
+
+            if (inst.DamageMultiplier > 0f)
+                count++;
+        }
 
         return count;
     }

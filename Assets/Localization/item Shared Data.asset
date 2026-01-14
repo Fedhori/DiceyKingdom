@@ -255,6 +255,14 @@ MonoBehaviour:
     m_Key: item.lonewolf.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414436
+    m_Key: item.blasphemy.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414437
+    m_Key: item.blasphemy.effect0
+    m_Metadata:
+      m_Items: []
   - m_Id: 5815909901414432
     m_Key: item.rollerskate.name
     m_Metadata:
