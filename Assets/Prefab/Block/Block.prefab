@@ -152,7 +152,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -8383589127567067901, guid: 746f86218c845bb49a98169d005126fe, type: 2}
+  - {fileID: 8618836993111102986, guid: af29c603ea9ac6b408cf6260d3307c18, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -197,15 +197,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: 100000
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 746f86218c845bb49a98169d005126fe, type: 2}
-  m_sharedMaterial: {fileID: -8383589127567067901, guid: 746f86218c845bb49a98169d005126fe, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: af29c603ea9ac6b408cf6260d3307c18, type: 2}
+  m_sharedMaterial: {fileID: 8618836993111102986, guid: af29c603ea9ac6b408cf6260d3307c18, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4281545523
+  m_fontColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -500,7 +500,7 @@ BoxCollider2D:
     drawMode: 1
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 160, y: 80}
+  m_Size: {x: 100, y: 100}
   m_EdgeRadius: 0
 --- !u!114 &2705501123950751030
 MonoBehaviour:
