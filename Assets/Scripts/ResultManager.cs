@@ -9,6 +9,7 @@ public sealed class ResultManager : MonoBehaviour
     public static ResultManager Instance { get; private set; }
     [SerializeField] private GameObject resultOverlay;
     [SerializeField] private LocalizeStringEvent earnedCurrencyText;
+    [SerializeField] private ResultOverlayView resultOverlayView;
 
     readonly List<DamageTrackingManager.ItemDamageSnapshot> damageRecords = new();
     bool isOpen;
@@ -40,6 +41,9 @@ public sealed class ResultManager : MonoBehaviour
         
         if(resultOverlay != null)
             resultOverlay.SetActive(true);
+
+        if (resultOverlayView != null)
+            resultOverlayView.BuildRows(damageRecords, GetMaxDamage());
 
     }
 
