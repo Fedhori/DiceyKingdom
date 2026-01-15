@@ -66,48 +66,6 @@ public sealed class DamageTrackingManager : MonoBehaviour
         return results;
     }
 
-    public void LogStageDamage()
-    {
-        if (damageByItem.Count == 0)
-        {
-            Debug.Log("[DamageTracking] No damage recorded.");
-            return;
-        }
-
-        var totalsByItemId = new Dictionary<string, double>();
-        foreach (var record in damageByItem.Values)
-        {
-            string itemId = record.Item != null ? record.Item.Id : null;
-            if (string.IsNullOrEmpty(itemId))
-                continue;
-
-            if (totalsByItemId.TryGetValue(itemId, out var total))
-                totalsByItemId[itemId] = total + record.Damage;
-            else
-                totalsByItemId.Add(itemId, record.Damage);
-        }
-
-        if (totalsByItemId.Count == 0)
-        {
-            Debug.Log("[DamageTracking] No item damage recorded.");
-            return;
-        }
-
-        var sorted = new List<KeyValuePair<string, double>>(totalsByItemId);
-        sorted.Sort((a, b) =>
-        {
-            int cmp = b.Value.CompareTo(a.Value);
-            return cmp != 0 ? cmp : string.CompareOrdinal(a.Key, b.Key);
-        });
-
-        for (int i = 0; i < sorted.Count; i++)
-        {
-            var entry = sorted[i];
-            string damageText = entry.Value.ToString("0.##", CultureInfo.InvariantCulture);
-            Debug.Log($"{entry.Key}: {damageText} dmg");
-        }
-    }
-
     public readonly struct ItemDamageSnapshot
     {
         public ItemInstance Item { get; }
