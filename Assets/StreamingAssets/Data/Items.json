@@ -788,6 +788,29 @@
 				"randomAngle": 3.0
 			},
 			"rules": []
+		},
+		{
+			"id": "item.dumbbell",
+			"isObject": false,
+			"price": 4,
+			"rarity": "Common",
+			"rules": [
+				{
+					"triggerType": "OnAcquire",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 30.0,
+							"duration": "Owned"
+						}
+					]
+				}
+			]
 		}
 	]
 }

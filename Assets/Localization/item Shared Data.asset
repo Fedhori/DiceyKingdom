@@ -295,6 +295,14 @@ MonoBehaviour:
     m_Key: item.rollerskate.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414444
+    m_Key: item.dumbbell.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414445
+    m_Key: item.dumbbell.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
