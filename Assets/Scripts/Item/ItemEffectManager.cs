@@ -476,6 +476,9 @@ public sealed class ItemEffectManager : MonoBehaviour
         }
 
         int stack = Mathf.Max(1, Mathf.FloorToInt(dto.value));
+        if (targetItem.StatusType == dto.statusType && targetItem.StatusStack > 0)
+            stack += targetItem.StatusStack;
+
         targetItem.SetStatusOverride(dto.statusType, stack);
     }
 
