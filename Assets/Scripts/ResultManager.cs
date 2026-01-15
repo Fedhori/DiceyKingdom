@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
 using UnityEngine.Localization.Components;
@@ -9,6 +10,7 @@ public sealed class ResultManager : MonoBehaviour
     [SerializeField] private GameObject resultOverlay;
     [SerializeField] private LocalizeStringEvent earnedCurrencyText;
 
+    readonly List<DamageTrackingManager.ItemDamageSnapshot> damageRecords = new();
     bool isOpen;
 
     void Awake()
@@ -34,6 +36,7 @@ public sealed class ResultManager : MonoBehaviour
         CurrencyManager.Instance?.AddCurrency(income);
 
         UpdateEarnedCurrency(Mathf.Max(0, income));
+        RebuildDamageRecords();
         
         if(resultOverlay != null)
             resultOverlay.SetActive(true);
@@ -55,5 +58,29 @@ public sealed class ResultManager : MonoBehaviour
     {
         if (earnedCurrencyText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
             sv.Value = earned.ToString(CultureInfo.InvariantCulture);
+    }
+
+    void RebuildDamageRecords()
+    {
+        damageRecords.Clear();
+
+        var tracker = DamageTrackingManager.Instance;
+        if (tracker == null)
+            return;
+
+        var records = tracker.GetItemDamageRecords();
+        if (records == null || records.Count == 0)
+            return;
+
+        for (int i = 0; i < records.Count; i++)
+        {
+            var record = records[i];
+            if (record.Item == null || record.Damage <= 0d)
+                continue;
+
+            damageRecords.Add(record);
+        }
+
+        damageRecords.Sort((a, b) => b.Damage.CompareTo(a.Damage));
     }
 }
