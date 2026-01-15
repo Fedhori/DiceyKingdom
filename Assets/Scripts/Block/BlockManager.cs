@@ -312,9 +312,9 @@ public sealed class BlockManager : MonoBehaviour
         return best;
     }
 
-    public int ApplyStatusToRandomBlocks(BlockStatusType type, int count)
+    public int ApplyStatusToRandomBlocks(BlockStatusType type, int count, float stackAmount)
     {
-        if (type == BlockStatusType.Unknown || count <= 0)
+        if (type == BlockStatusType.Unknown || count <= 0 || stackAmount <= 0f)
             return 0;
 
         List<BlockController> candidates = null;
@@ -329,7 +329,7 @@ public sealed class BlockManager : MonoBehaviour
             }
 
             var inst = block.Instance;
-            if (inst == null || inst.HasStatus(type))
+            if (inst == null)
                 continue;
 
             candidates ??= new List<BlockController>();
@@ -339,19 +339,22 @@ public sealed class BlockManager : MonoBehaviour
         if (candidates == null || candidates.Count == 0)
             return 0;
 
-        int applyCount = Mathf.Min(count, candidates.Count);
-        for (int i = 0; i < applyCount; i++)
+        int appliedCount = 0;
+        for (int i = 0; i < count; i++)
         {
-            int index = Random.Range(0, candidates.Count);
-            var target = candidates[index];
-            candidates[index] = candidates[candidates.Count - 1];
-            candidates.RemoveAt(candidates.Count - 1);
-            bool applied = target.ApplyStatus(type);
+            var target = candidates[Random.Range(0, candidates.Count)];
+            if (target == null)
+                continue;
+
+            bool applied = target.ApplyStatus(type, stackAmount);
             if (applied)
+            {
                 ItemManager.Instance?.TriggerAll(ItemTriggerType.OnBlockStatusApplied);
+                appliedCount++;
+            }
         }
 
-        return applyCount;
+        return appliedCount;
     }
 
     public int ApplyDamageToAllBlocks(int damage, ItemInstance sourceItem)

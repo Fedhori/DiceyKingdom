@@ -69,7 +69,8 @@
 				{
 					"effectType": "SetItemStatus",
 					"target": "Self",
-					"statusType": "Freeze"
+					"statusType": "Freeze",
+					"value": 1
 				}
 			]
 		},

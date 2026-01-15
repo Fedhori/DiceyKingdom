@@ -140,6 +140,10 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (item.StatusType == BlockStatusType.Unknown)
             return;
 
+        int stack = item.StatusStack;
+        if (stack <= 0)
+            return;
+
         int count = Mathf.Max(0, Mathf.FloorToInt(dto.value));
         if (count <= 0)
             return;
@@ -148,7 +152,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (manager == null)
             return;
 
-        manager.ApplyStatusToRandomBlocks(item.StatusType, count);
+        manager.ApplyStatusToRandomBlocks(item.StatusType, count, stack);
     }
 
     void ApplySellValue(ItemEffectDto dto, ItemInstance item)
@@ -471,7 +475,8 @@ public sealed class ItemEffectManager : MonoBehaviour
             return;
         }
 
-        targetItem.SetStatusOverride(dto.statusType);
+        int stack = Mathf.Max(1, Mathf.FloorToInt(dto.value));
+        targetItem.SetStatusOverride(dto.statusType, stack);
     }
 
     void ModifyTriggerRepeat(ItemEffectDto dto, ItemInstance sourceItem)

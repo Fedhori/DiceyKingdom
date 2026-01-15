@@ -49,6 +49,7 @@ public sealed class BlockController : MonoBehaviour
             return;
 
         UpdateHitFlash(delta);
+        Instance.UpdateStatuses(delta);
         UpdateVisuals();
 
         float speedMultiplier = 1f;
@@ -152,7 +153,11 @@ public sealed class BlockController : MonoBehaviour
         if (sourceItem.StatusType == BlockStatusType.Unknown)
             return false;
 
-        return ApplyStatus(sourceItem.StatusType);
+        int stack = sourceItem.StatusStack;
+        if (stack <= 0)
+            return false;
+
+        return ApplyStatus(sourceItem.StatusType, stack);
     }
 
     public bool ApplyStatus(BlockStatusType type)
@@ -160,7 +165,15 @@ public sealed class BlockController : MonoBehaviour
         if (Instance == null)
             return false;
 
-        return Instance.TryApplyStatus(type);
+        return Instance.AddStatusStack(type, 1f);
+    }
+
+    public bool ApplyStatus(BlockStatusType type, float stackAmount)
+    {
+        if (Instance == null)
+            return false;
+
+        return Instance.AddStatusStack(type, stackAmount);
     }
 
     void RefreshHpText()

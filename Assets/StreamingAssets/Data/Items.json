@@ -55,6 +55,7 @@
 				"speed": 1.0
 			},
 			"statusType": "Freeze",
+			"statusStack": 2,
 			"rules": []
 		},
 		{
@@ -372,6 +373,7 @@
 			"price": 8,
 			"rarity": "Rare",
 			"statusType": "Freeze",
+			"statusStack": 1,
 			"rules": [
 				{
 					"triggerType": "OnTimeChanged",

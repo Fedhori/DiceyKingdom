@@ -8,6 +8,8 @@ using UnityEngine.Localization;
 
 public static class ItemTooltipUtil
 {
+    const string FreezeStatusPrefix = "\uC0C1\uD0DC\uC774\uC0C1: \uBE59\uACB0 ";
+
     public static TooltipModel BuildModel(ItemInstance item)
     {
         if (item == null)
@@ -97,7 +99,10 @@ public static class ItemTooltipUtil
         }
 
         if (item.StatusType == BlockStatusType.Freeze)
-            lines.Add(BuildStatLine("tooltip.status.freeze.description", null));
+        {
+            int stack = Mathf.Max(0, item.StatusStack);
+            lines.Add($"{FreezeStatusPrefix}{stack}");
+        }
     }
 
     static float GetFinalDamage(ItemInstance item)

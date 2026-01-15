@@ -164,6 +164,7 @@ namespace Data
         public int pierceBonus = 0;
         [JsonConverter(typeof(StringEnumConverter))]
         public BlockStatusType statusType = BlockStatusType.Unknown;
+        public int statusStack = 1;
 
         [JsonIgnore]
         public bool isValid = true;
@@ -264,6 +265,12 @@ namespace Data
             if (pierceBonus < 0)
             {
                 Debug.LogError($"[ItemDto] '{id}': pierceBonus < 0 is not allowed.");
+                isValid = false;
+            }
+
+            if (statusStack < 0)
+            {
+                Debug.LogError($"[ItemDto] '{id}': statusStack < 0 is not allowed.");
                 isValid = false;
             }
 

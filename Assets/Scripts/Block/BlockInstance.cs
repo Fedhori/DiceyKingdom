@@ -39,19 +39,57 @@ public sealed class BlockInstance
 
     public bool HasStatus(BlockStatusType type)
     {
-        return GetStatus(type) != null;
+        var status = GetStatus(type);
+        return status != null && status.Stack > 0f;
     }
 
     public bool TryApplyStatus(BlockStatusType type)
     {
-        if (type == BlockStatusType.Unknown)
+        return AddStatusStack(type, 1f);
+    }
+
+    public bool AddStatusStack(BlockStatusType type, float stackAmount)
+    {
+        if (type == BlockStatusType.Unknown || stackAmount <= 0f)
             return false;
 
-        if (statuses.TryGetValue(type, out var _))
-            return false;
+        if (statuses.TryGetValue(type, out var status))
+        {
+            status.AddStack(stackAmount);
+            return true;
+        }
 
-        statuses[type] = new BlockStatusState(type);
+        float decayPerSecond = BlockStatusSettings.GetDecayPerSecond(type);
+        statuses[type] = new BlockStatusState(type, stackAmount, decayPerSecond);
         return true;
+    }
+
+    public void UpdateStatuses(float deltaTime)
+    {
+        if (deltaTime <= 0f || statuses.Count == 0)
+            return;
+
+        List<BlockStatusType> expired = null;
+
+        foreach (var pair in statuses)
+        {
+            var status = pair.Value;
+            if (status == null)
+                continue;
+
+            status.Update(deltaTime);
+            if (status.IsExpired)
+            {
+                expired ??= new List<BlockStatusType>();
+                expired.Add(pair.Key);
+            }
+        }
+
+        if (expired == null)
+            return;
+
+        for (int i = 0; i < expired.Count; i++)
+            statuses.Remove(expired[i]);
     }
 
     public void RemoveStatus(BlockStatusType type)

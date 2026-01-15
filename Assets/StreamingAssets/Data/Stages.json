@@ -2,7 +2,7 @@
 	"stages": [
 		{
 			"index": 0,
-			"difficulty": 10,
+			"difficulty": 100,
 			"spawnSecond": 10
 		},
 		{

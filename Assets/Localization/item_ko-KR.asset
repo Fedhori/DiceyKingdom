@@ -198,8 +198,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5815909901414414
-    m_Localized: "\uB9E4 {intervalSeconds}\uCD08\uB9C8\uB2E4 \uBE59\uACB0\uB418\uC9C0
-      \uC54A\uC740 \uBE14\uB7ED {value0}\uAC1C\uB97C \uBE59\uACB0\uC2DC\uD0B5\uB2C8\uB2E4."
+    m_Localized: "\uB9E4 {intervalSeconds}\uCD08\uB9C8\uB2E4 \uBE14\uB7ED {value0}\uAC1C\uB97C
+      \uBE59\uACB0\uC2DC\uD0B5\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
