@@ -14,7 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
   m_TableCollectionName: result
   m_TableCollectionNameGuidString: 8cca02d58d6e23e4db47d7ecc4c50ce3
-  m_Entries: []
+  m_Entries:
+  - m_Id: 106279162795591282
+    m_Key: result.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 724954586122371370
+    m_Key: result.damage.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2672820470470511417
+    m_Key: result.income.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8202226922789635965
+    m_Key: result.confirm.button
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

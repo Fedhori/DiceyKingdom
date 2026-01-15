@@ -33,7 +33,7 @@
   - [x] 3.3 `ResultOverlayView` 스크립트 생성(콘텐츠 초기화, 행 프리팹 생성)
 - [ ] 4.0 결과창 로컬라이즈(result 테이블) 추가
   - [x] 4.1 `result` 로컬라이즈 테이블 생성(Shared/ko-KR/Collection)
-  - [ ] 4.2 키/문구 추가: `result.title`, `result.damage.title`, `result.income.label`, `result.confirm.button`
+  - [x] 4.2 키/문구 추가: `result.title`, `result.damage.title`, `result.income.label`, `result.confirm.button`
   - [ ] 4.3 결과창 UI의 LocalizeStringEvent 연결
 - [ ] 5.0 씬/프리팹 연결(에디터 작업)
   - [ ] 5.1 GameScene에서 ResultOverlay에 ScrollView/Content/프리팹 배치
