@@ -206,7 +206,8 @@ public sealed class BlockManager : MonoBehaviour
             return;
         }
 
-        pendingBlockScale = Random.Range(1f, 1.5f);
+        // 일단은 블럭 크기 랜덤화 로직은 비활성화, 좀 더, 규격화되게 만들 수는 없을까?
+        pendingBlockScale = Random.Range(1f, 1f);
         pendingBlockHealth = difficulty * pendingBlockScale * pendingBlockScale;
         hasPendingBlock = true;
     }

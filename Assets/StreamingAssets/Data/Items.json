@@ -5,7 +5,7 @@
 			"isObject": true,
 			"isNotSell": true,
 			"damageMultiplier": 1.0,
-			"attackSpeed": 1.0,
+			"attackSpeed": 2.0,
 			"projectile": {
 				"key": "projectile.bullet",
 				"size": 1.0,
@@ -48,7 +48,7 @@
 			"price": 5,
 			"rarity": "Common",
 			"damageMultiplier": 1.0,
-			"attackSpeed": 1.0,
+			"attackSpeed": 2.0,
 			"projectile": {
 				"key": "projectile.snowball",
 				"size": 1.0,
@@ -60,7 +60,7 @@
 		{
 			"id": "item.minigun",
 			"damageMultiplier": 1.0,
-			"attackSpeed": 5.0,
+			"attackSpeed": 10.0,
 			"isObject": true,
 			"price": 6,
 			"rarity": "Uncommon",
@@ -75,7 +75,7 @@
 		{
 			"id": "item.assultrifle",
 			"damageMultiplier": 1.0,
-			"attackSpeed": 3.0,
+			"attackSpeed": 6.0,
 			"isObject": true,
 			"price": 3,
 			"rarity": "Common",
@@ -189,7 +189,7 @@
 				"key": "projectile.bullet",
 				"size": 1.0,
 				"speed": 0.8,
-				"pelletCount": 4,
+				"pelletCount": 8,
 				"spreadAngle": 10.0,
 				"randomAngle": 5.0
 			},
@@ -200,7 +200,7 @@
 			"isObject": true,
 			"price": 8,
 			"rarity": "Common",
-			"damageMultiplier": 5.0,
+			"damageMultiplier": 10.0,
 			"attackSpeed": 0.5,
 			"projectile": {
 				"key": "projectile.sniper",
@@ -240,7 +240,7 @@
 			"price": 10,
 			"rarity": "Rare",
 			"damageMultiplier": 1.0,
-			"attackSpeed": 1.0,
+			"attackSpeed": 2.0,
 			"projectile": {
 				"key": "projectile.bullet",
 				"size": 1.0,
@@ -451,7 +451,7 @@
 			"price": 6,
 			"rarity": "Uncommon",
 			"damageMultiplier": 1.0,
-			"attackSpeed": 1.0,
+			"attackSpeed": 2.0,
 			"projectile": {
 				"key": "projectile.bullet",
 				"size": 1.0,
@@ -493,7 +493,7 @@
 							"effectType": "SetStat",
 							"statId": "power",
 							"effectMode": "Add",
-							"value": 30.0,
+							"value": 50.0,
 							"duration": "Owned",
 							"multiplier": "currencyAtMost",
 							"threshold": 10
@@ -585,7 +585,7 @@
 			"price": 8,
 			"rarity": "Rare",
 			"damageMultiplier": 6.0,
-			"attackSpeed": 3.0,
+			"attackSpeed": 5.0,
 			"projectile": {
 				"key": "projectile.sword",
 				"size": 1.0,
@@ -642,10 +642,10 @@
 			"price": 8,
 			"rarity": "Rare",
 			"damageMultiplier": 3.0,
-			"attackSpeed": 0.3,
+			"attackSpeed": 0.5,
 			"beam": {
 				"thickness": 64.0,
-				"duration": 2.0
+				"duration": 1.0
 			},
 			"rules": []
 		},
@@ -654,7 +654,7 @@
 			"isObject": true,
 			"price": 6,
 			"rarity": "Uncommon",
-			"damageMultiplier": 2.0,
+			"damageMultiplier": 4.0,
 			"attackSpeed": 0.5,
 			"projectile": {
 				"key": "projectile.grenade",
@@ -765,7 +765,7 @@
 			"rarity": "Uncommon",
 			"damageMultiplier": 1.0,
 			"statusDamageMultiplier": 2.0,
-			"attackSpeed": 2.0,
+			"attackSpeed": 4.0,
 			"projectile": {
 				"key": "projectile.stake",
 				"size": 1.0,
@@ -779,7 +779,7 @@
 			"price": 8,
 			"rarity": "Rare",
 			"damageMultiplier": 3.0,
-			"attackSpeed": 0.3,
+			"attackSpeed": 0.5,
 			"projectile": {
 				"key": "projectile.cannonball",
 				"size": 1.0,
