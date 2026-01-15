@@ -82,5 +82,14 @@ public sealed class ResultManager : MonoBehaviour
         }
 
         damageRecords.Sort((a, b) => b.Damage.CompareTo(a.Damage));
+        _ = GetMaxDamage();
+    }
+
+    double GetMaxDamage()
+    {
+        if (damageRecords.Count == 0)
+            return 0d;
+
+        return damageRecords[0].Damage;
     }
 }
