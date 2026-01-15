@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
@@ -48,6 +49,23 @@ public sealed class DamageTrackingManager : MonoBehaviour
         damageByItem[uniqueId] = record;
     }
 
+    public IReadOnlyList<ItemDamageSnapshot> GetItemDamageRecords()
+    {
+        if (damageByItem.Count == 0)
+            return Array.Empty<ItemDamageSnapshot>();
+
+        var results = new List<ItemDamageSnapshot>(damageByItem.Count);
+        foreach (var record in damageByItem.Values)
+        {
+            if (record.Item == null)
+                continue;
+
+            results.Add(new ItemDamageSnapshot(record.Item, record.Damage));
+        }
+
+        return results;
+    }
+
     public void LogStageDamage()
     {
         if (damageByItem.Count == 0)
@@ -87,6 +105,18 @@ public sealed class DamageTrackingManager : MonoBehaviour
             var entry = sorted[i];
             string damageText = entry.Value.ToString("0.##", CultureInfo.InvariantCulture);
             Debug.Log($"{entry.Key}: {damageText} dmg");
+        }
+    }
+
+    public readonly struct ItemDamageSnapshot
+    {
+        public ItemInstance Item { get; }
+        public double Damage { get; }
+
+        public ItemDamageSnapshot(ItemInstance item, double damage)
+        {
+            Item = item;
+            Damage = damage;
         }
     }
 }

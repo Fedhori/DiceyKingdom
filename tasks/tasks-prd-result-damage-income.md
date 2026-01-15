@@ -18,7 +18,7 @@
 
 - [ ] 1.0 DamageTrackingManager 기록 조회 API 정비
   - [x] 1.1 결과 UI용 레코드 구조(UniqueId, ItemId, Damage) 정의
-  - [ ] 1.2 아이템 인스턴스별 데미지 기록을 읽어오는 공개 메서드 추가
+  - [x] 1.2 아이템 인스턴스별 데미지 기록을 읽어오는 공개 메서드 추가
   - [ ] 1.3 ResultManager에서 사용할 수 있도록 읽기 전용 컬렉션 반환 방식 확정
 - [ ] 2.0 ResultManager 결과창 표시 로직 업데이트
   - [ ] 2.1 `Open()`에서 자동 `Close()` 호출 제거
