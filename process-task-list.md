@@ -8,26 +8,7 @@ Guidelines for managing task lists in markdown files to track progress on comple
 - **Completion protocol:**
 
   1. When you finish a **sub‑task**, immediately mark it as completed by changing `[ ]` to `[x]`.
-  2. If **all** subtasks underneath a parent task are now `[x]`, request user to commit this step, and if the user allow it, follow this sequence:
-
-  - **Provide Editor Setup and Verification Steps**: Present a clear, step-by-step guide for any manual setup required in the Unity Editor for the features implemented in the parent task.
-  - **State Expected Behavior**: Describe the expected outcome and how to test it in Play Mode. This allows for incremental testing.
-  - **Only if all tests pass**: Stage changes (`git add .`)
-  - **Clean up**: Remove any temporary files and temporary code before committing
-  - **Confirm Message**: Before running `git commit`, first present the complete, formatted commit message to the user for their approval.
-  - **Commit**: Use a descriptive commit message that:
-
-    - Uses conventional commit format (`feat:`, `fix:`, `refactor:`, etc.)
-    - Summarizes what was accomplished in the parent task
-    - Lists key changes and additions
-    - References the task number and PRD context
-    - **Formats the message as a single-line command using `-m` flags**, e.g.:
-
-      ```
-      git commit -m "feat: add payment validation logic" -m "- Validates card type and expiry" -m "- Adds unit tests for edge cases" -m "Related to T123 in PRD"
-      ```
-
-  3. Once all the subtasks are marked completed and changes have been committed, mark the **parent task** as completed.
+  2. If **all** subtasks underneath a parent task are now `[x]`, mark the **parent task** as completed.
 
 - Stop after each sub‑task and wait for the user's go‑ahead.
 
