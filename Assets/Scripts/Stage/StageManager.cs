@@ -80,6 +80,7 @@ public sealed class StageManager : MonoBehaviour
         }
 
         CurrentStage = new StageInstance(dto);
+        DamageTrackingManager.Instance?.ResetForStage();
         DamageTextManager.Instance?.SetMinMaxValue(CurrentStage.Difficulty);
 
         if (stageIndex == 0)

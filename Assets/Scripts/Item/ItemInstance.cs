@@ -7,6 +7,7 @@ using GameStats;
 public sealed class ItemInstance
 {
     public string Id { get; }
+    public string UniqueId { get; }
 
     public float StatusDamageMultiplier { get; private set; }
     public float ProjectileSize { get; private set; }
@@ -63,6 +64,7 @@ public sealed class ItemInstance
 
     public ItemInstance(ItemDto dto)
     {
+        UniqueId = Guid.NewGuid().ToString();
         Stats = new StatSet();
 
         if (dto == null || string.IsNullOrEmpty(dto.id))

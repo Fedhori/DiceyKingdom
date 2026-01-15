@@ -31,6 +31,9 @@ public sealed class DamageManager : MonoBehaviour
         if (result.AppliedDamage <= 0)
             return result;
 
+        if (context.SourceItem != null)
+            DamageTrackingManager.Instance?.RecordDamage(context.SourceItem, result.AppliedDamage);
+
         context.Target.PlayHitFlash();
 
         Vector2 pos = context.HitPosition ?? (Vector2)context.Target.transform.position;
