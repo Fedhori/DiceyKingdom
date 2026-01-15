@@ -32,11 +32,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5958292370643689395}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 45.413193, y: -20.4816}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 110.59976, y: -20.481873}
   m_SizeDelta: {x: 763.6263, y: 40.9632}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &2720350351616420110
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -304,7 +304,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResultDamageRow
   itemView: {fileID: 5775922725057804704}
   damageText: {fileID: 69228294690153792}
-  damageBarFill: {fileID: 8040675866076283262}
+  damageBarGraph: {fileID: 8631599499911787039}
 --- !u!1001 &8064031360544934374
 PrefabInstance:
   m_ObjectHideFlags: 0

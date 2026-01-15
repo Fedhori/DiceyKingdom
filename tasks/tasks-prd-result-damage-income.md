@@ -27,10 +27,11 @@
   - [x] 2.4 최대 데미지 값을 계산해 리스트 바인딩에 전달
   - [x] 2.5 확인 버튼 클릭 시 `Close()`만 실행하도록 연결
   - [x] 2.6 ResultOverlayView로 데미지 리스트 바인딩 호출
-- [ ] 3.0 결과 리스트 UI 항목/뷰 스크립트 추가
+- [x] 3.0 결과 리스트 UI 항목/뷰 스크립트 추가
   - [x] 3.1 `ResultDamageRow` 스크립트 생성(아이콘/데미지/그래프 바 참조)
   - [x] 3.2 `Bind(itemId, damage, maxDamage)` 구현(아이콘/정수 데미지/바 비율)
   - [x] 3.3 `ResultOverlayView` 스크립트 생성(콘텐츠 초기화, 행 프리팹 생성)
+  - [x] 3.4 데미지 그래프를 fillAmount 대신 너비로 조정
 - [ ] 4.0 결과창 로컬라이즈(result 테이블) 추가
   - [x] 4.1 `result` 로컬라이즈 테이블 생성(Shared/ko-KR/Collection)
   - [x] 4.2 키/문구 추가: `result.title`, `result.damage.title`, `result.income.label`, `result.confirm.button`

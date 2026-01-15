@@ -1,12 +1,12 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-
 public sealed class ResultDamageRow : MonoBehaviour
 {
     [SerializeField] private ItemView itemView;
     [SerializeField] private TMP_Text damageText;
-    [SerializeField] private Image damageBarFill;
+    [SerializeField] private RectTransform damageBarGraph;
+
+    float cachedBarWidth = -1f;
 
     public void Bind(ItemInstance item, double damage, double maxDamage)
     {
@@ -16,13 +16,38 @@ public sealed class ResultDamageRow : MonoBehaviour
         if (damageText != null)
             damageText.text = Mathf.FloorToInt((float)damage).ToString();
 
-        if (damageBarFill != null)
-        {
-            float ratio = 0f;
-            if (maxDamage > 0d)
-                ratio = Mathf.Clamp01((float)(damage / maxDamage));
+        if (damageBarGraph == null)
+            return;
 
-            damageBarFill.fillAmount = ratio;
+        float ratio = 0f;
+        if (maxDamage > 0d)
+            ratio = Mathf.Clamp01((float)(damage / maxDamage));
+
+        SetBarWidth(ratio);
+    }
+
+    void SetBarWidth(float ratio)
+    {
+        float maxWidth = GetMaxBarWidth();
+        if (maxWidth <= 0f)
+            return;
+
+        float width = Mathf.Clamp(maxWidth * ratio, 0f, maxWidth);
+        damageBarGraph.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+    }
+
+    float GetMaxBarWidth()
+    {
+        if (cachedBarWidth <= 0f)
+        {
+            if (damageBarGraph == null)
+                return 0f;
+
+            cachedBarWidth = damageBarGraph.rect.width;
+            if (cachedBarWidth <= 0f)
+                cachedBarWidth = damageBarGraph.sizeDelta.x;
         }
+
+        return cachedBarWidth;
     }
 }
