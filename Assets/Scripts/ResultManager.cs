@@ -1,14 +1,12 @@
 using System.Globalization;
-using Data;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Components;
 using UnityEngine.Localization.SmartFormat.PersistentVariables;
 
-public sealed class RewardManager : MonoBehaviour
+public sealed class ResultManager : MonoBehaviour
 {
-    public static RewardManager Instance { get; private set; }
-    [SerializeField] private GameObject rewardOverlay;
+    public static ResultManager Instance { get; private set; }
+    [SerializeField] private GameObject resultOverlay;
     [SerializeField] private LocalizeStringEvent earnedCurrencyText;
 
     bool isOpen;
@@ -36,13 +34,12 @@ public sealed class RewardManager : MonoBehaviour
         if (player != null)
             income += player.BaseIncomeBonus;
         CurrencyManager.Instance?.AddCurrency(income);
-        ItemManager.Instance?.TriggerAll(ItemTriggerType.OnRewardOpen);
 
         int endCurrency = CurrencyManager.Instance != null ? CurrencyManager.Instance.CurrentCurrency : startCurrency;
         UpdateEarnedCurrency(Mathf.Max(0, endCurrency - startCurrency));
         
-        if(rewardOverlay != null)
-            rewardOverlay.SetActive(true);
+        if(resultOverlay != null)
+            resultOverlay.SetActive(true);
 
         // 일단은 바로 닫히게 해둠. 나중에 대응해야 할듯?
         Close();
@@ -53,10 +50,10 @@ public sealed class RewardManager : MonoBehaviour
         if (!isOpen)
             return;
 
-        rewardOverlay.SetActive(false);
+        resultOverlay.SetActive(false);
         isOpen = false;
 
-        StageManager.Instance?.OnRewardClosed();
+        StageManager.Instance?.OnResultClosed();
     }
 
     private void UpdateEarnedCurrency(int earned)

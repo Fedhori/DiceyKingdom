@@ -7,7 +7,7 @@ public enum StagePhase
 {
     None,
     Play,
-    Reward,
+    Result,
     Shop
 }
 
@@ -121,19 +121,19 @@ public sealed class StageManager : MonoBehaviour
             return;
         }
 
-        OpenReward();
+        OpenResult();
     }
 
-    public void OnRewardClosed()
+    public void OnResultClosed()
     {
-        if (currentPhase != StagePhase.Reward)
+        if (currentPhase != StagePhase.Result)
         {
-            Debug.LogWarning($"[StageManager] OnRewardClosed in phase {currentPhase}");
+            Debug.LogWarning($"[StageManager] OnResultClosed in phase {currentPhase}");
         }
 
         if (CurrentStage == null)
         {
-            Debug.LogError("[StageManager] OnRewardClosed but currentStage is null.");
+            Debug.LogError("[StageManager] OnResultClosed but currentStage is null.");
             CurrentPhase = StagePhase.None;
             return;
         }
@@ -158,10 +158,10 @@ public sealed class StageManager : MonoBehaviour
         OnPlayStart();
     }
 
-    void OpenReward()
+    void OpenResult()
     {
-        CurrentPhase = StagePhase.Reward;
-        RewardManager.Instance?.Open();
+        CurrentPhase = StagePhase.Result;
+        ResultManager.Instance?.Open();
     }
 
     void OpenShop()

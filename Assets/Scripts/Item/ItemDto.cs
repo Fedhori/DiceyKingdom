@@ -17,7 +17,6 @@ namespace Data
         OnItemChanged,
         OnCurrencyChanged,
         OnProjectileSpawned,
-        OnRewardOpen,
         OnBlockDestroyed,
         OnBlockStatusApplied,
         OnTimeChanged,
