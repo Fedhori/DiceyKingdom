@@ -27,22 +27,17 @@ public sealed class ResultManager : MonoBehaviour
     {
         isOpen = true;
 
-        int startCurrency = CurrencyManager.Instance != null ? CurrencyManager.Instance.CurrentCurrency : 0;
-
         int income = GameConfig.BaseIncome;
         var player = PlayerManager.Instance?.Current;
         if (player != null)
             income += player.BaseIncomeBonus;
         CurrencyManager.Instance?.AddCurrency(income);
 
-        int endCurrency = CurrencyManager.Instance != null ? CurrencyManager.Instance.CurrentCurrency : startCurrency;
-        UpdateEarnedCurrency(Mathf.Max(0, endCurrency - startCurrency));
+        UpdateEarnedCurrency(Mathf.Max(0, income));
         
         if(resultOverlay != null)
             resultOverlay.SetActive(true);
 
-        // 일단은 바로 닫히게 해둠. 나중에 대응해야 할듯?
-        Close();
     }
 
     public void Close()
