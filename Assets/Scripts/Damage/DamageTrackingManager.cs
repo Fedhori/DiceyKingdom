@@ -10,7 +10,7 @@ public sealed class DamageTrackingManager : MonoBehaviour
 
     struct ItemDamageRecord
     {
-        public string ItemId;
+        public ItemInstance Item;
         public double Damage;
     }
 
@@ -40,7 +40,9 @@ public sealed class DamageTrackingManager : MonoBehaviour
             return;
 
         if (!damageByItem.TryGetValue(uniqueId, out var record))
-            record = new ItemDamageRecord { ItemId = item.Id, Damage = 0d };
+            record = new ItemDamageRecord { Item = item, Damage = 0d };
+        else if (!ReferenceEquals(record.Item, item))
+            record.Item = item;
 
         record.Damage += damage;
         damageByItem[uniqueId] = record;
@@ -57,13 +59,14 @@ public sealed class DamageTrackingManager : MonoBehaviour
         var totalsByItemId = new Dictionary<string, double>();
         foreach (var record in damageByItem.Values)
         {
-            if (string.IsNullOrEmpty(record.ItemId))
+            string itemId = record.Item != null ? record.Item.Id : null;
+            if (string.IsNullOrEmpty(itemId))
                 continue;
 
-            if (totalsByItemId.TryGetValue(record.ItemId, out var total))
-                totalsByItemId[record.ItemId] = total + record.Damage;
+            if (totalsByItemId.TryGetValue(itemId, out var total))
+                totalsByItemId[itemId] = total + record.Damage;
             else
-                totalsByItemId.Add(record.ItemId, record.Damage);
+                totalsByItemId.Add(itemId, record.Damage);
         }
 
         if (totalsByItemId.Count == 0)

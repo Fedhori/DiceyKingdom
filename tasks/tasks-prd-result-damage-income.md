@@ -1,7 +1,7 @@
 ## Relevant Files
 
 - `Assets/Scripts/ResultManager.cs` - 결과창 열기/닫기 및 수입/리스트 바인딩 로직 수정.
-- `Assets/Scripts/Damage/DamageTrackingManager.cs` - 아이템 인스턴스별 데미지 기록 조회(직접 읽기) 지원.
+- `Assets/Scripts/Damage/DamageTrackingManager.cs` - 아이템 인스턴스 참조 기반 데미지 기록 조회(직접 읽기) 지원.
 - `Assets/Scripts/UI/ItemView.cs` - 아이콘 표시용 기존 UI 컴포넌트(재사용 가능).
 - `Assets/Scripts/UI/Result/ResultDamageRow.cs` - 리스트 항목 UI 바인딩용 신규 스크립트(아이콘/데미지/그래프).
 - `Assets/Scripts/UI/Result/ResultOverlayView.cs` - 결과창 리스트/수입/버튼 연결을 위한 신규 뷰 스크립트.
@@ -17,7 +17,7 @@
 ## Tasks
 
 - [ ] 1.0 DamageTrackingManager 기록 조회 API 정비
-  - [ ] 1.1 결과 UI용 레코드 구조(UniqueId, ItemId, Damage) 정의
+  - [x] 1.1 결과 UI용 레코드 구조(UniqueId, ItemId, Damage) 정의
   - [ ] 1.2 아이템 인스턴스별 데미지 기록을 읽어오는 공개 메서드 추가
   - [ ] 1.3 ResultManager에서 사용할 수 있도록 읽기 전용 컬렉션 반환 방식 확정
 - [ ] 2.0 ResultManager 결과창 표시 로직 업데이트
