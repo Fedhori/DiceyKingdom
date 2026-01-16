@@ -155,6 +155,17 @@ public sealed class BlockManager : MonoBehaviour
             double rateStart = difficulty * spawnDifficultyRateStart;
             double rateEnd = difficulty * spawnDifficultyRateEnd;
             double rate = rateStart + (rateEnd - rateStart) * t;
+
+            double stageMultiplier = 1.0;
+            var stage = StageManager.Instance?.CurrentStage;
+            int totalStages = StageRepository.Count;
+            if (stage != null && totalStages > 1)
+            {
+                double stageT = stage.StageIndex / (double)(totalStages - 1);
+                stageMultiplier = 1.0 + 3.0 * stageT;
+            }
+
+            rate *= stageMultiplier;
             accumulatedDifficulty += rate * effectiveDelta;
 
             int safety = 0;

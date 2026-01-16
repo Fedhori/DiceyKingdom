@@ -19,7 +19,7 @@ public sealed class DamageTextManager : MonoBehaviour
     public void SetMinMaxValue(double value)
     {
         maxValue = value;
-        minValue = value / 10.0;
+        minValue = value / 100.0;
 
         if (minValue < 0)
             minValue = 0;

@@ -36,7 +36,7 @@
 					"effects": [
 						{
 							"effectType": "SpawnProjectile",
-							"value": 2.0
+							"value": 5
 						}
 					]
 				}
@@ -190,7 +190,7 @@
 				"key": "projectile.bullet",
 				"size": 1.0,
 				"speed": 0.8,
-				"pelletCount": 8,
+				"pelletCount": 6,
 				"spreadAngle": 10.0,
 				"randomAngle": 5.0
 			},
