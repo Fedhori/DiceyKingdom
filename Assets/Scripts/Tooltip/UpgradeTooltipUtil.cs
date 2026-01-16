@@ -18,6 +18,7 @@ public static class UpgradeTooltipUtil
 
         string body = BuildBody(upgrade);
         var icon = SpriteCache.GetUpgradeSprite(upgrade.Id);
+        var keywords = TooltipKeywordUtil.BuildForUpgrade(upgrade);
 
         return new TooltipModel(
             title,
@@ -26,7 +27,8 @@ public static class UpgradeTooltipUtil
             TooltipKind.Upgrade,
             0f,
             ItemRarity.Common,
-            "강화"
+            "강화",
+            keywords
         );
     }
 

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Data;
 using TMPro;
 using UnityEngine;
@@ -9,6 +10,8 @@ public sealed class TooltipView : MonoBehaviour
     // [SerializeField] Image iconImage;
     [SerializeField] TMP_Text nameText;
     [SerializeField] TMP_Text descriptionText;
+    [SerializeField] Transform keywordRoot;
+    [SerializeField] TooltipKeywordRow keywordRowPrefab;
     [SerializeField] Image rarityPanelImage;
     [SerializeField] TMP_Text rarityText;
     [SerializeField] GameObject toggleButtonRoot;
@@ -16,6 +19,7 @@ public sealed class TooltipView : MonoBehaviour
     [SerializeField] TMP_Text toggleButtonText;
 
     public RectTransform rectTransform;
+    readonly List<TooltipKeywordRow> keywordRows = new();
 
     void Awake()
     {
@@ -44,6 +48,7 @@ public sealed class TooltipView : MonoBehaviour
         if (descriptionText != null)
             descriptionText.text = model.Body ?? string.Empty;
 
+        BuildKeywordRows(model.KeywordEntries);
         ApplyRarity(model.Rarity, model.RarityLabelOverride, model.Kind);
 
         // if (iconImage != null)
@@ -64,6 +69,7 @@ public sealed class TooltipView : MonoBehaviour
     public void Hide()
     {
         SetToggleButton(false, false);
+        ClearKeywordRows();
         gameObject.SetActive(false);
     }
 
@@ -134,5 +140,49 @@ public sealed class TooltipView : MonoBehaviour
 
         var loc = new UnityEngine.Localization.LocalizedString("tooltip", key);
         return loc.GetLocalizedString();
+    }
+
+    void BuildKeywordRows(IReadOnlyList<TooltipKeywordEntry> entries)
+    {
+        if (keywordRoot == null || keywordRowPrefab == null)
+            return;
+
+        ClearKeywordRows();
+
+        if (entries == null || entries.Count == 0)
+        {
+            keywordRoot.gameObject.SetActive(false);
+            return;
+        }
+
+        keywordRoot.gameObject.SetActive(true);
+
+        for (int i = 0; i < entries.Count; i++)
+        {
+            var row = Instantiate(keywordRowPrefab, keywordRoot);
+            row.Bind(entries[i]);
+            keywordRows.Add(row);
+        }
+    }
+
+    void ClearKeywordRows()
+    {
+        if (keywordRows.Count == 0)
+        {
+            if (keywordRoot != null)
+                keywordRoot.gameObject.SetActive(false);
+            return;
+        }
+
+        for (int i = keywordRows.Count - 1; i >= 0; i--)
+        {
+            var row = keywordRows[i];
+            if (row != null)
+                Destroy(row.gameObject);
+        }
+        keywordRows.Clear();
+
+        if (keywordRoot != null)
+            keywordRoot.gameObject.SetActive(false);
     }
 }

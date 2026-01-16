@@ -28,6 +28,7 @@ public static class ItemTooltipUtil
 
         var body = BuildBody(item);
         var icon = SpriteCache.GetItemSprite(item.Id);
+        var keywords = TooltipKeywordUtil.BuildForItem(item);
 
         return new TooltipModel(
             title,
@@ -35,7 +36,9 @@ public static class ItemTooltipUtil
             icon,
             TooltipKind.Item,
             item.DamageMultiplier,
-            item.Rarity
+            item.Rarity,
+            null,
+            keywords
         );
     }
 

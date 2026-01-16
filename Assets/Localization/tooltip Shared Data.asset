@@ -55,6 +55,14 @@ MonoBehaviour:
     m_Key: tooltip.upgrade.view
     m_Metadata:
       m_Items: []
+  - m_Id: 10581387094011912
+    m_Key: tooltip.keyword.freeze.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10581387094011913
+    m_Key: tooltip.keyword.freeze.body
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
