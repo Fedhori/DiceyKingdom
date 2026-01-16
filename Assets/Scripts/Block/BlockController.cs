@@ -150,14 +150,22 @@ public sealed class BlockController : MonoBehaviour
         if (sourceItem == null)
             return false;
 
-        if (sourceItem.StatusType == BlockStatusType.Unknown)
-            return false;
+        bool applied = false;
+        var statusKeys = StatusUtil.Keys;
+        for (int i = 0; i < statusKeys.Count; i++)
+        {
+            string key = statusKeys[i];
+            int stack = StatusUtil.GetItemStatusValue(sourceItem, key);
+            if (stack <= 0)
+                continue;
 
-        int stack = sourceItem.StatusStack;
-        if (stack <= 0)
-            return false;
+            if (!StatusUtil.TryGetStatusType(key, out var type))
+                continue;
 
-        return ApplyStatus(sourceItem.StatusType, stack);
+            applied |= ApplyStatus(type, stack);
+        }
+
+        return applied;
     }
 
     public bool ApplyStatus(BlockStatusType type)
@@ -165,10 +173,10 @@ public sealed class BlockController : MonoBehaviour
         if (Instance == null)
             return false;
 
-        return Instance.AddStatusStack(type, 1f);
+        return Instance.AddStatusStack(type, 1);
     }
 
-    public bool ApplyStatus(BlockStatusType type, float stackAmount)
+    public bool ApplyStatus(BlockStatusType type, int stackAmount)
     {
         if (Instance == null)
             return false;

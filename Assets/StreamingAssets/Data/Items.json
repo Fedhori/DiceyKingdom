@@ -54,8 +54,7 @@
 				"size": 1.0,
 				"speed": 1.0
 			},
-			"statusType": "Freeze",
-			"statusStack": 2,
+			"freeze": 2,
 			"rules": []
 		},
 		{
@@ -372,8 +371,7 @@
 			"isObject": false,
 			"price": 8,
 			"rarity": "Rare",
-			"statusType": "Freeze",
-			"statusStack": 1,
+			"freeze": 1,
 			"rules": [
 				{
 					"triggerType": "OnTimeChanged",
@@ -384,7 +382,8 @@
 					"effects": [
 						{
 							"effectType": "ApplyStatusToRandomBlocks",
-							"value": 3.0
+							"statusType": "Freeze",
+							"value": 5.0
 						}
 					]
 				}

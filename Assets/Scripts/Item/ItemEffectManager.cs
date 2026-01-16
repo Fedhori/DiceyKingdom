@@ -137,10 +137,16 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (item == null || dto == null)
             return;
 
-        if (item.StatusType == BlockStatusType.Unknown)
+        if (dto.statusType == BlockStatusType.Unknown)
             return;
 
-        int stack = item.StatusStack;
+        if (!StatusUtil.TryGetStatusKey(dto.statusType, out var statId))
+        {
+            Debug.LogWarning($"[ItemEffectManager] ApplyStatusToRandomBlocks has no statId for {dto.statusType}.");
+            return;
+        }
+
+        int stack = StatusUtil.GetItemStatusValue(item, statId);
         if (stack <= 0)
             return;
 
@@ -152,7 +158,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (manager == null)
             return;
 
-        manager.ApplyStatusToRandomBlocks(item.StatusType, count, stack);
+        manager.ApplyStatusToRandomBlocks(dto.statusType, count, stack);
     }
 
     void ApplySellValue(ItemEffectDto dto, ItemInstance item)
@@ -475,11 +481,22 @@ public sealed class ItemEffectManager : MonoBehaviour
             return;
         }
 
-        int stack = Mathf.Max(1, Mathf.FloorToInt(dto.value));
-        if (targetItem.StatusType == dto.statusType && targetItem.StatusStack > 0)
-            stack += targetItem.StatusStack;
+        if (!StatusUtil.TryGetStatusKey(dto.statusType, out var statId))
+        {
+            Debug.LogWarning($"[ItemEffectManager] SetItemStatus has no statId for {dto.statusType}.");
+            return;
+        }
 
-        targetItem.SetStatusOverride(dto.statusType, stack);
+        int stack = Mathf.Max(1, Mathf.FloorToInt(dto.value));
+        if (stack <= 0)
+            return;
+
+        targetItem.Stats.AddModifier(new StatModifier(
+            statId,
+            StatOpKind.Add,
+            stack,
+            StatLayer.Upgrade,
+            targetItem));
     }
 
     void ModifyTriggerRepeat(ItemEffectDto dto, ItemInstance sourceItem)

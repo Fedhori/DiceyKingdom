@@ -24,10 +24,6 @@ public sealed class ItemInstance
     public bool IsObject { get; private set; }
     public int PierceBonus { get; private set; }
     public float ProjectileHomingTurnRate { get; private set; }
-    public BlockStatusType StatusType => hasStatusOverride ? statusOverride : baseStatusType;
-    public int StatusStack => StatusType == BlockStatusType.Unknown
-        ? 0
-        : (hasStatusOverride ? statusStackOverride : baseStatusStack);
     public int SellValueBonus { get; private set; }
     public ItemRarity Rarity { get; private set; }
     public UpgradeInstance Upgrade
@@ -44,11 +40,6 @@ public sealed class ItemInstance
     }
 
     UpgradeInstance upgrade;
-    BlockStatusType baseStatusType;
-    BlockStatusType statusOverride;
-    int baseStatusStack;
-    int statusStackOverride;
-    bool hasStatusOverride;
 
     public StatSet Stats { get; }
     public float DamageMultiplier => (float)Stats.GetValue(ItemStatIds.DamageMultiplier);
@@ -91,11 +82,6 @@ public sealed class ItemInstance
             IsObject = false;
             PierceBonus = 0;
             ProjectileHomingTurnRate = 0f;
-            baseStatusType = BlockStatusType.Unknown;
-            statusOverride = BlockStatusType.Unknown;
-            baseStatusStack = 0;
-            statusStackOverride = 0;
-            hasStatusOverride = false;
             StatusDamageMultiplier = 1f;
             SellValueBonus = 0;
             Rarity = ItemRarity.Common;
@@ -110,14 +96,17 @@ public sealed class ItemInstance
         Stats.SetBase(ItemStatIds.AttackSpeed, Mathf.Max(0f, dto.attackSpeed), 0d);
         IsObject = dto.isObject;
         PierceBonus = Mathf.Max(0, dto.pierceBonus);
-        baseStatusType = dto.statusType;
-        statusOverride = BlockStatusType.Unknown;
-        baseStatusStack = Mathf.Max(0, dto.statusStack);
-        statusStackOverride = 0;
-        hasStatusOverride = false;
         SellValueBonus = 0;
         Rarity = dto.rarity;
         upgrade = null;
+
+        var statusKeys = StatusUtil.Keys;
+        for (int i = 0; i < statusKeys.Count; i++)
+        {
+            string key = statusKeys[i];
+            int value = StatusUtil.GetItemStatusBaseValue(dto, key);
+            Stats.SetBase(key, Mathf.Max(0, value), 0d);
+        }
 
         if (dto.rules != null)
             rules.AddRange(dto.rules);
@@ -268,25 +257,6 @@ public sealed class ItemInstance
             return;
 
         SellValueBonus += amount;
-    }
-
-    public void SetStatusOverride(BlockStatusType type)
-    {
-        SetStatusOverride(type, 1);
-    }
-
-    public void SetStatusOverride(BlockStatusType type, int stack)
-    {
-        hasStatusOverride = true;
-        statusOverride = type;
-        statusStackOverride = Mathf.Max(0, stack);
-    }
-
-    public void ClearStatusOverride()
-    {
-        hasStatusOverride = false;
-        statusOverride = BlockStatusType.Unknown;
-        statusStackOverride = 0;
     }
 
     void IncrementTriggerCount(ItemTriggerType trigger)

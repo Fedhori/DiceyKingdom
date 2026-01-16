@@ -64,7 +64,6 @@ public sealed class UpgradeManager : MonoBehaviour
             return;
 
         target.Stats.RemoveModifiers(layer: StatLayer.Upgrade, source: target);
-        target.ClearStatusOverride();
         target.RemoveTriggerRepeatModifiers(layer: StatLayer.Upgrade, source: target);
         target.Upgrade = null;
     }

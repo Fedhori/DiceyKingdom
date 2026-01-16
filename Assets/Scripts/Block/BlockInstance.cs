@@ -40,17 +40,17 @@ public sealed class BlockInstance
     public bool HasStatus(BlockStatusType type)
     {
         var status = GetStatus(type);
-        return status != null && status.Stack > 0f;
+        return status != null && status.Stack > 0;
     }
 
     public bool TryApplyStatus(BlockStatusType type)
     {
-        return AddStatusStack(type, 1f);
+        return AddStatusStack(type, 1);
     }
 
-    public bool AddStatusStack(BlockStatusType type, float stackAmount)
+    public bool AddStatusStack(BlockStatusType type, int stackAmount)
     {
-        if (type == BlockStatusType.Unknown || stackAmount <= 0f)
+        if (type == BlockStatusType.Unknown || stackAmount <= 0)
             return false;
 
         if (statuses.TryGetValue(type, out var status))
@@ -59,8 +59,7 @@ public sealed class BlockInstance
             return true;
         }
 
-        float decayPerSecond = BlockStatusSettings.GetDecayPerSecond(type);
-        statuses[type] = new BlockStatusState(type, stackAmount, decayPerSecond);
+        statuses[type] = new BlockStatusState(type, stackAmount);
         return true;
     }
 

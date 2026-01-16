@@ -159,12 +159,10 @@ namespace Data
         public float damageMultiplier = 0f;
         public float statusDamageMultiplier = 1f;
         public float attackSpeed = 0f;
+        public int freeze = 0;
         public ItemProjectileData projectile;
         public ItemBeamData beam;
         public int pierceBonus = 0;
-        [JsonConverter(typeof(StringEnumConverter))]
-        public BlockStatusType statusType = BlockStatusType.Unknown;
-        public int statusStack = 1;
 
         [JsonIgnore]
         public bool isValid = true;
@@ -268,10 +266,16 @@ namespace Data
                 isValid = false;
             }
 
-            if (statusStack < 0)
+            var statusKeys = StatusUtil.Keys;
+            for (int i = 0; i < statusKeys.Count; i++)
             {
-                Debug.LogError($"[ItemDto] '{id}': statusStack < 0 is not allowed.");
-                isValid = false;
+                string key = statusKeys[i];
+                int value = StatusUtil.GetItemStatusBaseValue(this, key);
+                if (value < 0)
+                {
+                    Debug.LogError($"[ItemDto] '{id}': {key} < 0 is not allowed.");
+                    isValid = false;
+                }
             }
 
         }

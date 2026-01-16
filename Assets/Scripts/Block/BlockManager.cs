@@ -323,9 +323,9 @@ public sealed class BlockManager : MonoBehaviour
         return best;
     }
 
-    public int ApplyStatusToRandomBlocks(BlockStatusType type, int count, float stackAmount)
+    public int ApplyStatusToRandomBlocks(BlockStatusType type, int count, int stackAmount)
     {
-        if (type == BlockStatusType.Unknown || count <= 0 || stackAmount <= 0f)
+        if (type == BlockStatusType.Unknown || count <= 0 || stackAmount <= 0)
             return 0;
 
         List<BlockController> candidates = null;

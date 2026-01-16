@@ -6,36 +6,22 @@ public enum BlockStatusType
     Freeze
 }
 
-public static class BlockStatusSettings
-{
-    public static float GetDecayPerSecond(BlockStatusType type)
-    {
-        switch (type)
-        {
-            case BlockStatusType.Freeze:
-                return 1f;
-            default:
-                return 0f;
-        }
-    }
-}
-
 public sealed class BlockStatusState
 {
     public BlockStatusType Type { get; }
-    public float Stack { get; private set; }
-    public float DecayPerSecond { get; }
+    public int Stack { get; private set; }
+    float decayTimer;
 
-    public BlockStatusState(BlockStatusType type, float initialStack, float decayPerSecond)
+    public BlockStatusState(BlockStatusType type, int initialStack)
     {
         Type = type;
-        Stack = Mathf.Max(0f, initialStack);
-        DecayPerSecond = Mathf.Max(0f, decayPerSecond);
+        Stack = Mathf.Max(0, initialStack);
+        decayTimer = 0f;
     }
 
-    public void AddStack(float amount)
+    public void AddStack(int amount)
     {
-        if (amount <= 0f)
+        if (amount <= 0)
             return;
 
         Stack += amount;
@@ -43,11 +29,16 @@ public sealed class BlockStatusState
 
     public void Update(float deltaTime)
     {
-        if (deltaTime <= 0f || DecayPerSecond <= 0f || Stack <= 0f)
+        if (deltaTime <= 0f || Stack <= 0)
             return;
 
-        Stack = Mathf.Max(0f, Stack - DecayPerSecond * deltaTime);
+        decayTimer += deltaTime;
+        while (decayTimer >= 1f && Stack > 0)
+        {
+            Stack -= 1;
+            decayTimer -= 1f;
+        }
     }
 
-    public bool IsExpired => Stack <= 0f;
+    public bool IsExpired => Stack <= 0;
 }

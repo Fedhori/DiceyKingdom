@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
 using Data;
@@ -8,7 +7,7 @@ using UnityEngine.Localization;
 
 public static class ItemTooltipUtil
 {
-    const string FreezeStatusPrefix = "\uC0C1\uD0DC\uC774\uC0C1: \uBE59\uACB0 ";
+    const string StatusPrefix = "\uC0C1\uD0DC\uC774\uC0C1: ";
 
     public static TooltipModel BuildModel(ItemInstance item)
     {
@@ -101,10 +100,21 @@ public static class ItemTooltipUtil
             lines.Add(BuildStatLine("tooltip.pierce.description", args));
         }
 
-        if (item.StatusType == BlockStatusType.Freeze)
+        var statusKeys = StatusUtil.Keys;
+        for (int i = 0; i < statusKeys.Count; i++)
         {
-            int stack = Mathf.Max(0, item.StatusStack);
-            lines.Add($"{FreezeStatusPrefix}{stack}");
+            string key = statusKeys[i];
+            int stack = StatusUtil.GetItemStatusValue(item, key);
+            if (stack <= 0)
+                continue;
+
+            string keywordId = StatusUtil.GetKeywordId(key);
+            if (string.IsNullOrEmpty(keywordId))
+                continue;
+
+            var loc = new LocalizedString("tooltip", $"tooltip.keyword.{keywordId}.title");
+            string label = loc.GetLocalizedString();
+            lines.Add($"{StatusPrefix}{label} {stack}");
         }
     }
 

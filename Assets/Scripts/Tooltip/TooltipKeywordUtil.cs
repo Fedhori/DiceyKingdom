@@ -8,11 +8,18 @@ public static class TooltipKeywordUtil
         if (item == null)
             return null;
 
-        if (item.StatusType == BlockStatusType.Unknown || item.StatusStack <= 0)
-            return null;
-
         List<TooltipKeywordEntry> entries = null;
-        AppendStatusKeyword(item.StatusType, ref entries);
+
+        var keys = StatusUtil.Keys;
+        for (int i = 0; i < keys.Count; i++)
+        {
+            string key = keys[i];
+            if (StatusUtil.GetItemStatusValue(item, key) <= 0)
+                continue;
+
+            AppendKeyword(StatusUtil.GetKeywordId(key), ref entries);
+        }
+
         return entries;
     }
 
@@ -33,39 +40,28 @@ public static class TooltipKeywordUtil
             if (effect == null)
                 continue;
 
-            if (effect.effectType != ItemEffectType.SetItemStatus
-                && effect.effectType != ItemEffectType.ApplyStatusToRandomBlocks)
-            {
-                continue;
-            }
+            if (StatusUtil.IsStatus(effect.statId))
+                AppendKeyword(StatusUtil.GetKeywordId(effect.statId), ref entries);
 
-            AppendStatusKeyword(effect.statusType, ref entries);
+            if (effect.effectType == ItemEffectType.SetItemStatus
+                || effect.effectType == ItemEffectType.ApplyStatusToRandomBlocks)
+            {
+                if (StatusUtil.TryGetStatusKey(effect.statusType, out var statId))
+                    AppendKeyword(StatusUtil.GetKeywordId(statId), ref entries);
+            }
         }
 
         return entries;
     }
 
-    static void AppendStatusKeyword(BlockStatusType type, ref List<TooltipKeywordEntry> entries)
+    static void AppendKeyword(string keywordId, ref List<TooltipKeywordEntry> entries)
     {
-        if (!TryGetStatusKeyword(type, out var entry))
+        if (string.IsNullOrEmpty(keywordId))
             return;
 
         entries ??= new List<TooltipKeywordEntry>();
-        entries.Add(entry);
-    }
-
-    static bool TryGetStatusKeyword(BlockStatusType type, out TooltipKeywordEntry entry)
-    {
-        switch (type)
-        {
-            case BlockStatusType.Freeze:
-                entry = new TooltipKeywordEntry(
-                    "tooltip.keyword.freeze.title",
-                    "tooltip.keyword.freeze.body");
-                return true;
-            default:
-                entry = default;
-                return false;
-        }
+        entries.Add(new TooltipKeywordEntry(
+            $"tooltip.keyword.{keywordId}.title",
+            $"tooltip.keyword.{keywordId}.body"));
     }
 }
