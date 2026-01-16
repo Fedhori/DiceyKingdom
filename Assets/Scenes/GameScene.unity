@@ -2263,7 +2263,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 912
+  orthographic size: 982.8424
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -3633,7 +3633,7 @@ MonoBehaviour:
   objectItemPrefab: {fileID: 1772306015642552443, guid: 56c1f7b4571e0634b9050b0122f0be8c, type: 3}
   tickIntervalSeconds: 1
   orbitRadius: 64
-  orbitPeriodSeconds: 4
+  orbitPeriodSeconds: 8
 --- !u!114 &715098192
 MonoBehaviour:
   m_ObjectHideFlags: 0
