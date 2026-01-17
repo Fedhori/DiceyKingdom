@@ -23,6 +23,7 @@ public static class Colors
 
     public static readonly Color DamageFlash = new Color32(0xFF, 0xFF, 0xFF, 0x66);
     public static readonly Color FreezeTint = new Color32(0x6F, 0xD8, 0xFF, 0x66);
+    public static readonly Color PoisonTint = new Color32(0x9F, 0xFF, 0x6F, 0x66);
     
     public static readonly Color HighlightColor = Color.cyan;
 
