@@ -11,10 +11,10 @@ public sealed class TooltipKeywordRow : MonoBehaviour
     public void Bind(TooltipKeywordEntry entry)
     {
         if (titleText != null)
-            titleText.text = Resolve(entry.TitleKey, null);
+            titleText.text = Resolve(entry.titleKey, null);
 
         if (bodyText != null)
-            bodyText.text = Resolve(entry.BodyKey, entry.Args);
+            bodyText.text = Resolve(entry.bodyKey, entry.arguments);
     }
 
     static string Resolve(string key, Dictionary<string, object> args)

@@ -43,13 +43,13 @@ public sealed class TooltipView : MonoBehaviour
         gameObject.SetActive(true);
 
         if (nameText != null)
-            nameText.text = model.Title ?? string.Empty;
+            nameText.text = model.title ?? string.Empty;
 
         if (descriptionText != null)
-            descriptionText.text = model.Body ?? string.Empty;
+            descriptionText.text = model.body ?? string.Empty;
 
-        BuildKeywordRows(model.KeywordEntries);
-        ApplyRarity(model.Rarity, model.RarityLabelOverride, model.Kind);
+        BuildKeywordRows(model.keywordEntries);
+        ApplyRarity(model.rarity, model.rarityLabelOverride, model.kind);
 
         // if (iconImage != null)
         // {

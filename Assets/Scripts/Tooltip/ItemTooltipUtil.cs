@@ -16,7 +16,6 @@ public static class ItemTooltipUtil
             return new TooltipModel(
                 string.Empty,
                 string.Empty,
-                null,
                 TooltipKind.Item
             );
         }
@@ -26,15 +25,12 @@ public static class ItemTooltipUtil
             title = item.Id;
 
         var body = BuildBody(item);
-        var icon = SpriteCache.GetItemSprite(item.Id);
         var keywords = TooltipKeywordUtil.BuildForItem(item);
 
         return new TooltipModel(
             title,
             body,
-            icon,
             TooltipKind.Item,
-            item.DamageMultiplier,
             item.Rarity,
             null,
             keywords
@@ -216,10 +212,10 @@ public static class ItemTooltipUtil
             }
         }
 
-        if (rule?.condition != null && rule.condition.count > 0)
+        if (rule?.condition is { count: > 0 })
             dict["count"] = rule.condition.count;
 
-        if (rule?.condition != null && rule.condition.intervalSeconds > 0f)
+        if (rule?.condition is { intervalSeconds: > 0f })
             dict["intervalSeconds"] = rule.condition.intervalSeconds.ToString("0.##");
 
         if (item is { PelletCount: > 1 })

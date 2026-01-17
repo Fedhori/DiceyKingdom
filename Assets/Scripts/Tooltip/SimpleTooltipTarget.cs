@@ -29,7 +29,6 @@ public sealed class SimpleTooltipTarget : MonoBehaviour, IPointerEnterHandler, I
             return;
 
         rect.GetWorldCorners(corners);
-        // corners: 0=BL, 1=TL, 2=TR, 3=BR
         Vector3 topLeftWorld = corners[1];
         Vector3 topRightWorld = corners[2];
 
@@ -39,7 +38,6 @@ public sealed class SimpleTooltipTarget : MonoBehaviour, IPointerEnterHandler, I
         var model = new TooltipModel(
             title,
             body,
-            null,
             TooltipKind.Simple
         );
 

@@ -13,7 +13,7 @@ public sealed class ShopManager : MonoBehaviour
     [SerializeField] private int baseRerollCost = 1;
     [SerializeField] private int rerollCostIncrement = 1;
 
-    [Header("Rarity Probabilities (weight-based)")]
+    [Header("rarity Probabilities (weight-based)")]
     [SerializeField] private int[] rarityWeights = new int[] { 60, 30, 10, 0 };
 
     [Header("Product Probabilities (weight-based)")]
