@@ -25,7 +25,8 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 432495144960
     m_Localized: "\uC2A4\uD14C\uC774\uC9C0\uAC00 \uB05D\uB0A0 \uB54C\uB9C8\uB2E4
-      \uC601\uAD6C\uC801\uC73C\uB85C \uD30C\uC6CC\uAC00 {value0} \uC99D\uAC00\uD569\uB2C8\uB2E4."
+      \uC601\uAD6C\uC801\uC73C\uB85C <style=\"power\">\uD30C\uC6CC</style>\uAC00
+      {value0} \uC99D\uAC00\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704

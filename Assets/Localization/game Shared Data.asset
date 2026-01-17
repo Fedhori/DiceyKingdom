@@ -31,28 +31,12 @@ MonoBehaviour:
     m_Key: game.sold.label
     m_Metadata:
       m_Items: []
-  - m_Id: 279564840091648
-    m_Key: game.needscore.label
-    m_Metadata:
-      m_Items: []
-  - m_Id: 284702950572032
-    m_Key: game.basescore.label
-    m_Metadata:
-      m_Items: []
-  - m_Id: 284752841818112
-    m_Key: game.scoremultiplier.label
-    m_Metadata:
-      m_Items: []
   - m_Id: 284792402493440
     m_Key: game.criticalchance.label
     m_Metadata:
       m_Items: []
   - m_Id: 284840175616000
     m_Key: game.criticalmultiplier.label
-    m_Metadata:
-      m_Items: []
-  - m_Id: 2536571039137792
-    m_Key: game.balldeck.title
     m_Metadata:
       m_Items: []
   - m_Id: 3521450148900864
@@ -67,56 +51,12 @@ MonoBehaviour:
     m_Key: game.gameclear.title
     m_Metadata:
       m_Items: []
-  - m_Id: 3550732967489536
-    m_Key: game.notEnoughBall.label
-    m_Metadata:
-      m_Items: []
   - m_Id: 3659398399930368
     m_Key: game.option.button
     m_Metadata:
       m_Items: []
-  - m_Id: 4306710604296192
-    m_Key: game.roundresult.title
-    m_Metadata:
-      m_Items: []
   - m_Id: 4307439448502272
     m_Key: game.roundresult.exit
-    m_Metadata:
-      m_Items: []
-  - m_Id: 4317961107550208
-    m_Key: game.earnedscore.label
-    m_Metadata:
-      m_Items: []
-  - m_Id: 4318060248313856
-    m_Key: game.earnedcurrency.label
-    m_Metadata:
-      m_Items: []
-  - m_Id: 4318162333478912
-    m_Key: game.earnedballs.label
-    m_Metadata:
-      m_Items: []
-  - m_Id: 4327920394317824
-    m_Key: game.dragballhere.label
-    m_Metadata:
-      m_Items: []
-  - m_Id: 6474724191776768
-    m_Key: game.selectballstart.label
-    m_Metadata:
-      m_Items: []
-  - m_Id: 6503365021806592
-    m_Key: game.forceendround.label
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7536855750291456
-    m_Key: game.current.label
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7546586569125888
-    m_Key: game.ballcount.label
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7546608568250368
-    m_Key: game.shopclosed.label
     m_Metadata:
       m_Items: []
   - m_Id: 8981073463095296
