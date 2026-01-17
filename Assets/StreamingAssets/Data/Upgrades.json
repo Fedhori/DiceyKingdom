@@ -108,7 +108,7 @@
 					"target": "Self",
 					"statId": "pierce",
 					"effectMode": "Add",
-					"value": 10,
+					"value": 5,
 					"duration": "Upgrade"
 				}
 			]
