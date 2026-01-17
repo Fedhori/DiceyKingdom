@@ -13,7 +13,6 @@ public sealed class ProjectileController : MonoBehaviour
     Vector2 direction;
     int pierceRemaining;
     int wallBounceRemaining;
-    bool hasExploded;
 
     public void Initialize(ItemInstance inst, Vector2 dir)
     {
@@ -23,7 +22,6 @@ public sealed class ProjectileController : MonoBehaviour
         item = inst;
         direction = dir.normalized;
         pierceRemaining = 0;
-        hasExploded = false;
 
         ApplyPierceCount();
         ApplyWallBounceCount();
@@ -79,7 +77,8 @@ public sealed class ProjectileController : MonoBehaviour
 
             if (item.ProjectileExplosionRadius > 0f)
             {
-                Explode(other);
+                Explode();
+                HandlePierce();
                 return;
             }
 
@@ -105,7 +104,7 @@ public sealed class ProjectileController : MonoBehaviour
             if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
             {
                 if (item.ProjectileExplosionRadius > 0f)
-                    Explode(other);
+                    Explode();
                 else
                     ApplyDamage(other);
             }
@@ -113,7 +112,8 @@ public sealed class ProjectileController : MonoBehaviour
             {
                 if (item.ProjectileExplosionRadius > 0f)
                 {
-                    Explode(other);
+                    Explode();
+                    HandlePierce();
                     return;
                 }
 
@@ -149,13 +149,8 @@ public sealed class ProjectileController : MonoBehaviour
         return damageManager.ApplyDamage(context);
     }
 
-    void Explode(Collider2D other)
+    void Explode()
     {
-        if (hasExploded)
-            return;
-
-        hasExploded = true;
-
         var damageManager = DamageManager.Instance;
         if (damageManager != null)
         {
@@ -170,7 +165,6 @@ public sealed class ProjectileController : MonoBehaviour
         }
 
         ParticleManager.Instance?.PlayExplosion(transform.position, item.ProjectileExplosionRadius);
-        Destroy(gameObject);
     }
 
     void ApplyPierceCount()
