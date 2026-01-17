@@ -1,6 +1,7 @@
 using Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
 
 public sealed class UpgradeProductController : ProductViewBase
 {
@@ -53,7 +54,10 @@ public sealed class UpgradeProductController : ProductViewBase
         }
 
         if (rarityText != null)
-            rarityText.text = "강화";
+        {
+            var loc = new LocalizedString("tooltip", "tooltip.upgrade.label");
+            rarityText.text = loc.GetLocalizedString();
+        }
 
         if (priceText != null)
         {

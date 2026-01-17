@@ -32,7 +32,6 @@ public static class ItemTooltipUtil
             body,
             TooltipKind.Item,
             item.Rarity,
-            null,
             keywords
         );
     }

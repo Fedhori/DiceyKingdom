@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Data;
-using UnityEngine;
 
 public enum TooltipKind
 {
@@ -35,7 +34,6 @@ public readonly struct TooltipModel
     public readonly string body;
     public readonly TooltipKind kind;
     public readonly ItemRarity rarity;
-    public readonly string rarityLabelOverride;
     public readonly IReadOnlyList<TooltipKeywordEntry> keywordEntries;
 
     public TooltipModel(
@@ -43,14 +41,12 @@ public readonly struct TooltipModel
         string body,
         TooltipKind kind,
         ItemRarity rarity = ItemRarity.Common,
-        string rarityLabelOverride = null,
         IReadOnlyList<TooltipKeywordEntry> keywordEntries = null)
     {
         this.title = title;
         this.body = body;
         this.kind = kind;
         this.rarity = rarity;
-        this.rarityLabelOverride = rarityLabelOverride;
         this.keywordEntries = keywordEntries;
     }
 }

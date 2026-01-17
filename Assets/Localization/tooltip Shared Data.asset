@@ -63,6 +63,10 @@ MonoBehaviour:
     m_Key: tooltip.keyword.freeze.body
     m_Metadata:
       m_Items: []
+  - m_Id: 10581387094011914
+    m_Key: tooltip.upgrade.label
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -24,7 +24,6 @@ public static class UpgradeTooltipUtil
             body,
             TooltipKind.Upgrade,
             ItemRarity.Common,
-            "강화",
             keywords
         );
     }

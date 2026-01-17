@@ -49,7 +49,7 @@ public sealed class TooltipView : MonoBehaviour
             descriptionText.text = model.body ?? string.Empty;
 
         BuildKeywordRows(model.keywordEntries);
-        ApplyRarity(model.rarity, model.rarityLabelOverride, model.kind);
+        ApplyRarity(model.rarity, model.kind);
 
         // if (iconImage != null)
         // {
@@ -101,13 +101,13 @@ public sealed class TooltipView : MonoBehaviour
             toggleButton.onClick.RemoveListener(HandleToggleButtonClicked);
     }
 
-    void ApplyRarity(ItemRarity rarity, string labelOverride, TooltipKind kind)
+    void ApplyRarity(ItemRarity rarity, TooltipKind kind)
     {
         if (rarityPanelImage != null)
             rarityPanelImage.color = kind == TooltipKind.Upgrade ? Colors.Upgrade : GetRarityColor(rarity);
 
         if (rarityText != null)
-            rarityText.text = string.IsNullOrEmpty(labelOverride) ? GetRarityLabel(rarity) : labelOverride;
+            rarityText.text = GetRarityLabel(rarity, kind);
     }
 
     Color GetRarityColor(ItemRarity rarity)
@@ -127,8 +127,14 @@ public sealed class TooltipView : MonoBehaviour
         }
     }
 
-    string GetRarityLabel(ItemRarity rarity)
+    string GetRarityLabel(ItemRarity rarity, TooltipKind kind)
     {
+        if (kind == TooltipKind.Upgrade)
+        {
+            var local = new LocalizedString("tooltip", "tooltip.upgrade.label");
+            return local.GetLocalizedString();
+        }
+
         string key = rarity switch
         {
             ItemRarity.Common => "tooltip.normal.label",
