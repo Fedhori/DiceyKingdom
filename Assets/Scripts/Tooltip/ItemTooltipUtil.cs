@@ -7,7 +7,7 @@ using UnityEngine.Localization;
 
 public static class ItemTooltipUtil
 {
-    const string StatusPrefix = "\uC0C1\uD0DC\uC774\uC0C1: ";
+    const string StatusPrefixKey = "tooltip.status.prefix";
 
     public static TooltipModel BuildModel(ItemInstance item)
     {
@@ -95,6 +95,7 @@ public static class ItemTooltipUtil
             lines.Add(BuildStatLine("tooltip.pierce.description", args));
         }
 
+        string statusPrefix = new LocalizedString("tooltip", StatusPrefixKey).GetLocalizedString();
         var statusKeys = StatusUtil.Keys;
         for (int i = 0; i < statusKeys.Count; i++)
         {
@@ -109,7 +110,7 @@ public static class ItemTooltipUtil
 
             var loc = new LocalizedString("tooltip", $"tooltip.keyword.{keywordId}.title");
             string label = loc.GetLocalizedString();
-            lines.Add($"{StatusPrefix}{label} {stack}");
+            lines.Add($"{statusPrefix}{label} {stack}");
         }
     }
 
