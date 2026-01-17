@@ -83,10 +83,7 @@ public sealed class StageManager : MonoBehaviour
         DamageTrackingManager.Instance?.ResetForStage();
         DamageTextManager.Instance?.SetMinMaxValue(CurrentStage.Difficulty);
 
-        if (stageIndex == 0)
-            OnPlayStart();
-        else
-            OpenShop();
+        OnPlayStart();
 
         UpdateStageText();
     }
@@ -138,8 +135,15 @@ public sealed class StageManager : MonoBehaviour
             return;
         }
 
-        ItemManager.Instance?.TriggerAll(ItemTriggerType.OnStageEnd);
-        ToNextStage();
+        bool hasNextStage = StageRepository.TryGetByIndex(CurrentStage.StageIndex + 1, out _);
+        if (!hasNextStage)
+        {
+            CurrentPhase = StagePhase.None;
+            GameManager.Instance?.HandleGameClear();
+            return;
+        }
+
+        OpenShop();
     }
 
     public void OnShopClosed()
@@ -156,7 +160,8 @@ public sealed class StageManager : MonoBehaviour
             return;
         }
 
-        OnPlayStart();
+        ItemManager.Instance?.TriggerAll(ItemTriggerType.OnStageEnd);
+        ToNextStage();
     }
 
     void OpenResult()
