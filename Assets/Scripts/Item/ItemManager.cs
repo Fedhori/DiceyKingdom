@@ -64,8 +64,6 @@ public sealed class ItemManager : MonoBehaviour
 
     public void EndPlay()
     {
-        if (isPlayActive)
-            TriggerAll(ItemTriggerType.OnPlayEnd);
         isPlayActive = false;
         tickTimer = 0f;
         ResetItemRuntimeState();

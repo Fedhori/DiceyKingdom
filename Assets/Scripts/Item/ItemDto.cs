@@ -13,14 +13,14 @@ namespace Data
         Unknown = 0,
         OnAcquire,
         OnPlayStart,
-        OnPlayEnd,
         OnItemChanged,
         OnCurrencyChanged,
         OnProjectileSpawned,
         OnBlockDestroyed,
         OnBlockStatusApplied,
         OnTimeChanged,
-        OnTick
+        OnTick,
+        OnStageEnd
     }
 
     public enum ItemConditionKind

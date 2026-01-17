@@ -95,7 +95,7 @@
 			"rarity": "Common",
 			"rules": [
 				{
-					"triggerType": "OnPlayEnd",
+					"triggerType": "OnStageEnd",
 					"condition": {
 						"conditionKind": "Always"
 					},
@@ -397,7 +397,7 @@
 			"rarity": "Common",
 			"rules": [
 				{
-					"triggerType": "OnPlayEnd",
+					"triggerType": "OnStageEnd",
 					"condition": {
 						"conditionKind": "Always"
 					},
@@ -417,7 +417,7 @@
 			"rarity": "Rare",
 			"rules": [
 				{
-					"triggerType": "OnPlayEnd",
+					"triggerType": "OnStageEnd",
 					"condition": {
 						"conditionKind": "Always"
 					},
@@ -462,7 +462,7 @@
 			},
 			"rules": [
 				{
-					"triggerType": "OnPlayEnd",
+					"triggerType": "OnStageEnd",
 					"condition": {
 						"conditionKind": "Always"
 					},
@@ -534,7 +534,7 @@
 			"rarity": "Rare",
 			"rules": [
 				{
-					"triggerType": "OnPlayEnd",
+					"triggerType": "OnStageEnd",
 					"condition": {
 						"conditionKind": "Always"
 					},
@@ -720,7 +720,7 @@
 			"rarity": "Common",
 			"rules": [
 				{
-					"triggerType": "OnPlayEnd",
+					"triggerType": "OnStageEnd",
 					"condition": {
 						"conditionKind": "Always"
 					},

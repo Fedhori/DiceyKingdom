@@ -80,14 +80,14 @@
 			"conditions": [
 				{
 					"conditionKind": "HasTriggerRule",
-					"triggerType": "OnPlayEnd"
+					"triggerType": "OnStageEnd"
 				}
 			],
 			"effects": [
 				{
 					"effectType": "ModifyTriggerRepeat",
 					"target": "Self",
-					"triggerType": "OnPlayEnd",
+					"triggerType": "OnStageEnd",
 					"effectMode": "Add",
 					"value": 1,
 					"duration": "Upgrade"

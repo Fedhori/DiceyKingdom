@@ -138,6 +138,7 @@ public sealed class StageManager : MonoBehaviour
             return;
         }
 
+        ItemManager.Instance?.TriggerAll(ItemTriggerType.OnStageEnd);
         ToNextStage();
     }
 
