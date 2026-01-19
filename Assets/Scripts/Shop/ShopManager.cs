@@ -306,17 +306,10 @@ public sealed class ShopManager : MonoBehaviour
         if (sellableUpgrades == null || sellableUpgrades.Count == 0)
             return pools;
 
-        var inventory = ItemManager.Instance?.Inventory;
-        if (inventory == null)
-            return pools;
-
         for (int i = 0; i < sellableUpgrades.Count; i++)
         {
             var dto = sellableUpgrades[i];
             if (dto == null)
-                continue;
-
-            if (!IsUpgradeApplicableToInventory(dto, inventory))
                 continue;
 
             if (!pools.TryGetValue(dto.rarity, out var list))
@@ -332,25 +325,6 @@ public sealed class ShopManager : MonoBehaviour
             ShuffleList(entry.Value);
 
         return pools;
-    }
-
-    bool IsUpgradeApplicableToInventory(UpgradeDto dto, ItemInventory inventory)
-    {
-        if (dto == null || inventory == null)
-            return false;
-
-        var preview = new UpgradeInstance(dto);
-        for (int i = 0; i < inventory.SlotCount; i++)
-        {
-            var inst = inventory.GetSlot(i);
-            if (inst == null)
-                continue;
-
-            if (preview.IsApplicable(inst))
-                return true;
-        }
-
-        return false;
     }
 
     bool TryPopItem(Dictionary<ItemRarity, List<ItemDto>> pools, ItemRarity rarity, out ItemDto dto)
@@ -903,8 +877,7 @@ public sealed class ShopManager : MonoBehaviour
             }
             else if (product.ProductType == ProductType.Upgrade)
             {
-                var upgrade = product as UpgradeProduct;
-                flags[i] = upgrade != null && HasApplicableUpgradeSlot(upgrade);
+                flags[i] = product is UpgradeProduct;
             }
         }
 
