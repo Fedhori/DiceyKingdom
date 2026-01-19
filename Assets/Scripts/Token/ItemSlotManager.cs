@@ -705,6 +705,7 @@ public sealed class ItemSlotManager : MonoBehaviour
         if (ctrl == null || ctrl.Instance == null)
             return;
 
+        TryStoreUpgrade(ctrl.Instance);
         CurrencyManager.Instance?.AddCurrency(price);
         AudioManager.Instance?.Play("Buy");
         RemoveItem(ctrl);
@@ -719,6 +720,24 @@ public sealed class ItemSlotManager : MonoBehaviour
             return;
 
         inventory.TryRemoveAt(ctrl.SlotIndex, out _);
+    }
+
+    void TryStoreUpgrade(ItemInstance item)
+    {
+        if (item == null || item.Upgrade == null)
+            return;
+
+        var upgradeManager = UpgradeManager.Instance;
+        if (upgradeManager == null)
+            return;
+
+        var inventoryManager = UpgradeInventoryManager.Instance;
+        if (inventoryManager == null)
+            return;
+
+        var upgrade = item.Upgrade;
+        upgradeManager.RemoveUpgrade(item);
+        inventoryManager.Add(upgrade);
     }
 
     bool IsValidIndex(int index)
