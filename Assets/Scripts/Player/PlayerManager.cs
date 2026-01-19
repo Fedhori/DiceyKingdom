@@ -12,6 +12,7 @@ public sealed class PlayerManager : MonoBehaviour
 
     [FormerlySerializedAs("damageMultiplierText")]
     [SerializeField] private TMP_Text powerText;
+    [SerializeField] private TMP_Text criticalChanceText;
     private readonly float statUIUpdateCycle = 0.1f;
     private float currentStatUIUpdateCycle = 0f;
 
@@ -81,6 +82,9 @@ public sealed class PlayerManager : MonoBehaviour
     {
         if (powerText != null && Current != null)
             powerText.text = $"{Current.Power:0.#}";
+
+        if (criticalChanceText != null && Current != null)
+            criticalChanceText.text = $"{Current.CriticalChance:0.#}%";
     }
 
     public void ResetPlayer()
