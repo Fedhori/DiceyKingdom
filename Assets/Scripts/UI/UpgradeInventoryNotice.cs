@@ -7,8 +7,6 @@ public sealed class UpgradeInventoryNotice : MonoBehaviour
     [SerializeField] private GameObject noticeRoot;
     [SerializeField] private UpgradeInventoryView inventoryView;
 
-    bool isActive;
-
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -72,7 +70,6 @@ public sealed class UpgradeInventoryNotice : MonoBehaviour
 
     void SetActive(bool active)
     {
-        isActive = active;
         if (noticeRoot != null)
             noticeRoot.SetActive(active);
     }

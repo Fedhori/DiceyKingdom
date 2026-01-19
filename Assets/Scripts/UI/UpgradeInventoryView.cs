@@ -20,9 +20,6 @@ public sealed class UpgradeInventoryView : MonoBehaviour, IPointerClickHandler
     {
         ClearEditorPlacedSlots();
 
-        if (root != null)
-            root.SetActive(false);
-
         UpdateEmptyState(0);
     }
 
