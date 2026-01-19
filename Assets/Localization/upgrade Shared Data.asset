@@ -63,6 +63,10 @@ MonoBehaviour:
     m_Key: upgrade.silverbullet.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 181419913225
+    m_Key: upgrade.inventory.empty
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
