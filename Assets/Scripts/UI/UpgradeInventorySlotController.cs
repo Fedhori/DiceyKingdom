@@ -41,7 +41,7 @@ public sealed class UpgradeInventorySlotController : MonoBehaviour, IBeginDragHa
         if (tooltipTarget != null)
         {
             if (Upgrade != null)
-                tooltipTarget.BindUpgrade(Upgrade);
+                tooltipTarget.BindUpgrade(Upgrade, ItemTooltipTarget.TooltipActionKind.SellUpgrade, Upgrade);
             else
                 tooltipTarget.Clear();
         }
@@ -55,7 +55,21 @@ public sealed class UpgradeInventorySlotController : MonoBehaviour, IBeginDragHa
         if (StageManager.Instance == null || StageManager.Instance.CurrentPhase != StagePhase.Shop)
             return;
 
-        UpgradeInventoryManager.Instance?.ToggleSelectionAt(Index);
+        var manager = UpgradeInventoryManager.Instance;
+        if (manager == null)
+            return;
+
+        if (Upgrade == null)
+            return;
+
+        bool wasSelected = manager.SelectedIndex == Index;
+        UiSelectionEvents.RaiseSelectionCleared();
+
+        if (wasSelected)
+            return;
+
+        manager.SelectAt(Index);
+        tooltipTarget?.Pin();
     }
 
     public void OnBeginDrag(PointerEventData eventData)

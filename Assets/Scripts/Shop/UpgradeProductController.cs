@@ -48,7 +48,7 @@ public sealed class UpgradeProductController : ProductViewBase
         if (tooltipTarget != null)
         {
             if (boundUpgrade != null)
-                tooltipTarget.BindUpgrade(boundUpgrade.PreviewInstance);
+                tooltipTarget.BindUpgrade(boundUpgrade.PreviewInstance, ItemTooltipTarget.TooltipActionKind.BuyUpgrade, boundUpgrade);
             else
                 tooltipTarget.Clear();
         }
@@ -76,5 +76,6 @@ public sealed class UpgradeProductController : ProductViewBase
 
     public override void PinTooltip()
     {
+        tooltipTarget?.Pin();
     }
 }

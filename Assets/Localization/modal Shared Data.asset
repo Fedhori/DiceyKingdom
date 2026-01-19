@@ -63,6 +63,14 @@ MonoBehaviour:
     m_Key: modal.upgradeReplace.message
     m_Metadata:
       m_Items: []
+  - m_Id: 7651769194131459
+    m_Key: modal.upgradeSell.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7651769194131460
+    m_Key: modal.upgradeSell.message
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -647,6 +647,43 @@ public sealed class ShopManager : MonoBehaviour
         return TryApplyUpgradeAt(slotIndex, upgrade, confirmReplace: true);
     }
 
+    public bool CanPurchaseUpgradeToInventory(UpgradeProduct upgrade)
+    {
+        if (!isOpen || upgrade == null || upgrade.Sold)
+            return false;
+
+        var currencyMgr = CurrencyManager.Instance;
+        if (currencyMgr == null || currencyMgr.CurrentCurrency < upgrade.Price)
+            return false;
+
+        if (UpgradeInventoryManager.Instance == null)
+            return false;
+
+        return true;
+    }
+
+    public bool TryPurchaseUpgradeToInventory(UpgradeProduct upgrade)
+    {
+        if (!CanPurchaseUpgradeToInventory(upgrade))
+            return false;
+
+        var currencyMgr = CurrencyManager.Instance;
+        if (currencyMgr == null || !currencyMgr.TrySpend(upgrade.Price))
+            return false;
+
+        var inventoryManager = UpgradeInventoryManager.Instance;
+        if (inventoryManager == null)
+        {
+            currencyMgr.AddCurrency(upgrade.Price);
+            return false;
+        }
+
+        inventoryManager.Add(upgrade.PreviewInstance);
+        MarkSold(upgrade);
+        UiSelectionEvents.RaiseSelectionCleared();
+        return true;
+    }
+
     bool TryApplyUpgradeAt(int slotIndex, UpgradeProduct upgrade, bool confirmReplace)
     {
         if (!isOpen || upgrade == null || upgrade.Sold)

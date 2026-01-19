@@ -1,4 +1,5 @@
 using System.Collections;
+using Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -446,17 +447,70 @@ public sealed class TooltipManager : MonoBehaviour
 
         if (!isPinned)
         {
-            tooltipView.SetToggleButton(false, false);
+            tooltipView.SetToggleButton(false, null, default, false, null);
             return;
         }
 
-        if (currentOwner is ItemTooltipTarget itemTarget && itemTarget.HasUpgradeToggle)
+        if (currentOwner is ItemTooltipTarget itemTarget)
         {
-            tooltipView.SetToggleButton(true, pinnedMode == TooltipDisplayMode.Upgrade);
+            if (itemTarget.ActionKind == ItemTooltipTarget.TooltipActionKind.BuyUpgrade)
+            {
+                UpdateBuyUpgradeButton(itemTarget);
+                return;
+            }
+
+            if (itemTarget.ActionKind == ItemTooltipTarget.TooltipActionKind.SellUpgrade)
+            {
+                UpdateSellUpgradeButton(itemTarget);
+                return;
+            }
+
+            if (itemTarget.HasUpgradeToggle)
+            {
+                string key = pinnedMode == TooltipDisplayMode.Upgrade
+                    ? "tooltip.item.view"
+                    : "tooltip.upgrade.view";
+                tooltipView.SetToggleButton(true, key, Colors.Upgrade, true, TogglePinnedView);
+                return;
+            }
+
             return;
         }
 
-        tooltipView.SetToggleButton(false, false);
+        tooltipView.SetToggleButton(false, null, default, false, null);
+    }
+
+    void UpdateBuyUpgradeButton(ItemTooltipTarget itemTarget)
+    {
+        var upgrade = itemTarget.ActionSource as UpgradeProduct;
+        var shop = ShopManager.Instance;
+        if (upgrade == null || shop == null)
+        {
+            tooltipView.SetToggleButton(false, null, default, false, null);
+            return;
+        }
+
+        bool canBuy = shop.CanPurchaseUpgradeToInventory(upgrade);
+        tooltipView.SetToggleButton(true, "tooltip.buy.label", Colors.Currency, canBuy, () =>
+        {
+            shop.TryPurchaseUpgradeToInventory(upgrade);
+        });
+    }
+
+    void UpdateSellUpgradeButton(ItemTooltipTarget itemTarget)
+    {
+        var upgrade = itemTarget.ActionSource as UpgradeInstance;
+        var inventory = UpgradeInventoryManager.Instance;
+        if (upgrade == null || inventory == null)
+        {
+            tooltipView.SetToggleButton(false, null, default, false, null);
+            return;
+        }
+
+        tooltipView.SetToggleButton(true, "tooltip.sell.label", Colors.Currency, true, () =>
+        {
+            inventory.TrySellUpgrade(upgrade);
+        });
     }
 
     void HideImmediate()

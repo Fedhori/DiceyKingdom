@@ -154,6 +154,42 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
         return TryApplyUpgradeAt(slotIndex, SelectedUpgrade, confirmReplace: true);
     }
 
+    public void TrySellUpgrade(UpgradeInstance upgrade)
+    {
+        if (upgrade == null)
+            return;
+
+        if (IndexOf(upgrade) < 0)
+            return;
+
+        int price = ShopManager.CalculateSellPrice(upgrade.Price);
+        if (price < 0)
+            return;
+
+        var modal = ModalManager.Instance;
+        if (modal == null)
+            return;
+
+        string upgradeName = LocalizationUtil.GetUpgradeName(upgrade.Id);
+        if (string.IsNullOrEmpty(upgradeName))
+            upgradeName = upgrade.Id;
+
+        var args = new Dictionary<string, object>
+        {
+            ["upgradeName"] = upgradeName,
+            ["value"] = price
+        };
+
+        modal.ShowConfirmation(
+            "modal",
+            "modal.upgradeSell.title",
+            "modal",
+            "modal.upgradeSell.message",
+            () => SellUpgradeInternal(upgrade, price),
+            () => { },
+            args);
+    }
+
     void SetSelection(UpgradeInstance upgrade, int index)
     {
         if (ReferenceEquals(SelectedUpgrade, upgrade) && SelectedIndex == index)
@@ -200,6 +236,7 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
             return false;
 
         Remove(upgrade);
+        UiSelectionEvents.RaiseSelectionCleared();
         return true;
     }
 
@@ -293,5 +330,18 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
     void HandleSelectionCleared()
     {
         ClearSelection();
+    }
+
+    void SellUpgradeInternal(UpgradeInstance upgrade, int price)
+    {
+        if (upgrade == null)
+            return;
+
+        if (!Remove(upgrade))
+            return;
+
+        CurrencyManager.Instance?.AddCurrency(price);
+        AudioManager.Instance?.Play("Buy");
+        UiSelectionEvents.RaiseSelectionCleared();
     }
 }

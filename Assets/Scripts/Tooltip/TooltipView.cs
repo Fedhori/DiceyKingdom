@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Data;
 using TMPro;
@@ -23,11 +24,13 @@ public sealed class TooltipView : MonoBehaviour
     [SerializeField] GameObject toggleButtonRoot;
     [SerializeField] Button toggleButton;
     [SerializeField] TMP_Text toggleButtonText;
+    [SerializeField] Image toggleButtonImage;
 
     public RectTransform rectTransform;
     readonly List<TooltipKeywordRow> keywordRows = new();
     Color nameImageDefaultColor;
     bool hasNameImageDefaultColor;
+    Action toggleButtonAction;
 
     void Awake()
     {
@@ -83,12 +86,12 @@ public sealed class TooltipView : MonoBehaviour
 
     public void Hide()
     {
-        SetToggleButton(false, false);
+        SetToggleButton(false, null, default, false, null);
         ClearKeywordRows();
         gameObject.SetActive(false);
     }
 
-    public void SetToggleButton(bool visible, bool showingUpgrade)
+    public void SetToggleButton(bool visible, string labelKey, Color backgroundColor, bool interactable, Action onClick)
     {
         var root = toggleButtonRoot != null
             ? toggleButtonRoot
@@ -97,17 +100,33 @@ public sealed class TooltipView : MonoBehaviour
         if (root != null)
             root.SetActive(visible);
 
+        toggleButtonAction = onClick;
+
+        if (toggleButton != null)
+            toggleButton.interactable = visible && interactable;
+
+        if (toggleButtonImage == null && toggleButton != null)
+            toggleButtonImage = toggleButton.targetGraphic as Image;
+
+        if (visible && toggleButtonImage != null)
+            toggleButtonImage.color = backgroundColor;
+
         if (!visible || toggleButtonText == null)
             return;
 
-        string key = showingUpgrade ? "tooltip.item.view" : "tooltip.upgrade.view";
-        var loc = new LocalizedString("tooltip", key);
+        if (string.IsNullOrEmpty(labelKey))
+        {
+            toggleButtonText.text = string.Empty;
+            return;
+        }
+
+        var loc = new LocalizedString("tooltip", labelKey);
         toggleButtonText.text = loc.GetLocalizedString();
     }
 
     void HandleToggleButtonClicked()
     {
-        TooltipManager.Instance?.TogglePinnedView();
+        toggleButtonAction?.Invoke();
     }
 
     void OnDestroy()

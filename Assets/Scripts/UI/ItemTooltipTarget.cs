@@ -3,14 +3,25 @@ using UnityEngine.EventSystems;
 
 public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
+    public enum TooltipActionKind
+    {
+        None = 0,
+        BuyUpgrade,
+        SellUpgrade
+    }
+
     [SerializeField] private TooltipAnchorType anchorType = TooltipAnchorType.Screen;
     [SerializeField] RectTransform anchorRect;
 
     ItemInstance instance;
     UpgradeInstance upgrade;
+    TooltipActionKind actionKind = TooltipActionKind.None;
+    object actionSource;
     readonly Vector3[] corners = new Vector3[4];
 
     public bool HasUpgradeToggle => instance != null && instance.Upgrade != null;
+    public TooltipActionKind ActionKind => actionKind;
+    public object ActionSource => actionSource;
 
     void Awake()
     {
@@ -22,6 +33,8 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
     {
         instance = boundInstance;
         upgrade = null;
+        actionKind = TooltipActionKind.None;
+        actionSource = null;
         if (instance == null)
             TooltipManager.Instance?.ClearOwner(this);
     }
@@ -30,13 +43,17 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
     {
         instance = null;
         upgrade = null;
+        actionKind = TooltipActionKind.None;
+        actionSource = null;
         TooltipManager.Instance?.ClearOwner(this);
     }
 
-    public void BindUpgrade(UpgradeInstance boundUpgrade)
+    public void BindUpgrade(UpgradeInstance boundUpgrade, TooltipActionKind actionKind = TooltipActionKind.None, object actionSource = null)
     {
         upgrade = boundUpgrade;
         instance = null;
+        this.actionKind = actionKind;
+        this.actionSource = actionSource;
         if (upgrade == null)
             TooltipManager.Instance?.ClearOwner(this);
     }
