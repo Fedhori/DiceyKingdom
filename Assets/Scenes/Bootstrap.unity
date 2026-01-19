@@ -4721,7 +4721,7 @@ MonoBehaviour:
   descriptionText: {fileID: 9019181423558236249}
   keywordRoot: {fileID: 1936425146}
   keywordRowPrefab: {fileID: 6451643122104439445, guid: b9c01ed605edf9e43916219e9b39dfc0, type: 3}
-  rarityPanelImage: {fileID: 3151937}
+  rarityPanelImage: {fileID: 2709285177867688754}
   rarityText: {fileID: 43622505}
   toggleButtonRoot: {fileID: 1139246924}
   toggleButton: {fileID: 1139246926}

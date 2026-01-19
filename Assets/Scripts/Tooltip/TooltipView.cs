@@ -7,13 +7,16 @@ using UnityEngine.UI;
 
 public sealed class TooltipView : MonoBehaviour
 {
-    // [SerializeField] Image iconImage;
-    [SerializeField] TMP_Text nameText;
-    [SerializeField] TMP_Text descriptionText;
+    [SerializeField] TMP_Text rarityText;
+    
     [SerializeField] Transform keywordRoot;
     [SerializeField] TooltipKeywordRow keywordRowPrefab;
-    [SerializeField] Image rarityPanelImage;
-    [SerializeField] TMP_Text rarityText;
+    
+    [SerializeField] TMP_Text nameText;
+    [SerializeField] Image nameImage;
+    
+    [SerializeField] TMP_Text descriptionText;
+    
     [SerializeField] GameObject toggleButtonRoot;
     [SerializeField] Button toggleButton;
     [SerializeField] TMP_Text toggleButtonText;
@@ -103,8 +106,8 @@ public sealed class TooltipView : MonoBehaviour
 
     void ApplyRarity(ItemRarity rarity, TooltipKind kind)
     {
-        if (rarityPanelImage != null)
-            rarityPanelImage.color = kind == TooltipKind.Upgrade ? Colors.Upgrade : GetRarityColor(rarity);
+        if (nameImage != null)
+            nameImage.color = kind == TooltipKind.Upgrade ? Colors.Upgrade : GetRarityColor(rarity);
 
         if (rarityText != null)
             rarityText.text = GetRarityLabel(rarity, kind);
