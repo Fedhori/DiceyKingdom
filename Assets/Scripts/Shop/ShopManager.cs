@@ -951,6 +951,7 @@ public sealed class ShopManager : MonoBehaviour
             return;
 
         UiSelectionEvents.RaiseSelectionCleared();
+        UpgradeInventoryManager.Instance?.ClearSelectionIfAny();
 
         isOpen = false;
 

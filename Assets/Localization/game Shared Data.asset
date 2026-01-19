@@ -67,6 +67,14 @@ MonoBehaviour:
     m_Key: game.shop.title
     m_Metadata:
       m_Items: []
+  - m_Id: 17690084307906560
+    m_Key: game.openupgrade.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17690361090027520
+    m_Key: game.close.button
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

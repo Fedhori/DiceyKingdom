@@ -38,6 +38,14 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
         UiSelectionEvents.OnSelectionCleared -= HandleSelectionCleared;
     }
 
+    public void ClearSelectionIfAny()
+    {
+        if (SelectedUpgrade == null && SelectedIndex < 0)
+            return;
+
+        ClearSelection();
+    }
+
     public UpgradeInstance GetAt(int index)
     {
         return IsValidIndex(index) ? upgrades[index] : null;
