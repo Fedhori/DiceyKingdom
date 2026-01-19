@@ -25,7 +25,7 @@ public sealed class DamageManager : MonoBehaviour
     public DamageResult ApplyDamage(DamageContext context)
     {
         if (context == null || context.Target == null || context.Target.Instance == null)
-            return new DamageResult(0, 0, false, false);
+            return new DamageResult(0, false, false, 0);
 
         var result = context.Target.ApplyDamage(context);
         if (result.AppliedDamage <= 0)
@@ -37,7 +37,7 @@ public sealed class DamageManager : MonoBehaviour
         context.Target.PlayHitFlash();
 
         Vector2 pos = context.HitPosition ?? (Vector2)context.Target.transform.position;
-        DamageTextManager.Instance?.ShowDamageText(result.AppliedDamage, 0, pos);
+        DamageTextManager.Instance?.ShowDamageText(result.AppliedDamage, result.CriticalLevel, pos);
 
         if (result.StatusApplied)
             ItemManager.Instance?.TriggerAll(ItemTriggerType.OnBlockStatusApplied);
@@ -48,9 +48,6 @@ public sealed class DamageManager : MonoBehaviour
             ParticleManager.Instance?.PlayBlockDestroy(context.Target.transform.position);
             BlockManager.Instance?.HandleBlockDestroyed(context.Target);
             Destroy(context.Target.gameObject);
-
-            if (context.AllowOverflow && result.OverflowDamage > 0)
-                TryApplyOverflow(context, result.OverflowDamage);
         }
 
         return result;
@@ -96,11 +93,9 @@ public sealed class DamageManager : MonoBehaviour
 
             var context = new DamageContext(
                 block,
-                baseDamage: null,
                 sourceItem: sourceItem,
                 sourceType: sourceType,
                 hitPosition: pos,
-                allowOverflow: true,
                 applyStatusFromItem: true,
                 sourceOwner: sourceOwner,
                 damageScale: damageScale,
@@ -136,33 +131,4 @@ public sealed class DamageManager : MonoBehaviour
         areaFilterInitialized = true;
     }
 
-    void TryApplyOverflow(DamageContext sourceContext, int overflowDamage)
-    {
-        if (overflowDamage <= 0)
-            return;
-
-        var player = PlayerManager.Instance?.Current;
-        if (player == null || !player.IsOverflowDamageEnabled)
-            return;
-
-        var blockManager = BlockManager.Instance;
-        if (blockManager == null)
-            return;
-
-        var target = blockManager.GetRandomActiveBlock();
-        if (target == null)
-            return;
-
-        var context = new DamageContext(
-            target,
-            overflowDamage,
-            sourceContext.SourceItem,
-            DamageSourceType.Overflow,
-            target.transform.position,
-            allowOverflow: true,
-            applyStatusFromItem: false,
-            sourceOwner: sourceContext.SourceOwner);
-
-        ApplyDamage(context);
-    }
 }

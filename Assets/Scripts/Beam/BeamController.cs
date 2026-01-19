@@ -184,11 +184,9 @@ public sealed class BeamController : MonoBehaviour
 
             var context = new DamageContext(
                 block,
-                baseDamage: null,
                 sourceItem: item,
                 sourceType: DamageSourceType.ItemEffect,
                 hitPosition: block.transform.position,
-                allowOverflow: true,
                 applyStatusFromItem: true,
                 sourceOwner: this,
                 damageScale: 0.1f,

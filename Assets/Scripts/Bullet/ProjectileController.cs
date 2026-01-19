@@ -127,23 +127,21 @@ public sealed class ProjectileController : MonoBehaviour
     DamageResult ApplyDamage(Collider2D other)
     {
         if (item == null || other == null)
-            return new DamageResult(0, 0, false, false);
+            return new DamageResult(0, false, false, 0);
 
         var block = other.GetComponent<BlockController>();
         if (block == null || block.Instance == null)
-            return new DamageResult(0, 0, false, false);
+            return new DamageResult(0, false, false, 0);
 
         var damageManager = DamageManager.Instance;
         if (damageManager == null)
-            return new DamageResult(0, 0, false, false);
+            return new DamageResult(0, false, false, 0);
 
         var context = new DamageContext(
             block,
-            baseDamage: null,
             sourceItem: item,
             sourceType: DamageSourceType.Projectile,
             hitPosition: transform.position,
-            allowOverflow: true,
             applyStatusFromItem: true,
             sourceOwner: this);
         return damageManager.ApplyDamage(context);

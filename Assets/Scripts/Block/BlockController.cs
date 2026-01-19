@@ -71,22 +71,21 @@ public sealed class BlockController : MonoBehaviour
     public DamageResult ApplyDamage(DamageContext context)
     {
         if (Instance == null || context == null)
-            return new DamageResult(0, 0, false, false);
+            return new DamageResult(0, false, false, 0);
 
         if (isPendingDestroy)
-            return new DamageResult(0, 0, true, false);
+            return new DamageResult(0, true, false, 0);
 
         if (Instance.IsDead)
         {
             MarkPendingDestroy();
-            return new DamageResult(0, 0, true, false);
+            return new DamageResult(0, true, false, 0);
         }
 
-        int damage = ResolveDamage(context);
+        int damage = ResolveDamage(context, out int criticalLevel);
         if (damage <= 0)
-            return new DamageResult(0, 0, false, false);
+            return new DamageResult(0, false, false, 0);
 
-        double currentHp = Instance.Hp;
         Instance.ApplyDamage(damage);
         RefreshHpText();
 
@@ -97,29 +96,13 @@ public sealed class BlockController : MonoBehaviour
         bool isDead = Instance.IsDead;
         if (isDead)
             MarkPendingDestroy();
-        int overflow = 0;
-        if (isDead)
-        {
-            double rawOverflow = damage - currentHp;
-            if (rawOverflow > 0.0)
-                overflow = Mathf.FloorToInt((float)rawOverflow);
-        }
 
-        return new DamageResult(damage, overflow, isDead, statusApplied);
+        return new DamageResult(damage, isDead, statusApplied, criticalLevel);
     }
 
-    int ResolveDamage(DamageContext context)
+    int ResolveDamage(DamageContext context, out int criticalLevel)
     {
-        if (context.BaseDamage.HasValue)
-        {
-            float rawBase = Mathf.Max(0f, context.BaseDamage.Value);
-            rawBase *= Mathf.Max(0f, context.DamageScale);
-            int baseDamage = Mathf.FloorToInt(rawBase);
-            if (baseDamage <= 0)
-                return 0;
-
-            return context.AllowZeroDamage ? Mathf.Max(0, baseDamage) : Mathf.Max(1, baseDamage);
-        }
+        criticalLevel = 0;
 
         var player = PlayerManager.Instance?.Current;
         if (player == null)
@@ -141,6 +124,11 @@ public sealed class BlockController : MonoBehaviour
 
         float raw = itemMultiplier * (float)player.Power;
         raw *= Mathf.Max(0f, context.DamageScale);
+        
+        var rng = GameManager.Instance != null ? GameManager.Instance.Rng : null;
+        criticalLevel = player.RollCriticalLevel(rng);
+        raw *= (float)player.GetCriticalMultiplier(criticalLevel);
+        
         int damage = Mathf.FloorToInt(raw);
         return context.AllowZeroDamage ? Mathf.Max(0, damage) : Mathf.Max(1, damage);
     }

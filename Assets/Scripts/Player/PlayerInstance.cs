@@ -18,7 +18,6 @@ public sealed class PlayerInstance
     public double ProjectileSizeMultiplier => Stats.GetValue(PlayerStatIds.ProjectileSizeMultiplier);
     public double ProjectileRandomAngleMultiplier => Stats.GetValue(PlayerStatIds.ProjectileRandomAngleMultiplier);
     public double ProjectileDamageMultiplier => Stats.GetValue(PlayerStatIds.ProjectileDamageMultiplier);
-    public bool IsOverflowDamageEnabled => Stats.GetValue(PlayerStatIds.IsOverflowDamage) > 0.5d;
     public bool IsDryIceEnabled => Stats.GetValue(PlayerStatIds.IsDryIceEnabled) > 0.5d;
     public int BaseIncomeBonus => Mathf.FloorToInt((float)Stats.GetValue(PlayerStatIds.BaseIncomeBonus));
     public int PierceBonus => Mathf.Max(0, Mathf.FloorToInt((float)Stats.GetValue(PlayerStatIds.PierceBonus)));
@@ -44,7 +43,6 @@ public sealed class PlayerInstance
         Stats.SetBase(PlayerStatIds.ProjectileSizeMultiplier, 1d, 0.1d);
         Stats.SetBase(PlayerStatIds.ProjectileRandomAngleMultiplier, 1d, 0d);
         Stats.SetBase(PlayerStatIds.ProjectileDamageMultiplier, 1d, 0d);
-        Stats.SetBase(PlayerStatIds.IsOverflowDamage, 0d, 0d, 1d);
         Stats.SetBase(PlayerStatIds.IsDryIceEnabled, 0d, 0d, 1d);
         Stats.SetBase(PlayerStatIds.BaseIncomeBonus, 0d);
         Stats.SetBase(PlayerStatIds.PierceBonus, 0d, 0d);
@@ -80,7 +78,7 @@ public sealed class PlayerInstance
 
     public double GetCriticalMultiplier(int criticalLevel)
     {
-        return Mathf.Max(1f, criticalLevel * 2f);
+        return Mathf.Max(1f, criticalLevel * (float)CriticalMultiplier);
     }
 
     public void AddCurrency(int amount)

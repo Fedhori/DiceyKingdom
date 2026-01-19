@@ -451,19 +451,11 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (dto == null || item == null)
             return;
 
-        var player = PlayerManager.Instance?.Current;
-        if (player == null)
+        float damageScale = dto.value;
+        if (damageScale <= 0f)
             return;
 
-        float multiplier = item.DamageMultiplier;
-        if (dto.value > 0f)
-            multiplier *= dto.value;
-
-        int damage = Mathf.Max(1, Mathf.FloorToInt((float)(multiplier * player.Power)));
-        if (damage <= 0)
-            return;
-
-        BlockManager.Instance?.ApplyDamageToAllBlocks(damage, item);
+        BlockManager.Instance?.ApplyDamageToAllBlocks(damageScale, item);
     }
 
     void SetItemStatus(ItemEffectDto dto, ItemInstance sourceItem)

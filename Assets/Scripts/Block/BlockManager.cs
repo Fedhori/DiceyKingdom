@@ -368,9 +368,9 @@ public sealed class BlockManager : MonoBehaviour
         return appliedCount;
     }
 
-    public int ApplyDamageToAllBlocks(int damage, ItemInstance sourceItem)
+    public int ApplyDamageToAllBlocks(float damageScale, ItemInstance sourceItem)
     {
-        if (damage <= 0)
+        if (damageScale <= 0f)
             return 0;
 
         if (activeBlocks.Count == 0)
@@ -390,12 +390,12 @@ public sealed class BlockManager : MonoBehaviour
 
             var context = new DamageContext(
                 block,
-                damage,
-                sourceItem,
-                DamageSourceType.ItemEffect,
-                block.transform.position,
-                allowOverflow: true,
-                applyStatusFromItem: true);
+                sourceItem: sourceItem,
+                sourceType: DamageSourceType.ItemEffect,
+                hitPosition: block.transform.position,
+                applyStatusFromItem: true,
+                damageScale: damageScale,
+                allowZeroDamage: false);
             var result = damageManager.ApplyDamage(context);
             if (result != null && result.AppliedDamage > 0)
                 applied++;
