@@ -322,29 +322,6 @@
 			]
 		},
 		{
-			"id": "item.domino",
-			"isObject": false,
-			"price": 8,
-			"rarity": "Rare",
-			"rules": [
-				{
-					"triggerType": "OnAcquire",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "ModifyStat",
-							"statId": "isOverflowDamage",
-							"effectMode": "Add",
-							"value": 1.0,
-							"duration": "Owned"
-						}
-					]
-				}
-			]
-		},
-		{
 			"id": "item.catalyst",
 			"isObject": false,
 			"price": 6,

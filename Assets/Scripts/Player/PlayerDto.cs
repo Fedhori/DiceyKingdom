@@ -13,7 +13,7 @@ namespace Data
 
         public float power = 10f;
 
-        public float critChance = 5f;
+        public float critChance = 0f;
         public float criticalMultiplier = 2f;
 
         public float moveSpeed = 1f;

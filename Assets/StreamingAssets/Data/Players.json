@@ -3,7 +3,7 @@
 		{
 			"id": "player.default",
 			"power": 10.0,
-			"critChance": 0.0,
+			"critChance": 5.0,
 			"criticalMultiplier": 2.0,
 			"startCurrency": 10,
 			"initialBallCount": 0,
