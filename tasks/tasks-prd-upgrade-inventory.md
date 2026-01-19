@@ -3,6 +3,7 @@
 - `Assets/Scripts/Upgrade/UpgradeInventoryManager.cs` - 강화 목록/선택/적용 흐름 관리(신규).
 - `Assets/Scripts/UI/UpgradeInventoryView.cs` - ScrollView/빈 상태/열기-닫기 UI 제어(신규).
 - `Assets/Scripts/UI/UpgradeInventorySlotController.cs` - 슬롯 표시/선택/드래그/툴팁 바인딩(신규).
+- `Assets/Scripts/UI/UpgradeInventoryPresenter.cs` - 강화 인벤토리 데이터-뷰 자동 갱신 연결(신규).
 - `Assets/Scripts/Token/ItemSlotManager.cs` - 아이템 판매 시 강화 회수, 적용 가능한 슬롯 하이라이트 연동.
 - `Assets/Scripts/Token/ItemSlotController.cs` - 강화 인벤토리 선택 상태에서 클릭 적용 흐름.
 - `Assets/Scripts/Upgrade/UpgradeManager.cs` - 강화 적용/교체 확인 로직 공통화 또는 보조 메서드 추가.
@@ -25,6 +26,7 @@
   - [x] 2.1 ScrollView 기반 컨테이너와 슬롯 프리팹 바인딩용 View 작성
   - [x] 2.2 강화 슬롯 아이콘/희귀도 배경/툴팁 바인딩 로직 추가
   - [x] 2.3 빈 상태 텍스트 로컬라이즈 키 추가 및 표시 제어
+  - [x] 2.4 강화 인벤토리 데이터 변경 시 UI 자동 갱신 연결
 - [x] 3.0 강화 선택/적용/드래그 흐름 구현
   - [x] 3.1 슬롯 선택 시 적용 가능 아이템 슬롯 하이라이트 연동
   - [x] 3.2 슬롯 클릭으로 적용 시 ConfirmModal 및 교체 로직 연계
