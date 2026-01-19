@@ -57,7 +57,7 @@ public sealed class DevCommandManager : MonoBehaviour
             }
         });
 
-        Register("addupgrade", param =>
+        Register("upgradeitem", param =>
         {
             if (param.Length != 2)
             {
@@ -129,6 +129,37 @@ public sealed class DevCommandManager : MonoBehaviour
             {
                 Debug.LogWarning($"[DevCommand] upgrade apply failed: id={upgradeId}, slot={slotIndex}");
             }
+        });
+
+        Register("addupgrade", param =>
+        {
+            if (param.Length != 1)
+            {
+                Debug.LogWarning("[DevCommand] Usage: addupgrade <upgradeId>");
+                return;
+            }
+
+            if (!UpgradeRepository.IsInitialized)
+            {
+                Debug.LogWarning("[DevCommand] UpgradeRepository not initialized.");
+                return;
+            }
+
+            var inventoryManager = UpgradeInventoryManager.Instance;
+            if (inventoryManager == null)
+            {
+                Debug.LogWarning("[DevCommand] UpgradeInventoryManager.Instance is null.");
+                return;
+            }
+
+            string upgradeId = param[0];
+            if (!UpgradeRepository.TryGet(upgradeId, out var dto) || dto == null)
+            {
+                Debug.LogWarning($"[DevCommand] upgrade not found: {upgradeId}");
+                return;
+            }
+
+            inventoryManager.Add(new UpgradeInstance(dto));
         });
 
         Register("addcurrency", param =>
