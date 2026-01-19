@@ -3,6 +3,7 @@
 		{
 			"id": "upgrade.sword",
 			"price": 5,
+			"rarity": "Common",
 			"conditions": [
 				{
 					"conditionKind": "HasDamageMultiplier"
@@ -22,6 +23,7 @@
 		{
 			"id": "upgrade.wing",
 			"price": 5,
+			"rarity": "Common",
 			"conditions": [
 				{
 					"conditionKind": "HasAttackSpeed"
@@ -41,6 +43,7 @@
 		{
 			"id": "upgrade.anchor",
 			"price": 6,
+			"rarity": "Common",
 			"conditions": [
 				{
 					"conditionKind": "HasAttackSpeed"
@@ -60,6 +63,7 @@
 		{
 			"id": "upgrade.snowflake",
 			"price": 5,
+			"rarity": "Uncommon",
 			"conditions": [
 				{
 					"conditionKind": "HasDamageMultiplier"
@@ -77,6 +81,7 @@
 		{
 			"id": "upgrade.mirror",
 			"price": 8,
+			"rarity": "Common",
 			"conditions": [
 				{
 					"conditionKind": "HasTriggerRule",
@@ -97,6 +102,7 @@
 		{
 			"id": "upgrade.silverbullet",
 			"price": 8,
+			"rarity": "Rare",
 			"conditions": [
 				{
 					"conditionKind": "HasProjectile"

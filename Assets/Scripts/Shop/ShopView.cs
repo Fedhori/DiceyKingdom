@@ -231,6 +231,8 @@ public sealed class ShopView : MonoBehaviour
         var rarity = ItemRarity.Common;
         if (item is ItemProduct itemProduct)
             rarity = itemProduct.Rarity;
+        else if (item is UpgradeProduct upgradeProduct)
+            rarity = upgradeProduct.Rarity;
 
         var kind = item?.ProductType == ProductType.Upgrade ? GhostKind.Upgrade : GhostKind.Item;
         GhostManager.Instance?.ShowGhost(item?.Icon, screenPos, kind, rarity);

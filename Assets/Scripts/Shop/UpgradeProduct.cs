@@ -9,6 +9,7 @@ public sealed class UpgradeProduct : IProduct
     public int Price { get; }
     public Sprite Icon { get; }
     public bool Sold { get; set; }
+    public ItemRarity Rarity => upgrade?.rarity ?? ItemRarity.Common;
 
     public UpgradeInstance PreviewInstance { get; }
 

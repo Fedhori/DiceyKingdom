@@ -13,8 +13,11 @@ public sealed class ShopManager : MonoBehaviour
     [SerializeField] private int baseRerollCost = 1;
     [SerializeField] private int rerollCostIncrement = 1;
 
-    [Header("rarity Probabilities (weight-based)")]
+    [Header("Item Rarity Probabilities (weight-based)")]
     [SerializeField] private int[] rarityWeights = new int[] { 60, 30, 10, 0 };
+
+    [Header("Upgrade Rarity Probabilities (weight-based)")]
+    [SerializeField] private int[] upgradeRarityWeights = new int[] { 60, 30, 10, 0 };
 
     [Header("Product Probabilities (weight-based)")]
     [SerializeField] private int itemProductWeight = 80;
@@ -212,11 +215,11 @@ public sealed class ShopManager : MonoBehaviour
         }
 
         var itemPools = BuildItemPoolsByRarity();
-        var upgradePool = BuildUpgradePool();
+        var upgradePools = BuildUpgradePoolsByRarity();
 
         for (int slot = 0; slot < itemsPerShop; slot++)
         {
-            var type = RollProductType(itemPools, upgradePool);
+            var type = RollProductType(itemPools, upgradePools);
             if (type == ProductType.Item)
             {
                 if (!TryRollRarity(itemPools, out var rarity))
@@ -234,8 +237,10 @@ public sealed class ShopManager : MonoBehaviour
             }
             else if (type == ProductType.Upgrade)
             {
-                var upgrade = PopUpgrade(upgradePool);
-                if (upgrade == null)
+                if (!TryRollUpgradeRarity(upgradePools, out var rarity))
+                    continue;
+
+                if (!TryPopUpgrade(upgradePools, rarity, out var upgrade))
                     continue;
 
                 var product = factory.CreateUpgrade(upgrade);
@@ -294,16 +299,16 @@ public sealed class ShopManager : MonoBehaviour
         return pools;
     }
 
-    List<UpgradeDto> BuildUpgradePool()
+    Dictionary<ItemRarity, List<UpgradeDto>> BuildUpgradePoolsByRarity()
     {
-        var pool = new List<UpgradeDto>();
+        var pools = new Dictionary<ItemRarity, List<UpgradeDto>>();
 
         if (sellableUpgrades == null || sellableUpgrades.Count == 0)
-            return pool;
+            return pools;
 
         var inventory = ItemManager.Instance?.Inventory;
         if (inventory == null)
-            return pool;
+            return pools;
 
         for (int i = 0; i < sellableUpgrades.Count; i++)
         {
@@ -314,16 +319,19 @@ public sealed class ShopManager : MonoBehaviour
             if (!IsUpgradeApplicableToInventory(dto, inventory))
                 continue;
 
-            pool.Add(dto);
+            if (!pools.TryGetValue(dto.rarity, out var list))
+            {
+                list = new List<UpgradeDto>();
+                pools[dto.rarity] = list;
+            }
+
+            list.Add(dto);
         }
 
-        for (int i = pool.Count - 1; i > 0; i--)
-        {
-            int j = Rng.Next(i + 1);
-            (pool[i], pool[j]) = (pool[j], pool[i]);
-        }
+        foreach (var entry in pools)
+            ShuffleList(entry.Value);
 
-        return pool;
+        return pools;
     }
 
     bool IsUpgradeApplicableToInventory(UpgradeDto dto, ItemInventory inventory)
@@ -364,15 +372,23 @@ public sealed class ShopManager : MonoBehaviour
         return dto != null;
     }
 
-    UpgradeDto PopUpgrade(List<UpgradeDto> pool)
+    bool TryPopUpgrade(Dictionary<ItemRarity, List<UpgradeDto>> pools, ItemRarity rarity, out UpgradeDto dto)
     {
-        if (pool == null || pool.Count == 0)
-            return null;
+        dto = null;
+        if (pools == null)
+            return false;
 
-        int last = pool.Count - 1;
-        var dto = pool[last];
-        pool.RemoveAt(last);
-        return dto;
+        if (!pools.TryGetValue(rarity, out var list) || list == null || list.Count == 0)
+            return false;
+
+        int last = list.Count - 1;
+        dto = list[last];
+        list.RemoveAt(last);
+
+        if (list.Count == 0)
+            pools.Remove(rarity);
+
+        return dto != null;
     }
 
     bool IsItemAllowed(string itemId)
@@ -442,6 +458,59 @@ public sealed class ShopManager : MonoBehaviour
         return rarityWeights[index];
     }
 
+    bool TryRollUpgradeRarity(Dictionary<ItemRarity, List<UpgradeDto>> pools, out ItemRarity rarity)
+    {
+        rarity = ItemRarity.Common;
+        if (pools == null || pools.Count == 0)
+            return false;
+
+        int totalWeight = 0;
+        var available = new List<ItemRarity>();
+
+        foreach (var entry in pools)
+        {
+            if (entry.Value == null || entry.Value.Count == 0)
+                continue;
+
+            available.Add(entry.Key);
+            totalWeight += Mathf.Max(0, GetUpgradeRarityWeight(entry.Key));
+        }
+
+        if (available.Count == 0)
+            return false;
+
+        if (totalWeight <= 0)
+            return false;
+
+        int roll = Rng.Next(0, totalWeight);
+        int acc = 0;
+        for (int i = 0; i < available.Count; i++)
+        {
+            int weight = Mathf.Max(0, GetUpgradeRarityWeight(available[i]));
+            acc += weight;
+            if (roll < acc)
+            {
+                rarity = available[i];
+                return true;
+            }
+        }
+
+        rarity = available[available.Count - 1];
+        return true;
+    }
+
+    int GetUpgradeRarityWeight(ItemRarity rarity)
+    {
+        if (upgradeRarityWeights == null || upgradeRarityWeights.Length == 0)
+            return 0;
+
+        int index = (int)rarity;
+        if (index < 0 || index >= upgradeRarityWeights.Length)
+            return 0;
+
+        return upgradeRarityWeights[index];
+    }
+
     bool HasAvailableItems(Dictionary<ItemRarity, List<ItemDto>> pools)
     {
         if (pools == null)
@@ -456,10 +525,24 @@ public sealed class ShopManager : MonoBehaviour
         return false;
     }
 
-    ProductType RollProductType(Dictionary<ItemRarity, List<ItemDto>> itemPools, List<UpgradeDto> upgradePool)
+    bool HasAvailableUpgrades(Dictionary<ItemRarity, List<UpgradeDto>> pools)
+    {
+        if (pools == null)
+            return false;
+
+        foreach (var entry in pools)
+        {
+            if (entry.Value != null && entry.Value.Count > 0)
+                return true;
+        }
+
+        return false;
+    }
+
+    ProductType RollProductType(Dictionary<ItemRarity, List<ItemDto>> itemPools, Dictionary<ItemRarity, List<UpgradeDto>> upgradePools)
     {
         bool hasItems = HasAvailableItems(itemPools);
-        bool hasUpgrades = upgradePool != null && upgradePool.Count > 0;
+        bool hasUpgrades = HasAvailableUpgrades(upgradePools);
 
         if (hasItems && !hasUpgrades)
             return ProductType.Item;
@@ -480,7 +563,7 @@ public sealed class ShopManager : MonoBehaviour
         return roll < itemWeight ? ProductType.Item : ProductType.Upgrade;
     }
 
-    void ShuffleList(List<ItemDto> list)
+    void ShuffleList<T>(List<T> list)
     {
         if (list == null || list.Count <= 1)
             return;

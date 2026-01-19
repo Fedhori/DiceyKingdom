@@ -41,6 +41,7 @@ public sealed class UpgradeProductController : ProductViewBase
         if (itemView != null)
         {
             itemView.SetIcon(product.Icon);
+            itemView.SetRarity(boundUpgrade != null ? boundUpgrade.Rarity : ItemRarity.Common);
             itemView.SetSelected(isSelected);
         }
 

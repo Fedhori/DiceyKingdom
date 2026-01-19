@@ -32,6 +32,9 @@ namespace Data
         public string id;
         public int price;
 
+        [JsonConverter(typeof(StringEnumConverter))]
+        public ItemRarity rarity = ItemRarity.Common;
+
         public List<UpgradeConditionDto> conditions;
         public List<ItemEffectDto> effects;
 

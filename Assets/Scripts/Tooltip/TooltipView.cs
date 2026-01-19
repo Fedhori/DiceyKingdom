@@ -26,6 +26,8 @@ public sealed class TooltipView : MonoBehaviour
 
     public RectTransform rectTransform;
     readonly List<TooltipKeywordRow> keywordRows = new();
+    Color nameImageDefaultColor;
+    bool hasNameImageDefaultColor;
 
     void Awake()
     {
@@ -37,6 +39,12 @@ public sealed class TooltipView : MonoBehaviour
 
         if (toggleButton != null)
             toggleButton.onClick.AddListener(HandleToggleButtonClicked);
+
+        if (nameImage != null)
+        {
+            nameImageDefaultColor = nameImage.color;
+            hasNameImageDefaultColor = true;
+        }
 
         gameObject.SetActive(false);
     }
@@ -56,6 +64,7 @@ public sealed class TooltipView : MonoBehaviour
 
         BuildKeywordRows(model.keywordEntries);
         ApplyType(model.kind);
+        ApplyNameBackground(model.kind, model.rarity);
 
         // if (iconImage != null)
         // {
@@ -134,6 +143,21 @@ public sealed class TooltipView : MonoBehaviour
             typeText.gameObject.SetActive(true);
             typeText.text = GetTypeLabel(type);
         }
+    }
+
+    void ApplyNameBackground(TooltipKind kind, ItemRarity rarity)
+    {
+        if (nameImage == null)
+            return;
+
+        if (kind == TooltipKind.Simple)
+        {
+            if (hasNameImageDefaultColor)
+                nameImage.color = nameImageDefaultColor;
+            return;
+        }
+
+        nameImage.color = Colors.GetRarityColor(rarity);
     }
 
     static ProductType ResolveType(TooltipKind kind)

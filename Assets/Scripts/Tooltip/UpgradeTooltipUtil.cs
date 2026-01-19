@@ -23,7 +23,7 @@ public static class UpgradeTooltipUtil
             title,
             body,
             TooltipKind.Upgrade,
-            ItemRarity.Common,
+            upgrade.Rarity,
             keywords
         );
     }
