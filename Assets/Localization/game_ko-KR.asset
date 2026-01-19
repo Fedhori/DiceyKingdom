@@ -24,7 +24,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4240051027968
-    m_Localized: "\uB9AC\uB864 <style=\"money\">${value}</style>"
+    m_Localized: "\uB9AC\uB864 ${value}"
     m_Metadata:
       m_Items:
       - rid: 2507345031984054468

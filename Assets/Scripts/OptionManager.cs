@@ -11,6 +11,7 @@ public class OptionManager : MonoBehaviour
     public Button quitGameButton;
     public Button gameRestartButton;
     public Button returnToMainMenuButton;
+    bool previousForcePaused;
 
     private void Awake()
     {
@@ -75,7 +76,11 @@ public class OptionManager : MonoBehaviour
 
     public void ToggleOption(bool isOpen)
     {
+        if (optionOverlay.activeSelf == isOpen)
+            return;
+
         optionOverlay.SetActive(isOpen);
+        UpdatePauseState(isOpen);
     }
 
     public void RequestRestartGame()
@@ -125,5 +130,20 @@ public class OptionManager : MonoBehaviour
     {
         ToggleOption(false);
         Application.Quit();
+    }
+
+    void UpdatePauseState(bool isOptionOpen)
+    {
+        var speedManager = GameSpeedManager.Instance;
+        if (speedManager == null)
+            return;
+
+        if (isOptionOpen)
+        {
+            previousForcePaused = speedManager.ForcePaused;
+            speedManager.ForcePaused = true;
+            return;
+        }
+        speedManager.ForcePaused = previousForcePaused;
     }
 }
