@@ -29,6 +29,7 @@ public sealed class UpgradeInventoryView : MonoBehaviour, IPointerClickHandler
     public void Open()
     {
         SetVisible(true);
+        UpgradeInventoryNotice.Instance?.Clear();
     }
 
     public void Close()

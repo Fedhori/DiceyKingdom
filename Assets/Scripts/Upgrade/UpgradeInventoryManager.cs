@@ -16,6 +16,7 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
 
     public event Action OnInventoryChanged;
     public event Action OnSelectionChanged;
+    public event Action OnNewUpgradeAdded;
 
     void Awake()
     {
@@ -57,6 +58,7 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
             return;
 
         upgrades.Add(upgrade);
+        OnNewUpgradeAdded?.Invoke();
         NotifyInventoryChanged();
     }
 
