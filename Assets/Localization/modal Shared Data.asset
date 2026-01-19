@@ -32,11 +32,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4468386867986432
-    m_Key: modal.sellpin.message
+    m_Key: modal.sellitem.message
     m_Metadata:
       m_Items: []
   - m_Id: 4468441343606784
-    m_Key: modal.sellpin.title
+    m_Key: modal.sellitem.title
     m_Metadata:
       m_Items: []
   - m_Id: 6894173151571968

@@ -739,9 +739,9 @@ public sealed class ItemSlotManager : MonoBehaviour
 
         ModalManager.Instance.ShowConfirmation(
             "modal",
-            "modal.sellpin.title",
+            "modal.sellitem.title",
             "modal",
-            "modal.sellpin.message",
+            "modal.sellitem.message",
             () => SellItem(ctrl, price),
             () => { },
             args);
