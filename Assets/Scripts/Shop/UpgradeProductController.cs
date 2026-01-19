@@ -8,7 +8,6 @@ public sealed class UpgradeProductController : ProductViewBase
     [SerializeField] private ItemView itemView;
     [SerializeField] private ItemTooltipTarget tooltipTarget;
     [SerializeField] private TMP_Text priceText;
-    [SerializeField] private TMP_Text rarityText;
 
     bool isSelected;
     UpgradeProduct boundUpgrade;
@@ -51,12 +50,6 @@ public sealed class UpgradeProductController : ProductViewBase
                 tooltipTarget.BindUpgrade(boundUpgrade.PreviewInstance);
             else
                 tooltipTarget.Clear();
-        }
-
-        if (rarityText != null)
-        {
-            var loc = new LocalizedString("tooltip", "tooltip.upgrade.label");
-            rarityText.text = loc.GetLocalizedString();
         }
 
         if (priceText != null)

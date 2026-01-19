@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 3151938}
   - component: {fileID: 3151937}
   m_Layer: 5
-  m_Name: Rarirty
+  m_Name: Type
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -170,7 +170,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2627451, g: 0.5921569, b: 0.81960785, a: 1}
+  m_Color: {r: 0.81960785, g: 0.53333336, b: 0.24705882, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -252,7 +252,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: rarity
+  m_text: type
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 746f86218c845bb49a98169d005126fe, type: 2}
   m_sharedMaterial: {fileID: -8383589127567067901, guid: 746f86218c845bb49a98169d005126fe, type: 2}
@@ -4717,12 +4717,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1e636de56a2e4e4196eda2dcee6cc5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PinTooltipView
-  nameText: {fileID: 751012027257740096}
-  descriptionText: {fileID: 9019181423558236249}
+  typeText: {fileID: 43622505}
   keywordRoot: {fileID: 1936425146}
   keywordRowPrefab: {fileID: 6451643122104439445, guid: b9c01ed605edf9e43916219e9b39dfc0, type: 3}
-  rarityPanelImage: {fileID: 2709285177867688754}
-  rarityText: {fileID: 43622505}
+  nameText: {fileID: 751012027257740096}
+  nameImage: {fileID: 2709285177867688754}
+  typeImage: {fileID: 3151937}
+  descriptionText: {fileID: 9019181423558236249}
   toggleButtonRoot: {fileID: 1139246924}
   toggleButton: {fileID: 1139246926}
   toggleButtonText: {fileID: 436952826}

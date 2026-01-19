@@ -3,17 +3,20 @@ using Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public sealed class TooltipView : MonoBehaviour
 {
-    [SerializeField] TMP_Text rarityText;
+    [FormerlySerializedAs("rarityText")]
+    [SerializeField] TMP_Text typeText;
     
     [SerializeField] Transform keywordRoot;
     [SerializeField] TooltipKeywordRow keywordRowPrefab;
     
     [SerializeField] TMP_Text nameText;
     [SerializeField] Image nameImage;
+    [SerializeField] Image typeImage;
     
     [SerializeField] TMP_Text descriptionText;
     
@@ -52,7 +55,7 @@ public sealed class TooltipView : MonoBehaviour
             descriptionText.text = model.body ?? string.Empty;
 
         BuildKeywordRows(model.keywordEntries);
-        ApplyRarity(model.rarity, model.kind);
+        ApplyType(model.kind);
 
         // if (iconImage != null)
         // {
@@ -104,47 +107,52 @@ public sealed class TooltipView : MonoBehaviour
             toggleButton.onClick.RemoveListener(HandleToggleButtonClicked);
     }
 
-    void ApplyRarity(ItemRarity rarity, TooltipKind kind)
+    void ApplyType(TooltipKind kind)
     {
-        if (nameImage != null)
-            nameImage.color = kind == TooltipKind.Upgrade ? Colors.Upgrade : GetRarityColor(rarity);
-
-        if (rarityText != null)
-            rarityText.text = GetRarityLabel(rarity, kind);
-    }
-
-    Color GetRarityColor(ItemRarity rarity)
-    {
-        switch (rarity)
+        if (kind == TooltipKind.Simple)
         {
-            case ItemRarity.Common:
-                return Colors.Common;
-            case ItemRarity.Uncommon:
-                return Colors.Uncommon;
-            case ItemRarity.Rare:
-                return Colors.Rare;
-            case ItemRarity.Legendary:
-                return Colors.Legendary;
-            default:
-                return Colors.Common;
+            if (typeImage != null)
+                typeImage.gameObject.SetActive(false);
+            if (typeText != null)
+            {
+                typeText.gameObject.SetActive(false);
+                typeText.text = string.Empty;
+            }
+            return;
+        }
+
+        var type = ResolveType(kind);
+
+        if (typeImage != null)
+        {
+            typeImage.gameObject.SetActive(true);
+            typeImage.color = GetTypeColor(type);
+        }
+
+        if (typeText != null)
+        {
+            typeText.gameObject.SetActive(true);
+            typeText.text = GetTypeLabel(type);
         }
     }
 
-    string GetRarityLabel(ItemRarity rarity, TooltipKind kind)
+    static ProductType ResolveType(TooltipKind kind)
     {
-        if (kind == TooltipKind.Upgrade)
-        {
-            var local = new LocalizedString("tooltip", "tooltip.upgrade.label");
-            return local.GetLocalizedString();
-        }
+        return kind == TooltipKind.Upgrade ? ProductType.Upgrade : ProductType.Item;
+    }
 
-        string key = rarity switch
+    Color GetTypeColor(ProductType type)
+    {
+        return type == ProductType.Upgrade ? Colors.Upgrade : Colors.Item;
+    }
+
+    string GetTypeLabel(ProductType type)
+    {
+        string key = type switch
         {
-            ItemRarity.Common => "tooltip.normal.label",
-            ItemRarity.Uncommon => "tooltip.special.label",
-            ItemRarity.Rare => "tooltip.rare.label",
-            ItemRarity.Legendary => "tooltip.legendary.label",
-            _ => "tooltip.normal.label"
+            ProductType.Item => "tooltip.item.label",
+            ProductType.Upgrade => "tooltip.upgrade.label",
+            _ => "tooltip.item.label"
         };
 
         var loc = new UnityEngine.Localization.LocalizedString("tooltip", key);

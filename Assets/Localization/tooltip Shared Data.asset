@@ -71,6 +71,10 @@ MonoBehaviour:
     m_Key: tooltip.status.prefix
     m_Metadata:
       m_Items: []
+  - m_Id: 10581387094011916
+    m_Key: tooltip.item.label
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
