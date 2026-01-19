@@ -1,13 +1,15 @@
 using Data;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public sealed class UpgradeInventorySlotController : MonoBehaviour
+public sealed class UpgradeInventorySlotController : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
     public int Index { get; private set; } = -1;
     public UpgradeInstance Upgrade { get; private set; }
 
     [SerializeField] ItemView itemView;
     [SerializeField] ItemTooltipTarget tooltipTarget;
+    bool isDragging;
 
     void Awake()
     {
@@ -43,5 +45,67 @@ public sealed class UpgradeInventorySlotController : MonoBehaviour
             else
                 tooltipTarget.Clear();
         }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        if (StageManager.Instance == null || StageManager.Instance.CurrentPhase != StagePhase.Shop)
+            return;
+
+        UpgradeInventoryManager.Instance?.ToggleSelectionAt(Index);
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        if (Upgrade == null)
+            return;
+
+        if (StageManager.Instance == null || StageManager.Instance.CurrentPhase != StagePhase.Shop)
+            return;
+
+        var inventoryManager = UpgradeInventoryManager.Instance;
+        if (inventoryManager != null)
+            inventoryManager.SelectAt(Index);
+
+        TooltipManager.Instance?.HideForDrag();
+
+        isDragging = true;
+        GhostManager.Instance?.ShowGhost(
+            SpriteCache.GetUpgradeSprite(Upgrade.Id),
+            eventData.position,
+            GhostKind.Upgrade,
+            Upgrade.Rarity);
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (!isDragging)
+            return;
+
+        GhostManager.Instance?.UpdateGhostPosition(eventData.position);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (!isDragging)
+            return;
+
+        isDragging = false;
+
+        var slotManager = ItemSlotManager.Instance;
+        if (slotManager != null && Upgrade != null
+            && slotManager.TryGetUpgradeSlotFromScreenPos(eventData.position, Upgrade, out int slotIndex))
+        {
+            UpgradeInventoryManager.Instance?.TryApplySelectedUpgradeAt(slotIndex);
+        }
+
+        GhostManager.Instance?.HideGhost(GhostKind.Upgrade);
+        TooltipManager.Instance?.RestoreAfterDrag();
     }
 }

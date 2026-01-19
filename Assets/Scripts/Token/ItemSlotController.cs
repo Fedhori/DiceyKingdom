@@ -35,6 +35,13 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
 
         if (StageManager.Instance.CurrentPhase == StagePhase.Shop)
         {
+            var upgradeInventory = UpgradeInventoryManager.Instance;
+            if (upgradeInventory != null && upgradeInventory.HasSelection)
+            {
+                upgradeInventory.TryApplySelectedUpgradeAt(SlotIndex);
+                return;
+            }
+
             if (ShopManager.Instance.IsUpgradeSelectionActive)
             {
                 ShopManager.Instance.TryApplySelectedUpgradeAt(SlotIndex);

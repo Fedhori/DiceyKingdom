@@ -136,6 +136,14 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
         OnSelectionChanged?.Invoke();
     }
 
+    public bool TryApplySelectedUpgradeAt(int slotIndex)
+    {
+        if (SelectedUpgrade == null)
+            return false;
+
+        return TryApplyUpgradeAt(slotIndex, SelectedUpgrade, confirmReplace: true);
+    }
+
     void SetSelection(UpgradeInstance upgrade, int index)
     {
         if (ReferenceEquals(SelectedUpgrade, upgrade) && SelectedIndex == index)
@@ -144,6 +152,88 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
         SelectedUpgrade = upgrade;
         SelectedIndex = index;
         OnSelectionChanged?.Invoke();
+    }
+
+    bool TryApplyUpgradeAt(int slotIndex, UpgradeInstance upgrade, bool confirmReplace)
+    {
+        if (upgrade == null)
+            return false;
+
+        if (IndexOf(upgrade) < 0)
+            return false;
+
+        var inventory = ItemManager.Instance?.Inventory;
+        if (inventory == null)
+            return false;
+
+        if (slotIndex < 0 || slotIndex >= inventory.SlotCount)
+            return false;
+
+        var targetItem = inventory.GetSlot(slotIndex);
+        if (targetItem == null)
+            return false;
+
+        if (!upgrade.IsApplicable(targetItem))
+            return false;
+
+        if (confirmReplace && NeedsUpgradeReplaceConfirm(targetItem, upgrade))
+        {
+            ShowUpgradeReplaceModal(targetItem, upgrade, slotIndex);
+            return false;
+        }
+
+        var upgradeManager = UpgradeManager.Instance;
+        if (upgradeManager == null)
+            return false;
+
+        if (!upgradeManager.ApplyUpgrade(targetItem, upgrade))
+            return false;
+
+        Remove(upgrade);
+        return true;
+    }
+
+    static bool NeedsUpgradeReplaceConfirm(ItemInstance targetItem, UpgradeInstance newUpgrade)
+    {
+        if (targetItem?.Upgrade == null || newUpgrade == null)
+            return false;
+
+        return targetItem.Upgrade.Id != newUpgrade.Id;
+    }
+
+    void ShowUpgradeReplaceModal(ItemInstance targetItem, UpgradeInstance newUpgrade, int slotIndex)
+    {
+        var modal = ModalManager.Instance;
+        if (modal == null)
+            return;
+
+        string itemName = LocalizationUtil.GetItemName(targetItem.Id);
+        if (string.IsNullOrEmpty(itemName))
+            itemName = targetItem.Id;
+
+        string currentUpgradeName = LocalizationUtil.GetUpgradeName(targetItem.Upgrade.Id);
+        if (string.IsNullOrEmpty(currentUpgradeName))
+            currentUpgradeName = targetItem.Upgrade.Id;
+
+        string newUpgradeName = LocalizationUtil.GetUpgradeName(newUpgrade.Id);
+        if (string.IsNullOrEmpty(newUpgradeName))
+            newUpgradeName = newUpgrade.Id;
+
+        var args = new Dictionary<string, object>
+        {
+            ["itemName"] = itemName,
+            ["currentUpgrade"] = currentUpgradeName,
+            ["newUpgrade"] = newUpgradeName
+        };
+
+        modal.ShowConfirmation(
+            "modal",
+            "modal.upgradeReplace.title",
+            "modal",
+            "modal.upgradeReplace.message",
+            () => TryApplyUpgradeAt(slotIndex, newUpgrade, confirmReplace: false),
+            () => { },
+            args);
     }
 
     int IndexOf(UpgradeInstance upgrade)

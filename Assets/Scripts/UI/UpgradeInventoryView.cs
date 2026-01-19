@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Localization;
 
-public sealed class UpgradeInventoryView : MonoBehaviour
+public sealed class UpgradeInventoryView : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] private GameObject root;
     [SerializeField] private Transform contentRoot;
@@ -113,5 +114,16 @@ public sealed class UpgradeInventoryView : MonoBehaviour
             if (child != null)
                 Destroy(child.gameObject);
         }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        if (StageManager.Instance == null || StageManager.Instance.CurrentPhase != StagePhase.Shop)
+            return;
+
+        UiSelectionEvents.RaiseSelectionCleared();
     }
 }

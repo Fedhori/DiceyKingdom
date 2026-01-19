@@ -24,6 +24,8 @@ public sealed class ItemSlotManager : MonoBehaviour
     [SerializeField] Color slotHighlightColor = Color.white;
     ItemInventory inventory;
     StageManager subscribedStageManager;
+    UpgradeInventoryManager subscribedUpgradeInventory;
+    bool upgradeInventoryHighlightActive;
 
     void Awake()
     {
@@ -41,6 +43,7 @@ public sealed class ItemSlotManager : MonoBehaviour
     {
         TryBindInventory();
         RefreshFromInventory();
+        TryBindUpgradeInventory();
     }
 
     void Start()
@@ -50,11 +53,13 @@ public sealed class ItemSlotManager : MonoBehaviour
         SubscribeStageManager();
         RefreshSlotContainerVisibility();
         UiSelectionEvents.OnSelectionCleared += HandleSelectionCleared;
+        TryBindUpgradeInventory();
     }
 
     void OnDisable()
     {
         UnbindInventory();
+        UnbindUpgradeInventory();
         UiSelectionEvents.OnSelectionCleared -= HandleSelectionCleared;
     }
 
@@ -108,6 +113,28 @@ public sealed class ItemSlotManager : MonoBehaviour
 
         subscribedStageManager.OnPhaseChanged -= HandlePhaseChanged;
         subscribedStageManager = null;
+    }
+
+    void TryBindUpgradeInventory()
+    {
+        if (subscribedUpgradeInventory != null)
+            return;
+
+        var manager = UpgradeInventoryManager.Instance;
+        if (manager == null)
+            return;
+
+        subscribedUpgradeInventory = manager;
+        subscribedUpgradeInventory.OnSelectionChanged += HandleUpgradeInventorySelectionChanged;
+    }
+
+    void UnbindUpgradeInventory()
+    {
+        if (subscribedUpgradeInventory == null)
+            return;
+
+        subscribedUpgradeInventory.OnSelectionChanged -= HandleUpgradeInventorySelectionChanged;
+        subscribedUpgradeInventory = null;
     }
 
     void HandlePhaseChanged(StagePhase phase)
@@ -669,6 +696,26 @@ public sealed class ItemSlotManager : MonoBehaviour
     void HandleSelectionCleared()
     {
         ClearSlotSelection();
+    }
+
+    void HandleUpgradeInventorySelectionChanged()
+    {
+        if (subscribedUpgradeInventory == null)
+            return;
+
+        var upgrade = subscribedUpgradeInventory.SelectedUpgrade;
+        if (upgrade != null)
+        {
+            HighlightUpgradeSlots(upgrade);
+            upgradeInventoryHighlightActive = true;
+            return;
+        }
+
+        if (upgradeInventoryHighlightActive)
+        {
+            ClearHighlights();
+            upgradeInventoryHighlightActive = false;
+        }
     }
 
     private void RequestSellItem(ItemSlotController ctrl)
