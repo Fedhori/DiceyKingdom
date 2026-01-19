@@ -4727,6 +4727,7 @@ MonoBehaviour:
   toggleButtonRoot: {fileID: 1139246924}
   toggleButton: {fileID: 1139246926}
   toggleButtonText: {fileID: 436952826}
+  toggleButtonImage: {fileID: 1139246927}
   rectTransform: {fileID: 7034255424747963546}
 --- !u!222 &5805991339610435775
 CanvasRenderer:
@@ -5003,7 +5004,7 @@ SceneRoots:
   - {fileID: 1362406955}
   - {fileID: 1798569841}
   - {fileID: 1216740164}
-  - {fileID: 691435298}
   - {fileID: 798601535}
+  - {fileID: 691435298}
   - {fileID: 663380610}
   - {fileID: 816402695}
