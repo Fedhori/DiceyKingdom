@@ -55,6 +55,7 @@ public sealed class TooltipManager : MonoBehaviour
     {
         SceneManager.activeSceneChanged += OnActiveSceneChanged;
         UiSelectionEvents.OnSelectionCleared += HandleSelectionCleared;
+        UpgradePanelEvents.OnTooltipDismissRequested += HandleTooltipDismissRequested;
         UpdateWorldCamera();
     }
 
@@ -63,6 +64,7 @@ public sealed class TooltipManager : MonoBehaviour
         if (Instance == this)
             SceneManager.activeSceneChanged -= OnActiveSceneChanged;
         UiSelectionEvents.OnSelectionCleared -= HandleSelectionCleared;
+        UpgradePanelEvents.OnTooltipDismissRequested -= HandleTooltipDismissRequested;
     }
 
     void OnActiveSceneChanged(Scene oldScene, Scene newScene)
@@ -252,6 +254,11 @@ public sealed class TooltipManager : MonoBehaviour
     }
 
     void HandleSelectionCleared()
+    {
+        ClearPin();
+    }
+
+    void HandleTooltipDismissRequested()
     {
         ClearPin();
     }

@@ -151,7 +151,11 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
             "tooltip.upgrade.view",
             Colors.Upgrade,
             true,
-            () => UpgradePanelEvents.RaiseToggleRequested(instance));
+            () =>
+            {
+                UpgradePanelEvents.RaiseTooltipDismissRequested();
+                UpgradePanelEvents.RaiseToggleRequested(instance);
+            });
     }
 
     TooltipButtonConfig BuildUpgradeButtonConfig()
