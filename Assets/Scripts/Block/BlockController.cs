@@ -109,8 +109,12 @@ public sealed class BlockController : MonoBehaviour
             return 0;
 
         float itemMultiplier = 1f;
+        double criticalChance = player.CriticalChance;
         if (context.SourceItem != null)
+        {
             itemMultiplier = context.SourceItem.DamageMultiplier;
+            criticalChance *= Mathf.Max(0f, context.SourceItem.CriticalChanceMultiplier);
+        }
 
         if (context.SourceItem != null
             && context.SourceItem.StatusDamageMultiplier > 0f
@@ -126,7 +130,7 @@ public sealed class BlockController : MonoBehaviour
         raw *= Mathf.Max(0f, context.DamageScale);
         
         var rng = GameManager.Instance != null ? GameManager.Instance.Rng : null;
-        criticalLevel = player.RollCriticalLevel(rng);
+        criticalLevel = player.RollCriticalLevel(rng, criticalChance);
         raw *= (float)player.GetCriticalMultiplier(criticalLevel);
         
         int damage = Mathf.FloorToInt(raw);

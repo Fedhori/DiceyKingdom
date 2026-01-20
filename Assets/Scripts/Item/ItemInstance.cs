@@ -46,6 +46,7 @@ public sealed class ItemInstance
     public StatSet Stats { get; }
     public float DamageMultiplier => (float)Stats.GetValue(ItemStatIds.DamageMultiplier);
     public float AttackSpeed => (float)Stats.GetValue(ItemStatIds.AttackSpeed);
+    public float CriticalChanceMultiplier => (float)Stats.GetValue(ItemStatIds.CriticalChanceMultiplier);
 
     private readonly List<ItemRuleDto> rules = new();
     public IReadOnlyList<ItemRuleDto> Rules => rules;
@@ -165,6 +166,7 @@ public sealed class ItemInstance
         }
 
         Stats.SetBase(ItemStatIds.Pierce, Mathf.Max(0, basePierce), 0d);
+        Stats.SetBase(ItemStatIds.CriticalChanceMultiplier, 1d, 0d);
     }
 
     public void HandleTrigger(ItemTriggerType trigger)

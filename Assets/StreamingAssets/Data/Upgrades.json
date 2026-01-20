@@ -118,6 +118,26 @@
 					"duration": "Upgrade"
 				}
 			]
+		},
+		{
+			"id": "upgrade.lasersight",
+			"price": 6,
+			"rarity": "Uncommon",
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "criticalChanceMultiplier",
+					"effectMode": "Mult",
+					"value": 1.0,
+					"duration": "Upgrade"
+				}
+			]
 		}
 	]
 }

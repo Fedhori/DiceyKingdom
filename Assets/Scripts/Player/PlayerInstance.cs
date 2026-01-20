@@ -62,11 +62,19 @@ public sealed class PlayerInstance
 
     public int RollCriticalLevel(System.Random rng)
     {
+        return RollCriticalLevel(rng, CriticalChance);
+    }
+
+    public int RollCriticalLevel(System.Random rng, double criticalChance)
+    {
         if (rng == null)
             rng = new System.Random();
 
-        int criticalLevel = (int)(CriticalChance / 100f);
-        double chance = Math.Max(0f, CriticalChance - criticalLevel * 100f);
+        if (criticalChance < 0f)
+            criticalChance = 0f;
+
+        int criticalLevel = (int)(criticalChance / 100f);
+        double chance = Math.Max(0f, criticalChance - criticalLevel * 100f);
 
         double roll = rng.NextDouble() * 100.0;
 
