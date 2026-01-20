@@ -6,6 +6,7 @@ public static class GameConfig
     public static int BaseIncome = 5;
     public static int ItemSlotCount = 12;
     public static int ItemSlotsPerRow = 4;
+    public static int MaxUpgradesPerItem = 3;
 
     // Player/Item base stats   
     public static float PlayerBaseMoveSpeed = 400f;

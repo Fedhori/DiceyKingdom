@@ -28,18 +28,20 @@ public sealed class ItemInstance
     public ItemRarity Rarity { get; private set; }
     public UpgradeInstance Upgrade
     {
-        get => upgrade;
+        get => upgrades.Count > 0 ? upgrades[0] : null;
         set
         {
-            if (ReferenceEquals(upgrade, value))
+            if (value == null)
+            {
+                SetUpgrades(null);
                 return;
+            }
 
-            upgrade = value;
-            OnUpgradeChanged?.Invoke(this);
+            SetUpgrades(new[] { value });
         }
     }
-
-    UpgradeInstance upgrade;
+    public IReadOnlyList<UpgradeInstance> Upgrades => upgrades;
+    readonly List<UpgradeInstance> upgrades = new();
 
     public StatSet Stats { get; }
     public float DamageMultiplier => (float)Stats.GetValue(ItemStatIds.DamageMultiplier);
@@ -50,9 +52,23 @@ public sealed class ItemInstance
 
     public event Action<ItemEffectDto, ItemInstance> OnEffectTriggered;
     public event Action<ItemInstance> OnUpgradeChanged;
+    public event Action<ItemInstance> OnUpgradesChanged;
 
     public float WorldProjectileSize => GameConfig.ItemBaseProjectileSize * Mathf.Max(0.1f, ProjectileSize);
     public float WorldProjectileSpeed => GameConfig.ItemBaseProjectileSpeed * Mathf.Max(0.1f, ProjectileSpeed);
+
+    public void SetUpgrades(IReadOnlyList<UpgradeInstance> newUpgrades)
+    {
+        var previousFirst = Upgrade;
+        if (!ReplaceUpgrades(newUpgrades))
+            return;
+
+        var currentFirst = Upgrade;
+        if (!ReferenceEquals(previousFirst, currentFirst))
+            OnUpgradeChanged?.Invoke(this);
+
+        OnUpgradesChanged?.Invoke(this);
+    }
 
     readonly Dictionary<ItemTriggerType, int> triggerCounts = new();
     readonly Dictionary<int, float> ruleElapsedSeconds = new();
@@ -85,7 +101,6 @@ public sealed class ItemInstance
             StatusDamageMultiplier = 1f;
             SellValueBonus = 0;
             Rarity = ItemRarity.Common;
-            upgrade = null;
             Stats.SetBase(ItemStatIds.Pierce, 0d, 0d);
             return;
         }
@@ -98,7 +113,6 @@ public sealed class ItemInstance
         PierceBonus = Mathf.Max(0, dto.pierceBonus);
         SellValueBonus = 0;
         Rarity = dto.rarity;
-        upgrade = null;
 
         var statusKeys = StatusUtil.Keys;
         for (int i = 0; i < statusKeys.Count; i++)
@@ -301,6 +315,44 @@ public sealed class ItemInstance
     static string GetTriggerRepeatStatId(ItemTriggerType trigger)
     {
         return $"triggerRepeat.{trigger}";
+    }
+
+    bool ReplaceUpgrades(IReadOnlyList<UpgradeInstance> newUpgrades)
+    {
+        if (newUpgrades == null || newUpgrades.Count == 0)
+        {
+            if (upgrades.Count == 0)
+                return false;
+
+            upgrades.Clear();
+            return true;
+        }
+
+        bool changed = upgrades.Count != newUpgrades.Count;
+        if (!changed)
+        {
+            for (int i = 0; i < upgrades.Count; i++)
+            {
+                if (!ReferenceEquals(upgrades[i], newUpgrades[i]))
+                {
+                    changed = true;
+                    break;
+                }
+            }
+        }
+
+        if (!changed)
+            return false;
+
+        upgrades.Clear();
+        for (int i = 0; i < newUpgrades.Count; i++)
+        {
+            var upgrade = newUpgrades[i];
+            if (upgrade != null)
+                upgrades.Add(upgrade);
+        }
+
+        return true;
     }
 
     float GetRuleElapsedSeconds(int ruleIndex)
