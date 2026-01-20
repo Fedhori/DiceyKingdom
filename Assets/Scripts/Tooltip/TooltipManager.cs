@@ -1,5 +1,4 @@
 using System.Collections;
-using Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -23,7 +22,6 @@ public sealed class TooltipManager : MonoBehaviour
     bool hasCurrentModel;
     bool isPinned;
     bool dragHidden;
-    TooltipDisplayMode pinnedMode = TooltipDisplayMode.Item;
 
     Coroutine showRoutine;
 
@@ -75,7 +73,6 @@ public sealed class TooltipManager : MonoBehaviour
         hasCurrentModel = false;
         isPinned = false;
         dragHidden = false;
-        pinnedMode = TooltipDisplayMode.Item;
 
         if (showRoutine != null)
         {
@@ -140,7 +137,6 @@ public sealed class TooltipManager : MonoBehaviour
 
         currentOwner = null;
         hasCurrentModel = false;
-        pinnedMode = TooltipDisplayMode.Item;
 
         HideImmediate();
     }
@@ -158,7 +154,6 @@ public sealed class TooltipManager : MonoBehaviour
 
         isPinned = true;
         dragHidden = false;
-        pinnedMode = TooltipDisplayMode.Item;
         currentOwner = owner;
         currentModel = model;
         currentAnchor = anchor;
@@ -180,7 +175,6 @@ public sealed class TooltipManager : MonoBehaviour
 
         isPinned = true;
         dragHidden = false;
-        pinnedMode = TooltipDisplayMode.Item;
         currentOwner = owner;
         currentModel = model;
         currentAnchor = anchor;
@@ -204,7 +198,6 @@ public sealed class TooltipManager : MonoBehaviour
         dragHidden = false;
         currentOwner = null;
         hasCurrentModel = false;
-        pinnedMode = TooltipDisplayMode.Item;
 
         if (showRoutine != null)
         {
@@ -213,30 +206,6 @@ public sealed class TooltipManager : MonoBehaviour
         }
 
         HideImmediate();
-    }
-
-    public void TogglePinnedView()
-    {
-        if (!isPinned || !hasCurrentModel)
-            return;
-
-        if (currentOwner is not ItemTooltipTarget itemTarget)
-            return;
-
-        if (!itemTarget.HasUpgradeToggle)
-            return;
-
-        pinnedMode = pinnedMode == TooltipDisplayMode.Item
-            ? TooltipDisplayMode.Upgrade
-            : TooltipDisplayMode.Item;
-
-        if (!itemTarget.TryBuildTooltip(pinnedMode, out var model, out var anchor))
-            return;
-
-        currentModel = model;
-        currentAnchor = anchor;
-        hasCurrentModel = true;
-        ShowNow();
     }
 
     public void ClearOwner(object owner)
@@ -451,66 +420,14 @@ public sealed class TooltipManager : MonoBehaviour
             return;
         }
 
-        if (currentOwner is ItemTooltipTarget itemTarget)
-        {
-            if (itemTarget.ActionKind == ItemTooltipTarget.TooltipActionKind.BuyUpgrade)
-            {
-                UpdateBuyUpgradeButton(itemTarget);
-                return;
-            }
-
-            if (itemTarget.ActionKind == ItemTooltipTarget.TooltipActionKind.SellUpgrade)
-            {
-                UpdateSellUpgradeButton(itemTarget);
-                return;
-            }
-
-            if (itemTarget.HasUpgradeToggle)
-            {
-                string key = pinnedMode == TooltipDisplayMode.Upgrade
-                    ? "tooltip.item.view"
-                    : "tooltip.upgrade.view";
-                tooltipView.SetToggleButton(true, key, Colors.Upgrade, true, TogglePinnedView);
-                return;
-            }
-
-            return;
-        }
-
-        tooltipView.SetToggleButton(false, null, default, false, null);
-    }
-
-    void UpdateBuyUpgradeButton(ItemTooltipTarget itemTarget)
-    {
-        var upgrade = itemTarget.ActionSource as UpgradeProduct;
-        var shop = ShopManager.Instance;
-        if (upgrade == null || shop == null)
+        var config = currentModel.buttonConfig;
+        if (config == null)
         {
             tooltipView.SetToggleButton(false, null, default, false, null);
             return;
         }
 
-        bool canBuy = shop.CanPurchaseUpgradeToInventory(upgrade);
-        tooltipView.SetToggleButton(true, "tooltip.buy.label", Colors.Currency, canBuy, () =>
-        {
-            shop.TryPurchaseUpgradeToInventory(upgrade);
-        });
-    }
-
-    void UpdateSellUpgradeButton(ItemTooltipTarget itemTarget)
-    {
-        var upgrade = itemTarget.ActionSource as UpgradeInstance;
-        var inventory = UpgradeInventoryManager.Instance;
-        if (upgrade == null || inventory == null)
-        {
-            tooltipView.SetToggleButton(false, null, default, false, null);
-            return;
-        }
-
-        tooltipView.SetToggleButton(true, "tooltip.sell.label", Colors.Currency, true, () =>
-        {
-            inventory.TrySellUpgrade(upgrade);
-        });
+        tooltipView.SetToggleButton(true, config.LabelKey, config.BackgroundColor, config.Interactable, config.OnClick);
     }
 
     void HideImmediate()

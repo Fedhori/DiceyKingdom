@@ -1,3 +1,4 @@
+using Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -19,7 +20,8 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
     object actionSource;
     readonly Vector3[] corners = new Vector3[4];
 
-    public bool HasUpgradeToggle => instance != null && instance.Upgrade != null;
+    public bool HasUpgradeToggle => instance != null && instance.Upgrades.Count > 0;
+    public ItemInstance BoundItem => instance;
     public TooltipActionKind ActionKind => actionKind;
     public object ActionSource => actionSource;
 
@@ -108,13 +110,13 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
             case TooltipDisplayMode.Item:
                 if (instance == null)
                     return false;
-                model = ItemTooltipUtil.BuildModel(instance);
+                model = ItemTooltipUtil.BuildModel(instance, BuildItemButtonConfig());
                 break;
             case TooltipDisplayMode.Upgrade:
                 var upgradeToShow = upgrade ?? instance?.Upgrade;
                 if (upgradeToShow == null)
                     return false;
-                model = UpgradeTooltipUtil.BuildModel(upgradeToShow);
+                model = UpgradeTooltipUtil.BuildModel(upgradeToShow, BuildUpgradeButtonConfig());
                 break;
             default:
                 return false;
@@ -138,6 +140,49 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
         Vector2 screenLeftTop = RectTransformUtility.WorldToScreenPoint(null, topLeftWorld);
         anchor = TooltipAnchor.FromScreen(screenRightTop, screenLeftTop);
         return true;
+    }
+
+    TooltipButtonConfig BuildItemButtonConfig()
+    {
+        if (instance == null || instance.Upgrades.Count == 0)
+            return null;
+
+        return new TooltipButtonConfig(
+            "tooltip.upgrade.view",
+            Colors.Upgrade,
+            true,
+            () => UpgradePanelEvents.RaiseToggleRequested(instance));
+    }
+
+    TooltipButtonConfig BuildUpgradeButtonConfig()
+    {
+        switch (actionKind)
+        {
+            case TooltipActionKind.BuyUpgrade:
+                var shopUpgrade = actionSource as UpgradeProduct;
+                if (shopUpgrade == null)
+                    return null;
+
+                var shop = ShopManager.Instance;
+                bool canBuy = shop != null && shop.CanPurchaseUpgradeToInventory(shopUpgrade);
+                return new TooltipButtonConfig(
+                    "tooltip.buy.label",
+                    Colors.Currency,
+                    canBuy,
+                    () => ShopManager.Instance?.TryPurchaseUpgradeToInventory(shopUpgrade));
+            case TooltipActionKind.SellUpgrade:
+                var ownedUpgrade = actionSource as UpgradeInstance;
+                if (ownedUpgrade == null)
+                    return null;
+
+                return new TooltipButtonConfig(
+                    "tooltip.sell.label",
+                    Colors.Currency,
+                    true,
+                    () => UpgradeInventoryManager.Instance?.TrySellUpgrade(ownedUpgrade));
+            default:
+                return null;
+        }
     }
 
     public void Pin()

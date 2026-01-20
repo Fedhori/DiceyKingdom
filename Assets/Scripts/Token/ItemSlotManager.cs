@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Data;
 using UnityEngine;
@@ -272,6 +273,8 @@ public sealed class ItemSlotManager : MonoBehaviour
 
     public int SelectedSlotIndex => selectedSlotIndex;
     public ItemInstance SelectedItem => selectedItem;
+
+    public event Action<ItemInstance> OnSelectedItemChanged;
 
     public bool TryGetFirstEmptySlot(out int index)
     {
@@ -665,6 +668,7 @@ public sealed class ItemSlotManager : MonoBehaviour
         selectedSlotIndex = controller.SlotIndex;
         selectedItem = controller.Instance;
         RefreshSelectionVisuals();
+        OnSelectedItemChanged?.Invoke(selectedItem);
         controller.PinTooltip();
     }
 
@@ -691,6 +695,7 @@ public sealed class ItemSlotManager : MonoBehaviour
         selectedSlotIndex = -1;
         selectedItem = null;
         RefreshSelectionVisuals();
+        OnSelectedItemChanged?.Invoke(null);
     }
 
     void HandleSelectionCleared()

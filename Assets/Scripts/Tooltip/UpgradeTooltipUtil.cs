@@ -7,10 +7,10 @@ using UnityEngine.Localization;
 
 public static class UpgradeTooltipUtil
 {
-    public static TooltipModel BuildModel(UpgradeInstance upgrade)
+    public static TooltipModel BuildModel(UpgradeInstance upgrade, TooltipButtonConfig buttonConfig = null)
     {
         if (upgrade == null)
-            return new TooltipModel(string.Empty, string.Empty, TooltipKind.Upgrade);
+            return new TooltipModel(string.Empty, string.Empty, TooltipKind.Upgrade, buttonConfig: buttonConfig);
 
         string title = LocalizationUtil.GetUpgradeName(upgrade.Id);
         if (string.IsNullOrEmpty(title))
@@ -24,7 +24,8 @@ public static class UpgradeTooltipUtil
             body,
             TooltipKind.Upgrade,
             upgrade.Rarity,
-            keywords
+            keywords,
+            buttonConfig
         );
     }
 

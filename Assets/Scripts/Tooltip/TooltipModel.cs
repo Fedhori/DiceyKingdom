@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Data;
+using UnityEngine;
 
 public enum TooltipKind
 {
@@ -28,6 +30,22 @@ public readonly struct TooltipKeywordEntry
     }
 }
 
+public sealed class TooltipButtonConfig
+{
+    public string LabelKey { get; }
+    public Color BackgroundColor { get; }
+    public bool Interactable { get; }
+    public Action OnClick { get; }
+
+    public TooltipButtonConfig(string labelKey, Color backgroundColor, bool interactable, Action onClick)
+    {
+        LabelKey = labelKey;
+        BackgroundColor = backgroundColor;
+        Interactable = interactable;
+        OnClick = onClick;
+    }
+}
+
 public readonly struct TooltipModel
 {
     public readonly string title;
@@ -35,18 +53,21 @@ public readonly struct TooltipModel
     public readonly TooltipKind kind;
     public readonly ItemRarity rarity;
     public readonly IReadOnlyList<TooltipKeywordEntry> keywordEntries;
+    public readonly TooltipButtonConfig buttonConfig;
 
     public TooltipModel(
         string title,
         string body,
         TooltipKind kind,
         ItemRarity rarity = ItemRarity.Common,
-        IReadOnlyList<TooltipKeywordEntry> keywordEntries = null)
+        IReadOnlyList<TooltipKeywordEntry> keywordEntries = null,
+        TooltipButtonConfig buttonConfig = null)
     {
         this.title = title;
         this.body = body;
         this.kind = kind;
         this.rarity = rarity;
         this.keywordEntries = keywordEntries;
+        this.buttonConfig = buttonConfig;
     }
 }

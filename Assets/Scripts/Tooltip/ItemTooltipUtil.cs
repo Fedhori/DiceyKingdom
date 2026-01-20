@@ -9,14 +9,15 @@ public static class ItemTooltipUtil
 {
     const string StatusPrefixKey = "tooltip.status.prefix";
 
-    public static TooltipModel BuildModel(ItemInstance item)
+    public static TooltipModel BuildModel(ItemInstance item, TooltipButtonConfig buttonConfig = null)
     {
         if (item == null)
         {
             return new TooltipModel(
                 string.Empty,
                 string.Empty,
-                TooltipKind.Item
+                TooltipKind.Item,
+                buttonConfig: buttonConfig
             );
         }
 
@@ -32,7 +33,8 @@ public static class ItemTooltipUtil
             body,
             TooltipKind.Item,
             item.Rarity,
-            keywords
+            keywords,
+            buttonConfig
         );
     }
 
