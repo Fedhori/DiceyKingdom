@@ -151,7 +151,7 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
         if (SelectedUpgrade == null)
             return false;
 
-        return TryApplyUpgradeAt(slotIndex, SelectedUpgrade, confirmReplace: true);
+        return TryApplyUpgradeAt(slotIndex, SelectedUpgrade);
     }
 
     public void TrySellUpgrade(UpgradeInstance upgrade)
@@ -200,7 +200,7 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
         OnSelectionChanged?.Invoke();
     }
 
-    bool TryApplyUpgradeAt(int slotIndex, UpgradeInstance upgrade, bool confirmReplace)
+    bool TryApplyUpgradeAt(int slotIndex, UpgradeInstance upgrade)
     {
         if (upgrade == null)
             return false;
@@ -222,65 +222,22 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
         if (!upgrade.IsApplicable(targetItem))
             return false;
 
-        if (confirmReplace && NeedsUpgradeReplaceConfirm(targetItem, upgrade))
-        {
-            ShowUpgradeReplaceModal(targetItem, upgrade, slotIndex);
-            return false;
-        }
-
         var upgradeManager = UpgradeManager.Instance;
         if (upgradeManager == null)
             return false;
 
-        if (!upgradeManager.ApplyUpgrade(targetItem, upgrade))
+        if (IsUpgradeSlotsFull(targetItem))
+        {
+            BeginReplace(targetItem, upgrade, slotIndex);
+            return false;
+        }
+
+        if (!upgradeManager.TryAddUpgrade(targetItem, upgrade, GameConfig.MaxUpgradesPerItem))
             return false;
 
         Remove(upgrade);
         UiSelectionEvents.RaiseSelectionCleared();
         return true;
-    }
-
-    static bool NeedsUpgradeReplaceConfirm(ItemInstance targetItem, UpgradeInstance newUpgrade)
-    {
-        if (targetItem?.Upgrade == null || newUpgrade == null)
-            return false;
-
-        return targetItem.Upgrade.Id != newUpgrade.Id;
-    }
-
-    void ShowUpgradeReplaceModal(ItemInstance targetItem, UpgradeInstance newUpgrade, int slotIndex)
-    {
-        var modal = ModalManager.Instance;
-        if (modal == null)
-            return;
-
-        string itemName = LocalizationUtil.GetItemName(targetItem.Id);
-        if (string.IsNullOrEmpty(itemName))
-            itemName = targetItem.Id;
-
-        string currentUpgradeName = LocalizationUtil.GetUpgradeName(targetItem.Upgrade.Id);
-        if (string.IsNullOrEmpty(currentUpgradeName))
-            currentUpgradeName = targetItem.Upgrade.Id;
-
-        string newUpgradeName = LocalizationUtil.GetUpgradeName(newUpgrade.Id);
-        if (string.IsNullOrEmpty(newUpgradeName))
-            newUpgradeName = newUpgrade.Id;
-
-        var args = new Dictionary<string, object>
-        {
-            ["itemName"] = itemName,
-            ["currentUpgrade"] = currentUpgradeName,
-            ["newUpgrade"] = newUpgradeName
-        };
-
-        modal.ShowConfirmation(
-            "modal",
-            "modal.upgradeReplace.title",
-            "modal",
-            "modal.upgradeReplace.message",
-            () => TryApplyUpgradeAt(slotIndex, newUpgrade, confirmReplace: false),
-            () => { },
-            args);
     }
 
     int IndexOf(UpgradeInstance upgrade)
@@ -343,5 +300,47 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
         CurrencyManager.Instance?.AddCurrency(price);
         AudioManager.Instance?.Play("Buy");
         UiSelectionEvents.RaiseSelectionCleared();
+    }
+
+    bool IsUpgradeSlotsFull(ItemInstance targetItem)
+    {
+        if (targetItem == null)
+            return false;
+
+        int maxSlots = Mathf.Max(0, GameConfig.MaxUpgradesPerItem);
+        return targetItem.Upgrades.Count >= maxSlots;
+    }
+
+    bool BeginReplace(ItemInstance targetItem, UpgradeInstance pendingUpgrade, int slotIndex)
+    {
+        var upgradeManager = UpgradeManager.Instance;
+        if (upgradeManager == null)
+            return false;
+
+        return upgradeManager.BeginReplace(
+            targetItem,
+            pendingUpgrade,
+            slotIndex,
+            existingUpgrade => TryReplaceUpgradeInternal(targetItem, existingUpgrade, pendingUpgrade));
+    }
+
+    bool TryReplaceUpgradeInternal(ItemInstance targetItem, UpgradeInstance existingUpgrade, UpgradeInstance pendingUpgrade)
+    {
+        if (targetItem == null || existingUpgrade == null || pendingUpgrade == null)
+            return false;
+
+        if (IndexOf(pendingUpgrade) < 0)
+            return false;
+
+        var upgradeManager = UpgradeManager.Instance;
+        if (upgradeManager == null)
+            return false;
+
+        if (!upgradeManager.TryReplaceUpgrade(targetItem, existingUpgrade, pendingUpgrade))
+            return false;
+
+        Remove(pendingUpgrade);
+        UiSelectionEvents.RaiseSelectionCleared();
+        return true;
     }
 }

@@ -618,7 +618,7 @@ public sealed class ShopManager : MonoBehaviour
         if (upgrade == null || upgrade.Sold)
             return false;
 
-        return TryApplyUpgradeAt(slotIndex, upgrade, confirmReplace: true);
+        return TryApplyUpgradeAt(slotIndex, upgrade);
     }
 
     public bool CanPurchaseUpgradeToInventory(UpgradeProduct upgrade)
@@ -658,7 +658,7 @@ public sealed class ShopManager : MonoBehaviour
         return true;
     }
 
-    bool TryApplyUpgradeAt(int slotIndex, UpgradeProduct upgrade, bool confirmReplace)
+    bool TryApplyUpgradeAt(int slotIndex, UpgradeProduct upgrade)
     {
         if (!isOpen || upgrade == null || upgrade.Sold)
             return false;
@@ -685,56 +685,13 @@ public sealed class ShopManager : MonoBehaviour
         if (currencyMgr.CurrentCurrency < upgrade.Price)
             return false;
 
-        if (confirmReplace && NeedsUpgradeReplaceConfirm(targetItem, preview))
+        if (IsUpgradeSlotsFull(targetItem))
         {
-            ShowUpgradeReplaceModal(targetItem, upgrade, slotIndex);
+            BeginReplace(targetItem, upgrade, preview, slotIndex);
             return false;
         }
 
         return ApplyUpgrade(targetItem, upgrade, preview);
-    }
-
-    bool NeedsUpgradeReplaceConfirm(ItemInstance targetItem, UpgradeInstance newUpgrade)
-    {
-        if (targetItem?.Upgrade == null || newUpgrade == null)
-            return false;
-
-        return targetItem.Upgrade.Id != newUpgrade.Id;
-    }
-
-    void ShowUpgradeReplaceModal(ItemInstance targetItem, UpgradeProduct upgrade, int slotIndex)
-    {
-        var modal = ModalManager.Instance;
-        if (modal == null)
-            return;
-
-        string itemName = LocalizationUtil.GetItemName(targetItem.Id);
-        if (string.IsNullOrEmpty(itemName))
-            itemName = targetItem.Id;
-
-        string currentUpgradeName = LocalizationUtil.GetUpgradeName(targetItem.Upgrade.Id);
-        if (string.IsNullOrEmpty(currentUpgradeName))
-            currentUpgradeName = targetItem.Upgrade.Id;
-
-        string newUpgradeName = LocalizationUtil.GetUpgradeName(upgrade.Id);
-        if (string.IsNullOrEmpty(newUpgradeName))
-            newUpgradeName = upgrade.Id;
-
-        var args = new Dictionary<string, object>
-        {
-            ["itemName"] = itemName,
-            ["currentUpgrade"] = currentUpgradeName,
-            ["newUpgrade"] = newUpgradeName
-        };
-
-        modal.ShowConfirmation(
-            "modal",
-            "modal.upgradeReplace.title",
-            "modal",
-            "modal.upgradeReplace.message",
-            () => TryApplyUpgradeAt(slotIndex, upgrade, confirmReplace: false),
-            () => { },
-            args);
     }
 
     bool ApplyUpgrade(ItemInstance targetItem, UpgradeProduct upgrade, UpgradeInstance preview)
@@ -750,8 +707,11 @@ public sealed class ShopManager : MonoBehaviour
             return false;
 
         var upgradeManager = UpgradeManager.Instance;
-        if (upgradeManager == null || !upgradeManager.ApplyUpgrade(targetItem, preview))
+        if (upgradeManager == null || !upgradeManager.TryAddUpgrade(targetItem, preview, GameConfig.MaxUpgradesPerItem))
+        {
+            currencyMgr.AddCurrency(upgrade.Price);
             return false;
+        }
         MarkSold(upgrade);
         UiSelectionEvents.RaiseSelectionCleared();
         return true;
@@ -1177,6 +1137,62 @@ public sealed class ShopManager : MonoBehaviour
 
         var selected = GetShopItem(CurrentSelectionIndex);
         return selected == null || selected.Sold;
+    }
+
+    bool IsUpgradeSlotsFull(ItemInstance targetItem)
+    {
+        if (targetItem == null)
+            return false;
+
+        int maxSlots = Mathf.Max(0, GameConfig.MaxUpgradesPerItem);
+        return targetItem.Upgrades.Count >= maxSlots;
+    }
+
+    bool BeginReplace(ItemInstance targetItem, UpgradeProduct upgrade, UpgradeInstance preview, int slotIndex)
+    {
+        var upgradeManager = UpgradeManager.Instance;
+        if (upgradeManager == null)
+            return false;
+
+        return upgradeManager.BeginReplace(
+            targetItem,
+            preview,
+            slotIndex,
+            existingUpgrade => TryReplaceUpgradeWithPurchase(targetItem, existingUpgrade, upgrade, preview));
+    }
+
+    bool TryReplaceUpgradeWithPurchase(
+        ItemInstance targetItem,
+        UpgradeInstance existingUpgrade,
+        UpgradeProduct upgrade,
+        UpgradeInstance preview)
+    {
+        if (targetItem == null || existingUpgrade == null || upgrade == null || preview == null)
+            return false;
+
+        if (upgrade.Sold)
+            return false;
+
+        var currencyMgr = CurrencyManager.Instance;
+        if (currencyMgr == null)
+            return false;
+
+        if (currencyMgr.CurrentCurrency < upgrade.Price)
+            return false;
+
+        if (!currencyMgr.TrySpend(upgrade.Price))
+            return false;
+
+        var upgradeManager = UpgradeManager.Instance;
+        if (upgradeManager == null || !upgradeManager.TryReplaceUpgrade(targetItem, existingUpgrade, preview))
+        {
+            currencyMgr.AddCurrency(upgrade.Price);
+            return false;
+        }
+
+        MarkSold(upgrade);
+        UiSelectionEvents.RaiseSelectionCleared();
+        return true;
     }
 
 }

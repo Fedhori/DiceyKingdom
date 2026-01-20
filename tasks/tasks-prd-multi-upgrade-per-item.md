@@ -2,6 +2,7 @@
 
 - `Assets/Scripts/Item/ItemInstance.cs` - 아이템에 다중 강화 리스트를 보관하고 변경 이벤트를 제공해야 함.
 - `Assets/Scripts/Upgrade/UpgradeManager.cs` - 다중 강화 적용/제거 로직 및 스탯 누적 처리가 필요.
+- `Assets/Scripts/Upgrade/UpgradeReplaceRequest.cs` - 강화 교체 요청 정보를 보관하고 확인/취소 콜백을 전달.
 - `Assets/Scripts/Upgrade/UpgradeInventoryManager.cs` - 강화 적용/교체 흐름과 모달 트리거를 다중 강화 기준으로 수정.
 - `Assets/Scripts/Shop/ShopManager.cs` - 상점 강화 적용/교체 흐름을 다중 강화 기준으로 수정.
 - `Assets/Scripts/Token/ItemSlotManager.cs` - 아이템 판매 시 모든 강화를 강화 가방으로 이동 처리.
@@ -32,7 +33,7 @@
 - [x] 1.3 강화 리스트를 기준으로 스탯 합산/복제 로직이 정상 작동하도록 업데이트
 - [ ] 2.0 강화 적용/제거/교체 로직을 다중 강화 기준으로 리팩터링
   - [x] 2.1 `UpgradeManager`의 적용/해제 API를 리스트 기반으로 변경하고 중복 허용 처리
-  - [ ] 2.2 슬롯이 가득 찼을 때 교체 모드 플래그/대기 강화 정보를 전달할 수 있도록 흐름 정리
+  - [x] 2.2 슬롯이 가득 찼을 때 교체 모드 플래그/대기 강화 정보를 전달할 수 있도록 흐름 정리
   - [ ] 2.3 상점/강화 가방에서 강화 적용 시 다중 슬롯 로직을 공통 경로로 합치기
 - [ ] 3.0 아이템 슬롯에 강화 아이콘 리스트 표시 UI 추가
   - [ ] 3.1 `ItemSlotController`에 강화 아이콘 컨테이너/프리팹 필드 추가

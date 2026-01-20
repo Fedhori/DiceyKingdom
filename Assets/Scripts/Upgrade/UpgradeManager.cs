@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Data;
 using GameStats;
@@ -6,6 +7,9 @@ using UnityEngine;
 public sealed class UpgradeManager : MonoBehaviour
 {
     public static UpgradeManager Instance { get; private set; }
+    public UpgradeReplaceRequest PendingReplace { get; private set; }
+
+    public event Action<UpgradeReplaceRequest> OnReplaceRequested;
 
     void Awake()
     {
@@ -53,6 +57,24 @@ public sealed class UpgradeManager : MonoBehaviour
         return ApplyUpgrades(target, list);
     }
 
+    public bool TryReplaceUpgrade(ItemInstance target, UpgradeInstance existingUpgrade, UpgradeInstance newUpgrade)
+    {
+        if (target == null || existingUpgrade == null || newUpgrade == null)
+            return false;
+
+        var current = target.Upgrades;
+        if (current == null || current.Count == 0)
+            return false;
+
+        int index = FindUpgradeIndex(current, existingUpgrade);
+        if (index < 0)
+            return false;
+
+        var list = new List<UpgradeInstance>(current);
+        list[index] = newUpgrade;
+        return ApplyUpgrades(target, list);
+    }
+
     public bool ApplyUpgrades(ItemInstance target, IReadOnlyList<UpgradeInstance> upgrades)
     {
         if (target == null)
@@ -80,6 +102,46 @@ public sealed class UpgradeManager : MonoBehaviour
 
         target.SetUpgrades(upgradesToApply);
         return true;
+    }
+
+    public bool BeginReplace(
+        ItemInstance targetItem,
+        UpgradeInstance pendingUpgrade,
+        int targetSlotIndex,
+        Func<UpgradeInstance, bool> confirmHandler,
+        Action cancelHandler = null)
+    {
+        if (targetItem == null || pendingUpgrade == null || confirmHandler == null)
+            return false;
+
+        PendingReplace = new UpgradeReplaceRequest(
+            targetItem,
+            pendingUpgrade,
+            targetSlotIndex,
+            confirmHandler,
+            cancelHandler);
+        OnReplaceRequested?.Invoke(PendingReplace);
+        return true;
+    }
+
+    public bool TryConfirmReplace(UpgradeInstance existingUpgrade)
+    {
+        if (PendingReplace == null)
+            return false;
+
+        bool success = PendingReplace.Confirm(existingUpgrade);
+        if (success)
+            PendingReplace = null;
+        return success;
+    }
+
+    public void CancelReplace()
+    {
+        if (PendingReplace == null)
+            return;
+
+        PendingReplace.Cancel();
+        PendingReplace = null;
     }
 
     void ApplyUpgradeEffects(ItemInstance target, UpgradeInstance upgrade, ItemEffectManager effectManager)
@@ -115,5 +177,19 @@ public sealed class UpgradeManager : MonoBehaviour
     {
         target.Stats.RemoveModifiers(layer: StatLayer.Upgrade, source: target);
         target.RemoveTriggerRepeatModifiers(layer: StatLayer.Upgrade, source: target);
+    }
+
+    static int FindUpgradeIndex(IReadOnlyList<UpgradeInstance> upgrades, UpgradeInstance target)
+    {
+        if (upgrades == null || target == null)
+            return -1;
+
+        for (int i = 0; i < upgrades.Count; i++)
+        {
+            if (ReferenceEquals(upgrades[i], target))
+                return i;
+        }
+
+        return -1;
     }
 }
