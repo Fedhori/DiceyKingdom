@@ -13,6 +13,9 @@ public sealed class ProjectileController : MonoBehaviour
     Vector2 direction;
     int pierceRemaining;
     int wallBounceRemaining;
+    float homingCooldownRemaining;
+
+    const float HomingCooldownSeconds = 0.2f;
 
     public void Initialize(ItemInstance inst, Vector2 dir)
     {
@@ -103,6 +106,7 @@ public sealed class ProjectileController : MonoBehaviour
         {
             if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
             {
+                TriggerHomingCooldown();
                 if (item.ProjectileExplosionRadius > 0f)
                     Explode();
                 else
@@ -199,6 +203,12 @@ public sealed class ProjectileController : MonoBehaviour
         if (item == null || rb == null)
             return;
 
+        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce && homingCooldownRemaining > 0f)
+        {
+            homingCooldownRemaining = Mathf.Max(0f, homingCooldownRemaining - Time.deltaTime);
+            return;
+        }
+
         if (item.ProjectileHomingTurnRate <= 0f)
             return;
 
@@ -214,7 +224,19 @@ public sealed class ProjectileController : MonoBehaviour
         if (toTarget.sqrMagnitude <= 0.0001f)
             return;
 
-        Vector3 current = new Vector3(direction.x, direction.y, 0f);
+        Vector3 current;
+        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
+        {
+            Vector2 velocity = rb.linearVelocity;
+            current = velocity.sqrMagnitude > 0.0001f
+                ? new Vector3(velocity.x, velocity.y, 0f)
+                : new Vector3(direction.x, direction.y, 0f);
+        }
+        else
+        {
+            current = new Vector3(direction.x, direction.y, 0f);
+        }
+
         if (current.sqrMagnitude <= 0.0001f)
             current = toTarget.normalized;
 
@@ -222,6 +244,20 @@ public sealed class ProjectileController : MonoBehaviour
         Vector3 next = Vector3.RotateTowards(current, toTarget.normalized, maxRadians, 0f);
         direction = new Vector2(next.x, next.y).normalized;
         rb.linearVelocity = direction * item.WorldProjectileSpeed;
+    }
+
+    void TriggerHomingCooldown()
+    {
+        if (item == null)
+            return;
+
+        if (item.ProjectileHitBehavior != ProjectileHitBehavior.Bounce)
+            return;
+
+        if (item.ProjectileHomingTurnRate <= 0f)
+            return;
+
+        homingCooldownRemaining = HomingCooldownSeconds;
     }
 
     void UpdateRotation()
