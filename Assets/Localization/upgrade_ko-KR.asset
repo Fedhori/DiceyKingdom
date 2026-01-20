@@ -87,8 +87,21 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 1113825343581192274
+  - m_Id: 181419913228
+    m_Localized: "\uC5D0\uC784-\uBD07"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181419913229
+    m_Localized: "\uD22C\uC0AC\uCCB4\uAC00 \uAC00\uC7A5 \uC544\uB798 \uBE14\uB7ED\uC744
+      \uC6B0\uC120\uC801\uC73C\uB85C \uCD94\uC801\uD558\uAC8C \uB429\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
   - m_Id: 181419913225
     m_Localized: "\uBCF4\uC720\uD55C \uAC15\uD654\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2870126168256512
+    m_Localized: '"I''m sorry, Game."'
     m_Metadata:
       m_Items: []
   references:

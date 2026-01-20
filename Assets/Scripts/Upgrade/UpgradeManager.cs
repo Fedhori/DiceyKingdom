@@ -201,7 +201,6 @@ public sealed class UpgradeManager : MonoBehaviour
                     effectManager.ApplyEffect(effect, target);
                     break;
                 default:
-                    Debug.LogWarning($"[UpgradeManager] Unsupported effect type: {effect.effectType}");
                     break;
             }
         }

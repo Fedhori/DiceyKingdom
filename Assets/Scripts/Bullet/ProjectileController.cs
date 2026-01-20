@@ -202,9 +202,6 @@ public sealed class ProjectileController : MonoBehaviour
         if (item.ProjectileHomingTurnRate <= 0f)
             return;
 
-        if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
-            return;
-
         var blockManager = BlockManager.Instance;
         if (blockManager == null)
             return;

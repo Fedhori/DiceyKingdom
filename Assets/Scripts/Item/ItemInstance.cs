@@ -23,7 +23,7 @@ public sealed class ItemInstance
     public float ProjectileRandomAngle { get; private set; }
     public bool IsObject { get; private set; }
     public int PierceBonus { get; private set; }
-    public float ProjectileHomingTurnRate { get; private set; }
+    public float ProjectileHomingTurnRate => (float)Stats.GetValue(ItemStatIds.ProjectileHomingTurnRate);
     public int SellValueBonus { get; private set; }
     public ItemRarity Rarity { get; private set; }
     public UpgradeInstance Upgrade
@@ -98,7 +98,6 @@ public sealed class ItemInstance
             ProjectileRandomAngle = 0f;
             IsObject = false;
             PierceBonus = 0;
-            ProjectileHomingTurnRate = 0f;
             StatusDamageMultiplier = 1f;
             SellValueBonus = 0;
             Rarity = ItemRarity.Common;
@@ -139,7 +138,7 @@ public sealed class ItemInstance
             PelletCount = Mathf.Max(1, projectile.pelletCount);
             SpreadAngle = Mathf.Max(0f, projectile.spreadAngle);
             ProjectileRandomAngle = Mathf.Max(0f, projectile.randomAngle);
-            ProjectileHomingTurnRate = Mathf.Max(0f, projectile.homingTurnRate);
+            Stats.SetBase(ItemStatIds.ProjectileHomingTurnRate, Mathf.Max(0f, projectile.homingTurnRate), 0d);
         }
         else
         {
@@ -151,7 +150,7 @@ public sealed class ItemInstance
             PelletCount = 1;
             SpreadAngle = 0f;
             ProjectileRandomAngle = 0f;
-            ProjectileHomingTurnRate = 0f;
+            Stats.SetBase(ItemStatIds.ProjectileHomingTurnRate, 0d, 0d);
         }
 
         if (dto.beam != null)

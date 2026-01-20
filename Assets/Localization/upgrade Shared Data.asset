@@ -71,8 +71,20 @@ MonoBehaviour:
     m_Key: upgrade.lasersight.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 181419913228
+    m_Key: upgrade.aimbot.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181419913229
+    m_Key: upgrade.aimbot.effect0
+    m_Metadata:
+      m_Items: []
   - m_Id: 181419913225
     m_Key: upgrade.inventory.empty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2870126168256512
+    m_Key: upgrade.aimbot.effect1
     m_Metadata:
       m_Items: []
   m_Metadata:

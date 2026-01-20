@@ -38,6 +38,7 @@ namespace GameStats
         public const string DamageMultiplier = "damageMultiplier";
         public const string AttackSpeed = "attackSpeed";
         public const string CriticalChanceMultiplier = "criticalChanceMultiplier";
+        public const string ProjectileHomingTurnRate = "projectileHomingTurnRate";
         public const string Pierce = "pierce";
     }
 

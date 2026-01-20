@@ -763,7 +763,7 @@
 				"key": "projectile.cannonball",
 				"size": 1.0,
 				"speed": 1.0,
-				"pierce": 99,
+				"pierce": 10,
 				"randomAngle": 3.0
 			},
 			"rules": []

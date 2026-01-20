@@ -138,6 +138,27 @@
 					"duration": "Upgrade"
 				}
 			]
+		},
+		{
+			"id": "upgrade.aimbot",
+			"price": 10,
+			"rarity": "Rare",
+			"conditions": [
+				{
+					"conditionKind": "HasProjectile"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "projectileHomingTurnRate",
+					"effectMode": "Override",
+					"value": 720.0,
+					"duration": "Upgrade"
+				},
+				{}
+			]
 		}
 	]
 }
