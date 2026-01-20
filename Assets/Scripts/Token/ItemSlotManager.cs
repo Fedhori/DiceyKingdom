@@ -769,7 +769,11 @@ public sealed class ItemSlotManager : MonoBehaviour
 
     void TryStoreUpgrade(ItemInstance item)
     {
-        if (item == null || item.Upgrade == null)
+        if (item == null)
+            return;
+
+        var upgrades = item.Upgrades;
+        if (upgrades == null || upgrades.Count == 0)
             return;
 
         var upgradeManager = UpgradeManager.Instance;
@@ -780,9 +784,14 @@ public sealed class ItemSlotManager : MonoBehaviour
         if (inventoryManager == null)
             return;
 
-        var upgrade = item.Upgrade;
+        for (int i = 0; i < upgrades.Count; i++)
+        {
+            var upgrade = upgrades[i];
+            if (upgrade != null)
+                inventoryManager.Add(upgrade);
+        }
+
         upgradeManager.RemoveUpgrade(item);
-        inventoryManager.Add(upgrade);
     }
 
     bool IsValidIndex(int index)
