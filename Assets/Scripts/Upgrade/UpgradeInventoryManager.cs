@@ -208,36 +208,27 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
         if (IndexOf(upgrade) < 0)
             return false;
 
-        var inventory = ItemManager.Instance?.Inventory;
-        if (inventory == null)
-            return false;
-
-        if (slotIndex < 0 || slotIndex >= inventory.SlotCount)
-            return false;
-
-        var targetItem = inventory.GetSlot(slotIndex);
-        if (targetItem == null)
-            return false;
-
-        if (!upgrade.IsApplicable(targetItem))
-            return false;
-
         var upgradeManager = UpgradeManager.Instance;
         if (upgradeManager == null)
             return false;
 
-        if (IsUpgradeSlotsFull(targetItem))
-        {
-            BeginReplace(targetItem, upgrade, slotIndex);
-            return false;
-        }
+        var inventory = ItemManager.Instance?.Inventory;
+        return upgradeManager.TryApplyUpgradeAtSlot(
+            inventory,
+            slotIndex,
+            upgrade,
+            GameConfig.MaxUpgradesPerItem,
+            targetItem =>
+            {
+                if (!upgradeManager.TryAddUpgrade(targetItem, upgrade, GameConfig.MaxUpgradesPerItem))
+                    return false;
 
-        if (!upgradeManager.TryAddUpgrade(targetItem, upgrade, GameConfig.MaxUpgradesPerItem))
-            return false;
-
-        Remove(upgrade);
-        UiSelectionEvents.RaiseSelectionCleared();
-        return true;
+                Remove(upgrade);
+                UiSelectionEvents.RaiseSelectionCleared();
+                return true;
+            },
+            (targetItem, existingUpgrade) => TryReplaceUpgradeInternal(targetItem, existingUpgrade, upgrade)
+        );
     }
 
     int IndexOf(UpgradeInstance upgrade)
@@ -300,28 +291,6 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
         CurrencyManager.Instance?.AddCurrency(price);
         AudioManager.Instance?.Play("Buy");
         UiSelectionEvents.RaiseSelectionCleared();
-    }
-
-    bool IsUpgradeSlotsFull(ItemInstance targetItem)
-    {
-        if (targetItem == null)
-            return false;
-
-        int maxSlots = Mathf.Max(0, GameConfig.MaxUpgradesPerItem);
-        return targetItem.Upgrades.Count >= maxSlots;
-    }
-
-    bool BeginReplace(ItemInstance targetItem, UpgradeInstance pendingUpgrade, int slotIndex)
-    {
-        var upgradeManager = UpgradeManager.Instance;
-        if (upgradeManager == null)
-            return false;
-
-        return upgradeManager.BeginReplace(
-            targetItem,
-            pendingUpgrade,
-            slotIndex,
-            existingUpgrade => TryReplaceUpgradeInternal(targetItem, existingUpgrade, pendingUpgrade));
     }
 
     bool TryReplaceUpgradeInternal(ItemInstance targetItem, UpgradeInstance existingUpgrade, UpgradeInstance pendingUpgrade)

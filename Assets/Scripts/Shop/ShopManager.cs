@@ -663,19 +663,8 @@ public sealed class ShopManager : MonoBehaviour
         if (!isOpen || upgrade == null || upgrade.Sold)
             return false;
 
-        var inventory = ItemManager.Instance?.Inventory;
-        if (inventory == null)
-            return false;
-
-        if (slotIndex < 0 || slotIndex >= inventory.SlotCount)
-            return false;
-
-        var targetItem = inventory.GetSlot(slotIndex);
-        if (targetItem == null)
-            return false;
-
         var preview = upgrade.PreviewInstance;
-        if (preview == null || !preview.IsApplicable(targetItem))
+        if (preview == null)
             return false;
 
         var currencyMgr = CurrencyManager.Instance;
@@ -685,13 +674,19 @@ public sealed class ShopManager : MonoBehaviour
         if (currencyMgr.CurrentCurrency < upgrade.Price)
             return false;
 
-        if (IsUpgradeSlotsFull(targetItem))
-        {
-            BeginReplace(targetItem, upgrade, preview, slotIndex);
+        var upgradeManager = UpgradeManager.Instance;
+        if (upgradeManager == null)
             return false;
-        }
 
-        return ApplyUpgrade(targetItem, upgrade, preview);
+        var inventory = ItemManager.Instance?.Inventory;
+        return upgradeManager.TryApplyUpgradeAtSlot(
+            inventory,
+            slotIndex,
+            preview,
+            GameConfig.MaxUpgradesPerItem,
+            target => ApplyUpgrade(target, upgrade, preview),
+            (target, existingUpgrade) => TryReplaceUpgradeWithPurchase(target, existingUpgrade, upgrade, preview)
+        );
     }
 
     bool ApplyUpgrade(ItemInstance targetItem, UpgradeProduct upgrade, UpgradeInstance preview)
@@ -1137,28 +1132,6 @@ public sealed class ShopManager : MonoBehaviour
 
         var selected = GetShopItem(CurrentSelectionIndex);
         return selected == null || selected.Sold;
-    }
-
-    bool IsUpgradeSlotsFull(ItemInstance targetItem)
-    {
-        if (targetItem == null)
-            return false;
-
-        int maxSlots = Mathf.Max(0, GameConfig.MaxUpgradesPerItem);
-        return targetItem.Upgrades.Count >= maxSlots;
-    }
-
-    bool BeginReplace(ItemInstance targetItem, UpgradeProduct upgrade, UpgradeInstance preview, int slotIndex)
-    {
-        var upgradeManager = UpgradeManager.Instance;
-        if (upgradeManager == null)
-            return false;
-
-        return upgradeManager.BeginReplace(
-            targetItem,
-            preview,
-            slotIndex,
-            existingUpgrade => TryReplaceUpgradeWithPurchase(targetItem, existingUpgrade, upgrade, preview));
     }
 
     bool TryReplaceUpgradeWithPurchase(

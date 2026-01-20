@@ -75,6 +75,40 @@ public sealed class UpgradeManager : MonoBehaviour
         return ApplyUpgrades(target, list);
     }
 
+    public bool TryApplyUpgradeAtSlot(
+        ItemInventory inventory,
+        int slotIndex,
+        UpgradeInstance upgrade,
+        int maxSlots,
+        Func<ItemInstance, bool> applyHandler,
+        Func<ItemInstance, UpgradeInstance, bool> replaceHandler)
+    {
+        if (inventory == null || upgrade == null || applyHandler == null)
+            return false;
+
+        if (slotIndex < 0 || slotIndex >= inventory.SlotCount)
+            return false;
+
+        var targetItem = inventory.GetSlot(slotIndex);
+        if (targetItem == null)
+            return false;
+
+        if (!upgrade.IsApplicable(targetItem))
+            return false;
+
+        int effectiveMax = maxSlots < 0 ? int.MaxValue : Mathf.Max(0, maxSlots);
+        if (targetItem.Upgrades.Count >= effectiveMax)
+        {
+            if (replaceHandler == null)
+                return false;
+
+            BeginReplace(targetItem, upgrade, slotIndex, existingUpgrade => replaceHandler(targetItem, existingUpgrade));
+            return false;
+        }
+
+        return applyHandler(targetItem);
+    }
+
     public bool ApplyUpgrades(ItemInstance target, IReadOnlyList<UpgradeInstance> upgrades)
     {
         if (target == null)
