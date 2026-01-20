@@ -18,6 +18,8 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
     public RectTransform DropArea => dropArea != null ? dropArea : RectTransform;
     [SerializeField] ItemView itemView;
     [SerializeField] ItemTooltipTarget tooltipTarget;
+    [SerializeField] Transform upgradeIconContainer;
+    [SerializeField] ItemView upgradeIconPrefab;
     [SerializeField] GameObject upgradeVfxRoot;
 
     void Awake()
