@@ -80,6 +80,9 @@ public sealed class UpgradePanelView : MonoBehaviour
         }
 
         ApplyReplaceButtons();
+
+        if (IsOpen)
+            RefreshLayout();
     }
 
     public void Clear()

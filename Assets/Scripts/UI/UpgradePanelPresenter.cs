@@ -52,9 +52,9 @@ public sealed class UpgradePanelPresenter : MonoBehaviour
             return;
         }
 
+        panelView.Open();
         panelView.SetReplaceMode(false, null);
         panelView.SetUpgrades(item.Upgrades);
-        panelView.Open();
         currentItem = item;
     }
 
@@ -65,9 +65,9 @@ public sealed class UpgradePanelPresenter : MonoBehaviour
 
         pendingReplace = request;
         currentItem = request.TargetItem;
+        panelView.Open();
         panelView.SetReplaceMode(true, HandleReplaceClicked);
         panelView.SetUpgrades(request.TargetItem.Upgrades, request.PendingUpgrade);
-        panelView.Open();
     }
 
     void HandleSelectionCleared()
