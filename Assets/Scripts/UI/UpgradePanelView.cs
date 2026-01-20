@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,8 @@ public sealed class UpgradePanelView : MonoBehaviour
     [SerializeField] Button closeButton;
 
     readonly List<UpgradePanelSlot> slots = new();
+    bool replaceMode;
+    Action<UpgradeInstance> replaceAction;
 
     public IReadOnlyList<UpgradePanelSlot> Slots => slots;
     public bool IsOpen => (root != null ? root : gameObject).activeSelf;
@@ -57,8 +60,9 @@ public sealed class UpgradePanelView : MonoBehaviour
                 continue;
 
             slot.Bind(upgrades[i]);
-            slot.SetToggleButton(false, null, default, false, null);
         }
+
+        ApplyReplaceButtons();
     }
 
     public void Clear()
@@ -72,6 +76,13 @@ public sealed class UpgradePanelView : MonoBehaviour
             slot.Bind(null);
             slot.gameObject.SetActive(false);
         }
+    }
+
+    public void SetReplaceMode(bool enabled, Action<UpgradeInstance> onReplace)
+    {
+        replaceMode = enabled;
+        replaceAction = enabled ? onReplace : null;
+        ApplyReplaceButtons();
     }
 
     void SetOpen(bool open)
@@ -96,6 +107,30 @@ public sealed class UpgradePanelView : MonoBehaviour
         {
             var slot = Instantiate(slotPrefab, slotContainer);
             slots.Add(slot);
+        }
+    }
+
+    void ApplyReplaceButtons()
+    {
+        for (int i = 0; i < slots.Count; i++)
+        {
+            var slot = slots[i];
+            if (slot == null)
+                continue;
+
+            if (!replaceMode || slot.Upgrade == null)
+            {
+                slot.SetToggleButton(false, null, default, false, null);
+                continue;
+            }
+
+            var upgrade = slot.Upgrade;
+            slot.SetToggleButton(
+                true,
+                "tooltip.upgrade.replace.label",
+                Colors.Upgrade,
+                true,
+                () => replaceAction?.Invoke(upgrade));
         }
     }
 }
