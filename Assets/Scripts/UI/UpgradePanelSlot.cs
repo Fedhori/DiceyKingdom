@@ -18,6 +18,7 @@ public sealed class UpgradePanelSlot : MonoBehaviour
     {
         Upgrade = upgrade;
 
+        EnsureTooltipView();
         if (tooltipView == null)
             return;
 
@@ -29,9 +30,16 @@ public sealed class UpgradePanelSlot : MonoBehaviour
 
     public void SetToggleButton(bool visible, string labelKey, Color backgroundColor, bool interactable, Action onClick)
     {
+        EnsureTooltipView();
         if (tooltipView == null)
             return;
 
         tooltipView.SetToggleButton(visible, labelKey, backgroundColor, interactable, onClick);
+    }
+
+    void EnsureTooltipView()
+    {
+        if (tooltipView == null)
+            tooltipView = GetComponentInChildren<TooltipView>(true);
     }
 }

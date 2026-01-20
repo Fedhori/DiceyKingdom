@@ -24,6 +24,8 @@ public sealed class UpgradePanelView : MonoBehaviour
 
         if (closeButton != null)
             closeButton.onClick.AddListener(Close);
+
+        SetOpen(false);
     }
 
     void OnDestroy()
@@ -32,10 +34,10 @@ public sealed class UpgradePanelView : MonoBehaviour
             closeButton.onClick.RemoveListener(Close);
     }
 
-    public void Open(IReadOnlyList<UpgradeInstance> upgrades, UpgradeInstance extraUpgrade = null)
+    public void Open()
     {
-        SetUpgrades(upgrades, extraUpgrade);
         SetOpen(true);
+        RefreshLayout();
     }
 
     public void Close()
@@ -104,6 +106,16 @@ public sealed class UpgradePanelView : MonoBehaviour
     {
         var target = root != null ? root : gameObject;
         target.SetActive(open);
+    }
+
+    void RefreshLayout()
+    {
+        var target = root != null ? root : gameObject;
+        var rect = target.transform as RectTransform;
+        if (rect == null)
+            return;
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
     }
 
     void EnsureSlotCount(int count)

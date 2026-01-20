@@ -21,6 +21,7 @@ public sealed class UpgradeInventoryNotice : MonoBehaviour
 
     void OnEnable()
     {
+        // TODO - 초기화 안됨..
         var manager = UpgradeInventoryManager.Instance;
         if (manager != null)
             manager.OnNewUpgradeAdded += HandleNewUpgradeAdded;

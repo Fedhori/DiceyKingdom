@@ -16,11 +16,18 @@ public sealed class UpgradeInventoryView : MonoBehaviour, IPointerClickHandler
 
     const string EmptyKey = "upgrade.inventory.empty";
 
+    void Awake()
+    {
+        if (root == null)
+            root = gameObject;
+
+        SetVisible(false);
+        UpdateEmptyState(0);
+    }
+
     public void Open()
     {
         SetVisible(true);
-        var manager = UpgradeInventoryManager.Instance;
-        SetSlots(manager != null ? manager.Upgrades : null);
         UpgradeInventoryNotice.Instance?.Clear();
     }
 

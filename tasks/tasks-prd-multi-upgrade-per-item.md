@@ -18,6 +18,7 @@
 - `Assets/Scripts/UI/UpgradePanelSlot.cs` - 강화 패널 내 툴팁 인스턴스와 버튼 이벤트 연결.
 - `Assets/Scripts/UI/UpgradePanelEvents.cs` - 강화 패널 토글 요청 이벤트 정의.
 - `Assets/Scripts/UI/UpgradePanelPresenter.cs` - 강화 패널 열기/닫기 흐름과 선택 변경 연동.
+- `Assets/Scripts/UI/UpgradeInventoryView.cs` - 강화 가방 UI 오픈/초기화와 슬롯 렌더링 담당.
 - `Assets/Localization/modal Shared Data.asset` - 교체 모달 신규 키 추가.
 - `Assets/Localization/modal_ko-KR.asset` - 교체 모달 문구 추가.
 - `Assets/Localization/tooltip Shared Data.asset` - “교체하기” 버튼 키 추가.
@@ -43,13 +44,14 @@
   - [x] 3.1 `ItemSlotController`에 강화 아이콘 컨테이너/프리팹 필드 추가
   - [x] 3.2 아이템 변경/강화 변경 시 아이콘 리스트를 갱신하는 메서드 추가
   - [x] 3.3 희귀도 배경색/아이콘 스프라이트 매핑 적용
-- [ ] 4.0 강화 전용 오버레이 패널 및 다중 툴팁 렌더링 구조 추가
+- [x] 4.0 강화 전용 오버레이 패널 및 다중 툴팁 렌더링 구조 추가
   - [x] 4.1 강화 패널 오픈/클로즈 및 툴팁 인스턴스 생성을 담당하는 뷰 스크립트 추가
   - [x] 4.2 강화 보기 버튼이 패널을 열도록 `ItemTooltipTarget`/`TooltipManager` 흐름 수정
   - [x] 4.3 교체 모드일 때 기존 강화 툴팁 버튼을 “교체하기”로 변경하고 교체 대상 선택 처리
   - [x] 4.4 신규 강화 툴팁을 패널에 함께 노출하는 비교 표시 로직 추가
   - [x] 4.5 강화 보기 버튼 클릭 시 기존 툴팁이 닫히도록 처리
-  - [ ] 4.6 패널 최초 오픈 시 강화 목록 미표시 버그 수정
+  - [x] 4.6 패널 최초 오픈 시 강화 목록 미표시 버그 수정
+  - [x] 4.7 강화 패널/인벤토리 Open 강제 갱신 제거 및 Awake 초기화로 정리
 - [ ] 5.0 교체 모달/버튼 로컬라이즈 키 추가 및 문구 반영
   - [ ] 5.1 `tooltip.upgrade.replace.label` 키 추가 및 버튼 라벨 연결
   - [ ] 5.2 `modal.upgradeReplace.title/body` 키 추가 및 확인 모달 호출 연결

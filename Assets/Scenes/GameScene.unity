@@ -501,7 +501,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchorMin.x
@@ -509,7 +509,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_SizeDelta.x
@@ -549,11 +549,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 168
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -600
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2418,14 +2418,13 @@ GameObject:
   - component: {fileID: 399243818}
   - component: {fileID: 399243820}
   - component: {fileID: 399243819}
-  - component: {fileID: 399243821}
   m_Layer: 5
   m_Name: UpgradeInfoOverlay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &399243818
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2485,22 +2484,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 399243817}
   m_CullTransparentMesh: 1
---- !u!114 &399243821
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 399243817}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ed62f5774867a843ae4e03ee82ce2f8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UpgradePanelView
-  root: {fileID: 399243817}
-  slotContainer: {fileID: 636333965}
-  slotPrefab: {fileID: 2870882776228742042, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
-  closeButton: {fileID: 0}
 --- !u!1 &407153861
 GameObject:
   m_ObjectHideFlags: 0
@@ -3151,7 +3134,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 982.8424
+  orthographic size: 1024
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -4910,19 +4893,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 734606906}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 708886697}
-        m_TargetAssemblyTypeName: ShopManager, Assembly-CSharp
-        m_MethodName: OnClickCloseButton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &734606906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12098,7 +12069,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchorMin.x
@@ -12106,7 +12077,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_SizeDelta.x
@@ -12146,11 +12117,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -600
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -12839,7 +12810,6 @@ GameObject:
   - component: {fileID: 1757122206}
   - component: {fileID: 1757122208}
   - component: {fileID: 1757122207}
-  - component: {fileID: 1757122209}
   m_Layer: 5
   m_Name: UpgradeInventoryPanel
   m_TagString: Untagged
@@ -12907,23 +12877,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1757122205}
   m_CullTransparentMesh: 1
---- !u!114 &1757122209
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1757122205}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af51e208eabeb0c4583a50cd2e258650, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UpgradeInventoryView
-  root: {fileID: 1757122205}
-  contentRoot: {fileID: 463622100}
-  slotPrefab: {fileID: -6142012280809017472, guid: c5932a682571ef94fb30f20bc2e2b048, type: 3}
-  emptyRoot: {fileID: 1066440744}
-  emptyText: {fileID: 1066440746}
 --- !u!1 &1775101587
 GameObject:
   m_ObjectHideFlags: 0
@@ -13835,7 +13788,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchorMin.x
@@ -13843,7 +13796,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_SizeDelta.x
@@ -13883,11 +13836,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 832
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -600
       objectReference: {fileID: 0}
     - target: {fileID: 5179606527124235840, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -15719,6 +15672,9 @@ GameObject:
   - component: {fileID: 2147089521}
   - component: {fileID: 2147089522}
   - component: {fileID: 2147089523}
+  - component: {fileID: 2147089525}
+  - component: {fileID: 2147089524}
+  - component: {fileID: 2147089526}
   m_Layer: 0
   m_Name: Upgrade
   m_TagString: Untagged
@@ -15777,7 +15733,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6feb94f5b05bde74c8dae90630b9d565, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeInventoryOpener
-  inventoryView: {fileID: 1757122209}
+  inventoryView: {fileID: 2147089526}
 --- !u!114 &2147089522
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15790,7 +15746,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a294c3e5c0d172d469bd177cb0e6ec53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeInventoryPresenter
-  inventoryView: {fileID: 1757122209}
+  inventoryView: {fileID: 2147089526}
   inventoryManager: {fileID: 2147089520}
 --- !u!114 &2147089523
 MonoBehaviour:
@@ -15805,7 +15761,53 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeInventoryNotice
   noticeRoot: {fileID: 328705194}
-  inventoryView: {fileID: 1757122209}
+  inventoryView: {fileID: 2147089526}
+--- !u!114 &2147089524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2147089517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 363015089b4aadd4e9c86e390b1c3fe7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradePanelPresenter
+  panelView: {fileID: 2147089525}
+--- !u!114 &2147089525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2147089517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ed62f5774867a843ae4e03ee82ce2f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradePanelView
+  root: {fileID: 399243817}
+  slotContainer: {fileID: 636333965}
+  slotPrefab: {fileID: 2870882776228742042, guid: 3f8a7d2b77dedd142826d5ac649018b1, type: 3}
+  closeButton: {fileID: 734606905}
+--- !u!114 &2147089526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2147089517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af51e208eabeb0c4583a50cd2e258650, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UpgradeInventoryView
+  root: {fileID: 1757122205}
+  contentRoot: {fileID: 463622100}
+  slotPrefab: {fileID: -6142012280809017472, guid: c5932a682571ef94fb30f20bc2e2b048, type: 3}
+  emptyRoot: {fileID: 1066440744}
+  emptyText: {fileID: 1066440746}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

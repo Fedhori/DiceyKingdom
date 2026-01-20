@@ -153,7 +153,7 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
             true,
             () =>
             {
-                UpgradePanelEvents.RaiseTooltipDismissRequested();
+                UiSelectionEvents.RaiseSelectionCleared();
                 UpgradePanelEvents.RaiseToggleRequested(instance);
             });
     }
