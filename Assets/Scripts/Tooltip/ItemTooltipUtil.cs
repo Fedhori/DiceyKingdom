@@ -203,6 +203,9 @@ public static class ItemTooltipUtil
                 string absKey = $"absValue{i}";
                 dict[absKey] = Mathf.Abs(e.value).ToString("0.##");
 
+                string percentKey = $"percentValue{i}";
+                dict[percentKey] = (e.value * 100f).ToString("0.##");
+
                 if (e.effectMode == StatOpKind.Mult)
                 {
                     string multKey = $"mult{i}";

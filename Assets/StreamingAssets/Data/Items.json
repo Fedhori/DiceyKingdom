@@ -790,6 +790,29 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "item.stiletto",
+			"isObject": false,
+			"price": 6,
+			"rarity": "Uncommon",
+			"rules": [
+				{
+					"triggerType": "OnAcquire",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "criticalMultiplier",
+							"effectMode": "Add",
+							"value": 0.5,
+							"duration": "Owned"
+						}
+					]
+				}
+			]
 		}
 	]
 }

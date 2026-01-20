@@ -69,20 +69,14 @@ public static class UpgradeTooltipUtil
         if (effect == null)
             return null;
 
-        string valueText;
+        float value = effect.value;
         if (effect.effectMode == StatOpKind.Mult)
-        {
-            float percent = effect.value * 100f;
-            valueText = $"{percent:0.##}%";
-        }
-        else
-        {
-            valueText = effect.value.ToString("0.##");
-        }
+            value = 1f + value;
 
         var dict = new Dictionary<string, object>
         {
-            ["value0"] = valueText
+            ["value0"] = value.ToString("0.##"),
+            ["percentValue0"] = (effect.value * 100f).ToString("0.##")
         };
 
         return dict;
