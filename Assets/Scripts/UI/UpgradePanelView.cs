@@ -32,9 +32,9 @@ public sealed class UpgradePanelView : MonoBehaviour
             closeButton.onClick.RemoveListener(Close);
     }
 
-    public void Open(IReadOnlyList<UpgradeInstance> upgrades)
+    public void Open(IReadOnlyList<UpgradeInstance> upgrades, UpgradeInstance extraUpgrade = null)
     {
-        SetUpgrades(upgrades);
+        SetUpgrades(upgrades, extraUpgrade);
         SetOpen(true);
     }
 
@@ -43,23 +43,38 @@ public sealed class UpgradePanelView : MonoBehaviour
         SetOpen(false);
     }
 
-    public void SetUpgrades(IReadOnlyList<UpgradeInstance> upgrades)
+    public void SetUpgrades(IReadOnlyList<UpgradeInstance> upgrades, UpgradeInstance extraUpgrade = null)
     {
         int count = upgrades != null ? upgrades.Count : 0;
-        EnsureSlotCount(count);
+        int extraCount = extraUpgrade != null ? 1 : 0;
+        EnsureSlotCount(count + extraCount);
 
-        for (int i = 0; i < slots.Count; i++)
+        int slotIndex = 0;
+        for (int i = 0; i < count; i++)
         {
-            var slot = slots[i];
+            var slot = slots[slotIndex++];
             if (slot == null)
                 continue;
 
-            bool active = i < count;
-            slot.gameObject.SetActive(active);
-            if (!active)
-                continue;
-
+            slot.gameObject.SetActive(true);
             slot.Bind(upgrades[i]);
+        }
+
+        if (extraUpgrade != null && slotIndex < slots.Count)
+        {
+            var slot = slots[slotIndex++];
+            if (slot != null)
+            {
+                slot.gameObject.SetActive(true);
+                slot.Bind(extraUpgrade);
+            }
+        }
+
+        for (int i = slotIndex; i < slots.Count; i++)
+        {
+            var slot = slots[i];
+            if (slot != null)
+                slot.gameObject.SetActive(false);
         }
 
         ApplyReplaceButtons();

@@ -66,7 +66,7 @@ public sealed class UpgradePanelPresenter : MonoBehaviour
 
         pendingReplace = request;
         currentItem = request.TargetItem;
-        panelView.Open(request.TargetItem.Upgrades);
+        panelView.Open(request.TargetItem.Upgrades, request.PendingUpgrade);
         panelView.SetReplaceMode(true, HandleReplaceClicked);
     }
 
