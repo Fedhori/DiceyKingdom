@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Data;
@@ -21,6 +22,7 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
     [SerializeField] Transform upgradeIconContainer;
     [SerializeField] ItemView upgradeIconPrefab;
     [SerializeField] GameObject upgradeVfxRoot;
+    readonly List<ItemView> upgradeIcons = new();
 
     void Awake()
     {
@@ -73,12 +75,18 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
         if (!ReferenceEquals(Instance, instance))
         {
             if (Instance != null)
+            {
                 Instance.OnUpgradeChanged -= HandleUpgradeChanged;
+                Instance.OnUpgradesChanged -= HandleUpgradeChanged;
+            }
 
             Instance = instance;
 
             if (Instance != null)
+            {
                 Instance.OnUpgradeChanged += HandleUpgradeChanged;
+                Instance.OnUpgradesChanged += HandleUpgradeChanged;
+            }
         }
 
         UpdateView();
@@ -149,9 +157,11 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
 
         if (upgradeVfxRoot != null)
         {
-            bool hasUpgrade = displayInstance != null && displayInstance.Upgrade != null;
+            bool hasUpgrade = displayInstance != null && displayInstance.Upgrades.Count > 0;
             upgradeVfxRoot.SetActive(hasUpgrade);
         }
+
+        RefreshUpgradeIcons(displayInstance);
     }
 
     void HandleUpgradeChanged(ItemInstance instance)
@@ -160,6 +170,49 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
             return;
 
         UpdateView();
+    }
+
+    void RefreshUpgradeIcons(ItemInstance displayInstance)
+    {
+        if (upgradeIconContainer == null || upgradeIconPrefab == null)
+            return;
+
+        var upgrades = displayInstance != null ? displayInstance.Upgrades : null;
+        int required = upgrades != null ? upgrades.Count : 0;
+
+        EnsureUpgradeIconCount(required);
+
+        for (int i = 0; i < upgradeIcons.Count; i++)
+        {
+            var icon = upgradeIcons[i];
+            if (icon == null)
+                continue;
+
+            bool active = i < required;
+            icon.gameObject.SetActive(active);
+            if (!active)
+                continue;
+
+            var upgrade = upgrades[i];
+            icon.SetIcon(SpriteCache.GetUpgradeSprite(upgrade?.Id));
+            icon.SetRarity(upgrade != null ? upgrade.Rarity : ItemRarity.Common);
+        }
+    }
+
+    void EnsureUpgradeIconCount(int required)
+    {
+        for (int i = upgradeIcons.Count - 1; i >= required; i--)
+        {
+            var icon = upgradeIcons[i];
+            if (icon != null)
+                icon.gameObject.SetActive(false);
+        }
+
+        while (upgradeIcons.Count < required)
+        {
+            var icon = Instantiate(upgradeIconPrefab, upgradeIconContainer);
+            upgradeIcons.Add(icon);
+        }
     }
 
     public Sprite GetIconSprite()
