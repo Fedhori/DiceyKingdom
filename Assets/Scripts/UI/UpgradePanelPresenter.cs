@@ -40,6 +40,8 @@ public sealed class UpgradePanelPresenter : MonoBehaviour
         if (panelView == null || item == null || item.Upgrades.Count == 0)
             return;
 
+        ClearShopSelectionIfAny();
+
         if (pendingReplace != null)
         {
             ClosePanel();
@@ -62,6 +64,8 @@ public sealed class UpgradePanelPresenter : MonoBehaviour
     {
         if (panelView == null || request == null || request.TargetItem == null)
             return;
+
+        ClearShopSelectionIfAny();
 
         pendingReplace = request;
         currentItem = request.TargetItem;
@@ -165,5 +169,15 @@ public sealed class UpgradePanelPresenter : MonoBehaviour
                     ClosePanel();
             },
             () => { });
+    }
+
+    void ClearShopSelectionIfAny()
+    {
+        var shop = ShopManager.Instance;
+        if (shop == null || shop.CurrentSelectionIndex < 0)
+            return;
+
+        shop.ClearSelection();
+        TooltipManager.Instance?.ClearPin();
     }
 }

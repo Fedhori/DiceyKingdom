@@ -8,6 +8,7 @@ public sealed class UpgradePanelView : MonoBehaviour
     [SerializeField] GameObject root;
     [SerializeField] Transform slotContainer;
     [SerializeField] UpgradePanelSlot slotPrefab;
+    [SerializeField] UpgradePanelSlot extraSlot;
     [SerializeField] Button closeButton;
 
     readonly List<UpgradePanelSlot> slots = new();
@@ -26,6 +27,7 @@ public sealed class UpgradePanelView : MonoBehaviour
             closeButton.onClick.AddListener(Close);
 
         SetOpen(false);
+        SetExtraSlot(null);
     }
 
     void OnDestroy()
@@ -48,8 +50,7 @@ public sealed class UpgradePanelView : MonoBehaviour
     public void SetUpgrades(IReadOnlyList<UpgradeInstance> upgrades, UpgradeInstance extraUpgrade = null)
     {
         int count = upgrades != null ? upgrades.Count : 0;
-        int extraCount = extraUpgrade != null ? 1 : 0;
-        EnsureSlotCount(count + extraCount);
+        EnsureSlotCount(count);
 
         int slotIndex = 0;
         for (int i = 0; i < count; i++)
@@ -62,16 +63,6 @@ public sealed class UpgradePanelView : MonoBehaviour
             slot.Bind(upgrades[i]);
         }
 
-        if (extraUpgrade != null && slotIndex < slots.Count)
-        {
-            var slot = slots[slotIndex++];
-            if (slot != null)
-            {
-                slot.gameObject.SetActive(true);
-                slot.Bind(extraUpgrade);
-            }
-        }
-
         for (int i = slotIndex; i < slots.Count; i++)
         {
             var slot = slots[i];
@@ -80,6 +71,7 @@ public sealed class UpgradePanelView : MonoBehaviour
         }
 
         ApplyReplaceButtons();
+        SetExtraSlot(extraUpgrade);
 
         if (IsOpen)
             RefreshLayout();
@@ -96,6 +88,8 @@ public sealed class UpgradePanelView : MonoBehaviour
             slot.Bind(null);
             slot.gameObject.SetActive(false);
         }
+
+        SetExtraSlot(null);
     }
 
     public void SetReplaceMode(bool enabled, Action<UpgradeInstance> onReplace)
@@ -138,6 +132,23 @@ public sealed class UpgradePanelView : MonoBehaviour
             var slot = Instantiate(slotPrefab, slotContainer);
             slots.Add(slot);
         }
+    }
+
+    void SetExtraSlot(UpgradeInstance upgrade)
+    {
+        if (extraSlot == null)
+            return;
+
+        if (upgrade == null)
+        {
+            extraSlot.Bind(null);
+            extraSlot.gameObject.SetActive(false);
+            return;
+        }
+
+        extraSlot.gameObject.SetActive(true);
+        extraSlot.Bind(upgrade);
+        extraSlot.SetToggleButton(false, null, default, false, null);
     }
 
     void ApplyReplaceButtons()
