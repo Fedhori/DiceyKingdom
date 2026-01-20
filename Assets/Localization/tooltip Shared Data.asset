@@ -83,6 +83,10 @@ MonoBehaviour:
     m_Key: tooltip.sell.label
     m_Metadata:
       m_Items: []
+  - m_Id: 10581387094011919
+    m_Key: tooltip.upgrade.replace.label
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

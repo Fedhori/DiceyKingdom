@@ -60,7 +60,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 7651769194131458
-    m_Key: modal.upgradeReplace.message
+    m_Key: modal.upgradeReplace.body
     m_Metadata:
       m_Items: []
   - m_Id: 7651769194131459

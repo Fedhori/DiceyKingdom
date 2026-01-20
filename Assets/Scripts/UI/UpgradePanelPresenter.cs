@@ -144,10 +144,26 @@ public sealed class UpgradePanelPresenter : MonoBehaviour
         if (pendingReplace == null || existingUpgrade == null)
             return;
 
-        bool success = UpgradeManager.Instance != null
-            && UpgradeManager.Instance.TryConfirmReplace(existingUpgrade);
+        var modal = ModalManager.Instance;
+        if (modal == null)
+        {
+            Debug.LogWarning("[UpgradePanelPresenter] ModalManager is missing.");
+            return;
+        }
 
-        if (success)
-            ClosePanel();
+        modal.ShowConfirmation(
+            "modal",
+            "modal.upgradeReplace.title",
+            "modal",
+            "modal.upgradeReplace.body",
+            () =>
+            {
+                bool success = UpgradeManager.Instance != null
+                    && UpgradeManager.Instance.TryConfirmReplace(existingUpgrade);
+
+                if (success)
+                    ClosePanel();
+            },
+            () => { });
     }
 }
