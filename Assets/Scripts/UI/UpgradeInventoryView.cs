@@ -13,6 +13,8 @@ public sealed class UpgradeInventoryView : MonoBehaviour, IPointerClickHandler
     [SerializeField] private TMP_Text emptyText;
 
     readonly List<UpgradeInventorySlotController> slots = new();
+    
+    public GameObject Root => root;
 
     const string EmptyKey = "upgrade.inventory.empty";
 

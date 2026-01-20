@@ -19,8 +19,6 @@ public sealed class UpgradePanelPresenter : MonoBehaviour
     {
         UpgradePanelEvents.OnToggleRequested += HandleToggleRequested;
         UiSelectionEvents.OnSelectionCleared += HandleSelectionCleared;
-        BindUpgradeManager();
-        BindSlotManager();
     }
 
     void Start()

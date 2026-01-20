@@ -40,13 +40,6 @@ public sealed class ItemSlotManager : MonoBehaviour
         BuildSlots();
     }
 
-    void OnEnable()
-    {
-        TryBindInventory();
-        RefreshFromInventory();
-        TryBindUpgradeInventory();
-    }
-
     void Start()
     {
         TryBindInventory();

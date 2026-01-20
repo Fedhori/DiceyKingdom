@@ -40,7 +40,7 @@ public sealed class ItemManager : MonoBehaviour
         inventory.OnSlotChanged += HandleSlotChanged;
     }
 
-    void OnEnable()
+    void Start()
     {
         SubscribePlayer();
     }

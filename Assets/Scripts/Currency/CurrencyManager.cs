@@ -23,7 +23,7 @@ public sealed class CurrencyManager : MonoBehaviour
         Instance = this;
     }
 
-    void OnEnable()
+    void Start()
     {
         SubscribePlayer();
         RefreshUI();

@@ -19,9 +19,8 @@ public sealed class UpgradeInventoryNotice : MonoBehaviour
         SetActive(false);
     }
 
-    void OnEnable()
+    void Start()
     {
-        // TODO - 초기화 안됨..
         var manager = UpgradeInventoryManager.Instance;
         if (manager != null)
             manager.OnNewUpgradeAdded += HandleNewUpgradeAdded;
@@ -66,7 +65,7 @@ public sealed class UpgradeInventoryNotice : MonoBehaviour
         if (inventoryView == null)
             return false;
 
-        return inventoryView.gameObject.activeInHierarchy;
+        return inventoryView.Root.gameObject.activeInHierarchy;
     }
 
     void SetActive(bool active)

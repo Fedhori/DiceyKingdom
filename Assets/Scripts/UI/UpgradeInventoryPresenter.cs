@@ -18,11 +18,6 @@ public sealed class UpgradeInventoryPresenter : MonoBehaviour
         Bind();
     }
 
-    void OnEnable()
-    {
-        Bind();
-    }
-
     void OnDisable()
     {
         Unbind();
