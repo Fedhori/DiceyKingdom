@@ -61,6 +61,37 @@
 			]
 		},
 		{
+			"id": "upgrade.weightstone",
+			"price": 4,
+			"rarity": "Common",
+			"conditions": [
+				{
+					"conditionKind": "HasAttackSpeed"
+				},
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "attackSpeed",
+					"effectMode": "Mult",
+					"value": -0.3,
+					"duration": "Upgrade"
+				},
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "damageMultiplier",
+					"effectMode": "Mult",
+					"value": 2.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
 			"id": "upgrade.snowflake",
 			"price": 5,
 			"rarity": "Uncommon",
