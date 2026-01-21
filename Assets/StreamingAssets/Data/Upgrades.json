@@ -247,6 +247,26 @@
 			]
 		},
 		{
+			"id": "upgrade.monocle",
+			"price": 7,
+			"rarity": "Uncommon",
+			"conditions": [
+				{
+					"conditionKind": "HasProjectile"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "projectileSizeMultiplier",
+					"effectMode": "Add",
+					"value": 1.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
 			"id": "upgrade.aimbot",
 			"price": 10,
 			"rarity": "Rare",

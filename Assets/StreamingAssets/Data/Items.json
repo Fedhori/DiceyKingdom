@@ -313,7 +313,7 @@
 						{
 							"effectType": "ModifyStat",
 							"statId": "projectileSizeMultiplier",
-							"effectMode": "Mult",
+							"effectMode": "Add",
 							"value": 0.5,
 							"duration": "Owned"
 						}

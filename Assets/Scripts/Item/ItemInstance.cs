@@ -11,6 +11,7 @@ public sealed class ItemInstance
 
     public float StatusDamageMultiplier { get; private set; }
     public float ProjectileSize { get; private set; }
+    public float ProjectileSizeMultiplier => (float)Stats.GetValue(ItemStatIds.ProjectileSizeMultiplier);
     public float ProjectileSpeed { get; private set; }
     public string ProjectileKey { get; private set; }
     public ProjectileHitBehavior ProjectileHitBehavior { get; private set; }
@@ -106,6 +107,7 @@ public sealed class ItemInstance
         UniqueId = Guid.NewGuid().ToString();
         Stats = new StatSet();
         Stats.SetBase(ItemStatIds.CriticalChanceMultiplier, 1d, 0d);
+        Stats.SetBase(ItemStatIds.ProjectileSizeMultiplier, 0d, 0d);
         Stats.SetBase(ItemStatIds.ProjectileHomingTurnRate, 0d, 0d);
         Stats.SetBase(ItemStatIds.ProjectileExplosionRadius, 0d, 0d);
 

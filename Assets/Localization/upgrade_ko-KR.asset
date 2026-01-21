@@ -85,6 +85,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 1113825343581192274
+  - m_Id: 181419913244
+    m_Localized: "\uB2E8\uC548\uACBD"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181419913245
+    m_Localized: "\uD22C\uC0AC\uCCB4 \uD06C\uAE30 <style=\"value\">+{percentValue0}%</style>"
+    m_Metadata:
+      m_Items:
+      - rid: 1113825343581192274
   - m_Id: 181419913228
     m_Localized: "\uC5D0\uC784-\uBD07"
     m_Metadata:
@@ -176,6 +185,7 @@ MonoBehaviour:
         - id: 181419913232
         - id: 181419913234
         - id: 181419913227
+        - id: 181419913245
         - id: 181419913238
         - id: 181419913243
         - id: 181419913241

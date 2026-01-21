@@ -40,7 +40,7 @@ public sealed class PlayerInstance
         Stats.SetBase(PlayerStatIds.CriticalChance, BaseDto.critChance, 0d, 200d);
         Stats.SetBase(PlayerStatIds.CriticalMultiplier, BaseDto.criticalMultiplier, 1d);
         Stats.SetBase(PlayerStatIds.MoveSpeed, Mathf.Max(0.1f, BaseDto.moveSpeed), 0.1d);
-        Stats.SetBase(PlayerStatIds.ProjectileSizeMultiplier, 1d, 0.1d);
+        Stats.SetBase(PlayerStatIds.ProjectileSizeMultiplier, 0d, 0d);
         Stats.SetBase(PlayerStatIds.ProjectileRandomAngleMultiplier, 1d, 0d);
         Stats.SetBase(PlayerStatIds.ProjectileDamageMultiplier, 1d, 0d);
         Stats.SetBase(PlayerStatIds.IsDryIceEnabled, 0d, 0d, 1d);
