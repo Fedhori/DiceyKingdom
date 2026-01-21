@@ -131,8 +131,15 @@ public sealed class UpgradeManager : MonoBehaviour
 
         ClearUpgradeModifiers(target);
 
+        int upgradeCount = upgradesToApply.Count;
         for (int i = 0; i < upgradesToApply.Count; i++)
-            ApplyUpgradeEffects(target, upgradesToApply[i], effectManager);
+        {
+            var upgrade = upgradesToApply[i];
+            if (upgrade != null && upgrade.RequiresSolo && upgradeCount != 1)
+                continue;
+
+            ApplyUpgradeEffects(target, upgrade, effectManager);
+        }
 
         target.SetUpgrades(upgradesToApply);
         return true;

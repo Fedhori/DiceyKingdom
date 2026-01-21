@@ -110,12 +110,17 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 1113825343581192274
-  - m_Id: 181419913225
-    m_Localized: "\uBCF4\uC720\uD55C \uAC15\uD654\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4."
+  - m_Id: 181419913233
+    m_Localized: "\uB4F1\uB300"
     m_Metadata:
       m_Items: []
-  - m_Id: 2870126168256512
-    m_Localized: '"I''m sorry, Game."'
+  - m_Id: 181419913234
+    m_Localized: "\uC801\uC6A9\uD55C \uC544\uC774\uD15C\uC758 \uC720\uC77C\uD55C \uAC15\uD654\uC77C \uB54C \uD53C\uD574\uB7C9 <style=\"value\">+{percentValue0}%</style>"
+    m_Metadata:
+      m_Items:
+      - rid: 1113825343581192274
+  - m_Id: 181419913225
+    m_Localized: "\uBCF4\uC720\uD55C \uAC15\uD654\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
   references:
@@ -134,4 +139,5 @@ MonoBehaviour:
         - id: 181419913224
         - id: 181419913231
         - id: 181419913232
+        - id: 181419913234
         - id: 181419913227

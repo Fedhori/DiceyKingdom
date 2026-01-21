@@ -92,6 +92,27 @@
 			]
 		},
 		{
+			"id": "upgrade.lighthouse",
+			"price": 5,
+			"rarity": "Common",
+			"requiresSolo": true,
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "damageMultiplier",
+					"effectMode": "Mult",
+					"value": 2.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
 			"id": "upgrade.snowflake",
 			"price": 5,
 			"rarity": "Uncommon",
@@ -187,8 +208,7 @@
 					"effectMode": "Override",
 					"value": 720.0,
 					"duration": "Upgrade"
-				},
-				{}
+				}
 			]
 		}
 	]

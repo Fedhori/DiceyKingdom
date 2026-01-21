@@ -37,6 +37,7 @@ namespace Data
 
         public List<UpgradeConditionDto> conditions;
         public List<ItemEffectDto> effects;
+        public bool requiresSolo;
 
         [JsonIgnore]
         public bool isValid = true;
