@@ -267,6 +267,27 @@
 			]
 		},
 		{
+			"id": "upgrade.dodo",
+			"price": 5,
+			"rarity": "Uncommon",
+			"breakChanceOnStageEnd": 0.1,
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "damageMultiplier",
+					"effectMode": "Mult",
+					"value": 3.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
 			"id": "upgrade.aimbot",
 			"price": 10,
 			"rarity": "Rare",

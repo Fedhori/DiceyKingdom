@@ -8,6 +8,7 @@ public sealed class UpgradeInstance
     public int Price { get; }
     public ItemRarity Rarity { get; }
     public bool RequiresSolo { get; }
+    public float BreakChanceOnStageEnd { get; }
     public IReadOnlyList<UpgradeConditionDto> Conditions => conditions;
     public IReadOnlyList<ItemEffectDto> Effects => effects;
     public IReadOnlyList<ItemRuleDto> Rules => rules;
@@ -30,6 +31,7 @@ public sealed class UpgradeInstance
         Price = dto.price;
         Rarity = dto.rarity;
         RequiresSolo = dto.requiresSolo;
+        BreakChanceOnStageEnd = dto.breakChanceOnStageEnd;
 
         if (dto.conditions != null)
             conditions.AddRange(dto.conditions);

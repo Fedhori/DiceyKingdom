@@ -159,6 +159,46 @@ public sealed class UpgradeManager : MonoBehaviour
         return true;
     }
 
+    public void TryBreakUpgradesOnStageEnd(ItemInventory inventory)
+    {
+        if (inventory == null)
+            return;
+
+        var slots = inventory.Slots;
+        for (int i = 0; i < slots.Count; i++)
+        {
+            var item = slots[i];
+            if (item == null)
+                continue;
+
+            var upgrades = item.Upgrades;
+            if (upgrades == null || upgrades.Count == 0)
+                continue;
+
+            bool changed = false;
+            var list = new List<UpgradeInstance>(upgrades);
+            for (int u = list.Count - 1; u >= 0; u--)
+            {
+                var upgrade = list[u];
+                if (upgrade == null)
+                    continue;
+
+                float chance = upgrade.BreakChanceOnStageEnd;
+                if (chance <= 0f)
+                    continue;
+
+                if (UnityEngine.Random.value < chance)
+                {
+                    list.RemoveAt(u);
+                    changed = true;
+                }
+            }
+
+            if (changed)
+                ApplyUpgrades(item, list);
+        }
+    }
+
     public bool BeginReplace(
         ItemInstance targetItem,
         UpgradeInstance pendingUpgrade,

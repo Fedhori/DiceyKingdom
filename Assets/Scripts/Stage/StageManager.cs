@@ -162,6 +162,9 @@ public sealed class StageManager : MonoBehaviour
         }
 
         ItemManager.Instance?.TriggerAll(ItemTriggerType.OnStageEnd);
+        var upgradeManager = UpgradeManager.Instance;
+        if (upgradeManager != null)
+            upgradeManager.TryBreakUpgradesOnStageEnd(ItemManager.Instance?.Inventory);
         ToNextStage();
     }
 

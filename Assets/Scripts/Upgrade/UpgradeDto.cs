@@ -44,6 +44,7 @@ namespace Data
         public List<ItemEffectDto> effects;
         public List<ItemRuleDto> rules;
         public bool requiresSolo;
+        public float breakChanceOnStageEnd;
 
         [JsonIgnore]
         public bool isValid = true;
@@ -72,6 +73,12 @@ namespace Data
             if (price < 0)
             {
                 Debug.LogError($"[UpgradeDto] '{id}': price < 0 is not allowed.");
+                isValid = false;
+            }
+
+            if (breakChanceOnStageEnd < 0f || breakChanceOnStageEnd > 1f)
+            {
+                Debug.LogError($"[UpgradeDto] '{id}': breakChanceOnStageEnd must be 0~1.");
                 isValid = false;
             }
         }

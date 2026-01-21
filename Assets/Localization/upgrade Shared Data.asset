@@ -79,6 +79,14 @@ MonoBehaviour:
     m_Key: upgrade.monocle.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 181419913246
+    m_Key: upgrade.dodo.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181419913247
+    m_Key: upgrade.dodo.effect0
+    m_Metadata:
+      m_Items: []
   - m_Id: 181419913228
     m_Key: upgrade.aimbot.name
     m_Metadata:
