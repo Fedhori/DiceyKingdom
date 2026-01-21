@@ -113,6 +113,34 @@
 			]
 		},
 		{
+			"id": "upgrade.whetstone",
+			"price": 6,
+			"rarity": "Uncommon",
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"rules": [
+				{
+					"triggerType": "OnStageEnd",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyItemStat",
+							"target": "Self",
+							"statId": "damageMultiplier",
+							"effectMode": "Add",
+							"value": 0.1,
+							"duration": "Permanent"
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "upgrade.snowflake",
 			"price": 5,
 			"rarity": "Uncommon",

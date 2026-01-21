@@ -115,6 +115,18 @@ MonoBehaviour:
     m_Key: upgrade.yellowturban.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 181419913239
+    m_Key: upgrade.yellowturban.effect1
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181419913240
+    m_Key: upgrade.whetstone.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181419913241
+    m_Key: upgrade.whetstone.effect0
+    m_Metadata:
+      m_Items: []
   - m_Id: 181419913225
     m_Key: upgrade.inventory.empty
     m_Metadata:

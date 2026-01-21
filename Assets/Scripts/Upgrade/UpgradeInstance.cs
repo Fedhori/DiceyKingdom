@@ -10,9 +10,11 @@ public sealed class UpgradeInstance
     public bool RequiresSolo { get; }
     public IReadOnlyList<UpgradeConditionDto> Conditions => conditions;
     public IReadOnlyList<ItemEffectDto> Effects => effects;
+    public IReadOnlyList<ItemRuleDto> Rules => rules;
 
     readonly List<UpgradeConditionDto> conditions = new();
     readonly List<ItemEffectDto> effects = new();
+    readonly List<ItemRuleDto> rules = new();
 
     public UpgradeInstance(UpgradeDto dto)
     {
@@ -34,6 +36,9 @@ public sealed class UpgradeInstance
 
         if (dto.effects != null)
             effects.AddRange(dto.effects);
+
+        if (dto.rules != null)
+            rules.AddRange(dto.rules);
     }
 
     public bool IsApplicable(ItemInstance target)

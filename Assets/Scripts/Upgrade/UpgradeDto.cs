@@ -42,6 +42,7 @@ namespace Data
 
         public List<UpgradeConditionDto> conditions;
         public List<ItemEffectDto> effects;
+        public List<ItemRuleDto> rules;
         public bool requiresSolo;
 
         [JsonIgnore]
@@ -57,6 +58,9 @@ namespace Data
 
             if (effects == null)
                 effects = new List<ItemEffectDto>();
+
+            if (rules == null)
+                rules = new List<ItemRuleDto>();
 
             if (string.IsNullOrEmpty(id))
             {

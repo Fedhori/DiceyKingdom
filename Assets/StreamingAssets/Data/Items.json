@@ -691,30 +691,6 @@
 			]
 		},
 		{
-			"id": "item.whetstone",
-			"isObject": false,
-			"price": 4,
-			"rarity": "Common",
-			"rules": [
-				{
-					"triggerType": "OnStageEnd",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "ModifyItemStat",
-							"target": "Right",
-							"statId": "damageMultiplier",
-							"effectMode": "Add",
-							"value": 0.1,
-							"duration": "Owned"
-						}
-					]
-				}
-			]
-		},
-		{
 			"id": "item.dryice",
 			"isObject": false,
 			"price": 9,

@@ -50,6 +50,8 @@ public sealed class ItemInstance
 
     private readonly List<ItemRuleDto> rules = new();
     public IReadOnlyList<ItemRuleDto> Rules => rules;
+    private readonly List<ItemRuleDto> upgradeRules = new();
+    public IReadOnlyList<ItemRuleDto> UpgradeRules => upgradeRules;
 
     public event Action<ItemEffectDto, ItemInstance> OnEffectTriggered;
     public event Action<ItemInstance> OnUpgradeChanged;
@@ -71,8 +73,32 @@ public sealed class ItemInstance
         OnUpgradesChanged?.Invoke(this);
     }
 
+    public void SetUpgradeRules(IReadOnlyList<ItemRuleDto> newRules)
+    {
+        if (newRules == null || newRules.Count == 0)
+        {
+            if (upgradeRules.Count == 0)
+                return;
+
+            upgradeRules.Clear();
+            upgradeRuleElapsedSeconds.Clear();
+            return;
+        }
+
+        upgradeRules.Clear();
+        for (int i = 0; i < newRules.Count; i++)
+        {
+            var rule = newRules[i];
+            if (rule != null)
+                upgradeRules.Add(rule);
+        }
+
+        upgradeRuleElapsedSeconds.Clear();
+    }
+
     readonly Dictionary<ItemTriggerType, int> triggerCounts = new();
     readonly Dictionary<int, float> ruleElapsedSeconds = new();
+    readonly Dictionary<int, float> upgradeRuleElapsedSeconds = new();
     readonly StatSet triggerRepeatStats = new();
 
     public ItemInstance(ItemDto dto)
@@ -171,14 +197,23 @@ public sealed class ItemInstance
 
     public void HandleTrigger(ItemTriggerType trigger)
     {
-        if (rules.Count == 0)
+        if (rules.Count == 0 && upgradeRules.Count == 0)
             return;
 
         IncrementTriggerCount(trigger);
 
-        for (int i = 0; i < rules.Count; i++)
+        HandleTriggerRules(rules, trigger);
+        HandleTriggerRules(upgradeRules, trigger);
+    }
+
+    void HandleTriggerRules(List<ItemRuleDto> targetRules, ItemTriggerType trigger)
+    {
+        if (targetRules == null || targetRules.Count == 0)
+            return;
+
+        for (int i = 0; i < targetRules.Count; i++)
         {
-            var rule = rules[i];
+            var rule = targetRules[i];
             if (rule == null)
                 continue;
 
@@ -221,12 +256,21 @@ public sealed class ItemInstance
 
     public void HandleTime(float deltaSeconds)
     {
-        if (deltaSeconds <= 0f || rules.Count == 0)
+        if (deltaSeconds <= 0f)
             return;
 
-        for (int i = 0; i < rules.Count; i++)
+        HandleTimeRules(rules, ruleElapsedSeconds, deltaSeconds);
+        HandleTimeRules(upgradeRules, upgradeRuleElapsedSeconds, deltaSeconds);
+    }
+
+    void HandleTimeRules(List<ItemRuleDto> targetRules, Dictionary<int, float> elapsedSeconds, float deltaSeconds)
+    {
+        if (targetRules == null || targetRules.Count == 0)
+            return;
+
+        for (int i = 0; i < targetRules.Count; i++)
         {
-            var rule = rules[i];
+            var rule = targetRules[i];
             if (rule == null)
                 continue;
 
@@ -241,7 +285,7 @@ public sealed class ItemInstance
             if (interval <= 0f)
                 continue;
 
-            float elapsed = GetRuleElapsedSeconds(i) + deltaSeconds;
+            float elapsed = GetRuleElapsedSeconds(elapsedSeconds, i) + deltaSeconds;
             int triggerCount = 0;
             while (elapsed >= interval)
             {
@@ -249,7 +293,7 @@ public sealed class ItemInstance
                 triggerCount++;
             }
 
-            SetRuleElapsedSeconds(i, elapsed);
+            SetRuleElapsedSeconds(elapsedSeconds, i, elapsed);
 
             for (int t = 0; t < triggerCount; t++)
                 ApplyEffects(rule.effects);
@@ -260,6 +304,7 @@ public sealed class ItemInstance
     {
         triggerCounts.Clear();
         ruleElapsedSeconds.Clear();
+        upgradeRuleElapsedSeconds.Clear();
     }
 
     public bool IsWeapon()
@@ -357,14 +402,20 @@ public sealed class ItemInstance
         return true;
     }
 
-    float GetRuleElapsedSeconds(int ruleIndex)
+    float GetRuleElapsedSeconds(Dictionary<int, float> elapsedSeconds, int ruleIndex)
     {
-        return ruleElapsedSeconds.TryGetValue(ruleIndex, out var elapsed) ? elapsed : 0f;
+        if (elapsedSeconds == null)
+            return 0f;
+
+        return elapsedSeconds.TryGetValue(ruleIndex, out var elapsed) ? elapsed : 0f;
     }
 
-    void SetRuleElapsedSeconds(int ruleIndex, float elapsed)
+    void SetRuleElapsedSeconds(Dictionary<int, float> elapsedSeconds, int ruleIndex, float elapsed)
     {
-        ruleElapsedSeconds[ruleIndex] = Mathf.Max(0f, elapsed);
+        if (elapsedSeconds == null)
+            return;
+
+        elapsedSeconds[ruleIndex] = Mathf.Max(0f, elapsed);
     }
 
     void ApplyEffects(List<ItemEffectDto> effects)

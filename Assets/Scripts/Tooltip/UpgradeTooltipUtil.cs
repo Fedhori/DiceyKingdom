@@ -34,7 +34,7 @@ public static class UpgradeTooltipUtil
         if (upgrade == null)
             return string.Empty;
 
-        var effects = upgrade.Effects;
+        var effects = CollectEffects(upgrade);
         if (effects == null || effects.Count == 0)
             return string.Empty;
 
@@ -62,6 +62,32 @@ public static class UpgradeTooltipUtil
         }
 
         return sb.ToString();
+    }
+
+    static List<ItemEffectDto> CollectEffects(UpgradeInstance upgrade)
+    {
+        var results = new List<ItemEffectDto>();
+        if (upgrade == null)
+            return results;
+
+        var effects = upgrade.Effects;
+        if (effects != null && effects.Count > 0)
+            results.AddRange(effects);
+
+        var rules = upgrade.Rules;
+        if (rules == null || rules.Count == 0)
+            return results;
+
+        for (int i = 0; i < rules.Count; i++)
+        {
+            var rule = rules[i];
+            if (rule == null || rule.effects == null || rule.effects.Count == 0)
+                continue;
+
+            results.AddRange(rule.effects);
+        }
+
+        return results;
     }
 
     static object BuildArgs(ItemEffectDto effect)

@@ -33,6 +33,7 @@ public sealed class UpgradeManager : MonoBehaviour
             return;
 
         ClearUpgradeModifiers(target);
+        target.SetUpgradeRules(null);
         target.SetUpgrades(null);
     }
 
@@ -121,6 +122,7 @@ public sealed class UpgradeManager : MonoBehaviour
         if (upgradesToApply == null || upgradesToApply.Count == 0)
         {
             ClearUpgradeModifiers(target);
+            target.SetUpgradeRules(null);
             target.SetUpgrades(null);
             return true;
         }
@@ -132,15 +134,27 @@ public sealed class UpgradeManager : MonoBehaviour
         ClearUpgradeModifiers(target);
 
         int upgradeCount = upgradesToApply.Count;
+        List<ItemRuleDto> upgradeRules = null;
         for (int i = 0; i < upgradesToApply.Count; i++)
         {
             var upgrade = upgradesToApply[i];
-            if (upgrade != null && upgrade.RequiresSolo && upgradeCount != 1)
+            if (upgrade == null)
+                continue;
+
+            if (upgrade.RequiresSolo && upgradeCount != 1)
                 continue;
 
             ApplyUpgradeEffects(target, upgrade, effectManager);
+
+            var rules = upgrade.Rules;
+            if (rules != null && rules.Count > 0)
+            {
+                upgradeRules ??= new List<ItemRuleDto>();
+                upgradeRules.AddRange(rules);
+            }
         }
 
+        target.SetUpgradeRules(upgradeRules);
         target.SetUpgrades(upgradesToApply);
         return true;
     }
