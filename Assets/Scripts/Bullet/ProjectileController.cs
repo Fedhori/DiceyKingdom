@@ -14,10 +14,11 @@ public sealed class ProjectileController : MonoBehaviour
     int pierceRemaining;
     int wallBounceRemaining;
     float homingCooldownRemaining;
+    float damageScale = 1f;
 
     const float HomingCooldownSeconds = 0.2f;
 
-    public void Initialize(ItemInstance inst, Vector2 dir)
+    public void Initialize(ItemInstance inst, Vector2 dir, float damageScaleMultiplier = 1f)
     {
         if (!enabled)
             return;
@@ -25,6 +26,7 @@ public sealed class ProjectileController : MonoBehaviour
         item = inst;
         direction = dir.normalized;
         pierceRemaining = 0;
+        damageScale = Mathf.Max(0f, damageScaleMultiplier);
 
         ApplyPierceCount();
         ApplyWallBounceCount();
@@ -149,7 +151,8 @@ public sealed class ProjectileController : MonoBehaviour
             sourceType: DamageSourceType.Projectile,
             hitPosition: transform.position,
             applyStatusFromItem: true,
-            sourceOwner: this);
+            sourceOwner: this,
+            damageScale: damageScale);
         return damageManager.ApplyDamage(context);
     }
 
@@ -164,7 +167,7 @@ public sealed class ProjectileController : MonoBehaviour
                 item.ProjectileExplosionRadius,
                 item,
                 DamageSourceType.Projectile,
-                damageScale: 1f,
+                damageScale: damageScale,
                 sourceOwner: this);
         }
 

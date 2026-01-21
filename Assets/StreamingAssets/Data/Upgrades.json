@@ -288,6 +288,34 @@
 			]
 		},
 		{
+			"id": "upgrade.carbattery",
+			"price": 8,
+			"rarity": "Rare",
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				},
+				{
+					"conditionKind": "HasProjectile"
+				}
+			],
+			"rules": [
+				{
+					"triggerType": "OnTimeChanged",
+					"condition": {
+						"conditionKind": "Time",
+						"intervalSeconds": 3.0
+					},
+					"effects": [
+						{
+							"effectType": "ChargeNextProjectileDamage",
+							"value": 10.0
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "upgrade.aimbot",
 			"price": 10,
 			"rarity": "Rare",

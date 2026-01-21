@@ -67,6 +67,7 @@ public sealed class ItemController : MonoBehaviour
         int count = Mathf.Max(1, item.PelletCount);
         float spread = Mathf.Max(0f, item.SpreadAngle);
         float randomAngle = Mathf.Max(0f, item.ProjectileRandomAngle);
+        float damageScale = item.ConsumeNextProjectileDamageScale();
         var player = PlayerManager.Instance?.Current;
         if (player != null)
             randomAngle *= Mathf.Max(0f, (float)player.ProjectileRandomAngleMultiplier);
@@ -82,7 +83,7 @@ public sealed class ItemController : MonoBehaviour
                 float noise = Random.Range(-randomAngle, randomAngle);
                 shotDir = Quaternion.Euler(0f, 0f, noise) * shotDir;
             }
-            ProjectileFactory.Instance.SpawnProjectile(pos, shotDir, item);
+            ProjectileFactory.Instance.SpawnProjectile(pos, shotDir, item, damageScale);
         }
     }
 

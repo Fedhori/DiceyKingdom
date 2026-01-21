@@ -56,7 +56,7 @@ public sealed class ProjectileFactory : MonoBehaviour
         return null;
     }
 
-    public void SpawnProjectile(Vector3 position, Vector2 direction, ItemInstance item)
+    public void SpawnProjectile(Vector3 position, Vector2 direction, ItemInstance item, float damageScale = 1f)
     {
         var prefab = ResolvePrefab(item);
         if (prefab == null)
@@ -74,7 +74,7 @@ public sealed class ProjectileFactory : MonoBehaviour
             return;
         }
 
-        ctrl.Initialize(item, direction);
+        ctrl.Initialize(item, direction, damageScale);
         ItemManager.Instance?.TriggerAll(ItemTriggerType.OnProjectileSpawned);
     }
 

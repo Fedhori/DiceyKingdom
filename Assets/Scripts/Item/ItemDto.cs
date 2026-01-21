@@ -47,7 +47,8 @@ namespace Data
         ModifyBaseIncome,
         ApplyDamageToAllBlocks,
         SetItemStatus,
-        ModifyTriggerRepeat
+        ModifyTriggerRepeat,
+        ChargeNextProjectileDamage
     }
 
     public enum ItemEffectTarget

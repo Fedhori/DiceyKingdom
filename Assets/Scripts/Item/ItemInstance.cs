@@ -54,6 +54,9 @@ public sealed class ItemInstance
     private readonly List<ItemRuleDto> upgradeRules = new();
     public IReadOnlyList<ItemRuleDto> UpgradeRules => upgradeRules;
 
+    bool hasNextProjectileDamage;
+    float nextProjectileDamageScale = 1f;
+
     public event Action<ItemEffectDto, ItemInstance> OnEffectTriggered;
     public event Action<ItemInstance> OnUpgradeChanged;
     public event Action<ItemInstance> OnUpgradesChanged;
@@ -72,6 +75,7 @@ public sealed class ItemInstance
             OnUpgradeChanged?.Invoke(this);
 
         OnUpgradesChanged?.Invoke(this);
+        ClearNextProjectileDamage();
     }
 
     public void SetUpgradeRules(IReadOnlyList<ItemRuleDto> newRules)
@@ -83,6 +87,7 @@ public sealed class ItemInstance
 
             upgradeRules.Clear();
             upgradeRuleElapsedSeconds.Clear();
+            ClearNextProjectileDamage();
             return;
         }
 
@@ -95,6 +100,7 @@ public sealed class ItemInstance
         }
 
         upgradeRuleElapsedSeconds.Clear();
+        ClearNextProjectileDamage();
     }
 
     readonly Dictionary<ItemTriggerType, int> triggerCounts = new();
@@ -307,6 +313,30 @@ public sealed class ItemInstance
         triggerCounts.Clear();
         ruleElapsedSeconds.Clear();
         upgradeRuleElapsedSeconds.Clear();
+        ClearNextProjectileDamage();
+    }
+
+    public void TryChargeNextProjectileDamage()
+    {
+        if (hasNextProjectileDamage)
+            return;
+
+        float scale = GetTotalNextProjectileDamageScale();
+        if (scale <= 1f)
+            return;
+
+        nextProjectileDamageScale = scale;
+        hasNextProjectileDamage = true;
+    }
+
+    public float ConsumeNextProjectileDamageScale()
+    {
+        if (!hasNextProjectileDamage)
+            return 1f;
+
+        float scale = nextProjectileDamageScale;
+        ClearNextProjectileDamage();
+        return scale;
     }
 
     public bool IsWeapon()
@@ -418,6 +448,42 @@ public sealed class ItemInstance
             return;
 
         elapsedSeconds[ruleIndex] = Mathf.Max(0f, elapsed);
+    }
+
+    void ClearNextProjectileDamage()
+    {
+        hasNextProjectileDamage = false;
+        nextProjectileDamageScale = 1f;
+    }
+
+    float GetTotalNextProjectileDamageScale()
+    {
+        float total = 0f;
+        AccumulateNextProjectileDamageScale(rules, ref total);
+        AccumulateNextProjectileDamageScale(upgradeRules, ref total);
+        return total;
+    }
+
+    static void AccumulateNextProjectileDamageScale(List<ItemRuleDto> targetRules, ref float total)
+    {
+        if (targetRules == null || targetRules.Count == 0)
+            return;
+
+        for (int i = 0; i < targetRules.Count; i++)
+        {
+            var rule = targetRules[i];
+            if (rule == null || rule.effects == null || rule.effects.Count == 0)
+                continue;
+
+            for (int j = 0; j < rule.effects.Count; j++)
+            {
+                var effect = rule.effects[j];
+                if (effect == null || effect.effectType != ItemEffectType.ChargeNextProjectileDamage)
+                    continue;
+
+                total += Mathf.Max(0f, effect.value);
+            }
+        }
     }
 
     void ApplyEffects(List<ItemEffectDto> effects)

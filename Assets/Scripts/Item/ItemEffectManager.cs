@@ -61,6 +61,9 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.ModifyTriggerRepeat:
                 ModifyTriggerRepeat(dto, item);
                 break;
+            case ItemEffectType.ChargeNextProjectileDamage:
+                ChargeNextProjectileDamage(item);
+                break;
             default:
                 Debug.LogWarning($"[ItemEffectManager] Unsupported effect type: {dto.effectType}");
                 break;
@@ -507,5 +510,13 @@ public sealed class ItemEffectManager : MonoBehaviour
             return;
 
         targetItem.AddTriggerRepeatModifier(dto.triggerType, dto.effectMode, dto.value, dto.duration, targetItem);
+    }
+
+    void ChargeNextProjectileDamage(ItemInstance item)
+    {
+        if (item == null)
+            return;
+
+        item.TryChargeNextProjectileDamage();
     }
 }
