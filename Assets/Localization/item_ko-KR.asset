@@ -385,6 +385,19 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
+  - m_Id: 5815909901414448
+    m_Localized: "\uBBF8\uB2E4\uC2A4\uC758 \uC190"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414449
+    m_Localized: "\uAE30\uBCF8 \uC218\uC785\uC774 <style=\"money\">{value0}$</style> \uC99D\uAC00\uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938704
+  - m_Id: 5815909901414450
+    m_Localized: "\uC7AC\uD654\uB97C \uC0AC\uC6A9\uD560 \uB54C \uC989\uC2DC \uD310\uB9E4\uB429\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
@@ -420,3 +433,4 @@ MonoBehaviour:
         - id: 5815909901414437
         - id: 5815909901414439
         - id: 5815909901414447
+        - id: 5815909901414449

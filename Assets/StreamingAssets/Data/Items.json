@@ -789,6 +789,39 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "item.handofmidas",
+			"isObject": false,
+			"price": 10,
+			"rarity": "Rare",
+			"rules": [
+				{
+					"triggerType": "OnAcquire",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyBaseIncome",
+							"effectMode": "Add",
+							"value": 5.0,
+							"duration": "Owned"
+						}
+					]
+				},
+				{
+					"triggerType": "OnCurrencySpent",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "SellSelf"
+						}
+					]
+				}
+			]
 		}
 	]
 }

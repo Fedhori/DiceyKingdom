@@ -19,6 +19,7 @@ public sealed class ItemManager : MonoBehaviour
     readonly HashSet<ItemInstance> effectSources = new();
     readonly ItemInventory inventory = new();
     PlayerInstance subscribedPlayer;
+    int lastCurrency;
     bool isPlayActive;
     float tickTimer;
 
@@ -379,6 +380,7 @@ public sealed class ItemManager : MonoBehaviour
             return;
 
         subscribedPlayer = player;
+        lastCurrency = subscribedPlayer.Currency;
         subscribedPlayer.OnCurrencyChanged += HandleCurrencyChanged;
     }
 
@@ -389,11 +391,88 @@ public sealed class ItemManager : MonoBehaviour
 
         subscribedPlayer.OnCurrencyChanged -= HandleCurrencyChanged;
         subscribedPlayer = null;
+        lastCurrency = 0;
     }
 
     void HandleCurrencyChanged(int value)
     {
-        _ = value;
+        bool spent = value < lastCurrency;
+        lastCurrency = value;
+
+        if (spent)
+            TriggerAll(ItemTriggerType.OnCurrencySpent);
+
         TriggerAll(ItemTriggerType.OnCurrencyChanged);
+    }
+
+    public bool RemoveItemInstance(ItemInstance item, bool storeUpgrades)
+    {
+        if (item == null || inventory == null)
+            return false;
+
+        int index = FindItemIndex(item);
+        if (index < 0)
+            return false;
+
+        if (storeUpgrades)
+            StoreUpgrades(item);
+
+        return inventory.TryRemoveAt(index, out _);
+    }
+
+    public bool SellItemInstance(ItemInstance item, bool storeUpgrades)
+    {
+        if (item == null || inventory == null)
+            return false;
+
+        if (!ItemRepository.TryGet(item.Id, out var dto) || dto == null)
+            return false;
+
+        int basePrice = ShopManager.CalculateSellPrice(dto.price);
+        int price = basePrice + item.SellValueBonus;
+        if (price < 0)
+            price = 0;
+
+        CurrencyManager.Instance?.AddCurrency(price);
+        AudioManager.Instance?.Play("Buy");
+        return RemoveItemInstance(item, storeUpgrades);
+    }
+
+    int FindItemIndex(ItemInstance item)
+    {
+        if (item == null)
+            return -1;
+
+        for (int i = 0; i < inventory.SlotCount; i++)
+        {
+            if (ReferenceEquals(inventory.GetSlot(i), item))
+                return i;
+        }
+
+        return -1;
+    }
+
+    void StoreUpgrades(ItemInstance item)
+    {
+        if (item == null)
+            return;
+
+        var upgrades = item.Upgrades;
+        if (upgrades == null || upgrades.Count == 0)
+            return;
+
+        var upgradeManager = UpgradeManager.Instance;
+        var inventoryManager = UpgradeInventoryManager.Instance;
+        if (upgradeManager == null || inventoryManager == null)
+            return;
+
+        for (int i = 0; i < upgrades.Count; i++)
+        {
+            var upgrade = upgrades[i];
+            if (upgrade != null)
+                inventoryManager.Add(upgrade);
+        }
+
+        upgradeManager.RemoveUpgrade(item);
     }
 }

@@ -311,6 +311,18 @@ MonoBehaviour:
     m_Key: item.stiletto.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414448
+    m_Key: item.handofmidas.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414449
+    m_Key: item.handofmidas.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414450
+    m_Key: item.handofmidas.effect1
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -64,6 +64,12 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.ChargeNextProjectileDamage:
                 ChargeNextProjectileDamage(item);
                 break;
+            case ItemEffectType.RemoveSelf:
+                RemoveSelf(item);
+                break;
+            case ItemEffectType.SellSelf:
+                SellSelf(item);
+                break;
             default:
                 Debug.LogWarning($"[ItemEffectManager] Unsupported effect type: {dto.effectType}");
                 break;
@@ -518,5 +524,29 @@ public sealed class ItemEffectManager : MonoBehaviour
             return;
 
         item.TryChargeNextProjectileDamage();
+    }
+
+    void RemoveSelf(ItemInstance item)
+    {
+        if (item == null)
+            return;
+
+        var manager = ItemManager.Instance;
+        if (manager == null)
+            return;
+
+        manager.RemoveItemInstance(item, storeUpgrades: true);
+    }
+
+    void SellSelf(ItemInstance item)
+    {
+        if (item == null)
+            return;
+
+        var manager = ItemManager.Instance;
+        if (manager == null)
+            return;
+
+        manager.SellItemInstance(item, storeUpgrades: true);
     }
 }

@@ -15,6 +15,7 @@ namespace Data
         OnPlayStart,
         OnItemChanged,
         OnCurrencyChanged,
+        OnCurrencySpent,
         OnProjectileSpawned,
         OnBlockDestroyed,
         OnBlockDestroyedByItem,
@@ -48,7 +49,9 @@ namespace Data
         ApplyDamageToAllBlocks,
         SetItemStatus,
         ModifyTriggerRepeat,
-        ChargeNextProjectileDamage
+        ChargeNextProjectileDamage,
+        RemoveSelf,
+        SellSelf
     }
 
     public enum ItemEffectTarget
