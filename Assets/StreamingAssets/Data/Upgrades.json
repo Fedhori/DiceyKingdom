@@ -233,6 +233,30 @@
 					"duration": "Upgrade"
 				}
 			]
+		},
+		{
+			"id": "upgrade.yellowturban",
+			"price": 3,
+			"rarity": "Common",
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				},
+				{
+					"conditionKind": "HasItemRarity",
+					"rarity": "Common"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "damageMultiplier",
+					"effectMode": "Mult",
+					"value": 1.5,
+					"duration": "Upgrade"
+				}
+			]
 		}
 	]
 }

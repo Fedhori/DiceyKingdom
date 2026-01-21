@@ -14,6 +14,7 @@ namespace Data
         HasAttackSpeed,
         HasProjectile,
         HasNoExplosionRadius,
+        HasItemRarity,
         HasTriggerRule
     }
 
@@ -22,6 +23,9 @@ namespace Data
     {
         [JsonConverter(typeof(StringEnumConverter))]
         public UpgradeConditionKind conditionKind;
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public ItemRarity rarity;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ItemTriggerType triggerType = ItemTriggerType.Unknown;

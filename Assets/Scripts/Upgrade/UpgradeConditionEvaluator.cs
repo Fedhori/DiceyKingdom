@@ -17,6 +17,8 @@ public static class UpgradeConditionEvaluator
                 return !string.IsNullOrEmpty(target.ProjectileKey);
             case UpgradeConditionKind.HasNoExplosionRadius:
                 return target.ProjectileExplosionRadius <= 0f;
+            case UpgradeConditionKind.HasItemRarity:
+                return target.Rarity == condition.rarity;
             case UpgradeConditionKind.HasTriggerRule:
                 return HasTriggerRule(target, condition.triggerType);
             default:
