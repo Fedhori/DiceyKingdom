@@ -210,6 +210,29 @@
 					"duration": "Upgrade"
 				}
 			]
+		},
+		{
+			"id": "upgrade.chemical4",
+			"price": 9,
+			"rarity": "Rare",
+			"conditions": [
+				{
+					"conditionKind": "HasProjectile"
+				},
+				{
+					"conditionKind": "HasNoExplosionRadius"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "projectileExplosionRadius",
+					"effectMode": "Override",
+					"value": 128.0,
+					"duration": "Upgrade"
+				}
+			]
 		}
 	]
 }
