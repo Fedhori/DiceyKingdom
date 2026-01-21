@@ -118,6 +118,7 @@ public sealed class StageManager : MonoBehaviour
             return;
         }
 
+        PlayerManager.Instance.ResetPlayer();
         OpenResult();
     }
 
@@ -185,7 +186,6 @@ public sealed class StageManager : MonoBehaviour
             return;
         }
 
-        PlayerManager.Instance.ResetPlayer();
         StartStage(CurrentStage.StageIndex + 1);
     }
 
