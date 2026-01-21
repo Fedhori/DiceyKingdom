@@ -141,6 +141,33 @@
 			]
 		},
 		{
+			"id": "upgrade.scythe",
+			"price": 6,
+			"rarity": "Uncommon",
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"rules": [
+				{
+					"triggerType": "OnBlockDestroyedByItem",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 2.0,
+							"duration": "Temporary"
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "upgrade.snowflake",
 			"price": 5,
 			"rarity": "Uncommon",

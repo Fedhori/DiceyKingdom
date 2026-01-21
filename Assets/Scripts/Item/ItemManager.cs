@@ -85,6 +85,16 @@ public sealed class ItemManager : MonoBehaviour
         }
     }
 
+    public void TriggerItem(ItemInstance item, ItemTriggerType trigger)
+    {
+        if (item == null)
+            return;
+
+        int repeat = item.GetTriggerRepeat(trigger);
+        for (int r = 0; r < repeat; r++)
+            item.HandleTrigger(trigger);
+    }
+
 
     public void InitializeFromPlayer(PlayerInstance player)
     {

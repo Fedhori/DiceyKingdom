@@ -4415,8 +4415,8 @@ MonoBehaviour:
   rerollCostIncrement: 1
   rarityWeights: 3c0000001e0000000a00000000000000
   upgradeRarityWeights: 3c0000001e0000000a00000000000000
-  itemProductWeight: 80
-  upgradeProductWeight: 20
+  itemProductWeight: 70
+  upgradeProductWeight: 30
 --- !u!114 &708886698
 MonoBehaviour:
   m_ObjectHideFlags: 0
