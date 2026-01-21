@@ -59,9 +59,10 @@ public sealed class CurrencyManager : MonoBehaviour
         }
     }
 
-    void HandleCurrencyChanged(int value)
+    void HandleCurrencyChanged()
     {
-        currencyText.text = $"${value}";
+        int current = PlayerManager.Instance?.Current?.Currency ?? 0;
+        currencyText.text = $"${current}";
     }
 
     void RefreshUI()
@@ -69,7 +70,7 @@ public sealed class CurrencyManager : MonoBehaviour
         var pm = PlayerManager.Instance;
         if (pm?.Current != null)
         {
-            HandleCurrencyChanged(pm.Current.Currency);
+            HandleCurrencyChanged();
         }
     }
 

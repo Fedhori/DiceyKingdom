@@ -394,10 +394,11 @@ public sealed class ItemManager : MonoBehaviour
         lastCurrency = 0;
     }
 
-    void HandleCurrencyChanged(int value)
+    void HandleCurrencyChanged()
     {
-        bool spent = value < lastCurrency;
-        lastCurrency = value;
+        int current = subscribedPlayer?.Currency ?? 0;
+        bool spent = current < lastCurrency;
+        lastCurrency = current;
 
         if (spent)
             TriggerAll(ItemTriggerType.OnCurrencySpent);

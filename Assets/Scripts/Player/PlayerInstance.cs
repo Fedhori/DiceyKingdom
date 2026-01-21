@@ -28,7 +28,7 @@ public sealed class PlayerInstance
     // 상점/보상에 사용하는 통화
     public int Currency { get; private set; }
 
-    public event Action<int> OnCurrencyChanged;
+    public event Action OnCurrencyChanged;
     readonly List<string> itemIds;
 
     public PlayerInstance(PlayerDto dto)
@@ -102,7 +102,7 @@ public sealed class PlayerInstance
             return;
 
         Currency = newValue;
-        OnCurrencyChanged?.Invoke(Currency);
+        OnCurrencyChanged?.Invoke();
     }
 
     public bool TrySpendCurrency(int cost)
@@ -114,7 +114,7 @@ public sealed class PlayerInstance
             return false;
 
         Currency -= cost;
-        OnCurrencyChanged?.Invoke(Currency);
+        OnCurrencyChanged?.Invoke();
         return true;
     }
 }

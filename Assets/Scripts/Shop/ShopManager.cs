@@ -931,7 +931,7 @@ public sealed class ShopManager : MonoBehaviour
         StageManager.Instance?.OnShopClosed();
     }
 
-    void HandleCurrencyChanged(int value)
+    void HandleCurrencyChanged()
     {
         RefreshView();
     }
