@@ -316,6 +316,37 @@
 			]
 		},
 		{
+			"id": "upgrade.dice",
+			"price": 9,
+			"rarity": "Rare",
+			"conditions": [
+				{
+					"conditionKind": "HasProjectile"
+				},
+				{
+					"conditionKind": "HasAttackSpeed"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "projectileRandomAngle",
+					"effectMode": "Override",
+					"value": 360.0,
+					"duration": "Upgrade"
+				},
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "attackSpeed",
+					"effectMode": "Mult",
+					"value": 2.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
 			"id": "upgrade.aimbot",
 			"price": 10,
 			"rarity": "Rare",

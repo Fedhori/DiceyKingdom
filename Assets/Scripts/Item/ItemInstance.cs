@@ -21,7 +21,7 @@ public sealed class ItemInstance
     public int Pierce => Mathf.Max(0, Mathf.FloorToInt((float)Stats.GetValue(ItemStatIds.Pierce)));
     public int PelletCount { get; private set; }
     public float SpreadAngle { get; private set; }
-    public float ProjectileRandomAngle { get; private set; }
+    public float ProjectileRandomAngle => (float)Stats.GetValue(ItemStatIds.ProjectileRandomAngle);
     public bool IsObject { get; private set; }
     public int PierceBonus { get; private set; }
     public float ProjectileHomingTurnRate => (float)Stats.GetValue(ItemStatIds.ProjectileHomingTurnRate);
@@ -114,6 +114,7 @@ public sealed class ItemInstance
         Stats = new StatSet();
         Stats.SetBase(ItemStatIds.CriticalChanceMultiplier, 1d, 0d);
         Stats.SetBase(ItemStatIds.ProjectileSizeMultiplier, 0d, 0d);
+        Stats.SetBase(ItemStatIds.ProjectileRandomAngle, 0d, 0d);
         Stats.SetBase(ItemStatIds.ProjectileHomingTurnRate, 0d, 0d);
         Stats.SetBase(ItemStatIds.ProjectileExplosionRadius, 0d, 0d);
 
@@ -131,7 +132,6 @@ public sealed class ItemInstance
             BeamDuration = 0f;
             PelletCount = 1;
             SpreadAngle = 0f;
-            ProjectileRandomAngle = 0f;
             IsObject = false;
             PierceBonus = 0;
             StatusDamageMultiplier = 1f;
@@ -173,7 +173,7 @@ public sealed class ItemInstance
             basePierce = projectile.pierce;
             PelletCount = Mathf.Max(1, projectile.pelletCount);
             SpreadAngle = Mathf.Max(0f, projectile.spreadAngle);
-            ProjectileRandomAngle = Mathf.Max(0f, projectile.randomAngle);
+            Stats.SetBase(ItemStatIds.ProjectileRandomAngle, Mathf.Max(0f, projectile.randomAngle), 0d);
             Stats.SetBase(ItemStatIds.ProjectileHomingTurnRate, Mathf.Max(0f, projectile.homingTurnRate), 0d);
         }
         else
@@ -184,7 +184,7 @@ public sealed class ItemInstance
             ProjectileHitBehavior = ProjectileHitBehavior.Normal;
             PelletCount = 1;
             SpreadAngle = 0f;
-            ProjectileRandomAngle = 0f;
+            Stats.SetBase(ItemStatIds.ProjectileRandomAngle, 0d, 0d);
             Stats.SetBase(ItemStatIds.ProjectileHomingTurnRate, 0d, 0d);
             Stats.SetBase(ItemStatIds.ProjectileExplosionRadius, 0d, 0d);
         }

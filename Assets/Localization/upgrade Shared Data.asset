@@ -159,6 +159,18 @@ MonoBehaviour:
     m_Key: upgrade.scythe.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 181419913300
+    m_Key: upgrade.dice.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181419913301
+    m_Key: upgrade.dice.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 181419913302
+    m_Key: upgrade.dice.effect1
+    m_Metadata:
+      m_Items: []
   - m_Id: 181419913225
     m_Key: upgrade.inventory.empty
     m_Metadata:

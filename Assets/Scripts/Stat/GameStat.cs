@@ -39,6 +39,7 @@ namespace GameStats
         public const string AttackSpeed = "attackSpeed";
         public const string CriticalChanceMultiplier = "criticalChanceMultiplier";
         public const string ProjectileSizeMultiplier = "projectileSizeMultiplier";
+        public const string ProjectileRandomAngle = "projectileRandomAngle";
         public const string ProjectileHomingTurnRate = "projectileHomingTurnRate";
         public const string ProjectileExplosionRadius = "projectileExplosionRadius";
         public const string Pierce = "pierce";
