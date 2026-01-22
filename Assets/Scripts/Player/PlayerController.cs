@@ -45,6 +45,13 @@ public sealed class PlayerController : MonoBehaviour
             return;
         }
 
+        var stageManager = StageManager.Instance;
+        if (stageManager == null || stageManager.CurrentPhase != StagePhase.Play)
+        {
+            IsMoveInputActive = false;
+            return;
+        }
+
         CacheBounds();
 
         float dir = GetMoveInput();
@@ -80,6 +87,12 @@ public sealed class PlayerController : MonoBehaviour
         float startX = 0f;
         float startY = minBounds.y + startYOffset;
         transform.position = new Vector3(startX, startY, transform.position.z);
+    }
+
+    public void ResetToStart()
+    {
+        CacheBounds();
+        ResetPosition();
     }
 
     float GetMoveInput()

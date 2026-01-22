@@ -119,6 +119,7 @@ public sealed class StageManager : MonoBehaviour
         }
 
         PlayerManager.Instance.ResetPlayer();
+        PlayerController.Instance?.ResetToStart();
         OpenResult();
     }
 
