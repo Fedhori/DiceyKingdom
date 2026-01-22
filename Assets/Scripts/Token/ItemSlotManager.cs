@@ -9,6 +9,7 @@ public sealed class ItemSlotManager : MonoBehaviour
 
     [SerializeField] Transform slotContainer;
     [SerializeField] ItemSlotController slotPrefab;
+    [SerializeField] SlidePanelLean slotPanelSlide;
     ItemSlotController[] slotControllers;
 
     ItemSlotController draggingController;
@@ -133,7 +134,7 @@ public sealed class ItemSlotManager : MonoBehaviour
 
     void HandlePhaseChanged(StagePhase phase)
     {
-        SetSlotContainerVisible(phase != StagePhase.Play);
+        SetSlotContainerVisible(phase == StagePhase.Shop);
     }
 
     void RefreshSlotContainerVisibility()
@@ -142,7 +143,7 @@ public sealed class ItemSlotManager : MonoBehaviour
         if (stageManager == null)
             return;
 
-        SetSlotContainerVisible(stageManager.CurrentPhase != StagePhase.Play);
+        SetSlotContainerVisible(stageManager.CurrentPhase == StagePhase.Shop);
     }
 
     void SetSlotContainerVisible(bool visible)
@@ -150,7 +151,26 @@ public sealed class ItemSlotManager : MonoBehaviour
         if (slotContainer == null)
             return;
 
-        slotContainer.gameObject.SetActive(visible);
+        if (slotPanelSlide == null)
+        {
+            slotContainer.gameObject.SetActive(visible);
+            return;
+        }
+
+        if (visible)
+        {
+            if (!slotContainer.gameObject.activeSelf)
+                slotContainer.gameObject.SetActive(true);
+
+            slotPanelSlide.Show();
+        }
+        else
+        {
+            if (!slotContainer.gameObject.activeSelf)
+                return;
+
+            slotPanelSlide.Hide(() => slotContainer.gameObject.SetActive(false));
+        }
     }
 
     void HandleSlotChanged(int slotIndex, ItemInstance previous, ItemInstance current, ItemInventory.SlotChangeType changeType)

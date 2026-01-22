@@ -11,6 +11,7 @@ public sealed class ShopView : MonoBehaviour
 {
     [Header("Overlay Root")] [SerializeField]
     private GameObject shopOverlay;
+    [SerializeField] private SlidePanelLean shopPanelSlide;
 
     [Header("Item UI")] [SerializeField] private ProductViewBase itemProductPrefab;
     [SerializeField] private ProductViewBase upgradeProductPrefab;
@@ -172,10 +173,22 @@ public sealed class ShopView : MonoBehaviour
     {
         if (shopOverlay != null)
             shopOverlay.SetActive(true);
+
+        shopPanelSlide?.Show();
     }
 
     public void Close()
     {
+        if (shopPanelSlide != null)
+        {
+            shopPanelSlide.Hide(() =>
+            {
+                if (shopOverlay != null)
+                    shopOverlay.SetActive(false);
+            });
+            return;
+        }
+
         if (shopOverlay != null)
             shopOverlay.SetActive(false);
     }

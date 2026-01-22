@@ -3029,7 +3029,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 1364.3878
+  orthographic size: 912
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -4430,6 +4430,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopView
   shopOverlay: {fileID: 1288486031}
+  shopPanelSlide: {fileID: 1288486035}
   itemProductPrefab: {fileID: 5694267813989115983, guid: b4dd7a57b7400c84e9671f15d84c9c0c, type: 3}
   upgradeProductPrefab: {fileID: 2427386844371804380, guid: 1fc83425d6f619b438cebcbe140cd295, type: 3}
   productsParent: {fileID: 1241167450}
@@ -7362,7 +7363,7 @@ MonoBehaviour:
   resultOverlay: {fileID: 393646917}
   earnedCurrencyText: {fileID: 739756295}
   resultOverlayView: {fileID: 1631236867}
-  resultPanelSlide: {fileID: 0}
+  resultPanelSlide: {fileID: 1824997033}
 --- !u!1001 &1138380142
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8834,6 +8835,7 @@ GameObject:
   - component: {fileID: 1288486032}
   - component: {fileID: 1288486034}
   - component: {fileID: 1288486033}
+  - component: {fileID: 1288486035}
   m_Layer: 5
   m_Name: ShopPanel
   m_TagString: Untagged
@@ -8903,6 +8905,29 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1288486031}
   m_CullTransparentMesh: 1
+--- !u!114 &1288486035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1288486031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5f502aaccfb4534bb589911a2de42b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlidePanelLean
+  panel: {fileID: 0}
+  direction: {x: 0, y: 1}
+  scalar: 400
+  usePanelHeight: 1
+  heightPadding: 500
+  duration: 0.5
+  ease: 7
+  useUnscaledTime: 1
+  startHidden: 1
+  canvasGroup: {fileID: 0}
+  blockRaycastsWhenHidden: 1
 --- !u!1 &1290664730
 GameObject:
   m_ObjectHideFlags: 0
@@ -8916,6 +8941,7 @@ GameObject:
   - component: {fileID: 1290664732}
   - component: {fileID: 1290664735}
   - component: {fileID: 1290664736}
+  - component: {fileID: 1290664737}
   m_Layer: 5
   m_Name: ItemSlotPanel
   m_TagString: Untagged
@@ -9030,6 +9056,29 @@ MonoBehaviour:
   m_Spacing: {x: 32, y: 32}
   m_Constraint: 1
   m_ConstraintCount: 4
+--- !u!114 &1290664737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1290664730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5f502aaccfb4534bb589911a2de42b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlidePanelLean
+  panel: {fileID: 0}
+  direction: {x: 0, y: -1}
+  scalar: 400
+  usePanelHeight: 1
+  heightPadding: 500
+  duration: 0.5
+  ease: 7
+  useUnscaledTime: 1
+  startHidden: 1
+  canvasGroup: {fileID: 0}
+  blockRaycastsWhenHidden: 1
 --- !u!1 &1306128398
 GameObject:
   m_ObjectHideFlags: 0
@@ -12956,12 +13005,12 @@ MonoBehaviour:
   panel: {fileID: 0}
   direction: {x: 0, y: 1}
   scalar: 400
-  usePanelHeight: 0
-  heightPadding: 0
-  duration: 0.25
+  usePanelHeight: 1
+  heightPadding: 500
+  duration: 0.5
   ease: 7
   useUnscaledTime: 1
-  startHidden: 0
+  startHidden: 1
   canvasGroup: {fileID: 0}
   blockRaycastsWhenHidden: 1
 --- !u!1 &1831022631
@@ -15210,6 +15259,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemSlotManager
   slotContainer: {fileID: 1290664731}
   slotPrefab: {fileID: -3810691327358890982, guid: ca3d846f53224c449b9215051e0b9b82, type: 3}
+  slotPanelSlide: {fileID: 1290664737}
   slotHighlightColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &2114596187
 GameObject:
