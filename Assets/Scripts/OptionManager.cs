@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Localization.Components;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -11,6 +12,7 @@ public class OptionManager : MonoBehaviour
     public Button quitGameButton;
     public Button gameRestartButton;
     public Button returnToMainMenuButton;
+    [SerializeField] private Slider bgmSlider;
     bool previousForcePaused;
 
     private void Awake()
@@ -35,11 +37,19 @@ public class OptionManager : MonoBehaviour
     {
         // 이벤트 중복 등록 방지
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        if (bgmSlider != null)
+            bgmSlider.onValueChanged.RemoveListener(HandleBgmSliderChanged);
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         UpdateOptionButtons();
+        SyncBgmSliderValue();
+    }
+
+    void Start()
+    {
+        InitializeBgmControls();
     }
 
     void HideAllOptionButtons()
@@ -81,6 +91,40 @@ public class OptionManager : MonoBehaviour
 
         optionOverlay.SetActive(isOpen);
         UpdatePauseState(isOpen);
+    }
+
+    void InitializeBgmControls()
+    {
+        if (bgmSlider == null)
+            return;
+
+        bgmSlider.minValue = 0f;
+        bgmSlider.maxValue = 1f;
+        bgmSlider.wholeNumbers = false;
+        bgmSlider.onValueChanged.RemoveListener(HandleBgmSliderChanged);
+        bgmSlider.onValueChanged.AddListener(HandleBgmSliderChanged);
+        SyncBgmSliderValue();
+    }
+
+    void SyncBgmSliderValue()
+    {
+        if (bgmSlider == null)
+            return;
+
+        var bgm = BgmManager.Instance;
+        if (bgm == null)
+            return;
+
+        bgmSlider.SetValueWithoutNotify(bgm.BaseVolume);
+    }
+
+    void HandleBgmSliderChanged(float value)
+    {
+        var bgm = BgmManager.Instance;
+        if (bgm == null)
+            return;
+
+        bgm.SetBaseVolume(value);
     }
 
     public void RequestRestartGame()

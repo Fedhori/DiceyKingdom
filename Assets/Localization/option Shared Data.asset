@@ -31,6 +31,10 @@ MonoBehaviour:
     m_Key: option.option.title
     m_Metadata:
       m_Items: []
+  - m_Id: 5447057586012161
+    m_Key: option.bgm.label
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

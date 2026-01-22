@@ -5,6 +5,8 @@ public sealed class BgmManager : MonoBehaviour
 {
     public static BgmManager Instance { get; private set; }
 
+    const string PrefsKeyBaseVolume = "bgm.baseVolume";
+
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip mainBgm;
     [SerializeField] private float volume = 1f;
@@ -17,6 +19,7 @@ public sealed class BgmManager : MonoBehaviour
 
     StageManager subscribedStageManager;
     bool isMuffled;
+    float baseVolume;
 
     void Awake()
     {
@@ -35,12 +38,18 @@ public sealed class BgmManager : MonoBehaviour
 
         audioSource.loop = true;
         audioSource.playOnAwake = false;
-        audioSource.volume = Mathf.Clamp01(volume);
         if (mainBgm != null)
             audioSource.clip = mainBgm;
 
+        if (lowPassFilter == null)
+            lowPassFilter = GetComponent<AudioLowPassFilter>();
+        if (lowPassFilter == null)
+            lowPassFilter = gameObject.AddComponent<AudioLowPassFilter>();
+
         lowPassFilter.enabled = true;
         lowPassFilter.cutoffFrequency = normalCutoff;
+
+        baseVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(PrefsKeyBaseVolume, volume));
     }
 
     void OnEnable()
@@ -111,7 +120,17 @@ public sealed class BgmManager : MonoBehaviour
             return;
 
         float multiplier = sceneName == "MainMenuScene" ? 0.5f : 1f;
-        audioSource.volume = Mathf.Clamp01(volume * multiplier);
+        audioSource.volume = Mathf.Clamp01(baseVolume * multiplier);
+    }
+
+    public float BaseVolume => baseVolume;
+
+    public void SetBaseVolume(float value)
+    {
+        baseVolume = Mathf.Clamp01(value);
+        PlayerPrefs.SetFloat(PrefsKeyBaseVolume, baseVolume);
+        PlayerPrefs.Save();
+        RefreshVolumeForScene(SceneManager.GetActiveScene().name);
     }
 
     public void Play()
