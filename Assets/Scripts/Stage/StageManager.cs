@@ -118,7 +118,6 @@ public sealed class StageManager : MonoBehaviour
             return;
         }
 
-        PlayerManager.Instance.ResetPlayer();
         PlayerController.Instance?.ResetToStart();
         OpenResult();
     }
@@ -177,6 +176,7 @@ public sealed class StageManager : MonoBehaviour
 
     void OpenShop()
     {
+        PlayerManager.Instance?.ResetPlayer();
         CurrentPhase = StagePhase.Shop;
         ShopManager.Instance?.Open();
     }
