@@ -60,13 +60,11 @@ public sealed class PlayerInstance
         Stats.RemoveModifiers(StatLayer.Temporary);
     }
 
-    public int RollCriticalLevel(System.Random rng)
-    {
-        return RollCriticalLevel(rng, CriticalChance);
-    }
-
     public int RollCriticalLevel(System.Random rng, double criticalChance)
     {
+        // 크리티컬 비활성화
+        return 0;
+        
         if (rng == null)
             rng = new System.Random();
 

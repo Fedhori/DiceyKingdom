@@ -230,6 +230,7 @@
 			"id": "upgrade.lasersight",
 			"price": 6,
 			"rarity": "Uncommon",
+			"isNotSell": "true",
 			"conditions": [
 				{
 					"conditionKind": "HasDamageMultiplier"

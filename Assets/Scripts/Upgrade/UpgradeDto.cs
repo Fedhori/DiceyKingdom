@@ -36,6 +36,7 @@ namespace Data
     {
         public string id;
         public int price;
+        public bool isNotSell;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ItemRarity rarity = ItemRarity.Common;

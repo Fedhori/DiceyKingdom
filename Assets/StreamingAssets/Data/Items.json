@@ -770,6 +770,7 @@
 		{
 			"id": "item.stiletto",
 			"isObject": false,
+			"isNotSell": true,
 			"price": 6,
 			"rarity": "Uncommon",
 			"rules": [

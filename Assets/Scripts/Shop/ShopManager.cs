@@ -189,6 +189,9 @@ public sealed class ShopManager : MonoBehaviour
             if (dto == null)
                 continue;
 
+            if (dto.isNotSell)
+                continue;
+
             sellableUpgrades.Add(dto);
         }
     }
