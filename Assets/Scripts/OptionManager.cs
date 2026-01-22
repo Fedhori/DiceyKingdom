@@ -13,6 +13,7 @@ public class OptionManager : MonoBehaviour
     public Button gameRestartButton;
     public Button returnToMainMenuButton;
     [SerializeField] private Slider bgmSlider;
+    [SerializeField] private SlidePanelLean optionPanelSlide;
     bool previousForcePaused;
 
     private void Awake()
@@ -89,8 +90,26 @@ public class OptionManager : MonoBehaviour
         if (optionOverlay.activeSelf == isOpen)
             return;
 
-        optionOverlay.SetActive(isOpen);
-        UpdatePauseState(isOpen);
+        if (isOpen)
+        {
+            optionOverlay.SetActive(true);
+            UpdatePauseState(true);
+            optionPanelSlide?.Show();
+            return;
+        }
+
+        if (optionPanelSlide != null)
+        {
+            optionPanelSlide.Hide(() =>
+            {
+                optionOverlay.SetActive(false);
+                UpdatePauseState(false);
+            });
+            return;
+        }
+
+        optionOverlay.SetActive(false);
+        UpdatePauseState(false);
     }
 
     void InitializeBgmControls()

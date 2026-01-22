@@ -9,14 +9,14 @@ public class SlidePanelLean : MonoBehaviour
     [Header("Hide Movement")]
     [SerializeField] private Vector2 direction = Vector2.right; // 숨길 때 이동할 방향
     [SerializeField] private float scalar = 400f;                // 이동 거리(픽셀)
-    [SerializeField] private bool usePanelHeight = false;        // 패널 높이 기반으로 이동 거리 계산
-    [SerializeField] private float heightPadding = 0f;           // 높이 기반 이동 시 추가 여유값
+    [SerializeField] private bool usePanelHeight = true;        // 패널 높이 기반으로 이동 거리 계산
+    [SerializeField] private float heightPadding = 500f;           // 높이 기반 이동 시 추가 여유값
 
     [Header("Tween")]
-    [SerializeField] private float duration = 0.25f;
+    [SerializeField] private float duration = 0.5f;
     [SerializeField] private LeanTweenType ease = LeanTweenType.easeInOutCubic;
     [SerializeField] private bool useUnscaledTime = true;
-    [SerializeField] private bool startHidden = false;           // 시작을 숨김 상태로 둘지
+    [SerializeField] private bool startHidden = true;           // 시작을 숨김 상태로 둘지
 
     [Header("Interaction (optional)")]
     [SerializeField] private CanvasGroup canvasGroup;            // 없으면 자동
