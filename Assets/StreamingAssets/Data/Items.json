@@ -403,7 +403,7 @@
 							"effectType": "ModifyStat",
 							"statId": "power",
 							"effectMode": "Add",
-							"value": 20.0,
+							"value": 15.0,
 							"duration": "Permanent"
 						}
 					]
@@ -511,17 +511,17 @@
 			"rarity": "Rare",
 			"rules": [
 				{
-					"triggerType": "OnStageEnd",
+					"triggerType": "OnItemChanged",
 					"condition": {
 						"conditionKind": "Always"
 					},
 					"effects": [
 						{
-							"effectType": "ModifyStat",
+							"effectType": "SetStat",
 							"statId": "power",
 							"effectMode": "Add",
-							"value": 5.0,
-							"duration": "Permanent",
+							"value": 15.0,
+							"duration": "Owned",
 							"multiplier": "adjacentEmptySlotCount"
 						}
 					]

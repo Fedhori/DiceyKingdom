@@ -8,7 +8,7 @@
 			"startCurrency": 10,
 			"initialBallCount": 0,
 			"moveSpeed": 1.0,
-			"itemIds": ["item.ball", "item.lasergun"]
+			"itemIds": ["item.pistol", "item.lonewolf"]
 		}
 	]
 }

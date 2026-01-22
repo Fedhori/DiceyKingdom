@@ -205,7 +205,7 @@ public sealed class ItemManager : MonoBehaviour
 
                 if (isPlayActive && current.IsObject)
                     SpawnController(current);
-                
+
                 TriggerAll(ItemTriggerType.OnItemChanged);
                 // 아이템 구매보다 재화 사용이 타이밍이 빠르므로, 이에 대응하기 위해 여기서 한번 트리거
                 TriggerAll(ItemTriggerType.OnCurrencyChanged);
@@ -218,6 +218,10 @@ public sealed class ItemManager : MonoBehaviour
                 UnsubscribeEffects(previous);
                 RemoveOwnedModifiers(previous);
 
+                TriggerAll(ItemTriggerType.OnItemChanged);
+                break;
+            case ItemInventory.SlotChangeType.Move:
+            case ItemInventory.SlotChangeType.Swap:
                 TriggerAll(ItemTriggerType.OnItemChanged);
                 break;
         }

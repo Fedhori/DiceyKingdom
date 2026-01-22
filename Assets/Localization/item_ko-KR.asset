@@ -316,9 +316,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5815909901414435
-    m_Localized: "\uC2A4\uD14C\uC774\uC9C0 \uC885\uB8CC \uC2DC \uC778\uC811\uD55C
-      \uBE48 \uC2AC\uB86F\uB9C8\uB2E4 <style=\"power\">\uD30C\uC6CC</style>\uAC00
-      <style=\"value\">{value0}</style> \uC601\uAD6C\uC801\uC73C\uB85C \uC99D\uAC00\uD569\uB2C8\uB2E4."
+    m_Localized: "\uC778\uC811\uD55C \uBE48 \uC2AC\uB86F\uB9C8\uB2E4 <style=\"power\">\uD30C\uC6CC</style>\uAC00
+      <style=\"value\">{value0}</style> \uC99D\uAC00\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
