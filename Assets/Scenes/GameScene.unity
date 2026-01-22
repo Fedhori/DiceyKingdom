@@ -3029,7 +3029,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 1024
+  orthographic size: 1364.3878
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -7362,6 +7362,7 @@ MonoBehaviour:
   resultOverlay: {fileID: 393646917}
   earnedCurrencyText: {fileID: 739756295}
   resultOverlayView: {fileID: 1631236867}
+  resultPanelSlide: {fileID: 0}
 --- !u!1001 &1138380142
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12871,6 +12872,7 @@ GameObject:
   - component: {fileID: 1824997030}
   - component: {fileID: 1824997032}
   - component: {fileID: 1824997031}
+  - component: {fileID: 1824997033}
   m_Layer: 5
   m_Name: ResultPanel
   m_TagString: Untagged
@@ -12939,6 +12941,29 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1824997029}
   m_CullTransparentMesh: 1
+--- !u!114 &1824997033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1824997029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5f502aaccfb4534bb589911a2de42b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlidePanelLean
+  panel: {fileID: 0}
+  direction: {x: 0, y: 1}
+  scalar: 400
+  usePanelHeight: 0
+  heightPadding: 0
+  duration: 0.25
+  ease: 7
+  useUnscaledTime: 1
+  startHidden: 0
+  canvasGroup: {fileID: 0}
+  blockRaycastsWhenHidden: 1
 --- !u!1 &1831022631
 GameObject:
   m_ObjectHideFlags: 0

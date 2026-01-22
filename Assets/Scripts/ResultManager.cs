@@ -10,6 +10,7 @@ public sealed class ResultManager : MonoBehaviour
     [SerializeField] private GameObject resultOverlay;
     [SerializeField] private LocalizeStringEvent earnedCurrencyText;
     [SerializeField] private ResultOverlayView resultOverlayView;
+    [SerializeField] private SlidePanelLean resultPanelSlide;
 
     readonly List<DamageTrackingManager.ItemDamageSnapshot> damageRecords = new();
     bool isOpen;
@@ -45,6 +46,7 @@ public sealed class ResultManager : MonoBehaviour
         if (resultOverlayView != null)
             resultOverlayView.BuildRows(damageRecords, GetMaxDamage());
 
+        resultPanelSlide?.Show();
     }
 
     public void Close()
@@ -52,8 +54,22 @@ public sealed class ResultManager : MonoBehaviour
         if (!isOpen)
             return;
 
-        resultOverlay.SetActive(false);
         isOpen = false;
+
+        if (resultPanelSlide != null)
+        {
+            resultPanelSlide.Hide(() =>
+            {
+                if (resultOverlay != null)
+                    resultOverlay.SetActive(false);
+
+                StageManager.Instance?.OnResultClosed();
+            });
+            return;
+        }
+
+        if (resultOverlay != null)
+            resultOverlay.SetActive(false);
 
         StageManager.Instance?.OnResultClosed();
     }

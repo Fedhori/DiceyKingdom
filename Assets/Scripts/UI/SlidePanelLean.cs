@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class SlidePanelLean : MonoBehaviour
@@ -8,6 +9,8 @@ public class SlidePanelLean : MonoBehaviour
     [Header("Hide Movement")]
     [SerializeField] private Vector2 direction = Vector2.right; // 숨길 때 이동할 방향
     [SerializeField] private float scalar = 400f;                // 이동 거리(픽셀)
+    [SerializeField] private bool usePanelHeight = false;        // 패널 높이 기반으로 이동 거리 계산
+    [SerializeField] private float heightPadding = 0f;           // 높이 기반 이동 시 추가 여유값
 
     [Header("Tween")]
     [SerializeField] private float duration = 0.25f;
@@ -34,6 +37,7 @@ public class SlidePanelLean : MonoBehaviour
 
         // 현재 패널 자리를 '보이는 자리'로 저장
         shownPos = panel.anchoredPosition;
+        RefreshScalarFromPanel();
 
         if (startHidden)
         {
@@ -49,13 +53,17 @@ public class SlidePanelLean : MonoBehaviour
         }
     }
 
-    public void Show()  => StartMove(shownPos, true);
-    public void Hide()  => StartMove(HiddenPos, false);
+    public void Show()  => StartMove(shownPos, true, null);
+    public void Hide()  => StartMove(HiddenPos, false, null);
+    public void Show(Action onComplete)  => StartMove(shownPos, true, onComplete);
+    public void Hide(Action onComplete)  => StartMove(HiddenPos, false, onComplete);
     public void Toggle() { if (IsShown) Hide(); else Show(); }
 
-    private void StartMove(Vector2 end, bool toShown)
+    private void StartMove(Vector2 end, bool toShown, Action onComplete)
     {
         if (!panel) return;
+
+        RefreshScalarFromPanel();
 
         if (currentTween != null) LeanTween.cancel(panel.gameObject);
 
@@ -70,6 +78,7 @@ public class SlidePanelLean : MonoBehaviour
                 IsShown = toShown;
                 ApplyInteractable(toShown);
                 currentTween = null;
+                onComplete?.Invoke();
             });
     }
 
@@ -77,6 +86,17 @@ public class SlidePanelLean : MonoBehaviour
     public void ReanchorShownToCurrent()
     {
         shownPos = panel.anchoredPosition;
+    }
+
+    void RefreshScalarFromPanel()
+    {
+        if (!usePanelHeight || panel == null)
+            return;
+
+        Canvas.ForceUpdateCanvases();
+        float height = panel.rect.height;
+        if (height > 0f)
+            scalar = height + Mathf.Max(0f, heightPadding);
     }
 
     private void ApplyInteractable(bool shown)
