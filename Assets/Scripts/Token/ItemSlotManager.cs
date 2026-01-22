@@ -39,6 +39,11 @@ public sealed class ItemSlotManager : MonoBehaviour
 
         Instance = this;
         BuildSlots();
+
+        if (slotPanelSlide != null)
+            slotPanelSlide.HideImmediate();
+        else if (slotContainer != null)
+            slotContainer.gameObject.SetActive(false);
     }
 
     void Start()
@@ -46,6 +51,7 @@ public sealed class ItemSlotManager : MonoBehaviour
         TryBindInventory();
         RefreshFromInventory();
         SubscribeStageManager();
+        ForceHideSlotPanelImmediate();
         RefreshSlotContainerVisibility();
         UiSelectionEvents.OnSelectionCleared += HandleSelectionCleared;
         TryBindUpgradeInventory();
@@ -217,6 +223,15 @@ public sealed class ItemSlotManager : MonoBehaviour
             slotControllers[i] = ctrl;
         }
 
+    }
+
+    void ForceHideSlotPanelImmediate()
+    {
+        if (slotPanelSlide != null)
+            slotPanelSlide.HideImmediate();
+
+        if (slotContainer != null)
+            slotContainer.gameObject.SetActive(false);
     }
 
     void RefreshFromInventory()

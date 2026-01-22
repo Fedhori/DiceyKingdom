@@ -58,6 +58,8 @@ public class SlidePanelLean : MonoBehaviour
     public void Show(Action onComplete)  => StartMove(shownPos, true, onComplete);
     public void Hide(Action onComplete)  => StartMove(HiddenPos, false, onComplete);
     public void Toggle() { if (IsShown) Hide(); else Show(); }
+    public void HideImmediate() => ApplyImmediate(HiddenPos, false);
+    public void ShowImmediate() => ApplyImmediate(shownPos, true);
 
     private void StartMove(Vector2 end, bool toShown, Action onComplete)
     {
@@ -80,6 +82,21 @@ public class SlidePanelLean : MonoBehaviour
                 currentTween = null;
                 onComplete?.Invoke();
             });
+    }
+
+    void ApplyImmediate(Vector2 pos, bool shown)
+    {
+        if (!panel) return;
+
+        RefreshScalarFromPanel();
+
+        if (currentTween != null)
+            LeanTween.cancel(panel.gameObject);
+
+        panel.anchoredPosition = pos;
+        IsShown = shown;
+        ApplyInteractable(shown);
+        currentTween = null;
     }
 
     // 기준 위치를 현재 위치로 재설정하고 싶을 때 호출
