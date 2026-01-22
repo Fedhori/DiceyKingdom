@@ -93,7 +93,6 @@ public class SlidePanelLean : MonoBehaviour
         if (!usePanelHeight || panel == null)
             return;
 
-        Canvas.ForceUpdateCanvases();
         float height = panel.rect.height;
         if (height > 0f)
             scalar = height + Mathf.Max(0f, heightPadding);
