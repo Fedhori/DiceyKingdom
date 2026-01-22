@@ -180,7 +180,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 181419913243
-    m_Localized: "\uBE14\uB7ED \uD30C\uAD34\uB9C8\uB2E4 <style=\"power\">\uD30C\uC6CC</style>
+    m_Localized: "\uC801\uC6A9\uD55C \uC544\uC774\uD15C\uC774 \uBE14\uB7ED\uC744
+      \uD30C\uAD34\uD560 \uB54C\uB9C8\uB2E4 <style=\"power\">\uD30C\uC6CC</style>
       <style=\"value\">+{value0}</style>"
     m_Metadata:
       m_Items:
@@ -190,8 +191,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 181419913301
-    m_Localized: "\uD22C\uC0AC\uCCB4\uAC00 \uC644\uC804\uD788 \uB79C\uB364\uD55C \uBC29\uD5A5\uC73C\uB85C
-      \uBC1C\uC0AC\uB429\uB2C8\uB2E4."
+    m_Localized: "\uD22C\uC0AC\uCCB4\uAC00 \uC644\uC804\uD788 \uB79C\uB364\uD55C
+      \uBC29\uD5A5\uC73C\uB85C \uBC1C\uC0AC\uB429\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
   - m_Id: 181419913302
