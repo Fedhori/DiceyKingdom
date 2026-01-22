@@ -87,7 +87,7 @@ public sealed class BgmManager : MonoBehaviour
 
     void HandlePhaseChanged(StagePhase phase)
     {
-        SetMuffled(phase == StagePhase.Shop);
+        SetMuffled(phase != StagePhase.Play);
     }
 
     void HandleSceneChanged(Scene previous, Scene next)
@@ -102,7 +102,7 @@ public sealed class BgmManager : MonoBehaviour
     void RefreshMuffleState()
     {
         var stageManager = StageManager.Instance;
-        SetMuffled(stageManager != null && stageManager.CurrentPhase == StagePhase.Shop);
+        SetMuffled(stageManager != null && stageManager.CurrentPhase != StagePhase.Play);
     }
 
     void RefreshVolumeForScene(string sceneName)
