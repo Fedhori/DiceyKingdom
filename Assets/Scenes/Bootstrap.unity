@@ -728,7 +728,7 @@ MonoBehaviour:
   mainBgm: {fileID: 8300000, guid: b01203c906cee3a49944f5c7409511f5, type: 3}
   volume: 1
   playOnStart: 1
-  lowPassFilter: {fileID: 0}
+  lowPassFilter: {fileID: 1849307781}
   normalCutoff: 22000
   muffledCutoff: 900
 --- !u!1 &530098934

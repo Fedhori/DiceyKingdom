@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public sealed class BgmManager : MonoBehaviour
 {
@@ -44,7 +45,9 @@ public sealed class BgmManager : MonoBehaviour
 
     void OnEnable()
     {
+        SceneManager.activeSceneChanged += HandleSceneChanged;
         SubscribeStageManager();
+        RefreshVolumeForScene(SceneManager.GetActiveScene().name);
     }
 
     void Start()
@@ -57,6 +60,7 @@ public sealed class BgmManager : MonoBehaviour
 
     void OnDisable()
     {
+        SceneManager.activeSceneChanged -= HandleSceneChanged;
         UnsubscribeStageManager();
     }
 
@@ -86,10 +90,28 @@ public sealed class BgmManager : MonoBehaviour
         SetMuffled(phase == StagePhase.Shop);
     }
 
+    void HandleSceneChanged(Scene previous, Scene next)
+    {
+        _ = previous;
+        UnsubscribeStageManager();
+        SubscribeStageManager();
+        RefreshMuffleState();
+        RefreshVolumeForScene(next.name);
+    }
+
     void RefreshMuffleState()
     {
         var stageManager = StageManager.Instance;
         SetMuffled(stageManager != null && stageManager.CurrentPhase == StagePhase.Shop);
+    }
+
+    void RefreshVolumeForScene(string sceneName)
+    {
+        if (audioSource == null)
+            return;
+
+        float multiplier = sceneName == "MainMenuScene" ? 0.5f : 1f;
+        audioSource.volume = Mathf.Clamp01(volume * multiplier);
     }
 
     public void Play()
