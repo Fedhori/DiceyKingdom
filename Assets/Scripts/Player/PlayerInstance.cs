@@ -62,9 +62,6 @@ public sealed class PlayerInstance
 
     public int RollCriticalLevel(System.Random rng, double criticalChance)
     {
-        // 크리티컬 비활성화
-        return 0;
-        
         if (rng == null)
             rng = new System.Random();
 
