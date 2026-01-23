@@ -1815,7 +1815,7 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 4a1eb58d1d8510242a4e8866749de076, type: 3}
   - key: Upgrade
     volume: 1
-    clip: {fileID: 8300000, guid: 4a1eb58d1d8510242a4e8866749de076, type: 3}
+    clip: {fileID: 8300000, guid: 7a7e581a8b6d92449a2a57a2dde07646, type: 3}
   limitAllSfx: 0
   limitedKeys:
   - Score
