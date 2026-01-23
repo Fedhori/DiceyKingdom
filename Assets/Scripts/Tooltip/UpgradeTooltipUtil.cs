@@ -43,10 +43,12 @@ public static class UpgradeTooltipUtil
         {
             var key = $"{upgrade.Id}.effect{i}";
             var loc = new LocalizedString("upgrade", key);
-            var args = BuildArgs(effects[i]);
-            if (args != null)
-                loc.Arguments = new object[] { args };
+            var args = BuildArgs(effects[i], i, upgrade);
+            if (args == null)
+                args = new Dictionary<string, object>();
 
+            if (args != null && args.Count > 0)
+                loc.Arguments = new object[] { args };
             lines.Add(loc.GetLocalizedString());
         }
 
@@ -90,7 +92,7 @@ public static class UpgradeTooltipUtil
         return results;
     }
 
-    static object BuildArgs(ItemEffectDto effect)
+    static Dictionary<string, object> BuildArgs(ItemEffectDto effect, int effectIndex, UpgradeInstance upgrade)
     {
         if (effect == null)
             return null;
@@ -104,6 +106,9 @@ public static class UpgradeTooltipUtil
             ["value0"] = value.ToString("0.##"),
             ["percentValue0"] = (effect.value * 100f).ToString("0.##")
         };
+
+        if (effect.showCurrentValue)
+            TooltipDynamicValueUtil.TryAddCurrentValueArgs(effect, effectIndex, null, upgrade, dict);
 
         return dict;
     }

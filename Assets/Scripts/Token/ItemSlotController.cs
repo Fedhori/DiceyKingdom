@@ -150,7 +150,7 @@ public class ItemSlotController : MonoBehaviour, IBeginDragHandler, IEndDragHand
         if (tooltipTarget != null)
         {
             if (displayInstance != null)
-                tooltipTarget.Bind(displayInstance);
+                tooltipTarget.Bind(displayInstance, hasPreview);
             else
                 tooltipTarget.Clear();
         }

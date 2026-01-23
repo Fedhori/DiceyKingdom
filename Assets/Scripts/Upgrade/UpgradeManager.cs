@@ -135,6 +135,7 @@ public sealed class UpgradeManager : MonoBehaviour
 
         int upgradeCount = upgradesToApply.Count;
         List<ItemRuleDto> upgradeRules = null;
+        List<string> upgradeRuleSources = null;
         for (int i = 0; i < upgradesToApply.Count; i++)
         {
             var upgrade = upgradesToApply[i];
@@ -151,10 +152,14 @@ public sealed class UpgradeManager : MonoBehaviour
             {
                 upgradeRules ??= new List<ItemRuleDto>();
                 upgradeRules.AddRange(rules);
+                upgradeRuleSources ??= new List<string>();
+                for (int r = 0; r < rules.Count; r++)
+                    upgradeRuleSources.Add(upgrade.UniqueId);
             }
         }
 
         target.SetUpgradeRules(upgradeRules);
+        target.SetUpgradeRuleSourceUids(upgradeRuleSources);
         target.SetUpgrades(upgradesToApply);
         return true;
     }
@@ -259,7 +264,7 @@ public sealed class UpgradeManager : MonoBehaviour
                 case ItemEffectType.ModifyItemStat:
                 case ItemEffectType.SetItemStatus:
                 case ItemEffectType.ModifyTriggerRepeat:
-                    effectManager.ApplyEffect(effect, target);
+                    effectManager.ApplyEffect(effect, target, upgrade.UniqueId);
                     break;
                 default:
                     break;
@@ -269,8 +274,8 @@ public sealed class UpgradeManager : MonoBehaviour
 
     void ClearUpgradeModifiers(ItemInstance target)
     {
-        target.Stats.RemoveModifiers(layer: StatLayer.Upgrade, source: target);
-        target.RemoveTriggerRepeatModifiers(layer: StatLayer.Upgrade, source: target);
+        target.Stats.RemoveModifiers(layer: StatLayer.Upgrade);
+        target.RemoveTriggerRepeatModifiers(layer: StatLayer.Upgrade);
     }
 
     static int FindUpgradeIndex(IReadOnlyList<UpgradeInstance> upgrades, UpgradeInstance target)

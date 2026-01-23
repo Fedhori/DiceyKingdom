@@ -25,7 +25,7 @@ public sealed class ItemInstance
     public bool IsObject { get; private set; }
     public int PierceBonus { get; private set; }
     public float ProjectileHomingTurnRate => (float)Stats.GetValue(ItemStatIds.ProjectileHomingTurnRate);
-    public int SellValueBonus { get; private set; }
+    public int SellValueBonus => Mathf.Max(0, Mathf.FloorToInt((float)Stats.GetValue(ItemStatIds.SellValueBonus)));
     public ItemRarity Rarity { get; private set; }
     public UpgradeInstance Upgrade
     {
@@ -52,12 +52,13 @@ public sealed class ItemInstance
     private readonly List<ItemRuleDto> rules = new();
     public IReadOnlyList<ItemRuleDto> Rules => rules;
     private readonly List<ItemRuleDto> upgradeRules = new();
+    private readonly List<string> upgradeRuleSourceUids = new();
     public IReadOnlyList<ItemRuleDto> UpgradeRules => upgradeRules;
 
     bool hasNextProjectileDamage;
     float nextProjectileDamageScale = 1f;
 
-    public event Action<ItemEffectDto, ItemInstance> OnEffectTriggered;
+    public event Action<ItemEffectDto, ItemInstance, string> OnEffectTriggered;
     public event Action<ItemInstance> OnUpgradeChanged;
     public event Action<ItemInstance> OnUpgradesChanged;
 
@@ -86,12 +87,14 @@ public sealed class ItemInstance
                 return;
 
             upgradeRules.Clear();
+            upgradeRuleSourceUids.Clear();
             upgradeRuleElapsedSeconds.Clear();
             ClearNextProjectileDamage();
             return;
         }
 
         upgradeRules.Clear();
+        upgradeRuleSourceUids.Clear();
         for (int i = 0; i < newRules.Count; i++)
         {
             var rule = newRules[i];
@@ -101,6 +104,19 @@ public sealed class ItemInstance
 
         upgradeRuleElapsedSeconds.Clear();
         ClearNextProjectileDamage();
+    }
+
+    public void SetUpgradeRuleSourceUids(List<string> sources)
+    {
+        upgradeRuleSourceUids.Clear();
+        if (sources == null || sources.Count == 0)
+            return;
+
+        for (int i = 0; i < sources.Count; i++)
+        {
+            var value = sources[i];
+            upgradeRuleSourceUids.Add(value);
+        }
     }
 
     readonly Dictionary<ItemTriggerType, int> triggerCounts = new();
@@ -117,6 +133,7 @@ public sealed class ItemInstance
         Stats.SetBase(ItemStatIds.ProjectileRandomAngle, 0d, 0d);
         Stats.SetBase(ItemStatIds.ProjectileHomingTurnRate, 0d, 0d);
         Stats.SetBase(ItemStatIds.ProjectileExplosionRadius, 0d, 0d);
+        Stats.SetBase(ItemStatIds.SellValueBonus, 0d, 0d);
 
         if (dto == null || string.IsNullOrEmpty(dto.id))
         {
@@ -135,7 +152,6 @@ public sealed class ItemInstance
             IsObject = false;
             PierceBonus = 0;
             StatusDamageMultiplier = 1f;
-            SellValueBonus = 0;
             Rarity = ItemRarity.Common;
             Stats.SetBase(ItemStatIds.Pierce, 0d, 0d);
             return;
@@ -147,7 +163,6 @@ public sealed class ItemInstance
         Stats.SetBase(ItemStatIds.AttackSpeed, Mathf.Max(0f, dto.attackSpeed), 0d);
         IsObject = dto.isObject;
         PierceBonus = Mathf.Max(0, dto.pierceBonus);
-        SellValueBonus = 0;
         Rarity = dto.rarity;
 
         var statusKeys = StatusUtil.Keys;
@@ -231,7 +246,11 @@ public sealed class ItemInstance
             if (!IsConditionMet(rule.condition, trigger))
                 continue;
 
-            ApplyEffects(rule.effects);
+            string sourceUid = null;
+            if (ReferenceEquals(targetRules, upgradeRules) && i < upgradeRuleSourceUids.Count)
+                sourceUid = upgradeRuleSourceUids[i];
+
+            ApplyEffects(rule.effects, sourceUid);
         }
     }
 
@@ -303,8 +322,12 @@ public sealed class ItemInstance
 
             SetRuleElapsedSeconds(elapsedSeconds, i, elapsed);
 
+            string sourceUid = null;
+            if (ReferenceEquals(targetRules, upgradeRules) && i < upgradeRuleSourceUids.Count)
+                sourceUid = upgradeRuleSourceUids[i];
+
             for (int t = 0; t < triggerCount; t++)
-                ApplyEffects(rule.effects);
+                ApplyEffects(rule.effects, sourceUid);
         }
     }
 
@@ -344,14 +367,6 @@ public sealed class ItemInstance
         return DamageMultiplier > 0f;
     }
 
-    public void AddSellValueBonus(int amount)
-    {
-        if (amount <= 0)
-            return;
-
-        SellValueBonus += amount;
-    }
-
     void IncrementTriggerCount(ItemTriggerType trigger)
     {
         if (triggerCounts.TryGetValue(trigger, out var count))
@@ -376,7 +391,7 @@ public sealed class ItemInstance
         return Mathf.Max(1, Mathf.FloorToInt((float)value));
     }
 
-    public void AddTriggerRepeatModifier(ItemTriggerType trigger, StatOpKind opKind, double value, StatLayer layer, object source, int priority = 0)
+    public void AddTriggerRepeatModifier(ItemTriggerType trigger, StatOpKind opKind, double value, StatLayer layer, string source, int priority = 0)
     {
         if (trigger == ItemTriggerType.Unknown)
             return;
@@ -386,7 +401,7 @@ public sealed class ItemInstance
         triggerRepeatStats.AddModifier(new StatModifier(statId, opKind, value, layer, source, priority));
     }
 
-    public void RemoveTriggerRepeatModifiers(StatLayer? layer = null, object source = null)
+    public void RemoveTriggerRepeatModifiers(StatLayer? layer = null, string source = null)
     {
         triggerRepeatStats.RemoveModifiers(layer, source);
     }
@@ -486,7 +501,7 @@ public sealed class ItemInstance
         }
     }
 
-    void ApplyEffects(List<ItemEffectDto> effects)
+    void ApplyEffects(List<ItemEffectDto> effects, string sourceUid = null)
     {
         if (effects == null || effects.Count == 0)
             return;
@@ -500,7 +515,7 @@ public sealed class ItemInstance
             if (effect == null)
                 continue;
 
-            OnEffectTriggered?.Invoke(effect, this);
+            OnEffectTriggered?.Invoke(effect, this, sourceUid);
         }
     }
 }

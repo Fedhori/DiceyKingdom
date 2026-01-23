@@ -18,6 +18,7 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
     UpgradeInstance upgrade;
     TooltipActionKind actionKind = TooltipActionKind.None;
     object actionSource;
+    bool isPreview;
     readonly Vector3[] corners = new Vector3[4];
 
     public bool HasUpgradeToggle => instance != null && instance.Upgrades.Count > 0;
@@ -31,12 +32,13 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
             anchorRect = transform as RectTransform;
     }
 
-    public void Bind(ItemInstance boundInstance)
+    public void Bind(ItemInstance boundInstance, bool isPreview = false)
     {
         instance = boundInstance;
         upgrade = null;
         actionKind = TooltipActionKind.None;
         actionSource = null;
+        this.isPreview = isPreview;
         if (instance == null)
             TooltipManager.Instance?.ClearOwner(this);
     }
@@ -47,6 +49,7 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
         upgrade = null;
         actionKind = TooltipActionKind.None;
         actionSource = null;
+        isPreview = false;
         TooltipManager.Instance?.ClearOwner(this);
     }
 
@@ -110,8 +113,8 @@ public sealed class ItemTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPo
             case TooltipDisplayMode.Item:
                 if (instance == null)
                     return false;
-                model = ItemTooltipUtil.BuildModel(instance, BuildItemButtonConfig());
-                break;
+        model = ItemTooltipUtil.BuildModel(instance, BuildItemButtonConfig(), isPreview);
+        break;
             case TooltipDisplayMode.Upgrade:
                 var upgradeToShow = upgrade ?? instance?.Upgrade;
                 if (upgradeToShow == null)

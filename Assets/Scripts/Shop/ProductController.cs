@@ -51,7 +51,7 @@ public sealed class ProductController : ProductViewBase
         if (tooltipTarget != null)
         {
             if (boundItem != null)
-                tooltipTarget.Bind(boundItem.PreviewInstance);
+                tooltipTarget.Bind(boundItem.PreviewInstance, true);
             else
                 tooltipTarget.Clear();
         }

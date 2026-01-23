@@ -43,6 +43,7 @@ namespace GameStats
         public const string ProjectileHomingTurnRate = "projectileHomingTurnRate";
         public const string ProjectileExplosionRadius = "projectileExplosionRadius";
         public const string Pierce = "pierce";
+        public const string SellValueBonus = "sellValueBonus";
     }
 
     public sealed class StatModifier
@@ -51,7 +52,7 @@ namespace GameStats
         public StatOpKind OpKind { get; }
         public double Value { get; }
         public StatLayer Layer { get; }
-        public object Source { get; }
+        public string Source { get; }
         public int Priority { get; }
 
         public StatModifier(
@@ -59,7 +60,7 @@ namespace GameStats
             StatOpKind opKind,
             double value,
             StatLayer layer,
-            object source,
+            string source,
             int priority = 0)
         {
             StatId = statId;
@@ -136,13 +137,13 @@ namespace GameStats
             _dirty = true;
         }
 
-        public int RemoveModifiers(StatLayer? layer = null, object source = null)
+        public int RemoveModifiers(StatLayer? layer = null, string source = null)
         {
             if (layer == null && source == null) return 0;
 
             int removed = _modifiers.RemoveAll(m =>
                 (layer == null || m.Layer == layer.Value) &&
-                (source == null || ReferenceEquals(m.Source, source)));
+                (source == null || string.Equals(m.Source, source, StringComparison.Ordinal)));
 
             if (removed > 0) _dirty = true;
             return removed;
@@ -202,17 +203,22 @@ namespace GameStats
 
         public IEnumerable<StatSlot> AllSlots => _slots.Values;
 
+        public static event Action<StatSet, string> OnAnyStatChanged;
+        public event Action<string> OnStatChanged;
+
         public void SetBase(string statId, double baseValue, double? minValue = null, double? maxValue = null)
         {
             if (!_slots.TryGetValue(statId, out var slot))
             {
                 slot = new StatSlot(statId, baseValue, minValue, maxValue);
                 _slots.Add(statId, slot);
+                NotifyChanged(statId);
                 return;
             }
 
             slot.BaseValue = baseValue;
             slot.SetBounds(minValue, maxValue);
+            NotifyChanged(statId);
         }
 
         public double GetValue(string statId)
@@ -238,24 +244,43 @@ namespace GameStats
             if (modifier == null) return;
             var slot = GetOrCreateSlot(modifier.StatId);
             slot.AddModifier(modifier);
+            NotifyChanged(modifier.StatId);
         }
 
-        public int RemoveModifiers(StatLayer? layer = null, object source = null)
+        public int RemoveModifiers(StatLayer? layer = null, string source = null)
         {
             int totalRemoved = 0;
             foreach (var slot in _slots.Values)
-                totalRemoved += slot.RemoveModifiers(layer, source);
+            {
+                int removed = slot.RemoveModifiers(layer, source);
+                if (removed > 0)
+                    NotifyChanged(slot.StatId);
+                totalRemoved += removed;
+            }
             return totalRemoved;
         }
 
-        public int RemoveModifiers(string statId, StatLayer? layer = null, object source = null)
+        public int RemoveModifiers(string statId, StatLayer? layer = null, string source = null)
         {
             if (string.IsNullOrEmpty(statId))
                 return 0;
 
-            return _slots.TryGetValue(statId, out var slot)
-                ? slot.RemoveModifiers(layer, source)
-                : 0;
+            if (!_slots.TryGetValue(statId, out var slot))
+                return 0;
+
+            int removed = slot.RemoveModifiers(layer, source);
+            if (removed > 0)
+                NotifyChanged(statId);
+            return removed;
+        }
+
+        void NotifyChanged(string statId)
+        {
+            if (string.IsNullOrEmpty(statId))
+                return;
+
+            OnStatChanged?.Invoke(statId);
+            OnAnyStatChanged?.Invoke(this, statId);
         }
     }
 }

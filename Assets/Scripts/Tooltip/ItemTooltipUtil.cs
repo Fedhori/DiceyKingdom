@@ -9,7 +9,7 @@ public static class ItemTooltipUtil
 {
     const string StatusPrefixKey = "tooltip.status.prefix";
 
-    public static TooltipModel BuildModel(ItemInstance item, TooltipButtonConfig buttonConfig = null)
+    public static TooltipModel BuildModel(ItemInstance item, TooltipButtonConfig buttonConfig = null, bool isPreview = false)
     {
         if (item == null)
         {
@@ -25,7 +25,7 @@ public static class ItemTooltipUtil
         if (string.IsNullOrEmpty(title))
             title = item.Id;
 
-        var body = BuildBody(item);
+        var body = BuildBody(item, isPreview);
         var keywords = TooltipKeywordUtil.BuildForItem(item);
 
         return new TooltipModel(
@@ -38,14 +38,14 @@ public static class ItemTooltipUtil
         );
     }
 
-    public static string BuildBody(ItemInstance item)
+    public static string BuildBody(ItemInstance item, bool isPreview)
     {
         if (item == null)
             return string.Empty;
 
         var lines = new List<string>();
         AppendStatLines(item, lines);
-        AppendRuleLines(item, lines);
+        AppendRuleLines(item, lines, isPreview);
 
         if (lines.Count == 0)
             return string.Empty;
@@ -75,7 +75,7 @@ public static class ItemTooltipUtil
                 ["damage"] = finalDamage.ToString("0.##"),
                 ["multiplier"] = multiplier.ToString("0.##")
             };
-            lines.Add(BuildStatLine("tooltip.damage.description", args));
+            lines.Add(BuildStatLine("tooltip.damage.description", args, item, -1));
         }
 
         float finalAttackSpeed = GetFinalAttackSpeed(item);
@@ -85,7 +85,7 @@ public static class ItemTooltipUtil
             {
                 ["value"] = finalAttackSpeed.ToString("0.##")
             };
-            lines.Add(BuildStatLine("tooltip.attackSpeed.description", args));
+            lines.Add(BuildStatLine("tooltip.attackSpeed.description", args, item, -1));
         }
 
         if (item.Pierce > 0)
@@ -94,7 +94,7 @@ public static class ItemTooltipUtil
             {
                 ["value"] = item.Pierce.ToString("0")
             };
-            lines.Add(BuildStatLine("tooltip.pierce.description", args));
+            lines.Add(BuildStatLine("tooltip.pierce.description", args, item, -1));
         }
 
         string statusPrefix = new LocalizedString("tooltip", StatusPrefixKey).GetLocalizedString();
@@ -145,16 +145,17 @@ public static class ItemTooltipUtil
         return item.AttackSpeed;
     }
 
-    static string BuildStatLine(string key, Dictionary<string, object> args)
+    static string BuildStatLine(string key, Dictionary<string, object> args, ItemInstance item, int ruleIndex)
     {
         var loc = new LocalizedString("tooltip", key);
         if (args != null)
             loc.Arguments = new object[] { args };
 
-        return loc.GetLocalizedString();
+        var line = loc.GetLocalizedString();
+        return line;
     }
 
-    static void AppendRuleLines(ItemInstance item, List<string> lines)
+    static void AppendRuleLines(ItemInstance item, List<string> lines, bool isPreview)
     {
         var rules = item.Rules;
         if (rules == null || rules.Count == 0)
@@ -166,26 +167,29 @@ public static class ItemTooltipUtil
             if (rule == null)
                 continue;
 
-            var line = BuildRuleLine(item, rule, i);
+            var line = BuildRuleLine(item, rule, i, isPreview);
             if (!string.IsNullOrEmpty(line))
                 lines.Add(line);
         }
     }
 
-    static string BuildRuleLine(ItemInstance item, ItemRuleDto rule, int ruleIndex)
+    static string BuildRuleLine(ItemInstance item, ItemRuleDto rule, int ruleIndex, bool isPreview)
     {
         var key = $"{item.Id}.effect{ruleIndex}";
         var loc = new LocalizedString("item", key);
 
-        var args = BuildRuleArgs(item, rule);
-        if (args != null)
+        var args = BuildRuleArgs(item, rule, isPreview);
+        if (args == null)
+            args = new Dictionary<string, object>();
+
+        if (args != null && args.Count > 0)
             loc.Arguments = new object[] { args };
 
         return loc.GetLocalizedString();
     }
 
 
-    static object BuildRuleArgs(ItemInstance item, ItemRuleDto rule)
+    static Dictionary<string, object> BuildRuleArgs(ItemInstance item, ItemRuleDto rule, bool isPreview)
     {
         var dict = new Dictionary<string, object>();
 
@@ -196,6 +200,9 @@ public static class ItemTooltipUtil
                 var e = rule.effects[i];
                 if (e == null)
                     continue;
+
+                if (e.showCurrentValue && isPreview)
+                    TooltipDynamicValueUtil.TryAddEstimatedValueArgs(e, i, item, null, dict);
 
                 string key = $"value{i}";
                 dict[key] = e.value.ToString("0.##");
@@ -214,6 +221,9 @@ public static class ItemTooltipUtil
 
                 if (e.threshold > 0)
                     dict["threshold"] = e.threshold.ToString("0");
+
+                if (e.showCurrentValue)
+                    TooltipDynamicValueUtil.TryAddCurrentValueArgs(e, i, item, null, dict);
             }
         }
 

@@ -124,10 +124,11 @@
 					},
 					"effects": [
 						{
-							"effectType": "ModifyBaseIncome",
+							"effectType": "ModifyStat",
 							"effectMode": "Add",
 							"value": 1.0,
-							"duration": "Owned"
+							"duration": "Owned",
+							"statId": "baseIncomeBonus"
 						}
 					]
 				}
@@ -149,8 +150,9 @@
 							"effectType": "ModifyStat",
 							"statId": "power",
 							"effectMode": "Add",
-							"value": 1,
-							"duration": "Temporary"
+							"value": 2,
+							"duration": "Temporary",
+							"showCurrentValue": true
 						}
 					]
 				}
@@ -173,7 +175,8 @@
 							"statId": "power",
 							"effectMode": "Add",
 							"value": 3,
-							"duration": "Temporary"
+							"duration": "Temporary",
+							"showCurrentValue": true
 						}
 					]
 				}
@@ -292,7 +295,8 @@
 							"statId": "power",
 							"effectMode": "Add",
 							"value": 5.0,
-							"duration": "Temporary"
+							"duration": "Temporary",
+							"showCurrentValue": true
 						}
 					]
 				}
@@ -338,7 +342,8 @@
 							"statId": "power",
 							"effectMode": "Add",
 							"value": 1.0,
-							"duration": "Temporary"
+							"duration": "Temporary",
+							"showCurrentValue": true
 						}
 					]
 				}
@@ -380,8 +385,13 @@
 					},
 					"effects": [
 						{
-							"effectType": "AddSellValue",
-							"value": 2.0
+							"effectType": "ModifyItemStat",
+							"value": 2.0,
+							"target": "Self",
+							"statId": "sellValueBonus",
+							"effectMode": "Add",
+							"duration": "Permanent",
+							"showCurrentValue": true
 						}
 					]
 				}
@@ -415,10 +425,11 @@
 					},
 					"effects": [
 						{
-							"effectType": "ModifyBaseIncome",
+							"effectType": "ModifyStat",
 							"effectMode": "Add",
 							"value": -1.0,
-							"duration": "Owned"
+							"duration": "Owned",
+							"statId": "baseIncomeBonus"
 						}
 					]
 				}
@@ -450,7 +461,8 @@
 							"statId": "damageMultiplier",
 							"effectMode": "Add",
 							"value": 0.5,
-							"duration": "Permanent"
+							"duration": "Permanent",
+							"showCurrentValue": true
 						}
 					]
 				}
@@ -475,7 +487,8 @@
 							"value": 50.0,
 							"duration": "Owned",
 							"multiplier": "currencyAtMost",
-							"threshold": 10
+							"threshold": 10,
+							"showCurrentValue": true
 						}
 					]
 				}
@@ -522,7 +535,8 @@
 							"effectMode": "Add",
 							"value": 15.0,
 							"duration": "Owned",
-							"multiplier": "adjacentEmptySlotCount"
+							"multiplier": "adjacentEmptySlotCount",
+							"showCurrentValue": true
 						}
 					]
 				}
@@ -609,7 +623,8 @@
 							"effectMode": "Add",
 							"value": 10.0,
 							"duration": "Owned",
-							"multiplier": "weaponCount"
+							"multiplier": "weaponCount",
+							"showCurrentValue": true
 						}
 					]
 				}
@@ -684,7 +699,8 @@
 							"effectMode": "Add",
 							"value": 10.0,
 							"duration": "Owned",
-							"multiplier": "normalItemCount"
+							"multiplier": "normalItemCount",
+							"showCurrentValue": true
 						}
 					]
 				}
@@ -804,10 +820,11 @@
 					},
 					"effects": [
 						{
-							"effectType": "ModifyBaseIncome",
+							"effectType": "ModifyStat",
 							"effectMode": "Add",
 							"value": 5.0,
-							"duration": "Owned"
+							"duration": "Owned",
+							"statId": "baseIncomeBonus"
 						}
 					]
 				},

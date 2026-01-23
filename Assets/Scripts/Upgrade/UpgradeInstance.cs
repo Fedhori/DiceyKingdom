@@ -5,6 +5,7 @@ using Data;
 public sealed class UpgradeInstance
 {
     public string Id { get; }
+    public string UniqueId { get; }
     public int Price { get; }
     public ItemRarity Rarity { get; }
     public bool RequiresSolo { get; }
@@ -28,6 +29,7 @@ public sealed class UpgradeInstance
         }
 
         Id = dto.id;
+        UniqueId = Guid.NewGuid().ToString();
         Price = dto.price;
         Rarity = dto.rarity;
         RequiresSolo = dto.requiresSolo;

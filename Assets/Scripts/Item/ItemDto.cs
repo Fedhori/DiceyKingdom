@@ -34,22 +34,20 @@ namespace Data
         Time
     }
 
-    public enum ItemEffectType
-    {
-        Unknown = 0,
-        ModifyStat,
-        AddCurrency,
-        SpawnProjectile,
-        ApplyStatusToRandomBlocks,
-        AddSellValue,
-        ModifyItemStat,
-        SetItemStat,
-        SetStat,
-        ModifyBaseIncome,
-        ApplyDamageToAllBlocks,
-        SetItemStatus,
-        ModifyTriggerRepeat,
-        ChargeNextProjectileDamage,
+        public enum ItemEffectType
+        {
+            Unknown = 0,
+            ModifyStat,
+            AddCurrency,
+            SpawnProjectile,
+            ApplyStatusToRandomBlocks,
+            ModifyItemStat,
+            SetItemStat,
+            SetStat,
+            ApplyDamageToAllBlocks,
+            SetItemStatus,
+            ModifyTriggerRepeat,
+            ChargeNextProjectileDamage,
         RemoveSelf,
         SellSelf
     }
@@ -80,10 +78,10 @@ namespace Data
     }
 
     [Serializable]
-    public sealed class ItemEffectDto
-    {
-        [JsonConverter(typeof(StringEnumConverter))]
-        public ItemEffectType effectType;
+        public sealed class ItemEffectDto
+        {
+            [JsonConverter(typeof(StringEnumConverter))]
+            public ItemEffectType effectType;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ItemEffectTarget target = ItemEffectTarget.Self;
@@ -93,13 +91,15 @@ namespace Data
         [JsonConverter(typeof(StringEnumConverter))]
         public StatOpKind effectMode;
 
-        public float value;
+            public float value;
 
-        [JsonConverter(typeof(StringEnumConverter))]
-        public StatLayer duration = StatLayer.Temporary;
+            [JsonConverter(typeof(StringEnumConverter))]
+            public StatLayer duration = StatLayer.Temporary;
 
-        public string multiplier;
-        public int threshold;
+            public bool showCurrentValue;
+
+            public string multiplier;
+            public int threshold;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public BlockStatusType statusType = BlockStatusType.Unknown;

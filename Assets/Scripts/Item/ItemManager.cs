@@ -269,10 +269,10 @@ public sealed class ItemManager : MonoBehaviour
         if (player == null)
             return;
 
-        player.Stats.RemoveModifiers(layer: StatLayer.Owned, source: inst);
+        player.Stats.RemoveModifiers(layer: StatLayer.Owned, source: inst.UniqueId);
     }
 
-    void HandleItemEffect(ItemEffectDto effect, ItemInstance source)
+    void HandleItemEffect(ItemEffectDto effect, ItemInstance source, string sourceUid)
     {
         var mgr = ItemEffectManager.Instance;
         if (mgr == null)
@@ -281,7 +281,7 @@ public sealed class ItemManager : MonoBehaviour
             return;
         }
 
-        mgr.ApplyEffect(effect, source);
+        mgr.ApplyEffect(effect, source, sourceUid ?? source.UniqueId);
     }
 
     void Update()

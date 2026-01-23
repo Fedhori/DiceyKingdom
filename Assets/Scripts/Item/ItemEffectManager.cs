@@ -18,7 +18,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         Instance = this;
     }
 
-    public void ApplyEffect(ItemEffectDto dto, ItemInstance item)
+    public void ApplyEffect(ItemEffectDto dto, ItemInstance item, string sourceUid)
     {
         if (dto == null || item == null)
             return;
@@ -26,7 +26,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         switch (dto.effectType)
         {
             case ItemEffectType.ModifyStat:
-                ApplyPlayerStat(dto, item);
+                ApplyPlayerStat(dto, item, sourceUid);
                 break;
             case ItemEffectType.AddCurrency:
                 ApplyCurrency(dto);
@@ -37,29 +37,23 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.ApplyStatusToRandomBlocks:
                 ApplyStatusToRandomBlocks(dto, item);
                 break;
-            case ItemEffectType.AddSellValue:
-                ApplySellValue(dto, item);
-                break;
             case ItemEffectType.ModifyItemStat:
-                ModifyItemStat(dto, item);
+                ModifyItemStat(dto, item, sourceUid);
                 break;
             case ItemEffectType.SetItemStat:
-                SetItemStat(dto, item);
+                SetItemStat(dto, item, sourceUid);
                 break;
             case ItemEffectType.SetStat:
-                ApplySetStat(dto, item);
-                break;
-            case ItemEffectType.ModifyBaseIncome:
-                ApplyBaseIncome(dto, item);
+                ApplySetStat(dto, item, sourceUid);
                 break;
             case ItemEffectType.ApplyDamageToAllBlocks:
                 ApplyDamageToAllBlocks(dto, item);
                 break;
             case ItemEffectType.SetItemStatus:
-                SetItemStatus(dto, item);
+                SetItemStatus(dto, item, sourceUid);
                 break;
             case ItemEffectType.ModifyTriggerRepeat:
-                ModifyTriggerRepeat(dto, item);
+                ModifyTriggerRepeat(dto, item, sourceUid);
                 break;
             case ItemEffectType.ChargeNextProjectileDamage:
                 ChargeNextProjectileDamage(item);
@@ -76,7 +70,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         }
     }
 
-    void ApplyPlayerStat(ItemEffectDto dto, ItemInstance item)
+    void ApplyPlayerStat(ItemEffectDto dto, ItemInstance item, string sourceUid)
     {
         var player = PlayerManager.Instance?.Current;
         if (player == null)
@@ -90,17 +84,18 @@ public sealed class ItemEffectManager : MonoBehaviour
 
         var layer = dto.duration;
 
-        double multiplier = ResolveMultiplier(dto, item);
+        double multiplier = ItemEffectMultiplierResolver.Resolve(dto, item);
         double value = dto.value * multiplier;
         if (Math.Abs(value) <= 0d)
             return;
 
+        string source = sourceUid ?? item.UniqueId;
         player.Stats.AddModifier(new StatModifier(
             statId: dto.statId,
             opKind: dto.effectMode,
             value: value,
             layer: layer,
-            source: item
+            source: source
         ));
     }
 
@@ -170,19 +165,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         manager.ApplyStatusToRandomBlocks(dto.statusType, count, stack);
     }
 
-    void ApplySellValue(ItemEffectDto dto, ItemInstance item)
-    {
-        if (item == null || dto == null)
-            return;
-
-        int amount = Mathf.FloorToInt(dto.value);
-        if (amount <= 0)
-            return;
-
-        item.AddSellValueBonus(amount);
-    }
-
-    void ModifyItemStat(ItemEffectDto dto, ItemInstance sourceItem)
+    void ModifyItemStat(ItemEffectDto dto, ItemInstance sourceItem, string sourceUid)
     {
         if (dto == null || sourceItem == null)
             return;
@@ -200,16 +183,17 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (dto.statId == ItemStatIds.DamageMultiplier && targetItem.DamageMultiplier <= 0f)
             return;
 
+        string source = sourceUid ?? sourceItem.UniqueId;
         var modifier = new StatModifier(
             dto.statId,
             dto.effectMode,
             dto.value,
             dto.duration,
-            targetItem);
+            source);
         targetItem.Stats.AddModifier(modifier);
     }
 
-    void SetItemStat(ItemEffectDto dto, ItemInstance sourceItem)
+    void SetItemStat(ItemEffectDto dto, ItemInstance sourceItem, string sourceUid)
     {
         if (dto == null || sourceItem == null)
             return;
@@ -224,10 +208,11 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (targetItem == null)
             return;
 
-        double multiplier = ResolveMultiplier(dto, sourceItem);
+        double multiplier = ItemEffectMultiplierResolver.Resolve(dto, sourceItem);
         double value = dto.value * multiplier;
 
-        targetItem.Stats.RemoveModifiers(dto.statId, dto.duration, sourceItem);
+        string source = sourceUid ?? sourceItem.UniqueId;
+        targetItem.Stats.RemoveModifiers(dto.statId, dto.duration, source);
 
         if (Math.Abs(value) <= 0d)
             return;
@@ -237,7 +222,7 @@ public sealed class ItemEffectManager : MonoBehaviour
             dto.effectMode,
             value,
             dto.duration,
-            sourceItem));
+            source));
     }
 
     ItemInstance ResolveTargetItem(ItemEffectTarget target, ItemInstance sourceItem)
@@ -293,7 +278,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         return -1;
     }
 
-    void ApplySetStat(ItemEffectDto dto, ItemInstance item)
+    void ApplySetStat(ItemEffectDto dto, ItemInstance item, string sourceUid)
     {
         if (dto == null || item == null)
             return;
@@ -308,10 +293,11 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (player == null)
             return;
 
-        double multiplier = ResolveMultiplier(dto, item);
+        double multiplier = ItemEffectMultiplierResolver.Resolve(dto, item);
         double value = dto.value * multiplier;
 
-        player.Stats.RemoveModifiers(dto.statId, dto.duration, item);
+        string source = sourceUid ?? item.UniqueId;
+        player.Stats.RemoveModifiers(dto.statId, dto.duration, source);
 
         if (Math.Abs(value) <= 0d)
             return;
@@ -321,138 +307,7 @@ public sealed class ItemEffectManager : MonoBehaviour
             dto.effectMode,
             value,
             dto.duration,
-            item));
-    }
-
-    double ResolveMultiplier(ItemEffectDto dto, ItemInstance sourceItem)
-    {
-        if (dto == null || string.IsNullOrEmpty(dto.multiplier))
-            return 1d;
-
-        switch (dto.multiplier)
-        {
-            case "normalItemCount":
-                return GetNormalItemCount();
-            case "currencyAtMost":
-                return GetCurrencyAtMostMultiplier(dto.threshold);
-            case "adjacentEmptySlotCount":
-                return GetAdjacentEmptySlotCount(sourceItem);
-            case "weaponCount":
-                return GetWeaponCount();
-            default:
-                Debug.LogWarning($"[ItemEffectManager] Unknown multiplier '{dto.multiplier}'.");
-                return 1d;
-        }
-    }
-
-    int GetAdjacentEmptySlotCount(ItemInstance sourceItem)
-    {
-        if (sourceItem == null)
-            return 0;
-
-        var inventory = ItemManager.Instance?.Inventory;
-        if (inventory == null)
-            return 0;
-
-        int sourceIndex = FindItemIndex(inventory, sourceItem);
-        if (sourceIndex < 0)
-            return 0;
-
-        int slotsPerRow = Mathf.Max(1, GameConfig.ItemSlotsPerRow);
-        int count = 0;
-
-        if (sourceIndex % slotsPerRow != 0)
-        {
-            int left = sourceIndex - 1;
-            if (left >= 0 && inventory.IsSlotEmpty(left))
-                count++;
-        }
-
-        if ((sourceIndex + 1) % slotsPerRow != 0)
-        {
-            int right = sourceIndex + 1;
-            if (right < inventory.SlotCount && inventory.IsSlotEmpty(right))
-                count++;
-        }
-
-        int up = sourceIndex - slotsPerRow;
-        if (up >= 0 && inventory.IsSlotEmpty(up))
-            count++;
-
-        int down = sourceIndex + slotsPerRow;
-        if (down < inventory.SlotCount && inventory.IsSlotEmpty(down))
-            count++;
-
-        return count;
-    }
-
-    int GetWeaponCount()
-    {
-        var inventory = ItemManager.Instance?.Inventory;
-        if (inventory == null)
-            return 0;
-
-        int count = 0;
-        for (int i = 0; i < inventory.SlotCount; i++)
-        {
-            var inst = inventory.GetSlot(i);
-            if (inst == null)
-                continue;
-
-            if (inst.IsWeapon())
-                count++;
-        }
-
-        return count;
-    }
-
-    int GetNormalItemCount()
-    {
-        var inventory = ItemManager.Instance?.Inventory;
-        if (inventory == null)
-            return 0;
-
-        int count = 0;
-        for (int i = 0; i < inventory.SlotCount; i++)
-        {
-            var inst = inventory.GetSlot(i);
-            if (inst != null && inst.Rarity == ItemRarity.Common)
-                count++;
-        }
-
-        return count;
-    }
-
-    double GetCurrencyAtMostMultiplier(int threshold)
-    {
-        var player = PlayerManager.Instance?.Current;
-        if (player == null)
-            return 0d;
-
-        if (threshold < 0)
-        {
-            Debug.LogWarning($"[ItemEffectManager] currencyAtMost threshold < 0: {threshold}");
-            threshold = 0;
-        }
-
-        return player.Currency <= threshold ? 1d : 0d;
-    }
-
-    void ApplyBaseIncome(ItemEffectDto dto, ItemInstance item)
-    {
-        if (dto == null || item == null)
-            return;
-
-        var player = PlayerManager.Instance?.Current;
-        if (player == null)
-            return;
-
-        player.Stats.AddModifier(new StatModifier(
-            PlayerStatIds.BaseIncomeBonus,
-            dto.effectMode,
-            dto.value,
-            dto.duration,
-            item));
+            source));
     }
 
     void ApplyDamageToAllBlocks(ItemEffectDto dto, ItemInstance item)
@@ -467,7 +322,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         BlockManager.Instance?.ApplyDamageToAllBlocks(damageScale, item);
     }
 
-    void SetItemStatus(ItemEffectDto dto, ItemInstance sourceItem)
+    void SetItemStatus(ItemEffectDto dto, ItemInstance sourceItem, string sourceUid)
     {
         if (dto == null || sourceItem == null)
             return;
@@ -492,15 +347,16 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (stack <= 0)
             return;
 
+        string source = sourceUid ?? sourceItem.UniqueId;
         targetItem.Stats.AddModifier(new StatModifier(
             statId,
             StatOpKind.Add,
             stack,
             StatLayer.Upgrade,
-            targetItem));
+            source));
     }
 
-    void ModifyTriggerRepeat(ItemEffectDto dto, ItemInstance sourceItem)
+    void ModifyTriggerRepeat(ItemEffectDto dto, ItemInstance sourceItem, string sourceUid)
     {
         if (dto == null || sourceItem == null)
             return;
@@ -515,7 +371,8 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (targetItem == null)
             return;
 
-        targetItem.AddTriggerRepeatModifier(dto.triggerType, dto.effectMode, dto.value, dto.duration, targetItem);
+        string source = sourceUid ?? sourceItem.UniqueId;
+        targetItem.AddTriggerRepeatModifier(dto.triggerType, dto.effectMode, dto.value, dto.duration, source);
     }
 
     void ChargeNextProjectileDamage(ItemInstance item)
