@@ -143,6 +143,7 @@
 		{
 			"id": "upgrade.scythe",
 			"price": 6,
+			"isNotSell": "true",
 			"rarity": "Uncommon",
 			"conditions": [
 				{
