@@ -55,7 +55,11 @@ public sealed class UpgradeManager : MonoBehaviour
             list.AddRange(current);
 
         list.Add(upgrade);
-        return ApplyUpgrades(target, list);
+        
+        var isSuccess = ApplyUpgrades(target, list);
+        if(isSuccess)
+            AudioManager.Instance?.Play("Upgrade");
+        return isSuccess;
     }
 
     public bool TryReplaceUpgrade(ItemInstance target, UpgradeInstance existingUpgrade, UpgradeInstance newUpgrade)
@@ -73,7 +77,11 @@ public sealed class UpgradeManager : MonoBehaviour
 
         var list = new List<UpgradeInstance>(current);
         list[index] = newUpgrade;
-        return ApplyUpgrades(target, list);
+        
+        var isSuccess = ApplyUpgrades(target, list);
+        if(isSuccess)
+            AudioManager.Instance?.Play("Upgrade");
+        return isSuccess;
     }
 
     public bool TryApplyUpgradeAtSlot(

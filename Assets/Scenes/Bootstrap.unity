@@ -1813,6 +1813,9 @@ MonoBehaviour:
   - key: Buy
     volume: 1
     clip: {fileID: 8300000, guid: 4a1eb58d1d8510242a4e8866749de076, type: 3}
+  - key: Upgrade
+    volume: 1
+    clip: {fileID: 8300000, guid: 4a1eb58d1d8510242a4e8866749de076, type: 3}
   limitAllSfx: 0
   limitedKeys:
   - Score
@@ -3197,17 +3200,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5f502aaccfb4534bb589911a2de42b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlidePanelLean
-  panel: {fileID: 0}
   direction: {x: 0, y: 1}
-  scalar: 400
-  usePanelHeight: 1
-  heightPadding: 800
   duration: 0.5
   ease: 7
-  useUnscaledTime: 1
   startHidden: 1
-  canvasGroup: {fileID: 0}
-  blockRaycastsWhenHidden: 1
 --- !u!1 &1686810709
 GameObject:
   m_ObjectHideFlags: 0
