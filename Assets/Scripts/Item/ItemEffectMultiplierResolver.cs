@@ -11,7 +11,7 @@ public static class ItemEffectMultiplierResolver
         bool useFirstEmptySlotForAdjacent = false)
     {
         if (dto == null || string.IsNullOrEmpty(dto.multiplier))
-            return 0d;
+            return 1d;
 
         inventory ??= ItemManager.Instance?.Inventory;
         player ??= PlayerManager.Instance?.Current;
@@ -28,7 +28,7 @@ public static class ItemEffectMultiplierResolver
                 return GetWeaponCount(inventory);
             default:
                 Debug.LogWarning($"[ItemEffectMultiplierResolver] Unknown multiplier '{dto.multiplier}'.");
-                return 0d;
+                return 1d;
         }
     }
 

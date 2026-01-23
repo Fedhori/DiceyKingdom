@@ -44,6 +44,9 @@ public static class TooltipDynamicValueUtil
         if (args == null || effect == null || !effect.showCurrentValue)
             return;
 
+        if (string.IsNullOrEmpty(effect.multiplier))
+            return;
+
         if (!TryResolveStats(effect, item, upgrade, out var stats, out var sourceUid, out var fallbackUid))
             return;
 
