@@ -4334,6 +4334,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SellOverlayController
   overlayRoot: {fileID: 1430171924}
   canvas: {fileID: 2114596190}
+  labelText: {fileID: 375804091}
 --- !u!1001 &714711580
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -208,6 +208,10 @@ public sealed class DevCommandManager : MonoBehaviour
     private bool open;
     private string line = "";
     private GUIStyle inputStyle;
+    private const int MaxHistory = 10;
+    private readonly List<string> history = new();
+    private int historyIndex = -1;
+    private bool wasInputFocused;
 
     public void ToggleOpen()
     {
@@ -235,11 +239,25 @@ public sealed class DevCommandManager : MonoBehaviour
             pendingClear = false;
         }
 
+        var e = Event.current;
+        if (wasInputFocused)
+        {
+            if (e.type == EventType.KeyDown && e.keyCode == KeyCode.UpArrow)
+            {
+                RecallPrevious();
+                e.Use();
+            }
+            else if (e.type == EventType.KeyDown && e.keyCode == KeyCode.DownArrow)
+            {
+                RecallNext();
+                e.Use();
+            }
+        }
+
         GUI.SetNextControlName(DevInputCtrl);
         line = GUI.TextField(rect, line, inputStyle);
         GUI.FocusControl(DevInputCtrl);
 
-        var e = Event.current;
         if (GUI.GetNameOfFocusedControl() == DevInputCtrl)
         {
             // KeyDown(Return/KeypadEnter)
@@ -266,6 +284,8 @@ public sealed class DevCommandManager : MonoBehaviour
                 e.Use();
             }
         }
+
+        wasInputFocused = GUI.GetNameOfFocusedControl() == DevInputCtrl;
     }
 
     private void Execute(string commandLine)
@@ -302,7 +322,53 @@ public sealed class DevCommandManager : MonoBehaviour
             Debug.LogWarning($"[DevConsole] Unknown command: {cmd}");
         }
 
+        PushHistory(commandLine);
         SuppressUiSubmitForOneFrame();
+    }
+
+    void PushHistory(string commandLine)
+    {
+        if (string.IsNullOrWhiteSpace(commandLine))
+            return;
+
+        history.Add(commandLine);
+        if (history.Count > MaxHistory)
+            history.RemoveAt(0);
+
+        historyIndex = history.Count;
+    }
+
+    void RecallPrevious()
+    {
+        if (history.Count == 0)
+            return;
+
+        if (historyIndex < 0 || historyIndex > history.Count)
+            historyIndex = history.Count;
+
+        if (historyIndex > 0)
+            historyIndex--;
+
+        line = history[historyIndex];
+    }
+
+    void RecallNext()
+    {
+        if (history.Count == 0)
+            return;
+
+        if (historyIndex < 0)
+            historyIndex = history.Count;
+
+        if (historyIndex < history.Count - 1)
+        {
+            historyIndex++;
+            line = history[historyIndex];
+            return;
+        }
+
+        historyIndex = history.Count;
+        line = string.Empty;
     }
 
     // 상점 나가기 버튼이 포커스된 상태에서, Enter키를 누를 경우 submit 되면서 상점이 나가지는 버그가 있었음.
