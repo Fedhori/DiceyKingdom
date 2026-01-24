@@ -80,6 +80,7 @@ public sealed class StageManager : MonoBehaviour
         }
 
         CurrentStage = new StageInstance(dto);
+        PlayerManager.Instance?.ResetPlayer();
         DamageTrackingManager.Instance?.ResetForStage();
         DamageTextManager.Instance?.SetMinMaxValue(CurrentStage.Difficulty);
 
@@ -176,7 +177,6 @@ public sealed class StageManager : MonoBehaviour
 
     void OpenShop()
     {
-        PlayerManager.Instance?.ResetPlayer();
         CurrentPhase = StagePhase.Shop;
         ShopManager.Instance?.Open();
     }
