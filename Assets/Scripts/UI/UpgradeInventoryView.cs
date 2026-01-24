@@ -11,6 +11,7 @@ public sealed class UpgradeInventoryView : MonoBehaviour, IPointerClickHandler
     [SerializeField] private UpgradeInventorySlotController slotPrefab;
     [SerializeField] private GameObject emptyRoot;
     [SerializeField] private TMP_Text emptyText;
+    [SerializeField] private TMP_Text countText;
 
     readonly List<UpgradeInventorySlotController> slots = new();
     
@@ -62,6 +63,7 @@ public sealed class UpgradeInventoryView : MonoBehaviour, IPointerClickHandler
         }
 
         UpdateEmptyState(count);
+        UpdateCount(count);
     }
 
     void SetVisible(bool visible)
@@ -101,6 +103,14 @@ public sealed class UpgradeInventoryView : MonoBehaviour, IPointerClickHandler
             var loc = new LocalizedString("upgrade", EmptyKey);
             emptyText.text = loc.GetLocalizedString();
         }
+    }
+
+    void UpdateCount(int count)
+    {
+        if (countText == null)
+            return;
+
+        countText.text = count.ToString();
     }
 
     void ClearEditorPlacedSlots()
