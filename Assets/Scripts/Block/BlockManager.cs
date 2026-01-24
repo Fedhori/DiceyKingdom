@@ -152,22 +152,7 @@ public sealed class BlockManager : MonoBehaviour
         double budgetScale = StageManager.Instance?.CurrentStage?.SpawnBudgetScale ?? 0.0;
         if (budgetScale > 0.0)
         {
-            float t = Mathf.Clamp01(spawnElapsedSeconds / spawnWindowSeconds);
-            double rateStart = budgetScale * spawnBudgetRateStart;
-            double rateEnd = budgetScale * spawnBudgetRateEnd;
-            double rate = rateStart + (rateEnd - rateStart) * t;
-
-            double stageMultiplier = 1.0;
-            var stage = StageManager.Instance?.CurrentStage;
-            int totalStages = StageRepository.Count;
-            if (stage != null && totalStages > 1)
-            {
-                double stageT = stage.StageIndex / (double)(totalStages - 1);
-                stageMultiplier = 1.0 + 3.0 * stageT;
-            }
-
-            rate *= stageMultiplier;
-            spawnBudget += rate * effectiveDelta;
+            AccumulateSpawnBudget(budgetScale, effectiveDelta);
 
             int safety = 0;
             while (TrySpawnPendingPattern(budgetScale))
@@ -222,6 +207,26 @@ public sealed class BlockManager : MonoBehaviour
         pendingPatternSize = isLarge ? 2f : 1f;
         pendingPatternCost = budgetScale * pendingPatternSize * pendingPatternSize;
         hasPendingPattern = true;
+    }
+
+    void AccumulateSpawnBudget(double budgetScale, float deltaSeconds)
+    {
+        float t = Mathf.Clamp01(spawnElapsedSeconds / spawnWindowSeconds);
+        double rateStart = budgetScale * spawnBudgetRateStart;
+        double rateEnd = budgetScale * spawnBudgetRateEnd;
+        double rate = rateStart + (rateEnd - rateStart) * t;
+
+        double stageMultiplier = 1.0;
+        var stage = StageManager.Instance?.CurrentStage;
+        int totalStages = StageRepository.Count;
+        if (stage != null && totalStages > 1)
+        {
+            double stageT = stage.StageIndex / (double)(totalStages - 1);
+            stageMultiplier = 1.0 + 3.0 * stageT;
+        }
+
+        rate *= stageMultiplier;
+        spawnBudget += rate * deltaSeconds;
     }
 
     void CheckClearCondition()
