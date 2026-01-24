@@ -61,7 +61,7 @@ public sealed class ProductController : ProductViewBase
             if (sold)
             {
                 priceText.text = LocalizationUtil.SoldString;
-                priceText.color = Colors.White;
+                priceText.color = Colors.Red;
             }
             else
             {
