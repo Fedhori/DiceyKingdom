@@ -1,29 +1,30 @@
 using System.Collections.Generic;
 using Data;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public sealed class BlockManager : MonoBehaviour
 {
     public static BlockManager Instance { get; private set; }
 
     [SerializeField] private Transform playArea;
-    [SerializeField] private Vector2 blockSize = new Vector2(128f, 64f);
+    [SerializeField] private Vector2 blockSize = new Vector2(128f, 128f);
     private int currentHp;
 
     [Header("Spawn Ramp")] [SerializeField]
-    private float spawnDurationSeconds = 30f;
+    private float spawnWindowSeconds = 30f;
 
-    [SerializeField] private float spawnDifficultyRateStart = 10f;
-    [SerializeField] private float spawnDifficultyRateEnd = 30f;
+    [SerializeField] private float spawnBudgetRateStart = 10f;
+    [SerializeField] private float spawnBudgetRateEnd = 30f;
 
     private readonly List<BlockController> activeBlocks = new();
     private Vector2 originTopLeft;
     private Vector2 originTopRight;
-    float spawnElapsed;
-    double accumulatedDifficulty;
-    bool hasPendingBlock;
-    float pendingBlockScale;
-    double pendingBlockHealth;
+    float spawnElapsedSeconds;
+    double spawnBudget;
+    bool hasPendingPattern;
+    float pendingPatternSize;
+    double pendingPatternCost;
     bool isSpawning;
 
     void Awake()
@@ -49,15 +50,15 @@ public sealed class BlockManager : MonoBehaviour
     public void BeginSpawnRamp()
     {
         var stage = StageManager.Instance?.CurrentStage;
-        float duration = stage != null ? stage.SpawnSecond : spawnDurationSeconds;
-        spawnDurationSeconds = Mathf.Max(1f, duration);
+        float duration = stage != null ? stage.SpawnSecond : spawnWindowSeconds;
+        spawnWindowSeconds = Mathf.Max(1f, duration);
 
         isSpawning = true;
-        spawnElapsed = 0f;
-        accumulatedDifficulty = 0.0;
-        hasPendingBlock = false;
-        pendingBlockScale = 1f;
-        pendingBlockHealth = 0.0;
+        spawnElapsedSeconds = 0f;
+        spawnBudget = 0.0;
+        hasPendingPattern = false;
+        pendingPatternSize = 1f;
+        pendingPatternCost = 0.0;
     }
 
     void ComputeOrigin()
@@ -137,7 +138,7 @@ public sealed class BlockManager : MonoBehaviour
         if (delta <= 0f)
             return;
 
-        float remaining = spawnDurationSeconds - spawnElapsed;
+        float remaining = spawnWindowSeconds - spawnElapsedSeconds;
         if (remaining <= 0f)
         {
             isSpawning = false;
@@ -146,14 +147,14 @@ public sealed class BlockManager : MonoBehaviour
         }
 
         float effectiveDelta = Mathf.Min(delta, remaining);
-        spawnElapsed += effectiveDelta;
+        spawnElapsedSeconds += effectiveDelta;
 
-        double difficulty = StageManager.Instance?.CurrentStage?.Difficulty ?? 0.0;
-        if (difficulty > 0.0)
+        double budgetScale = StageManager.Instance?.CurrentStage?.SpawnBudgetScale ?? 0.0;
+        if (budgetScale > 0.0)
         {
-            float t = Mathf.Clamp01(spawnElapsed / spawnDurationSeconds);
-            double rateStart = difficulty * spawnDifficultyRateStart;
-            double rateEnd = difficulty * spawnDifficultyRateEnd;
+            float t = Mathf.Clamp01(spawnElapsedSeconds / spawnWindowSeconds);
+            double rateStart = budgetScale * spawnBudgetRateStart;
+            double rateEnd = budgetScale * spawnBudgetRateEnd;
             double rate = rateStart + (rateEnd - rateStart) * t;
 
             double stageMultiplier = 1.0;
@@ -166,61 +167,61 @@ public sealed class BlockManager : MonoBehaviour
             }
 
             rate *= stageMultiplier;
-            accumulatedDifficulty += rate * effectiveDelta;
+            spawnBudget += rate * effectiveDelta;
 
             int safety = 0;
-            while (TrySpawnPendingBlock(difficulty))
+            while (TrySpawnPendingPattern(budgetScale))
             {
                 safety++;
                 if (safety >= 1000)
                 {
-                    accumulatedDifficulty = 0.0;
-                    hasPendingBlock = false;
+                    spawnBudget = 0.0;
+                    hasPendingPattern = false;
                     break;
                 }
             }
         }
 
-        if (spawnElapsed >= spawnDurationSeconds)
+        if (spawnElapsedSeconds >= spawnWindowSeconds)
             isSpawning = false;
 
         CheckClearCondition();
     }
 
-    bool TrySpawnPendingBlock(double difficulty)
+    bool TrySpawnPendingPattern(double budgetScale)
     {
-        if (!hasPendingBlock)
-            PreparePendingBlock(difficulty);
+        if (!hasPendingPattern)
+            SelectPendingPattern(budgetScale);
 
-        if (!hasPendingBlock || pendingBlockHealth <= 0.0)
+        if (!hasPendingPattern || pendingPatternCost <= 0.0)
         {
-            hasPendingBlock = false;
+            hasPendingPattern = false;
             return false;
         }
 
-        if (accumulatedDifficulty < pendingBlockHealth)
+        if (spawnBudget < pendingPatternCost)
             return false;
 
-        accumulatedDifficulty -= pendingBlockHealth;
-        SpawnBlock(pendingBlockHealth, pendingBlockScale);
-        hasPendingBlock = false;
+        spawnBudget -= pendingPatternCost;
+        SpawnBlock(pendingPatternCost, pendingPatternSize);
+        hasPendingPattern = false;
         return true;
     }
 
-    void PreparePendingBlock(double difficulty)
+    void SelectPendingPattern(double budgetScale)
     {
-        if (difficulty <= 0.0)
+        if (budgetScale <= 0.0)
         {
-            hasPendingBlock = false;
-            pendingBlockHealth = 0.0;
-            pendingBlockScale = 1f;
+            hasPendingPattern = false;
+            pendingPatternCost = 0.0;
+            pendingPatternSize = 1f;
             return;
         }
 
         bool isLarge = Random.value < 0.1f;
-        pendingBlockScale = isLarge ? 2f : 1f;
-        pendingBlockHealth = difficulty * pendingBlockScale * pendingBlockScale;
-        hasPendingBlock = true;
+        pendingPatternSize = isLarge ? 2f : 1f;
+        pendingPatternCost = budgetScale * pendingPatternSize * pendingPatternSize;
+        hasPendingPattern = true;
     }
 
     void CheckClearCondition()
@@ -266,11 +267,11 @@ public sealed class BlockManager : MonoBehaviour
     public void ClearAllBlocks()
     {
         isSpawning = false;
-        spawnElapsed = 0f;
-        accumulatedDifficulty = 0.0;
-        hasPendingBlock = false;
-        pendingBlockScale = 1f;
-        pendingBlockHealth = 0.0;
+        spawnElapsedSeconds = 0f;
+        spawnBudget = 0.0;
+        hasPendingPattern = false;
+        pendingPatternSize = 1f;
+        pendingPatternCost = 0.0;
 
         for (int i = activeBlocks.Count - 1; i >= 0; i--)
         {

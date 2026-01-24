@@ -81,7 +81,7 @@ public sealed class StageManager : MonoBehaviour
         CurrentStage = new StageInstance(dto);
         PlayerManager.Instance?.ResetPlayer();
         DamageTrackingManager.Instance?.ResetForStage();
-        DamageTextManager.Instance?.SetMinMaxValue(CurrentStage.Difficulty);
+        DamageTextManager.Instance?.SetMinMaxValue(CurrentStage.SpawnBudgetScale);
 
         OnPlayStart();
 
