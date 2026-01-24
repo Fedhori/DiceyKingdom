@@ -13,6 +13,7 @@ public static class GameConfig
     public static float ItemBaseProjectileSize = 1f;
     public static float ItemBaseProjectileSpeed = 1000f;
     public static float BlockFallSpeed = 100f;
+    public static float ProjectileHomingHitCooldownSeconds = 0.2f;
 
     // Beam VFX
     public static float BeamPulsePercent = 0.1f;

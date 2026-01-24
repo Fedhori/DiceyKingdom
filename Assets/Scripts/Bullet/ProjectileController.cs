@@ -14,9 +14,9 @@ public sealed class ProjectileController : MonoBehaviour
     int pierceRemaining;
     int wallBounceRemaining;
     float homingCooldownRemaining;
+    float homingHitCooldownRemaining;
+    BlockController lastHomingHitTarget;
     float damageScale = 1f;
-
-    const float HomingCooldownSeconds = 0.2f;
 
     public void Initialize(ItemInstance inst, Vector2 dir, float damageScaleMultiplier = 1f)
     {
@@ -32,6 +32,10 @@ public sealed class ProjectileController : MonoBehaviour
         ApplyWallBounceCount();
         ApplyStats();
         ApplyHitBehavior();
+
+        homingCooldownRemaining = 0f;
+        homingHitCooldownRemaining = 0f;
+        lastHomingHitTarget = null;
     }
 
     void Update()
@@ -77,6 +81,14 @@ public sealed class ProjectileController : MonoBehaviour
         if (!enabled || item == null || other == null || selfCollider == null)
             return;
 
+        BlockController block = null;
+        if (item.ProjectileHomingTurnRate > 0f && homingHitCooldownRemaining > 0f)
+        {
+            block = other.GetComponent<BlockController>();
+            if (block != null && ReferenceEquals(block, lastHomingHitTarget))
+                return;
+        }
+
         if (isTrigger)
         {
             if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce)
@@ -91,6 +103,7 @@ public sealed class ProjectileController : MonoBehaviour
 
             var result = ApplyDamage(other);
             if (result.AppliedDamage > 0)
+                TriggerHomingHitCooldown(block ?? other.GetComponent<BlockController>());
                 HandlePierce();
             return;
         }
@@ -127,7 +140,10 @@ public sealed class ProjectileController : MonoBehaviour
 
                 var result = ApplyDamage(other);
                 if (result.AppliedDamage > 0)
+                {
+                    TriggerHomingHitCooldown(block ?? other.GetComponent<BlockController>());
                     HandlePierce();
+                }
             }
         }
     }
@@ -208,6 +224,9 @@ public sealed class ProjectileController : MonoBehaviour
         if (item == null || rb == null)
             return;
 
+        if (homingHitCooldownRemaining > 0f)
+            homingHitCooldownRemaining = Mathf.Max(0f, homingHitCooldownRemaining - Time.deltaTime);
+
         if (item.ProjectileHitBehavior == ProjectileHitBehavior.Bounce && homingCooldownRemaining > 0f)
         {
             homingCooldownRemaining = Mathf.Max(0f, homingCooldownRemaining - Time.deltaTime);
@@ -222,6 +241,9 @@ public sealed class ProjectileController : MonoBehaviour
             return;
 
         var target = blockManager.GetLowestBlock(transform.position);
+        if (homingHitCooldownRemaining > 0f && lastHomingHitTarget != null && ReferenceEquals(target, lastHomingHitTarget))
+            return;
+
         if (target == null)
             return;
 
@@ -262,7 +284,19 @@ public sealed class ProjectileController : MonoBehaviour
         if (item.ProjectileHomingTurnRate <= 0f)
             return;
 
-        homingCooldownRemaining = HomingCooldownSeconds;
+        homingCooldownRemaining = GameConfig.ProjectileHomingHitCooldownSeconds;
+    }
+
+    void TriggerHomingHitCooldown(BlockController target)
+    {
+        if (item == null || target == null)
+            return;
+
+        if (item.ProjectileHomingTurnRate <= 0f)
+            return;
+
+        homingHitCooldownRemaining = GameConfig.ProjectileHomingHitCooldownSeconds;
+        lastHomingHitTarget = target;
     }
 
     void UpdateRotation()
