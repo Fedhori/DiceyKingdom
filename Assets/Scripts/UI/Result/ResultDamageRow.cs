@@ -1,3 +1,4 @@
+using Data;
 using TMPro;
 using UnityEngine;
 public sealed class ResultDamageRow : MonoBehaviour
@@ -11,7 +12,10 @@ public sealed class ResultDamageRow : MonoBehaviour
     public void Bind(ItemInstance item, double damage, double maxDamage)
     {
         if (itemView != null)
+        {
             itemView.SetIcon(SpriteCache.GetItemSprite(item?.Id));
+            itemView.SetRarity(item != null ? item.Rarity : ItemRarity.Common);
+        }
 
         if (damageText != null)
             damageText.text = Mathf.FloorToInt((float)damage).ToString();
