@@ -22,7 +22,7 @@ public sealed class BlockManager : MonoBehaviour
     private Vector2 originTopRight;
     float spawnElapsedSeconds;
     double spawnBudget;
-    bool hasPendingPattern;
+    BlockPatternDto pendingPattern;
     float pendingPatternSize;
     double pendingPatternCost;
     bool isSpawning;
@@ -56,7 +56,7 @@ public sealed class BlockManager : MonoBehaviour
         isSpawning = true;
         spawnElapsedSeconds = 0f;
         spawnBudget = 0.0;
-        hasPendingPattern = false;
+        pendingPattern = null;
         pendingPatternSize = 1f;
         pendingPatternCost = 0.0;
     }
@@ -161,7 +161,6 @@ public sealed class BlockManager : MonoBehaviour
                 if (safety >= 1000)
                 {
                     spawnBudget = 0.0;
-                    hasPendingPattern = false;
                     break;
                 }
             }
@@ -175,12 +174,12 @@ public sealed class BlockManager : MonoBehaviour
 
     bool TrySpawnPendingPattern(double budgetScale)
     {
-        if (!hasPendingPattern)
+        if (pendingPattern == null)
             SelectPendingPattern(budgetScale);
 
-        if (!hasPendingPattern || pendingPatternCost <= 0.0)
+        if (pendingPattern == null || pendingPatternCost <= 0.0)
         {
-            hasPendingPattern = false;
+            pendingPattern = null;
             return false;
         }
 
@@ -189,7 +188,7 @@ public sealed class BlockManager : MonoBehaviour
 
         spawnBudget -= pendingPatternCost;
         SpawnBlock(pendingPatternCost, pendingPatternSize);
-        hasPendingPattern = false;
+        pendingPattern = null;
         return true;
     }
 
@@ -197,16 +196,30 @@ public sealed class BlockManager : MonoBehaviour
     {
         if (budgetScale <= 0.0)
         {
-            hasPendingPattern = false;
+            pendingPattern = null;
             pendingPatternCost = 0.0;
             pendingPatternSize = 1f;
             return;
         }
 
-        bool isLarge = Random.value < 0.1f;
-        pendingPatternSize = isLarge ? 2f : 1f;
-        pendingPatternCost = budgetScale * pendingPatternSize * pendingPatternSize;
-        hasPendingPattern = true;
+        if (!BlockPatternRepository.IsInitialized || BlockPatternRepository.List.Count == 0)
+        {
+            Debug.LogWarning("[BlockManager] BlockPatternRepository is not initialized or empty.");
+            pendingPattern = null;
+            return;
+        }
+
+        int index = Random.Range(0, BlockPatternRepository.List.Count);
+        pendingPattern = BlockPatternRepository.List[index];
+        if (pendingPattern == null)
+        {
+            return;
+        }
+
+        pendingPatternSize = Mathf.Max(0.1f, pendingPattern.size);
+        pendingPatternCost = budgetScale * pendingPattern.cost;
+        if (pendingPatternCost <= 0.0)
+            pendingPattern = null;
     }
 
     void AccumulateSpawnBudget(double budgetScale, float deltaSeconds)
@@ -274,7 +287,7 @@ public sealed class BlockManager : MonoBehaviour
         isSpawning = false;
         spawnElapsedSeconds = 0f;
         spawnBudget = 0.0;
-        hasPendingPattern = false;
+        pendingPattern = null;
         pendingPatternSize = 1f;
         pendingPatternCost = 0.0;
 
