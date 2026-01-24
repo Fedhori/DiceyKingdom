@@ -14,6 +14,7 @@ public sealed class ResultManager : MonoBehaviour
 
     readonly List<DamageTrackingManager.ItemDamageSnapshot> damageRecords = new();
     bool isOpen;
+    int lastEarnedIncome;
 
     void Awake()
     {
@@ -29,13 +30,26 @@ public sealed class ResultManager : MonoBehaviour
     // 스테이지당 보상으로 바뀔거니까, 여기 말고 스테이지 끝날 때 띄우게
     public void Open()
     {
+        OpenInternal(false, lastEarnedIncome);
+    }
+
+    public void OpenWithIncome(int income)
+    {
+        lastEarnedIncome = Mathf.Max(0, income);
+        OpenInternal(true, lastEarnedIncome);
+    }
+
+    public void Reopen()
+    {
+        Open();
+    }
+
+    void OpenInternal(bool grantIncome, int income)
+    {
         isOpen = true;
 
-        int income = GameConfig.BaseIncome;
-        var player = PlayerManager.Instance?.Current;
-        if (player != null)
-            income += player.BaseIncomeBonus;
-        CurrencyManager.Instance?.AddCurrency(income);
+        if (grantIncome && income > 0)
+            CurrencyManager.Instance?.AddCurrency(income);
 
         UpdateEarnedCurrency(Mathf.Max(0, income));
         RebuildDamageRecords();
@@ -63,15 +77,13 @@ public sealed class ResultManager : MonoBehaviour
                 if (resultOverlay != null)
                     resultOverlay.SetActive(false);
 
-                StageManager.Instance?.OnResultClosed();
+                isOpen = false;
             });
             return;
         }
 
         if (resultOverlay != null)
             resultOverlay.SetActive(false);
-
-        StageManager.Instance?.OnResultClosed();
     }
 
     private void UpdateEarnedCurrency(int earned)

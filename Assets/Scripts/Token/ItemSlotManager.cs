@@ -140,7 +140,7 @@ public sealed class ItemSlotManager : MonoBehaviour
 
     void HandlePhaseChanged(StagePhase phase)
     {
-        SetSlotContainerVisible(phase == StagePhase.Result || phase == StagePhase.Shop);
+        SetSlotContainerVisible(phase == StagePhase.Shop);
     }
 
     void RefreshSlotContainerVisibility()
@@ -149,7 +149,7 @@ public sealed class ItemSlotManager : MonoBehaviour
         if (stageManager == null)
             return;
 
-        SetSlotContainerVisible(stageManager.CurrentPhase == StagePhase.Result || stageManager.CurrentPhase == StagePhase.Shop);
+        SetSlotContainerVisible(stageManager.CurrentPhase == StagePhase.Shop);
     }
 
     void SetSlotContainerVisible(bool visible)

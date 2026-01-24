@@ -7,7 +7,6 @@ public enum StagePhase
 {
     None,
     Play,
-    Result,
     Shop
 }
 
@@ -120,32 +119,7 @@ public sealed class StageManager : MonoBehaviour
         }
 
         PlayerController.Instance?.ResetToStart();
-        OpenResult();
-    }
-
-    public void OnResultClosed()
-    {
-        if (currentPhase != StagePhase.Result)
-        {
-            Debug.LogWarning($"[StageManager] OnResultClosed in phase {currentPhase}");
-        }
-
-        if (CurrentStage == null)
-        {
-            Debug.LogError("[StageManager] OnResultClosed but currentStage is null.");
-            CurrentPhase = StagePhase.None;
-            return;
-        }
-
-        bool hasNextStage = StageRepository.TryGetByIndex(CurrentStage.StageIndex + 1, out _);
-        if (!hasNextStage)
-        {
-            CurrentPhase = StagePhase.None;
-            GameManager.Instance?.HandleGameClear();
-            return;
-        }
-
-        OpenShop();
+        OpenShopWithResult();
     }
 
     public void OnShopClosed()
@@ -169,16 +143,27 @@ public sealed class StageManager : MonoBehaviour
         ToNextStage();
     }
 
-    void OpenResult()
-    {
-        CurrentPhase = StagePhase.Result;
-        ResultManager.Instance?.Open();
-    }
-
     void OpenShop()
     {
         CurrentPhase = StagePhase.Shop;
         ShopManager.Instance?.Open();
+    }
+
+    void OpenShopWithResult()
+    {
+        OpenShop();
+        int income = CalculateStageIncome();
+        ResultManager.Instance?.OpenWithIncome(income);
+    }
+
+    int CalculateStageIncome()
+    {
+        int income = GameConfig.BaseIncome;
+        var player = PlayerManager.Instance?.Current;
+        if (player != null)
+            income += player.BaseIncomeBonus;
+
+        return Mathf.Max(0, income);
     }
 
     void ToNextStage()
