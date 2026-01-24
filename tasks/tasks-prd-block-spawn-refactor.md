@@ -21,7 +21,7 @@
 - [ ] 2.0 스폰 예산 기반 패턴 선택/대기 로직으로 스폰 흐름 대체
   - [x] 2.1 기존 accumulatedDifficulty 기반 스폰 루프 제거 및 예산 누적 로직 연결
   - [x] 2.2 패턴을 먼저 선택하고 예산 충족 시 스폰하는 “대기형” 흐름 구현
-  - [ ] 2.3 가중치 랜덤 선택 로직 추가(패턴 weight 기준)
+  - [x] 2.3 가중치 랜덤 선택 로직 추가(패턴 weight 기준)
 - [ ] 3.0 패턴 수치(size/speed/health) 적용 및 블럭 생성 파이프라인 정리
   - [ ] 3.1 블럭 생성 시 health/size/speed 수치 적용 경로 정리
   - [ ] 3.2 BlockFactory/BlockController에 패턴 수치 전달 및 적용

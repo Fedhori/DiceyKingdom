@@ -209,8 +209,7 @@ public sealed class BlockManager : MonoBehaviour
             return;
         }
 
-        int index = Random.Range(0, BlockPatternRepository.List.Count);
-        pendingPattern = BlockPatternRepository.List[index];
+        pendingPattern = RollPatternByWeight(BlockPatternRepository.List);
         if (pendingPattern == null)
         {
             return;
@@ -220,6 +219,40 @@ public sealed class BlockManager : MonoBehaviour
         pendingPatternCost = budgetScale * pendingPattern.cost;
         if (pendingPatternCost <= 0.0)
             pendingPattern = null;
+    }
+
+    BlockPatternDto RollPatternByWeight(IReadOnlyList<BlockPatternDto> patterns)
+    {
+        if (patterns == null || patterns.Count == 0)
+            return null;
+
+        float totalWeight = 0f;
+        for (int i = 0; i < patterns.Count; i++)
+        {
+            var p = patterns[i];
+            if (p == null)
+                continue;
+
+            totalWeight += Mathf.Max(0f, p.weight);
+        }
+
+        if (totalWeight <= 0f)
+            return null;
+
+        float roll = Random.value * totalWeight;
+        float acc = 0f;
+        for (int i = 0; i < patterns.Count; i++)
+        {
+            var p = patterns[i];
+            if (p == null)
+                continue;
+
+            acc += Mathf.Max(0f, p.weight);
+            if (roll <= acc)
+                return p;
+        }
+
+        return null;
     }
 
     void AccumulateSpawnBudget(double budgetScale, float deltaSeconds)
