@@ -10,7 +10,6 @@ namespace Data
     public sealed class BlockPatternDto
     {
         public string id;
-        public float weight = 1f;
         public float cost = 1f;
         public float size = 1f;
         public float speed = 1f;
@@ -36,12 +35,6 @@ namespace Data
                 return;
             }
 
-            if (weight <= 0f)
-            {
-                Debug.LogError($"[BlockPatternDto] '{id}': weight must be > 0.");
-                isValid = false;
-            }
-
             if (cost <= 0f)
             {
                 Debug.LogError($"[BlockPatternDto] '{id}': cost must be > 0.");
@@ -65,10 +58,27 @@ namespace Data
         static readonly Dictionary<string, BlockPatternDto> dict = new();
         static readonly List<BlockPatternDto> list = new();
         static bool initialized;
+        static readonly Dictionary<string, float> weights = new();
 
         public static bool IsInitialized => initialized;
         public static IReadOnlyDictionary<string, BlockPatternDto> All => dict;
         public static IReadOnlyList<BlockPatternDto> List => list;
+
+        public static float GetWeight(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return 0f;
+
+            return weights.TryGetValue(id, out var value) ? value : 0f;
+        }
+
+        public static void SetWeight(string id, float weight)
+        {
+            if (string.IsNullOrEmpty(id))
+                return;
+
+            weights[id] = Mathf.Max(0f, weight);
+        }
 
         public static bool ApplyUpdate(BlockPatternDto updated)
         {
@@ -174,6 +184,7 @@ namespace Data
                 list.Add(dto);
             }
 
+            InitializeDefaultWeights(list);
             initialized = dict.Count > 0;
         }
 
@@ -186,6 +197,28 @@ namespace Data
             }
 
             return dict.TryGetValue(id, out dto);
+        }
+
+        static void InitializeDefaultWeights(IReadOnlyList<BlockPatternDto> patterns)
+        {
+            // 시작 패턴 가중치는 일단은 하드코딩시킨다. 뭐 나중에 고칠 필요 있으면 그때..
+            weights.Clear();
+            SetWeight("normal", 10f);
+            SetWeight("big", 2f);
+            SetWeight("fast", 1f);
+
+            if (patterns == null)
+                return;
+
+            for (int i = 0; i < patterns.Count; i++)
+            {
+                var pattern = patterns[i];
+                if (pattern == null || string.IsNullOrEmpty(pattern.id))
+                    continue;
+
+                if (!weights.ContainsKey(pattern.id))
+                    weights[pattern.id] = 1f;
+            }
         }
     }
 }

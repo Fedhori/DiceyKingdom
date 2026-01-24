@@ -22,7 +22,9 @@ public sealed class BlockManager : MonoBehaviour
     private Vector2 originTopRight;
     float spawnElapsedSeconds;
     double spawnBudget;
-    PendingPatternState pendingPattern;
+    BlockPatternDto pendingPattern;
+    double pendingPatternCost;
+    double pendingPatternHealth;
     bool isSpawning;
 
     void Awake()
@@ -55,6 +57,8 @@ public sealed class BlockManager : MonoBehaviour
         spawnElapsedSeconds = 0f;
         spawnBudget = 0.0;
         pendingPattern = null;
+        pendingPatternCost = 0.0;
+        pendingPatternHealth = 0.0;
     }
 
     void ComputeOrigin()
@@ -86,7 +90,8 @@ public sealed class BlockManager : MonoBehaviour
         float x = minX <= maxX ? Random.Range(minX, maxX) : (originTopLeft.x + originTopRight.x) * 0.5f;
         Vector3 worldPos = new Vector3(x, y, 0f);
 
-        var block = BlockFactory.Instance.CreateBlock(blockHealth, Vector2Int.zero, worldPos);
+        float speed = pendingPattern != null ? Mathf.Max(0f, pendingPattern.speed) : 1f;
+        var block = BlockFactory.Instance.CreateBlock(blockHealth, Vector2Int.zero, worldPos, speed);
         if (block != null)
         {
             var currentScale = block.transform.localScale;
@@ -173,17 +178,18 @@ public sealed class BlockManager : MonoBehaviour
         if (pendingPattern == null)
             SelectPendingPattern(budgetScale);
 
-        if (pendingPattern == null || !pendingPattern.IsValid)
+        if (pendingPattern == null || pendingPatternCost <= 0.0 || pendingPatternHealth <= 0.0)
         {
             pendingPattern = null;
             return false;
         }
 
-        if (spawnBudget < pendingPattern.Cost)
+        if (spawnBudget < pendingPatternCost)
             return false;
 
-        spawnBudget -= pendingPattern.Cost;
-        SpawnBlock(pendingPattern.Health, pendingPattern.Size);
+        spawnBudget -= pendingPatternCost;
+        float size = Mathf.Max(0.1f, pendingPattern.size);
+        SpawnBlock(pendingPatternHealth, size);
         pendingPattern = null;
         return true;
     }
@@ -193,6 +199,8 @@ public sealed class BlockManager : MonoBehaviour
         if (budgetScale <= 0.0)
         {
             pendingPattern = null;
+            pendingPatternCost = 0.0;
+            pendingPatternHealth = 0.0;
             return;
         }
 
@@ -203,14 +211,15 @@ public sealed class BlockManager : MonoBehaviour
             return;
         }
 
-        var pattern = RollPatternByWeight(BlockPatternRepository.List);
-        if (pattern == null)
+        pendingPattern = RollPatternByWeight(BlockPatternRepository.List);
+        if (pendingPattern == null)
         {
             return;
         }
 
-        pendingPattern = new PendingPatternState(pattern, budgetScale);
-        if (!pendingPattern.IsValid)
+        pendingPatternCost = pendingPattern.cost;
+        pendingPatternHealth = pendingPattern.health * budgetScale;
+        if (pendingPatternCost <= 0.0 || pendingPatternHealth <= 0.0)
             pendingPattern = null;
     }
 
@@ -226,7 +235,7 @@ public sealed class BlockManager : MonoBehaviour
             if (p == null)
                 continue;
 
-            totalWeight += Mathf.Max(0f, p.weight);
+            totalWeight += Mathf.Max(0f, BlockPatternRepository.GetWeight(p.id));
         }
 
         if (totalWeight <= 0f)
@@ -240,7 +249,7 @@ public sealed class BlockManager : MonoBehaviour
             if (p == null)
                 continue;
 
-            acc += Mathf.Max(0f, p.weight);
+            acc += Mathf.Max(0f, BlockPatternRepository.GetWeight(p.id));
             if (roll <= acc)
                 return p;
         }
@@ -251,8 +260,8 @@ public sealed class BlockManager : MonoBehaviour
     void AccumulateSpawnBudget(double budgetScale, float deltaSeconds)
     {
         float t = Mathf.Clamp01(spawnElapsedSeconds / spawnWindowSeconds);
-        double rateStart = budgetScale * spawnBudgetRateStart;
-        double rateEnd = budgetScale * spawnBudgetRateEnd;
+        double rateStart = spawnBudgetRateStart;
+        double rateEnd = spawnBudgetRateEnd;
         double rate = rateStart + (rateEnd - rateStart) * t;
 
         double stageMultiplier = 1.0;
@@ -268,24 +277,6 @@ public sealed class BlockManager : MonoBehaviour
         spawnBudget += rate * deltaSeconds;
     }
 
-    sealed class PendingPatternState
-    {
-        public BlockPatternDto Pattern { get; }
-        public float Size { get; }
-        public float Speed { get; }
-        public double Cost { get; }
-        public double Health { get; }
-        public bool IsValid => Pattern != null && Cost > 0.0 && Health > 0.0;
-
-        public PendingPatternState(BlockPatternDto pattern, double budgetScale)
-        {
-            Pattern = pattern;
-            Size = Mathf.Max(0.1f, pattern.size);
-            Speed = Mathf.Max(0f, pattern.speed);
-            Cost = budgetScale * pattern.cost;
-            Health = budgetScale * pattern.health;
-        }
-    }
 
     void CheckClearCondition()
     {
@@ -333,6 +324,8 @@ public sealed class BlockManager : MonoBehaviour
         spawnElapsedSeconds = 0f;
         spawnBudget = 0.0;
         pendingPattern = null;
+        pendingPatternCost = 0.0;
+        pendingPatternHealth = 0.0;
 
         for (int i = activeBlocks.Count - 1; i >= 0; i--)
         {

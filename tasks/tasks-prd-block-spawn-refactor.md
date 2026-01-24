@@ -24,5 +24,5 @@
   - [x] 2.3 가중치 랜덤 선택 로직 추가(패턴 weight 기준)
 - [ ] 3.0 패턴 수치(size/speed/health) 적용 및 블럭 생성 파이프라인 정리
   - [x] 3.1 블럭 생성 시 health/size/speed 수치 적용 경로 정리
-  - [ ] 3.2 BlockFactory/BlockController에 패턴 수치 전달 및 적용
+  - [x] 3.2 BlockFactory/BlockController에 패턴 수치 전달 및 적용
   - [ ] 3.3 기존 스폰 관련 변수/메서드 정리 및 불필요 코드 제거

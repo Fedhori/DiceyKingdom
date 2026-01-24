@@ -8,16 +8,18 @@ public sealed class BlockInstance
 
     public double MaxHp { get; private set; }
     public double Hp { get; private set; }
+    public float SpeedMultiplier { get; private set; }
 
     public Vector2Int GridPos { get; private set; }
 
     public IReadOnlyDictionary<BlockStatusType, BlockStatusState> Statuses => statuses;
 
-    public BlockInstance(double hp, Vector2Int gridPos)
+    public BlockInstance(double hp, Vector2Int gridPos, float speedMultiplier = 1f)
     {
         MaxHp = Math.Max(1.0, hp);
         Hp = MaxHp;
         GridPos = gridPos;
+        SpeedMultiplier = Mathf.Max(0f, speedMultiplier);
     }
 
     public void ApplyDamage(int amount)

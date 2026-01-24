@@ -17,7 +17,7 @@ public sealed class BlockFactory : MonoBehaviour
         Instance = this;
     }
 
-    public BlockController CreateBlock(double hp, Vector2Int gridPos, Vector3 worldPos)
+    public BlockController CreateBlock(double hp, Vector2Int gridPos, Vector3 worldPos, float speedMultiplier = 1f)
     {
         if (blockPrefab == null)
         {
@@ -25,7 +25,7 @@ public sealed class BlockFactory : MonoBehaviour
             return null;
         }
 
-        var inst = new BlockInstance(hp, gridPos);
+        var inst = new BlockInstance(hp, gridPos, speedMultiplier);
         var block = Instantiate(blockPrefab, worldPos, Quaternion.identity, transform);
         block.Initialize(inst);
         return block;
