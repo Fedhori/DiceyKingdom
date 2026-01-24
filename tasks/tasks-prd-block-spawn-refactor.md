@@ -4,8 +4,9 @@
 - `Assets/Scripts/Block/BlockFactory.cs` - 패턴 수치(size/speed/health)에 따른 블럭 생성 적용 지점.
 - `Assets/Scripts/Block/BlockInstance.cs` - 블럭 체력/상태 값 구조 확인 및 health 적용.
 - `Assets/Scripts/Block/BlockController.cs` - 블럭 이동/속도 등 runtime 수치 적용 가능 지점.
-- `Assets/Scripts/Data/StaticDataManager.cs` - 패턴 JSON 로딩 등록이 필요한 경우.
-- `Assets/StreamingAssets/Data/Blocks.json` - (신규/확장) 패턴 풀 데이터 정의 파일.
+- `Assets/Scripts/Data/StaticDataManager.cs` - 패턴 JSON 로딩 등록.
+- `Assets/Scripts/Block/BlockPatternRepository.cs` - 패턴 DTO/리포지토리/로더 정의.
+- `Assets/StreamingAssets/Data/Blocks.json` - 패턴 풀 데이터 정의 파일.
 
 ### Notes
 
@@ -14,9 +15,9 @@
 ## Tasks
 
 - [ ] 1.0 패턴 데이터 구조 및 로딩 체계 설계/구현
-  - [ ] 1.1 패턴 JSON 스키마 확정 및 `Blocks.json`에 기본 패턴(normal/big/fast) 정의
-  - [ ] 1.2 `BlockPattern` DTO/리포지토리/로더 구조 추가(StreamingAssets 로드)
-  - [ ] 1.3 런 전체 공유 패턴 풀 접근 API 제공(조회/갱신용 인터페이스 포함)
+  - [x] 1.1 패턴 JSON 스키마 확정 및 `Blocks.json`에 기본 패턴(normal/big/fast) 정의
+  - [x] 1.2 `BlockPattern` DTO/리포지토리/로더 구조 추가(StreamingAssets 로드)
+  - [x] 1.3 런 전체 공유 패턴 풀 접근 API 제공(조회/갱신용 인터페이스 포함)
 - [ ] 2.0 스폰 예산 기반 패턴 선택/대기 로직으로 스폰 흐름 대체
   - [ ] 2.1 기존 accumulatedDifficulty 기반 스폰 루프 제거 및 예산 누적 로직 연결
   - [ ] 2.2 패턴을 먼저 선택하고 예산 충족 시 스폰하는 “대기형” 흐름 구현

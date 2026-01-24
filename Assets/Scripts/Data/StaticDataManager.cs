@@ -29,6 +29,7 @@ public class StaticDataManager : MonoBehaviour
         LoadPlayers();
         LoadItems();
         LoadUpgrades();
+        LoadBlockPatterns();
     }
 
     void LoadStage()
@@ -115,6 +116,28 @@ public class StaticDataManager : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"[StaticDataManager] Failed to initialize UpgradeRepository from Upgrades.json: {e}");
+        }
+    }
+
+    void LoadBlockPatterns()
+    {
+        string filePath = Path.Combine("Data", "Blocks.json");
+        string json = SaCache.ReadText(filePath);
+
+        if (string.IsNullOrEmpty(json))
+        {
+            Debug.LogError($"[StaticDataManager] Blocks.json not found or empty at: {filePath}");
+            return;
+        }
+
+        try
+        {
+            var asset = new TextAsset(json);
+            Data.BlockPatternRepository.LoadFromJson(asset);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[StaticDataManager] Failed to initialize BlockPatternRepository from Blocks.json: {e}");
         }
     }
 }
