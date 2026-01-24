@@ -19,6 +19,10 @@ MonoBehaviour:
     m_Key: shop.selloverlay.label
     m_Metadata:
       m_Items: []
+  - m_Id: 14137744175104
+    m_Key: shop.sold.label
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -8,6 +8,8 @@ public sealed class UpgradeProductController : ProductViewBase
     [SerializeField] private ItemView itemView;
     [SerializeField] private ItemTooltipTarget tooltipTarget;
     [SerializeField] private TMP_Text priceText;
+    [SerializeField] private GameObject priceTagRoot;
+    [SerializeField] private GameObject soldPanel;
 
     bool isSelected;
     UpgradeProduct boundUpgrade;
@@ -37,6 +39,10 @@ public sealed class UpgradeProductController : ProductViewBase
         }
 
         gameObject.SetActive(true);
+        if (soldPanel != null)
+            soldPanel.SetActive(sold);
+        if (priceTagRoot != null)
+            priceTagRoot.SetActive(!sold);
 
         if (itemView != null)
         {
@@ -53,15 +59,16 @@ public sealed class UpgradeProductController : ProductViewBase
                 tooltipTarget.Clear();
         }
 
-        if (priceText != null)
+        if (priceText != null && (!sold || priceTagRoot == null))
         {
             if (sold)
             {
-                priceText.text = LocalizationUtil.SoldString;
-                priceText.color = Colors.White;
+                priceText.gameObject.SetActive(false);
             }
             else
             {
+                if (!priceText.gameObject.activeSelf)
+                    priceText.gameObject.SetActive(true);
                 priceText.text = $"${price}";
                 priceText.color = canBuy ? Colors.White : Colors.Red;
             }

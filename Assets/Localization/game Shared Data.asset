@@ -19,10 +19,6 @@ MonoBehaviour:
     m_Key: game.stage.label
     m_Metadata:
       m_Items: []
-  - m_Id: 5541610668032
-    m_Key: game.sold.label
-    m_Metadata:
-      m_Items: []
   - m_Id: 11901776441126912
     m_Key: game.shop.title
     m_Metadata:
