@@ -508,7 +508,7 @@ public sealed class ItemSlotManager : MonoBehaviour
         GhostManager.Instance?.ShowGhost(draggingGhostSprite, screenPos, draggingGhostKind, draggingGhostRarity);
         controller.SetPreview(null);
         overSellArea = false;
-        SellOverlayController.Instance?.Show();
+        SellOverlayController.Instance?.Show(controller.Instance);
     }
 
     public void EndDrag(ItemSlotController controller, Vector2 screenPos)

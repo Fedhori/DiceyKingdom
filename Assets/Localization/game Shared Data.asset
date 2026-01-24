@@ -19,24 +19,32 @@ MonoBehaviour:
     m_Key: game.stage.label
     m_Metadata:
       m_Items: []
-  - m_Id: 4240051027968
-    m_Key: game.reroll.button
-    m_Metadata:
-      m_Items: []
-  - m_Id: 4336054452224
-    m_Key: game.exitshop.button
-    m_Metadata:
-      m_Items: []
   - m_Id: 5541610668032
     m_Key: game.sold.label
     m_Metadata:
       m_Items: []
-  - m_Id: 284792402493440
-    m_Key: game.criticalchance.label
+  - m_Id: 11901776441126912
+    m_Key: game.shop.title
     m_Metadata:
       m_Items: []
-  - m_Id: 284840175616000
-    m_Key: game.criticalmultiplier.label
+  - m_Id: 4307439448502272
+    m_Key: game.roundresult.exit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4240051027968
+    m_Key: game.reroll.button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8981073463095296
+    m_Key: game.power.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 3659398399930368
+    m_Key: game.option.button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 17690084307906560
+    m_Key: game.openupgrade.label
     m_Metadata:
       m_Items: []
   - m_Id: 3521450148900864
@@ -51,24 +59,16 @@ MonoBehaviour:
     m_Key: game.gameclear.title
     m_Metadata:
       m_Items: []
-  - m_Id: 3659398399930368
-    m_Key: game.option.button
+  - m_Id: 4336054452224
+    m_Key: game.exitshop.button
     m_Metadata:
       m_Items: []
-  - m_Id: 4307439448502272
-    m_Key: game.roundresult.exit
+  - m_Id: 284840175616000
+    m_Key: game.criticalmultiplier.label
     m_Metadata:
       m_Items: []
-  - m_Id: 8981073463095296
-    m_Key: game.power.label
-    m_Metadata:
-      m_Items: []
-  - m_Id: 11901776441126912
-    m_Key: game.shop.title
-    m_Metadata:
-      m_Items: []
-  - m_Id: 17690084307906560
-    m_Key: game.openupgrade.label
+  - m_Id: 284792402493440
+    m_Key: game.criticalchance.label
     m_Metadata:
       m_Items: []
   - m_Id: 17690361090027520

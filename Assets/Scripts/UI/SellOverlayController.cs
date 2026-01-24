@@ -1,4 +1,8 @@
+using System.Collections.Generic;
+using Data;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
 
 public sealed class SellOverlayController : MonoBehaviour
 {
@@ -6,6 +10,9 @@ public sealed class SellOverlayController : MonoBehaviour
 
     [SerializeField] private GameObject overlayRoot;
     [SerializeField] private Canvas canvas;
+    [SerializeField] private TMP_Text labelText;
+
+    const string LabelKey = "shop.selloverlay.label";
 
     public bool IsVisible => overlayRoot != null && overlayRoot.activeSelf;
 
@@ -29,6 +36,12 @@ public sealed class SellOverlayController : MonoBehaviour
             overlayRoot.SetActive(true);
     }
 
+    public void Show(ItemInstance item)
+    {
+        UpdateLabel(item);
+        Show();
+    }
+
     public void Hide()
     {
         if (overlayRoot != null)
@@ -50,5 +63,29 @@ public sealed class SellOverlayController : MonoBehaviour
             cam = cv.worldCamera;
 
         return RectTransformUtility.RectangleContainsScreenPoint(rt, screenPos, cam);
+    }
+
+    void UpdateLabel(ItemInstance item)
+    {
+        if (labelText == null)
+            return;
+
+        int price = 0;
+        if (item != null && ItemRepository.TryGet(item.Id, out var dto) && dto != null)
+        {
+            int basePrice = ShopManager.CalculateSellPrice(dto.price);
+            price = Mathf.Max(0, basePrice + item.SellValueBonus);
+        }
+
+        var args = new Dictionary<string, object>
+        {
+            ["value"] = price.ToString("0")
+        };
+
+        var loc = new LocalizedString("shop", LabelKey)
+        {
+            Arguments = new object[] { args }
+        };
+        labelText.text = loc.GetLocalizedString();
     }
 }
