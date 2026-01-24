@@ -9,7 +9,6 @@ public sealed class BlockManager : MonoBehaviour
 
     [SerializeField] private Transform playArea;
     [SerializeField] private Vector2 blockSize = new Vector2(128f, 128f);
-    private int currentHp;
 
     [Header("Spawn Ramp")] [SerializeField]
     private float spawnWindowSeconds = 30f;
@@ -81,6 +80,9 @@ public sealed class BlockManager : MonoBehaviour
 
     void SpawnBlock(double blockHealth, float scale)
     {
+        if (pendingPattern == null)
+            return;
+
         float halfWidth = blockSize.x * 0.5f * scale;
         float halfHeight = blockSize.y * 0.5f * scale;
         float minX = originTopLeft.x + halfWidth;
