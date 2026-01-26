@@ -14,6 +14,7 @@ namespace Data
         public float size = 1f;
         public float speed = 1f;
         public float health = 1f;
+        public int count = 1;
 
         [JsonIgnore]
         public bool isValid = true;
@@ -44,6 +45,8 @@ namespace Data
             size = Mathf.Max(0f, size);
             speed = Mathf.Max(0f, speed);
             health = Mathf.Max(0f, health);
+            if (count < 1)
+                count = 1;
         }
     }
 
@@ -201,11 +204,12 @@ namespace Data
 
         static void InitializeDefaultWeights(IReadOnlyList<BlockPatternDto> patterns)
         {
-            // 시작 패턴 가중치는 일단은 하드코딩시킨다. 뭐 나중에 고칠 필요 있으면 그때..
             weights.Clear();
             SetWeight("normal", 10f);
-            SetWeight("big", 2f);
+            SetWeight("big", 1f);
             SetWeight("fast", 1f);
+            SetWeight("large", 1f);
+            SetWeight("many", 1f);
 
             if (patterns == null)
                 return;

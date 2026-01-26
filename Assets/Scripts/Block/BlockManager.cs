@@ -191,7 +191,9 @@ public sealed class BlockManager : MonoBehaviour
 
         spawnBudget -= pendingPatternCost;
         float size = Mathf.Max(0.1f, pendingPattern.size);
-        SpawnBlock(pendingPatternHealth, size);
+        int count = Mathf.Max(1, pendingPattern.count);
+        for (int i = 0; i < count; i++)
+            SpawnBlock(pendingPatternHealth, size);
         pendingPattern = null;
         return true;
     }
