@@ -1,11 +1,16 @@
 {
     "appVersion": "1.0",
-    "generatedAt": "2026-01-23 17:31:03",
+    "generatedAt": "2026-01-26 09:48:42",
     "files": [
         {
             "path": "sa_state.json",
             "size": 70,
-            "md5": "ca92bc639c1d3321a98e10ab5d32fa4c"
+            "md5": "ec684a59b7ab39bd0e0a7860aa919de6"
+        },
+        {
+            "path": "Data/Blocks.json",
+            "size": 358,
+            "md5": "9670171ca262565ff432befcdb44927d"
         },
         {
             "path": "Data/config.JSON",

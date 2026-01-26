@@ -84,6 +84,12 @@ public class InputManager : MonoBehaviour
 
     public Vector2 GetMoveVector()
     {
+        if (Application.isMobilePlatform)
+        {
+            var joystick = VirtualJoystickController.Instance;
+            return joystick != null ? joystick.GetMoveVector() : Vector2.zero;
+        }
+
         CacheMaps();
         var action = moveAction ?? GetAction("Move");
         if (action == null)
