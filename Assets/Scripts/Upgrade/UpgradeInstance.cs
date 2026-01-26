@@ -18,7 +18,7 @@ public sealed class UpgradeInstance
     readonly List<ItemEffectDto> effects = new();
     readonly List<ItemRuleDto> rules = new();
 
-    public UpgradeInstance(UpgradeDto dto)
+    public UpgradeInstance(UpgradeDto dto, string uniqueId = null)
     {
         if (dto == null)
         {
@@ -29,7 +29,7 @@ public sealed class UpgradeInstance
         }
 
         Id = dto.id;
-        UniqueId = Guid.NewGuid().ToString();
+        UniqueId = string.IsNullOrEmpty(uniqueId) ? Guid.NewGuid().ToString() : uniqueId;
         Price = dto.price;
         Rarity = dto.rarity;
         RequiresSolo = dto.requiresSolo;

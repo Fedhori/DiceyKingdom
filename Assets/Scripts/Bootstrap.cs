@@ -28,6 +28,8 @@ public class Bootstrap : MonoBehaviour
             await Task.Yield();                        // 한 프레임 양보 → Start()까지 보장하려면 추가로 한 번 더
         }
 
+        await SaveWebGlSync.SyncFromPersistentAsync();
+
         // 3) 다음 씬으로
         await SceneManager.LoadSceneAsync("MainMenuScene").AsTask();
     }

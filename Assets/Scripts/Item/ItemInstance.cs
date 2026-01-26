@@ -124,9 +124,9 @@ public sealed class ItemInstance
     readonly Dictionary<int, float> upgradeRuleElapsedSeconds = new();
     readonly StatSet triggerRepeatStats = new();
 
-    public ItemInstance(ItemDto dto)
+    public ItemInstance(ItemDto dto, string uniqueId = null)
     {
-        UniqueId = Guid.NewGuid().ToString();
+        UniqueId = string.IsNullOrEmpty(uniqueId) ? Guid.NewGuid().ToString() : uniqueId;
         Stats = new StatSet();
         Stats.SetBase(ItemStatIds.CriticalChanceMultiplier, 1d, 0d);
         Stats.SetBase(ItemStatIds.ProjectileSizeMultiplier, 0d, 0d);

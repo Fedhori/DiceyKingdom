@@ -71,6 +71,42 @@ MonoBehaviour:
     m_Key: modal.upgradeSell.message
     m_Metadata:
       m_Items: []
+  - m_Id: 7651769194131461
+    m_Key: modal.saveFailed.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7651769194131462
+    m_Key: modal.saveFailed.message
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7651769194131463
+    m_Key: modal.loadFailed.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7651769194131464
+    m_Key: modal.loadFailed.message
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7651769194131465
+    m_Key: modal.loadBackup.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7651769194131466
+    m_Key: modal.loadBackup.message
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7651769194131467
+    m_Key: modal.newRunOverwrite.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7651769194131468
+    m_Key: modal.newRunOverwrite.message
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23620127789953024
+    m_Key: modal.confirm.button
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

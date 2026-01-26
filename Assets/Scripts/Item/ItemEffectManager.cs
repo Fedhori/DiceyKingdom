@@ -23,6 +23,9 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (dto == null || item == null)
             return;
 
+        if (ShouldFilterPermanent(dto))
+            return;
+
         switch (dto.effectType)
         {
             case ItemEffectType.ModifyStat:
@@ -373,6 +376,36 @@ public sealed class ItemEffectManager : MonoBehaviour
 
         string source = sourceUid ?? sourceItem.UniqueId;
         targetItem.AddTriggerRepeatModifier(dto.triggerType, dto.effectMode, dto.value, dto.duration, source);
+    }
+
+    static bool ShouldFilterPermanent(ItemEffectDto dto)
+    {
+        if (dto == null)
+            return false;
+
+        if (dto.duration != StatLayer.Permanent)
+            return false;
+
+        if (!UsesDuration(dto.effectType))
+            return false;
+
+        var save = SaveManager.Instance;
+        return save != null && save.IsLoadMode;
+    }
+
+    static bool UsesDuration(ItemEffectType effectType)
+    {
+        switch (effectType)
+        {
+            case ItemEffectType.ModifyStat:
+            case ItemEffectType.ModifyItemStat:
+            case ItemEffectType.SetItemStat:
+            case ItemEffectType.SetStat:
+            case ItemEffectType.ModifyTriggerRepeat:
+                return true;
+            default:
+                return false;
+        }
     }
 
     void ChargeNextProjectileDamage(ItemInstance item)

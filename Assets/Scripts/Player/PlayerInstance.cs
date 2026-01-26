@@ -112,4 +112,14 @@ public sealed class PlayerInstance
         OnCurrencyChanged?.Invoke();
         return true;
     }
+
+    public void SetCurrency(int value)
+    {
+        int newValue = Mathf.Max(0, value);
+        if (newValue == Currency)
+            return;
+
+        Currency = newValue;
+        OnCurrencyChanged?.Invoke();
+    }
 }

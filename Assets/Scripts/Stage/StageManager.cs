@@ -70,6 +70,23 @@ public sealed class StageManager : MonoBehaviour
         StartStage(0);
     }
 
+    public void StartRunFromIndex(int stageIndex)
+    {
+        if (!StageRepository.IsInitialized)
+        {
+            Debug.LogError("[StageManager] StageRepository not initialized.");
+            return;
+        }
+
+        if (StageRepository.Count == 0)
+        {
+            Debug.LogError("[StageManager] No stages defined.");
+            return;
+        }
+
+        StartStage(stageIndex);
+    }
+
     void StartStage(int stageIndex)
     {
         if (!StageRepository.TryGetByIndex(stageIndex, out var dto))
@@ -83,6 +100,8 @@ public sealed class StageManager : MonoBehaviour
         DamageTrackingManager.Instance?.ResetForStage();
         DamageTextManager.Instance?.SetMinMaxValue(CurrentStage.SpawnBudgetScale);
 
+        if (CurrentStage.StageIndex > 0)
+            SaveManager.Instance?.SaveOnStageStart();
         OnPlayStart();
 
         UpdateStageText();
