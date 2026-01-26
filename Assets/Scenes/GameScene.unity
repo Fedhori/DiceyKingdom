@@ -4622,7 +4622,7 @@ MonoBehaviour:
   objectItemPrefab: {fileID: 1772306015642552443, guid: 56c1f7b4571e0634b9050b0122f0be8c, type: 3}
   tickIntervalSeconds: 1
   orbitRadius: 64
-  orbitPeriodSeconds: 8
+  orbitPeriodSeconds: 0
 --- !u!114 &715098192
 MonoBehaviour:
   m_ObjectHideFlags: 0
