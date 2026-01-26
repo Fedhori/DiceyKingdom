@@ -18,6 +18,8 @@ public class InputManager : MonoBehaviour
 
     private InputActionMap playerMap;
     private InputAction moveAction;
+    private MoveInputSource lastMoveInputSource = MoveInputSource.None;
+    private const float MoveInputDeadzoneSqr = 0.0001f;
 
     private void CacheMaps()
     {
@@ -73,35 +75,34 @@ public class InputManager : MonoBehaviour
 
     public float GetMoveX()
     {
-        if (ShouldUseVirtualJoystick())
-        {
-            var joystick = VirtualJoystickController.Instance;
-            return joystick != null ? joystick.GetMoveVector().x : 0f;
-        }
-
-        CacheMaps();
-        var action = moveAction ?? GetAction("Move");
-        if (action == null)
-            return 0f;
-
-        Vector2 v = action.ReadValue<Vector2>();
-        return v.x;
+        return GetMoveVector().x;
     }
 
     public Vector2 GetMoveVector()
     {
+        CacheMaps();
+        var action = moveAction ?? GetAction("Move");
+        Vector2 keyVector = action != null ? action.ReadValue<Vector2>() : Vector2.zero;
+
+        Vector2 joystickVector = Vector2.zero;
         if (ShouldUseVirtualJoystick())
         {
             var joystick = VirtualJoystickController.Instance;
-            return joystick != null ? joystick.GetMoveVector() : Vector2.zero;
+            if (joystick != null)
+                joystickVector = joystick.GetMoveVector();
         }
 
-        CacheMaps();
-        var action = moveAction ?? GetAction("Move");
-        if (action == null)
-            return Vector2.zero;
+        if (joystickVector.sqrMagnitude > MoveInputDeadzoneSqr)
+            lastMoveInputSource = MoveInputSource.Joystick;
+        if (keyVector.sqrMagnitude > MoveInputDeadzoneSqr)
+            lastMoveInputSource = MoveInputSource.Keyboard;
 
-        return action.ReadValue<Vector2>();
+        return lastMoveInputSource switch
+        {
+            MoveInputSource.Keyboard => keyVector,
+            MoveInputSource.Joystick => joystickVector,
+            _ => Vector2.zero
+        };
     }
 
     static bool ShouldUseVirtualJoystick()
@@ -111,6 +112,13 @@ public class InputManager : MonoBehaviour
 #else
         return Application.isMobilePlatform || Debug.isDebugBuild;
 #endif
+    }
+
+    enum MoveInputSource
+    {
+        None,
+        Keyboard,
+        Joystick
     }
 
     public InputAction GetSelectSlotAction(int slotIndex)
