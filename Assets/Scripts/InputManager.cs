@@ -82,6 +82,16 @@ public class InputManager : MonoBehaviour
         return v.x;
     }
 
+    public Vector2 GetMoveVector()
+    {
+        CacheMaps();
+        var action = moveAction ?? GetAction("Move");
+        if (action == null)
+            return Vector2.zero;
+
+        return action.ReadValue<Vector2>();
+    }
+
     public InputAction GetSelectSlotAction(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= maxSlotCount)

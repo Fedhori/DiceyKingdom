@@ -1,6 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
 
 public sealed class PlayerController : MonoBehaviour
 {
@@ -54,15 +52,22 @@ public sealed class PlayerController : MonoBehaviour
 
         CacheBounds();
 
-        float dir = GetMoveInput();
-        IsMoveInputActive = !Mathf.Approximately(dir, 0f);
+        Vector2 input = GetMoveInput();
+        IsMoveInputActive = input.sqrMagnitude > 0.0001f;
         if (!IsMoveInputActive)
             return;
 
         float speed = player.WorldMoveSpeed;
         Vector3 pos = transform.position;
-        pos.x += dir * speed * Time.deltaTime;
+        Vector2 move = input;
+        if (move.sqrMagnitude > 1f)
+            move = move.normalized;
+
+        float dt = Time.deltaTime;
+        pos.x += move.x * speed * dt;
+        pos.y += move.y * speed * dt;
         pos.x = Mathf.Clamp(pos.x, minBounds.x, maxBounds.x);
+        pos.y = Mathf.Clamp(pos.y, minBounds.y, maxBounds.y);
         transform.position = pos;
     }
 
@@ -95,74 +100,11 @@ public sealed class PlayerController : MonoBehaviour
         ResetPosition();
     }
 
-    float GetMoveInput()
+    Vector2 GetMoveInput()
     {
-        float dir = 0f;
+        if (InputManager.Instance == null)
+            return Vector2.zero;
 
-        // Keyboard/controller (A/D, MoveX)
-        if (InputManager.Instance != null)
-            dir += InputManager.Instance.GetMoveX();
-
-        // Touch/pointer: 마지막으로 누른 터치 우선
-        var cam = Camera.main;
-        if (cam != null)
-            dir += GetTouchMoveInput(cam);
-
-        return Mathf.Clamp(dir, -1f, 1f);
-    }
-
-    float GetTouchMoveInput(Camera cam)
-    {
-        float dir = 0f;
-
-        var screen = Touchscreen.current;
-        if (screen != null)
-        {
-            TouchControl latest = null;
-            double latestStart = double.MinValue;
-
-            foreach (var touch in screen.touches)
-            {
-                if (touch == null || !touch.press.isPressed)
-                    continue;
-
-                Vector2 screenPos = touch.position.ReadValue();
-                if (!IsInPlayArea(screenPos, cam))
-                    continue;
-
-                double startTime = touch.startTime.ReadValue();
-                if (startTime > latestStart)
-                {
-                    latestStart = startTime;
-                    latest = touch;
-                }
-            }
-
-            if (latest != null)
-                return GetDirectionFromScreenPos(latest.position.ReadValue(), cam);
-        }
-
-        var pointer = Pointer.current;
-        if (pointer != null && pointer.press != null && pointer.press.isPressed)
-        {
-            Vector2 screenPos = pointer.position.ReadValue();
-            if (IsInPlayArea(screenPos, cam))
-                dir = GetDirectionFromScreenPos(screenPos, cam);
-        }
-
-        return dir;
-    }
-
-    bool IsInPlayArea(Vector2 screenPos, Camera cam)
-    {
-        Vector3 wp = cam.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, -cam.transform.position.z));
-        return wp.x >= minBounds.x && wp.x <= maxBounds.x && wp.y >= minBounds.y && wp.y <= maxBounds.y;
-    }
-
-    float GetDirectionFromScreenPos(Vector2 screenPos, Camera cam)
-    {
-        Vector3 wp = cam.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, -cam.transform.position.z));
-        float centerX = (minBounds.x + maxBounds.x) * 0.5f;
-        return wp.x < centerX ? -1f : 1f;
+        return InputManager.Instance.GetMoveVector();
     }
 }
