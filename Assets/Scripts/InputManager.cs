@@ -73,6 +73,12 @@ public class InputManager : MonoBehaviour
 
     public float GetMoveX()
     {
+        if (ShouldUseVirtualJoystick())
+        {
+            var joystick = VirtualJoystickController.Instance;
+            return joystick != null ? joystick.GetMoveVector().x : 0f;
+        }
+
         CacheMaps();
         var action = moveAction ?? GetAction("Move");
         if (action == null)
@@ -84,7 +90,7 @@ public class InputManager : MonoBehaviour
 
     public Vector2 GetMoveVector()
     {
-        if (Application.isMobilePlatform)
+        if (ShouldUseVirtualJoystick())
         {
             var joystick = VirtualJoystickController.Instance;
             return joystick != null ? joystick.GetMoveVector() : Vector2.zero;
@@ -96,6 +102,15 @@ public class InputManager : MonoBehaviour
             return Vector2.zero;
 
         return action.ReadValue<Vector2>();
+    }
+
+    static bool ShouldUseVirtualJoystick()
+    {
+#if UNITY_EDITOR
+        return true;
+#else
+        return Application.isMobilePlatform || Debug.isDebugBuild;
+#endif
     }
 
     public InputAction GetSelectSlotAction(int slotIndex)

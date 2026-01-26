@@ -67,10 +67,18 @@ public sealed class VirtualJoystickController : MonoBehaviour, IPointerDownHandl
 
         Vector2 pos = ScreenToCanvasPoint(eventData.position);
         Vector2 delta = pos - startPos;
-        delta = Vector2.ClampMagnitude(delta, radius);
-        currentVector = radius > 0f ? delta / radius : Vector2.zero;
+        if (delta.sqrMagnitude <= 0.0001f || radius <= 0f)
+        {
+            currentVector = Vector2.zero;
+            SetBaseAndHandle(startPos, startPos);
+            return;
+        }
 
-        SetBaseAndHandle(startPos, startPos + delta);
+        Vector2 direction = SnapToEightDirections(delta.normalized);
+        currentVector = direction;
+
+        Vector2 handleOffset = direction * radius;
+        SetBaseAndHandle(startPos, startPos + handleOffset);
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -107,7 +115,23 @@ public sealed class VirtualJoystickController : MonoBehaviour, IPointerDownHandl
         if (baseRect != null)
             baseRect.anchoredPosition = basePos;
         if (handleRect != null)
-            handleRect.anchoredPosition = handlePos;
+        {
+            if (baseRect != null && handleRect.transform.parent == baseRect)
+                handleRect.anchoredPosition = handlePos - basePos;
+            else
+                handleRect.anchoredPosition = handlePos;
+        }
+    }
+
+    static Vector2 SnapToEightDirections(Vector2 direction)
+    {
+        if (direction.sqrMagnitude <= 0.0001f)
+            return Vector2.zero;
+
+        float angle = Mathf.Atan2(direction.y, direction.x);
+        float step = Mathf.PI / 4f;
+        float snapped = Mathf.Round(angle / step) * step;
+        return new Vector2(Mathf.Cos(snapped), Mathf.Sin(snapped));
     }
 
     Vector2 ScreenToCanvasPoint(Vector2 screenPos)
