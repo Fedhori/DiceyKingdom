@@ -9,10 +9,10 @@ public static class GameConfig
     public static int MaxUpgradesPerItem = 3;
 
     // Player/Item base stats   
-    public static float PlayerBaseMoveSpeed = 400f;
+    public static float PlayerBaseMoveSpeed = 500f;
     public static float ItemBaseProjectileSize = 1f;
     public static float ItemBaseProjectileSpeed = 1000f;
-    public static float BlockFallSpeed = 100f;
+    public static float BlockFallSpeed = 128;
     public static float ProjectileHomingHitCooldownSeconds = 0.2f;
 
     // Beam VFX
