@@ -1,420 +1,421 @@
 {
-  "upgrades": [
-    {
-      "id": "upgrade.sword",
-      "price": 5,
-      "rarity": "Common",
-      "conditions": [
-        {
-          "conditionKind": "HasDamageMultiplier"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "damageMultiplier",
-          "effectMode": "Mult",
-          "value": 1.0,
-          "duration": "Upgrade"
-        }
-      ]
-    },
-    {
-      "id": "upgrade.wing",
-      "price": 5,
-      "rarity": "Common",
-      "conditions": [
-        {
-          "conditionKind": "HasAttackSpeed"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "attackSpeed",
-          "effectMode": "Mult",
-          "value": 1.0,
-          "duration": "Upgrade"
-        }
-      ]
-    },
-    {
-      "id": "upgrade.anchor",
-      "price": 6,
-      "rarity": "Common",
-      "conditions": [
-        {
-          "conditionKind": "HasAttackSpeed"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "attackSpeed",
-          "effectMode": "Override",
-          "value": 1.0,
-          "duration": "Upgrade"
-        }
-      ]
-    },
-    {
-      "id": "upgrade.weightstone",
-      "price": 4,
-      "rarity": "Common",
-      "conditions": [
-        {
-          "conditionKind": "HasAttackSpeed"
-        },
-        {
-          "conditionKind": "HasDamageMultiplier"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "attackSpeed",
-          "effectMode": "Mult",
-          "value": -0.3,
-          "duration": "Upgrade"
-        },
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "damageMultiplier",
-          "effectMode": "Mult",
-          "value": 2.0,
-          "duration": "Upgrade"
-        }
-      ]
-    },
-    {
-      "id": "upgrade.lighthouse",
-      "price": 5,
-      "rarity": "Common",
-      "requiresSolo": true,
-      "conditions": [
-        {
-          "conditionKind": "HasDamageMultiplier"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "damageMultiplier",
-          "effectMode": "Mult",
-          "value": 2.0,
-          "duration": "Upgrade"
-        }
-      ]
-    },
-    {
-      "id": "upgrade.whetstone",
-      "price": 6,
-      "rarity": "Uncommon",
-      "conditions": [
-        {
-          "conditionKind": "HasDamageMultiplier"
-        }
-      ],
-      "rules": [
-        {
-          "triggerType": "OnStageEnd",
-          "condition": {
-            "conditionKind": "Always"
-          },
-          "effects": [
-            {
-              "effectType": "ModifyItemStat",
-              "target": "Self",
-              "statId": "damageMultiplier",
-              "effectMode": "Add",
-              "value": 0.1,
-              "duration": "Permanent",
-              "showCurrentValue": true
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "upgrade.scythe",
-      "price": 6,
-      "isNotSell": "true",
-      "rarity": "Uncommon",
-      "conditions": [
-        {
-          "conditionKind": "HasDamageMultiplier"
-        }
-      ],
-      "rules": [
-        {
-          "triggerType": "OnBlockDestroyedByItem",
-          "condition": {
-            "conditionKind": "Always"
-          },
-          "effects": [
-            {
-              "effectType": "ModifyStat",
-              "statId": "power",
-              "effectMode": "Add",
-              "value": 2.0,
-              "duration": "Temporary"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "upgrade.snowflake",
-      "price": 5,
-      "rarity": "Uncommon",
-      "conditions": [
-        {
-          "conditionKind": "HasDamageMultiplier"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "SetItemStatus",
-          "target": "Self",
-          "statusType": "Freeze",
-          "value": 1
-        }
-      ]
-    },
-    {
-      "id": "upgrade.mirror",
-      "price": 8,
-      "rarity": "Common",
-      "conditions": [
-        {
-          "conditionKind": "HasTriggerRule",
-          "triggerType": "OnStageEnd"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "ModifyTriggerRepeat",
-          "target": "Self",
-          "triggerType": "OnStageEnd",
-          "effectMode": "Add",
-          "value": 1,
-          "duration": "Upgrade"
-        }
-      ]
-    },
-    {
-      "id": "upgrade.silverbullet",
-      "price": 8,
-      "rarity": "Rare",
-      "conditions": [
-        {
-          "conditionKind": "HasProjectile"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "pierce",
-          "effectMode": "Add",
-          "value": 5,
-          "duration": "Upgrade"
-        }
-      ]
-    },
-    {
-      "id": "upgrade.lasersight",
-      "price": 6,
-      "rarity": "Uncommon",
-      "isNotSell": "true",
-      "conditions": [
-        {
-          "conditionKind": "HasDamageMultiplier"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "criticalChanceMultiplier",
-          "effectMode": "Mult",
-          "value": 1.0,
-          "duration": "Upgrade"
-        }
-      ]
-    },
-    {
-      "id": "upgrade.monocle",
-      "price": 7,
-      "rarity": "Uncommon",
-      "conditions": [
-        {
-          "conditionKind": "HasProjectile"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "projectileSizeMultiplier",
-          "effectMode": "Add",
-          "value": 1.0,
-          "duration": "Upgrade"
-        }
-      ]
-    },
-    {
-      "id": "upgrade.dodo",
-      "price": 5,
-      "rarity": "Uncommon",
-      "breakChanceOnStageEnd": 0.1,
-      "conditions": [
-        {
-          "conditionKind": "HasDamageMultiplier"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "damageMultiplier",
-          "effectMode": "Mult",
-          "value": 3.0,
-          "duration": "Upgrade"
-        }
-      ]
-    },
-    {
-      "id": "upgrade.carbattery",
-      "price": 8,
-      "rarity": "Rare",
-      "conditions": [
-        {
-          "conditionKind": "HasDamageMultiplier"
-        },
-        {
-          "conditionKind": "HasProjectile"
-        }
-      ],
-      "rules": [
-        {
-          "triggerType": "OnTimeChanged",
-          "condition": {
-            "conditionKind": "Time",
-            "intervalSeconds": 3.0
-          },
-          "effects": [
-            {
-              "effectType": "ChargeNextProjectileDamage",
-              "value": 10.0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "upgrade.dice",
-      "price": 9,
-      "rarity": "Rare",
-      "conditions": [
-        {
-          "conditionKind": "HasProjectile"
-        },
-        {
-          "conditionKind": "HasAttackSpeed"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "projectileRandomAngle",
-          "effectMode": "Override",
-          "value": 360.0,
-          "duration": "Upgrade"
-        },
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "attackSpeed",
-          "effectMode": "Mult",
-          "value": 2.0,
-          "duration": "Upgrade"
-        }
-      ]
-    },
-    {
-      "id": "upgrade.aimbot",
-      "price": 10,
-      "rarity": "Rare",
-      "conditions": [
-        {
-          "conditionKind": "HasProjectile"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "projectileHomingTurnRate",
-          "effectMode": "Override",
-          "value": 720.0,
-          "duration": "Upgrade"
-        }
-      ]
-    },
-    {
-      "id": "upgrade.chemical4",
-      "price": 9,
-      "rarity": "Rare",
-      "conditions": [
-        {
-          "conditionKind": "HasProjectile"
-        },
-        {
-          "conditionKind": "HasNoExplosionRadius"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "projectileExplosionRadius",
-          "effectMode": "Override",
-          "value": 128.0,
-          "duration": "Upgrade"
-        }
-      ]
-    },
-    {
-      "id": "upgrade.yellowturban",
-      "price": 3,
-      "rarity": "Common",
-      "conditions": [
-        {
-          "conditionKind": "HasDamageMultiplier"
-        },
-        {
-          "conditionKind": "HasItemRarity",
-          "rarity": "Common"
-        }
-      ],
-      "effects": [
-        {
-          "effectType": "ModifyItemStat",
-          "target": "Self",
-          "statId": "damageMultiplier",
-          "effectMode": "Mult",
-          "value": 1.5,
-          "duration": "Upgrade"
-        }
-      ]
-    }
-  ]
+	"upgrades": [
+		{
+			"id": "upgrade.sword",
+			"price": 5,
+			"rarity": "Common",
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "damageMultiplier",
+					"effectMode": "Mult",
+					"value": 1.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.wing",
+			"price": 5,
+			"rarity": "Common",
+			"conditions": [
+				{
+					"conditionKind": "HasAttackSpeed"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "attackSpeed",
+					"effectMode": "Mult",
+					"value": 1.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.anchor",
+			"price": 6,
+			"rarity": "Common",
+			"conditions": [
+				{
+					"conditionKind": "HasAttackSpeed"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "attackSpeed",
+					"effectMode": "Override",
+					"value": 1.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.weightstone",
+			"price": 4,
+			"rarity": "Common",
+			"conditions": [
+				{
+					"conditionKind": "HasAttackSpeed"
+				},
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "attackSpeed",
+					"effectMode": "Mult",
+					"value": -0.3,
+					"duration": "Upgrade"
+				},
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "damageMultiplier",
+					"effectMode": "Mult",
+					"value": 2.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.lighthouse",
+			"price": 5,
+			"rarity": "Common",
+			"requiresSolo": true,
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "damageMultiplier",
+					"effectMode": "Mult",
+					"value": 2.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.whetstone",
+			"price": 6,
+			"rarity": "Uncommon",
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"rules": [
+				{
+					"triggerType": "OnStageEnd",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyItemStat",
+							"target": "Self",
+							"statId": "damageMultiplier",
+							"effectMode": "Add",
+							"value": 0.1,
+							"duration": "Permanent",
+							"showCurrentValue": true
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "upgrade.scythe",
+			"price": 6,
+			"isNotSell": "true",
+			"rarity": "Uncommon",
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"rules": [
+				{
+					"triggerType": "OnBlockDestroyedByItem",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 2.0,
+							"duration": "Temporary"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "upgrade.snowflake",
+			"price": 5,
+			"rarity": "Uncommon",
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "SetItemStatus",
+					"target": "Self",
+					"statusType": "Freeze",
+					"value": 1
+				}
+			]
+		},
+		{
+			"id": "upgrade.mirror",
+			"price": 8,
+			"rarity": "Common",
+			"isNotSell": "true",
+			"conditions": [
+				{
+					"conditionKind": "HasTriggerRule",
+					"triggerType": "OnStageEnd"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyTriggerRepeat",
+					"target": "Self",
+					"triggerType": "OnStageEnd",
+					"effectMode": "Add",
+					"value": 1,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.silverbullet",
+			"price": 8,
+			"rarity": "Rare",
+			"conditions": [
+				{
+					"conditionKind": "HasProjectile"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "pierce",
+					"effectMode": "Add",
+					"value": 5,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.lasersight",
+			"price": 6,
+			"rarity": "Uncommon",
+			"isNotSell": "true",
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "criticalChanceMultiplier",
+					"effectMode": "Mult",
+					"value": 1.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.monocle",
+			"price": 7,
+			"rarity": "Uncommon",
+			"conditions": [
+				{
+					"conditionKind": "HasProjectile"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "projectileSizeMultiplier",
+					"effectMode": "Add",
+					"value": 1.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.dodo",
+			"price": 5,
+			"rarity": "Uncommon",
+			"breakChanceOnStageEnd": 0.1,
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "damageMultiplier",
+					"effectMode": "Mult",
+					"value": 3.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.carbattery",
+			"price": 8,
+			"rarity": "Rare",
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				},
+				{
+					"conditionKind": "HasProjectile"
+				}
+			],
+			"rules": [
+				{
+					"triggerType": "OnTimeChanged",
+					"condition": {
+						"conditionKind": "Time",
+						"intervalSeconds": 3.0
+					},
+					"effects": [
+						{
+							"effectType": "ChargeNextProjectileDamage",
+							"value": 10.0
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "upgrade.dice",
+			"price": 9,
+			"rarity": "Rare",
+			"conditions": [
+				{
+					"conditionKind": "HasProjectile"
+				},
+				{
+					"conditionKind": "HasAttackSpeed"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "projectileRandomAngle",
+					"effectMode": "Override",
+					"value": 360.0,
+					"duration": "Upgrade"
+				},
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "attackSpeed",
+					"effectMode": "Mult",
+					"value": 2.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.aimbot",
+			"price": 10,
+			"rarity": "Rare",
+			"conditions": [
+				{
+					"conditionKind": "HasProjectile"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "projectileHomingTurnRate",
+					"effectMode": "Override",
+					"value": 720.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.chemical4",
+			"price": 9,
+			"rarity": "Rare",
+			"conditions": [
+				{
+					"conditionKind": "HasProjectile"
+				},
+				{
+					"conditionKind": "HasNoExplosionRadius"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "projectileExplosionRadius",
+					"effectMode": "Override",
+					"value": 128.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.yellowturban",
+			"price": 3,
+			"rarity": "Common",
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				},
+				{
+					"conditionKind": "HasItemRarity",
+					"rarity": "Common"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "damageMultiplier",
+					"effectMode": "Mult",
+					"value": 1.5,
+					"duration": "Upgrade"
+				}
+			]
+		}
+	]
 }
