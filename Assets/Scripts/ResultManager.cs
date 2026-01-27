@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
 using UnityEngine.Localization.Components;
-using UnityEngine.Localization.SmartFormat.PersistentVariables;
 
 public sealed class ResultManager : MonoBehaviour
 {
@@ -15,6 +14,25 @@ public sealed class ResultManager : MonoBehaviour
     readonly List<DamageTrackingManager.ItemDamageSnapshot> damageRecords = new();
     bool isOpen;
     int lastEarnedIncome;
+    IncomeBreakdown lastIncomeBreakdown;
+
+    public readonly struct IncomeBreakdown
+    {
+        public int BaseIncome { get; }
+        public int InterestIncome { get; }
+        public int TotalIncome { get; }
+        public int InterestStep { get; }
+        public int InterestCap { get; }
+
+        public IncomeBreakdown(int baseIncome, int interestIncome, int totalIncome, int interestStep, int interestCap)
+        {
+            BaseIncome = baseIncome;
+            InterestIncome = interestIncome;
+            TotalIncome = totalIncome;
+            InterestStep = interestStep;
+            InterestCap = interestCap;
+        }
+    }
 
     void Awake()
     {
@@ -30,13 +48,14 @@ public sealed class ResultManager : MonoBehaviour
     // 스테이지당 보상으로 바뀔거니까, 여기 말고 스테이지 끝날 때 띄우게
     public void Open()
     {
-        OpenInternal(false, lastEarnedIncome);
+        OpenInternal(false, lastEarnedIncome, lastIncomeBreakdown);
     }
 
-    public void OpenWithIncome(int income)
+    public void OpenWithIncome(IncomeBreakdown breakdown)
     {
-        lastEarnedIncome = Mathf.Max(0, income);
-        OpenInternal(true, lastEarnedIncome);
+        lastIncomeBreakdown = breakdown;
+        lastEarnedIncome = Mathf.Max(0, breakdown.TotalIncome);
+        OpenInternal(true, lastEarnedIncome, lastIncomeBreakdown);
     }
 
     public void Reopen()
@@ -44,14 +63,14 @@ public sealed class ResultManager : MonoBehaviour
         Open();
     }
 
-    void OpenInternal(bool grantIncome, int income)
+    void OpenInternal(bool grantIncome, int income, IncomeBreakdown breakdown)
     {
         isOpen = true;
 
         if (grantIncome && income > 0)
             CurrencyManager.Instance?.AddCurrency(income);
 
-        UpdateEarnedCurrency(Mathf.Max(0, income));
+        UpdateEarnedCurrency(Mathf.Max(0, income), breakdown);
         RebuildDamageRecords();
         
         if(resultOverlay != null)
@@ -86,10 +105,21 @@ public sealed class ResultManager : MonoBehaviour
             resultOverlay.SetActive(false);
     }
 
-    private void UpdateEarnedCurrency(int earned)
+    void UpdateEarnedCurrency(int earned, IncomeBreakdown breakdown)
     {
-        if (earnedCurrencyText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
-            sv.Value = earned.ToString(CultureInfo.InvariantCulture);
+        if (earnedCurrencyText == null)
+            return;
+
+        var dict = new Dictionary<string, object>
+        {
+            ["totalIncome"] = $"${earned.ToString(CultureInfo.InvariantCulture)}",
+            ["baseIncome"] = $"${Mathf.Max(0, breakdown.BaseIncome).ToString(CultureInfo.InvariantCulture)}",
+            ["interestIncome"] = $"${Mathf.Max(0, breakdown.InterestIncome).ToString(CultureInfo.InvariantCulture)}",
+            ["interestStep"] = $"${Mathf.Max(1, breakdown.InterestStep).ToString(CultureInfo.InvariantCulture)}",
+            ["interestCap"] = $"${Mathf.Max(0, breakdown.InterestCap).ToString(CultureInfo.InvariantCulture)}"
+        };
+
+        earnedCurrencyText.StringReference.Arguments = new object[] { dict };
     }
 
     void RebuildDamageRecords()

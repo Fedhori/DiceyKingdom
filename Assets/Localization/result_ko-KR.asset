@@ -28,7 +28,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 2672820470470511417
-    m_Localized: "\uD68D\uB4DD \uC218\uC785: +<style=\"money\">${value}</style>"
+    m_Localized: "\uAE30\uBCF8 \uC218\uC785: <style=\"money\">{baseIncome}</style>\n\uC774\uC790 \uC218\uC785: <style=\"money\">{interestIncome}</style> (<style=\"money\">{interestStep}</style>\uB2F9 \uC774\uC790 1, \uCD5C\uB300 <style=\"money\">{interestCap}</style>)\n\uCD1D \uC218\uC785: <style=\"money\">{totalIncome}</style>"
     m_Metadata:
       m_Items:
       - rid: 1113825410489778258

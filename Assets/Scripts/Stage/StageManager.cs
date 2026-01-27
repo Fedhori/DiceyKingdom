@@ -171,18 +171,31 @@ public sealed class StageManager : MonoBehaviour
     void OpenShopWithResult()
     {
         OpenShop();
-        int income = CalculateStageIncome();
+        var income = CalculateStageIncome();
         ResultManager.Instance?.OpenWithIncome(income);
     }
 
-    int CalculateStageIncome()
+    ResultManager.IncomeBreakdown CalculateStageIncome()
     {
-        int income = GameConfig.BaseIncome;
+        int baseIncome = GameConfig.BaseIncome;
         var player = PlayerManager.Instance?.Current;
         if (player != null)
-            income += player.BaseIncomeBonus;
+            baseIncome += player.BaseIncomeBonus;
 
-        return Mathf.Max(0, income);
+        int currentCurrency = CurrencyManager.Instance != null
+            ? CurrencyManager.Instance.CurrentCurrency
+            : 0;
+        int interestStep = Mathf.Max(1, GameConfig.InterestCurrencyPerUnit);
+        int interestCap = Mathf.Max(0, GameConfig.InterestMax);
+        int interestIncome = Mathf.Clamp(currentCurrency / interestStep, 0, interestCap);
+        int totalIncome = Mathf.Max(0, baseIncome + interestIncome);
+
+        return new ResultManager.IncomeBreakdown(
+            Mathf.Max(0, baseIncome),
+            interestIncome,
+            totalIncome,
+            interestStep,
+            interestCap);
     }
 
     void ToNextStage()

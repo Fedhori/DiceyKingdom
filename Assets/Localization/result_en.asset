@@ -20,7 +20,7 @@ MonoBehaviour:
     - rid: 1113825410489778257
   m_TableData:
   - m_Id: 2672820470470511417
-    m_Localized: 
+    m_Localized: "Base income: {baseIncome}\nInterest income: {interestIncome} ($1 per {interestStep}, max {interestCap})\nTotal income: {totalIncome}"
     m_Metadata:
       m_Items:
       - rid: 1113825410489778257
