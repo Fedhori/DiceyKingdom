@@ -16,7 +16,8 @@ public sealed class ItemInstance
     public bool ProjectileIsStationary { get; private set; }
     public string ProjectileKey { get; private set; }
     public ProjectileHitBehavior ProjectileHitBehavior { get; private set; }
-    public float ProjectileExplosionRadius => (float)Stats.GetValue(ItemStatIds.ProjectileExplosionRadius);
+    public float ProjectileExplosionRadius =>
+        Mathf.Max(0f, (float)Stats.GetValue(ItemStatIds.ProjectileExplosionRadius)) * GameConfig.ProjectileExplosionRadiusUnit;
     public float BeamThickness { get; private set; }
     public float BeamDuration { get; private set; }
     public int Pierce => Mathf.Max(0, Mathf.FloorToInt((float)Stats.GetValue(ItemStatIds.Pierce)));
@@ -188,7 +189,7 @@ public sealed class ItemInstance
             ProjectileIsStationary = projectile.isStationary;
             ProjectileSpeed = ProjectileIsStationary ? 0f : Mathf.Max(0.1f, projectile.speed);
             ProjectileHitBehavior = projectile.hitBehavior;
-            Stats.SetBase(ItemStatIds.ProjectileExplosionRadius, Mathf.Max(0f, projectile.explosionRadius), 0d);
+            Stats.SetBase(ItemStatIds.ProjectileExplosionRadius, Mathf.Max(0f, projectile.explosion), 0d);
             basePierce = projectile.pierce;
             PelletCount = Mathf.Max(1, projectile.pelletCount);
             SpreadAngle = Mathf.Max(0f, projectile.spreadAngle);

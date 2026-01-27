@@ -136,7 +136,7 @@ namespace Data
         public float spreadAngle = 0f;
         public float randomAngle = 0f;
         public float homingTurnRate = 0f;
-        public float explosionRadius = 0f;
+        public float explosion = 0f;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ProjectileHitBehavior hitBehavior = ProjectileHitBehavior.Normal;
@@ -244,9 +244,9 @@ namespace Data
                     isValid = false;
                 }
 
-                if (projectile.explosionRadius < 0f)
+                if (projectile.explosion < 0f)
                 {
-                    Debug.LogError($"[ItemDto] '{id}': projectile.explosionRadius < 0 is not allowed.");
+                    Debug.LogError($"[ItemDto] '{id}': projectile.explosion < 0 is not allowed.");
                     isValid = false;
                 }
             }

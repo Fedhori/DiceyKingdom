@@ -387,8 +387,8 @@
 					"effectType": "ModifyItemStat",
 					"target": "Self",
 					"statId": "projectileExplosionRadius",
-					"effectMode": "Override",
-					"value": 128.0,
+					"effectMode": "Add",
+					"value": 1.0,
 					"duration": "Upgrade"
 				}
 			]
