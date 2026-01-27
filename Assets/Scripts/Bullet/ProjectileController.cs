@@ -23,6 +23,10 @@ public sealed class ProjectileController : MonoBehaviour
     float lifetimeRemaining;
     Color baseColor;
     bool hasBaseColor;
+    bool isStationary;
+    float stationaryStopSeconds;
+    float stationaryElapsed;
+    float stationaryInitialSpeed;
 
     public void Initialize(ItemInstance inst, Vector2 dir, float damageScaleMultiplier = 1f)
     {
@@ -67,6 +71,9 @@ public sealed class ProjectileController : MonoBehaviour
         if (UpdateLifetime())
             return;
 
+        if (UpdateStationaryMotion())
+            return;
+
         UpdateHoming();
         UpdateRotation();
     }
@@ -76,11 +83,22 @@ public sealed class ProjectileController : MonoBehaviour
         if (rb == null || item == null)
             return;
 
-        if (item.ProjectileIsStationary)
+        isStationary = item.IsStationaryProjectile;
+        stationaryStopSeconds = item.ProjectileStationaryStopSeconds;
+        stationaryElapsed = 0f;
+        stationaryInitialSpeed = item.WorldProjectileStationaryStartSpeed;
+
+        if (isStationary)
         {
-            rb.linearVelocity = Vector2.zero;
-            rb.angularVelocity = 0f;
-            rb.constraints = RigidbodyConstraints2D.FreezeAll;
+            if (stationaryStopSeconds <= 0f)
+            {
+                StopStationaryMotion();
+            }
+            else
+            {
+                rb.constraints = defaultConstraints;
+                rb.linearVelocity = direction * stationaryInitialSpeed;
+            }
         }
         else
         {
@@ -258,7 +276,7 @@ public sealed class ProjectileController : MonoBehaviour
         if (item == null || rb == null)
             return;
 
-        if (item.ProjectileIsStationary)
+        if (item.IsStationaryProjectile)
             return;
 
         if (homingHitCooldownRemaining > 0f)
@@ -341,7 +359,7 @@ public sealed class ProjectileController : MonoBehaviour
         if (rb == null)
             return;
 
-        if (item != null && item.ProjectileIsStationary)
+        if (item != null && item.IsStationaryProjectile)
             return;
 
         Vector2 velocity = rb.linearVelocity;
@@ -350,6 +368,36 @@ public sealed class ProjectileController : MonoBehaviour
 
         float angle = Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg - 90f;
         rb.SetRotation(angle);
+    }
+
+    bool UpdateStationaryMotion()
+    {
+        if (!isStationary || rb == null)
+            return false;
+
+        if (stationaryStopSeconds <= 0f)
+            return true;
+
+        stationaryElapsed += Time.deltaTime;
+        float t = Mathf.Clamp01(stationaryElapsed / stationaryStopSeconds);
+        float speedScale = Mathf.Exp(-GameConfig.ProjectileStationaryDecayExponent * t);
+        rb.linearVelocity = direction * (stationaryInitialSpeed * speedScale);
+
+        if (t >= 1f)
+            StopStationaryMotion();
+
+        return true;
+    }
+
+    void StopStationaryMotion()
+    {
+        if (rb == null)
+            return;
+
+        stationaryStopSeconds = 0f;
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        rb.constraints = RigidbodyConstraints2D.FreezeAll;
     }
 
     void HandlePierce()

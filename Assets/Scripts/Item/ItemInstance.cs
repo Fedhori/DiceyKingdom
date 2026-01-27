@@ -13,7 +13,8 @@ public sealed class ItemInstance
     public float ProjectileSize { get; private set; }
     public float ProjectileSizeMultiplier => (float)Stats.GetValue(ItemStatIds.ProjectileSizeMultiplier);
     public float ProjectileSpeed { get; private set; }
-    public bool ProjectileIsStationary { get; private set; }
+    public float ProjectileStationaryStopSeconds { get; private set; }
+    public bool IsStationaryProjectile => ProjectileStationaryStopSeconds >= 0f;
     public string ProjectileKey { get; private set; }
     public ProjectileHitBehavior ProjectileHitBehavior { get; private set; }
     public float ProjectileExplosionLevel => Mathf.Max(0f, (float)Stats.GetValue(ItemStatIds.ProjectileExplosionRadius));
@@ -68,7 +69,9 @@ public sealed class ItemInstance
 
     public float WorldProjectileSize => GameConfig.ItemBaseProjectileSize * Mathf.Max(0.1f, ProjectileSize);
     public float WorldProjectileSpeed =>
-        ProjectileIsStationary ? 0f : GameConfig.ItemBaseProjectileSpeed * Mathf.Max(0.1f, ProjectileSpeed);
+        GameConfig.ItemBaseProjectileSpeed * Mathf.Max(0.1f, ProjectileSpeed);
+    public float WorldProjectileStationaryStartSpeed =>
+        GameConfig.ItemBaseProjectileSpeed * Mathf.Max(0.1f, GameConfig.ProjectileStationaryStartSpeedMultiplier);
 
     public void SetUpgrades(IReadOnlyList<UpgradeInstance> newUpgrades)
     {
@@ -148,7 +151,7 @@ public sealed class ItemInstance
             Stats.SetBase(ItemStatIds.AttackSpeed, 0d, 0d);
             ProjectileSize = 1f;
             ProjectileSpeed = 1f;
-            ProjectileIsStationary = false;
+            ProjectileStationaryStopSeconds = -1f;
             ProjectileKey = string.Empty;
             ProjectileHitBehavior = ProjectileHitBehavior.Normal;
             ProjectileLifetimeSeconds = 0f;
@@ -189,8 +192,8 @@ public sealed class ItemInstance
         {
             ProjectileKey = projectile.key ?? string.Empty;
             ProjectileSize = Mathf.Max(0.1f, projectile.size);
-            ProjectileIsStationary = projectile.isStationary;
-            ProjectileSpeed = ProjectileIsStationary ? 0f : Mathf.Max(0.1f, projectile.speed);
+            ProjectileSpeed = Mathf.Max(0.1f, projectile.speed);
+            ProjectileStationaryStopSeconds = projectile.stationaryStopSeconds;
             ProjectileHitBehavior = projectile.hitBehavior;
             Stats.SetBase(ItemStatIds.ProjectileExplosionRadius, Mathf.Max(0f, projectile.explosion), 0d);
             ProjectileLifetimeSeconds = Mathf.Max(0f, projectile.lifetime);
@@ -205,7 +208,7 @@ public sealed class ItemInstance
             ProjectileKey = string.Empty;
             ProjectileSize = 1f;
             ProjectileSpeed = 1f;
-            ProjectileIsStationary = false;
+            ProjectileStationaryStopSeconds = -1f;
             ProjectileHitBehavior = ProjectileHitBehavior.Normal;
             ProjectileLifetimeSeconds = 0f;
             PelletCount = 1;

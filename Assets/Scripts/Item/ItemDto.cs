@@ -131,7 +131,7 @@ namespace Data
         public string key;
         public float size = 1f;
         public float speed = 1f;
-        public bool isStationary = false;
+        public float stationaryStopSeconds = -1f;
         public int pelletCount = 1;
         public float spreadAngle = 0f;
         public float randomAngle = 0f;
@@ -218,6 +218,12 @@ namespace Data
                 if (projectile.speed < 0f)
                 {
                     Debug.LogError($"[ItemDto] '{id}': projectile.speed < 0 is not allowed.");
+                    isValid = false;
+                }
+
+                if (projectile.stationaryStopSeconds < -1f)
+                {
+                    Debug.LogError($"[ItemDto] '{id}': projectile.stationaryStopSeconds < -1 is not allowed.");
                     isValid = false;
                 }
 

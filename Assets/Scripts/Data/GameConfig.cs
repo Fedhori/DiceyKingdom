@@ -12,6 +12,8 @@ public static class GameConfig
     public static float PlayerBaseMoveSpeed = 500f;
     public static float ItemBaseProjectileSize = 1f;
     public static float ItemBaseProjectileSpeed = 1000f;
+    public static float ProjectileStationaryStartSpeedMultiplier = 1f;
+    public static float ProjectileStationaryDecayExponent = 2f;
     public static float BlockFallSpeed = 128;
     public static float ProjectileHomingHitCooldownSeconds = 0.2f;
     public static float ProjectileExplosionRadiusUnit = 128f;

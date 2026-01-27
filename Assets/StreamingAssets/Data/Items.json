@@ -670,7 +670,7 @@
 				"key": "projectile.landmine",
 				"size": 1.0,
 				"speed": 0.0,
-				"isStationary": true,
+				"stationaryStopSeconds": 0.5,
 				"randomAngle": 5.0,
 				"explosion": 1.0,
 				"lifetime": 5.0
