@@ -16,6 +16,7 @@ public sealed class ItemInstance
     public float ProjectileStationaryStopSeconds { get; private set; }
     public bool IsStationaryProjectile => ProjectileStationaryStopSeconds >= 0f;
     public bool ProjectileAreaDamageTick { get; private set; }
+    public bool ProjectileIsHoming => (float)Stats.GetValue(ItemStatIds.ProjectileIsHoming) > 0.5f;
     public string ProjectileKey { get; private set; }
     public ProjectileHitBehavior ProjectileHitBehavior { get; private set; }
     public float ProjectileExplosionLevel => Mathf.Max(0f, (float)Stats.GetValue(ItemStatIds.ProjectileExplosionRadius));
@@ -30,7 +31,6 @@ public sealed class ItemInstance
     public float ProjectileRandomAngle => (float)Stats.GetValue(ItemStatIds.ProjectileRandomAngle);
     public bool IsObject { get; private set; }
     public int PierceBonus { get; private set; }
-    public float ProjectileHomingTurnRate => (float)Stats.GetValue(ItemStatIds.ProjectileHomingTurnRate);
     public int SellValueBonus => Mathf.Max(0, Mathf.FloorToInt((float)Stats.GetValue(ItemStatIds.SellValueBonus)));
     public ItemRarity Rarity { get; private set; }
     public UpgradeInstance Upgrade
@@ -140,7 +140,7 @@ public sealed class ItemInstance
         Stats.SetBase(ItemStatIds.CriticalChanceMultiplier, 1d, 0d);
         Stats.SetBase(ItemStatIds.ProjectileSizeMultiplier, 0d, 0d);
         Stats.SetBase(ItemStatIds.ProjectileRandomAngle, 0d, 0d);
-        Stats.SetBase(ItemStatIds.ProjectileHomingTurnRate, 0d, 0d);
+        Stats.SetBase(ItemStatIds.ProjectileIsHoming, 0d, 0d);
         Stats.SetBase(ItemStatIds.ProjectileExplosionRadius, 0d, 0d);
         Stats.SetBase(ItemStatIds.SellValueBonus, 0d, 0d);
 
@@ -204,7 +204,7 @@ public sealed class ItemInstance
             PelletCount = Mathf.Max(1, projectile.pelletCount);
             SpreadAngle = Mathf.Max(0f, projectile.spreadAngle);
             Stats.SetBase(ItemStatIds.ProjectileRandomAngle, Mathf.Max(0f, projectile.randomAngle), 0d);
-            Stats.SetBase(ItemStatIds.ProjectileHomingTurnRate, Mathf.Max(0f, projectile.homingTurnRate), 0d);
+            Stats.SetBase(ItemStatIds.ProjectileIsHoming, projectile.isHoming ? 1d : 0d, 0d, 1d);
         }
         else
         {
@@ -218,7 +218,7 @@ public sealed class ItemInstance
             PelletCount = 1;
             SpreadAngle = 0f;
             Stats.SetBase(ItemStatIds.ProjectileRandomAngle, 0d, 0d);
-            Stats.SetBase(ItemStatIds.ProjectileHomingTurnRate, 0d, 0d);
+            Stats.SetBase(ItemStatIds.ProjectileIsHoming, 0d, 0d, 1d);
             Stats.SetBase(ItemStatIds.ProjectileExplosionRadius, 0d, 0d);
         }
 

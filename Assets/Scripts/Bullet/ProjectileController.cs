@@ -92,7 +92,7 @@ public sealed class ProjectileController : MonoBehaviour
         if (rb == null || item == null)
             return;
 
-        isStationary = item.IsStationaryProjectile && item.ProjectileHomingTurnRate <= 0f;
+        isStationary = item.IsStationaryProjectile && !item.ProjectileIsHoming;
         stationaryStopSeconds = isStationary ? item.ProjectileStationaryStopSeconds : -1f;
         stationaryElapsed = 0f;
         stationaryInitialSpeed = item.WorldProjectileStationaryStartSpeed;
@@ -146,7 +146,7 @@ public sealed class ProjectileController : MonoBehaviour
             return;
 
         BlockController block = null;
-        if (item.ProjectileHomingTurnRate > 0f && homingHitCooldownRemaining > 0f)
+        if (item.ProjectileIsHoming && homingHitCooldownRemaining > 0f)
         {
             block = other.GetComponent<BlockController>();
             if (block != null && ReferenceEquals(block, lastHomingHitTarget))
@@ -297,7 +297,7 @@ public sealed class ProjectileController : MonoBehaviour
             return;
         }
 
-        if (item.ProjectileHomingTurnRate <= 0f)
+        if (!item.ProjectileIsHoming)
             return;
 
         var blockManager = BlockManager.Instance;
@@ -331,7 +331,7 @@ public sealed class ProjectileController : MonoBehaviour
         if (current.sqrMagnitude <= 0.0001f)
             current = toTarget.normalized;
 
-        float maxRadians = item.ProjectileHomingTurnRate * Mathf.Deg2Rad * Time.deltaTime;
+        float maxRadians = GameConfig.ProjectileHomingTurnRateDegrees * Mathf.Deg2Rad * Time.deltaTime;
         Vector3 next = Vector3.RotateTowards(current, toTarget.normalized, maxRadians, 0f);
         direction = new Vector2(next.x, next.y).normalized;
         rb.linearVelocity = direction * item.WorldProjectileSpeed;
@@ -345,7 +345,7 @@ public sealed class ProjectileController : MonoBehaviour
         if (item.ProjectileHitBehavior != ProjectileHitBehavior.Bounce)
             return;
 
-        if (item.ProjectileHomingTurnRate <= 0f)
+        if (!item.ProjectileIsHoming)
             return;
 
         homingCooldownRemaining = Mathf.Max(0f, GameConfig.DamageTickIntervalSeconds);
@@ -356,7 +356,7 @@ public sealed class ProjectileController : MonoBehaviour
         if (item == null || target == null)
             return;
 
-        if (item.ProjectileHomingTurnRate <= 0f)
+        if (!item.ProjectileIsHoming)
             return;
 
         homingHitCooldownRemaining = Mathf.Max(0f, GameConfig.DamageTickIntervalSeconds);

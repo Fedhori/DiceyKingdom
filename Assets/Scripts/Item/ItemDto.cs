@@ -136,7 +136,7 @@ namespace Data
         public int pelletCount = 1;
         public float spreadAngle = 0f;
         public float randomAngle = 0f;
-        public float homingTurnRate = 0f;
+        public bool isHoming = false;
         public float explosion = 0f;
         public float lifetime = 0f;
 
@@ -237,12 +237,6 @@ namespace Data
                 if (projectile.pelletCount < 1)
                 {
                     Debug.LogError($"[ItemDto] '{id}': projectile.pelletCount < 1 is not allowed.");
-                    isValid = false;
-                }
-
-                if (projectile.homingTurnRate < 0f)
-                {
-                    Debug.LogError($"[ItemDto] '{id}': projectile.homingTurnRate < 0 is not allowed.");
                     isValid = false;
                 }
 

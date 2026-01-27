@@ -363,9 +363,9 @@
 				{
 					"effectType": "ModifyItemStat",
 					"target": "Self",
-					"statId": "projectileHomingTurnRate",
+					"statId": "projectileIsHoming",
 					"effectMode": "Override",
-					"value": 720.0,
+					"value": 1.0,
 					"duration": "Upgrade"
 				}
 			]

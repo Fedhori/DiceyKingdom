@@ -249,7 +249,7 @@
 				"key": "projectile.bullet",
 				"size": 1.0,
 				"speed": 1.0,
-				"homingTurnRate": 720.0,
+				"isHoming": true,
 				"randomAngle": 0.0
 			},
 			"rules": [{}]
