@@ -377,9 +377,6 @@
 			"conditions": [
 				{
 					"conditionKind": "HasProjectile"
-				},
-				{
-					"conditionKind": "HasNoExplosionRadius"
 				}
 			],
 			"effects": [

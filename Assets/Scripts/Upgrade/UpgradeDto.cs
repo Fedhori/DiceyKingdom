@@ -13,7 +13,6 @@ namespace Data
         HasDamageMultiplier,
         HasAttackSpeed,
         HasProjectile,
-        HasNoExplosionRadius,
         HasItemRarity,
         HasTriggerRule
     }
