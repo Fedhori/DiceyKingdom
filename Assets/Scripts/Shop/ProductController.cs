@@ -22,14 +22,14 @@ public sealed class ProductController : ProductViewBase
             tooltipTarget = GetComponentInChildren<ItemTooltipTarget>(true);
     }
 
-    public override void SetData(IProduct product, int price, bool canBuy, bool sold)
+    public override void SetData(IProduct product, int price, bool canBuy, bool canDrag, bool sold)
     {
         boundProduct = product;
         boundItem = product as ItemProduct;
         SetViewType(product?.ProductType ?? ViewType);
 
         bool canInteract = (product != null) && !sold;
-        CanDrag = canBuy && canInteract;
+        CanDrag = canDrag && canInteract;
         CanClick = canInteract;
 
         if (product == null)

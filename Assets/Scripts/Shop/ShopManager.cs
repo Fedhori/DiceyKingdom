@@ -801,8 +801,9 @@ public sealed class ShopManager : MonoBehaviour
             : 0;
 
         bool[] canBuyFlags = BuildCanBuyFlags(currentShopItems, currency);
+        bool[] canDragFlags = BuildCanDragFlags(currentShopItems, currency);
 
-        shopView.SetItems(currentShopItems, canBuyFlags, currency, currentRerollCost);
+        shopView.SetItems(currentShopItems, canBuyFlags, canDragFlags, currency, currentRerollCost);
         shopView.RefreshAll();
 
         if (IsSelectedItemInvalid())
@@ -835,7 +836,40 @@ public sealed class ShopManager : MonoBehaviour
             }
             else if (product.ProductType == ProductType.Upgrade)
             {
-                flags[i] = product is UpgradeProduct;
+                flags[i] = product is UpgradeProduct upgrade
+                    && CanPurchaseUpgradeToInventory(upgrade);
+            }
+        }
+
+        return flags;
+    }
+
+    bool[] BuildCanDragFlags(IProduct[] items, int currency)
+    {
+        if (items == null)
+            return null;
+
+        var flags = new bool[items.Length];
+        bool hasEmptyItemSlot = ItemManager.Instance?.Inventory != null
+            && ItemManager.Instance.Inventory.TryGetFirstEmptySlot(out _);
+
+        for (int i = 0; i < items.Length; i++)
+        {
+            var product = items[i];
+            if (product == null || product.Sold)
+                continue;
+
+            if (currency < product.Price)
+                continue;
+
+            if (product.ProductType == ProductType.Item)
+            {
+                flags[i] = hasEmptyItemSlot;
+            }
+            else if (product.ProductType == ProductType.Upgrade)
+            {
+                flags[i] = product is UpgradeProduct upgrade
+                    && HasApplicableUpgradeSlot(upgrade);
             }
         }
 

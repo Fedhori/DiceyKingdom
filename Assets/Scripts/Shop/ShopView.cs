@@ -130,7 +130,7 @@ public sealed class ShopView : MonoBehaviour
         };
     }
 
-    public void SetItems(IProduct[] items, bool[] canBuyFlags, int currentCurrency, int rerollCost)
+    public void SetItems(IProduct[] items, bool[] canBuyFlags, bool[] canDragFlags, int currentCurrency, int rerollCost)
     {
         int count = (items != null) ? items.Length : 0;
 
@@ -155,8 +155,15 @@ public sealed class ShopView : MonoBehaviour
                 && i < canBuyFlags.Length
                 && canBuyFlags[i];
 
+            bool canDrag = canDragFlags != null
+                && i >= 0
+                && i < canDragFlags.Length
+                && canDragFlags[i];
+            if (canDragFlags == null)
+                canDrag = canBuy;
+
             view.gameObject.SetActive(true);
-            view.SetData(item, item.Price, canBuy, sold);
+            view.SetData(item, item.Price, canBuy, canDrag, sold);
             view.SetSelected(i == selectedItemIndex);
         }
 

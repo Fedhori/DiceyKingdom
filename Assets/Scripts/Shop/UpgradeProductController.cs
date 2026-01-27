@@ -22,13 +22,13 @@ public sealed class UpgradeProductController : ProductViewBase
             tooltipTarget = GetComponentInChildren<ItemTooltipTarget>(true);
     }
 
-    public override void SetData(IProduct product, int price, bool canBuy, bool sold)
+    public override void SetData(IProduct product, int price, bool canBuy, bool canDrag, bool sold)
     {
         boundUpgrade = product as UpgradeProduct;
         SetViewType(product?.ProductType ?? ViewType);
 
         bool canInteract = (product != null) && !sold;
-        CanDrag = canBuy && canInteract;
+        CanDrag = canDrag && canInteract;
         CanClick = canInteract;
 
         if (product == null)

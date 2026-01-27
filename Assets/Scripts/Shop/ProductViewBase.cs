@@ -34,7 +34,7 @@ public abstract class ProductViewBase : MonoBehaviour, IPointerClickHandler, IBe
         onEndDrag = endDrag;
     }
 
-    public abstract void SetData(IProduct product, int price, bool canBuy, bool sold);
+    public abstract void SetData(IProduct product, int price, bool canBuy, bool canDrag, bool sold);
     public abstract void SetSelected(bool selected);
     public abstract void PinTooltip();
 
