@@ -6272,6 +6272,8 @@ MonoBehaviour:
     prefab: {fileID: 7456553298515202051, guid: f31a767ff6e07ca43a56fb6064d95df1, type: 3}
   - key: projectile.landmine
     prefab: {fileID: 9170274611095153668, guid: 5dd94142ee9157b4c9502c56079f1e7d, type: 3}
+  - key: projectile.caltrops
+    prefab: {fileID: 1520270534122810644, guid: e13ab710259d4b84c8b474b14b1f6ffc, type: 3}
   parent: {fileID: 258862835}
 --- !u!1 &992994259
 GameObject:
@@ -7342,7 +7344,7 @@ Transform:
   m_GameObject: {fileID: 1102514699}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -2300, z: 0}
+  m_LocalPosition: {x: 0, y: -3000, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8331,7 +8333,7 @@ Transform:
   m_GameObject: {fileID: 1163286775}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2080, y: 0, z: 0}
+  m_LocalPosition: {x: 3000, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10073,7 +10075,7 @@ Transform:
   m_GameObject: {fileID: 1406475281}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -2300, z: 0}
+  m_LocalPosition: {x: 0, y: 3000, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -11760,7 +11762,7 @@ Transform:
   m_GameObject: {fileID: 1639518422}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2080, y: 0, z: 0}
+  m_LocalPosition: {x: -3000, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
