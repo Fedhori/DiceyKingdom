@@ -40,6 +40,9 @@ public sealed class VirtualJoystickController : MonoBehaviour, IPointerDownHandl
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (!IsAllowedPlatform())
+            return;
+
         if (!IsPlayable())
             return;
 
@@ -93,6 +96,15 @@ public sealed class VirtualJoystickController : MonoBehaviour, IPointerDownHandl
     {
         var stage = StageManager.Instance;
         return stage != null && stage.CurrentPhase == StagePhase.Play;
+    }
+
+    static bool IsAllowedPlatform()
+    {
+#if UNITY_EDITOR
+        return true;
+#else
+        return Application.isMobilePlatform;
+#endif
     }
 
     void ResetJoystick()

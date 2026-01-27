@@ -205,11 +205,8 @@ namespace Data
         static void InitializeDefaultWeights(IReadOnlyList<BlockPatternDto> patterns)
         {
             weights.Clear();
-            SetWeight("normal", 10f);
+            SetWeight("normal", 4f);
             SetWeight("big", 1f);
-            SetWeight("fast", 1f);
-            SetWeight("large", 1f);
-            SetWeight("many", 1f);
 
             if (patterns == null)
                 return;

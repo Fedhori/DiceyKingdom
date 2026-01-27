@@ -110,7 +110,7 @@ public class InputManager : MonoBehaviour
 #if UNITY_EDITOR
         return true;
 #else
-        return Application.isMobilePlatform || Debug.isDebugBuild;
+        return Application.isMobilePlatform;
 #endif
     }
 
