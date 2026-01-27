@@ -3,8 +3,6 @@ using Data;
 
 public sealed class BeamController : MonoBehaviour
 {
-    const float BeamTickInterval = 0.1f;
-
     [SerializeField] private SpriteRenderer beamRenderer;
     [SerializeField] private BoxCollider2D beamCollider;
     [SerializeField] private int overlapBufferSize = 128;
@@ -93,10 +91,14 @@ public sealed class BeamController : MonoBehaviour
 
         UpdateBeamGeometry();
 
-        while (beamTickTimer >= BeamTickInterval)
+        float tickInterval = Mathf.Max(0f, GameConfig.DamageTickIntervalSeconds);
+        if (tickInterval > 0f)
         {
-            beamTickTimer -= BeamTickInterval;
-            ApplyBeamDamage();
+            while (beamTickTimer >= tickInterval)
+            {
+                beamTickTimer -= tickInterval;
+                ApplyBeamDamage();
+            }
         }
 
         if (beamElapsed >= beamDuration)
@@ -189,7 +191,7 @@ public sealed class BeamController : MonoBehaviour
                 hitPosition: block.transform.position,
                 applyStatusFromItem: true,
                 sourceOwner: this,
-                damageScale: 0.1f,
+                damageScale: Mathf.Max(0f, GameConfig.DamageTickIntervalSeconds),
                 allowZeroDamage: true);
 
             damageManager.ApplyDamage(context);

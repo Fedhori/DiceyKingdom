@@ -60,7 +60,7 @@
 		},
 		{
 			"id": "item.minigun",
-			"damageMultiplier": 1.0,
+			"damageMultiplier": 0.5,
 			"attackSpeed": 10.0,
 			"isObject": true,
 			"price": 6,
@@ -76,7 +76,7 @@
 		{
 			"id": "item.assultrifle",
 			"damageMultiplier": 1.0,
-			"attackSpeed": 6.0,
+			"attackSpeed": 5.0,
 			"isObject": true,
 			"price": 3,
 			"rarity": "Common",

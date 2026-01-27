@@ -15,7 +15,7 @@ public static class GameConfig
     public static float ProjectileStationaryStartSpeedMultiplier = 1f;
     public static float ProjectileStationaryDecayExponent = 2f;
     public static float BlockFallSpeed = 128;
-    public static float ProjectileHomingHitCooldownSeconds = 0.2f;
+    public static float DamageTickIntervalSeconds = 0.2f;
     public static float ProjectileExplosionRadiusUnit = 128f;
 
     // Beam VFX

@@ -339,7 +339,7 @@ public sealed class ProjectileController : MonoBehaviour
         if (item.ProjectileHomingTurnRate <= 0f)
             return;
 
-        homingCooldownRemaining = GameConfig.ProjectileHomingHitCooldownSeconds;
+        homingCooldownRemaining = Mathf.Max(0f, GameConfig.DamageTickIntervalSeconds);
     }
 
     void TriggerHomingHitCooldown(BlockController target)
@@ -350,7 +350,7 @@ public sealed class ProjectileController : MonoBehaviour
         if (item.ProjectileHomingTurnRate <= 0f)
             return;
 
-        homingHitCooldownRemaining = GameConfig.ProjectileHomingHitCooldownSeconds;
+        homingHitCooldownRemaining = Mathf.Max(0f, GameConfig.DamageTickIntervalSeconds);
         lastHomingHitTarget = target;
     }
 
