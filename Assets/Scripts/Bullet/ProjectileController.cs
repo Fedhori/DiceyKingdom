@@ -92,8 +92,8 @@ public sealed class ProjectileController : MonoBehaviour
         if (rb == null || item == null)
             return;
 
-        isStationary = item.IsStationaryProjectile;
-        stationaryStopSeconds = item.ProjectileStationaryStopSeconds;
+        isStationary = item.IsStationaryProjectile && item.ProjectileHomingTurnRate <= 0f;
+        stationaryStopSeconds = isStationary ? item.ProjectileStationaryStopSeconds : -1f;
         stationaryElapsed = 0f;
         stationaryInitialSpeed = item.WorldProjectileStationaryStartSpeed;
 
@@ -286,9 +286,6 @@ public sealed class ProjectileController : MonoBehaviour
     void UpdateHoming()
     {
         if (item == null || rb == null)
-            return;
-
-        if (item.IsStationaryProjectile)
             return;
 
         if (homingHitCooldownRemaining > 0f)
@@ -541,9 +538,8 @@ public sealed class ProjectileController : MonoBehaviour
         }
 
         float ratio = lifetimeRemaining / lifetimeSeconds;
-        bool shouldBlink = ratio <= 0.5f;
-        float blinkHz = Mathf.Lerp(2f, 1f, Mathf.Clamp01(ratio / 0.5f));
-        UpdateBlinkState(shouldBlink, blinkHz);
+        bool shouldBlink = ratio <= 0.3f;
+        UpdateBlinkState(shouldBlink, 2f);
         return false;
     }
 

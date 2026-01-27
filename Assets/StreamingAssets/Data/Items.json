@@ -688,7 +688,7 @@
 				"key": "projectile.caltrops",
 				"size": 1.0,
 				"speed": 1.0,
-				"stationaryStopSeconds": 0.2,
+				"stationaryStopSeconds": 0.5,
 				"areaDamageTick": true,
 				"lifetime": 5.0
 			},
