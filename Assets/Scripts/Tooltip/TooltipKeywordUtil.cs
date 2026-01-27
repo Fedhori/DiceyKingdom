@@ -20,6 +20,9 @@ public static class TooltipKeywordUtil
             AppendKeyword(StatusUtil.GetKeywordId(key), ref entries);
         }
 
+        if (item.ProjectileExplosionLevel > 0f)
+            AppendKeyword("explosion", ref entries);
+
         return entries;
     }
 
@@ -42,6 +45,9 @@ public static class TooltipKeywordUtil
 
             if (StatusUtil.IsStatus(effect.statId))
                 AppendKeyword(StatusUtil.GetKeywordId(effect.statId), ref entries);
+
+            if (effect.statId == GameStats.ItemStatIds.ProjectileExplosionRadius)
+                AppendKeyword("explosion", ref entries);
 
             if (effect.effectType == ItemEffectType.SetItemStatus
                 || effect.effectType == ItemEffectType.ApplyStatusToRandomBlocks)

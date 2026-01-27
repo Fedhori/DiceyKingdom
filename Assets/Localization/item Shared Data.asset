@@ -283,10 +283,6 @@ MonoBehaviour:
     m_Key: item.grenadelauncher.name
     m_Metadata:
       m_Items: []
-  - m_Id: 5815909901414443
-    m_Key: item.grenadelauncher.effect0
-    m_Metadata:
-      m_Items: []
   - m_Id: 5815909901414432
     m_Key: item.rollerskate.name
     m_Metadata:
@@ -325,10 +321,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 5815909901414451
     m_Key: item.landmine.name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 5815909901414452
-    m_Key: item.landmine.effect0
     m_Metadata:
       m_Items: []
   m_Metadata:

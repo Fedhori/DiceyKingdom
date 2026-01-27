@@ -16,8 +16,9 @@ public sealed class ItemInstance
     public bool ProjectileIsStationary { get; private set; }
     public string ProjectileKey { get; private set; }
     public ProjectileHitBehavior ProjectileHitBehavior { get; private set; }
+    public float ProjectileExplosionLevel => Mathf.Max(0f, (float)Stats.GetValue(ItemStatIds.ProjectileExplosionRadius));
     public float ProjectileExplosionRadius =>
-        Mathf.Max(0f, (float)Stats.GetValue(ItemStatIds.ProjectileExplosionRadius)) * GameConfig.ProjectileExplosionRadiusUnit;
+        ProjectileExplosionLevel * GameConfig.ProjectileExplosionRadiusUnit;
     public float BeamThickness { get; private set; }
     public float BeamDuration { get; private set; }
     public int Pierce => Mathf.Max(0, Mathf.FloorToInt((float)Stats.GetValue(ItemStatIds.Pierce)));

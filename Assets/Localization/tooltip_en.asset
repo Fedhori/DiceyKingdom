@@ -39,6 +39,19 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 1113825116433678411
+  - m_Id: 10581387094011921
+    m_Localized: 'Explosion {value}'
+    m_Metadata:
+      m_Items:
+      - rid: 1113825116433678411
+  - m_Id: 10581387094011922
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10581387094011923
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
@@ -51,3 +64,6 @@ MonoBehaviour:
         - id: 9134255610802176
         - id: 10581387094011904
         - id: 10581387094011905
+        - id: 10581387094011921
+        - id: 10581387094011922
+        - id: 10581387094011923

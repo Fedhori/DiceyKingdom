@@ -657,7 +657,7 @@
 				"randomAngle": 5.0,
 				"explosion": 1.0
 			},
-			"rules": [{}]
+			"rules": []
 		},
 		{
 			"id": "item.landmine",

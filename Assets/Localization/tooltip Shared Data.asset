@@ -91,6 +91,18 @@ MonoBehaviour:
     m_Key: tooltip.current.label
     m_Metadata:
       m_Items: []
+  - m_Id: 10581387094011921
+    m_Key: tooltip.explosion.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10581387094011922
+    m_Key: tooltip.keyword.explosion.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10581387094011923
+    m_Key: tooltip.keyword.explosion.body
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
