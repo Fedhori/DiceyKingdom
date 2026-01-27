@@ -357,6 +357,9 @@
 			"conditions": [
 				{
 					"conditionKind": "HasProjectile"
+				},
+				{
+					"conditionKind": "HasNoHoming"
 				}
 			],
 			"effects": [
