@@ -131,6 +131,7 @@ namespace Data
         public string key;
         public float size = 1f;
         public float speed = 1f;
+        public bool isStationary = false;
         public int pelletCount = 1;
         public float spreadAngle = 0f;
         public float randomAngle = 0f;

@@ -13,6 +13,7 @@ public sealed class ItemInstance
     public float ProjectileSize { get; private set; }
     public float ProjectileSizeMultiplier => (float)Stats.GetValue(ItemStatIds.ProjectileSizeMultiplier);
     public float ProjectileSpeed { get; private set; }
+    public bool ProjectileIsStationary { get; private set; }
     public string ProjectileKey { get; private set; }
     public ProjectileHitBehavior ProjectileHitBehavior { get; private set; }
     public float ProjectileExplosionRadius => (float)Stats.GetValue(ItemStatIds.ProjectileExplosionRadius);
@@ -63,7 +64,8 @@ public sealed class ItemInstance
     public event Action<ItemInstance> OnUpgradesChanged;
 
     public float WorldProjectileSize => GameConfig.ItemBaseProjectileSize * Mathf.Max(0.1f, ProjectileSize);
-    public float WorldProjectileSpeed => GameConfig.ItemBaseProjectileSpeed * Mathf.Max(0.1f, ProjectileSpeed);
+    public float WorldProjectileSpeed =>
+        ProjectileIsStationary ? 0f : GameConfig.ItemBaseProjectileSpeed * Mathf.Max(0.1f, ProjectileSpeed);
 
     public void SetUpgrades(IReadOnlyList<UpgradeInstance> newUpgrades)
     {
@@ -143,6 +145,7 @@ public sealed class ItemInstance
             Stats.SetBase(ItemStatIds.AttackSpeed, 0d, 0d);
             ProjectileSize = 1f;
             ProjectileSpeed = 1f;
+            ProjectileIsStationary = false;
             ProjectileKey = string.Empty;
             ProjectileHitBehavior = ProjectileHitBehavior.Normal;
             BeamThickness = 0f;
@@ -182,7 +185,8 @@ public sealed class ItemInstance
         {
             ProjectileKey = projectile.key ?? string.Empty;
             ProjectileSize = Mathf.Max(0.1f, projectile.size);
-            ProjectileSpeed = Mathf.Max(0.1f, projectile.speed);
+            ProjectileIsStationary = projectile.isStationary;
+            ProjectileSpeed = ProjectileIsStationary ? 0f : Mathf.Max(0.1f, projectile.speed);
             ProjectileHitBehavior = projectile.hitBehavior;
             Stats.SetBase(ItemStatIds.ProjectileExplosionRadius, Mathf.Max(0f, projectile.explosionRadius), 0d);
             basePierce = projectile.pierce;
@@ -196,6 +200,7 @@ public sealed class ItemInstance
             ProjectileKey = string.Empty;
             ProjectileSize = 1f;
             ProjectileSpeed = 1f;
+            ProjectileIsStationary = false;
             ProjectileHitBehavior = ProjectileHitBehavior.Normal;
             PelletCount = 1;
             SpreadAngle = 0f;

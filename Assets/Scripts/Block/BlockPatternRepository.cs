@@ -207,19 +207,6 @@ namespace Data
             weights.Clear();
             SetWeight("normal", 4f);
             SetWeight("big", 1f);
-
-            if (patterns == null)
-                return;
-
-            for (int i = 0; i < patterns.Count; i++)
-            {
-                var pattern = patterns[i];
-                if (pattern == null || string.IsNullOrEmpty(pattern.id))
-                    continue;
-
-                if (!weights.ContainsKey(pattern.id))
-                    weights[pattern.id] = 1f;
-            }
         }
     }
 }

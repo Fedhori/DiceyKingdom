@@ -17,6 +17,7 @@ public sealed class ProjectileController : MonoBehaviour
     float homingHitCooldownRemaining;
     BlockController lastHomingHitTarget;
     float damageScale = 1f;
+    RigidbodyConstraints2D defaultConstraints;
 
     public void Initialize(ItemInstance inst, Vector2 dir, float damageScaleMultiplier = 1f)
     {
@@ -38,6 +39,12 @@ public sealed class ProjectileController : MonoBehaviour
         lastHomingHitTarget = null;
     }
 
+    void Awake()
+    {
+        if (rb != null)
+            defaultConstraints = rb.constraints;
+    }
+
     void Update()
     {
         if (item == null)
@@ -52,7 +59,17 @@ public sealed class ProjectileController : MonoBehaviour
         if (rb == null || item == null)
             return;
 
-        rb.linearVelocity = direction * item.WorldProjectileSpeed;
+        if (item.ProjectileIsStationary)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            rb.constraints = RigidbodyConstraints2D.FreezeAll;
+        }
+        else
+        {
+            rb.constraints = defaultConstraints;
+            rb.linearVelocity = direction * item.WorldProjectileSpeed;
+        }
 
         float s = item.WorldProjectileSize;
         float bonus = item.ProjectileSizeMultiplier;
@@ -224,6 +241,9 @@ public sealed class ProjectileController : MonoBehaviour
         if (item == null || rb == null)
             return;
 
+        if (item.ProjectileIsStationary)
+            return;
+
         if (homingHitCooldownRemaining > 0f)
             homingHitCooldownRemaining = Mathf.Max(0f, homingHitCooldownRemaining - Time.deltaTime);
 
@@ -302,6 +322,9 @@ public sealed class ProjectileController : MonoBehaviour
     void UpdateRotation()
     {
         if (rb == null)
+            return;
+
+        if (item != null && item.ProjectileIsStationary)
             return;
 
         Vector2 velocity = rb.linearVelocity;

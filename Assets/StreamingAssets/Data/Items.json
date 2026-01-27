@@ -660,6 +660,23 @@
 			"rules": [{}]
 		},
 		{
+			"id": "item.landmine",
+			"isObject": true,
+			"price": 6,
+			"rarity": "Uncommon",
+			"damageMultiplier": 5.0,
+			"attackSpeed": 0.5,
+			"projectile": {
+				"key": "projectile.landmine",
+				"size": 1.0,
+				"speed": 0.0,
+				"isStationary": true,
+				"randomAngle": 5.0,
+				"explosionRadius": 128.0
+			},
+			"rules": [{}]
+		},
+		{
 			"id": "item.alarmclock",
 			"isObject": false,
 			"price": 5,

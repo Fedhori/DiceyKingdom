@@ -72,7 +72,9 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 3962800000000003
-    m_Localized: "\uBE14\uB85D\uC774 \uD30C\uAD34\uB420 \uB54C\uB9C8\uB2E4 <style=\"power\">\uD30C\uC6CC</style>\uAC00 <style=\"value\">{value0}</style> \uC99D\uAC00\uD569\uB2C8\uB2E4. (\uD604\uC7AC <style=\"value\">{currentValue0}</style>)"
+    m_Localized: "\uBE14\uB85D\uC774 \uD30C\uAD34\uB420 \uB54C\uB9C8\uB2E4 <style=\"power\">\uD30C\uC6CC</style>\uAC00
+      <style=\"value\">{value0}</style> \uC99D\uAC00\uD569\uB2C8\uB2E4. (\uD604\uC7AC
+      <style=\"value\">{currentValue0}</style>)"
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
@@ -83,7 +85,7 @@ MonoBehaviour:
   - m_Id: 3962800000000005
     m_Localized: "\uAC00\uB9CC\uD788 \uC788\uC73C\uBA74 \uB9E4\uCD08\uB9C8\uB2E4
       <style=\"power\">\uD30C\uC6CC</style>\uAC00 <style=\"value\">{value0}</style>
-      \uC99D\uAC00\uD569\uB2C8\uB2E4. (현재 <style=\"value\">{currentValue0}</style>)"
+      \uC99D\uAC00\uD569\uB2C8\uB2E4. (\uD604\uC7AC <style=\"value\">{currentValue0}</style>)"
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
@@ -141,7 +143,8 @@ MonoBehaviour:
   - m_Id: 5740740298158084
     m_Localized: "\uD22C\uC0AC\uCCB4 <style=\"value\">{count}</style>\uAC1C\uB97C
       \uBC1C\uC0AC\uD560 \uB54C\uB9C8\uB2E4 <style=\"power\">\uD30C\uC6CC</style>\uAC00
-      <style=\"value\">{value0}</style> \uC99D\uAC00\uD569\uB2C8\uB2E4. (현재 <style=\"value\">{currentValue0}</style>)"
+      <style=\"value\">{value0}</style> \uC99D\uAC00\uD569\uB2C8\uB2E4. (\uD604\uC7AC
+      <style=\"value\">{currentValue0}</style>)"
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
@@ -175,7 +178,8 @@ MonoBehaviour:
   - m_Id: 5815909901414408
     m_Localized: "\uBE14\uB7ED\uC5D0 \uC0C8\uB85C\uC6B4 \uC0C1\uD0DC\uC774\uC0C1\uC774
       \uC801\uC6A9\uB420 \uB54C\uB9C8\uB2E4 <style=\"power\">\uD30C\uC6CC</style>\uAC00
-      <style=\"value\">{value0}</style> \uC99D\uAC00\uD569\uB2C8\uB2E4. (현재 <style=\"value\">{currentValue0}</style>)"
+      <style=\"value\">{value0}</style> \uC99D\uAC00\uD569\uB2C8\uB2E4. (\uD604\uC7AC
+      <style=\"value\">{currentValue0}</style>)"
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
@@ -214,7 +218,9 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5815909901414416
-    m_Localized: "\uC2A4\uD14C\uC774\uC9C0\uAC00 \uB05D\uB0A0 \uB54C\uB9C8\uB2E4 \uD310\uB9E4 \uAC00\uCE58\uAC00 <style=\"money\">{value0}$</style> \uC99D\uAC00\uD569\uB2C8\uB2E4. (\uD604\uC7AC <style=\"money\">{currentValue0}$</style>)"
+    m_Localized: "\uC2A4\uD14C\uC774\uC9C0\uAC00 \uB05D\uB0A0 \uB54C\uB9C8\uB2E4
+      \uD310\uB9E4 \uAC00\uCE58\uAC00 <style=\"money\">{value0}$</style> \uC99D\uAC00\uD569\uB2C8\uB2E4.
+      (\uD604\uC7AC <style=\"money\">{currentValue0}$</style>)"
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
@@ -236,7 +242,7 @@ MonoBehaviour:
   - m_Id: 5815909901414420
     m_Localized: "<style=\"normal\">\uC77C\uBC18</style> \uB4F1\uAE09 \uC544\uC774\uD15C
       \uD558\uB098\uB2F9 <style=\"power\">\uD30C\uC6CC</style>\uAC00 <style=\"value\">{value0}</style>
-      \uC99D\uAC00\uD569\uB2C8\uB2E4. (현재 <style=\"value\">{currentValue0}</style>)"
+      \uC99D\uAC00\uD569\uB2C8\uB2E4. (\uD604\uC7AC <style=\"value\">{currentValue0}</style>)"
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
@@ -272,7 +278,8 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 5815909901414427
     m_Localized: "\uC2A4\uD14C\uC774\uC9C0 \uC885\uB8CC\uB9C8\uB2E4 \uB370\uBBF8\uC9C0
-      \uBC30\uC728\uC774 <style=\"value\">{value0}</style> \uC99D\uAC00\uD569\uB2C8\uB2E4. (현재 <style=\"value\">{currentValue0}</style>)"
+      \uBC30\uC728\uC774 <style=\"value\">{value0}</style> \uC99D\uAC00\uD569\uB2C8\uB2E4.
+      (\uD604\uC7AC <style=\"value\">{currentValue0}</style>)"
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
@@ -283,7 +290,7 @@ MonoBehaviour:
   - m_Id: 5815909901414429
     m_Localized: "\uBCF4\uC720\uD55C \uB3C8\uC774 <style=\"money\">{threshold}$</style>
       \uC774\uD558\uC77C \uB54C <style=\"power\">\uD30C\uC6CC</style>\uAC00 <style=\"value\">{value0}</style>
-      \uC99D\uAC00\uD569\uB2C8\uB2E4. (현재 <style=\"value\">{currentValue0}</style>)"
+      \uC99D\uAC00\uD569\uB2C8\uB2E4. (\uD604\uC7AC <style=\"value\">{currentValue0}</style>)"
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
@@ -314,7 +321,8 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 5815909901414435
     m_Localized: "\uC778\uC811\uD55C \uBE48 \uC2AC\uB86F\uB9C8\uB2E4 <style=\"power\">\uD30C\uC6CC</style>\uAC00
-      <style=\"value\">{value0}</style> \uC99D\uAC00\uD569\uB2C8\uB2E4. (현재 <style=\"value\">{currentValue0}</style>)"
+      <style=\"value\">{value0}</style> \uC99D\uAC00\uD569\uB2C8\uB2E4. (\uD604\uC7AC
+      <style=\"value\">{currentValue0}</style>)"
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
@@ -334,7 +342,8 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 5815909901414439
     m_Localized: "\uBCF4\uC720\uD55C \uBB34\uAE30\uB9C8\uB2E4 <style=\"power\">\uD30C\uC6CC</style>\uAC00
-      <style=\"value\">{value0}</style> \uC99D\uAC00\uD569\uB2C8\uB2E4. (\uD604\uC7AC <style=\"value\">{currentValue0}</style>)"
+      <style=\"value\">{value0}</style> \uC99D\uAC00\uD569\uB2C8\uB2E4. (\uD604\uC7AC
+      <style=\"value\">{currentValue0}</style>)"
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
@@ -393,6 +402,16 @@ MonoBehaviour:
       - rid: 2507345486982938704
   - m_Id: 5815909901414450
     m_Localized: "\uC7AC\uD654\uB97C \uC18C\uBAA8\uD558\uB294 \uC989\uC2DC \uD310\uB9E4\uB429\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414451
+    m_Localized: "\uC9C0\uB8B0"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5815909901414452
+    m_Localized: "\uACF5\uACA9\uD560 \uB54C\uB9C8\uB2E4 \uD604\uC7AC \uC704\uCE58\uC5D0
+      \uC9C0\uB8B0\uB97C \uC124\uCE58\uD569\uB2C8\uB2E4.\n\uBE14\uB7ED\uACFC \uB2FF\uC73C\uBA74
+      \uD3ED\uBC1C\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
   references:
