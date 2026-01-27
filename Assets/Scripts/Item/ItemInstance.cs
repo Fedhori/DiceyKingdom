@@ -15,6 +15,7 @@ public sealed class ItemInstance
     public float ProjectileSpeed { get; private set; }
     public float ProjectileStationaryStopSeconds { get; private set; }
     public bool IsStationaryProjectile => ProjectileStationaryStopSeconds >= 0f;
+    public bool ProjectileAreaDamageTick { get; private set; }
     public string ProjectileKey { get; private set; }
     public ProjectileHitBehavior ProjectileHitBehavior { get; private set; }
     public float ProjectileExplosionLevel => Mathf.Max(0f, (float)Stats.GetValue(ItemStatIds.ProjectileExplosionRadius));
@@ -152,6 +153,7 @@ public sealed class ItemInstance
             ProjectileSize = 1f;
             ProjectileSpeed = 1f;
             ProjectileStationaryStopSeconds = -1f;
+            ProjectileAreaDamageTick = false;
             ProjectileKey = string.Empty;
             ProjectileHitBehavior = ProjectileHitBehavior.Normal;
             ProjectileLifetimeSeconds = 0f;
@@ -194,6 +196,7 @@ public sealed class ItemInstance
             ProjectileSize = Mathf.Max(0.1f, projectile.size);
             ProjectileSpeed = Mathf.Max(0.1f, projectile.speed);
             ProjectileStationaryStopSeconds = projectile.stationaryStopSeconds;
+            ProjectileAreaDamageTick = projectile.areaDamageTick;
             ProjectileHitBehavior = projectile.hitBehavior;
             Stats.SetBase(ItemStatIds.ProjectileExplosionRadius, Mathf.Max(0f, projectile.explosion), 0d);
             ProjectileLifetimeSeconds = Mathf.Max(0f, projectile.lifetime);
@@ -209,6 +212,7 @@ public sealed class ItemInstance
             ProjectileSize = 1f;
             ProjectileSpeed = 1f;
             ProjectileStationaryStopSeconds = -1f;
+            ProjectileAreaDamageTick = false;
             ProjectileHitBehavior = ProjectileHitBehavior.Normal;
             ProjectileLifetimeSeconds = 0f;
             PelletCount = 1;

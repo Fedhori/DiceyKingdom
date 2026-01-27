@@ -403,6 +403,10 @@ MonoBehaviour:
     m_Localized: "\uC9C0\uB8B0"
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414452
+    m_Localized: "\uB9C8\uB984\uC1E0"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

@@ -132,6 +132,7 @@ namespace Data
         public float size = 1f;
         public float speed = 1f;
         public float stationaryStopSeconds = -1f;
+        public bool areaDamageTick = false;
         public int pelletCount = 1;
         public float spreadAngle = 0f;
         public float randomAngle = 0f;

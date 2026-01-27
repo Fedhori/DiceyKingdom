@@ -678,6 +678,23 @@
 			"rules": []
 		},
 		{
+			"id": "item.caltrops",
+			"isObject": true,
+			"price": 8,
+			"rarity": "Rare",
+			"damageMultiplier": 1.0,
+			"attackSpeed": 0.2,
+			"projectile": {
+				"key": "projectile.caltrops",
+				"size": 1.0,
+				"speed": 1.0,
+				"stationaryStopSeconds": 0.2,
+				"areaDamageTick": true,
+				"lifetime": 5.0
+			},
+			"rules": []
+		},
+		{
 			"id": "item.alarmclock",
 			"isObject": false,
 			"price": 5,

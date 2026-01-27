@@ -27,6 +27,11 @@ public sealed class ProjectileController : MonoBehaviour
     float stationaryStopSeconds;
     float stationaryElapsed;
     float stationaryInitialSpeed;
+    bool areaDamageTick;
+    float areaTickTimer;
+    ContactFilter2D areaFilter;
+    bool areaFilterInitialized;
+    Collider2D[] areaOverlapBuffer;
 
     public void Initialize(ItemInstance inst, Vector2 dir, float damageScaleMultiplier = 1f)
     {
@@ -49,6 +54,10 @@ public sealed class ProjectileController : MonoBehaviour
 
         lifetimeSeconds = item != null ? Mathf.Max(0f, item.ProjectileLifetimeSeconds) : 0f;
         lifetimeRemaining = lifetimeSeconds;
+        areaDamageTick = item != null && item.ProjectileAreaDamageTick;
+        areaTickTimer = 0f;
+        InitializeAreaFilter();
+        EnsureAreaBuffer();
         CacheBaseColor();
         UpdateBlinkState(shouldBlink: false);
     }
@@ -71,8 +80,8 @@ public sealed class ProjectileController : MonoBehaviour
         if (UpdateLifetime())
             return;
 
-        if (UpdateStationaryMotion())
-            return;
+        UpdateStationaryMotion();
+        UpdateAreaDamageTick();
 
         UpdateHoming();
         UpdateRotation();
@@ -131,6 +140,9 @@ public sealed class ProjectileController : MonoBehaviour
     void HandleHit(Collider2D other, Collider2D selfCollider, bool isTrigger)
     {
         if (!enabled || item == null || other == null || selfCollider == null)
+            return;
+
+        if (item.ProjectileAreaDamageTick)
             return;
 
         BlockController block = null;
@@ -370,13 +382,13 @@ public sealed class ProjectileController : MonoBehaviour
         rb.SetRotation(angle);
     }
 
-    bool UpdateStationaryMotion()
+    void UpdateStationaryMotion()
     {
         if (!isStationary || rb == null)
-            return false;
+            return;
 
         if (stationaryStopSeconds <= 0f)
-            return true;
+            return;
 
         stationaryElapsed += Time.deltaTime;
         float t = Mathf.Clamp01(stationaryElapsed / stationaryStopSeconds);
@@ -385,8 +397,6 @@ public sealed class ProjectileController : MonoBehaviour
 
         if (t >= 1f)
             StopStationaryMotion();
-
-        return true;
     }
 
     void StopStationaryMotion()
@@ -398,6 +408,88 @@ public sealed class ProjectileController : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
         rb.constraints = RigidbodyConstraints2D.FreezeAll;
+    }
+
+    void UpdateAreaDamageTick()
+    {
+        if (!areaDamageTick || blockCollider == null || item == null)
+            return;
+
+        float tickInterval = Mathf.Max(0f, GameConfig.DamageTickIntervalSeconds);
+        if (tickInterval <= 0f)
+            return;
+
+        float delta = Time.deltaTime;
+        if (delta <= 0f)
+            return;
+
+        areaTickTimer += delta;
+        while (areaTickTimer >= tickInterval)
+        {
+            areaTickTimer -= tickInterval;
+            ApplyAreaDamageTick(tickInterval);
+        }
+    }
+
+    void ApplyAreaDamageTick(float damageScale)
+    {
+        if (!areaFilterInitialized || blockCollider == null || item == null)
+            return;
+
+        var damageManager = DamageManager.Instance;
+        if (damageManager == null)
+            return;
+
+        EnsureAreaBuffer();
+        int hitCount = blockCollider.Overlap(areaFilter, areaOverlapBuffer);
+        for (int i = 0; i < hitCount; i++)
+        {
+            var hit = areaOverlapBuffer[i];
+            if (hit == null)
+                continue;
+
+            var block = hit.GetComponent<BlockController>();
+            if (block == null || block.Instance == null)
+                continue;
+
+            var context = new DamageContext(
+                block,
+                sourceItem: item,
+                sourceType: DamageSourceType.Projectile,
+                hitPosition: block.transform.position,
+                applyStatusFromItem: true,
+                sourceOwner: this,
+                damageScale: damageScale,
+                allowZeroDamage: true);
+
+            damageManager.ApplyDamage(context);
+        }
+    }
+
+    void InitializeAreaFilter()
+    {
+        if (areaFilterInitialized)
+            return;
+
+        int blockLayer = LayerMask.NameToLayer("Block");
+        if (blockLayer < 0)
+            return;
+
+        areaFilter = new ContactFilter2D
+        {
+            useLayerMask = true,
+            layerMask = 1 << blockLayer,
+            useTriggers = true
+        };
+
+        areaFilterInitialized = true;
+    }
+
+    void EnsureAreaBuffer()
+    {
+        int size = 64;
+        if (areaOverlapBuffer == null || areaOverlapBuffer.Length != size)
+            areaOverlapBuffer = new Collider2D[size];
     }
 
     void HandlePierce()

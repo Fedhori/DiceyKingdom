@@ -323,6 +323,10 @@ MonoBehaviour:
     m_Key: item.landmine.name
     m_Metadata:
       m_Items: []
+  - m_Id: 5815909901414452
+    m_Key: item.caltrops.name
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
