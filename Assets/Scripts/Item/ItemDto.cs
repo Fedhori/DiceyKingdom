@@ -137,6 +137,7 @@ namespace Data
         public float randomAngle = 0f;
         public float homingTurnRate = 0f;
         public float explosion = 0f;
+        public float lifetime = 0f;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ProjectileHitBehavior hitBehavior = ProjectileHitBehavior.Normal;
@@ -247,6 +248,12 @@ namespace Data
                 if (projectile.explosion < 0f)
                 {
                     Debug.LogError($"[ItemDto] '{id}': projectile.explosion < 0 is not allowed.");
+                    isValid = false;
+                }
+
+                if (projectile.lifetime < 0f)
+                {
+                    Debug.LogError($"[ItemDto] '{id}': projectile.lifetime < 0 is not allowed.");
                     isValid = false;
                 }
             }

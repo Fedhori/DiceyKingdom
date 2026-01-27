@@ -8,6 +8,7 @@ public sealed class ProjectileController : MonoBehaviour
     [SerializeField] Collider2D blockCollider;
     [SerializeField] Collider2D wallCollider;
     [SerializeField] Rigidbody2D rb;
+    [SerializeField] SpriteRenderer bodyRenderer;
     
     ItemInstance item;
     Vector2 direction;
@@ -18,6 +19,10 @@ public sealed class ProjectileController : MonoBehaviour
     BlockController lastHomingHitTarget;
     float damageScale = 1f;
     RigidbodyConstraints2D defaultConstraints;
+    float lifetimeSeconds;
+    float lifetimeRemaining;
+    Color baseColor;
+    bool hasBaseColor;
 
     public void Initialize(ItemInstance inst, Vector2 dir, float damageScaleMultiplier = 1f)
     {
@@ -37,17 +42,29 @@ public sealed class ProjectileController : MonoBehaviour
         homingCooldownRemaining = 0f;
         homingHitCooldownRemaining = 0f;
         lastHomingHitTarget = null;
+
+        lifetimeSeconds = item != null ? Mathf.Max(0f, item.ProjectileLifetimeSeconds) : 0f;
+        lifetimeRemaining = lifetimeSeconds;
+        CacheBaseColor();
+        UpdateBlinkState(shouldBlink: false);
     }
 
     void Awake()
     {
         if (rb != null)
             defaultConstraints = rb.constraints;
+
+        if (bodyRenderer == null)
+            bodyRenderer = GetComponentInChildren<SpriteRenderer>();
+        CacheBaseColor();
     }
 
     void Update()
     {
         if (item == null)
+            return;
+
+        if (UpdateLifetime())
             return;
 
         UpdateHoming();
@@ -364,5 +381,57 @@ public sealed class ProjectileController : MonoBehaviour
                 break;
             }
         }
+    }
+
+    bool UpdateLifetime()
+    {
+        if (lifetimeSeconds <= 0f)
+        {
+            UpdateBlinkState(shouldBlink: false);
+            return false;
+        }
+
+        lifetimeRemaining -= Time.deltaTime;
+        if (lifetimeRemaining <= 0f)
+        {
+            if (item != null && item.ProjectileExplosionRadius > 0f)
+                Explode();
+            Destroy(gameObject);
+            return true;
+        }
+
+        float ratio = lifetimeRemaining / lifetimeSeconds;
+        bool shouldBlink = ratio <= 0.5f;
+        float blinkHz = Mathf.Lerp(2f, 1f, Mathf.Clamp01(ratio / 0.5f));
+        UpdateBlinkState(shouldBlink, blinkHz);
+        return false;
+    }
+
+    void UpdateBlinkState(bool shouldBlink, float blinkHz = 2f)
+    {
+        if (bodyRenderer == null || !hasBaseColor)
+            return;
+
+        if (!shouldBlink)
+        {
+            bodyRenderer.color = baseColor;
+            return;
+        }
+
+        float hz = Mathf.Max(0.1f, blinkHz);
+        float t = Mathf.PingPong(Time.time * hz, 1f);
+        float alpha = Mathf.Lerp(0.3f, 1f, t);
+        var c = baseColor;
+        c.a = Mathf.Clamp01(baseColor.a * alpha);
+        bodyRenderer.color = c;
+    }
+
+    void CacheBaseColor()
+    {
+        if (bodyRenderer == null)
+            return;
+
+        baseColor = bodyRenderer.color;
+        hasBaseColor = true;
     }
 }

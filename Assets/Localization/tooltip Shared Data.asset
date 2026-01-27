@@ -103,6 +103,10 @@ MonoBehaviour:
     m_Key: tooltip.keyword.explosion.body
     m_Metadata:
       m_Items: []
+  - m_Id: 10581387094011924
+    m_Key: tooltip.lifetime.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

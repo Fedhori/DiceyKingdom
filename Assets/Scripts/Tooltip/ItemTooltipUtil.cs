@@ -106,6 +106,15 @@ public static class ItemTooltipUtil
             lines.Add(BuildStatLine("tooltip.explosion.description", args, item, -1));
         }
 
+        if (item.ProjectileLifetimeSeconds > 0f)
+        {
+            var args = new Dictionary<string, object>
+            {
+                ["value"] = item.ProjectileLifetimeSeconds.ToString("0.##")
+            };
+            lines.Add(BuildStatLine("tooltip.lifetime.description", args, item, -1));
+        }
+
         string statusPrefix = new LocalizedString("tooltip", StatusPrefixKey).GetLocalizedString();
         var statusKeys = StatusUtil.Keys;
         for (int i = 0; i < statusKeys.Count; i++)

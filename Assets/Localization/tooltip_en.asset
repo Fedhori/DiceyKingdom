@@ -52,6 +52,11 @@ MonoBehaviour:
     m_Localized: 
     m_Metadata:
       m_Items: []
+  - m_Id: 10581387094011924
+    m_Localized: 'Lifetime: {value}'
+    m_Metadata:
+      m_Items:
+      - rid: 1113825116433678411
   references:
     version: 2
     RefIds:
@@ -67,3 +72,4 @@ MonoBehaviour:
         - id: 10581387094011921
         - id: 10581387094011922
         - id: 10581387094011923
+        - id: 10581387094011924
