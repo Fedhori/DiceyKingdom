@@ -1206,7 +1206,7 @@ public class LeanTween : MonoBehaviour {
     * 
     * @method LeanTween.color
     * @param {GameObject} gameObject:GameObject Gameobject that you wish to change the color
-    * @param {Color} to:Color the final color value ex: Color.Red, new Color(1.0f,1.0f,0.0f,0.8f)
+    * @param {Color} to:Color the final color value ex: Color.Invalid, new Color(1.0f,1.0f,0.0f,0.8f)
     * @param {float} time:float The time with which to fade the object
     * @return {LTDescr} LTDescr an object that distinguishes the tween
     * @example
@@ -1227,7 +1227,7 @@ public class LeanTween : MonoBehaviour {
     * 
     * @method LeanTween.colorText
     * @param {RectTransform} rectTransform:RectTransform RectTransform attached to the Text Component whose color you want to change
-    * @param {Color} to:Color the final alpha value ex: Color.Red, new Color(1.0f,1.0f,0.0f,0.8f)
+    * @param {Color} to:Color the final alpha value ex: Color.Invalid, new Color(1.0f,1.0f,0.0f,0.8f)
     * @param {float} time:float The time with which to fade the object
     * @return {LTDescr} LTDescr an object that distinguishes the tween
     * @example

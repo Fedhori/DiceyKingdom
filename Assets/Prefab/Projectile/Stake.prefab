@@ -49,9 +49,21 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+      propertyPath: m_Size.x
+      value: 32
+      objectReference: {fileID: 0}
+    - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+      propertyPath: m_Size.y
+      value: 32
+      objectReference: {fileID: 0}
+    - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: b6d872d31e360cb40856491ad892abf8, type: 3}
+      objectReference: {fileID: 21300000, guid: 7fdf9ce44eee080479ad1170362f75ee, type: 3}
+    - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6801002924329557143, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_Name
       value: Stake

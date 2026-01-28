@@ -54,16 +54,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_Size.x
-      value: 32
+      value: 64
       objectReference: {fileID: 0}
     - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_Size.y
-      value: 32
+      value: 64
       objectReference: {fileID: 0}
     - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 7a317686b353f3c49a3f98160506b060, type: 3}
+      objectReference: {fileID: 21300000, guid: 866ee98ce5fb3b846a44e02daf84eafa, type: 3}
+    - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6801002924329557143, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_Name
       value: Ball

@@ -32,11 +32,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 3962600194322432
-    m_Key: item.minigun.name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 3962645090152448
-    m_Key: item.minigun.effect0
+    m_Key: item.machinegun.name
     m_Metadata:
       m_Items: []
   - m_Id: 3962699427360768
@@ -100,7 +96,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5740740298158080
-    m_Key: item.assultrifle.name
+    m_Key: item.assaultrifle.name
     m_Metadata:
       m_Items: []
   - m_Id: 5740740298158081
@@ -180,11 +176,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 5815909901414415
-    m_Key: item.goldenegg.name
+    m_Key: item.goldengoose.name
     m_Metadata:
       m_Items: []
   - m_Id: 5815909901414416
-    m_Key: item.goldenegg.effect0
+    m_Key: item.goldengoose.effect0
     m_Metadata:
       m_Items: []
   - m_Id: 5815909901414417

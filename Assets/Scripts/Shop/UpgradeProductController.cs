@@ -70,7 +70,7 @@ public sealed class UpgradeProductController : ProductViewBase
                 if (!priceText.gameObject.activeSelf)
                     priceText.gameObject.SetActive(true);
                 priceText.text = $"${price}";
-                priceText.color = canBuy ? Colors.White : Colors.Red;
+                priceText.color = canBuy ? Colors.White : Colors.Invalid;
             }
         }
     }

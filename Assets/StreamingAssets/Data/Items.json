@@ -59,7 +59,7 @@
 			"rules": []
 		},
 		{
-			"id": "item.minigun",
+			"id": "item.machinegun",
 			"damageMultiplier": 0.5,
 			"attackSpeed": 10.0,
 			"isObject": true,
@@ -71,10 +71,10 @@
 				"speed": 1.0,
 				"randomAngle": 15.0
 			},
-			"rules": [{}]
+			"rules": []
 		},
 		{
-			"id": "item.assultrifle",
+			"id": "item.assaultrifle",
 			"damageMultiplier": 1.0,
 			"attackSpeed": 5.0,
 			"isObject": true,
@@ -373,7 +373,7 @@
 			]
 		},
 		{
-			"id": "item.goldenegg",
+			"id": "item.goldengoose",
 			"isObject": false,
 			"price": 6,
 			"rarity": "Common",
@@ -812,30 +812,6 @@
 							"statId": "power",
 							"effectMode": "Add",
 							"value": 30.0,
-							"duration": "Owned"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "item.stiletto",
-			"isObject": false,
-			"isNotSell": true,
-			"price": 6,
-			"rarity": "Uncommon",
-			"rules": [
-				{
-					"triggerType": "OnAcquire",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "ModifyStat",
-							"statId": "criticalMultiplier",
-							"effectMode": "Add",
-							"value": 0.5,
 							"duration": "Owned"
 						}
 					]
