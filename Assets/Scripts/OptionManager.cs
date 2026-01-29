@@ -14,6 +14,7 @@ public class OptionManager : MonoBehaviour
     public Button returnToMainMenuButton;
     [SerializeField] private Slider bgmSlider;
     [SerializeField] private SlidePanelLean optionPanelSlide;
+    [SerializeField] private OverlayFader optionOverlayFader;
     bool previousForcePaused;
 
     private void Awake()
@@ -25,6 +26,8 @@ public class OptionManager : MonoBehaviour
         }
 
         Instance = this;
+        if (optionOverlayFader == null && optionOverlay != null)
+            optionOverlayFader = optionOverlay.GetComponent<OverlayFader>();
         ToggleOption(false);
     }
 
@@ -92,7 +95,10 @@ public class OptionManager : MonoBehaviour
 
         if (isOpen)
         {
-            optionOverlay.SetActive(true);
+            if (optionOverlayFader != null)
+                optionOverlayFader.Show();
+            else
+                optionOverlay.SetActive(true);
             UpdatePauseState(true);
             optionPanelSlide?.Show();
             return;
@@ -102,14 +108,26 @@ public class OptionManager : MonoBehaviour
         {
             optionPanelSlide.Hide(() =>
             {
+                if (optionOverlayFader != null)
+                {
+                    optionOverlayFader.Hide(UpdatePauseStateFalse);
+                    return;
+                }
+
                 optionOverlay.SetActive(false);
-                UpdatePauseState(false);
+                UpdatePauseStateFalse();
             });
             return;
         }
 
+        if (optionOverlayFader != null)
+        {
+            optionOverlayFader.Hide(UpdatePauseStateFalse);
+            return;
+        }
+
         optionOverlay.SetActive(false);
-        UpdatePauseState(false);
+        UpdatePauseStateFalse();
     }
 
     void InitializeBgmControls()
@@ -208,5 +226,10 @@ public class OptionManager : MonoBehaviour
             return;
         }
         speedManager.ForcePaused = previousForcePaused;
+    }
+
+    void UpdatePauseStateFalse()
+    {
+        UpdatePauseState(false);
     }
 }

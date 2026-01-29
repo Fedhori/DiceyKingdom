@@ -172,7 +172,7 @@ public sealed class ShopView : MonoBehaviour
             bool canReroll = currentCurrency >= rerollCost;
             if (rerollCostText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
                 sv.Value = rerollCost.ToString();
-            rerollCostText.GetComponent<TMP_Text>().color = canReroll ? Colors.White : Colors.Invalid;
+            rerollCostText.GetComponent<TMP_Text>().color = canReroll ? Colors.Currency : Colors.Invalid;
         }
     }
 
