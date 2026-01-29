@@ -22,6 +22,9 @@ public static class Colors
 
     public static readonly Color DamageFlash = new Color32(0xFF, 0xFF, 0xFF, 0x66);
     public static readonly Color FreezeTint = new Color32(0x6F, 0xD8, 0xFF, 0x66);
+    
+    public static readonly Color32 UiCardBackground = new Color32(0x42, 0x4C, 0x5C, 0xFF); // #424C5C
+    public static readonly Color32 UiLabelText      = new Color32(0xCE, 0xD6, 0xDE, 0xFF); // #CED6DE
 
     public static Color GetCriticalColor(int criticalLevel)
     {
