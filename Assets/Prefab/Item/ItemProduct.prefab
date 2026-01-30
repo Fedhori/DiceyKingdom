@@ -66,7 +66,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 15e3c8f9dab71544ea8c49af27011e6d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3c827a3b83065f84f8a7595d617f405e, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -142,7 +142,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: acac2bcd98316ce4fb0af74e6e38017a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 37bb2a675ea447a46bec922ee416d072, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -473,6 +473,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 184008336891948239, guid: 187bb4454207a4e4cbfc0c3ec5e5febb, type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2700443322242960474, guid: 187bb4454207a4e4cbfc0c3ec5e5febb, type: 3}
       propertyPath: m_Name
       value: ItemProduct

@@ -171,7 +171,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 8, y: -56}
+  m_AnchoredPosition: {x: 12, y: -60}
   m_SizeDelta: {x: 266.0634, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &503820012455968097
@@ -363,7 +363,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 771355982a14a6c4da4c3305ffd3d60f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5ec96e2f92ae37e499c49ce8d472e8b1, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -400,10 +400,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.VerticalLayoutGroup
   m_Padding:
-    m_Left: 8
-    m_Right: 8
-    m_Top: 8
-    m_Bottom: 8
+    m_Left: 12
+    m_Right: 12
+    m_Top: 12
+    m_Bottom: 12
   m_ChildAlignment: 0
   m_Spacing: 16
   m_ChildForceExpandWidth: 0

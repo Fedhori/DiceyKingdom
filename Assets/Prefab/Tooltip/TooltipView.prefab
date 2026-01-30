@@ -277,7 +277,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: acac2bcd98316ce4fb0af74e6e38017a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 37bb2a675ea447a46bec922ee416d072, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -574,7 +574,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: acac2bcd98316ce4fb0af74e6e38017a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 37bb2a675ea447a46bec922ee416d072, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -803,14 +803,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.20392157, g: 0.23529412, b: 0.30588236, a: 1}
+  m_Color: {r: 0.25882354, g: 0.29803923, b: 0.36078432, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: acac2bcd98316ce4fb0af74e6e38017a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 37bb2a675ea447a46bec922ee416d072, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1097,7 +1097,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: acac2bcd98316ce4fb0af74e6e38017a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 37bb2a675ea447a46bec922ee416d072, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1165,14 +1165,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.76177996, g: 0.77890354, b: 0.82, a: 1}
+  m_Color: {r: 0.8392157, g: 0.87058824, b: 0.9098039, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: acac2bcd98316ce4fb0af74e6e38017a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4f64dbabe8cad8b43adc6ad8c1f4bb8e, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1318,14 +1318,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.22745098, g: 0.25882354, b: 0.32941177, a: 1}
+  m_Color: {r: 0.25882354, g: 0.29803923, b: 0.36078432, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: acac2bcd98316ce4fb0af74e6e38017a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 37bb2a675ea447a46bec922ee416d072, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1539,7 +1539,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: acac2bcd98316ce4fb0af74e6e38017a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 37bb2a675ea447a46bec922ee416d072, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1

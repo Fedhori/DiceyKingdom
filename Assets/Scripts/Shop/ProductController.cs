@@ -1,6 +1,7 @@
 using Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public sealed class ProductController : ProductViewBase
 {
@@ -8,6 +9,7 @@ public sealed class ProductController : ProductViewBase
     [SerializeField] private ItemTooltipTarget tooltipTarget;
     [SerializeField] private TMP_Text priceText;
     [SerializeField] private GameObject priceTagRoot;
+    [SerializeField] private Image priceBackground;
     [SerializeField] private GameObject soldPanel;
 
     bool isSelected;
@@ -20,6 +22,8 @@ public sealed class ProductController : ProductViewBase
             itemView = GetComponentInChildren<ItemView>(true);
         if (tooltipTarget == null)
             tooltipTarget = GetComponentInChildren<ItemTooltipTarget>(true);
+        if (priceBackground == null)
+            priceBackground = FindPriceBackground();
     }
 
     public override void SetData(IProduct product, int price, bool canBuy, bool canDrag, bool sold)
@@ -76,6 +80,9 @@ public sealed class ProductController : ProductViewBase
                 priceText.color = canBuy ? Colors.White : Colors.Invalid;
             }
         }
+
+        if (priceBackground != null)
+            priceBackground.color = Colors.Item;
     }
 
     public override void SetSelected(bool selected)
@@ -87,5 +94,27 @@ public sealed class ProductController : ProductViewBase
     public override void PinTooltip()
     {
         tooltipTarget?.Pin();
+    }
+
+    Image FindPriceBackground()
+    {
+        if (priceTagRoot != null)
+        {
+            var images = priceTagRoot.GetComponentsInChildren<Image>(true);
+            foreach (var image in images)
+            {
+                if (image != null && image.gameObject.name == "PriceBackground")
+                    return image;
+            }
+        }
+
+        var allImages = GetComponentsInChildren<Image>(true);
+        foreach (var image in allImages)
+        {
+            if (image != null && image.gameObject.name == "PriceBackground")
+                return image;
+        }
+
+        return null;
     }
 }

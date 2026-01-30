@@ -5,24 +5,12 @@ public static class Colors
 {
     public static readonly Color32 White = new Color32(0xFF, 0xFF, 0xFF, 0xFF); // #FFFFFF
 
-    // Neutral / UI Depth (Dark tone)
-    public static readonly Color32 UiBackdrop        = new Color32(0x3A, 0x44, 0x54, 0xFF); // #3A4454
-    public static readonly Color32 UiPanelBg         = new Color32(0x33, 0x3D, 0x4A, 0xFF); // #333D4A
-    public static readonly Color32 UiPanelHeaderBg   = new Color32(0x2A, 0x33, 0x3F, 0xFF); // #2A333F
-    public static readonly Color32 UiPanelBorder     = new Color32(0x5A, 0x66, 0x78, 0xFF); // #5A6678
-    public static readonly Color32 UiShadow          = new Color32(0x2E, 0x36, 0x44, 0xFF); // #2E3644
-
-    public static readonly Color32 UiCardBackground  = new Color32(0x42, 0x4C, 0x5C, 0xFF); // #424C5C
+    public static readonly Color32 UiBackground         = new Color32(0x2A, 0x33, 0x3F, 0xFF); // #2A333F
+    public static readonly Color32 UiForward  = new Color32(0x42, 0x4C, 0x5C, 0xFF); // #424C5C
     public static readonly Color32 UiLabelText       = new Color32(0xCE, 0xD6, 0xDE, 0xFF); // #CED6DE
 
-    public static readonly Color32 UiTextOnDark      = new Color32(0xF9, 0xFB, 0xFD, 0xFF); // #F9FBFD
-    public static readonly Color32 UiTextOnDarkMuted = new Color32(0xCE, 0xD6, 0xDE, 0xFF); // #CED6DE
-    public static readonly Color32 UiTextOnLight     = new Color32(0x1F, 0x26, 0x30, 0xFF); // #1F2630
-
-    public static readonly Color32 UiDimOverlay      = new Color32(0x00, 0x00, 0x00, 0x4B); // #000000
-
     // Buttons
-    public static readonly Color32 UiButtonBg          = new Color32(0xE7, 0xEC, 0xF2, 0xFF); // #E7ECF2
+    public static readonly Color UiButtonBg = new Color32(0xD6, 0xDE, 0xE8, 0xFF); // #D6DEE8
     public static readonly Color32 UiButtonText        = new Color32(0x1F, 0x26, 0x30, 0xFF); // #1F2630
 
     public static readonly Color32 PrimaryAction       = new Color32(0x3D, 0x7D, 0xFF, 0xFF); // #3D7DFF
@@ -35,7 +23,7 @@ public static class Colors
     public static readonly Color32 DataTrackBg   = new Color32(0x2A, 0x33, 0x3F, 0xFF); // #2A333F
 
     // HUD / Stage label
-    public static readonly Color32 StageText           = new Color32(0x9A, 0xB2, 0xF5, 0xFF); // #9AB2F5
+    public static readonly Color32 StageText = new Color32(0x9A, 0xB2, 0xF5, 0xFF); // #9AB2F5
 
     // Rarity (existing) + Header Fill (new)
     public static readonly Color32 Common    = new Color32(0x87, 0x96, 0xA8, 0xFF); // #8796A8

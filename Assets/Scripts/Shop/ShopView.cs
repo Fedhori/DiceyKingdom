@@ -167,13 +167,14 @@ public sealed class ShopView : MonoBehaviour
             view.SetSelected(i == selectedItemIndex);
         }
 
+        bool canReroll = currentCurrency >= rerollCost;
         if (rerollCostText != null)
         {
-            bool canReroll = currentCurrency >= rerollCost;
             if (rerollCostText.StringReference.TryGetValue("value", out var v) && v is StringVariable sv)
                 sv.Value = rerollCost.ToString();
-            rerollCostText.GetComponent<TMP_Text>().color = canReroll ? Colors.Currency : Colors.Invalid;
         }
+        if (rerollButton != null)
+            rerollButton.interactable = canReroll;
     }
 
     public void Open()

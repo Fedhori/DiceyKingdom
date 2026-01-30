@@ -2,6 +2,7 @@ using Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
+using UnityEngine.UI;
 
 public sealed class UpgradeProductController : ProductViewBase
 {
@@ -9,6 +10,7 @@ public sealed class UpgradeProductController : ProductViewBase
     [SerializeField] private ItemTooltipTarget tooltipTarget;
     [SerializeField] private TMP_Text priceText;
     [SerializeField] private GameObject priceTagRoot;
+    [SerializeField] private Image priceBackground;
     [SerializeField] private GameObject soldPanel;
 
     bool isSelected;
@@ -20,6 +22,8 @@ public sealed class UpgradeProductController : ProductViewBase
             itemView = GetComponentInChildren<ItemView>(true);
         if (tooltipTarget == null)
             tooltipTarget = GetComponentInChildren<ItemTooltipTarget>(true);
+        if (priceBackground == null)
+            priceBackground = FindPriceBackground();
     }
 
     public override void SetData(IProduct product, int price, bool canBuy, bool canDrag, bool sold)
@@ -73,6 +77,9 @@ public sealed class UpgradeProductController : ProductViewBase
                 priceText.color = canBuy ? Colors.White : Colors.Invalid;
             }
         }
+
+        if (priceBackground != null)
+            priceBackground.color = Colors.Upgrade;
     }
 
     public override void SetSelected(bool selected)
@@ -84,5 +91,27 @@ public sealed class UpgradeProductController : ProductViewBase
     public override void PinTooltip()
     {
         tooltipTarget?.Pin();
+    }
+
+    Image FindPriceBackground()
+    {
+        if (priceTagRoot != null)
+        {
+            var images = priceTagRoot.GetComponentsInChildren<Image>(true);
+            foreach (var image in images)
+            {
+                if (image != null && image.gameObject.name == "PriceBackground")
+                    return image;
+            }
+        }
+
+        var allImages = GetComponentsInChildren<Image>(true);
+        foreach (var image in allImages)
+        {
+            if (image != null && image.gameObject.name == "PriceBackground")
+                return image;
+        }
+
+        return null;
     }
 }
