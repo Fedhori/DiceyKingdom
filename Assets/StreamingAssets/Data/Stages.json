@@ -25,63 +25,63 @@
 		},
 		{
 			"index": 5,
-			"difficulty": 600
+			"difficulty": 400
 		},
 		{
 			"index": 6,
-			"difficulty": 1000
+			"difficulty": 600
 		},
 		{
 			"index": 7,
-			"difficulty": 1500
+			"difficulty": 800
 		},
 		{
 			"index": 8,
-			"difficulty": 2000
+			"difficulty": 1000
 		},
 		{
 			"index": 9,
-			"difficulty": 3000
+			"difficulty": 1500
 		},
 		{
 			"index": 10,
-			"difficulty": 4000
+			"difficulty": 2000
 		},
 		{
 			"index": 11,
-			"difficulty": 5000
+			"difficulty": 2500
 		},
 		{
 			"index": 12,
-			"difficulty": 6000
+			"difficulty": 3500
 		},
 		{
 			"index": 13,
-			"difficulty": 8000
+			"difficulty": 4500
 		},
 		{
 			"index": 14,
-			"difficulty": 10000
+			"difficulty": 5500
 		},
 		{
 			"index": 15,
-			"difficulty": 14000
+			"difficulty": 7000
 		},
 		{
 			"index": 16,
-			"difficulty": 18000
+			"difficulty": 8500
 		},
 		{
 			"index": 17,
-			"difficulty": 25000
+			"difficulty": 10000
 		},
 		{
 			"index": 18,
-			"difficulty": 32000
+			"difficulty": 15000
 		},
 		{
 			"index": 19,
-			"difficulty": 40000
+			"difficulty": 20000
 		}
 	]
 }

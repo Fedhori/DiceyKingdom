@@ -187,7 +187,8 @@ public sealed class StageManager : MonoBehaviour
             : 0;
         int interestStep = Mathf.Max(1, GameConfig.InterestCurrencyPerUnit);
         int interestCap = Mathf.Max(0, GameConfig.InterestMax);
-        int interestIncome = Mathf.Clamp(currentCurrency / interestStep, 0, interestCap);
+        int interestBase = Mathf.Max(0, currentCurrency + baseIncome);
+        int interestIncome = Mathf.Clamp(interestBase / interestStep, 0, interestCap);
         int totalIncome = Mathf.Max(0, baseIncome + interestIncome);
 
         return new ResultManager.IncomeBreakdown(

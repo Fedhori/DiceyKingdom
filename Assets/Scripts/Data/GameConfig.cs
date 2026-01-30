@@ -3,11 +3,11 @@ using UnityEngine;
 
 public static class GameConfig
 {
-    public static int BaseIncome = 5;
+    public static int BaseIncome = 10;
     public static int ItemSlotCount = 12;
     public static int ItemSlotsPerRow = 4;
     public static int MaxUpgradesPerItem = 3;
-    public static int InterestCurrencyPerUnit = 5;
+    public static int InterestCurrencyPerUnit = 10;
     public static int InterestMax = 5;
 
     // Player/Item base stats   
@@ -17,7 +17,7 @@ public static class GameConfig
     public static float ProjectileStationaryStartSpeedMultiplier = 1f;
     public static float ProjectileStationaryDecayExponent = 2f;
     public static float ProjectileHomingTurnRateDegrees = 720f;
-    public static float BlockFallSpeed = 128;
+    public static float BlockFallSpeed = 100;
     public static float DamageTickIntervalSeconds = 0.2f;
     public static float ProjectileExplosionRadiusUnit = 128f;
 
