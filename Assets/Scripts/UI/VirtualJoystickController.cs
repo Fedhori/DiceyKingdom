@@ -70,7 +70,8 @@ public sealed class VirtualJoystickController : MonoBehaviour, IPointerDownHandl
 
         Vector2 pos = ScreenToCanvasPoint(eventData.position);
         Vector2 delta = pos - startPos;
-        if (delta.sqrMagnitude <= 0.0001f || radius <= 0f)
+        float deadzone = Mathf.Max(0f, GameConfig.VirtualJoystickDeadzonePixels);
+        if (delta.sqrMagnitude <= deadzone * deadzone || radius <= 0f)
         {
             currentVector = Vector2.zero;
             SetBaseAndHandle(startPos, startPos);

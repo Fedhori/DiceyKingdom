@@ -20,6 +20,7 @@ public static class GameConfig
     public static float BlockFallSpeed = 100;
     public static float DamageTickIntervalSeconds = 0.2f;
     public static float ProjectileExplosionRadiusUnit = 128f;
+    public static float VirtualJoystickDeadzonePixels = 64f;
 
     // Beam VFX
     public static float BeamPulsePercent = 0.1f;
