@@ -108,10 +108,7 @@ public sealed class ShopManager : MonoBehaviour
 
     public static int CalculateSellPrice(int price)
     {
-        if (price <= 0)
-            return 0;
-
-        return Mathf.FloorToInt(price * 0.5f);
+        return Mathf.Max(0, price);
     }
 
     public void Open()
@@ -1200,6 +1197,9 @@ public sealed class ShopManager : MonoBehaviour
             return false;
         }
 
+        int sellPrice = CalculateSellPrice(existingUpgrade.Price);
+        if (sellPrice > 0)
+            currencyMgr.AddCurrency(sellPrice);
         MarkSold(upgrade);
         UiSelectionEvents.RaiseSelectionCleared();
         return true;

@@ -821,7 +821,7 @@
 		{
 			"id": "item.handofmidas",
 			"isObject": false,
-			"price": 10,
+			"price": 8,
 			"rarity": "Rare",
 			"rules": [
 				{
@@ -833,7 +833,7 @@
 						{
 							"effectType": "ModifyStat",
 							"effectMode": "Add",
-							"value": 5.0,
+							"value": 3.0,
 							"duration": "Owned",
 							"statId": "baseIncomeBonus"
 						}

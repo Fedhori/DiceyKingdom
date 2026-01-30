@@ -309,6 +309,9 @@ public sealed class UpgradeInventoryManager : MonoBehaviour
             return false;
 
         Remove(pendingUpgrade);
+        int sellPrice = ShopManager.CalculateSellPrice(existingUpgrade.Price);
+        if (sellPrice > 0)
+            CurrencyManager.Instance?.AddCurrency(sellPrice);
         UiSelectionEvents.RaiseSelectionCleared();
         return true;
     }

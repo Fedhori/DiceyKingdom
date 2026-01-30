@@ -155,6 +155,11 @@ public sealed class UpgradePanelPresenter : MonoBehaviour
             return;
         }
 
+        int sellPrice = ShopManager.CalculateSellPrice(existingUpgrade.Price);
+        var args = new System.Collections.Generic.Dictionary<string, object>
+        {
+            ["value"] = sellPrice
+        };
         modal.ShowConfirmation(
             "modal",
             "modal.upgradeReplace.title",
@@ -168,7 +173,8 @@ public sealed class UpgradePanelPresenter : MonoBehaviour
                 if (success)
                     ClosePanel();
             },
-            () => { });
+            () => { },
+            args);
     }
 
     void ClearShopSelectionIfAny()
