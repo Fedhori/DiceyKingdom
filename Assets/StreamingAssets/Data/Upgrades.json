@@ -310,6 +310,9 @@
 				},
 				{
 					"conditionKind": "HasNoHoming"
+				},
+				{
+					"conditionKind": "HasNoBounce"
 				}
 			],
 			"effects": [

@@ -14,6 +14,7 @@ namespace Data
         HasAttackSpeed,
         HasProjectile,
         HasNoHoming,
+        HasNoBounce,
         HasItemRarity,
         HasTriggerRule
     }

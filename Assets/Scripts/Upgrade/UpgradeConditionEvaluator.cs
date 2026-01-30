@@ -17,6 +17,8 @@ public static class UpgradeConditionEvaluator
                 return !string.IsNullOrEmpty(target.ProjectileKey);
             case UpgradeConditionKind.HasNoHoming:
                 return !string.IsNullOrEmpty(target.ProjectileKey) && !target.ProjectileIsHoming;
+            case UpgradeConditionKind.HasNoBounce:
+                return target.ProjectileHitBehavior != ProjectileHitBehavior.Bounce;
             case UpgradeConditionKind.HasItemRarity:
                 return target.Rarity == condition.rarity;
             case UpgradeConditionKind.HasTriggerRule:
