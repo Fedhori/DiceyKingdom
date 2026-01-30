@@ -4618,7 +4618,7 @@ MonoBehaviour:
   attachTarget: {fileID: 117041021}
   objectItemPrefab: {fileID: 1772306015642552443, guid: 56c1f7b4571e0634b9050b0122f0be8c, type: 3}
   tickIntervalSeconds: 1
-  orbitRadius: 32
+  orbitRadius: 0
   orbitPeriodSeconds: 0
 --- !u!114 &715098192
 MonoBehaviour:

@@ -164,6 +164,6 @@ public sealed class ItemController : MonoBehaviour
 
         var sprite = SpriteCache.GetItemSprite(source.Id);
         iconRenderer.sprite = sprite;
-        iconRenderer.enabled = sprite != null;
+        iconRenderer.enabled = false;
     }
 }

@@ -3,7 +3,7 @@
 		{
 			"index": 0,
 			"difficulty": 100,
-			"spawnSecond": 10
+			"spawnSecond": 8
 		},
 		{
 			"index": 1,
@@ -21,67 +21,67 @@
 		},
 		{
 			"index": 4,
-			"difficulty": 400
+			"difficulty": 300
 		},
 		{
 			"index": 5,
-			"difficulty": 800
+			"difficulty": 600
 		},
 		{
 			"index": 6,
-			"difficulty": 1500
+			"difficulty": 1000
 		},
 		{
 			"index": 7,
-			"difficulty": 2000
+			"difficulty": 1500
 		},
 		{
 			"index": 8,
-			"difficulty": 3000
+			"difficulty": 2000
 		},
 		{
 			"index": 9,
-			"difficulty": 4000
+			"difficulty": 3000
 		},
 		{
 			"index": 10,
-			"difficulty": 6000
+			"difficulty": 4000
 		},
 		{
 			"index": 11,
-			"difficulty": 10000
+			"difficulty": 5000
 		},
 		{
 			"index": 12,
-			"difficulty": 15000
+			"difficulty": 6000
 		},
 		{
 			"index": 13,
-			"difficulty": 20000
+			"difficulty": 8000
 		},
 		{
 			"index": 14,
-			"difficulty": 27000
+			"difficulty": 10000
 		},
 		{
 			"index": 15,
-			"difficulty": 35000
+			"difficulty": 14000
 		},
 		{
 			"index": 16,
-			"difficulty": 45000
+			"difficulty": 18000
 		},
 		{
 			"index": 17,
-			"difficulty": 60000
+			"difficulty": 25000
 		},
 		{
 			"index": 18,
-			"difficulty": 80000
+			"difficulty": 32000
 		},
 		{
 			"index": 19,
-			"difficulty": 100000
+			"difficulty": 40000
 		}
 	]
 }

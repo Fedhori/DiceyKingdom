@@ -48,7 +48,8 @@ public sealed class DamageManager : MonoBehaviour
                 ItemManager.Instance?.TriggerItem(context.SourceItem, ItemTriggerType.OnBlockDestroyedByItem);
 
             AudioManager.Instance?.Play("Pop");
-            ParticleManager.Instance?.PlayBlockDestroy(context.Target.transform.position);
+            float scale = Mathf.Max(0.01f, context.Target.transform.lossyScale.x);
+            ParticleManager.Instance?.PlayBlockDestroy(context.Target.transform.position, scale);
             BlockManager.Instance?.HandleBlockDestroyed(context.Target);
             Destroy(context.Target.gameObject);
         }

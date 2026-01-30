@@ -323,6 +323,10 @@ MonoBehaviour:
     m_Key: item.caltrops.name
     m_Metadata:
       m_Items: []
+  - m_Id: 14445880777650176
+    m_Key: item.caltrops.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

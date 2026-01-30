@@ -50,6 +50,11 @@ public sealed class ParticleManager : MonoBehaviour
         Play(BlockDestroyKey, position);
     }
 
+    public void PlayBlockDestroy(Vector3 position, float scaleMultiplier)
+    {
+        Play(BlockDestroyKey, position, null, null, null, scaleMultiplier);
+    }
+
     public void PlayExplosion(Vector3 position, float radius)
     {
         float speed = Mathf.Max(0f, radius * GameConfig.ExplosionSpeedPerRadius);
@@ -62,7 +67,13 @@ public sealed class ParticleManager : MonoBehaviour
         Play(ExplosionKey, position);
     }
 
-    public void Play(string key, Vector3 position, Color? tint = null, float? startSpeed = null, float? startSize = null)
+    public void Play(
+        string key,
+        Vector3 position,
+        Color? tint = null,
+        float? startSpeed = null,
+        float? startSize = null,
+        float? scaleMultiplier = null)
     {
         if (string.IsNullOrEmpty(key))
             return;
@@ -74,6 +85,11 @@ public sealed class ParticleManager : MonoBehaviour
         }
 
         var instance = Instantiate(prefab, position, Quaternion.identity);
+        if (scaleMultiplier.HasValue)
+        {
+            float s = Mathf.Max(0.01f, scaleMultiplier.Value);
+            instance.transform.localScale = instance.transform.localScale * s;
+        }
         var systems = instance.GetComponentsInChildren<ParticleSystem>(true);
         if (systems == null || systems.Length == 0)
         {

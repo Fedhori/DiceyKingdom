@@ -2,7 +2,7 @@
 	"upgrades": [
 		{
 			"id": "upgrade.sword",
-			"price": 5,
+			"price": 4,
 			"rarity": "Common",
 			"conditions": [
 				{
@@ -22,7 +22,7 @@
 		},
 		{
 			"id": "upgrade.wing",
-			"price": 5,
+			"price": 4,
 			"rarity": "Common",
 			"conditions": [
 				{
@@ -43,7 +43,7 @@
 		{
 			"id": "upgrade.anchor",
 			"price": 6,
-			"rarity": "Common",
+			"rarity": "Uncommon",
 			"conditions": [
 				{
 					"conditionKind": "HasAttackSpeed"
@@ -93,7 +93,7 @@
 		},
 		{
 			"id": "upgrade.lighthouse",
-			"price": 5,
+			"price": 4,
 			"rarity": "Common",
 			"requiresSolo": true,
 			"conditions": [
@@ -143,7 +143,7 @@
 		},
 		{
 			"id": "upgrade.snowflake",
-			"price": 5,
+			"price": 6,
 			"rarity": "Uncommon",
 			"conditions": [
 				{
@@ -202,7 +202,7 @@
 		},
 		{
 			"id": "upgrade.monocle",
-			"price": 7,
+			"price": 6,
 			"rarity": "Uncommon",
 			"conditions": [
 				{
@@ -222,7 +222,7 @@
 		},
 		{
 			"id": "upgrade.dodo",
-			"price": 5,
+			"price": 6,
 			"rarity": "Uncommon",
 			"breakChanceOnStageEnd": 0.1,
 			"conditions": [
@@ -271,7 +271,7 @@
 		},
 		{
 			"id": "upgrade.dice",
-			"price": 9,
+			"price": 8,
 			"rarity": "Rare",
 			"conditions": [
 				{
@@ -302,7 +302,7 @@
 		},
 		{
 			"id": "upgrade.aimbot",
-			"price": 10,
+			"price": 8,
 			"rarity": "Rare",
 			"conditions": [
 				{
@@ -325,7 +325,7 @@
 		},
 		{
 			"id": "upgrade.chemical4",
-			"price": 9,
+			"price": 8,
 			"rarity": "Rare",
 			"conditions": [
 				{
@@ -345,7 +345,7 @@
 		},
 		{
 			"id": "upgrade.yellowturban",
-			"price": 3,
+			"price": 4,
 			"rarity": "Common",
 			"conditions": [
 				{
