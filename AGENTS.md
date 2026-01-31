@@ -51,3 +51,4 @@
 - Input System을 사용합니다. (OnMouseDown / 레거시 마우스 입력 기반 구현 금지)
 - 새 패키지/의존성 추가가 필요하면 먼저 사용자에게 요청합니다.
 - 변경은 작게 쪼개고, 검증 가능한 단위로 진행합니다.
+- 랜덤은 UnityEngine.Random이 아닌 System.Random을 사용합니다.

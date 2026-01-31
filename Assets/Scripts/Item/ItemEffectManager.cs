@@ -128,12 +128,12 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (count <= 0)
             return;
 
+        var rng = GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
         for (int i = 0; i < count; i++)
         {
             var pos = playArea.GetRandomPositionInPlayArea();
-            Vector2 dir = UnityEngine.Random.insideUnitCircle.normalized;
-            if (dir.sqrMagnitude <= 0.001f)
-                dir = Vector2.up;
+            double angle = rng.NextDouble() * Mathf.PI * 2f;
+            Vector2 dir = new Vector2(Mathf.Cos((float)angle), Mathf.Sin((float)angle));
 
             factory.SpawnProjectile(pos, dir, item);
         }

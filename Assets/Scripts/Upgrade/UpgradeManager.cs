@@ -177,6 +177,7 @@ public sealed class UpgradeManager : MonoBehaviour
         if (inventory == null)
             return;
 
+        var rng = GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
         var slots = inventory.Slots;
         for (int i = 0; i < slots.Count; i++)
         {
@@ -200,7 +201,7 @@ public sealed class UpgradeManager : MonoBehaviour
                 if (chance <= 0f)
                     continue;
 
-                if (UnityEngine.Random.value < chance)
+                if ((float)rng.NextDouble() < chance)
                 {
                     list.RemoveAt(u);
                     changed = true;

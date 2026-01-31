@@ -21,6 +21,7 @@ public sealed class BeamController : MonoBehaviour
     float beamFlickerPhase;
     float beamFlickerSpeed;
     Color beamBaseColor;
+    readonly System.Random vfxRng = new System.Random();
 
     ContactFilter2D beamFilter;
     bool beamFilterInitialized;
@@ -220,16 +221,16 @@ public sealed class BeamController : MonoBehaviour
 
     void InitializeBeamAnimation()
     {
-        beamPulsePhase = Random.Range(0f, Mathf.PI * 2f);
-        beamFlickerPhase = Random.Range(0f, 10f);
+        beamPulsePhase = NextRange(0f, Mathf.PI * 2f);
+        beamFlickerPhase = NextRange(0f, 10f);
 
         float pulseMin = Mathf.Max(0f, GameConfig.BeamPulseHzMin);
         float pulseMax = Mathf.Max(pulseMin, GameConfig.BeamPulseHzMax);
-        beamPulseSpeed = Random.Range(pulseMin, pulseMax);
+        beamPulseSpeed = NextRange(pulseMin, pulseMax);
 
         float flickerMin = Mathf.Max(0f, GameConfig.BeamFlickerHzMin);
         float flickerMax = Mathf.Max(flickerMin, GameConfig.BeamFlickerHzMax);
-        beamFlickerSpeed = Random.Range(flickerMin, flickerMax);
+        beamFlickerSpeed = NextRange(flickerMin, flickerMax);
     }
 
     float GetBeamPulseScale()
@@ -277,5 +278,12 @@ public sealed class BeamController : MonoBehaviour
 
         if (beamCollider != null)
             beamCollider.enabled = active;
+    }
+
+    float NextRange(float min, float max)
+    {
+        if (max <= min)
+            return min;
+        return min + (float)vfxRng.NextDouble() * (max - min);
     }
 }

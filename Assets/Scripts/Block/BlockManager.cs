@@ -25,6 +25,7 @@ public sealed class BlockManager : MonoBehaviour
     double pendingPatternCost;
     double pendingPatternHealth;
     bool isSpawning;
+    System.Random Rng => GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
 
     void Awake()
     {
@@ -89,7 +90,7 @@ public sealed class BlockManager : MonoBehaviour
         float maxX = originTopRight.x - halfWidth;
         float y = originTopLeft.y + halfHeight;
 
-        float x = minX <= maxX ? Random.Range(minX, maxX) : (originTopLeft.x + originTopRight.x) * 0.5f;
+        float x = minX <= maxX ? NextRange(minX, maxX) : (originTopLeft.x + originTopRight.x) * 0.5f;
         Vector3 worldPos = new Vector3(x, y, 0f);
 
         float speed = pendingPattern != null ? Mathf.Max(0f, pendingPattern.speed) : 1f;
@@ -128,7 +129,7 @@ public sealed class BlockManager : MonoBehaviour
         if (activeBlocks.Count == 0)
             return null;
 
-        int index = Random.Range(0, activeBlocks.Count);
+        int index = Rng.Next(0, activeBlocks.Count);
         return activeBlocks[index];
     }
 
@@ -245,7 +246,7 @@ public sealed class BlockManager : MonoBehaviour
         if (totalWeight <= 0f)
             return null;
 
-        float roll = Random.value * totalWeight;
+        float roll = (float)Rng.NextDouble() * totalWeight;
         float acc = 0f;
         for (int i = 0; i < patterns.Count; i++)
         {
@@ -279,6 +280,13 @@ public sealed class BlockManager : MonoBehaviour
 
         rate *= stageMultiplier;
         spawnBudget += rate * deltaSeconds;
+    }
+
+    float NextRange(float min, float max)
+    {
+        if (max <= min)
+            return min;
+        return min + (float)Rng.NextDouble() * (max - min);
     }
 
 
@@ -317,8 +325,8 @@ public sealed class BlockManager : MonoBehaviour
         if (!TryGetPlayAreaBounds(out var bounds))
             return Vector3.zero;
 
-        float x = Random.Range(bounds.min.x, bounds.max.x);
-        float y = Random.Range(bounds.min.y, bounds.max.y);
+        float x = NextRange(bounds.min.x, bounds.max.x);
+        float y = NextRange(bounds.min.y, bounds.max.y);
         return new Vector3(x, y, 0f);
     }
 
@@ -412,7 +420,7 @@ public sealed class BlockManager : MonoBehaviour
         int appliedCount = 0;
         for (int i = 0; i < count; i++)
         {
-            var target = candidates[Random.Range(0, candidates.Count)];
+            var target = candidates[Rng.Next(0, candidates.Count)];
             if (target == null)
                 continue;
 

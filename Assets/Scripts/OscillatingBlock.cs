@@ -13,6 +13,7 @@ public class OscillatingBlock : MonoBehaviour
 
     float travelHalfRange;
     float phase;
+    System.Random Rng => GameManager.Instance != null ? GameManager.Instance.Rng : new System.Random();
 
     void Awake()
     {
@@ -43,11 +44,11 @@ public class OscillatingBlock : MonoBehaviour
             return;
         }
 
-        float startOffset = Random.Range(-travelHalfRange, travelHalfRange);
+        float startOffset = -travelHalfRange + (float)Rng.NextDouble() * (travelHalfRange * 2f);
 
         float u = startOffset / travelHalfRange;
         float a = Mathf.Asin(u);
-        phase = (Random.value < 0.5f) ? a : (Mathf.PI - a);
+        phase = (Rng.NextDouble() < 0.5d) ? a : (Mathf.PI - a);
 
         Vector2 axis = oscillateHorizontal ? Vector2.right : Vector2.up;
         Vector2 pos = centerPos + axis * startOffset;
