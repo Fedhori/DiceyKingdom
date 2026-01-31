@@ -9,6 +9,8 @@ public sealed class UpgradeInventoryOpener : MonoBehaviour
         if (!CanOpen())
             return;
 
+        UiSelectionEvents.RaiseSelectionCleared();
+        TooltipManager.Instance?.ClearPin();
         inventoryView?.Open();
     }
 
