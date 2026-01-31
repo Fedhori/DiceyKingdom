@@ -3,11 +3,11 @@ using UnityEngine;
 
 public static class GameConfig
 {
-    public static int BaseIncome = 10;
+    public static int BaseIncome = 5;
     public static int ItemSlotCount = 12;
     public static int ItemSlotsPerRow = 4;
     public static int MaxUpgradesPerItem = 3;
-    public static int InterestCurrencyPerUnit = 10;
+    public static int InterestCurrencyPerUnit = 5;
     public static int InterestMax = 5;
 
     // Player/Item base stats   

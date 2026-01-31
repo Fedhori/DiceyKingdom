@@ -63,8 +63,8 @@
 			"damageMultiplier": 0.5,
 			"attackSpeed": 10.0,
 			"isObject": true,
-			"price": 6,
-			"rarity": "Uncommon",
+			"price": 8,
+			"rarity": "Rare",
 			"projectile": {
 				"key": "projectile.bullet",
 				"size": 1.0,
@@ -193,13 +193,11 @@
 				"key": "projectile.bullet",
 				"size": 1.0,
 				"speed": 0.8,
-				"pelletCount": 6,
+				"pelletCount": 4,
 				"spreadAngle": 10.0,
 				"randomAngle": 5.0
 			},
-			"rules": [
-				{}
-			]
+			"rules": [{}]
 		},
 		{
 			"id": "item.sniperrifle",
@@ -254,9 +252,7 @@
 				"isHoming": true,
 				"randomAngle": 0.0
 			},
-			"rules": [
-				{}
-			]
+			"rules": [{}]
 		},
 		{
 			"id": "item.spring",
@@ -646,8 +642,7 @@
 				"duration": 1.0
 			},
 			"rules": [
-				{}
-			]
+			"rules": [{}]
 		},
 		{
 			"id": "item.grenadelauncher",
@@ -698,9 +693,7 @@
 				"areaDamageTick": true,
 				"lifetime": 5.0
 			},
-			"rules": [
-				{}
-			]
+			"rules": [{}]
 		},
 		{
 			"id": "item.alarmclock",
@@ -785,9 +778,7 @@
 				"size": 1.0,
 				"speed": 1.0
 			},
-			"rules": [
-				{}
-			]
+			"rules": [{}]
 		},
 		{
 			"id": "item.cannon",
