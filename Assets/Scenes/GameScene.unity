@@ -635,6 +635,7 @@ GameObject:
   - component: {fileID: 117041021}
   - component: {fileID: 117041022}
   - component: {fileID: 117041023}
+  - component: {fileID: 117041024}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -729,6 +730,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   playArea: {fileID: 1644066639}
   startYOffset: 128
+--- !u!114 &117041024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 117041020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e126838e752eeb1479b014d4c8cdb8da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSmearTrail
+  sourceRenderer: {fileID: 117041022}
+  poolRoot: {fileID: 697865057}
+  spawnIntervalSeconds: 0.05
+  lifetimeSeconds: 0.2
+  minSpeed: 20
+  offsetDistance: 5
+  startAlpha: 0.4
+  poolSize: 16
 --- !u!1 &144002550
 GameObject:
   m_ObjectHideFlags: 0
@@ -4282,6 +4303,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 659254753}
   m_CullTransparentMesh: 1
+--- !u!1 &697865056
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 697865057}
+  m_Layer: 0
+  m_Name: PlayerSmear
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &697865057
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 697865056}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1644066639}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &708886695
 GameObject:
   m_ObjectHideFlags: 0
@@ -11340,6 +11392,7 @@ Transform:
   - {fileID: 1265942338}
   - {fileID: 144002551}
   - {fileID: 1306128399}
+  - {fileID: 697865057}
   - {fileID: 117041021}
   - {fileID: 258862835}
   m_Father: {fileID: 0}
