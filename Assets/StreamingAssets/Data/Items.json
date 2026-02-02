@@ -11,7 +11,7 @@
 				"key": "projectile.bullet",
 				"size": 1.0,
 				"speed": 1.0,
-				"randomAngle": 5.0
+				"randomAngle": 0.0
 			},
 			"rules": []
 		},
