@@ -19,8 +19,6 @@ public sealed class BlockManager : MonoBehaviour
     private readonly List<BlockController> activeBlocks = new();
     private Vector2 originTopLeft;
     private Vector2 originTopRight;
-    private Vector2 originBottomLeft;
-    private Vector2 originBottomRight;
     float spawnElapsedSeconds;
     double spawnBudget;
     BlockPatternDto pendingPattern;
@@ -69,8 +67,6 @@ public sealed class BlockManager : MonoBehaviour
         {
             originTopLeft = Vector2.zero;
             originTopRight = Vector2.zero;
-            originBottomLeft = Vector2.zero;
-            originBottomRight = Vector2.zero;
             return;
         }
 
@@ -81,8 +77,6 @@ public sealed class BlockManager : MonoBehaviour
             var center = sr.bounds.center;
             originTopLeft = new Vector2(center.x - size.x * 0.5f, center.y + size.y * 0.5f);
             originTopRight = new Vector2(center.x + size.x * 0.5f, center.y + size.y * 0.5f);
-            originBottomLeft = new Vector2(center.x - size.x * 0.5f, center.y - size.y * 0.5f);
-            originBottomRight = new Vector2(center.x + size.x * 0.5f, center.y - size.y * 0.5f);
         }
     }
 
@@ -111,22 +105,10 @@ public sealed class BlockManager : MonoBehaviour
                 currentScale.x * scale,
                 currentScale.y * scale,
                 currentScale.z);
-            block.SetMoveDirection(GetDirectionToRandomBottomPoint(worldPos, halfWidth, halfHeight));
 
             if (!activeBlocks.Contains(block))
                 activeBlocks.Add(block);
         }
-    }
-
-    Vector2 GetDirectionToRandomBottomPoint(Vector3 fromPosition, float halfWidth, float halfHeight)
-    {
-        float minX = originBottomLeft.x + halfWidth;
-        float maxX = originBottomRight.x - halfWidth;
-        float x = minX <= maxX ? NextRange(minX, maxX) : (originBottomLeft.x + originBottomRight.x) * 0.5f;
-        float y = originBottomLeft.y + halfHeight;
-        Vector2 target = new Vector2(x, y);
-        Vector2 dir = target - new Vector2(fromPosition.x, fromPosition.y);
-        return dir.sqrMagnitude > 0.0001f ? dir.normalized : Vector2.down;
     }
 
     public void HandleBlockDestroyed(BlockController block)

@@ -19,7 +19,6 @@ public sealed class BlockController : MonoBehaviour
     Vector2 hpBarBaseSize;
     float hitFlashTimer;
     bool isPendingDestroy;
-    Vector2 moveDirection = Vector2.down;
 
     public void Initialize(BlockInstance instance)
     {
@@ -30,7 +29,6 @@ public sealed class BlockController : MonoBehaviour
 
         SetColliderEnabled(true);
         isPendingDestroy = false;
-        moveDirection = Vector2.down;
 
         CacheBaseColor();
         CacheHpBarSize();
@@ -63,24 +61,11 @@ public sealed class BlockController : MonoBehaviour
                 freezeMultiplier = 0.4f;
             speedMultiplier *= freezeMultiplier;
         }
-        float speed = GameConfig.BlockFallSpeed * speedMultiplier;
-        if (speed <= 0f)
+        float dy = GameConfig.BlockFallSpeed * speedMultiplier * delta;
+        if (dy <= 0f)
             return;
 
-        Vector2 dir = moveDirection.sqrMagnitude > 0.0001f ? moveDirection.normalized : Vector2.down;
-        float distance = speed * delta;
-        transform.position += new Vector3(dir.x * distance, dir.y * distance, 0f);
-    }
-
-    public void SetMoveDirection(Vector2 direction)
-    {
-        if (direction.sqrMagnitude <= 0.0001f)
-        {
-            moveDirection = Vector2.down;
-            return;
-        }
-
-        moveDirection = direction.normalized;
+        transform.position += new Vector3(0f, -dy, 0f);
     }
 
     public DamageResult ApplyDamage(DamageContext context)
