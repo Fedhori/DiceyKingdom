@@ -704,12 +704,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: d64a7d3afa881644c80babaca500b31a, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 864eb832237470f46a5ee56bdb5a3756, type: 3}
+  m_Color: {r: 0.9607843, g: 0.8666667, b: 0.6039216, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 96, y: 96}
+  m_Size: {x: 64, y: 64}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -3028,7 +3028,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 912
+  orthographic size: 984.4887
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -7443,8 +7443,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a56e308022445e45b3c84f064e0b6f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScoreManager
-  minFontSize: 16
-  maxFontSize: 32
+  minFontSize: 8
+  maxFontSize: 16
 --- !u!114 &1118263958
 MonoBehaviour:
   m_ObjectHideFlags: 0

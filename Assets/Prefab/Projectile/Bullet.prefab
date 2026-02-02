@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 765185078837415236, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_Radius
-      value: 12
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4683509977074592277, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -54,16 +54,28 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_Size.x
-      value: 32
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_Size.y
-      value: 32
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 4151ba2199044004ab81049c4dd87cef, type: 3}
+      objectReference: {fileID: 21300000, guid: 864eb832237470f46a5ee56bdb5a3756, type: 3}
+    - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+      propertyPath: m_Color.b
+      value: 0.22745098
+      objectReference: {fileID: 0}
+    - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+      propertyPath: m_Color.g
+      value: 0.65882355
+      objectReference: {fileID: 0}
+    - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
+      propertyPath: m_Color.r
+      value: 0.8156863
+      objectReference: {fileID: 0}
     - target: {fileID: 5443230727721134723, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_WasSpriteAssigned
       value: 1
@@ -74,7 +86,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8737263778808646020, guid: 232176292d46c384f94d3c60d29937c5, type: 3}
       propertyPath: m_Radius
-      value: 12
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

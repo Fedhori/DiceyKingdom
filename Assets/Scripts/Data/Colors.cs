@@ -40,7 +40,7 @@ public static class Colors
 
     // Combat
     public static readonly Color32 Power        = new Color32(0xD1, 0x88, 0x3F, 0xFF); // #D1883F
-    public static readonly Color32 DamageText   = new Color32(0xE0, 0x9A, 0x3A, 0xFF); // #E09A3A
+    public static readonly Color32 DamageText   = new Color32(0xFF, 0xFF, 0xFF, 0xFF); // #FFFFFF
     public static readonly Color32 Critical     = new Color32(0xE7, 0x4C, 0x3C, 0xFF); // #E74C3C
     public static readonly Color32 Invalid      = new Color32(0xC0, 0x39, 0x2B, 0xFF); // #C0392B
 

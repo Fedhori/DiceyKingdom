@@ -294,7 +294,7 @@ public sealed class BlockController : MonoBehaviour
             : 0f;
 
         var size = hpBarBaseSize;
-        size.x *= ratio;
+        size.y *= ratio;
         hpBarRenderer.size = size;
     }
 
