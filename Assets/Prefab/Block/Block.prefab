@@ -79,15 +79,15 @@ SpriteRenderer:
   m_SortingLayerID: -270960885
   m_SortingLayer: 1
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: 5ff81413ed8cdee40a690e1dd14f26b3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a5f3014acf0d0dc43bfcfd49a0b2a827, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 128, y: 128}
+  m_Size: {x: 192, y: 96}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &2250566702088839189
@@ -348,15 +348,15 @@ SpriteRenderer:
   m_SortingLayerID: -270960885
   m_SortingLayer: 1
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: 5ff81413ed8cdee40a690e1dd14f26b3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a5f3014acf0d0dc43bfcfd49a0b2a827, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 128, y: 128}
+  m_Size: {x: 192, y: 96}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &5209511718453445518
@@ -451,7 +451,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 128, y: 128}
+  m_Size: {x: 192, y: 96}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -496,12 +496,12 @@ BoxCollider2D:
     border: {x: 16, y: 16, z: 16, w: 16}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 128, y: 128}
-    newSize: {x: 128, y: 128}
+    newSize: {x: 192, y: 96}
     adaptiveTilingThreshold: 0.5
     drawMode: 1
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 128, y: 128}
+  m_Size: {x: 192, y: 96}
   m_EdgeRadius: 0
 --- !u!114 &2705501123950751030
 MonoBehaviour:
@@ -633,7 +633,7 @@ Transform:
   m_GameObject: {fileID: 6913730239898840912}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -64, z: 0}
+  m_LocalPosition: {x: 0, y: -48, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -691,7 +691,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
-  m_Size: {x: 128, y: 128}
+  m_Size: {x: 192, y: 96}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1

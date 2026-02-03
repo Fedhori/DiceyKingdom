@@ -15,7 +15,7 @@
 					"target": "Self",
 					"statId": "damageMultiplier",
 					"effectMode": "Mult",
-					"value": 1.0,
+					"value": 0.5,
 					"duration": "Upgrade"
 				}
 			]
@@ -35,7 +35,7 @@
 					"target": "Self",
 					"statId": "attackSpeed",
 					"effectMode": "Mult",
-					"value": 1.0,
+					"value": 0.5,
 					"duration": "Upgrade"
 				}
 			]
@@ -78,7 +78,7 @@
 					"target": "Self",
 					"statId": "attackSpeed",
 					"effectMode": "Mult",
-					"value": -0.3,
+					"value": -0.5,
 					"duration": "Upgrade"
 				},
 				{
@@ -86,7 +86,7 @@
 					"target": "Self",
 					"statId": "damageMultiplier",
 					"effectMode": "Mult",
-					"value": 2.0,
+					"value": 3.0,
 					"duration": "Upgrade"
 				}
 			]
@@ -96,6 +96,7 @@
 			"price": 4,
 			"rarity": "Common",
 			"requiresSolo": true,
+			"isNotSell": "true",
 			"conditions": [
 				{
 					"conditionKind": "HasDamageMultiplier"
@@ -174,7 +175,7 @@
 					"target": "Self",
 					"statId": "pierce",
 					"effectMode": "Add",
-					"value": 5,
+					"value": 3,
 					"duration": "Upgrade"
 				}
 			]
@@ -302,7 +303,7 @@
 		},
 		{
 			"id": "upgrade.aimbot",
-			"price": 8,
+			"price": 10,
 			"rarity": "Rare",
 			"conditions": [
 				{
@@ -348,8 +349,8 @@
 		},
 		{
 			"id": "upgrade.yellowturban",
-			"price": 4,
-			"rarity": "Common",
+			"price": 6,
+			"rarity": "Uncommon",
 			"conditions": [
 				{
 					"conditionKind": "HasDamageMultiplier"

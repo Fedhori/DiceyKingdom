@@ -8,14 +8,7 @@
 			"startCurrency": 10,
 			"initialBallCount": 0,
 			"moveSpeed": 1.0,
-			"itemIds": [
-				"item.pistol",
-				"item.pistol",
-				"item.pistol",
-				"item.pistol",
-				"item.pistol",
-				"item.pistol"
-			]
+			"itemIds": ["item.pistol"]
 		}
 	]
 }

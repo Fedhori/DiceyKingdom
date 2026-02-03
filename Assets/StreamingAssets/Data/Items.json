@@ -11,7 +11,7 @@
 				"key": "projectile.bullet",
 				"size": 1.0,
 				"speed": 1.0,
-				"randomAngle": 0.0
+				"randomAngle": 5.0
 			},
 			"rules": []
 		},
@@ -69,14 +69,14 @@
 				"key": "projectile.bullet",
 				"size": 1.0,
 				"speed": 1.0,
-				"randomAngle": 15.0
+				"randomAngle": 5.0
 			},
 			"rules": []
 		},
 		{
 			"id": "item.assaultrifle",
 			"damageMultiplier": 1.0,
-			"attackSpeed": 5.0,
+			"attackSpeed": 4.0,
 			"isObject": true,
 			"price": 4,
 			"rarity": "Common",
@@ -93,6 +93,7 @@
 			"isObject": false,
 			"price": 4,
 			"rarity": "Common",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnStageEnd",
@@ -139,6 +140,7 @@
 			"isObject": false,
 			"price": 4,
 			"rarity": "Common",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnBlockDestroyed",
@@ -163,6 +165,7 @@
 			"isObject": false,
 			"price": 8,
 			"rarity": "Rare",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnTick",
@@ -282,6 +285,7 @@
 			"isObject": false,
 			"price": 6,
 			"rarity": "Uncommon",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnProjectileSpawned",
@@ -307,6 +311,7 @@
 			"isObject": false,
 			"price": 8,
 			"rarity": "Rare",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnAcquire",
@@ -330,6 +335,7 @@
 			"isObject": false,
 			"price": 6,
 			"rarity": "Uncommon",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnBlockStatusApplied",
@@ -402,6 +408,7 @@
 			"isObject": false,
 			"price": 8,
 			"rarity": "Rare",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnStageEnd",
@@ -473,6 +480,7 @@
 			"isObject": false,
 			"price": 6,
 			"rarity": "Uncommon",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnCurrencyChanged",
@@ -499,6 +507,7 @@
 			"isObject": false,
 			"price": 4,
 			"rarity": "Common",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnAcquire",
@@ -522,6 +531,7 @@
 			"isObject": false,
 			"price": 8,
 			"rarity": "Rare",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnItemChanged",
@@ -547,6 +557,7 @@
 			"isObject": false,
 			"price": 8,
 			"rarity": "Rare",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnAcquire",
@@ -610,6 +621,7 @@
 			"isObject": false,
 			"price": 6,
 			"rarity": "Uncommon",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnItemChanged",
@@ -721,6 +733,7 @@
 			"isObject": false,
 			"price": 4,
 			"rarity": "Common",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnItemChanged",
@@ -800,6 +813,7 @@
 			"isObject": false,
 			"price": 4,
 			"rarity": "Common",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnAcquire",
@@ -823,6 +837,7 @@
 			"isObject": false,
 			"price": 8,
 			"rarity": "Rare",
+			"isNotSell": "true",
 			"rules": [
 				{
 					"triggerType": "OnAcquire",
