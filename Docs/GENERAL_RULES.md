@@ -2,6 +2,11 @@
 
 이 문서는 모든 Unity 프로젝트에서 공통으로 적용되는 환경/규칙/원칙을 정리합니다.
 
+## 문서 범위/분리 기준
+
+- 범용 규칙(모든 Unity 프로젝트 공통)은 이 문서에 기록합니다.
+- 프로젝트 특화 규칙/구조는 `Docs/GAME_STRUCTURE.md`(게임 구조) 또는 `Docs/PROJECT_MAP.md`(레포 지도)에 기록합니다.
+
 ## Unity 버전
 
 - Unity 6.2 (6000.2.6f2)
@@ -19,6 +24,12 @@
 3. MCP를 통해 씬/프리팹/Inspector 수정을 진행하기 전에, 반드시 어떤 작업을 진행할지 사용자에게 강조하여 안내합니다.
 4. `.meta` 파일은 Unity가 관리하므로 직접 생성하거나 수정하지 않습니다.
 5. 질문이나 요구에 대해 의문점/개선점이 있으면 반드시 질문·개선사항을 제시합니다. 답변 이후에도 남아 있으면 해결될 때까지 반복적으로 질문·개선사항을 제시합니다.
+
+## 공통 패턴
+
+- 매니저/컨트롤러는 `public static Instance` 싱글톤 패턴을 사용하며, 중복 생성 시 `Awake`에서 파괴 처리합니다.
+- 부팅 흐름: `Bootstrap` → `SaCache` 초기화 → 매니저 루트 `DontDestroyOnLoad` → `MainMenuScene` 전환.
+- 데이터 초기화는 `StaticDataManager`가 `StreamingAssets` JSON을 읽고 각 Repository를 초기화하는 흐름을 따릅니다.
 
 ## 텍스트/로컬라이징
 
