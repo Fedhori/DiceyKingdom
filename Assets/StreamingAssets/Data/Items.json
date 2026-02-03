@@ -1,21 +1,6 @@
 {
 	"items": [
 		{
-			"id": "item.pistol",
-			"isObject": true,
-			"isNotSell": true,
-			"price": 2,
-			"damageMultiplier": 1.0,
-			"attackSpeed": 2.0,
-			"projectile": {
-				"key": "projectile.bullet",
-				"size": 1.0,
-				"speed": 1.0,
-				"randomAngle": 5.0
-			},
-			"rules": []
-		},
-		{
 			"id": "item.ball",
 			"damageMultiplier": 1.0,
 			"isObject": false,
@@ -89,30 +74,6 @@
 			"rules": []
 		},
 		{
-			"id": "item.textbook",
-			"isObject": false,
-			"price": 4,
-			"rarity": "Common",
-			"isNotSell": "true",
-			"rules": [
-				{
-					"triggerType": "OnStageEnd",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "ModifyStat",
-							"statId": "power",
-							"effectMode": "Add",
-							"value": 10.0,
-							"duration": "Permanent"
-						}
-					]
-				}
-			]
-		},
-		{
 			"id": "item.piggybank",
 			"isObject": false,
 			"price": 6,
@@ -136,56 +97,6 @@
 			]
 		},
 		{
-			"id": "item.angel",
-			"isObject": false,
-			"price": 4,
-			"rarity": "Common",
-			"isNotSell": "true",
-			"rules": [
-				{
-					"triggerType": "OnBlockDestroyed",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "ModifyStat",
-							"statId": "power",
-							"effectMode": "Add",
-							"value": 2,
-							"duration": "Temporary",
-							"showCurrentValue": true
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "item.plank",
-			"isObject": false,
-			"price": 8,
-			"rarity": "Rare",
-			"isNotSell": "true",
-			"rules": [
-				{
-					"triggerType": "OnTick",
-					"condition": {
-						"conditionKind": "PlayerIdle"
-					},
-					"effects": [
-						{
-							"effectType": "ModifyStat",
-							"statId": "power",
-							"effectMode": "Add",
-							"value": 3,
-							"duration": "Temporary",
-							"showCurrentValue": true
-						}
-					]
-				}
-			]
-		},
-		{
 			"id": "item.shotgun",
 			"isObject": true,
 			"price": 4,
@@ -200,7 +111,9 @@
 				"spreadAngle": 10.0,
 				"randomAngle": 5.0
 			},
-			"rules": [{}]
+			"rules": [
+				{}
+			]
 		},
 		{
 			"id": "item.sniperrifle",
@@ -255,7 +168,9 @@
 				"isHoming": true,
 				"randomAngle": 0.0
 			},
-			"rules": [{}]
+			"rules": [
+				{}
+			]
 		},
 		{
 			"id": "item.spring",
@@ -275,81 +190,6 @@
 							"effectMode": "Add",
 							"value": 1.0,
 							"duration": "Owned"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "item.magazine",
-			"isObject": false,
-			"price": 6,
-			"rarity": "Uncommon",
-			"isNotSell": "true",
-			"rules": [
-				{
-					"triggerType": "OnProjectileSpawned",
-					"condition": {
-						"conditionKind": "EveryNthTrigger",
-						"count": 10
-					},
-					"effects": [
-						{
-							"effectType": "ModifyStat",
-							"statId": "power",
-							"effectMode": "Add",
-							"value": 5.0,
-							"duration": "Temporary",
-							"showCurrentValue": true
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "item.magnifier",
-			"isObject": false,
-			"price": 8,
-			"rarity": "Rare",
-			"isNotSell": "true",
-			"rules": [
-				{
-					"triggerType": "OnAcquire",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "ModifyStat",
-							"statId": "projectileSizeMultiplier",
-							"effectMode": "Add",
-							"value": 0.5,
-							"duration": "Owned"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "item.catalyst",
-			"isObject": false,
-			"price": 6,
-			"rarity": "Uncommon",
-			"isNotSell": "true",
-			"rules": [
-				{
-					"triggerType": "OnBlockStatusApplied",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "ModifyStat",
-							"statId": "power",
-							"effectMode": "Add",
-							"value": 1.0,
-							"duration": "Temporary",
-							"showCurrentValue": true
 						}
 					]
 				}
@@ -404,45 +244,6 @@
 			]
 		},
 		{
-			"id": "item.membership",
-			"isObject": false,
-			"price": 8,
-			"rarity": "Rare",
-			"isNotSell": "true",
-			"rules": [
-				{
-					"triggerType": "OnStageEnd",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "ModifyStat",
-							"statId": "power",
-							"effectMode": "Add",
-							"value": 15.0,
-							"duration": "Permanent"
-						}
-					]
-				},
-				{
-					"triggerType": "OnAcquire",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "ModifyStat",
-							"effectMode": "Add",
-							"value": -1.0,
-							"duration": "Owned",
-							"statId": "baseIncomeBonus"
-						}
-					]
-				}
-			]
-		},
-		{
 			"id": "item.battery",
 			"isObject": true,
 			"price": 6,
@@ -470,114 +271,6 @@
 							"value": 0.5,
 							"duration": "Permanent",
 							"showCurrentValue": true
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "item.wornedshoes",
-			"isObject": false,
-			"price": 6,
-			"rarity": "Uncommon",
-			"isNotSell": "true",
-			"rules": [
-				{
-					"triggerType": "OnCurrencyChanged",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "SetStat",
-							"statId": "power",
-							"effectMode": "Add",
-							"value": 50.0,
-							"duration": "Owned",
-							"multiplier": "currencyAtMost",
-							"threshold": 10,
-							"showCurrentValue": true
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "item.rollerskate",
-			"isObject": false,
-			"price": 4,
-			"rarity": "Common",
-			"isNotSell": "true",
-			"rules": [
-				{
-					"triggerType": "OnAcquire",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "ModifyStat",
-							"statId": "moveSpeed",
-							"effectMode": "Mult",
-							"value": 0.5,
-							"duration": "Owned"
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "item.lonewolf",
-			"isObject": false,
-			"price": 8,
-			"rarity": "Rare",
-			"isNotSell": "true",
-			"rules": [
-				{
-					"triggerType": "OnItemChanged",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "SetStat",
-							"statId": "power",
-							"effectMode": "Add",
-							"value": 15.0,
-							"duration": "Owned",
-							"multiplier": "adjacentEmptySlotCount",
-							"showCurrentValue": true
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "item.spray",
-			"isObject": false,
-			"price": 8,
-			"rarity": "Rare",
-			"isNotSell": "true",
-			"rules": [
-				{
-					"triggerType": "OnAcquire",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "ModifyStat",
-							"statId": "projectileRandomAngleMultiplier",
-							"effectMode": "Mult",
-							"value": 1.0,
-							"duration": "Owned"
-						},
-						{
-							"effectType": "ModifyStat",
-							"statId": "projectileDamageMultiplier",
-							"effectMode": "Mult",
-							"value": 0.5,
-							"duration": "Owned"
 						}
 					]
 				}
@@ -617,32 +310,6 @@
 			]
 		},
 		{
-			"id": "item.ammunitionbox",
-			"isObject": false,
-			"price": 6,
-			"rarity": "Uncommon",
-			"isNotSell": "true",
-			"rules": [
-				{
-					"triggerType": "OnItemChanged",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "SetStat",
-							"statId": "power",
-							"effectMode": "Add",
-							"value": 10.0,
-							"duration": "Owned",
-							"multiplier": "weaponCount",
-							"showCurrentValue": true
-						}
-					]
-				}
-			]
-		},
-		{
 			"id": "item.lasergun",
 			"isObject": true,
 			"price": 8,
@@ -653,7 +320,9 @@
 				"thickness": 64.0,
 				"duration": 1.0
 			},
-			"rules": [{}]
+			"rules": [
+				{}
+			]
 		},
 		{
 			"id": "item.grenadelauncher",
@@ -704,7 +373,9 @@
 				"areaDamageTick": true,
 				"lifetime": 5.0
 			},
-			"rules": [{}]
+			"rules": [
+				{}
+			]
 		},
 		{
 			"id": "item.alarmclock",
@@ -723,32 +394,6 @@
 						{
 							"effectType": "ApplyDamageToAllBlocks",
 							"value": 1.0
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "item.ant",
-			"isObject": false,
-			"price": 4,
-			"rarity": "Common",
-			"isNotSell": "true",
-			"rules": [
-				{
-					"triggerType": "OnItemChanged",
-					"condition": {
-						"conditionKind": "Always"
-					},
-					"effects": [
-						{
-							"effectType": "SetStat",
-							"statId": "power",
-							"effectMode": "Add",
-							"value": 10.0,
-							"duration": "Owned",
-							"multiplier": "normalItemCount",
-							"showCurrentValue": true
 						}
 					]
 				}
@@ -790,7 +435,9 @@
 				"size": 1.0,
 				"speed": 1.0
 			},
-			"rules": [{}]
+			"rules": [
+				{}
+			]
 		},
 		{
 			"id": "item.cannon",
@@ -809,11 +456,374 @@
 			"rules": []
 		},
 		{
+			"id": "item.pistol",
+			"isObject": true,
+			"isNotSell": true,
+			"price": 2,
+			"damageMultiplier": 1.0,
+			"attackSpeed": 2.0,
+			"projectile": {
+				"key": "projectile.bullet",
+				"size": 1.0,
+				"speed": 1.0,
+				"randomAngle": 5.0
+			},
+			"rules": []
+		},
+		{
+			"id": "item.textbook",
+			"isObject": false,
+			"price": 4,
+			"rarity": "Common",
+			"isNotSell": true,
+			"rules": [
+				{
+					"triggerType": "OnStageEnd",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 10.0,
+							"duration": "Permanent"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.angel",
+			"isObject": false,
+			"price": 4,
+			"rarity": "Common",
+			"isNotSell": true,
+			"rules": [
+				{
+					"triggerType": "OnBlockDestroyed",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 2,
+							"duration": "Temporary",
+							"showCurrentValue": true
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.plank",
+			"isObject": false,
+			"price": 8,
+			"rarity": "Rare",
+			"isNotSell": true,
+			"rules": [
+				{
+					"triggerType": "OnTick",
+					"condition": {
+						"conditionKind": "PlayerIdle"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 3,
+							"duration": "Temporary",
+							"showCurrentValue": true
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.magazine",
+			"isObject": false,
+			"price": 6,
+			"rarity": "Uncommon",
+			"isNotSell": true,
+			"rules": [
+				{
+					"triggerType": "OnProjectileSpawned",
+					"condition": {
+						"conditionKind": "EveryNthTrigger",
+						"count": 10
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 5.0,
+							"duration": "Temporary",
+							"showCurrentValue": true
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.magnifier",
+			"isObject": false,
+			"price": 8,
+			"rarity": "Rare",
+			"isNotSell": true,
+			"rules": [
+				{
+					"triggerType": "OnAcquire",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "projectileSizeMultiplier",
+							"effectMode": "Add",
+							"value": 0.5,
+							"duration": "Owned"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.catalyst",
+			"isObject": false,
+			"price": 6,
+			"rarity": "Uncommon",
+			"isNotSell": true,
+			"rules": [
+				{
+					"triggerType": "OnBlockStatusApplied",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 1.0,
+							"duration": "Temporary",
+							"showCurrentValue": true
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.membership",
+			"isObject": false,
+			"price": 8,
+			"rarity": "Rare",
+			"isNotSell": true,
+			"rules": [
+				{
+					"triggerType": "OnStageEnd",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 15.0,
+							"duration": "Permanent"
+						}
+					]
+				},
+				{
+					"triggerType": "OnAcquire",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"effectMode": "Add",
+							"value": -1.0,
+							"duration": "Owned",
+							"statId": "baseIncomeBonus"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.wornedshoes",
+			"isObject": false,
+			"price": 6,
+			"rarity": "Uncommon",
+			"isNotSell": true,
+			"rules": [
+				{
+					"triggerType": "OnCurrencyChanged",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "SetStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 50.0,
+							"duration": "Owned",
+							"multiplier": "currencyAtMost",
+							"threshold": 10,
+							"showCurrentValue": true
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.rollerskate",
+			"isObject": false,
+			"price": 4,
+			"rarity": "Common",
+			"isNotSell": true,
+			"rules": [
+				{
+					"triggerType": "OnAcquire",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "moveSpeed",
+							"effectMode": "Mult",
+							"value": 0.5,
+							"duration": "Owned"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.lonewolf",
+			"isObject": false,
+			"price": 8,
+			"rarity": "Rare",
+			"isNotSell": true,
+			"rules": [
+				{
+					"triggerType": "OnItemChanged",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "SetStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 15.0,
+							"duration": "Owned",
+							"multiplier": "adjacentEmptySlotCount",
+							"showCurrentValue": true
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.spray",
+			"isObject": false,
+			"price": 8,
+			"rarity": "Rare",
+			"isNotSell": true,
+			"rules": [
+				{
+					"triggerType": "OnAcquire",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "projectileRandomAngleMultiplier",
+							"effectMode": "Mult",
+							"value": 1.0,
+							"duration": "Owned"
+						},
+						{
+							"effectType": "ModifyStat",
+							"statId": "projectileDamageMultiplier",
+							"effectMode": "Mult",
+							"value": 0.5,
+							"duration": "Owned"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.ammunitionbox",
+			"isObject": false,
+			"price": 6,
+			"rarity": "Uncommon",
+			"isNotSell": true,
+			"rules": [
+				{
+					"triggerType": "OnItemChanged",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "SetStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 10.0,
+							"duration": "Owned",
+							"multiplier": "weaponCount",
+							"showCurrentValue": true
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.ant",
+			"isObject": false,
+			"price": 4,
+			"rarity": "Common",
+			"isNotSell": true,
+			"rules": [
+				{
+					"triggerType": "OnItemChanged",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "SetStat",
+							"statId": "power",
+							"effectMode": "Add",
+							"value": 10.0,
+							"duration": "Owned",
+							"multiplier": "normalItemCount",
+							"showCurrentValue": true
+						}
+					]
+				}
+			]
+		},
+		{
 			"id": "item.dumbbell",
 			"isObject": false,
 			"price": 4,
 			"rarity": "Common",
-			"isNotSell": "true",
+			"isNotSell": true,
 			"rules": [
 				{
 					"triggerType": "OnAcquire",
@@ -837,7 +847,7 @@
 			"isObject": false,
 			"price": 8,
 			"rarity": "Rare",
-			"isNotSell": "true",
+			"isNotSell": true,
 			"rules": [
 				{
 					"triggerType": "OnAcquire",

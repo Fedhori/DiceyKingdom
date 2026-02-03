@@ -92,28 +92,6 @@
 			]
 		},
 		{
-			"id": "upgrade.lighthouse",
-			"price": 4,
-			"rarity": "Common",
-			"requiresSolo": true,
-			"isNotSell": "true",
-			"conditions": [
-				{
-					"conditionKind": "HasDamageMultiplier"
-				}
-			],
-			"effects": [
-				{
-					"effectType": "ModifyItemStat",
-					"target": "Self",
-					"statId": "damageMultiplier",
-					"effectMode": "Mult",
-					"value": 2.0,
-					"duration": "Upgrade"
-				}
-			]
-		},
-		{
 			"id": "upgrade.whetstone",
 			"price": 6,
 			"rarity": "Uncommon",
@@ -176,27 +154,6 @@
 					"statId": "pierce",
 					"effectMode": "Add",
 					"value": 3,
-					"duration": "Upgrade"
-				}
-			]
-		},
-		{
-			"id": "upgrade.lasersight",
-			"price": 6,
-			"rarity": "Uncommon",
-			"isNotSell": "true",
-			"conditions": [
-				{
-					"conditionKind": "HasDamageMultiplier"
-				}
-			],
-			"effects": [
-				{
-					"effectType": "ModifyItemStat",
-					"target": "Self",
-					"statId": "criticalChanceMultiplier",
-					"effectMode": "Mult",
-					"value": 1.0,
 					"duration": "Upgrade"
 				}
 			]
@@ -367,6 +324,49 @@
 					"statId": "damageMultiplier",
 					"effectMode": "Mult",
 					"value": 1.5,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.lighthouse",
+			"price": 4,
+			"rarity": "Common",
+			"requiresSolo": true,
+			"isNotSell": true,
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "damageMultiplier",
+					"effectMode": "Mult",
+					"value": 2.0,
+					"duration": "Upgrade"
+				}
+			]
+		},
+		{
+			"id": "upgrade.lasersight",
+			"price": 6,
+			"rarity": "Uncommon",
+			"isNotSell": true,
+			"conditions": [
+				{
+					"conditionKind": "HasDamageMultiplier"
+				}
+			],
+			"effects": [
+				{
+					"effectType": "ModifyItemStat",
+					"target": "Self",
+					"statId": "criticalChanceMultiplier",
+					"effectMode": "Mult",
+					"value": 1.0,
 					"duration": "Upgrade"
 				}
 			]
