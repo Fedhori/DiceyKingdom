@@ -1,7 +1,10 @@
 # PROJECT_MAP
 
+이 문서는 레포의 주요 진입점/구성 요소를 지도로 훑기 위한 개요입니다. 게임 구조 설명은 `Docs/GAME_STRUCTURE.md`를 참고합니다.
+
 ## Goal
-- Manager/Controller 스크립트 경로와 책임을 1~2문장으로 정리하고, 스테이지/라운드/상점/스폰/점수 흐름의 엔트리포인트와 호출 체인을 한눈에 보이도록 정리한다.
+- Manager/Controller 스크립트의 위치와 책임을 1~2문장으로 요약해, 레포의 큰 지도를 빠르게 파악할 수 있도록 한다.
+- 상세한 게임 구조/시스템 설명은 `Docs/GAME_STRUCTURE.md`에서 다룬다.
 
 ## Manager & Controller 목록
 - `Assets/Scripts/GameManager.cs`: 싱글톤으로 게임 시작을 FlowManager에 위임하고, 게임 오버/클리어 시 오디오 재생 및 오버레이 활성화, 재시작 처리.

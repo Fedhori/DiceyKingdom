@@ -59,4 +59,5 @@
 
 ## 관련 문서
 
-- 디자인 규칙: `DESIGN_RULE.md`
+- 프로젝트 맵: `Docs/PROJECT_MAP.md` — 레포/구조를 지도처럼 빠르게 훑기 위한 문서
+- 디자인 규칙: `Docs/DESIGN_RULE.md`
