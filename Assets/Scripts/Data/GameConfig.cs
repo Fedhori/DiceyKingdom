@@ -7,10 +7,13 @@ public static class GameConfig
     public static int ItemSlotCount = 12;
     public static int ItemSlotsPerRow = 4;
     public static int MaxUpgradesPerItem = 3;
+    public static int ItemPerShop = 4;
+    public static int BaseRerollCost = 1;
+    public static int RerollCostIncrement = 1;
     public static int InterestCurrencyPerUnit = 5;
     public static int InterestMax = 5;
-    public static int ShopItemWeight = 60;
-    public static int ShopUpgradeWeight = 40;
+    public static int ShopItemWeight = 50;
+    public static int ShopUpgradeWeight = 50;
 
     // Player/Item base stats   
     public static float PlayerBaseMoveSpeed = 500f;

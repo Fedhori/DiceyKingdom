@@ -9,10 +9,6 @@ public sealed class ShopManager : MonoBehaviour
 
     [SerializeField] private ShopView shopView;
 
-    [SerializeField] private int itemsPerShop = 6;
-    [SerializeField] private int baseRerollCost = 1;
-    [SerializeField] private int rerollCostIncrement = 1;
-
     [Header("Item Rarity Probabilities (weight-based)")]
     [SerializeField] private int[] rarityWeights = new int[] { 60, 30, 10, 0 };
 
@@ -117,7 +113,7 @@ public sealed class ShopManager : MonoBehaviour
         BuildSellableUpgrades();
         CollectOwnedItems();
         EnsureArrays();
-        currentRerollCost = Mathf.Max(1, baseRerollCost);
+        currentRerollCost = Mathf.Max(1, GameConfig.BaseRerollCost);
 
         BuildRoster();
         shopView.Open();
@@ -191,6 +187,7 @@ public sealed class ShopManager : MonoBehaviour
 
     void EnsureArrays()
     {
+        int itemsPerShop = Mathf.Max(0, GameConfig.ItemPerShop);
         if (currentShopItems == null || currentShopItems.Length != itemsPerShop)
             currentShopItems = new IProduct[itemsPerShop];
 
@@ -213,6 +210,7 @@ public sealed class ShopManager : MonoBehaviour
         var itemPools = BuildItemPoolsByRarity();
         var upgradePools = BuildUpgradePoolsByRarity();
 
+        int itemsPerShop = Mathf.Max(0, GameConfig.ItemPerShop);
         for (int slot = 0; slot < itemsPerShop; slot++)
         {
             var type = RollProductType(itemPools, upgradePools);
@@ -927,7 +925,7 @@ public sealed class ShopManager : MonoBehaviour
         if (!currencyMgr.TrySpend(cost))
             return;
 
-        currentRerollCost = Mathf.Max(1, currentRerollCost + Mathf.Max(1, rerollCostIncrement));
+        currentRerollCost = Mathf.Max(1, currentRerollCost + Mathf.Max(1, GameConfig.RerollCostIncrement));
 
         BuildSellableItems();
         BuildSellableUpgrades();
