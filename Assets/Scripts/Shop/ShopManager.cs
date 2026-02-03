@@ -19,10 +19,6 @@ public sealed class ShopManager : MonoBehaviour
     [Header("Upgrade Rarity Probabilities (weight-based)")]
     [SerializeField] private int[] upgradeRarityWeights = new int[] { 60, 30, 10, 0 };
 
-    [Header("Product Probabilities (weight-based)")]
-    [SerializeField] private int itemProductWeight = 80;
-    [SerializeField] private int upgradeProductWeight = 20;
-
     bool isOpen;
 
     readonly List<IProduct> rosterItems = new();
@@ -527,8 +523,8 @@ public sealed class ShopManager : MonoBehaviour
         if (!hasItems && !hasUpgrades)
             return ProductType.Item;
 
-        int itemWeight = Mathf.Max(0, itemProductWeight);
-        int upgradeWeight = Mathf.Max(0, upgradeProductWeight);
+        int itemWeight = Mathf.Max(0, GameConfig.ShopItemWeight);
+        int upgradeWeight = Mathf.Max(0, GameConfig.ShopUpgradeWeight);
         int total = itemWeight + upgradeWeight;
         if (total <= 0)
             return ProductType.Item;

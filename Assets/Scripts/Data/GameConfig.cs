@@ -9,6 +9,8 @@ public static class GameConfig
     public static int MaxUpgradesPerItem = 3;
     public static int InterestCurrencyPerUnit = 5;
     public static int InterestMax = 5;
+    public static int ShopItemWeight = 60;
+    public static int ShopUpgradeWeight = 40;
 
     // Player/Item base stats   
     public static float PlayerBaseMoveSpeed = 500f;
