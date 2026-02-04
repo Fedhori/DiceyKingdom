@@ -108,7 +108,12 @@ public static class SaCache
             var manifestJson = await LoadSaAsync("sa_manifest.json");
             manifest = JsonUtility.FromJson<Manifest>(manifestJson);
             if (manifest?.files == null || manifest.files.Length == 0)
-                throw new Exception("[SACache] sa_manifest.json invalid or empty.");
+            {
+                inited = true;
+                onProgress?.Invoke(1f);
+                ReadyTcs.TrySetResult(true);
+                return;
+            }
 
             // 2) state 비교 (버전/매니페스트 해시)
             var state = LoadState();
