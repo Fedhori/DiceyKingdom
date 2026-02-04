@@ -10,6 +10,7 @@
 			"moveSpeed": 1.0,
 			"itemIds": [
 				"item.pistol",
+				"item.prophecy",
 				"item.luckycharm"
 			]
 		}

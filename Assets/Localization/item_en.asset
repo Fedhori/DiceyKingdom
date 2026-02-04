@@ -226,7 +226,16 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 14445880777650178
-    m_Localized: Critical chance +{value0}%.
+    m_Localized: <style="critical">Critical</style> chance <style="value">+{value0}%</style>.
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
+  - m_Id: 14445880777650179
+    m_Localized: Prophecy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14445880777650180
+    m_Localized: At the start of each stage, the first <style="value">{value0}</style> hits are <style="critical">critical</style>.
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
@@ -258,3 +267,4 @@ MonoBehaviour:
         - id: 5815909901414427
         - id: 5815909901414429
         - id: 14445880777650178
+        - id: 14445880777650180

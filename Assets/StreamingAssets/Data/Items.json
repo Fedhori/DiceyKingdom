@@ -899,6 +899,26 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "item.prophecy",
+			"isObject": false,
+			"price": 4,
+			"rarity": "Common",
+			"rules": [
+				{
+					"triggerType": "OnPlayStart",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "SetGuaranteedCriticalHits",
+							"value": 10
+						}
+					]
+				}
+			]
 		}
 	]
 }

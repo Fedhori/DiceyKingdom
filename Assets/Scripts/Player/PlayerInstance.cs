@@ -27,6 +27,7 @@ public sealed class PlayerInstance
 
     // 상점/보상에 사용하는 통화
     public int Currency { get; private set; }
+    int guaranteedCriticalHitsRemaining;
 
     public event Action OnCurrencyChanged;
     readonly List<string> itemIds;
@@ -58,6 +59,28 @@ public sealed class PlayerInstance
     {
         // 라운드 단위로 날아가는 임시 버프만 초기화
         Stats.RemoveModifiers(StatLayer.Temporary);
+    }
+
+    public void AddGuaranteedCriticalHits(int count)
+    {
+        if (count <= 0)
+            return;
+
+        guaranteedCriticalHitsRemaining = Mathf.Max(0, guaranteedCriticalHitsRemaining) + count;
+    }
+
+    public void SetGuaranteedCriticalHits(int count)
+    {
+        guaranteedCriticalHitsRemaining = Mathf.Max(0, count);
+    }
+
+    public bool TryConsumeGuaranteedCriticalHit()
+    {
+        if (guaranteedCriticalHitsRemaining <= 0)
+            return false;
+
+        guaranteedCriticalHitsRemaining--;
+        return true;
     }
 
     public int RollCriticalLevel(System.Random rng, double criticalChance)

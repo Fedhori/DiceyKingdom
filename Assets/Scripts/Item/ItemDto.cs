@@ -48,9 +48,11 @@ namespace Data
             SetItemStatus,
             ModifyTriggerRepeat,
             ChargeNextProjectileDamage,
-        RemoveSelf,
-        SellSelf
-    }
+            AddGuaranteedCriticalHits,
+            SetGuaranteedCriticalHits,
+            RemoveSelf,
+            SellSelf
+        }
 
     public enum ItemEffectTarget
     {

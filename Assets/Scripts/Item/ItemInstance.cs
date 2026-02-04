@@ -370,6 +370,7 @@ public sealed class ItemInstance
         hasNextProjectileDamage = true;
     }
 
+
     public float ConsumeNextProjectileDamageScale()
     {
         if (!hasNextProjectileDamage)

@@ -75,6 +75,18 @@
 
 - 난수는 `GameManager.Rng`(System.Random)를 중심으로 사용한다.
 
+## 텍스트 스타일(프로젝트별)
+
+- 기준: `Assets/GlobalTextStyles.asset`
+- 숫자 수치: `<style="value">...</style>`
+- 치명타 관련: `<style="critical">...</style>`
+- 기타 스타일:
+  - `<style="misc">...</style>`
+  - `<style="freeze">...</style>`
+  - `<style="power">...</style>`
+  - `<style="money">...</style>`
+  - `<style="normal">...</style>`
+
 ## 관련 문서
 
 - 공통 규칙: `Docs/GENERAL_RULES.md`

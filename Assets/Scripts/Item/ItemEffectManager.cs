@@ -61,6 +61,12 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.ChargeNextProjectileDamage:
                 ChargeNextProjectileDamage(item);
                 break;
+            case ItemEffectType.AddGuaranteedCriticalHits:
+                AddGuaranteedCriticalHits(dto, item);
+                break;
+            case ItemEffectType.SetGuaranteedCriticalHits:
+                SetGuaranteedCriticalHits(dto, item);
+                break;
             case ItemEffectType.RemoveSelf:
                 RemoveSelf(item);
                 break;
@@ -414,6 +420,35 @@ public sealed class ItemEffectManager : MonoBehaviour
             return;
 
         item.TryChargeNextProjectileDamage();
+    }
+
+    void AddGuaranteedCriticalHits(ItemEffectDto dto, ItemInstance sourceItem)
+    {
+        if (dto == null || sourceItem == null)
+            return;
+
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+            return;
+
+        int count = Mathf.FloorToInt(dto.value);
+        if (count <= 0)
+            return;
+
+        player.AddGuaranteedCriticalHits(count);
+    }
+
+    void SetGuaranteedCriticalHits(ItemEffectDto dto, ItemInstance sourceItem)
+    {
+        if (dto == null || sourceItem == null)
+            return;
+
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+            return;
+
+        int count = Mathf.FloorToInt(dto.value);
+        player.SetGuaranteedCriticalHits(Mathf.Max(0, count));
     }
 
     void RemoveSelf(ItemInstance item)

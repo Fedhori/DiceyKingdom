@@ -128,9 +128,11 @@ public sealed class BlockController : MonoBehaviour
 
         float raw = itemMultiplier * (float)player.Power;
         raw *= Mathf.Max(0f, context.DamageScale);
-        
+
+        bool guaranteedCritical = context.SourceItem != null && player.TryConsumeGuaranteedCriticalHit();
         var rng = GameManager.Instance != null ? GameManager.Instance.Rng : null;
-        criticalLevel = player.RollCriticalLevel(rng, criticalChance);
+        int rolledCritical = player.RollCriticalLevel(rng, criticalChance);
+        criticalLevel = guaranteedCritical ? Mathf.Max(1, rolledCritical) : rolledCritical;
         raw *= (float)player.GetCriticalMultiplier(criticalLevel);
         
         int damage = Mathf.FloorToInt(raw);
