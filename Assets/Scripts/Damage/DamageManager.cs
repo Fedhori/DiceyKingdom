@@ -42,6 +42,9 @@ public sealed class DamageManager : MonoBehaviour
         if (result.StatusApplied)
             ItemManager.Instance?.TriggerAll(ItemTriggerType.OnBlockStatusApplied);
 
+        if (result.CriticalLevel > 0)
+            ItemManager.Instance?.TriggerAll(ItemTriggerType.OnCriticalHit);
+
         if (result.IsDead)
         {
             if (context.SourceItem != null)

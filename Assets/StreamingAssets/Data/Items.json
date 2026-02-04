@@ -919,6 +919,30 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "item.adrenaline",
+			"isObject": false,
+			"price": 6,
+			"rarity": "Uncommon",
+			"rules": [
+				{
+					"triggerType": "OnCriticalHit",
+					"condition": {
+						"conditionKind": "Time",
+						"intervalSeconds": 5.0
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "criticalChance",
+							"effectMode": "Add",
+							"value": 10.0,
+							"duration": "Temporary"
+						}
+					]
+				}
+			]
 		}
 	]
 }

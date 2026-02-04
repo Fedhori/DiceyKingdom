@@ -28,6 +28,8 @@ public sealed class PlayerInstance
     // 상점/보상에 사용하는 통화
     public int Currency { get; private set; }
     int guaranteedCriticalHitsRemaining;
+    int timedModifierSequence;
+    readonly List<TimedModifier> timedModifiers = new();
 
     public event Action OnCurrencyChanged;
     readonly List<string> itemIds;
@@ -59,6 +61,8 @@ public sealed class PlayerInstance
     {
         // 라운드 단위로 날아가는 임시 버프만 초기화
         Stats.RemoveModifiers(StatLayer.Temporary);
+        timedModifiers.Clear();
+        timedModifierSequence = 0;
     }
 
     public void AddGuaranteedCriticalHits(int count)
@@ -74,6 +78,37 @@ public sealed class PlayerInstance
         guaranteedCriticalHitsRemaining = Mathf.Max(0, count);
     }
 
+    public void AddTimedModifier(string statId, StatOpKind opKind, double value, float durationSeconds)
+    {
+        if (string.IsNullOrEmpty(statId) || durationSeconds <= 0f)
+            return;
+
+        string source = $"timed:{timedModifierSequence++}";
+        Stats.AddModifier(new StatModifier(statId, opKind, value, StatLayer.Temporary, source));
+        timedModifiers.Add(new TimedModifier(statId, source, durationSeconds));
+    }
+
+    public void TickTimedModifiers(float deltaSeconds)
+    {
+        if (deltaSeconds <= 0f || timedModifiers.Count == 0)
+            return;
+
+        for (int i = timedModifiers.Count - 1; i >= 0; i--)
+        {
+            var entry = timedModifiers[i];
+            entry.RemainingSeconds -= deltaSeconds;
+            if (entry.RemainingSeconds <= 0f)
+            {
+                Stats.RemoveModifiers(entry.StatId, StatLayer.Temporary, entry.Source);
+                timedModifiers.RemoveAt(i);
+            }
+            else
+            {
+                timedModifiers[i] = entry;
+            }
+        }
+    }
+
     public bool TryConsumeGuaranteedCriticalHit()
     {
         if (guaranteedCriticalHitsRemaining <= 0)
@@ -81,6 +116,20 @@ public sealed class PlayerInstance
 
         guaranteedCriticalHitsRemaining--;
         return true;
+    }
+
+    struct TimedModifier
+    {
+        public readonly string StatId;
+        public readonly string Source;
+        public float RemainingSeconds;
+
+        public TimedModifier(string statId, string source, float remainingSeconds)
+        {
+            StatId = statId;
+            Source = source;
+            RemainingSeconds = remainingSeconds;
+        }
     }
 
     public int RollCriticalLevel(System.Random rng, double criticalChance)

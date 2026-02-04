@@ -131,6 +131,9 @@ public sealed class ItemInstance
     readonly Dictionary<ItemTriggerType, int> triggerCounts = new();
     readonly Dictionary<int, float> ruleElapsedSeconds = new();
     readonly Dictionary<int, float> upgradeRuleElapsedSeconds = new();
+    readonly Dictionary<int, float> ruleCooldownRemaining = new();
+    readonly Dictionary<int, float> upgradeRuleCooldownRemaining = new();
+    readonly List<int> cooldownKeys = new();
     readonly StatSet triggerRepeatStats = new();
 
     public ItemInstance(ItemDto dto, string uniqueId = null)
@@ -252,6 +255,7 @@ public sealed class ItemInstance
         if (targetRules == null || targetRules.Count == 0)
             return;
 
+        bool isUpgradeRule = ReferenceEquals(targetRules, upgradeRules);
         for (int i = 0; i < targetRules.Count; i++)
         {
             var rule = targetRules[i];
@@ -261,7 +265,7 @@ public sealed class ItemInstance
             if (rule.triggerType != trigger)
                 continue;
 
-            if (!IsConditionMet(rule.condition, trigger))
+            if (!IsConditionMet(rule.condition, trigger, i, isUpgradeRule))
                 continue;
 
             string sourceUid = null;
@@ -272,7 +276,7 @@ public sealed class ItemInstance
         }
     }
 
-    bool IsConditionMet(ItemConditionDto condition, ItemTriggerType trigger)
+    bool IsConditionMet(ItemConditionDto condition, ItemTriggerType trigger, int ruleIndex, bool isUpgradeRule)
     {
         if (condition == null)
             return false;
@@ -292,7 +296,19 @@ public sealed class ItemInstance
                     return false;
                 return triggerCount % condition.count == 0;
             case ItemConditionKind.Time:
-                return false;
+                if (trigger == ItemTriggerType.OnTimeChanged)
+                    return false;
+
+                float interval = condition.intervalSeconds;
+                if (interval <= 0f)
+                    return false;
+
+                var cooldowns = isUpgradeRule ? upgradeRuleCooldownRemaining : ruleCooldownRemaining;
+                if (cooldowns.TryGetValue(ruleIndex, out var remaining) && remaining > 0f)
+                    return false;
+
+                cooldowns[ruleIndex] = interval;
+                return true;
             default:
                 Debug.LogWarning($"[ItemInstance] Unsupported condition {condition.conditionKind} for trigger {trigger}");
                 return false;
@@ -306,6 +322,8 @@ public sealed class ItemInstance
 
         HandleTimeRules(rules, ruleElapsedSeconds, deltaSeconds);
         HandleTimeRules(upgradeRules, upgradeRuleElapsedSeconds, deltaSeconds);
+        TickRuleCooldowns(ruleCooldownRemaining, deltaSeconds);
+        TickRuleCooldowns(upgradeRuleCooldownRemaining, deltaSeconds);
     }
 
     void HandleTimeRules(List<ItemRuleDto> targetRules, Dictionary<int, float> elapsedSeconds, float deltaSeconds)
@@ -354,7 +372,29 @@ public sealed class ItemInstance
         triggerCounts.Clear();
         ruleElapsedSeconds.Clear();
         upgradeRuleElapsedSeconds.Clear();
+        ruleCooldownRemaining.Clear();
+        upgradeRuleCooldownRemaining.Clear();
         ClearNextProjectileDamage();
+    }
+
+    void TickRuleCooldowns(Dictionary<int, float> cooldowns, float deltaSeconds)
+    {
+        if (cooldowns == null || cooldowns.Count == 0 || deltaSeconds <= 0f)
+            return;
+
+        cooldownKeys.Clear();
+        foreach (var entry in cooldowns)
+            cooldownKeys.Add(entry.Key);
+
+        for (int i = 0; i < cooldownKeys.Count; i++)
+        {
+            int key = cooldownKeys[i];
+            float remaining = cooldowns[key] - deltaSeconds;
+            if (remaining <= 0f)
+                cooldowns.Remove(key);
+            else
+                cooldowns[key] = remaining;
+        }
     }
 
     public void TryChargeNextProjectileDamage()

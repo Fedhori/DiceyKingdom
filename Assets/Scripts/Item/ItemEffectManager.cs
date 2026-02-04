@@ -98,6 +98,12 @@ public sealed class ItemEffectManager : MonoBehaviour
         if (Math.Abs(value) <= 0d)
             return;
 
+        if (layer == StatLayer.Temporary && dto.durationSeconds > 0f)
+        {
+            player.AddTimedModifier(dto.statId, dto.effectMode, value, dto.durationSeconds);
+            return;
+        }
+
         string source = sourceUid ?? item.UniqueId;
         player.Stats.AddModifier(new StatModifier(
             statId: dto.statId,

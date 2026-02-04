@@ -70,6 +70,9 @@ public sealed class PlayerManager : MonoBehaviour
 
     void Update()
     {
+        if (Current != null)
+            Current.TickTimedModifiers(Time.deltaTime);
+
         currentStatUIUpdateCycle += Time.deltaTime;
         if (currentStatUIUpdateCycle >= statUIUpdateCycle)
         {

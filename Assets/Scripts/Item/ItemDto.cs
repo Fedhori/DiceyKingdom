@@ -22,6 +22,7 @@ namespace Data
         OnBlockStatusApplied,
         OnTimeChanged,
         OnTick,
+        OnCriticalHit,
         OnStageEnd
     }
 
@@ -93,6 +94,7 @@ namespace Data
         public StatOpKind effectMode;
 
             public float value;
+            public float durationSeconds;
 
             [JsonConverter(typeof(StringEnumConverter))]
             public StatLayer duration = StatLayer.Temporary;
