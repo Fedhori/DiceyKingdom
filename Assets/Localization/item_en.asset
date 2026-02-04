@@ -271,6 +271,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
+  - m_Id: 14445880777650188
+    m_Localized: Kunai
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14445880777650189
+    m_Localized: This weapon's <style="critical">critical</style> chance is <style="value">x{mult0}</style>.
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
   references:
     version: 2
     RefIds:
@@ -304,3 +313,4 @@ MonoBehaviour:
         - id: 14445880777650184
         - id: 14445880777650185
         - id: 14445880777650187
+        - id: 14445880777650189

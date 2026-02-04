@@ -6171,6 +6171,8 @@ MonoBehaviour:
     prefab: {fileID: 9170274611095153668, guid: 5dd94142ee9157b4c9502c56079f1e7d, type: 3}
   - key: projectile.caltrops
     prefab: {fileID: 1520270534122810644, guid: e13ab710259d4b84c8b474b14b1f6ffc, type: 3}
+  - key: projectile.kunai
+    prefab: {fileID: 1520270534122810644, guid: e13ab710259d4b84c8b474b14b1f6ffc, type: 3}
   parent: {fileID: 258862835}
 --- !u!1 &992994259
 GameObject:

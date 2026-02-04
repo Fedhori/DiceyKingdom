@@ -996,6 +996,38 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "item.kunai",
+			"isObject": true,
+			"price": 6,
+			"rarity": "Uncommon",
+			"damageMultiplier": 0.5,
+			"attackSpeed": 4.0,
+			"projectile": {
+				"key": "projectile.kunai",
+				"size": 1.0,
+				"speed": 1.0,
+				"randomAngle": 3.0
+			},
+			"rules": [
+				{
+					"triggerType": "OnAcquire",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyItemStat",
+							"target": "Self",
+							"statId": "criticalChanceMultiplier",
+							"effectMode": "Mult",
+							"value": 1.0,
+							"duration": "Owned"
+						}
+					]
+				}
+			]
 		}
 	]
 }
