@@ -876,6 +876,29 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "item.luckycharm",
+			"isObject": false,
+			"price": 4,
+			"rarity": "Common",
+			"rules": [
+				{
+					"triggerType": "OnAcquire",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStat",
+							"statId": "criticalChance",
+							"effectMode": "Add",
+							"value": 10.0,
+							"duration": "Owned"
+						}
+					]
+				}
+			]
 		}
 	]
 }

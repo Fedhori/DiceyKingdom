@@ -333,7 +333,7 @@
 			"price": 4,
 			"rarity": "Common",
 			"requiresSolo": true,
-			"isNotSell": true,
+			"isNotSell": "true",
 			"conditions": [
 				{
 					"conditionKind": "HasDamageMultiplier"
@@ -346,27 +346,6 @@
 					"statId": "damageMultiplier",
 					"effectMode": "Mult",
 					"value": 2.0,
-					"duration": "Upgrade"
-				}
-			]
-		},
-		{
-			"id": "upgrade.lasersight",
-			"price": 6,
-			"rarity": "Uncommon",
-			"isNotSell": true,
-			"conditions": [
-				{
-					"conditionKind": "HasDamageMultiplier"
-				}
-			],
-			"effects": [
-				{
-					"effectType": "ModifyItemStat",
-					"target": "Self",
-					"statId": "criticalChanceMultiplier",
-					"effectMode": "Mult",
-					"value": 1.0,
 					"duration": "Upgrade"
 				}
 			]
