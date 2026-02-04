@@ -251,6 +251,9 @@ public static class ItemTooltipUtil
         if (rule?.condition is { intervalSeconds: > 0f })
             dict["intervalSeconds"] = rule.condition.intervalSeconds.ToString("0.##");
 
+        if (rule?.condition is { chance: > 0f })
+            dict["chancePercent"] = (rule.condition.chance * 100f).ToString("0.##");
+
         if (item is { PelletCount: > 1 })
             dict["pelletCount"] = item.PelletCount;
 

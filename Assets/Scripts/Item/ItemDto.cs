@@ -32,7 +32,8 @@ namespace Data
         Always,
         PlayerIdle,
         EveryNthTrigger,
-        Time
+        Time,
+        Chance
     }
 
         public enum ItemEffectType
@@ -40,6 +41,7 @@ namespace Data
             Unknown = 0,
             ModifyStat,
             ModifyStatStack,
+            ApplyStatusToTargetBlock,
             AddCurrency,
             SpawnProjectile,
             ApplyStatusToRandomBlocks,
@@ -78,6 +80,7 @@ namespace Data
 
         public int count;
         public float intervalSeconds;
+        public float chance;
     }
 
     [Serializable]

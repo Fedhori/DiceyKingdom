@@ -34,6 +34,9 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.ModifyStatStack:
                 ApplyStatStack(dto, item, sourceUid);
                 break;
+            case ItemEffectType.ApplyStatusToTargetBlock:
+                ApplyStatusToTargetBlock(dto);
+                break;
             case ItemEffectType.AddCurrency:
                 ApplyCurrency(dto);
                 break;
@@ -181,6 +184,28 @@ public sealed class ItemEffectManager : MonoBehaviour
             return;
 
         manager.ApplyStatusToRandomBlocks(dto.statusType, count, stack);
+    }
+
+    void ApplyStatusToTargetBlock(ItemEffectDto dto)
+    {
+        if (dto == null)
+            return;
+
+        if (dto.statusType == BlockStatusType.Unknown)
+        {
+            Debug.LogWarning("[ItemEffectManager] ApplyStatusToTargetBlock with Unknown statusType.");
+            return;
+        }
+
+        var target = ItemManager.Instance?.CurrentTriggerBlock;
+        if (target == null)
+            return;
+
+        int stack = Mathf.Max(1, Mathf.FloorToInt(dto.value));
+        if (stack <= 0)
+            return;
+
+        target.ApplyStatus(dto.statusType, stack);
     }
 
     void ModifyItemStat(ItemEffectDto dto, ItemInstance sourceItem, string sourceUid)
@@ -413,6 +438,7 @@ public sealed class ItemEffectManager : MonoBehaviour
         switch (effectType)
         {
             case ItemEffectType.ModifyStat:
+            case ItemEffectType.ModifyStatStack:
             case ItemEffectType.ModifyItemStat:
             case ItemEffectType.SetItemStat:
             case ItemEffectType.SetStat:

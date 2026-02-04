@@ -262,6 +262,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
+  - m_Id: 14445880777650186
+    m_Localized: Icicle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14445880777650187
+    m_Localized: On <style="critical">critical</style> hit, <style="value">{chancePercent}%</style> chance to apply <style="freeze">Freeze</style> <style="value">{value0}</style> to the block.
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
   references:
     version: 2
     RefIds:
@@ -294,3 +303,4 @@ MonoBehaviour:
         - id: 14445880777650182
         - id: 14445880777650184
         - id: 14445880777650185
+        - id: 14445880777650187

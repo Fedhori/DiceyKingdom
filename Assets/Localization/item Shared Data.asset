@@ -363,6 +363,14 @@ MonoBehaviour:
     m_Key: item.matchbox.effect1
     m_Metadata:
       m_Items: []
+  - m_Id: 14445880777650186
+    m_Key: item.icicle.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14445880777650187
+    m_Key: item.icicle.effect0
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

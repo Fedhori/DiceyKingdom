@@ -19,6 +19,7 @@ public sealed class ItemManager : MonoBehaviour
     readonly HashSet<ItemInstance> effectSources = new();
     readonly ItemInventory inventory = new();
     PlayerInstance subscribedPlayer;
+    BlockController currentTriggerBlock;
     int lastCurrency;
     bool isPlayActive;
     float tickTimer;
@@ -47,6 +48,7 @@ public sealed class ItemManager : MonoBehaviour
     }
 
     public ItemInventory Inventory => inventory;
+    public BlockController CurrentTriggerBlock => currentTriggerBlock;
 
     public int GetPierceBonus()
     {
@@ -73,6 +75,14 @@ public sealed class ItemManager : MonoBehaviour
 
     public void TriggerAll(ItemTriggerType trigger)
     {
+        TriggerAll(trigger, null);
+    }
+
+    public void TriggerAll(ItemTriggerType trigger, BlockController targetBlock)
+    {
+        var previous = currentTriggerBlock;
+        currentTriggerBlock = targetBlock;
+
         var slots = inventory.Slots;
         for (int i = 0; i < slots.Count; i++)
         {
@@ -84,16 +94,28 @@ public sealed class ItemManager : MonoBehaviour
             for (int r = 0; r < repeat; r++)
                 inst.HandleTrigger(trigger);
         }
+
+        currentTriggerBlock = previous;
     }
 
     public void TriggerItem(ItemInstance item, ItemTriggerType trigger)
     {
+        TriggerItem(item, trigger, null);
+    }
+
+    public void TriggerItem(ItemInstance item, ItemTriggerType trigger, BlockController targetBlock)
+    {
         if (item == null)
             return;
+
+        var previous = currentTriggerBlock;
+        currentTriggerBlock = targetBlock;
 
         int repeat = item.GetTriggerRepeat(trigger);
         for (int r = 0; r < repeat; r++)
             item.HandleTrigger(trigger);
+
+        currentTriggerBlock = previous;
     }
 
 

@@ -448,6 +448,15 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938704
+  - m_Id: 14445880777650186
+    m_Localized: "\uACE0\uB4DC\uB984"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14445880777650187
+    m_Localized: "<style=\"critical\">\uCE58\uBA85\uD0C0</style> \uBC1C\uC0DD \uC2DC <style=\"value\">{chancePercent}%</style> \uD655\uB960\uB85C \uBE14\uB7ED\uC5D0 <style=\"freeze\">\uBE59\uACB0</style> <style=\"value\">{value0}</style> \uBD80\uC5EC"
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938704
   references:
     version: 2
     RefIds:
@@ -489,3 +498,4 @@ MonoBehaviour:
         - id: 14445880777650182
         - id: 14445880777650184
         - id: 14445880777650185
+        - id: 14445880777650187

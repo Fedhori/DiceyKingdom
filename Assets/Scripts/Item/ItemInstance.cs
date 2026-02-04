@@ -310,6 +310,16 @@ public sealed class ItemInstance
 
                 cooldowns[ruleIndex] = interval;
                 return true;
+            case ItemConditionKind.Chance:
+                float chance = condition.chance;
+                if (chance <= 0f)
+                    return false;
+                if (chance >= 1f)
+                    return true;
+
+                var rng = GameManager.Instance != null ? GameManager.Instance.Rng : null;
+                rng ??= new System.Random();
+                return rng.NextDouble() < chance;
             default:
                 Debug.LogWarning($"[ItemInstance] Unsupported condition {condition.conditionKind} for trigger {trigger}");
                 return false;

@@ -974,6 +974,28 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "item.icicle",
+			"isObject": false,
+			"price": 6,
+			"rarity": "Uncommon",
+			"rules": [
+				{
+					"triggerType": "OnCriticalHit",
+					"condition": {
+						"conditionKind": "Chance",
+						"chance": 0.5
+					},
+					"effects": [
+						{
+							"effectType": "ApplyStatusToTargetBlock",
+							"statusType": "Freeze",
+							"value": 1.0
+						}
+					]
+				}
+			]
 		}
 	]
 }
