@@ -111,9 +111,7 @@
 				"spreadAngle": 10.0,
 				"randomAngle": 5.0
 			},
-			"rules": [
-				{}
-			]
+			"rules": [{}]
 		},
 		{
 			"id": "item.sniperrifle",
@@ -168,9 +166,7 @@
 				"isHoming": true,
 				"randomAngle": 0.0
 			},
-			"rules": [
-				{}
-			]
+			"rules": [{}]
 		},
 		{
 			"id": "item.spring",
@@ -320,9 +316,7 @@
 				"thickness": 64.0,
 				"duration": 1.0
 			},
-			"rules": [
-				{}
-			]
+			"rules": [{}]
 		},
 		{
 			"id": "item.grenadelauncher",
@@ -373,9 +367,7 @@
 				"areaDamageTick": true,
 				"lifetime": 5.0
 			},
-			"rules": [
-				{}
-			]
+			"rules": [{}]
 		},
 		{
 			"id": "item.alarmclock",
@@ -435,9 +427,7 @@
 				"size": 1.0,
 				"speed": 1.0
 			},
-			"rules": [
-				{}
-			]
+			"rules": [{}]
 		},
 		{
 			"id": "item.cannon",
@@ -938,6 +928,47 @@
 							"statId": "criticalChance",
 							"effectMode": "Add",
 							"value": 10.0,
+							"duration": "Temporary"
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "item.matchbox",
+			"isObject": false,
+			"price": 6,
+			"rarity": "Uncommon",
+			"rules": [
+				{
+					"triggerType": "OnPlayStart",
+					"condition": {
+						"conditionKind": "Always"
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStatStack",
+							"statId": "criticalChance",
+							"effectMode": "Add",
+							"value": 30.0,
+							"minValue": 0.0,
+							"duration": "Temporary"
+						}
+					]
+				},
+				{
+					"triggerType": "OnTimeChanged",
+					"condition": {
+						"conditionKind": "Time",
+						"intervalSeconds": 1.0
+					},
+					"effects": [
+						{
+							"effectType": "ModifyStatStack",
+							"statId": "criticalChance",
+							"effectMode": "Add",
+							"value": -1.0,
+							"minValue": 0.0,
 							"duration": "Temporary"
 						}
 					]

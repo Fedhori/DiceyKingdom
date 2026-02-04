@@ -69,6 +69,7 @@ public static class TooltipDynamicValueUtil
         switch (effect.effectType)
         {
             case ItemEffectType.ModifyStat:
+            case ItemEffectType.ModifyStatStack:
             case ItemEffectType.SetStat:
             {
                 var player = PlayerManager.Instance?.Current;

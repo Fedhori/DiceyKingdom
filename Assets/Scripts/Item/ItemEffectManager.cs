@@ -31,6 +31,9 @@ public sealed class ItemEffectManager : MonoBehaviour
             case ItemEffectType.ModifyStat:
                 ApplyPlayerStat(dto, item, sourceUid);
                 break;
+            case ItemEffectType.ModifyStatStack:
+                ApplyStatStack(dto, item, sourceUid);
+                break;
             case ItemEffectType.AddCurrency:
                 ApplyCurrency(dto);
                 break;
@@ -426,6 +429,41 @@ public sealed class ItemEffectManager : MonoBehaviour
             return;
 
         item.TryChargeNextProjectileDamage();
+    }
+
+    void ApplyStatStack(ItemEffectDto dto, ItemInstance item, string sourceUid)
+    {
+        if (dto == null || item == null)
+            return;
+
+        var player = PlayerManager.Instance?.Current;
+        if (player == null)
+            return;
+
+        if (string.IsNullOrEmpty(dto.statId))
+        {
+            Debug.LogWarning("[ItemEffectManager] ModifyStatStack with empty statId.");
+            return;
+        }
+
+        double multiplier = ItemEffectMultiplierResolver.Resolve(dto, item);
+        double value = dto.value * multiplier;
+
+        double stacked = item.ModifyStatStack(dto.statId, dto.effectMode, value, dto.minValue, dto.maxValue);
+
+        string source = sourceUid ?? item.UniqueId;
+        player.Stats.RemoveModifiers(dto.statId, dto.duration, source);
+
+        if (Math.Abs(stacked) <= 0d)
+            return;
+
+        player.Stats.AddModifier(new StatModifier(
+            statId: dto.statId,
+            opKind: StatOpKind.Add,
+            value: stacked,
+            layer: dto.duration,
+            source: source
+        ));
     }
 
     void AddGuaranteedCriticalHits(ItemEffectDto dto, ItemInstance sourceItem)

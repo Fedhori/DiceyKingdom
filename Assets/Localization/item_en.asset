@@ -248,6 +248,20 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2507345486982938703
+  - m_Id: 14445880777650183
+    m_Localized: Matchbox
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14445880777650184
+    m_Localized: At the start of each stage, <style="critical">critical</style> chance <style="value">+{value0}%</style>.
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
+  - m_Id: 14445880777650185
+    m_Localized: Every <style="value">{intervalSeconds}</style>s, <style="critical">critical</style> chance <style="value">-{absValue0}%</style> (min <style="value">0%</style>).
+    m_Metadata:
+      m_Items:
+      - rid: 2507345486982938703
   references:
     version: 2
     RefIds:
@@ -278,3 +292,5 @@ MonoBehaviour:
         - id: 14445880777650178
         - id: 14445880777650180
         - id: 14445880777650182
+        - id: 14445880777650184
+        - id: 14445880777650185

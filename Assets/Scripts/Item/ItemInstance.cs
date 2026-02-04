@@ -135,6 +135,7 @@ public sealed class ItemInstance
     readonly Dictionary<int, float> upgradeRuleCooldownRemaining = new();
     readonly List<int> cooldownKeys = new();
     readonly StatSet triggerRepeatStats = new();
+    readonly Dictionary<string, double> statStacks = new();
 
     public ItemInstance(ItemDto dto, string uniqueId = null)
     {
@@ -374,7 +375,41 @@ public sealed class ItemInstance
         upgradeRuleElapsedSeconds.Clear();
         ruleCooldownRemaining.Clear();
         upgradeRuleCooldownRemaining.Clear();
+        statStacks.Clear();
         ClearNextProjectileDamage();
+    }
+
+    public double ModifyStatStack(string statId, StatOpKind opKind, double value, double? minValue, double? maxValue)
+    {
+        if (string.IsNullOrEmpty(statId))
+            return 0d;
+
+        if (!statStacks.TryGetValue(statId, out var current))
+            current = 0d;
+
+        switch (opKind)
+        {
+            case StatOpKind.Add:
+                current += value;
+                break;
+            case StatOpKind.Override:
+                current = value;
+                break;
+            case StatOpKind.Mult:
+                current *= (1d + value);
+                break;
+            default:
+                current += value;
+                break;
+        }
+
+        if (minValue.HasValue)
+            current = Math.Max(minValue.Value, current);
+        if (maxValue.HasValue)
+            current = Math.Min(maxValue.Value, current);
+
+        statStacks[statId] = current;
+        return current;
     }
 
     void TickRuleCooldowns(Dictionary<int, float> cooldowns, float deltaSeconds)

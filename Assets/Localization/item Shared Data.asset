@@ -351,6 +351,18 @@ MonoBehaviour:
     m_Key: item.adrenaline.effect0
     m_Metadata:
       m_Items: []
+  - m_Id: 14445880777650183
+    m_Key: item.matchbox.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14445880777650184
+    m_Key: item.matchbox.effect0
+    m_Metadata:
+      m_Items: []
+  - m_Id: 14445880777650185
+    m_Key: item.matchbox.effect1
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -39,6 +39,7 @@ namespace Data
         {
             Unknown = 0,
             ModifyStat,
+            ModifyStatStack,
             AddCurrency,
             SpawnProjectile,
             ApplyStatusToRandomBlocks,
@@ -91,10 +92,12 @@ namespace Data
         public string statId;
 
         [JsonConverter(typeof(StringEnumConverter))]
-        public StatOpKind effectMode;
+            public StatOpKind effectMode;
 
             public float value;
             public float durationSeconds;
+            public float? minValue;
+            public float? maxValue;
 
             [JsonConverter(typeof(StringEnumConverter))]
             public StatLayer duration = StatLayer.Temporary;
