@@ -55,7 +55,6 @@ public sealed class TooltipManager : MonoBehaviour
     {
         SceneManager.activeSceneChanged += OnActiveSceneChanged;
         UiSelectionEvents.OnSelectionCleared += HandleSelectionCleared;
-        GameStats.StatSet.OnAnyStatChanged += HandleStatChanged;
         UpdateWorldCamera();
     }
 
@@ -64,7 +63,6 @@ public sealed class TooltipManager : MonoBehaviour
         if (Instance == this)
             SceneManager.activeSceneChanged -= OnActiveSceneChanged;
         UiSelectionEvents.OnSelectionCleared -= HandleSelectionCleared;
-        GameStats.StatSet.OnAnyStatChanged -= HandleStatChanged;
     }
 
     void OnActiveSceneChanged(Scene oldScene, Scene newScene)
@@ -258,37 +256,6 @@ public sealed class TooltipManager : MonoBehaviour
         ClearPin();
     }
 
-    void HandleStatChanged(GameStats.StatSet stats, string statId)
-    {
-        if (!hasCurrentModel || currentOwner == null)
-            return;
-
-        if (dragHidden)
-            return;
-
-        if (!TryRebuildCurrentModel(out var model, out var anchor))
-            return;
-
-        currentModel = model;
-        currentAnchor = anchor;
-        hasCurrentModel = true;
-
-        if (showRoutine != null && !isPinned)
-            return;
-
-        ShowNow();
-    }
-
-    bool TryRebuildCurrentModel(out TooltipModel model, out TooltipAnchor anchor)
-    {
-        model = default;
-        anchor = default;
-
-        if (currentOwner is not ItemTooltipTarget target)
-            return false;
-
-        return target.TryBuildTooltip(out model, out anchor);
-    }
 
     IEnumerator ShowDelayed()
     {

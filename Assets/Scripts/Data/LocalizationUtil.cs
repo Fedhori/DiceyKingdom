@@ -1,16 +1,24 @@
+using System.Collections.Generic;
 using UnityEngine.Localization;
 
 public static class LocalizationUtil
 {
-    public static string GetItemName(string id)
+    public static string Get(string table, string key, Dictionary<string, object> args = null)
     {
-        return new LocalizedString("item", $"{id}.name").GetLocalizedString();
+        if (string.IsNullOrEmpty(table) || string.IsNullOrEmpty(key))
+            return string.Empty;
+
+        var reference = new LocalizedString(table, key);
+        if (args != null)
+            reference.Arguments = new object[] { args };
+        return reference.GetLocalizedString();
     }
 
-    public static string GetUpgradeName(string id)
+    public static LocalizedString Build(string table, string key, Dictionary<string, object> args = null)
     {
-        return new LocalizedString("upgrade", $"{id}.name").GetLocalizedString();
+        var reference = new LocalizedString(table, key);
+        if (args != null)
+            reference.Arguments = new object[] { args };
+        return reference;
     }
-    
-    public static string SoldString = new LocalizedString("game", "game.sold.label").GetLocalizedString();
 }

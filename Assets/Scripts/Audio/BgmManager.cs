@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public sealed class BgmManager : MonoBehaviour
 {
@@ -12,12 +11,11 @@ public sealed class BgmManager : MonoBehaviour
     [SerializeField] private float volume = 1f;
     [SerializeField] private bool playOnStart = true;
 
-    [Header("Muffle (Shop)")]
+    [Header("Muffle")]
     [SerializeField] private AudioLowPassFilter lowPassFilter;
     [SerializeField] private float normalCutoff = 22000f;
     [SerializeField] private float muffledCutoff = 900f;
 
-    StageManager subscribedStageManager;
     bool isMuffled;
     float baseVolume;
 
@@ -54,73 +52,17 @@ public sealed class BgmManager : MonoBehaviour
 
     void OnEnable()
     {
-        SceneManager.activeSceneChanged += HandleSceneChanged;
-        SubscribeStageManager();
-        RefreshVolumeForScene(SceneManager.GetActiveScene().name);
+        ApplyVolume();
     }
 
     void Start()
     {
         if (playOnStart)
             Play();
-
-        RefreshMuffleState();
     }
 
     void OnDisable()
     {
-        SceneManager.activeSceneChanged -= HandleSceneChanged;
-        UnsubscribeStageManager();
-    }
-
-    void SubscribeStageManager()
-    {
-        UnsubscribeStageManager();
-
-        var stageManager = StageManager.Instance;
-        if (stageManager == null)
-            return;
-
-        subscribedStageManager = stageManager;
-        subscribedStageManager.OnPhaseChanged += HandlePhaseChanged;
-    }
-
-    void UnsubscribeStageManager()
-    {
-        if (subscribedStageManager == null)
-            return;
-
-        subscribedStageManager.OnPhaseChanged -= HandlePhaseChanged;
-        subscribedStageManager = null;
-    }
-
-    void HandlePhaseChanged(StagePhase phase)
-    {
-        SetMuffled(phase != StagePhase.Play);
-    }
-
-    void HandleSceneChanged(Scene previous, Scene next)
-    {
-        _ = previous;
-        UnsubscribeStageManager();
-        SubscribeStageManager();
-        RefreshMuffleState();
-        RefreshVolumeForScene(next.name);
-    }
-
-    void RefreshMuffleState()
-    {
-        var stageManager = StageManager.Instance;
-        SetMuffled(stageManager != null && stageManager.CurrentPhase != StagePhase.Play);
-    }
-
-    void RefreshVolumeForScene(string sceneName)
-    {
-        if (audioSource == null)
-            return;
-
-        float multiplier = sceneName == "MainMenuScene" ? 0.5f : 1f;
-        audioSource.volume = Mathf.Clamp01(baseVolume * multiplier);
     }
 
     public float BaseVolume => baseVolume;
@@ -130,7 +72,7 @@ public sealed class BgmManager : MonoBehaviour
         baseVolume = Mathf.Clamp01(value);
         PlayerPrefs.SetFloat(PrefsKeyBaseVolume, baseVolume);
         PlayerPrefs.Save();
-        RefreshVolumeForScene(SceneManager.GetActiveScene().name);
+        ApplyVolume();
     }
 
     public void Play()
@@ -156,7 +98,7 @@ public sealed class BgmManager : MonoBehaviour
             audioSource.Stop();
     }
 
-    void SetMuffled(bool muffled)
+    public void SetMuffled(bool muffled)
     {
         if (lowPassFilter == null)
             return;
@@ -166,5 +108,13 @@ public sealed class BgmManager : MonoBehaviour
 
         isMuffled = muffled;
         lowPassFilter.cutoffFrequency = muffled ? muffledCutoff : normalCutoff;
+    }
+
+    void ApplyVolume()
+    {
+        if (audioSource == null)
+            return;
+
+        audioSource.volume = Mathf.Clamp01(baseVolume);
     }
 }

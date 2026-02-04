@@ -17,6 +17,8 @@ public sealed class ParticleManager : MonoBehaviour
     public const string ExplosionKey = "projectile.explosion";
 
     [SerializeField] private List<Entry> entries = new();
+    [SerializeField] private float explosionSpeedPerRadius = 2f;
+    [SerializeField] private float explosionSizePerRadius = 0.1f;
 
     readonly Dictionary<string, ParticleSystem> map = new(StringComparer.OrdinalIgnoreCase);
 
@@ -57,8 +59,8 @@ public sealed class ParticleManager : MonoBehaviour
 
     public void PlayExplosion(Vector3 position, float radius)
     {
-        float speed = Mathf.Max(0f, radius * GameConfig.ExplosionSpeedPerRadius);
-        float size = Mathf.Max(0f, radius * GameConfig.ExplosionSizePerRadius);
+        float speed = Mathf.Max(0f, radius * explosionSpeedPerRadius);
+        float size = Mathf.Max(0f, radius * explosionSizePerRadius);
         Play(ExplosionKey, position, null, speed, size);
     }
 

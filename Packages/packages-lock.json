@@ -28,12 +28,6 @@
       },
       "hash": "17c6a36c8dcdda49017001abcce158e75b3d7d05"
     },
-    "com.projectp.common": {
-      "version": "file:com.projectp.common",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
-    },
     "com.unity.2d.animation": {
       "version": "12.0.2",
       "depth": 0,

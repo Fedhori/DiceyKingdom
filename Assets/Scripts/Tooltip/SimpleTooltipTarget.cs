@@ -3,9 +3,11 @@ using UnityEngine.EventSystems;
 
 public sealed class SimpleTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    [Header("Tooltip Text")]
-    [SerializeField, TextArea] string title;
-    [SerializeField, TextArea] string body;
+    [Header("Tooltip Text (Localization)")]
+    [SerializeField] string titleTable;
+    [SerializeField] string titleKey;
+    [SerializeField] string bodyTable;
+    [SerializeField] string bodyKey;
 
     [Header("Anchor Rect (optional)")]
     [SerializeField] RectTransform anchorRect;
@@ -36,8 +38,8 @@ public sealed class SimpleTooltipTarget : MonoBehaviour, IPointerEnterHandler, I
         Vector2 screenLeftTop = RectTransformUtility.WorldToScreenPoint(null, topLeftWorld);
 
         var model = new TooltipModel(
-            title,
-            body,
+            LocalizationUtil.Get(titleTable, titleKey),
+            LocalizationUtil.Get(bodyTable, bodyKey),
             TooltipKind.Simple
         );
 

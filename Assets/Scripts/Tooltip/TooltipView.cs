@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
@@ -66,8 +65,8 @@ public sealed class TooltipView : MonoBehaviour
             descriptionText.text = model.body ?? string.Empty;
 
         BuildKeywordRows(model.keywordEntries);
-        ApplyType(model.kind);
-        ApplyNameBackground(model.kind, model.rarity);
+        ApplyTypeHidden();
+        ResetNameBackground();
 
         // if (iconImage != null)
         // {
@@ -135,71 +134,24 @@ public sealed class TooltipView : MonoBehaviour
             toggleButton.onClick.RemoveListener(HandleToggleButtonClicked);
     }
 
-    void ApplyType(TooltipKind kind)
+    void ApplyTypeHidden()
     {
-        if (kind == TooltipKind.Simple)
-        {
-            if (typeImage != null)
-                typeImage.gameObject.SetActive(false);
-            if (typeText != null)
-            {
-                typeText.gameObject.SetActive(false);
-                typeText.text = string.Empty;
-            }
-            return;
-        }
-
-        var type = ResolveType(kind);
-
         if (typeImage != null)
-        {
-            typeImage.gameObject.SetActive(true);
-            typeImage.color = GetTypeColor(type);
-        }
-
+            typeImage.gameObject.SetActive(false);
         if (typeText != null)
         {
-            typeText.gameObject.SetActive(true);
-            typeText.text = GetTypeLabel(type);
+            typeText.gameObject.SetActive(false);
+            typeText.text = string.Empty;
         }
     }
 
-    void ApplyNameBackground(TooltipKind kind, ItemRarity rarity)
+    void ResetNameBackground()
     {
         if (nameImage == null)
             return;
 
-        if (kind == TooltipKind.Simple)
-        {
-            if (hasNameImageDefaultColor)
-                nameImage.color = nameImageDefaultColor;
-            return;
-        }
-
-        nameImage.color = Colors.GetRarityColor(rarity);
-    }
-
-    static ProductType ResolveType(TooltipKind kind)
-    {
-        return kind == TooltipKind.Upgrade ? ProductType.Upgrade : ProductType.Item;
-    }
-
-    Color GetTypeColor(ProductType type)
-    {
-        return type == ProductType.Upgrade ? Colors.Upgrade : Colors.Item;
-    }
-
-    string GetTypeLabel(ProductType type)
-    {
-        string key = type switch
-        {
-            ProductType.Item => "tooltip.item.label",
-            ProductType.Upgrade => "tooltip.upgrade.label",
-            _ => "tooltip.item.label"
-        };
-
-        var loc = new UnityEngine.Localization.LocalizedString("tooltip", key);
-        return loc.GetLocalizedString();
+        if (hasNameImageDefaultColor)
+            nameImage.color = nameImageDefaultColor;
     }
 
     void BuildKeywordRows(IReadOnlyList<TooltipKeywordEntry> entries)

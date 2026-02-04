@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Newtonsoft.Json;
+using UnityEngine;
 
 public sealed class SaveServiceResult
 {
@@ -22,6 +23,7 @@ public static class SaveService
 
         data.meta ??= new SaveMeta();
         data.meta.schemaVersion = SaveMeta.CurrentSchemaVersion;
+        data.meta.appVersion = Application.version;
         data.meta.timestampUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         data.meta.checksum = string.Empty;
 

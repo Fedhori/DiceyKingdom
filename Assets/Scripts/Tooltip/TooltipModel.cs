@@ -1,19 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Data;
 using UnityEngine;
 
 public enum TooltipKind
 {
-    Simple,
-    Item,
-    Upgrade
-}
-
-public enum TooltipDisplayMode
-{
-    Item,
-    Upgrade
+    Simple
 }
 
 public readonly struct TooltipKeywordEntry
@@ -51,7 +42,6 @@ public readonly struct TooltipModel
     public readonly string title;
     public readonly string body;
     public readonly TooltipKind kind;
-    public readonly ItemRarity rarity;
     public readonly IReadOnlyList<TooltipKeywordEntry> keywordEntries;
     public readonly TooltipButtonConfig buttonConfig;
 
@@ -59,14 +49,12 @@ public readonly struct TooltipModel
         string title,
         string body,
         TooltipKind kind,
-        ItemRarity rarity = ItemRarity.Common,
         IReadOnlyList<TooltipKeywordEntry> keywordEntries = null,
         TooltipButtonConfig buttonConfig = null)
     {
         this.title = title;
         this.body = body;
         this.kind = kind;
-        this.rarity = rarity;
         this.keywordEntries = keywordEntries;
         this.buttonConfig = buttonConfig;
     }

@@ -28,8 +28,8 @@
 ## 공통 패턴
 
 - 매니저/컨트롤러는 `public static Instance` 싱글톤 패턴을 사용하며, 중복 생성 시 `Awake`에서 파괴 처리합니다.
-- 부팅 흐름: `Bootstrap` → `SaCache` 초기화 → 매니저 루트 `DontDestroyOnLoad` → `MainMenuScene` 전환.
-- 데이터 초기화는 `StaticDataManager`가 `StreamingAssets` JSON을 읽고 각 Repository를 초기화하는 흐름을 따릅니다.
+- 부팅 흐름은 프로젝트별로 정의하되, `SaCache` 초기화가 필요한 경우 `Bootstrap`에서 수행합니다.
+- 데이터 초기화는 `StaticDataManager` 기반의 JSON 로딩 흐름을 사용하며, 실제 데이터 구조는 프로젝트별로 정의합니다.
 
 ## 텍스트/로컬라이징
 

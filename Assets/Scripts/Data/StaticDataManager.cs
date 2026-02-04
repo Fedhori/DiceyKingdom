@@ -1,17 +1,26 @@
-using UnityEngine;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
+using UnityEngine;
 
-public class StaticDataManager : MonoBehaviour
+public sealed class StaticDataManager : MonoBehaviour
 {
     public static StaticDataManager Instance { get; private set; }
 
-    public List<StageDto> Stages { get; private set; } = new();
-    private static readonly StringComparer SpecKeyComparer = StringComparer.OrdinalIgnoreCase;
+    [Serializable]
+    public sealed class JsonEntry
+    {
+        public string key;
+        public string relativePath;
+    }
 
-    private void Awake()
+    [SerializeField] private List<JsonEntry> entries = new();
+
+    readonly Dictionary<string, string> jsonCache = new(StringComparer.OrdinalIgnoreCase);
+
+    public IReadOnlyDictionary<string, string> JsonCache => jsonCache;
+
+    void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -20,124 +29,52 @@ public class StaticDataManager : MonoBehaviour
         }
 
         Instance = this;
-        LoadAndProcessData();
+        LoadAll();
     }
 
-    void LoadAndProcessData()
+    public void LoadAll()
     {
-        LoadStage();
-        LoadPlayers();
-        LoadItems();
-        LoadUpgrades();
-        LoadBlockPatterns();
-    }
-
-    void LoadStage()
-    {
-        string filePath = Path.Combine("Data", "Stages.json");
-        string json = SaCache.ReadText(filePath);
-
-        if (string.IsNullOrEmpty(json))
+        jsonCache.Clear();
+        for (int i = 0; i < entries.Count; i++)
         {
-            Debug.LogError($"[StaticDataManager] Stages.json not found or empty at: {filePath}");
-            return;
+            var entry = entries[i];
+            if (entry == null || string.IsNullOrEmpty(entry.relativePath))
+                continue;
+
+            var key = string.IsNullOrEmpty(entry.key) ? entry.relativePath : entry.key;
+            TryLoad(entry.relativePath, key);
+        }
+    }
+
+    public bool TryGetJson(string key, out string json)
+    {
+        if (string.IsNullOrEmpty(key))
+        {
+            json = string.Empty;
+            return false;
         }
 
+        return jsonCache.TryGetValue(key, out json);
+    }
+
+    bool TryLoad(string relativePath, string key)
+    {
         try
         {
-            var root = JsonConvert.DeserializeObject<StageRoot>(json);
-            StageRepository.Initialize(root);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[StaticDataManager] Failed to initialize PlayerRepository from Players.json: {e}");
-        }
-    }
+            string json = SaCache.ReadText(relativePath);
+            if (string.IsNullOrEmpty(json))
+            {
+                Debug.LogWarning($"[StaticDataManager] Empty json: {relativePath}");
+                return false;
+            }
 
-    void LoadPlayers()
-    {
-        string filePath = Path.Combine("Data", "Players.json");
-        string json = SaCache.ReadText(filePath);
-
-        if (string.IsNullOrEmpty(json))
-        {
-            Debug.LogError($"[StaticDataManager] Players.json not found or empty at: {filePath}");
-            return;
+            jsonCache[key] = json;
+            return true;
         }
-
-        try
+        catch (IOException e)
         {
-            Data.PlayerRepository.InitializeFromJson(json);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[StaticDataManager] Failed to initialize PlayerRepository from Players.json: {e}");
-        }
-    }
-
-    void LoadItems()
-    {
-        string filePath = Path.Combine("Data", "Items.json");
-        string json = SaCache.ReadText(filePath);
-
-        if (string.IsNullOrEmpty(json))
-        {
-            Debug.LogError($"[StaticDataManager] Items.json not found or empty at: {filePath}");
-            return;
-        }
-
-        try
-        {
-            var asset = new TextAsset(json);
-            Data.ItemRepository.LoadFromJson(asset);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[StaticDataManager] Failed to initialize ItemRepository from Items.json: {e}");
-        }
-    }
-
-    void LoadUpgrades()
-    {
-        string filePath = Path.Combine("Data", "Upgrades.json");
-        string json = SaCache.ReadText(filePath);
-
-        if (string.IsNullOrEmpty(json))
-        {
-            Debug.LogError($"[StaticDataManager] Upgrades.json not found or empty at: {filePath}");
-            return;
-        }
-
-        try
-        {
-            var asset = new TextAsset(json);
-            Data.UpgradeRepository.LoadFromJson(asset);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[StaticDataManager] Failed to initialize UpgradeRepository from Upgrades.json: {e}");
-        }
-    }
-
-    void LoadBlockPatterns()
-    {
-        string filePath = Path.Combine("Data", "Blocks.json");
-        string json = SaCache.ReadText(filePath);
-
-        if (string.IsNullOrEmpty(json))
-        {
-            Debug.LogError($"[StaticDataManager] Blocks.json not found or empty at: {filePath}");
-            return;
-        }
-
-        try
-        {
-            var asset = new TextAsset(json);
-            Data.BlockPatternRepository.LoadFromJson(asset);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[StaticDataManager] Failed to initialize BlockPatternRepository from Blocks.json: {e}");
+            Debug.LogWarning($"[StaticDataManager] Read failed: {relativePath} ({e.Message})");
+            return false;
         }
     }
 }
