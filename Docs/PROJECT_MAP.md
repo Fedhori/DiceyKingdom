@@ -6,6 +6,7 @@
 
 - 게임 구조/시스템/플로우: `Docs/GAME_STRUCTURE.md`
 - 범용 규칙/컨벤션: `Docs/GENERAL_RULES.md`
+- 아이디어 원문/백로그: `Docs/GAME_IDEA_BACKLOG.md`
 - 이 문서: 파일 위치/책임 요약
 
 ## 주요 폴더 구조
@@ -26,6 +27,10 @@
   - 공용 폰트 에셋
 - `Docs`
   - 공통 규칙 및 프로젝트 문서
+  - `GENERAL_RULES.md`: Unity 공통 규칙
+  - `GAME_STRUCTURE.md`: 현재 기준 게임 구조/시스템
+  - `GAME_IDEA_BACKLOG.md`: 아이디어 수집/후보 관리
+  - `PROJECT_MAP.md`: 레포 위치/책임 요약
 
 ## 공용 시스템 위치
 
@@ -42,3 +47,4 @@
 
 - 공통 규칙: `Docs/GENERAL_RULES.md`
 - 게임 구조: `Docs/GAME_STRUCTURE.md`
+- 아이디어 백로그: `Docs/GAME_IDEA_BACKLOG.md`
