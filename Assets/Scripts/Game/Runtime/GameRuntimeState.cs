@@ -17,6 +17,7 @@ public sealed class TurnRuntimeState
 {
     public int turnNumber = 1;
     public TurnPhase phase = TurnPhase.P0TurnStart;
+    public string processingAdventurerInstanceId = string.Empty;
 }
 
 [Serializable]
@@ -72,6 +73,17 @@ public sealed class GameRunState
 
     public void ResetTurnTransientState()
     {
+        turn.processingAdventurerInstanceId = string.Empty;
+
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            var enemy = enemies[i];
+            if (enemy == null)
+                continue;
+
+            enemy.assignedAdventurerIds.Clear();
+        }
+
         for (int i = 0; i < adventurers.Count; i++)
         {
             var adventurer = adventurers[i];

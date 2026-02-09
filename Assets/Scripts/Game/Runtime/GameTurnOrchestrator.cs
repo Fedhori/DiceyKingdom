@@ -52,25 +52,48 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     public bool CommitAssignmentPhase()
     {
-        return TryMoveToPhase(TurnPhase.P2Assignment, TurnPhase.P3Roll);
+        if (!CanAcceptAssignmentInput())
+            return false;
+        if (GetPendingAdventurerCount() > 0)
+            return false;
+
+        SetPhase(TurnPhase.P5Settlement);
+        AdvanceToDecisionPoint();
+        return true;
     }
 
     public bool TryAssignAdventurer(string adventurerInstanceId, string enemyInstanceId)
     {
         if (!CanAcceptAssignmentInput())
             return false;
+        if (!IsAdventurerPending(adventurerInstanceId))
+            return false;
+        if (!string.IsNullOrWhiteSpace(RunState.turn.processingAdventurerInstanceId))
+            return false;
 
         var result = GameAssignmentService.AssignAdventurerToEnemy(RunState, adventurerInstanceId, enemyInstanceId);
         if (result != AssignmentResult.Success)
             return false;
 
+        if (!TryMoveToPhase(TurnPhase.P2Assignment, TurnPhase.P3Roll))
+        {
+            GameAssignmentService.ClearAdventurerAssignment(RunState, adventurerInstanceId);
+            AssignmentChanged?.Invoke(adventurerInstanceId, null);
+            return false;
+        }
+
+        RunState.turn.processingAdventurerInstanceId = adventurerInstanceId;
         AssignmentChanged?.Invoke(adventurerInstanceId, enemyInstanceId);
+        ExecuteP3Roll();
+        SetPhase(TurnPhase.P4Adjustment);
         return true;
     }
 
     public bool TryClearAdventurerAssignment(string adventurerInstanceId)
     {
         if (!CanAcceptAssignmentInput())
+            return false;
+        if (!IsAdventurerPending(adventurerInstanceId))
             return false;
 
         var result = GameAssignmentService.ClearAdventurerAssignment(RunState, adventurerInstanceId);
@@ -86,7 +109,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         if (RunState == null)
             return 0;
 
-        return GameAssignmentService.CountUnassignedAdventurers(RunState);
+        return GameAssignmentService.CountPendingAdventurers(RunState);
     }
 
     public bool RequestCommitAssignmentPhase()
@@ -94,10 +117,10 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         if (!CanAcceptAssignmentInput())
             return false;
 
-        int unassignedCount = GetUnassignedAdventurerCount();
-        if (unassignedCount > 0)
+        int pendingCount = GetUnassignedAdventurerCount();
+        if (pendingCount > 0)
         {
-            AssignmentCommitConfirmationRequested?.Invoke(unassignedCount);
+            AssignmentCommitConfirmationRequested?.Invoke(pendingCount);
             return false;
         }
 
@@ -106,7 +129,13 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     public bool ConfirmCommitAssignmentPhase()
     {
-        return CommitAssignmentPhase();
+        if (!CanAcceptAssignmentInput())
+            return false;
+
+        MarkAllPendingAdventurersConsumed();
+        SetPhase(TurnPhase.P5Settlement);
+        AdvanceToDecisionPoint();
+        return true;
     }
 
     public bool CommitRollPhase()
@@ -129,10 +158,17 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             return false;
 
         ExecuteP4Adjustment();
-        SetPhase(TurnPhase.P5Settlement);
+        if (GetPendingAdventurerCount() > 0)
+        {
+            SetPhase(TurnPhase.P2Assignment);
+        }
+        else
+        {
+            SetPhase(TurnPhase.P5Settlement);
+            // P5, P6, 다음 턴 P0/P1까지 자동 처리한 뒤 P2에서 대기.
+            AdvanceToDecisionPoint();
+        }
 
-        // P5, P6, 다음 턴 P0/P1까지 자동 처리한 뒤 P2에서 대기.
-        AdvanceToDecisionPoint();
         return true;
     }
 
@@ -159,6 +195,12 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             return false;
         if (!CanUseSkillInPhase(skillDef, RunState.turn.phase))
             return false;
+
+        if (RunState.turn.phase == TurnPhase.P4Adjustment &&
+            string.IsNullOrWhiteSpace(selectedAdventurerInstanceId))
+        {
+            selectedAdventurerInstanceId = RunState.turn.processingAdventurerInstanceId;
+        }
 
         var context = new EffectTargetContext(
             selectedEnemyInstanceId,
@@ -243,6 +285,8 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     void ExecuteP1BoardUpdate()
     {
+        RunState.turn.processingAdventurerInstanceId = string.Empty;
+
         bool spawned = GameRunBootstrap.TrySpawnStagePresetIfBoardCleared(RunState, staticData, rng);
         if (spawned)
             StageSpawned?.Invoke(RunState.stage.stageNumber, RunState.stage.activePresetId);
@@ -252,79 +296,60 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     void ExecuteP3Roll()
     {
-        for (int i = 0; i < RunState.adventurers.Count; i++)
+        var adventurer = FindCurrentProcessingAdventurer();
+        if (adventurer == null)
+            return;
+
+        adventurer.rolledDiceValues.Clear();
+
+        if (string.IsNullOrWhiteSpace(adventurer.assignedEnemyInstanceId))
+            return;
+
+        var enemy = FindEnemyState(adventurer.assignedEnemyInstanceId);
+        if (enemy == null)
         {
-            var adventurer = RunState.adventurers[i];
-            if (adventurer == null)
-                continue;
-
-            adventurer.rolledDiceValues.Clear();
-
-            if (string.IsNullOrWhiteSpace(adventurer.assignedEnemyInstanceId))
-                continue;
-
-            var enemy = FindEnemyState(adventurer.assignedEnemyInstanceId);
-            if (enemy == null)
-            {
-                adventurer.assignedEnemyInstanceId = null;
-                AssignmentChanged?.Invoke(adventurer.instanceId, null);
-                continue;
-            }
-
-            if (!adventurerDefById.TryGetValue(adventurer.adventurerDefId, out var adventurerDef))
-                continue;
-
-            int diceCount = Math.Max(1, adventurerDef.diceCount);
-            for (int dieIndex = 0; dieIndex < diceCount; dieIndex++)
-                adventurer.rolledDiceValues.Add(RollD6());
+            GameAssignmentService.ClearAdventurerAssignment(RunState, adventurer.instanceId);
+            AssignmentChanged?.Invoke(adventurer.instanceId, null);
+            return;
         }
+
+        if (!adventurerDefById.TryGetValue(adventurer.adventurerDefId, out var adventurerDef))
+            return;
+
+        int diceCount = Math.Max(1, adventurerDef.diceCount);
+        for (int dieIndex = 0; dieIndex < diceCount; dieIndex++)
+            adventurer.rolledDiceValues.Add(RollD6());
     }
 
     void ExecuteP4Adjustment()
     {
-        var enemyOrder = new List<string>(RunState.enemies.Count);
-        for (int i = 0; i < RunState.enemies.Count; i++)
+        var adventurer = FindCurrentProcessingAdventurer();
+        if (adventurer == null)
         {
-            var enemy = RunState.enemies[i];
-            if (enemy == null)
-                continue;
-
-            enemyOrder.Add(enemy.instanceId);
+            RunState.turn.processingAdventurerInstanceId = string.Empty;
+            return;
         }
 
-        for (int enemyOrderIndex = 0; enemyOrderIndex < enemyOrder.Count; enemyOrderIndex++)
+        string assignedEnemyInstanceId = adventurer.assignedEnemyInstanceId;
+        int attackValue = SumDice(adventurer.rolledDiceValues);
+
+        if (!string.IsNullOrWhiteSpace(assignedEnemyInstanceId) && attackValue > 0)
         {
-            string enemyInstanceId = enemyOrder[enemyOrderIndex];
-            var enemy = FindEnemyState(enemyInstanceId);
-            if (enemy == null)
-                continue;
-
-            var attackQueue = new List<string>(enemy.assignedAdventurerIds);
-            for (int queueIndex = 0; queueIndex < attackQueue.Count; queueIndex++)
-            {
-                string adventurerInstanceId = attackQueue[queueIndex];
-                var adventurer = FindAdventurerState(adventurerInstanceId);
-                if (adventurer == null)
-                    continue;
-                if (adventurer.actionConsumed)
-                    continue;
-                if (!string.Equals(adventurer.assignedEnemyInstanceId, enemy.instanceId, StringComparison.Ordinal))
-                    continue;
-
-                adventurer.actionConsumed = true;
-                int attackValue = SumDice(adventurer.rolledDiceValues);
-                if (attackValue <= 0)
-                    continue;
-
-                bool enemySurvived = ApplyEnemyHealthDelta(
-                    enemy.instanceId,
-                    -attackValue,
-                    rewardOnKill: true,
-                    markAssignedAsConsumedOnKill: true);
-                if (!enemySurvived)
-                    break;
-            }
+            ApplyEnemyHealthDelta(
+                assignedEnemyInstanceId,
+                -attackValue,
+                rewardOnKill: true,
+                markAssignedAsConsumedOnKill: false);
         }
+
+        if (!string.IsNullOrWhiteSpace(adventurer.assignedEnemyInstanceId))
+        {
+            GameAssignmentService.ClearAdventurerAssignment(RunState, adventurer.instanceId);
+            AssignmentChanged?.Invoke(adventurer.instanceId, null);
+        }
+
+        adventurer.actionConsumed = true;
+        RunState.turn.processingAdventurerInstanceId = string.Empty;
     }
 
     void ExecuteP5Settlement()
@@ -356,6 +381,8 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     {
         if (RunState == null || isRunOver)
             return false;
+        if (!string.IsNullOrWhiteSpace(RunState.turn.processingAdventurerInstanceId))
+            return false;
 
         return RunState.turn.phase == TurnPhase.P2Assignment;
     }
@@ -367,6 +394,82 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
         var phase = RunState.turn.phase;
         return phase == TurnPhase.P2Assignment || phase == TurnPhase.P4Adjustment;
+    }
+
+    public bool CanAssignAdventurer(string adventurerInstanceId)
+    {
+        if (!CanAcceptAssignmentInput())
+            return false;
+        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+            return false;
+
+        return IsAdventurerPending(adventurerInstanceId);
+    }
+
+    int GetPendingAdventurerCount()
+    {
+        if (RunState == null)
+            return 0;
+
+        return GameAssignmentService.CountPendingAdventurers(RunState);
+    }
+
+    void MarkAllPendingAdventurersConsumed()
+    {
+        for (int i = 0; i < RunState.adventurers.Count; i++)
+        {
+            var adventurer = RunState.adventurers[i];
+            if (adventurer == null || adventurer.actionConsumed)
+                continue;
+
+            GameAssignmentService.ClearAdventurerAssignment(RunState, adventurer.instanceId);
+            AssignmentChanged?.Invoke(adventurer.instanceId, null);
+            adventurer.actionConsumed = true;
+        }
+
+        RunState.turn.processingAdventurerInstanceId = string.Empty;
+    }
+
+    bool IsAdventurerPending(string adventurerInstanceId)
+    {
+        var adventurer = FindAdventurerState(adventurerInstanceId);
+        if (adventurer == null)
+            return false;
+
+        return !adventurer.actionConsumed;
+    }
+
+    AdventurerState FindCurrentProcessingAdventurer()
+    {
+        if (RunState == null)
+            return null;
+        if (string.IsNullOrWhiteSpace(RunState.turn.processingAdventurerInstanceId))
+            return null;
+
+        return FindAdventurerState(RunState.turn.processingAdventurerInstanceId);
+    }
+
+    bool ResolveCurrentProcessingAdventurerId(string requestedAdventurerInstanceId, out string resolvedAdventurerInstanceId)
+    {
+        resolvedAdventurerInstanceId = null;
+
+        if (RunState == null)
+            return false;
+        if (RunState.turn.phase != TurnPhase.P4Adjustment)
+            return false;
+
+        var currentAdventurerId = RunState.turn.processingAdventurerInstanceId;
+        if (string.IsNullOrWhiteSpace(currentAdventurerId))
+            return false;
+
+        if (!string.IsNullOrWhiteSpace(requestedAdventurerInstanceId) &&
+            !string.Equals(requestedAdventurerInstanceId, currentAdventurerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        resolvedAdventurerInstanceId = currentAdventurerId;
+        return true;
     }
 
     bool CanUseSkillInPhase(SkillDef skillDef, TurnPhase phase)
@@ -487,8 +590,10 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         string targetMode = GetParamString(effect.effectParams, "target_adventurer_mode");
         if (targetMode != "selected_adventurer")
             return false;
+        if (!ResolveCurrentProcessingAdventurerId(context.selectedAdventurerInstanceId, out var adventurerInstanceId))
+            return false;
 
-        var adventurer = FindAdventurerState(context.selectedAdventurerInstanceId);
+        var adventurer = FindAdventurerState(adventurerInstanceId);
         if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
             return false;
 
@@ -537,8 +642,10 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         string targetMode = GetParamString(effect.effectParams, "target_adventurer_mode");
         if (targetMode != "selected_adventurer")
             return false;
+        if (!ResolveCurrentProcessingAdventurerId(context.selectedAdventurerInstanceId, out var adventurerInstanceId))
+            return false;
 
-        var adventurer = FindAdventurerState(context.selectedAdventurerInstanceId);
+        var adventurer = FindAdventurerState(adventurerInstanceId);
         if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
             return false;
 

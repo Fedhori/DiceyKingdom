@@ -4,7 +4,8 @@ public enum AssignmentResult
 {
     Success = 0,
     AdventurerNotFound = 1,
-    EnemyNotFound = 2
+    EnemyNotFound = 2,
+    AdventurerUnavailable = 3
 }
 
 public static class GameAssignmentService
@@ -24,6 +25,8 @@ public static class GameAssignmentService
         var adventurer = FindAdventurer(runState, adventurerInstanceId);
         if (adventurer == null)
             return AssignmentResult.AdventurerNotFound;
+        if (adventurer.actionConsumed)
+            return AssignmentResult.AdventurerUnavailable;
 
         var enemy = FindEnemy(runState, enemyInstanceId);
         if (enemy == null)
@@ -68,6 +71,26 @@ public static class GameAssignmentService
             if (adventurer.actionConsumed)
                 continue;
             if (!string.IsNullOrWhiteSpace(adventurer.assignedEnemyInstanceId))
+                continue;
+
+            count += 1;
+        }
+
+        return count;
+    }
+
+    public static int CountPendingAdventurers(GameRunState runState)
+    {
+        if (runState == null)
+            throw new ArgumentNullException(nameof(runState));
+
+        int count = 0;
+        for (int i = 0; i < runState.adventurers.Count; i++)
+        {
+            var adventurer = runState.adventurers[i];
+            if (adventurer == null)
+                continue;
+            if (adventurer.actionConsumed)
                 continue;
 
             count += 1;

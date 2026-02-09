@@ -16,13 +16,15 @@ public sealed class EnemyDropTarget : MonoBehaviour, IDropHandler
         if (!AssignmentDragSession.IsActive)
             return;
 
-        AssignmentDragSession.MarkDropHandled();
-
         if (orchestrator == null)
             return;
         if (string.IsNullOrWhiteSpace(enemyInstanceId))
             return;
 
-        orchestrator.TryAssignAdventurer(AssignmentDragSession.AdventurerInstanceId, enemyInstanceId);
+        bool assigned = orchestrator.TryAssignAdventurer(AssignmentDragSession.AdventurerInstanceId, enemyInstanceId);
+        if (!assigned)
+            return;
+
+        AssignmentDragSession.MarkDropHandled();
     }
 }

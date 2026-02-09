@@ -50,9 +50,7 @@ public sealed class AdventurerDragHandle : MonoBehaviour, IBeginDragHandler, IDr
             return false;
         if (string.IsNullOrWhiteSpace(adventurerInstanceId))
             return false;
-        if (orchestrator.RunState == null)
-            return false;
 
-        return orchestrator.RunState.turn.phase == TurnPhase.P2Assignment;
+        return orchestrator.CanAssignAdventurer(adventurerInstanceId);
     }
 }
