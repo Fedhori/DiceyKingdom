@@ -1,0 +1,51 @@
+{
+  "stage_presets": [
+    {
+      "preset_id": "preset_frontier_raid",
+      "spawns": [
+        {
+          "monster_id": "orc_raiders",
+          "count": 2
+        },
+        {
+          "monster_id": "locust_swarm",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "preset_id": "preset_smuggler_ritual",
+      "spawns": [
+        {
+          "monster_id": "bandit_smugglers",
+          "count": 2
+        },
+        {
+          "monster_id": "siege_shaman",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "preset_id": "preset_mixed_pressure",
+      "spawns": [
+        {
+          "monster_id": "orc_raiders",
+          "count": 1
+        },
+        {
+          "monster_id": "locust_swarm",
+          "count": 1
+        },
+        {
+          "monster_id": "bandit_smugglers",
+          "count": 1
+        },
+        {
+          "monster_id": "siege_shaman",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

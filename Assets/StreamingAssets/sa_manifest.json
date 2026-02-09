@@ -1,6 +1,6 @@
 {
   "appVersion": "1.0",
-  "generatedAt": "2026-02-09 13:24:50",
+  "generatedAt": "2026-02-09 14:03:46",
   "files": [
     {
       "path": "Data/Adventurers.json",
@@ -9,8 +9,13 @@
     },
     {
       "path": "Data/Monsters.json",
-      "size": 2082,
-      "md5": "f24b909d7fcfa3c3223370900620b3f6"
+      "size": 4204,
+      "md5": "3329065a8a32149999cb2df0e1b9c163"
+    },
+    {
+      "path": "Data/MonsterStagePresets.json",
+      "size": 936,
+      "md5": "d18b32296704d3c514f00b955546b8cf"
     },
     {
       "path": "Data/Skills.json",

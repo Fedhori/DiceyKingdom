@@ -343,7 +343,7 @@ GameObject:
   - component: {fileID: 107094520}
   - component: {fileID: 107094521}
   m_Layer: 0
-  m_Name: TooltipManager
+  m_Name: Tooltip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -469,7 +469,7 @@ GameObject:
   - component: {fileID: 169657405}
   - component: {fileID: 169657408}
   m_Layer: 0
-  m_Name: InputManager
+  m_Name: Input
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2088,7 +2088,7 @@ GameObject:
   - component: {fileID: 1210692428}
   - component: {fileID: 1210692429}
   m_Layer: 0
-  m_Name: DevCommandManager
+  m_Name: Dev
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

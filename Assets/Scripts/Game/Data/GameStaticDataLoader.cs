@@ -9,6 +9,7 @@ public static class GameStaticDataLoader
     public const string MonstersPath = "Data/Monsters.json";
     public const string AdventurersPath = "Data/Adventurers.json";
     public const string SkillsPath = "Data/Skills.json";
+    public const string MonsterStagePresetsPath = "Data/MonsterStagePresets.json";
 
     public static List<MonsterDef> LoadMonsterDefs(string relativePath = MonstersPath)
     {
@@ -27,13 +28,24 @@ public static class GameStaticDataLoader
         return ParseCatalogList<SkillDef>(relativePath, "skills");
     }
 
+    public static List<MonsterStagePresetDef> LoadMonsterStagePresetDefs(
+        IReadOnlyList<MonsterDef> monsterDefs,
+        string relativePath = MonsterStagePresetsPath)
+    {
+        var presets = ParseCatalogList<MonsterStagePresetDef>(relativePath, "stage_presets");
+        ValidateMonsterStagePresetDefs(presets, monsterDefs, relativePath);
+        return presets;
+    }
+
     public static GameStaticDataSet LoadAll()
     {
+        var monsterDefs = LoadMonsterDefs();
         return new GameStaticDataSet
         {
-            monsterDefs = LoadMonsterDefs(),
+            monsterDefs = monsterDefs,
             adventurerDefs = LoadAdventurerDefs(),
-            skillDefs = LoadSkillDefs()
+            skillDefs = LoadSkillDefs(),
+            stagePresetDefs = LoadMonsterStagePresetDefs(monsterDefs)
         };
     }
 
@@ -122,6 +134,79 @@ public static class GameStaticDataLoader
         Debug.LogError(message);
         throw new InvalidDataException(message);
     }
+
+    static void ValidateMonsterStagePresetDefs(
+        IReadOnlyList<MonsterStagePresetDef> presetDefs,
+        IReadOnlyList<MonsterDef> monsterDefs,
+        string sourcePath)
+    {
+        var errors = new List<string>();
+
+        if (presetDefs.Count != 3)
+            errors.Add($"stage_presets count must be 3 (actual={presetDefs.Count})");
+
+        var knownMonsterIds = new HashSet<string>(StringComparer.Ordinal);
+        for (int i = 0; i < monsterDefs.Count; i++)
+        {
+            var monsterDef = monsterDefs[i];
+            if (monsterDef == null || string.IsNullOrWhiteSpace(monsterDef.monsterId))
+                continue;
+
+            knownMonsterIds.Add(monsterDef.monsterId);
+        }
+
+        var presetIds = new HashSet<string>(StringComparer.Ordinal);
+        for (int i = 0; i < presetDefs.Count; i++)
+        {
+            var preset = presetDefs[i];
+            if (preset == null)
+            {
+                errors.Add($"stage_presets[{i}] is null");
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(preset.presetId))
+                errors.Add($"stage_presets[{i}].preset_id is empty");
+            else if (!presetIds.Add(preset.presetId))
+                errors.Add($"duplicated preset_id '{preset.presetId}'");
+
+            if (preset.spawns == null || preset.spawns.Count == 0)
+            {
+                errors.Add($"{preset.presetId}: spawns must contain at least one entry");
+                continue;
+            }
+
+            for (int j = 0; j < preset.spawns.Count; j++)
+            {
+                var spawn = preset.spawns[j];
+                if (spawn == null)
+                {
+                    errors.Add($"{preset.presetId}: spawns[{j}] is null");
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(spawn.monsterId))
+                {
+                    errors.Add($"{preset.presetId}: spawns[{j}].monster_id is empty");
+                }
+                else if (!knownMonsterIds.Contains(spawn.monsterId))
+                {
+                    errors.Add($"{preset.presetId}: unknown monster_id '{spawn.monsterId}'");
+                }
+
+                if (spawn.count < 1)
+                    errors.Add($"{preset.presetId}: spawns[{j}].count must be >= 1 (actual={spawn.count})");
+            }
+        }
+
+        if (errors.Count == 0)
+            return;
+
+        var message = $"[GameStaticDataLoader] Validation failed ({sourcePath})\n- " +
+                      string.Join("\n- ", errors);
+        Debug.LogError(message);
+        throw new InvalidDataException(message);
+    }
 }
 
 [Serializable]
@@ -130,4 +215,5 @@ public sealed class GameStaticDataSet
     public List<MonsterDef> monsterDefs = new();
     public List<AdventurerDef> adventurerDefs = new();
     public List<SkillDef> skillDefs = new();
+    public List<MonsterStagePresetDef> stagePresetDefs = new();
 }

@@ -58,6 +58,20 @@ public sealed class SkillDef
 }
 
 [Serializable]
+public sealed class MonsterStageSpawnDef
+{
+    [JsonProperty("monster_id")] public string monsterId = string.Empty;
+    [JsonProperty("count")] public int count = 1;
+}
+
+[Serializable]
+public sealed class MonsterStagePresetDef
+{
+    [JsonProperty("preset_id")] public string presetId = string.Empty;
+    [JsonProperty("spawns")] public List<MonsterStageSpawnDef> spawns = new();
+}
+
+[Serializable]
 public sealed class MonsterDefCatalog
 {
     [JsonProperty("monsters")] public List<MonsterDef> monsters = new();
@@ -73,4 +87,10 @@ public sealed class AdventurerDefCatalog
 public sealed class SkillDefCatalog
 {
     [JsonProperty("skills")] public List<SkillDef> skills = new();
+}
+
+[Serializable]
+public sealed class MonsterStagePresetCatalog
+{
+    [JsonProperty("stage_presets")] public List<MonsterStagePresetDef> stagePresets = new();
 }
