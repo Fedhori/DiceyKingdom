@@ -15,6 +15,10 @@ public sealed class AdventurerDragHandle : MonoBehaviour, IBeginDragHandler, IDr
     {
         if (!CanDrag())
             return;
+        if (orchestrator == null)
+            return;
+        if (!orchestrator.TryBeginAdventurerTargeting(adventurerInstanceId))
+            return;
 
         AssignmentDragSession.Begin(adventurerInstanceId);
         AssignmentDragSession.Move(eventData.position);
@@ -33,10 +37,10 @@ public sealed class AdventurerDragHandle : MonoBehaviour, IBeginDragHandler, IDr
         if (!AssignmentDragSession.IsActive)
             return;
 
-        bool shouldClearAssignment = !AssignmentDragSession.DropHandled;
+        bool shouldCancelTargeting = !AssignmentDragSession.DropHandled;
         AssignmentDragSession.End();
 
-        if (!shouldClearAssignment)
+        if (!shouldCancelTargeting)
             return;
         if (orchestrator == null)
             return;

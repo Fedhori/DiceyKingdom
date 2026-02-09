@@ -43,7 +43,11 @@
 - v0 데이터 모델/로더: `Assets/Scripts/Game/Data`
 - v0 런타임 상태: `Assets/Scripts/Game/Runtime`
 - v0 턴 오케스트레이터: `Assets/Scripts/Game/Runtime/GameTurnOrchestrator.cs`
-- v0 P2 입력 컴포넌트: `Assets/Scripts/Game/UI`
+- v0 전투 입력 컴포넌트: `Assets/Scripts/Game/UI`
+  - `AdventurerRollButton.cs`: 모험가별 굴리기 버튼 입력
+  - `GameTurnHotkeyController.cs`: 롤(1~4) / 스킬(QWER) 단축키 입력
+  - `AdventurerDragHandle.cs`, `EnemyDropTarget.cs`: 드래그 타게팅/공격 입력
+  - `AdventurerProcessingHighlight.cs`: 현재 처리 중 모험가 강조 표시
 - 저장/로드: `Assets/Scripts/Save`
 - 로컬라이징: `Assets/Scripts/Data/LocalizationUtil.cs`
 - 오디오: `Assets/Scripts/Audio`

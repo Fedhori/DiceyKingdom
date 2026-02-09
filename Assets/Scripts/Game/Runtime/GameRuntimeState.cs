@@ -5,9 +5,9 @@ public enum TurnPhase
 {
     TurnStart = 0,
     BoardUpdate = 1,
-    Assignment = 2,
-    Roll = 3,
-    Adjustment = 4,
+    AdventurerRoll = 2,
+    Adjustment = 3,
+    TargetAndAttack = 4,
     Settlement = 5,
     EndTurn = 6
 }
