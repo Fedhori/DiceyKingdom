@@ -43,6 +43,7 @@
 - v0 데이터 모델/로더: `Assets/Scripts/Game/Data`
 - v0 런타임 상태: `Assets/Scripts/Game/Runtime`
 - v0 턴 오케스트레이터: `Assets/Scripts/Game/Runtime/GameTurnOrchestrator.cs`
+- v0 P2 입력 컴포넌트: `Assets/Scripts/Game/UI`
 - 저장/로드: `Assets/Scripts/Save`
 - 로컬라이징: `Assets/Scripts/Data/LocalizationUtil.cs`
 - 오디오: `Assets/Scripts/Audio`

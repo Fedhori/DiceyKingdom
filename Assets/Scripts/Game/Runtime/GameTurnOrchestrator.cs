@@ -17,6 +17,8 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     public event Action<TurnPhase> PhaseChanged;
     public event Action<GameRunState> RunEnded;
     public event Action<int, string> StageSpawned;
+    public event Action<string, string> AssignmentChanged;
+    public event Action<int> AssignmentCommitConfirmationRequested;
 
     void Awake()
     {
@@ -44,10 +46,61 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     public bool CommitAssignmentPhase()
     {
-        if (!TryMoveToPhase(TurnPhase.P2Assignment, TurnPhase.P3Roll))
+        return TryMoveToPhase(TurnPhase.P2Assignment, TurnPhase.P3Roll);
+    }
+
+    public bool TryAssignAdventurer(string adventurerInstanceId, string enemyInstanceId)
+    {
+        if (!CanAcceptAssignmentInput())
             return false;
 
+        var result = GameAssignmentService.AssignAdventurerToEnemy(RunState, adventurerInstanceId, enemyInstanceId);
+        if (result != AssignmentResult.Success)
+            return false;
+
+        AssignmentChanged?.Invoke(adventurerInstanceId, enemyInstanceId);
         return true;
+    }
+
+    public bool TryClearAdventurerAssignment(string adventurerInstanceId)
+    {
+        if (!CanAcceptAssignmentInput())
+            return false;
+
+        var result = GameAssignmentService.ClearAdventurerAssignment(RunState, adventurerInstanceId);
+        if (result != AssignmentResult.Success)
+            return false;
+
+        AssignmentChanged?.Invoke(adventurerInstanceId, null);
+        return true;
+    }
+
+    public int GetUnassignedAdventurerCount()
+    {
+        if (RunState == null)
+            return 0;
+
+        return GameAssignmentService.CountUnassignedAdventurers(RunState);
+    }
+
+    public bool RequestCommitAssignmentPhase()
+    {
+        if (!CanAcceptAssignmentInput())
+            return false;
+
+        int unassignedCount = GetUnassignedAdventurerCount();
+        if (unassignedCount > 0)
+        {
+            AssignmentCommitConfirmationRequested?.Invoke(unassignedCount);
+            return false;
+        }
+
+        return CommitAssignmentPhase();
+    }
+
+    public bool ConfirmCommitAssignmentPhase()
+    {
+        return CommitAssignmentPhase();
     }
 
     public bool CommitRollPhase()
@@ -167,5 +220,13 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     {
         RunState.turn.phase = phase;
         PhaseChanged?.Invoke(phase);
+    }
+
+    bool CanAcceptAssignmentInput()
+    {
+        if (RunState == null || isRunOver)
+            return false;
+
+        return RunState.turn.phase == TurnPhase.P2Assignment;
     }
 }
