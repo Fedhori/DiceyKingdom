@@ -17,6 +17,8 @@
 - Allman braces
 - Unity C# 관례 준수
 - 코드에서 데이터 모델/변수 네이밍은 camelCase를 사용합니다.
+- 코드 식별자(타입/메서드/enum 값)에는 의미가 불명확한 축약 기호(`P1`, `P2` 등)를 사용하지 않습니다.
+  - 단계/상태는 의미 기반 이름으로 명명합니다. (예: `TurnStart`, `BoardUpdate`, `Assignment`)
 
 ## 데이터 네이밍 규칙
 

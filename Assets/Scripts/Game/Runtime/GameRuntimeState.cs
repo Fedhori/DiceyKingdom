@@ -3,20 +3,20 @@ using System.Collections.Generic;
 
 public enum TurnPhase
 {
-    P0TurnStart = 0,
-    P1BoardUpdate = 1,
-    P2Assignment = 2,
-    P3Roll = 3,
-    P4Adjustment = 4,
-    P5Settlement = 5,
-    P6EndTurn = 6
+    TurnStart = 0,
+    BoardUpdate = 1,
+    Assignment = 2,
+    Roll = 3,
+    Adjustment = 4,
+    Settlement = 5,
+    EndTurn = 6
 }
 
 [Serializable]
 public sealed class TurnRuntimeState
 {
     public int turnNumber = 1;
-    public TurnPhase phase = TurnPhase.P0TurnStart;
+    public TurnPhase phase = TurnPhase.TurnStart;
     public string processingAdventurerInstanceId = string.Empty;
 }
 
@@ -135,7 +135,7 @@ public static class GameRunBootstrap
             turn = new TurnRuntimeState
             {
                 turnNumber = 1,
-                phase = TurnPhase.P0TurnStart
+                phase = TurnPhase.TurnStart
             }
         };
 
