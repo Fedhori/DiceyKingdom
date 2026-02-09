@@ -16,6 +16,12 @@
 - C# 4-스페이스 들여쓰기
 - Allman braces
 - Unity C# 관례 준수
+- 코드에서 데이터 모델/변수 네이밍은 camelCase를 사용합니다.
+
+## 데이터 네이밍 규칙
+
+- JSON 키는 snake_case를 사용합니다.
+- 코드(C#)에서 JSON 데이터를 매핑한 필드/프로퍼티는 camelCase를 사용합니다.
 
 ## 구현/협업 규칙
 
