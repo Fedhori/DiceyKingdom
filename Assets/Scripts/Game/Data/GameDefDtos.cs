@@ -33,7 +33,6 @@ public sealed class EnemyDef
     [JsonProperty("name_key")] public string nameKey = string.Empty;
     [JsonProperty("tags")] public List<string> tags = new();
     [JsonProperty("base_health")] public int baseHealth = 1;
-    [JsonProperty("on_kill_reward")] public EffectBundle onKillReward = new();
     [JsonProperty("action_pool")] public List<ActionDef> actionPool = new();
 }
 

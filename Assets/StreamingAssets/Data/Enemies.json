@@ -7,15 +7,6 @@
         "invasion"
       ],
       "base_health": 10,
-      "on_kill_reward": {
-        "effects": [
-          {
-            "effect_type": "gold_delta",
-            "value": 3,
-            "params": null
-          }
-        ]
-      },
       "action_pool": [
         {
           "action_id": "raid",
@@ -54,15 +45,6 @@
         "famine"
       ],
       "base_health": 8,
-      "on_kill_reward": {
-        "effects": [
-          {
-            "effect_type": "stability_delta",
-            "value": 1,
-            "params": null
-          }
-        ]
-      },
       "action_pool": [
         {
           "action_id": "devour_fields",
@@ -102,15 +84,6 @@
         "economy"
       ],
       "base_health": 9,
-      "on_kill_reward": {
-        "effects": [
-          {
-            "effect_type": "gold_delta",
-            "value": 2,
-            "params": null
-          }
-        ]
-      },
       "action_pool": [
         {
           "action_id": "loot_caravans",
@@ -150,15 +123,6 @@
         "ritual"
       ],
       "base_health": 11,
-      "on_kill_reward": {
-        "effects": [
-          {
-            "effect_type": "stability_delta",
-            "value": 1,
-            "params": null
-          }
-        ]
-      },
       "action_pool": [
         {
           "action_id": "curse_barrage",

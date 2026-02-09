@@ -338,7 +338,6 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             ApplyEnemyHealthDelta(
                 assignedEnemyInstanceId,
                 -attackValue,
-                rewardOnKill: true,
                 markAssignedAsConsumedOnKill: false);
         }
 
@@ -636,7 +635,6 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         ApplyEnemyHealthDelta(
             targetEnemyInstanceId,
             delta,
-            rewardOnKill: true,
             markAssignedAsConsumedOnKill: false);
         return true;
     }
@@ -728,7 +726,6 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     bool ApplyEnemyHealthDelta(
         string enemyInstanceId,
         int delta,
-        bool rewardOnKill,
         bool markAssignedAsConsumedOnKill)
     {
         var enemy = FindEnemyState(enemyInstanceId);
@@ -743,13 +740,12 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         if (enemy.currentHealth > 0)
             return true;
 
-        HandleEnemyKilled(enemy.instanceId, rewardOnKill, markAssignedAsConsumedOnKill);
+        HandleEnemyKilled(enemy.instanceId, markAssignedAsConsumedOnKill);
         return false;
     }
 
     void HandleEnemyKilled(
         string enemyInstanceId,
-        bool rewardOnKill,
         bool markAssignedAsConsumedOnKill)
     {
         var enemy = FindEnemyState(enemyInstanceId);
@@ -774,16 +770,6 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
                 adventurer.actionConsumed = true;
 
             AssignmentChanged?.Invoke(adventurer.instanceId, null);
-        }
-
-        if (rewardOnKill && enemyDefById.TryGetValue(enemy.enemyDefId, out var enemyDef))
-        {
-            var rewardContext = new EffectTargetContext(
-                selectedEnemyInstanceId: enemy.instanceId,
-                selectedAdventurerInstanceId: null,
-                selectedDieIndex: -1,
-                actionOwnerEnemyInstanceId: enemy.instanceId);
-            TryApplyEffectBundle(enemyDef.onKillReward, rewardContext);
         }
     }
 
