@@ -1,5 +1,21 @@
 {
-    "appVersion": "1.0",
-    "generatedAt": "2026-02-04 15:46:09",
-    "files": []
+  "appVersion": "1.0",
+  "generatedAt": "2026-02-09 13:24:50",
+  "files": [
+    {
+      "path": "Data/Adventurers.json",
+      "size": 750,
+      "md5": "d33bc4e918b02922adad55c18464bf4f"
+    },
+    {
+      "path": "Data/Monsters.json",
+      "size": 2082,
+      "md5": "f24b909d7fcfa3c3223370900620b3f6"
+    },
+    {
+      "path": "Data/Skills.json",
+      "size": 1372,
+      "md5": "8f5b9539c45a1434ce4677b5dee622e5"
+    }
+  ]
 }

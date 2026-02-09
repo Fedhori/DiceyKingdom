@@ -7,6 +7,7 @@
 - 범용 규칙/컨벤션: `Docs/GENERAL_RULES.md`
 - 레포 지도(파일 위치/책임 요약): `Docs/PROJECT_MAP.md`
 - 아이디어 원문/백로그: `Docs/GAME_IDEA_BACKLOG.md`
+- v0 마일스톤 추적: `Docs/V0_MILESTONE.md`
 - 이 문서: 실제 구현 기준이 되는 게임 구조, 시스템, 데이터/씬 흐름
 
 ## 프로덕트 요약 (한 줄)
@@ -199,6 +200,33 @@
   - 최소 1회 리롤 보장
   - 2회 굴림 후 높은 눈 채택
 
+### 모험가(Adventurer)
+
+- 모험가는 플레이어가 턴마다 몬스터에 배치하는 전투 단위입니다.
+- 각 모험가는 자신의 주사위를 굴려 `공격` 값을 생성합니다.
+- 한 턴에 한 모험가는 하나의 몬스터에만 배치할 수 있습니다.
+
+### 모험가 최소 스키마(v0 확정)
+
+- 정적 데이터(`AdventurerDef`):
+  - `adventurer_id`: string (고유 ID)
+  - `name_key`: string (로컬라이즈 키)
+  - `dice_count`: int (`>= 1`)
+  - `gear_slot_count`: int (`>= 0`)
+  - `innate_effect`: effect_bundle or null (고유 패시브/전투 효과)
+- 런타임 데이터(`AdventurerState`):
+  - `instance_id`: string (런 내 모험가 인스턴스 ID)
+  - `adventurer_def_id`: string (`AdventurerDef.adventurer_id` 참조)
+  - `rolled_dice_values`: int[] (`P3` 결과값)
+  - `assigned_monster_instance_id`: string or null (`P2` 배치 대상)
+  - `action_consumed`: bool (`P4`에서 공격 반영 완료 여부)
+- v0 처리 규칙:
+  - 런 시작 시 모험가 슬롯은 `4`개로 고정합니다.
+  - 각 모험가는 `dice_count`만큼 기본 d6(1~6)을 굴립니다.
+  - `P2`에서 배치되지 않은 모험가는 `P4`에서 공격에 기여하지 않습니다.
+  - `P4`에서 모험가의 공격 반영이 끝나면 `action_consumed = true`로 확정합니다.
+  - 턴 종료 시 모험가 배치/굴림/소비 상태는 다음 턴 시작에 리셋됩니다.
+
 ### 몬스터(Monster, 기존 Situation)
 - 몬스터는 `태그`, `체력(Health)`, `행동(Action)`, `처치 보상`을 가집니다.
 - 모험가가 굴린 주사위 눈 합은 해당 몬스터의 `체력`을 감소시키는 `공격`으로 적용됩니다.
@@ -233,6 +261,23 @@
   - 감소 후 `action_turns_left <= 0`이면 `current_action_id.on_resolve`를 즉시 적용합니다.
   - 행동 발동 후에는 `action_pool`에서 다음 행동을 다시 선택하고 준비 카운트를 재설정합니다.
 
+### action_pool 상세 규칙(v0 확정)
+
+- `action_pool` 길이는 몬스터당 정확히 `2`개로 고정합니다.
+- 각 액션의 `action_id`는 같은 몬스터 내에서 유일해야 합니다.
+- `weight`는 `1..5` 정수만 허용합니다.
+- `prep_turns`는 `1..2` 정수만 허용합니다.
+- 각 몬스터는 아래를 모두 만족해야 합니다.
+  - `prep_turns = 1` 액션 최소 1개
+  - `prep_turns = 2` 액션 최소 1개
+- 행동 선택 시점은 2곳만 허용합니다.
+  - 스폰 직후
+  - 행동 발동 직후(다음 행동 예약)
+- 선택 방식은 `weight` 기반 가중 랜덤입니다.
+- 연속 반복 규칙:
+  - 직전 행동과 동일 `action_id`는 다음 선택에서 제외합니다(후보가 2개 이상일 때).
+- 유효성 검증 실패 시(길이/범위/중복 위반) 해당 정의는 데이터 로딩 단계에서 에러로 처리합니다.
+
 ### 범용 효과 스키마(v0 확정)
 
 - 효과 포맷은 참조형이 아니라 `범용형(effect_bundle)`으로 고정합니다.
@@ -250,6 +295,24 @@
   - `monster_health_delta`
   - `die_face_delta`
   - `reroll_adventurer_dice`
+- `effect_type`별 `params` 필수 키 규칙(v0 확정):
+  - `stability_delta`
+    - 필수 키 없음 (`params = null`)
+  - `gold_delta`
+    - 필수 키 없음 (`params = null`)
+  - `monster_health_delta`
+    - 필수: `target_mode`
+    - 허용값: `selected_monster` | `action_owner_monster`
+  - `die_face_delta`
+    - 필수: `target_adventurer_mode`, `die_pick_rule`
+    - 허용값:
+      - `target_adventurer_mode`: `selected_adventurer`
+      - `die_pick_rule`: `selected` | `lowest` | `highest` | `all`
+  - `reroll_adventurer_dice`
+    - 필수: `target_adventurer_mode`, `reroll_rule`
+    - 허용값:
+      - `target_adventurer_mode`: `selected_adventurer`
+      - `reroll_rule`: `all` | `single`
 
 ### 스킬(Skill)
 - 액티브 능력으로 턴 쿨다운을 가집니다.
@@ -436,10 +499,8 @@
 
 ## 미해결 설계 질문
 
-- 모험가 단위의 최소 스키마(굴림 주사위 수/고유 효과/장비 슬롯)의 데이터 구조 확정
 - 스테이지 단위 구조를 2차 실험으로 전환할 조건/시점 확정
 - 몬스터 생성 규칙(턴당 생성 수, 태그 분포, 난이도 가중치)
-- 몬스터 `action_pool` 설계 규칙(행동 개수, 가중치, 준비 카운트 범위)
 - 오버킬 처리 방식(남는 수치 이월 여부 + 오버킬 트리거/보상 규칙)
 - 은행형 대출 한도(`N`) 값 확정
 

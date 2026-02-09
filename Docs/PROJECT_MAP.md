@@ -7,12 +7,14 @@
 - 게임 구조/시스템/플로우: `Docs/GAME_STRUCTURE.md`
 - 범용 규칙/컨벤션: `Docs/GENERAL_RULES.md`
 - 아이디어 원문/백로그: `Docs/GAME_IDEA_BACKLOG.md`
+- v0 진행 마일스톤: `Docs/V0_MILESTONE.md`
 - 이 문서: 파일 위치/책임 요약
 
 ## 주요 폴더 구조
 
 - `Assets/Scripts`
   - 공용 런타임 유틸(데이터 로딩, 저장/로드, 로컬라이징, 오디오, UI 유틸 등)
+  - `Game` 하위에 v0 데이터 DTO/런타임 상태 모델/정적 데이터 로더
 - `Assets/Scenes`
   - 프로젝트별 씬 구성(템플릿은 비어 있음)
 - `Assets/Prefabs`
@@ -30,11 +32,14 @@
   - `GENERAL_RULES.md`: Unity 공통 규칙
   - `GAME_STRUCTURE.md`: 현재 기준 게임 구조/시스템
   - `GAME_IDEA_BACKLOG.md`: 아이디어 수집/후보 관리
+  - `V0_MILESTONE.md`: v0 진행률/체크리스트
   - `PROJECT_MAP.md`: 레포 위치/책임 요약
 
 ## 공용 시스템 위치
 
 - 데이터 로딩: `Assets/Scripts/Data`
+- v0 데이터 모델/로더: `Assets/Scripts/Game/Data`
+- v0 런타임 상태: `Assets/Scripts/Game/Runtime`
 - 저장/로드: `Assets/Scripts/Save`
 - 로컬라이징: `Assets/Scripts/Data/LocalizationUtil.cs`
 - 오디오: `Assets/Scripts/Audio`

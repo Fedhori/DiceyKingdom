@@ -1,0 +1,98 @@
+{
+  "monsters": [
+    {
+      "monster_id": "orc_raiders",
+      "name_key": "monster.orc_raiders.name",
+      "tags": [
+        "invasion"
+      ],
+      "base_health": 10,
+      "on_kill_reward": {
+        "effects": [
+          {
+            "effect_type": "gold_delta",
+            "value": 3,
+            "params": null
+          }
+        ]
+      },
+      "action_pool": [
+        {
+          "action_id": "raid",
+          "weight": 3,
+          "prep_turns": 1,
+          "on_resolve": {
+            "effects": [
+              {
+                "effect_type": "stability_delta",
+                "value": -2,
+                "params": null
+              }
+            ]
+          }
+        },
+        {
+          "action_id": "pillage",
+          "weight": 2,
+          "prep_turns": 2,
+          "on_resolve": {
+            "effects": [
+              {
+                "effect_type": "stability_delta",
+                "value": -3,
+                "params": null
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "monster_id": "locust_swarm",
+      "name_key": "monster.locust_swarm.name",
+      "tags": [
+        "famine"
+      ],
+      "base_health": 8,
+      "on_kill_reward": {
+        "effects": [
+          {
+            "effect_type": "stability_delta",
+            "value": 1,
+            "params": null
+          }
+        ]
+      },
+      "action_pool": [
+        {
+          "action_id": "devour_fields",
+          "weight": 3,
+          "prep_turns": 2,
+          "on_resolve": {
+            "effects": [
+              {
+                "effect_type": "stability_delta",
+                "value": -1,
+                "params": null
+              }
+            ]
+          }
+        },
+        {
+          "action_id": "strip_harvest",
+          "weight": 2,
+          "prep_turns": 1,
+          "on_resolve": {
+            "effects": [
+              {
+                "effect_type": "stability_delta",
+                "value": -1,
+                "params": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
