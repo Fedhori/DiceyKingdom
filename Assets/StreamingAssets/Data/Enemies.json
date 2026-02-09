@@ -1,8 +1,8 @@
 {
-  "monsters": [
+  "enemies": [
     {
-      "monster_id": "orc_raiders",
-      "name_key": "monster.orc_raiders.name",
+      "enemy_id": "orc_raiders",
+      "name_key": "enemy.orc_raiders.name",
       "tags": [
         "invasion"
       ],
@@ -48,8 +48,8 @@
       ]
     },
     {
-      "monster_id": "locust_swarm",
-      "name_key": "monster.locust_swarm.name",
+      "enemy_id": "locust_swarm",
+      "name_key": "enemy.locust_swarm.name",
       "tags": [
         "famine"
       ],
@@ -95,8 +95,8 @@
       ]
     },
     {
-      "monster_id": "bandit_smugglers",
-      "name_key": "monster.bandit_smugglers.name",
+      "enemy_id": "bandit_smugglers",
+      "name_key": "enemy.bandit_smugglers.name",
       "tags": [
         "invasion",
         "economy"
@@ -143,8 +143,8 @@
       ]
     },
     {
-      "monster_id": "siege_shaman",
-      "name_key": "monster.siege_shaman.name",
+      "enemy_id": "siege_shaman",
+      "name_key": "enemy.siege_shaman.name",
       "tags": [
         "invasion",
         "ritual"
@@ -192,3 +192,4 @@
     }
   ]
 }
+

@@ -1,6 +1,6 @@
 {
   "appVersion": "1.0",
-  "generatedAt": "2026-02-09 14:03:46",
+  "generatedAt": "2026-02-09 14:14:48",
   "files": [
     {
       "path": "Data/Adventurers.json",
@@ -8,19 +8,19 @@
       "md5": "d33bc4e918b02922adad55c18464bf4f"
     },
     {
-      "path": "Data/Monsters.json",
-      "size": 4204,
-      "md5": "3329065a8a32149999cb2df0e1b9c163"
+      "path": "Data/Enemies.json",
+      "size": 4189,
+      "md5": "3290daaa33ce2388a70ab65fc08ca84e"
     },
     {
-      "path": "Data/MonsterStagePresets.json",
-      "size": 936,
-      "md5": "d18b32296704d3c514f00b955546b8cf"
+      "path": "Data/EnemyStagePresets.json",
+      "size": 922,
+      "md5": "82d43704363b924d45bb897c4cb64bac"
     },
     {
       "path": "Data/Skills.json",
-      "size": 1372,
-      "md5": "8f5b9539c45a1434ce4677b5dee622e5"
+      "size": 1366,
+      "md5": "324ae7c94bede571f7112c4e33820675"
     }
   ]
 }

@@ -8,7 +8,7 @@
 - 범용 규칙/컨벤션: `Docs/GENERAL_RULES.md`
 - 아이디어 원문/백로그: `Docs/GAME_IDEA_BACKLOG.md`
 - v0 진행 마일스톤: `Docs/V0_MILESTONE.md`
-- 몬스터 컨셉 요약: `Docs/MONSTER_ROSTER.md`
+- 몬스터 컨셉 요약: `Docs/ENEMY_ROSTER.md`
 - 이 문서: 파일 위치/책임 요약
 
 ## 주요 폴더 구조
@@ -34,7 +34,7 @@
   - `GAME_STRUCTURE.md`: 현재 기준 게임 구조/시스템
   - `GAME_IDEA_BACKLOG.md`: 아이디어 수집/후보 관리
   - `V0_MILESTONE.md`: v0 진행률/체크리스트
-  - `MONSTER_ROSTER.md`: 몬스터 컨셉/강점/약점/대응법 요약
+  - `ENEMY_ROSTER.md`: 몬스터 컨셉/강점/약점/대응법 요약
   - `PROJECT_MAP.md`: 레포 위치/책임 요약
 
 ## 공용 시스템 위치
@@ -56,3 +56,4 @@
 - 공통 규칙: `Docs/GENERAL_RULES.md`
 - 게임 구조: `Docs/GAME_STRUCTURE.md`
 - 아이디어 백로그: `Docs/GAME_IDEA_BACKLOG.md`
+

@@ -35,10 +35,10 @@ public sealed class SkillCooldownState
 }
 
 [Serializable]
-public sealed class MonsterState
+public sealed class EnemyState
 {
     public string instanceId = string.Empty;
-    public string monsterDefId = string.Empty;
+    public string enemyDefId = string.Empty;
     public int currentHealth;
     public string currentActionId = string.Empty;
     public int actionTurnsLeft;
@@ -51,7 +51,7 @@ public sealed class AdventurerState
     public string instanceId = string.Empty;
     public string adventurerDefId = string.Empty;
     public List<int> rolledDiceValues = new();
-    public string assignedMonsterInstanceId;
+    public string assignedEnemyInstanceId;
     public bool actionConsumed;
 }
 
@@ -64,9 +64,9 @@ public sealed class GameRunState
     public int maxStability;
     public int gold;
     public int rngSeed;
-    public int nextMonsterInstanceSequence = 1;
+    public int nextEnemyInstanceSequence = 1;
     public int nextAdventurerInstanceSequence = 1;
-    public List<MonsterState> monsters = new();
+    public List<EnemyState> enemies = new();
     public List<AdventurerState> adventurers = new();
     public List<SkillCooldownState> skillCooldowns = new();
 
@@ -79,7 +79,7 @@ public sealed class GameRunState
                 continue;
 
             adventurer.rolledDiceValues.Clear();
-            adventurer.assignedMonsterInstanceId = null;
+            adventurer.assignedEnemyInstanceId = null;
             adventurer.actionConsumed = false;
         }
 
@@ -108,8 +108,8 @@ public static class GameRunBootstrap
         if (staticData.adventurerDefs == null || staticData.adventurerDefs.Count != AdventurerSlotCount)
             throw new InvalidOperationException(
                 $"v0 requires exactly {AdventurerSlotCount} adventurer defs (actual={staticData.adventurerDefs?.Count ?? 0})");
-        if (staticData.monsterDefs == null || staticData.monsterDefs.Count == 0)
-            throw new InvalidOperationException("Monster defs are empty.");
+        if (staticData.enemyDefs == null || staticData.enemyDefs.Count == 0)
+            throw new InvalidOperationException("Enemy defs are empty.");
         if (staticData.stagePresetDefs == null || staticData.stagePresetDefs.Count != RequiredStagePresetCount)
             throw new InvalidOperationException(
                 $"v0 requires exactly {RequiredStagePresetCount} stage presets (actual={staticData.stagePresetDefs?.Count ?? 0})");
@@ -164,7 +164,7 @@ public static class GameRunBootstrap
             throw new ArgumentNullException(nameof(staticData));
         if (rng == null)
             throw new ArgumentNullException(nameof(rng));
-        if (runState.monsters.Count > 0)
+        if (runState.enemies.Count > 0)
             return false;
 
         SpawnRandomStagePreset(runState, staticData, rng);
@@ -176,14 +176,14 @@ public static class GameRunBootstrap
         if (staticData.stagePresetDefs == null || staticData.stagePresetDefs.Count == 0)
             throw new InvalidOperationException("Stage presets are empty.");
 
-        var monsterDefById = new Dictionary<string, MonsterDef>(StringComparer.Ordinal);
-        for (int i = 0; i < staticData.monsterDefs.Count; i++)
+        var enemyDefById = new Dictionary<string, EnemyDef>(StringComparer.Ordinal);
+        for (int i = 0; i < staticData.enemyDefs.Count; i++)
         {
-            var monsterDef = staticData.monsterDefs[i];
-            if (monsterDef == null || string.IsNullOrWhiteSpace(monsterDef.monsterId))
+            var enemyDef = staticData.enemyDefs[i];
+            if (enemyDef == null || string.IsNullOrWhiteSpace(enemyDef.enemyId))
                 continue;
 
-            monsterDefById[monsterDef.monsterId] = monsterDef;
+            enemyDefById[enemyDef.enemyId] = enemyDef;
         }
 
         var presetIndex = rng.Next(0, staticData.stagePresetDefs.Count);
@@ -199,18 +199,18 @@ public static class GameRunBootstrap
             var spawn = preset.spawns[i];
             if (spawn == null)
                 continue;
-            if (!monsterDefById.TryGetValue(spawn.monsterId, out var monsterDef))
+            if (!enemyDefById.TryGetValue(spawn.enemyId, out var enemyDef))
                 throw new InvalidOperationException(
-                    $"Preset '{preset.presetId}' references unknown monster '{spawn.monsterId}'.");
+                    $"Preset '{preset.presetId}' references unknown enemy '{spawn.enemyId}'.");
 
             for (int count = 0; count < spawn.count; count++)
             {
-                var actionDef = PickWeightedAction(monsterDef.actionPool, rng);
-                runState.monsters.Add(new MonsterState
+                var actionDef = PickWeightedAction(enemyDef.actionPool, rng);
+                runState.enemies.Add(new EnemyState
                 {
-                    instanceId = $"monster_{runState.nextMonsterInstanceSequence++}",
-                    monsterDefId = monsterDef.monsterId,
-                    currentHealth = monsterDef.baseHealth,
+                    instanceId = $"enemy_{runState.nextEnemyInstanceSequence++}",
+                    enemyDefId = enemyDef.enemyId,
+                    currentHealth = enemyDef.baseHealth,
                     currentActionId = actionDef.actionId,
                     actionTurnsLeft = actionDef.prepTurns
                 });
@@ -253,3 +253,4 @@ public static class GameRunBootstrap
         throw new InvalidOperationException("Failed to pick weighted action.");
     }
 }
+

@@ -21,10 +21,10 @@
 
 ## M1. 데이터/런타임 스키마 구현
 
-9. [x] `MonsterDef`/`ActionDef`/`EffectBundle` DTO 구현
+9. [x] `EnemyDef`/`ActionDef`/`EffectBundle` DTO 구현
 10. [x] `AdventurerDef`/`SkillDef` DTO 구현
-11. [x] 런타임 상태 모델 구현(`MonsterState`, 턴 상태, 쿨다운 상태)
-12. [x] v0 샘플 데이터 작성(`Monsters.json`, `Skills.json`, `Adventurers.json`)
+11. [x] 런타임 상태 모델 구현(`EnemyState`, 턴 상태, 쿨다운 상태)
+12. [x] v0 샘플 데이터 작성(`Enemies.json`, `Skills.json`, `Adventurers.json`)
 
 ## M2. 코어 루프 구현
 
@@ -46,3 +46,4 @@
 - M0~M3의 21개 항목이 모두 체크됨
 - 시작부터 게임오버까지 단일 런이 끊김 없이 진행됨
 - 10회 수동 플레이 테스트를 수행할 수 있는 상태
+

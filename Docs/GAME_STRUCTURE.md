@@ -8,7 +8,7 @@
 - 레포 지도(파일 위치/책임 요약): `Docs/PROJECT_MAP.md`
 - 아이디어 원문/백로그: `Docs/GAME_IDEA_BACKLOG.md`
 - v0 마일스톤 추적: `Docs/V0_MILESTONE.md`
-- 몬스터 컨셉/대응 요약: `Docs/MONSTER_ROSTER.md`
+- 몬스터 컨셉/대응 요약: `Docs/ENEMY_ROSTER.md`
 - 이 문서: 실제 구현 기준이 되는 게임 구조, 시스템, 데이터/씬 흐름
 
 ## 프로덕트 요약 (한 줄)
@@ -68,7 +68,7 @@
 - 턴당 신규 몬스터 생성 수는 `0`으로 고정합니다.
 - 보드에 몬스터가 `0`마리(전멸)인 상태가 되면, 다음 `P1 BoardUpdate`에서 프리셋 `3`개 중 무작위 `1`개를 다시 소환합니다.
 - 보드 최대 몬스터 수 상한은 두지 않습니다.
-- 프리셋 데이터 소스는 `MonsterStagePresets.json`으로 고정합니다.
+- 프리셋 데이터 소스는 `EnemyStagePresets.json`으로 고정합니다.
 
 ### v0 구현 순서
 
@@ -95,7 +95,7 @@
 
 - `Situation` / `상황`
   - 보드에 생성되는 문제/기회 단위
-- `Monster` / `몬스터`
+- `Enemy` / `몬스터`
   - v0 전투 단위(체력을 가진 적)
 - `Skill` / `스킬`
   - 액티브 능력 카테고리(인물 테마)
@@ -156,8 +156,8 @@
 
 - 템플릿은 `SaCache` + `StaticDataManager` 기반의 JSON 로딩 흐름을 제공합니다.
 - 프로젝트 초안 데이터 테이블:
-  - `Monsters.json`: Monster 정의(기존 `Situations.json` 대체)
-  - `MonsterStagePresets.json`: 사전 제작된 몬스터 스테이지 프리셋 정의
+  - `Enemies.json`: Enemy 정의(기존 `Situations.json` 대체)
+  - `EnemyStagePresets.json`: 사전 제작된 몬스터 스테이지 프리셋 정의
   - `DiceBuffs.json`: 주사위 강화 정의
   - `Skills.json`: Skill 정의
   - `Legacies.json`: Structure 정의
@@ -233,7 +233,7 @@
   - `instance_id`: string (런 내 모험가 인스턴스 ID)
   - `adventurer_def_id`: string (`AdventurerDef.adventurer_id` 참조)
   - `rolled_dice_values`: int[] (`P3` 결과값)
-  - `assigned_monster_instance_id`: string or null (`P2` 배치 대상)
+  - `assigned_enemy_instance_id`: string or null (`P2` 배치 대상)
   - `action_consumed`: bool (`P4`에서 공격 반영 완료 여부)
 - v0 처리 규칙:
   - 런 시작 시 모험가 슬롯은 `4`개로 고정합니다.
@@ -242,7 +242,7 @@
   - `P4`에서 모험가의 공격 반영이 끝나면 `action_consumed = true`로 확정합니다.
   - 턴 종료 시 모험가 배치/굴림/소비 상태는 다음 턴 시작에 리셋됩니다.
 
-### 몬스터(Monster, 기존 Situation)
+### 몬스터(Enemy, 기존 Situation)
 - 몬스터는 `태그`, `체력(Health)`, `행동(Action)`, `처치 보상`을 가집니다.
 - 모험가가 굴린 주사위 눈 합은 해당 몬스터의 `체력`을 감소시키는 `공격`으로 적용됩니다.
 - 몬스터 체력이 0 이하가 되면 즉시 처치 처리합니다.
@@ -250,8 +250,8 @@
 
 ### 몬스터 최소 스키마(v0 확정)
 
-- 정적 데이터(`MonsterDef`):
-  - `monster_id`: string (고유 ID)
+- 정적 데이터(`EnemyDef`):
+  - `enemy_id`: string (고유 ID)
   - `name_key`: string (로컬라이즈 키)
   - `tags`: string[] (예: `invasion`, `famine`)
   - `base_health`: int (`>= 1`)
@@ -261,9 +261,9 @@
     - `weight`: int (`>= 1`)
     - `prep_turns`: int (`>= 1`)
     - `on_resolve`: effect_bundle (행동 발동 효과)
-- 런타임 데이터(`MonsterState`):
+- 런타임 데이터(`EnemyState`):
   - `instance_id`: string (보드 인스턴스 ID)
-  - `monster_def_id`: string (`MonsterDef.monster_id` 참조)
+  - `enemy_def_id`: string (`EnemyDef.enemy_id` 참조)
   - `current_health`: int
   - `current_action_id`: string
   - `action_turns_left`: int
@@ -307,7 +307,7 @@
 - v0 최소 지원 `effect_type`:
   - `stability_delta`
   - `gold_delta`
-  - `monster_health_delta`
+  - `enemy_health_delta`
   - `die_face_delta`
   - `reroll_adventurer_dice`
 - `effect_type`별 `params` 필수 키 규칙(v0 확정):
@@ -315,9 +315,9 @@
     - 필수 키 없음 (`params = null`)
   - `gold_delta`
     - 필수 키 없음 (`params = null`)
-  - `monster_health_delta`
+  - `enemy_health_delta`
     - 필수: `target_mode`
-    - 허용값: `selected_monster` | `action_owner_monster`
+    - 허용값: `selected_enemy` | `action_owner_enemy`
   - `die_face_delta`
     - 필수: `target_adventurer_mode`, `die_pick_rule`
     - 허용값:
@@ -348,7 +348,7 @@
 ## 턴 처리 규칙(부분 확정)
 
 1. 턴 시작: 보드 상태를 갱신합니다(보드 전멸 시 다음 스테이지 프리셋을 추가합니다).
-2. 배치 단계: 플레이어가 모험가를 `Monster` 단위로 할당합니다.
+2. 배치 단계: 플레이어가 모험가를 `Enemy` 단위로 할당합니다.
 3. 굴림 단계: 할당 주사위를 굴려 결과를 생성합니다.
 4. 보정/해결 단계:
    - 스킬/칙령으로 결과를 보정합니다.
@@ -376,7 +376,7 @@
     - 턴 기반 정기 생성은 없음(턴당 생성 수 `0`)
     - `Commit`: 이번 턴 보드 구성 확정
   - `P2 Assignment`
-    - 플레이어가 모험가를 `Monster` 단위로 배치
+    - 플레이어가 모험가를 `Enemy` 단위로 배치
     - `Window`: 스킬/칙령 사용 가능
     - `Commit`: 모험가-몬스터 귀속 확정
   - `P3 Roll`
@@ -426,10 +426,10 @@
 
 ### 모험가 배치/소비 규칙(확정)
 
-- `P2 Assignment`에서는 모험가를 `Monster`에만 배치합니다.
-- `P2`에서 배치된 모험가는 `P4`에서 같은 `Monster`를 공격하는 데만 사용할 수 있습니다.
-- 기본 규칙으로는 `Monster` 간 모험가 이동/재배치를 허용하지 않습니다.
-- 예외적으로, 명시된 스킬/칙령 효과가 있을 때만 `Monster` 간 이동/교환을 허용합니다.
+- `P2 Assignment`에서는 모험가를 `Enemy`에만 배치합니다.
+- `P2`에서 배치된 모험가는 `P4`에서 같은 `Enemy`를 공격하는 데만 사용할 수 있습니다.
+- 기본 규칙으로는 `Enemy` 간 모험가 이동/재배치를 허용하지 않습니다.
+- 예외적으로, 명시된 스킬/칙령 효과가 있을 때만 `Enemy` 간 이동/교환을 허용합니다.
 - `P4`에서 몬스터를 처치해 획득한 모든 것(골드/칙령/스킬 포함)은 같은 `P4`에서 즉시 사용 가능합니다.
 - `P4` 종료 시점에 미배치 모험가가 있고 합법적 배치 대상이 1개 이상 남아 있으면 경고 모달을 표시하고, 플레이어 확인 후에만 종료할 수 있습니다.
 
@@ -528,4 +528,5 @@
 - 공통 규칙: `Docs/GENERAL_RULES.md`
 - 레포 지도: `Docs/PROJECT_MAP.md`
 - 아이디어 백로그: `Docs/GAME_IDEA_BACKLOG.md`
-- 몬스터 로스터: `Docs/MONSTER_ROSTER.md`
+- 몬스터 로스터: `Docs/ENEMY_ROSTER.md`
+

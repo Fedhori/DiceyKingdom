@@ -37,17 +37,17 @@
       }
     },
     {
-      "skill_id": "skill_damage_monster_two",
-      "name_key": "skill.damage_monster_two.name",
+      "skill_id": "skill_damage_enemy_two",
+      "name_key": "skill.damage_enemy_two.name",
       "cooldown_turns": 2,
       "max_uses_per_turn": 1,
       "effect_bundle": {
         "effects": [
           {
-            "effect_type": "monster_health_delta",
+            "effect_type": "enemy_health_delta",
             "value": -2,
             "params": {
-              "target_mode": "selected_monster"
+              "target_mode": "selected_enemy"
             }
           }
         ]
@@ -55,3 +55,4 @@
     }
   ]
 }
+

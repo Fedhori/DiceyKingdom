@@ -27,9 +27,9 @@ public sealed class ActionDef
 }
 
 [Serializable]
-public sealed class MonsterDef
+public sealed class EnemyDef
 {
-    [JsonProperty("monster_id")] public string monsterId = string.Empty;
+    [JsonProperty("enemy_id")] public string enemyId = string.Empty;
     [JsonProperty("name_key")] public string nameKey = string.Empty;
     [JsonProperty("tags")] public List<string> tags = new();
     [JsonProperty("base_health")] public int baseHealth = 1;
@@ -58,23 +58,23 @@ public sealed class SkillDef
 }
 
 [Serializable]
-public sealed class MonsterStageSpawnDef
+public sealed class EnemyStageSpawnDef
 {
-    [JsonProperty("monster_id")] public string monsterId = string.Empty;
+    [JsonProperty("enemy_id")] public string enemyId = string.Empty;
     [JsonProperty("count")] public int count = 1;
 }
 
 [Serializable]
-public sealed class MonsterStagePresetDef
+public sealed class EnemyStagePresetDef
 {
     [JsonProperty("preset_id")] public string presetId = string.Empty;
-    [JsonProperty("spawns")] public List<MonsterStageSpawnDef> spawns = new();
+    [JsonProperty("spawns")] public List<EnemyStageSpawnDef> spawns = new();
 }
 
 [Serializable]
-public sealed class MonsterDefCatalog
+public sealed class EnemyDefCatalog
 {
-    [JsonProperty("monsters")] public List<MonsterDef> monsters = new();
+    [JsonProperty("enemies")] public List<EnemyDef> enemies = new();
 }
 
 [Serializable]
@@ -90,7 +90,8 @@ public sealed class SkillDefCatalog
 }
 
 [Serializable]
-public sealed class MonsterStagePresetCatalog
+public sealed class EnemyStagePresetCatalog
 {
-    [JsonProperty("stage_presets")] public List<MonsterStagePresetDef> stagePresets = new();
+    [JsonProperty("stage_presets")] public List<EnemyStagePresetDef> stagePresets = new();
 }
+
