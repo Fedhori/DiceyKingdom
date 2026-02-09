@@ -415,7 +415,9 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     void ExecuteEndTurnPhase()
     {
-        if (RunState.stability <= 0)
+        NormalizeRunResources();
+
+        if (IsRunGameOver())
         {
             isRunOver = true;
             RunEnded?.Invoke(RunState);
@@ -595,25 +597,15 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     bool TryApplyStabilityDelta(int delta)
     {
-        int current = RunState.stability;
-        int next = current + delta;
-        if (next < 0)
-            next = 0;
-        if (next > RunState.maxStability)
-            next = RunState.maxStability;
-
-        RunState.stability = next;
+        int next = RunState.stability + delta;
+        RunState.stability = ClampStability(next);
         return true;
     }
 
     bool TryApplyGoldDelta(int delta)
     {
-        int current = RunState.gold;
-        int next = current + delta;
-        if (next < 0)
-            next = 0;
-
-        RunState.gold = next;
+        int next = RunState.gold + delta;
+        RunState.gold = ClampGold(next);
         return true;
     }
 
@@ -969,6 +961,33 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
                 skillDefById[def.skillId] = def;
             }
         }
+    }
+
+    void NormalizeRunResources()
+    {
+        RunState.stability = ClampStability(RunState.stability);
+        RunState.gold = ClampGold(RunState.gold);
+    }
+
+    bool IsRunGameOver()
+    {
+        return RunState.stability <= 0;
+    }
+
+    int ClampStability(int value)
+    {
+        if (value < 0)
+            return 0;
+
+        if (value > RunState.maxStability)
+            return RunState.maxStability;
+
+        return value;
+    }
+
+    static int ClampGold(int value)
+    {
+        return value < 0 ? 0 : value;
     }
 
     ActionDef FindActionDef(EnemyDef enemyDef, string actionId)
