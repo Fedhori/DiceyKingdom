@@ -612,6 +612,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1390522921}
+  - component: {fileID: 1390522922}
   m_Layer: 5
   m_Name: TopHudRoot
   m_TagString: Untagged
@@ -638,6 +639,26 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -16}
   m_SizeDelta: {x: 0, y: 112}
   m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &1390522922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1390522920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18e14f702ce06264793fd05b47d6a8dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TopHudController
+  orchestrator: {fileID: 0}
+  contentRoot: {fileID: 0}
+  barColor: {r: 0.12, g: 0.14, b: 0.18, a: 0.9}
+  panelColor: {r: 0.2, g: 0.24, b: 0.3, a: 0.96}
+  panelWarningColor: {r: 0.46, g: 0.18, b: 0.18, a: 0.96}
+  titleColor: {r: 0.72, g: 0.8, b: 0.9, a: 1}
+  valueColor: {r: 0.94, g: 0.97, b: 1, a: 1}
+  gameOverValueColor: {r: 1, g: 0.84, b: 0.84, a: 1}
 --- !u!1 &1431755835
 GameObject:
   m_ObjectHideFlags: 0

@@ -49,6 +49,7 @@
   - `AssignmentDragArrowPresenter.cs`: 드래그 타게팅 중 연결 라인/화살표 표시(OverlayRoot)
   - `AdventurerRollButton.cs`: 모험가별 굴리기 버튼 입력
   - `BottomActionBarController.cs`: 하단 액션 바(스킬 슬롯 QWER 상태, 턴 종료 CTA) 런타임 생성/동기화
+  - `TopHudController.cs`: 상단 HUD(턴/스테이지/페이즈/안정도/골드/런 상태) 이벤트 동기화
   - `GameTurnHotkeyController.cs`: 롤(1~4) / 스킬(QWER) 단축키 입력
   - `AdventurerDragHandle.cs`, `EnemyDropTarget.cs`: 드래그 타게팅/공격 입력
   - `AdventurerProcessingHighlight.cs`: 현재 처리 중 모험가 강조 표시
