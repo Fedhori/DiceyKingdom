@@ -11,6 +11,16 @@ public sealed class AdventurerDragHandle : MonoBehaviour, IBeginDragHandler, IDr
         adventurerInstanceId = instanceId ?? string.Empty;
     }
 
+    public void SetOrchestrator(GameTurnOrchestrator value)
+    {
+        orchestrator = value;
+    }
+
+    void Awake()
+    {
+        TryResolveOrchestrator();
+    }
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (!CanDrag())
@@ -56,5 +66,13 @@ public sealed class AdventurerDragHandle : MonoBehaviour, IBeginDragHandler, IDr
             return false;
 
         return orchestrator.CanAssignAdventurer(adventurerInstanceId);
+    }
+
+    void TryResolveOrchestrator()
+    {
+        if (orchestrator != null)
+            return;
+
+        orchestrator = FindFirstObjectByType<GameTurnOrchestrator>();
     }
 }

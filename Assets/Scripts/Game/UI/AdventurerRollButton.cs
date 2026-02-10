@@ -13,6 +13,16 @@ public sealed class AdventurerRollButton : MonoBehaviour
         adventurerInstanceId = instanceId ?? string.Empty;
     }
 
+    public void SetOrchestrator(GameTurnOrchestrator value)
+    {
+        orchestrator = value;
+    }
+
+    public void SetButton(Button value)
+    {
+        button = value;
+    }
+
     public void OnRollPressed()
     {
         if (orchestrator == null)
@@ -27,6 +37,8 @@ public sealed class AdventurerRollButton : MonoBehaviour
     {
         if (button == null)
             button = GetComponent<Button>();
+
+        TryResolveOrchestrator();
     }
 
     void OnValidate()
@@ -35,8 +47,18 @@ public sealed class AdventurerRollButton : MonoBehaviour
             button = GetComponent<Button>();
     }
 
+    void Awake()
+    {
+        if (button == null)
+            button = GetComponent<Button>();
+
+        TryResolveOrchestrator();
+    }
+
     void Update()
     {
+        if (button == null)
+            button = GetComponent<Button>();
         if (button == null)
             return;
 
@@ -45,5 +67,13 @@ public sealed class AdventurerRollButton : MonoBehaviour
             return;
 
         button.interactable = canRoll;
+    }
+
+    void TryResolveOrchestrator()
+    {
+        if (orchestrator != null)
+            return;
+
+        orchestrator = FindFirstObjectByType<GameTurnOrchestrator>();
     }
 }

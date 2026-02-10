@@ -17,8 +17,20 @@ public sealed class AdventurerProcessingHighlight : MonoBehaviour
         adventurerInstanceId = instanceId ?? string.Empty;
     }
 
+    public void SetOrchestrator(GameTurnOrchestrator value)
+    {
+        orchestrator = value;
+    }
+
+    public void ConfigureVisuals(Graphic outline, GameObject badgeObject)
+    {
+        outlineGraphic = outline;
+        headerBadgeObject = badgeObject;
+    }
+
     void Awake()
     {
+        TryResolveOrchestrator();
         ApplyHighlight(false, force: true);
     }
 
@@ -41,5 +53,13 @@ public sealed class AdventurerProcessingHighlight : MonoBehaviour
 
         if (headerBadgeObject != null && headerBadgeObject.activeSelf != isActive)
             headerBadgeObject.SetActive(isActive);
+    }
+
+    void TryResolveOrchestrator()
+    {
+        if (orchestrator != null)
+            return;
+
+        orchestrator = FindFirstObjectByType<GameTurnOrchestrator>();
     }
 }

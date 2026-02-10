@@ -163,6 +163,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 255186374}
+  - component: {fileID: 255186375}
   m_Layer: 5
   m_Name: LeftAdventurerPanelRoot
   m_TagString: Untagged
@@ -189,6 +190,28 @@ RectTransform:
   m_AnchoredPosition: {x: 210, y: -60}
   m_SizeDelta: {x: 400, y: -220}
   m_Pivot: {x: 0, y: 0.5}
+--- !u!114 &255186375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 255186373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56af38c673248a74bae816992a8b2f32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AdventurerPanelController
+  orchestrator: {fileID: 0}
+  contentRoot: {fileID: 0}
+  cardHeight: 172
+  pendingCardColor: {r: 0.18, g: 0.22, b: 0.3, a: 0.95}
+  rolledCardColor: {r: 0.2, g: 0.27, b: 0.36, a: 0.95}
+  consumedCardColor: {r: 0.13, g: 0.16, b: 0.2, a: 0.85}
+  labelColor: {r: 0.93, g: 0.96, b: 1, a: 1}
+  subtleLabelColor: {r: 0.72, g: 0.8, b: 0.9, a: 1}
+  rollButtonColor: {r: 0.28, g: 0.46, b: 0.8, a: 1}
+  badgeColor: {r: 0.95, g: 0.74, b: 0.24, a: 0.95}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
