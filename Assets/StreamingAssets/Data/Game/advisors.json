@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "advisors": [
+    {
+      "advisor_id": "godfather",
+      "cooldown": 1,
+      "target_type": "selected_situation",
+      "conditions": [],
+      "effects": [
+        {
+          "effect_type": "resource_delta",
+          "value": -1,
+          "target_resource": "stability"
+        },
+        {
+          "effect_type": "demand_delta",
+          "value": -10,
+          "target_mode": "selected_situation"
+        }
+      ]
+    },
+    {
+      "advisor_id": "diplomat",
+      "cooldown": 4,
+      "target_type": "selected_situation",
+      "max_uses_per_situation": 1,
+      "conditions": [],
+      "effects": [
+        {
+          "effect_type": "deadline_delta",
+          "value": 1,
+          "target_mode": "selected_situation"
+        }
+      ]
+    },
+    {
+      "advisor_id": "jester",
+      "cooldown": 1,
+      "target_type": "selected_die",
+      "conditions": [
+        {
+          "condition_type": "selected_die_face_eq",
+          "value": 1
+        }
+      ],
+      "effects": [
+        {
+          "effect_type": "die_face_set",
+          "value": 6,
+          "target_mode": "selected_die"
+        }
+      ]
+    },
+    {
+      "advisor_id": "knight",
+      "cooldown": 2,
+      "target_type": "selected_die",
+      "conditions": [],
+      "effects": [
+        {
+          "effect_type": "die_face_delta",
+          "value": 2,
+          "target_mode": "selected_die"
+        }
+      ]
+    },
+    {
+      "advisor_id": "sage",
+      "cooldown": 2,
+      "target_type": "selected_situation",
+      "conditions": [],
+      "effects": [
+        {
+          "effect_type": "reroll_assigned_dice",
+          "target_mode": "selected_situation"
+        }
+      ]
+    },
+    {
+      "advisor_id": "blacksmith",
+      "cooldown": 3,
+      "target_type": "selected_situation",
+      "conditions": [],
+      "effects": [
+        {
+          "effect_type": "die_face_delta",
+          "value": 1,
+          "target_mode": "assigned_dice_in_selected_situation"
+        }
+      ]
+    }
+  ]
+}
