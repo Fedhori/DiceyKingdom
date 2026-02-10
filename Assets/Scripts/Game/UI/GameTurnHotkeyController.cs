@@ -31,6 +31,9 @@ public sealed class GameTurnHotkeyController : MonoBehaviour
             orchestrator.TryUseSkillBySlotIndex(2);
         if (keyboard.rKey.wasPressedThisFrame)
             orchestrator.TryUseSkillBySlotIndex(3);
+
+        if (keyboard.spaceKey.wasPressedThisFrame)
+            orchestrator.RequestCommitAssignmentPhase();
     }
 
     static bool IsRollKeyPressed(Keyboard keyboard, int slotIndex)

@@ -647,6 +647,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1431755836}
+  - component: {fileID: 1431755837}
   m_Layer: 5
   m_Name: BottomActionBarRoot
   m_TagString: Untagged
@@ -673,6 +674,30 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 12}
   m_SizeDelta: {x: 0, y: 140}
   m_Pivot: {x: 0.5, y: 0}
+--- !u!114 &1431755837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1431755835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e95a8d4eeedaea4d9115c070ef0c539, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BottomActionBarController
+  orchestrator: {fileID: 0}
+  contentRoot: {fileID: 0}
+  visibleSkillSlotCount: 4
+  barBackgroundColor: {r: 0.1, g: 0.12, b: 0.15, a: 0.9}
+  slotReadyColor: {r: 0.2, g: 0.38, b: 0.64, a: 0.96}
+  slotCooldownColor: {r: 0.2, g: 0.23, b: 0.29, a: 0.96}
+  slotBlockedColor: {r: 0.24, g: 0.19, b: 0.17, a: 0.96}
+  slotEmptyColor: {r: 0.16, g: 0.18, b: 0.22, a: 0.82}
+  commitReadyColor: {r: 0.18, g: 0.48, b: 0.3, a: 0.95}
+  commitBlockedColor: {r: 0.24, g: 0.26, b: 0.3, a: 0.86}
+  labelColor: {r: 0.94, g: 0.97, b: 1, a: 1}
+  subtleLabelColor: {r: 0.76, g: 0.82, b: 0.9, a: 1}
 --- !u!1 &1831022631
 GameObject:
   m_ObjectHideFlags: 0

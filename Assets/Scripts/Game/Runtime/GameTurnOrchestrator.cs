@@ -309,6 +309,28 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             selectedDieIndex);
     }
 
+    public bool CanUseSkillBySlotIndex(int skillSlotIndex)
+    {
+        if (!CanAcceptSkillInput())
+            return false;
+        if (RunState?.skillCooldowns == null)
+            return false;
+        if (skillSlotIndex < 0 || skillSlotIndex >= RunState.skillCooldowns.Count)
+            return false;
+
+        var cooldown = RunState.skillCooldowns[skillSlotIndex];
+        if (cooldown == null || string.IsNullOrWhiteSpace(cooldown.skillDefId))
+            return false;
+        if (cooldown.cooldownRemainingTurns > 0)
+            return false;
+        if (cooldown.usedThisTurn)
+            return false;
+        if (!skillDefById.TryGetValue(cooldown.skillDefId, out var skillDef))
+            return false;
+
+        return CanUseSkillInPhase(skillDef, RunState.turn.phase);
+    }
+
     public void AdvanceToDecisionPoint()
     {
         if (RunState == null || isRunOver)
