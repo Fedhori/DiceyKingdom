@@ -6,7 +6,7 @@
       "tags": [
         "invasion"
       ],
-      "base_health": 10,
+      "base_health": 20,
       "action_pool": [
         {
           "action_id": "raid",
@@ -44,7 +44,7 @@
       "tags": [
         "famine"
       ],
-      "base_health": 8,
+      "base_health": 17,
       "action_pool": [
         {
           "action_id": "devour_fields",
@@ -83,7 +83,7 @@
         "invasion",
         "economy"
       ],
-      "base_health": 9,
+      "base_health": 18,
       "action_pool": [
         {
           "action_id": "loot_caravans",
@@ -122,7 +122,7 @@
         "invasion",
         "ritual"
       ],
-      "base_health": 11,
+      "base_health": 23,
       "action_pool": [
         {
           "action_id": "curse_barrage",

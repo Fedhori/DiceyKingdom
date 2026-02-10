@@ -6,9 +6,19 @@ public sealed class EnemyDropTarget : MonoBehaviour, IDropHandler
     [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] string enemyInstanceId = string.Empty;
 
+    public void SetOrchestrator(GameTurnOrchestrator value)
+    {
+        orchestrator = value;
+    }
+
     public void SetEnemyInstanceId(string instanceId)
     {
         enemyInstanceId = instanceId ?? string.Empty;
+    }
+
+    void Awake()
+    {
+        TryResolveOrchestrator();
     }
 
     public void OnDrop(PointerEventData eventData)
@@ -26,5 +36,13 @@ public sealed class EnemyDropTarget : MonoBehaviour, IDropHandler
             return;
 
         AssignmentDragSession.MarkDropHandled();
+    }
+
+    void TryResolveOrchestrator()
+    {
+        if (orchestrator != null)
+            return;
+
+        orchestrator = FindFirstObjectByType<GameTurnOrchestrator>();
     }
 }

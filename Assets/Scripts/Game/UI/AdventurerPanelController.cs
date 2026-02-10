@@ -52,7 +52,7 @@ public sealed class AdventurerPanelController : MonoBehaviour
 
     void OnRunStarted(GameRunState _)
     {
-        RebuildCardsIfNeeded(forceRebuild: true);
+        RebuildCardsIfNeeded(forceRebuild: false);
         RefreshAllCards();
     }
 
@@ -113,6 +113,9 @@ public sealed class AdventurerPanelController : MonoBehaviour
         ClearCards();
         for (int index = 0; index < desiredCount; index++)
             cards.Add(CreateCard(index));
+
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(contentRoot);
     }
 
     void ClearCards()
@@ -201,7 +204,7 @@ public sealed class AdventurerPanelController : MonoBehaviour
         badgeText.text = "ACTIVE";
         badgeRoot.SetActive(false);
 
-        var diceText = CreateLabel("DiceText", cardRect, 24f, FontStyles.Normal, TextAlignmentOptions.TopLeft, labelColor);
+        var diceText = CreateLabel("DiceText", cardRect, 20f, FontStyles.Normal, TextAlignmentOptions.TopLeft, labelColor);
         diceText.rectTransform.anchorMin = new Vector2(0f, 0f);
         diceText.rectTransform.anchorMax = new Vector2(1f, 1f);
         diceText.rectTransform.offsetMin = new Vector2(12f, 52f);
@@ -209,7 +212,7 @@ public sealed class AdventurerPanelController : MonoBehaviour
         diceText.enableWordWrapping = true;
         diceText.overflowMode = TextOverflowModes.Ellipsis;
 
-        var statusText = CreateLabel("StatusText", cardRect, 20f, FontStyles.Normal, TextAlignmentOptions.BottomLeft, subtleLabelColor);
+        var statusText = CreateLabel("StatusText", cardRect, 18f, FontStyles.Normal, TextAlignmentOptions.BottomLeft, subtleLabelColor);
         statusText.rectTransform.anchorMin = new Vector2(0f, 0f);
         statusText.rectTransform.anchorMax = new Vector2(1f, 0f);
         statusText.rectTransform.pivot = new Vector2(0.5f, 0f);
@@ -308,7 +311,7 @@ public sealed class AdventurerPanelController : MonoBehaviour
         card.slotText.text = $"A{slotIndex + 1}";
         card.rollButtonText.text = $"Roll [{slotIndex + 1}]";
         card.nameText.text = ResolveAdventurerName(adventurer.adventurerDefId);
-        card.diceText.text = BuildDiceLine(adventurer);
+        card.diceText.text = BuildDiceLine(adventurer, adventurer.adventurerDefId);
         card.statusText.text = BuildStatusLine(adventurer);
 
         bool isProcessing = orchestrator.IsCurrentProcessingAdventurer(adventurer.instanceId);
@@ -322,8 +325,11 @@ public sealed class AdventurerPanelController : MonoBehaviour
             card.background.color = pendingCardColor;
     }
 
-    string BuildDiceLine(AdventurerState adventurer)
+    string BuildDiceLine(AdventurerState adventurer, string adventurerDefId)
     {
+        int diceCount = ResolveDiceCount(adventurerDefId);
+        string innateSummary = ResolveInnateSummary(adventurerDefId);
+
         if (adventurer?.rolledDiceValues != null && adventurer.rolledDiceValues.Count > 0)
         {
             int sum = 0;
@@ -335,17 +341,20 @@ public sealed class AdventurerPanelController : MonoBehaviour
                 parts[index] = value.ToString();
             }
 
-            return $"Dice: {string.Join("  ", parts)}\nAttack: {sum}";
+            return $"Dice Count: {diceCount} | Innate: {innateSummary}\n" +
+                   $"Dice: [{string.Join("] [", parts)}]\n" +
+                   $"Expected Damage: {sum}";
         }
 
-        int diceCount = ResolveDiceCount(adventurer?.adventurerDefId);
         if (diceCount < 1)
             diceCount = 1;
 
         var placeholders = new string[diceCount];
         for (int index = 0; index < diceCount; index++)
             placeholders[index] = "-";
-        return $"Dice: {string.Join("  ", placeholders)}\nAttack: -";
+        return $"Dice Count: {diceCount} | Innate: {innateSummary}\n" +
+               $"Dice: [{string.Join("] [", placeholders)}]\n" +
+               "Expected Damage: -";
     }
 
     string BuildStatusLine(AdventurerState adventurer)
@@ -394,6 +403,30 @@ public sealed class AdventurerPanelController : MonoBehaviour
         return Mathf.Max(1, def.diceCount);
     }
 
+    string ResolveInnateSummary(string adventurerDefId)
+    {
+        if (string.IsNullOrWhiteSpace(adventurerDefId))
+            return "None";
+        if (!adventurerDefById.TryGetValue(adventurerDefId, out var def))
+            return "None";
+        if (def.innateEffect?.effects == null || def.innateEffect.effects.Count == 0)
+            return "None";
+
+        var tokens = new List<string>(def.innateEffect.effects.Count);
+        for (int index = 0; index < def.innateEffect.effects.Count; index++)
+        {
+            string token = ToEffectSummary(def.innateEffect.effects[index]);
+            if (string.IsNullOrWhiteSpace(token))
+                continue;
+
+            tokens.Add(token);
+        }
+
+        if (tokens.Count == 0)
+            return "None";
+        return string.Join(", ", tokens);
+    }
+
     void TryResolveOrchestrator()
     {
         if (orchestrator != null)
@@ -420,7 +453,7 @@ public sealed class AdventurerPanelController : MonoBehaviour
             layout = contentRoot.gameObject.AddComponent<VerticalLayoutGroup>();
         layout.childAlignment = TextAnchor.UpperLeft;
         layout.childControlWidth = true;
-        layout.childControlHeight = false;
+        layout.childControlHeight = true;
         layout.childForceExpandWidth = true;
         layout.childForceExpandHeight = false;
         layout.spacing = 10f;
@@ -483,6 +516,35 @@ public sealed class AdventurerPanelController : MonoBehaviour
         text.raycastTarget = false;
         text.text = string.Empty;
         return text;
+    }
+
+    static string ToEffectSummary(EffectSpec effect)
+    {
+        if (effect == null || string.IsNullOrWhiteSpace(effect.effectType))
+            return string.Empty;
+
+        int value = effect.value.HasValue
+            ? Mathf.RoundToInt((float)effect.value.Value)
+            : 0;
+
+        return effect.effectType switch
+        {
+            "stability_delta" => $"Stability {FormatSignedValue(value)}",
+            "gold_delta" => $"Gold {FormatSignedValue(value)}",
+            "enemy_health_delta" => $"Enemy HP {FormatSignedValue(value)}",
+            "die_face_delta" => $"Die {FormatSignedValue(value)}",
+            "reroll_adventurer_dice" => "Reroll Dice",
+            _ => value == 0
+                ? ToDisplayTitle(effect.effectType)
+                : $"{ToDisplayTitle(effect.effectType)} {FormatSignedValue(value)}"
+        };
+    }
+
+    static string FormatSignedValue(int value)
+    {
+        if (value > 0)
+            return $"+{value}";
+        return value.ToString();
     }
 
     static string ToDisplayTitle(string raw)

@@ -6,6 +6,8 @@ public sealed class AdventurerDragHandle : MonoBehaviour, IBeginDragHandler, IDr
     [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] string adventurerInstanceId = string.Empty;
 
+    public string AdventurerInstanceId => adventurerInstanceId;
+
     public void SetAdventurerInstanceId(string instanceId)
     {
         adventurerInstanceId = instanceId ?? string.Empty;
@@ -30,7 +32,7 @@ public sealed class AdventurerDragHandle : MonoBehaviour, IBeginDragHandler, IDr
         if (!orchestrator.TryBeginAdventurerTargeting(adventurerInstanceId))
             return;
 
-        AssignmentDragSession.Begin(adventurerInstanceId);
+        AssignmentDragSession.Begin(adventurerInstanceId, eventData.position);
         AssignmentDragSession.Move(eventData.position);
     }
 

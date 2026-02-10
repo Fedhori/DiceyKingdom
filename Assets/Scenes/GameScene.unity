@@ -128,6 +128,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 20900711}
+  - component: {fileID: 20900712}
   m_Layer: 5
   m_Name: RightEnemyPanelRoot
   m_TagString: Untagged
@@ -154,6 +155,26 @@ RectTransform:
   m_AnchoredPosition: {x: -210, y: -60}
   m_SizeDelta: {x: 400, y: -220}
   m_Pivot: {x: 1, y: 0.5}
+--- !u!114 &20900712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 20900710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c96ceeaaa34f464d960178c5e47439a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyPanelController
+  orchestrator: {fileID: 0}
+  contentRoot: {fileID: 0}
+  cardHeight: 158
+  cardColor: {r: 0.32, g: 0.18, b: 0.18, a: 0.94}
+  lowHealthCardColor: {r: 0.45, g: 0.16, b: 0.16, a: 0.98}
+  labelColor: {r: 0.98, g: 0.94, b: 0.93, a: 1}
+  subtleLabelColor: {r: 0.88, g: 0.78, b: 0.76, a: 1}
+  prepBadgeColor: {r: 0.94, g: 0.72, b: 0.3, a: 0.95}
 --- !u!1 &255186373
 GameObject:
   m_ObjectHideFlags: 0
@@ -538,6 +559,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1274208117}
+  - component: {fileID: 1274208118}
   m_Layer: 5
   m_Name: OverlayRoot
   m_TagString: Untagged
@@ -564,6 +586,23 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1274208118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1274208116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e44aa827bb9424c45a9aeb70fc3035f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AssignmentDragArrowPresenter
+  overlayRoot: {fileID: 0}
+  lineThickness: 6
+  lineColor: {r: 0.92, g: 0.96, b: 1, a: 0.95}
+  arrowColor: {r: 0.96, g: 0.84, b: 0.26, a: 1}
+  arrowFontSize: 44
 --- !u!1 &1390522920
 GameObject:
   m_ObjectHideFlags: 0

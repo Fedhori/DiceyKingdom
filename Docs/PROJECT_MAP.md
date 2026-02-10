@@ -45,6 +45,8 @@
 - v0 턴 오케스트레이터: `Assets/Scripts/Game/Runtime/GameTurnOrchestrator.cs`
 - v0 전투 입력 컴포넌트: `Assets/Scripts/Game/UI`
   - `AdventurerPanelController.cs`: 좌측 모험가 패널(4슬롯) 런타임 생성/상태 표시/입력 컴포넌트 배선
+  - `EnemyPanelController.cs`: 우측 Enemy 패널 런타임 생성/체력·행동·준비 카운트 표시/드롭 타깃 배선
+  - `AssignmentDragArrowPresenter.cs`: 드래그 타게팅 중 연결 라인/화살표 표시(OverlayRoot)
   - `AdventurerRollButton.cs`: 모험가별 굴리기 버튼 입력
   - `GameTurnHotkeyController.cs`: 롤(1~4) / 스킬(QWER) 단축키 입력
   - `AdventurerDragHandle.cs`, `EnemyDropTarget.cs`: 드래그 타게팅/공격 입력
