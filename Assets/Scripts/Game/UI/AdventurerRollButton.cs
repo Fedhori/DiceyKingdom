@@ -15,7 +15,13 @@ public sealed class AdventurerRollButton : MonoBehaviour
 
     public void SetOrchestrator(GameTurnOrchestrator value)
     {
+        if (ReferenceEquals(orchestrator, value))
+            return;
+
+        UnsubscribeEvents();
         orchestrator = value;
+        SubscribeEvents();
+        RefreshInteractable();
     }
 
     public void SetButton(Button value)
@@ -39,6 +45,7 @@ public sealed class AdventurerRollButton : MonoBehaviour
             button = GetComponent<Button>();
 
         TryResolveOrchestrator();
+        RefreshInteractable();
     }
 
     void OnValidate()
@@ -55,7 +62,65 @@ public sealed class AdventurerRollButton : MonoBehaviour
         TryResolveOrchestrator();
     }
 
-    void Update()
+    void OnEnable()
+    {
+        SubscribeEvents();
+        RefreshInteractable();
+    }
+
+    void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
+
+    void OnRunStarted(GameRunState _)
+    {
+        RefreshInteractable();
+    }
+
+    void OnPhaseChanged(TurnPhase _)
+    {
+        RefreshInteractable();
+    }
+
+    void OnRunEnded(GameRunState _)
+    {
+        RefreshInteractable();
+    }
+
+    void OnStateChanged()
+    {
+        RefreshInteractable();
+    }
+
+    void SubscribeEvents()
+    {
+        if (orchestrator == null)
+            return;
+
+        orchestrator.RunStarted -= OnRunStarted;
+        orchestrator.PhaseChanged -= OnPhaseChanged;
+        orchestrator.RunEnded -= OnRunEnded;
+        orchestrator.StateChanged -= OnStateChanged;
+
+        orchestrator.RunStarted += OnRunStarted;
+        orchestrator.PhaseChanged += OnPhaseChanged;
+        orchestrator.RunEnded += OnRunEnded;
+        orchestrator.StateChanged += OnStateChanged;
+    }
+
+    void UnsubscribeEvents()
+    {
+        if (orchestrator == null)
+            return;
+
+        orchestrator.RunStarted -= OnRunStarted;
+        orchestrator.PhaseChanged -= OnPhaseChanged;
+        orchestrator.RunEnded -= OnRunEnded;
+        orchestrator.StateChanged -= OnStateChanged;
+    }
+
+    void RefreshInteractable()
     {
         if (button == null)
             button = GetComponent<Button>();

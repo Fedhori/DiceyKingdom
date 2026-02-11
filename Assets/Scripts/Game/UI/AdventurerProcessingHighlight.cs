@@ -19,7 +19,13 @@ public sealed class AdventurerProcessingHighlight : MonoBehaviour
 
     public void SetOrchestrator(GameTurnOrchestrator value)
     {
+        if (ReferenceEquals(orchestrator, value))
+            return;
+
+        UnsubscribeEvents();
         orchestrator = value;
+        SubscribeEvents();
+        RefreshHighlight();
     }
 
     public void ConfigureVisuals(Graphic outline, GameObject badgeObject)
@@ -34,7 +40,65 @@ public sealed class AdventurerProcessingHighlight : MonoBehaviour
         ApplyHighlight(false, force: true);
     }
 
-    void Update()
+    void OnEnable()
+    {
+        SubscribeEvents();
+        RefreshHighlight();
+    }
+
+    void OnDisable()
+    {
+        UnsubscribeEvents();
+    }
+
+    void OnRunStarted(GameRunState _)
+    {
+        RefreshHighlight();
+    }
+
+    void OnPhaseChanged(TurnPhase _)
+    {
+        RefreshHighlight();
+    }
+
+    void OnRunEnded(GameRunState _)
+    {
+        RefreshHighlight();
+    }
+
+    void OnStateChanged()
+    {
+        RefreshHighlight();
+    }
+
+    void SubscribeEvents()
+    {
+        if (orchestrator == null)
+            return;
+
+        orchestrator.RunStarted -= OnRunStarted;
+        orchestrator.PhaseChanged -= OnPhaseChanged;
+        orchestrator.RunEnded -= OnRunEnded;
+        orchestrator.StateChanged -= OnStateChanged;
+
+        orchestrator.RunStarted += OnRunStarted;
+        orchestrator.PhaseChanged += OnPhaseChanged;
+        orchestrator.RunEnded += OnRunEnded;
+        orchestrator.StateChanged += OnStateChanged;
+    }
+
+    void UnsubscribeEvents()
+    {
+        if (orchestrator == null)
+            return;
+
+        orchestrator.RunStarted -= OnRunStarted;
+        orchestrator.PhaseChanged -= OnPhaseChanged;
+        orchestrator.RunEnded -= OnRunEnded;
+        orchestrator.StateChanged -= OnStateChanged;
+    }
+
+    void RefreshHighlight()
     {
         bool isActive = orchestrator != null &&
                         orchestrator.IsCurrentProcessingAdventurer(adventurerInstanceId);

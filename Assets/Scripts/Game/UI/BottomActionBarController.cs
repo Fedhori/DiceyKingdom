@@ -53,11 +53,6 @@ public sealed class BottomActionBarController : MonoBehaviour
             SkillTargetingSession.Cancel();
     }
 
-    void Update()
-    {
-        RefreshView();
-    }
-
     void OnRunStarted(GameRunState _)
     {
         RefreshView();
@@ -73,6 +68,16 @@ public sealed class BottomActionBarController : MonoBehaviour
         RefreshView();
     }
 
+    void OnStateChanged()
+    {
+        RefreshView();
+    }
+
+    void OnTargetingSessionChanged()
+    {
+        RefreshView();
+    }
+
     void SubscribeEvents()
     {
         if (orchestrator == null)
@@ -81,10 +86,14 @@ public sealed class BottomActionBarController : MonoBehaviour
         orchestrator.RunStarted -= OnRunStarted;
         orchestrator.PhaseChanged -= OnPhaseChanged;
         orchestrator.RunEnded -= OnRunEnded;
+        orchestrator.StateChanged -= OnStateChanged;
+        SkillTargetingSession.SessionChanged -= OnTargetingSessionChanged;
 
         orchestrator.RunStarted += OnRunStarted;
         orchestrator.PhaseChanged += OnPhaseChanged;
         orchestrator.RunEnded += OnRunEnded;
+        orchestrator.StateChanged += OnStateChanged;
+        SkillTargetingSession.SessionChanged += OnTargetingSessionChanged;
     }
 
     void UnsubscribeEvents()
@@ -95,6 +104,8 @@ public sealed class BottomActionBarController : MonoBehaviour
         orchestrator.RunStarted -= OnRunStarted;
         orchestrator.PhaseChanged -= OnPhaseChanged;
         orchestrator.RunEnded -= OnRunEnded;
+        orchestrator.StateChanged -= OnStateChanged;
+        SkillTargetingSession.SessionChanged -= OnTargetingSessionChanged;
     }
 
     void RefreshView()
@@ -359,7 +370,7 @@ public sealed class BottomActionBarController : MonoBehaviour
         nameText.rectTransform.anchorMax = new Vector2(1f, 1f);
         nameText.rectTransform.offsetMin = new Vector2(10f, 34f);
         nameText.rectTransform.offsetMax = new Vector2(-10f, -30f);
-        nameText.enableWordWrapping = true;
+        nameText.textWrappingMode = TextWrappingModes.Normal;
         nameText.overflowMode = TextOverflowModes.Ellipsis;
 
         var statusText = CreateLabel(

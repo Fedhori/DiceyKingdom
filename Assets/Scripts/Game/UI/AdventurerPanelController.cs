@@ -41,15 +41,6 @@ public sealed class AdventurerPanelController : MonoBehaviour
         UnsubscribeEvents();
     }
 
-    void Update()
-    {
-        // if (!IsReady())
-        //     return;
-        //
-        // RebuildCardsIfNeeded(forceRebuild: false);
-        // RefreshAllCards();
-    }
-
     void OnRunStarted(GameRunState _)
     {
         RebuildCardsIfNeeded(forceRebuild: false);
@@ -66,6 +57,12 @@ public sealed class AdventurerPanelController : MonoBehaviour
         RefreshAllCards();
     }
 
+    void OnStateChanged()
+    {
+        RebuildCardsIfNeeded(forceRebuild: false);
+        RefreshAllCards();
+    }
+
     void SubscribeEvents()
     {
         if (orchestrator == null)
@@ -74,9 +71,11 @@ public sealed class AdventurerPanelController : MonoBehaviour
         orchestrator.RunStarted -= OnRunStarted;
         orchestrator.PhaseChanged -= OnPhaseChanged;
         orchestrator.RunEnded -= OnRunEnded;
+        orchestrator.StateChanged -= OnStateChanged;
         orchestrator.RunStarted += OnRunStarted;
         orchestrator.PhaseChanged += OnPhaseChanged;
         orchestrator.RunEnded += OnRunEnded;
+        orchestrator.StateChanged += OnStateChanged;
     }
 
     void UnsubscribeEvents()
@@ -87,6 +86,7 @@ public sealed class AdventurerPanelController : MonoBehaviour
         orchestrator.RunStarted -= OnRunStarted;
         orchestrator.PhaseChanged -= OnPhaseChanged;
         orchestrator.RunEnded -= OnRunEnded;
+        orchestrator.StateChanged -= OnStateChanged;
     }
 
     bool IsReady()

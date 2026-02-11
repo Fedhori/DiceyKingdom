@@ -23,6 +23,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     public event Action<GameRunState> RunEnded;
     public event Action<int, string> StageSpawned;
     public event Action<int> AssignmentCommitConfirmationRequested;
+    public event Action StateChanged;
 
     void Awake()
     {
@@ -283,6 +284,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
         cooldownState.cooldownRemainingTurns = Math.Max(0, skillDef.cooldownTurns);
         cooldownState.usedThisTurn = true;
+        NotifyStateChanged();
         return true;
     }
 
@@ -497,6 +499,11 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     {
         RunState.turn.phase = phase;
         PhaseChanged?.Invoke(phase);
+    }
+
+    void NotifyStateChanged()
+    {
+        StateChanged?.Invoke();
     }
 
     bool CanAcceptRollInput()

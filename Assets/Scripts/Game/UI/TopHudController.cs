@@ -66,6 +66,11 @@ public sealed class TopHudController : MonoBehaviour
         RefreshHud();
     }
 
+    void OnStateChanged()
+    {
+        RefreshHud();
+    }
+
     void SubscribeEvents()
     {
         if (orchestrator == null)
@@ -75,11 +80,13 @@ public sealed class TopHudController : MonoBehaviour
         orchestrator.PhaseChanged -= OnPhaseChanged;
         orchestrator.StageSpawned -= OnStageSpawned;
         orchestrator.RunEnded -= OnRunEnded;
+        orchestrator.StateChanged -= OnStateChanged;
 
         orchestrator.RunStarted += OnRunStarted;
         orchestrator.PhaseChanged += OnPhaseChanged;
         orchestrator.StageSpawned += OnStageSpawned;
         orchestrator.RunEnded += OnRunEnded;
+        orchestrator.StateChanged += OnStateChanged;
     }
 
     void UnsubscribeEvents()
@@ -91,6 +98,7 @@ public sealed class TopHudController : MonoBehaviour
         orchestrator.PhaseChanged -= OnPhaseChanged;
         orchestrator.StageSpawned -= OnStageSpawned;
         orchestrator.RunEnded -= OnRunEnded;
+        orchestrator.StateChanged -= OnStateChanged;
     }
 
     void RefreshHud()
@@ -237,7 +245,7 @@ public sealed class TopHudController : MonoBehaviour
         valueText.rectTransform.anchorMax = new Vector2(1f, 1f);
         valueText.rectTransform.offsetMin = new Vector2(10f, 8f);
         valueText.rectTransform.offsetMax = new Vector2(-10f, -20f);
-        valueText.enableWordWrapping = false;
+        valueText.textWrappingMode = TextWrappingModes.NoWrap;
         valueText.overflowMode = TextOverflowModes.Ellipsis;
 
         return new HudItem

@@ -40,15 +40,6 @@ public sealed class EnemyPanelController : MonoBehaviour
         UnsubscribeEvents();
     }
 
-    void Update()
-    {
-        if (!IsReady())
-            return;
-
-        RebuildCardsIfNeeded(forceRebuild: false);
-        RefreshAllCards();
-    }
-
     void OnRunStarted(GameRunState _)
     {
         RebuildCardsIfNeeded(forceRebuild: false);
@@ -71,6 +62,17 @@ public sealed class EnemyPanelController : MonoBehaviour
         RefreshAllCards();
     }
 
+    void OnStateChanged()
+    {
+        RebuildCardsIfNeeded(forceRebuild: false);
+        RefreshAllCards();
+    }
+
+    void OnTargetingSessionChanged()
+    {
+        RefreshAllCards();
+    }
+
     void SubscribeEvents()
     {
         if (orchestrator == null)
@@ -80,11 +82,15 @@ public sealed class EnemyPanelController : MonoBehaviour
         orchestrator.PhaseChanged -= OnPhaseChanged;
         orchestrator.StageSpawned -= OnStageSpawned;
         orchestrator.RunEnded -= OnRunEnded;
+        orchestrator.StateChanged -= OnStateChanged;
+        SkillTargetingSession.SessionChanged -= OnTargetingSessionChanged;
 
         orchestrator.RunStarted += OnRunStarted;
         orchestrator.PhaseChanged += OnPhaseChanged;
         orchestrator.StageSpawned += OnStageSpawned;
         orchestrator.RunEnded += OnRunEnded;
+        orchestrator.StateChanged += OnStateChanged;
+        SkillTargetingSession.SessionChanged += OnTargetingSessionChanged;
     }
 
     void UnsubscribeEvents()
@@ -96,6 +102,8 @@ public sealed class EnemyPanelController : MonoBehaviour
         orchestrator.PhaseChanged -= OnPhaseChanged;
         orchestrator.StageSpawned -= OnStageSpawned;
         orchestrator.RunEnded -= OnRunEnded;
+        orchestrator.StateChanged -= OnStateChanged;
+        SkillTargetingSession.SessionChanged -= OnTargetingSessionChanged;
     }
 
     bool IsReady()

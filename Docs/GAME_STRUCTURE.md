@@ -206,6 +206,7 @@
   - 모험가 카드: `Assets/Prefabs/Adeventurer/AdventurerCard.prefab`
   - 주사위: `Assets/Prefabs/Dice/Dice.prefab`
 - 카드/주사위의 크기, 피벗, 오프셋, 레이아웃 수치는 프리팹(또는 프리팹 인스턴스)에서 관리하고, 코드에서는 상태 바인딩만 담당합니다.
+- 런 보드 UI는 매 프레임 폴링(`Update`)으로 상태를 갱신하지 않고, 런타임 이벤트(`RunStarted`, `PhaseChanged`, `StageSpawned`, `RunEnded`, `StateChanged`) 기반으로만 갱신합니다.
 - 런 보드 UI 요구사항 초안:
   - 상단 HUD에 `Turn`, `Stage`, `Phase`, `Stability`, `Gold`, `Run` 상태를 고정 표시
   - 상황 카드별 태그, 요구치, 남은 기한, 성공 보상/실패 효과 요약 표시
