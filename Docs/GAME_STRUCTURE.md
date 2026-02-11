@@ -201,6 +201,11 @@
 ## UI/UX 공용 시스템
 
 - 모달/토스트/툴팁/플로팅 텍스트는 공용 UI 유틸로 제공됩니다.
+- 런 보드 카드/주사위 UI는 프리팹 기반으로 구성합니다.
+  - 상황 카드: `Assets/Prefabs/Situation/SituationCard.prefab`
+  - 모험가 카드: `Assets/Prefabs/Adeventurer/AdventurerCard.prefab`
+  - 주사위: `Assets/Prefabs/Dice/Dice.prefab`
+- 카드/주사위의 크기, 피벗, 오프셋, 레이아웃 수치는 프리팹(또는 프리팹 인스턴스)에서 관리하고, 코드에서는 상태 바인딩만 담당합니다.
 - 런 보드 UI 요구사항 초안:
   - 상단 HUD에 `Turn`, `Stage`, `Phase`, `Stability`, `Gold`, `Run` 상태를 고정 표시
   - 상황 카드별 태그, 요구치, 남은 기한, 성공 보상/실패 효과 요약 표시

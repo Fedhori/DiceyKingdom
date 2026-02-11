@@ -8,13 +8,10 @@ public sealed class EnemyPanelController : MonoBehaviour
 {
     [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] RectTransform contentRoot;
-    [SerializeField] float cardMinWidth = 270f;
-    [SerializeField] float cardHeight = 192f;
+    [SerializeField] GameObject cardPrefab;
     [SerializeField] Color cardColor = new(0.32f, 0.18f, 0.18f, 0.94f);
     [SerializeField] Color lowRequirementCardColor = new(0.45f, 0.16f, 0.16f, 0.98f);
-    [SerializeField] Color labelColor = new(0.98f, 0.94f, 0.93f, 1f);
     [SerializeField] Color subtleLabelColor = new(0.88f, 0.78f, 0.76f, 1f);
-    [SerializeField] Color deadlineBadgeColor = new(0.94f, 0.72f, 0.30f, 0.95f);
     [SerializeField] Color requirementHighlightColor = new(1.00f, 0.92f, 0.32f, 1.00f);
     [SerializeField] Color successHighlightColor = new(0.68f, 0.96f, 0.74f, 1.00f);
     [SerializeField] Color failureHighlightColor = new(1.00f, 0.66f, 0.66f, 1.00f);
@@ -124,7 +121,11 @@ public sealed class EnemyPanelController : MonoBehaviour
 
         ClearCards();
         for (int index = 0; index < desiredCount; index++)
-            cards.Add(CreateCard(index));
+        {
+            var card = CreateCard(index);
+            if (card != null)
+                cards.Add(card);
+        }
 
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(contentRoot);
@@ -149,117 +150,53 @@ public sealed class EnemyPanelController : MonoBehaviour
 
     CardWidgets CreateCard(int slotIndex)
     {
-        var cardObject = new GameObject(
-            $"SituationCard_{slotIndex + 1}",
-            typeof(RectTransform),
-            typeof(Image),
-            typeof(LayoutElement));
-        cardObject.layer = LayerMask.NameToLayer("UI");
+        if (cardPrefab == null)
+        {
+            Debug.LogWarning("[EnemyPanelController] cardPrefab is not assigned.");
+            return null;
+        }
 
-        var cardRect = cardObject.GetComponent<RectTransform>();
+        var root = Instantiate(cardPrefab);
+        root.name = $"SituationCard_{slotIndex + 1}";
+        root.layer = LayerMask.NameToLayer("UI");
+
+        var cardRect = root.GetComponent<RectTransform>();
+        if (cardRect == null)
+            cardRect = root.AddComponent<RectTransform>();
         cardRect.SetParent(contentRoot, false);
 
-        var cardImage = cardObject.GetComponent<Image>();
-        cardImage.color = cardColor;
-        cardImage.raycastTarget = true;
+        RemoveLocalizationComponents(root);
 
-        var layout = cardObject.GetComponent<LayoutElement>();
-        layout.minWidth = cardMinWidth;
-        layout.preferredWidth = cardMinWidth;
-        layout.preferredHeight = cardHeight;
-        layout.minHeight = cardHeight;
-        layout.flexibleWidth = 1f;
+        var background = root.GetComponent<Image>();
+        if (background == null)
+            background = root.AddComponent<Image>();
+        background.raycastTarget = true;
+        background.color = cardColor;
 
-        var dropTarget = cardObject.AddComponent<EnemyDropTarget>();
+        var dropTarget = root.GetComponent<EnemyDropTarget>();
+        if (dropTarget == null)
+            dropTarget = root.AddComponent<EnemyDropTarget>();
         dropTarget.SetOrchestrator(orchestrator);
 
-        var headerRect = CreateUiContainer("Header", cardRect);
-        headerRect.anchorMin = new Vector2(0f, 1f);
-        headerRect.anchorMax = new Vector2(1f, 1f);
-        headerRect.pivot = new Vector2(0.5f, 1f);
-        headerRect.anchoredPosition = new Vector2(0f, -8f);
-        headerRect.sizeDelta = new Vector2(-16f, 30f);
+        var slotText = FindTextByName(cardRect, "SlotText");
+        var nameText = FindTextByName(cardRect, "NameText");
+        var hpText = FindTextByName(cardRect, "HpText");
+        var actionText = FindTextByName(cardRect, "ActionText");
+        var actionEffectText = FindTextByName(cardRect, "ActionEffectText");
+        var prepText = FindTextByName(cardRect, "PrepText");
+        var targetHintText = FindTextByName(cardRect, "TargetHintText");
 
-        var slotText = CreateLabel("SlotText", headerRect, 19f, FontStyles.Bold, TextAlignmentOptions.Left, subtleLabelColor);
-        slotText.rectTransform.anchorMin = new Vector2(0f, 0f);
-        slotText.rectTransform.anchorMax = new Vector2(0f, 1f);
-        slotText.rectTransform.pivot = new Vector2(0f, 0.5f);
-        slotText.rectTransform.anchoredPosition = Vector2.zero;
-        slotText.rectTransform.sizeDelta = new Vector2(44f, 0f);
-
-        var nameText = CreateLabel("NameText", headerRect, 26f, FontStyles.Bold, TextAlignmentOptions.Left, labelColor);
-        nameText.rectTransform.anchorMin = new Vector2(0f, 0f);
-        nameText.rectTransform.anchorMax = new Vector2(1f, 1f);
-        nameText.rectTransform.pivot = new Vector2(0f, 0.5f);
-        nameText.rectTransform.offsetMin = new Vector2(50f, 0f);
-        nameText.rectTransform.offsetMax = new Vector2(-10f, 0f);
-        nameText.enableWordWrapping = false;
-        nameText.overflowMode = TextOverflowModes.Ellipsis;
-
-        var hpText = CreateLabel("HpText", cardRect, 31f, FontStyles.Bold, TextAlignmentOptions.TopLeft, requirementHighlightColor);
-        hpText.rectTransform.anchorMin = new Vector2(0f, 1f);
-        hpText.rectTransform.anchorMax = new Vector2(1f, 1f);
-        hpText.rectTransform.pivot = new Vector2(0.5f, 1f);
-        hpText.rectTransform.anchoredPosition = new Vector2(0f, -46f);
-        hpText.rectTransform.sizeDelta = new Vector2(-24f, 36f);
-        hpText.enableWordWrapping = false;
-        hpText.overflowMode = TextOverflowModes.Ellipsis;
-
-        var actionText = CreateLabel("ActionText", cardRect, 20f, FontStyles.Bold, TextAlignmentOptions.TopLeft, successHighlightColor);
-        actionText.rectTransform.anchorMin = new Vector2(0f, 1f);
-        actionText.rectTransform.anchorMax = new Vector2(1f, 1f);
-        actionText.rectTransform.pivot = new Vector2(0.5f, 1f);
-        actionText.rectTransform.anchoredPosition = new Vector2(0f, -86f);
-        actionText.rectTransform.sizeDelta = new Vector2(-24f, 30f);
-        actionText.enableWordWrapping = false;
-        actionText.overflowMode = TextOverflowModes.Ellipsis;
-
-        var actionEffectText = CreateLabel("ActionEffectText", cardRect, 20f, FontStyles.Bold, TextAlignmentOptions.TopLeft, failureHighlightColor);
-        actionEffectText.rectTransform.anchorMin = new Vector2(0f, 1f);
-        actionEffectText.rectTransform.anchorMax = new Vector2(1f, 1f);
-        actionEffectText.rectTransform.pivot = new Vector2(0.5f, 1f);
-        actionEffectText.rectTransform.anchoredPosition = new Vector2(0f, -116f);
-        actionEffectText.rectTransform.sizeDelta = new Vector2(-24f, 30f);
-        actionEffectText.enableWordWrapping = false;
-        actionEffectText.overflowMode = TextOverflowModes.Ellipsis;
-
-        var prepBadgeObject = new GameObject("PrepBadge", typeof(RectTransform), typeof(Image));
-        prepBadgeObject.layer = LayerMask.NameToLayer("UI");
-        var prepBadgeRect = prepBadgeObject.GetComponent<RectTransform>();
-        prepBadgeRect.SetParent(cardRect, false);
-        prepBadgeRect.anchorMin = new Vector2(1f, 0f);
-        prepBadgeRect.anchorMax = new Vector2(1f, 0f);
-        prepBadgeRect.pivot = new Vector2(1f, 0f);
-        prepBadgeRect.anchoredPosition = new Vector2(-10f, 10f);
-        prepBadgeRect.sizeDelta = new Vector2(138f, 36f);
-
-        var prepBadgeImage = prepBadgeObject.GetComponent<Image>();
-        prepBadgeImage.color = deadlineBadgeColor;
-        prepBadgeImage.raycastTarget = false;
-
-        var prepText = CreateLabel("PrepText", prepBadgeRect, 21f, FontStyles.Bold, TextAlignmentOptions.Center, Color.black);
-        prepText.rectTransform.anchorMin = Vector2.zero;
-        prepText.rectTransform.anchorMax = Vector2.one;
-        prepText.rectTransform.offsetMin = Vector2.zero;
-        prepText.rectTransform.offsetMax = Vector2.zero;
-
-        var targetHintText = CreateLabel("TargetHintText", cardRect, 18f, FontStyles.Bold, TextAlignmentOptions.BottomLeft, subtleLabelColor);
-        targetHintText.rectTransform.anchorMin = new Vector2(0f, 0f);
-        targetHintText.rectTransform.anchorMax = new Vector2(1f, 0f);
-        targetHintText.rectTransform.pivot = new Vector2(0.5f, 0f);
-        targetHintText.rectTransform.anchoredPosition = new Vector2(0f, 8f);
-        targetHintText.rectTransform.sizeDelta = new Vector2(-24f, 26f);
-        targetHintText.enableWordWrapping = false;
-        targetHintText.overflowMode = TextOverflowModes.Ellipsis;
-
-        slotText.text = $"S{slotIndex + 1}";
-        prepText.text = "D -";
-        targetHintText.text = "Drop target";
+        if (slotText != null)
+            slotText.text = $"S{slotIndex + 1}";
+        if (prepText != null)
+            prepText.text = "D -";
+        if (targetHintText != null)
+            targetHintText.text = "Drop target";
 
         return new CardWidgets
         {
             root = cardRect,
-            background = cardImage,
+            background = background,
             slotText = slotText,
             nameText = nameText,
             hpText = hpText,
@@ -269,6 +206,33 @@ public sealed class EnemyPanelController : MonoBehaviour
             targetHintText = targetHintText,
             dropTarget = dropTarget
         };
+    }
+
+    static void RemoveLocalizationComponents(GameObject root)
+    {
+        if (root == null)
+            return;
+
+        var components = root.GetComponentsInChildren<Component>(true);
+        for (int index = 0; index < components.Length; index++)
+        {
+            var component = components[index];
+            if (component == null)
+                continue;
+
+            if (!string.Equals(
+                    component.GetType().FullName,
+                    "UnityEngine.Localization.Components.LocalizeStringEvent",
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (Application.isPlaying)
+                Destroy(component);
+            else
+                DestroyImmediate(component);
+        }
     }
 
     void RefreshAllCards()
@@ -296,27 +260,43 @@ public sealed class EnemyPanelController : MonoBehaviour
             return;
 
         card.situationInstanceId = situation.instanceId;
-        card.dropTarget.SetSituationInstanceId(situation.instanceId);
-        card.dropTarget.SetOrchestrator(orchestrator);
+        card.dropTarget?.SetSituationInstanceId(situation.instanceId);
+        card.dropTarget?.SetOrchestrator(orchestrator);
     }
 
     void RefreshCardVisual(CardWidgets card, SituationState situation, int slotIndex)
     {
-        card.slotText.text = $"S{slotIndex + 1}";
-        card.nameText.text = ResolveSituationName(situation.situationDefId);
-        card.hpText.text = BuildRequirementLine(situation);
-        card.actionText.text = BuildSuccessLine(situation);
-        card.actionEffectText.text = BuildFailureLine(situation);
-        card.prepText.text = $"D {Mathf.Max(0, situation.deadlineTurnsLeft)}";
-        card.targetHintText.text = BuildTargetHintLine();
-        card.hpText.color = requirementHighlightColor;
-        card.actionText.color = successHighlightColor;
-        card.actionEffectText.color = failureHighlightColor;
+        if (card.slotText != null)
+            card.slotText.text = $"S{slotIndex + 1}";
+        if (card.nameText != null)
+            card.nameText.text = ResolveSituationName(situation.situationDefId);
+        if (card.hpText != null)
+            card.hpText.text = BuildRequirementLine(situation);
+        if (card.actionText != null)
+            card.actionText.text = BuildSuccessLine(situation);
+        if (card.actionEffectText != null)
+            card.actionEffectText.text = BuildFailureLine(situation);
+        if (card.prepText != null)
+            card.prepText.text = $"D {Mathf.Max(0, situation.deadlineTurnsLeft)}";
+        if (card.targetHintText != null)
+            card.targetHintText.text = BuildTargetHintLine();
 
-        int baseRequirement = ResolveBaseRequirement(situation.situationDefId);
-        bool isLowRequirement = baseRequirement > 0 &&
-                                situation.currentRequirement <= Mathf.Max(1, baseRequirement / 2);
-        card.background.color = isLowRequirement ? lowRequirementCardColor : cardColor;
+        if (card.hpText != null)
+            card.hpText.color = requirementHighlightColor;
+        if (card.actionText != null)
+            card.actionText.color = successHighlightColor;
+        if (card.actionEffectText != null)
+            card.actionEffectText.color = failureHighlightColor;
+        if (card.targetHintText != null)
+            card.targetHintText.color = subtleLabelColor;
+
+        if (card.background != null)
+        {
+            int baseRequirement = ResolveBaseRequirement(situation.situationDefId);
+            bool isLowRequirement = baseRequirement > 0 &&
+                                    situation.currentRequirement <= Mathf.Max(1, baseRequirement / 2);
+            card.background.color = isLowRequirement ? lowRequirementCardColor : cardColor;
+        }
     }
 
     string BuildRequirementLine(SituationState situation)
@@ -467,36 +447,24 @@ public sealed class EnemyPanelController : MonoBehaviour
         }
     }
 
-    static RectTransform CreateUiContainer(string name, Transform parent)
+    static TextMeshProUGUI FindTextByName(RectTransform root, string name)
     {
-        var go = new GameObject(name, typeof(RectTransform));
-        go.layer = LayerMask.NameToLayer("UI");
-        var rect = go.GetComponent<RectTransform>();
-        rect.SetParent(parent, false);
-        return rect;
-    }
+        if (root == null || string.IsNullOrWhiteSpace(name))
+            return null;
 
-    static TextMeshProUGUI CreateLabel(
-        string name,
-        Transform parent,
-        float fontSize,
-        FontStyles style,
-        TextAlignmentOptions alignment,
-        Color color)
-    {
-        var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
-        go.layer = LayerMask.NameToLayer("UI");
-        var rect = go.GetComponent<RectTransform>();
-        rect.SetParent(parent, false);
+        var texts = root.GetComponentsInChildren<TextMeshProUGUI>(true);
+        for (int index = 0; index < texts.Length; index++)
+        {
+            var text = texts[index];
+            if (text == null)
+                continue;
+            if (!string.Equals(text.gameObject.name, name, StringComparison.Ordinal))
+                continue;
 
-        var text = go.GetComponent<TextMeshProUGUI>();
-        text.fontSize = fontSize;
-        text.fontStyle = style;
-        text.alignment = alignment;
-        text.color = color;
-        text.raycastTarget = false;
-        text.text = string.Empty;
-        return text;
+            return text;
+        }
+
+        return null;
     }
 
     static string ToEffectSummary(EffectSpec effect)
@@ -505,7 +473,7 @@ public sealed class EnemyPanelController : MonoBehaviour
             return string.Empty;
 
         int value = effect.value.HasValue
-            ? (int)Mathf.Round((float)effect.value.Value)
+            ? Mathf.RoundToInt((float)effect.value.Value)
             : 0;
 
         return effect.effectType switch
@@ -515,7 +483,9 @@ public sealed class EnemyPanelController : MonoBehaviour
             "situation_requirement_delta" => $"Req {FormatSignedValue(value)}",
             "die_face_delta" => $"Die {FormatSignedValue(value)}",
             "reroll_adventurer_dice" => "Reroll Adventurer Dice",
-            _ => $"{ToDisplayTitle(effect.effectType)} {FormatSignedValue(value)}"
+            _ => value == 0
+                ? ToDisplayTitle(effect.effectType)
+                : $"{ToDisplayTitle(effect.effectType)} {FormatSignedValue(value)}"
         };
     }
 

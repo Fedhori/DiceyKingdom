@@ -171,13 +171,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyPanelController
   orchestrator: {fileID: 0}
   contentRoot: {fileID: 0}
-  cardMinWidth: 292
-  cardHeight: 192
+  cardPrefab: {fileID: 8981085117825814380, guid: a98a74325b0c0c748b22672ba8661065, type: 3}
   cardColor: {r: 0.32, g: 0.18, b: 0.18, a: 0.94}
   lowRequirementCardColor: {r: 0.45, g: 0.16, b: 0.16, a: 0.98}
-  labelColor: {r: 0.98, g: 0.94, b: 0.93, a: 1}
   subtleLabelColor: {r: 0.88, g: 0.78, b: 0.76, a: 1}
-  deadlineBadgeColor: {r: 0.94, g: 0.72, b: 0.3, a: 0.95}
   requirementHighlightColor: {r: 1, g: 0.92, b: 0.32, a: 1}
   successHighlightColor: {r: 0.68, g: 0.96, b: 0.74, a: 1}
   failureHighlightColor: {r: 1, g: 0.66, b: 0.66, a: 1}
@@ -271,19 +268,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AdventurerPanelController
   orchestrator: {fileID: 0}
   contentRoot: {fileID: 0}
-  cardHeight: 194
-  cardMinWidth: 220
+  cardPrefab: {fileID: 6180465234383281509, guid: 5b05d096a22d6b846853c7a9733bc028, type: 3}
+  dicePrefab: {fileID: 738695666529021882, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
   pendingCardColor: {r: 0.18, g: 0.22, b: 0.3, a: 0.95}
   rolledCardColor: {r: 0.2, g: 0.27, b: 0.36, a: 0.95}
   consumedCardColor: {r: 0.13, g: 0.16, b: 0.2, a: 0.85}
-  labelColor: {r: 0.93, g: 0.96, b: 1, a: 1}
   subtleLabelColor: {r: 0.72, g: 0.8, b: 0.9, a: 1}
   infoEmphasisColor: {r: 0.86, g: 0.93, b: 1, a: 1}
   damageHighlightColor: {r: 1, g: 0.88, b: 0.28, a: 1}
-  diceFaceBackgroundColor: {r: 0.94, g: 0.96, b: 1, a: 0.98}
-  diceFaceTextColor: {r: 0.1, g: 0.14, b: 0.2, a: 1}
-  rollButtonColor: {r: 0.28, g: 0.46, b: 0.8, a: 1}
-  badgeColor: {r: 0.95, g: 0.74, b: 0.24, a: 0.95}
 --- !u!114 &255186376
 MonoBehaviour:
   m_ObjectHideFlags: 0

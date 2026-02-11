@@ -8,19 +8,14 @@ public sealed class AdventurerPanelController : MonoBehaviour
 {
     [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] RectTransform contentRoot;
-    [SerializeField] float cardHeight = 194f;
-    [SerializeField] float cardMinWidth = 210f;
+    [SerializeField] GameObject cardPrefab;
+    [SerializeField] GameObject dicePrefab;
     [SerializeField] Color pendingCardColor = new(0.18f, 0.22f, 0.30f, 0.95f);
     [SerializeField] Color rolledCardColor = new(0.20f, 0.27f, 0.36f, 0.95f);
     [SerializeField] Color consumedCardColor = new(0.13f, 0.16f, 0.20f, 0.85f);
-    [SerializeField] Color labelColor = new(0.93f, 0.96f, 1.00f, 1.00f);
     [SerializeField] Color subtleLabelColor = new(0.72f, 0.80f, 0.90f, 1.00f);
     [SerializeField] Color infoEmphasisColor = new(0.86f, 0.93f, 1.00f, 1.00f);
     [SerializeField] Color damageHighlightColor = new(1.00f, 0.88f, 0.28f, 1.00f);
-    [SerializeField] Color diceFaceBackgroundColor = new(0.94f, 0.96f, 1.00f, 0.98f);
-    [SerializeField] Color diceFaceTextColor = new(0.10f, 0.14f, 0.20f, 1.00f);
-    [SerializeField] Color rollButtonColor = new(0.28f, 0.46f, 0.80f, 1.00f);
-    [SerializeField] Color badgeColor = new(0.95f, 0.74f, 0.24f, 0.95f);
 
     readonly List<CardWidgets> cards = new();
     readonly Dictionary<string, AdventurerDef> adventurerDefById = new(StringComparer.Ordinal);
@@ -117,7 +112,11 @@ public sealed class AdventurerPanelController : MonoBehaviour
 
         ClearCards();
         for (int index = 0; index < desiredCount; index++)
-            cards.Add(CreateCard(index));
+        {
+            var card = CreateCard(index);
+            if (card != null)
+                cards.Add(card);
+        }
 
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(contentRoot);
@@ -142,173 +141,77 @@ public sealed class AdventurerPanelController : MonoBehaviour
 
     CardWidgets CreateCard(int slotIndex)
     {
-        var cardObject = new GameObject(
-            $"AdventurerCard_{slotIndex + 1}",
-            typeof(RectTransform),
-            typeof(Image),
-            typeof(LayoutElement));
-        cardObject.layer = LayerMask.NameToLayer("UI");
+        if (cardPrefab == null)
+        {
+            Debug.LogWarning("[AdventurerPanelController] cardPrefab is not assigned.");
+            return null;
+        }
 
-        var cardRect = cardObject.GetComponent<RectTransform>();
+        var root = Instantiate(cardPrefab);
+        root.name = $"AdventurerCard_{slotIndex + 1}";
+        root.layer = LayerMask.NameToLayer("UI");
+
+        var cardRect = root.GetComponent<RectTransform>();
+        if (cardRect == null)
+            cardRect = root.AddComponent<RectTransform>();
         cardRect.SetParent(contentRoot, false);
 
-        var cardImage = cardObject.GetComponent<Image>();
-        cardImage.color = pendingCardColor;
-        cardImage.raycastTarget = true;
+        RemoveLocalizationComponents(root);
 
-        var layout = cardObject.GetComponent<LayoutElement>();
-        layout.minWidth = cardMinWidth;
-        layout.preferredWidth = cardMinWidth;
-        layout.preferredHeight = cardHeight;
-        layout.flexibleWidth = 1f;
+        var background = root.GetComponent<Image>();
+        if (background == null)
+            background = root.AddComponent<Image>();
+        background.raycastTarget = true;
+        background.color = pendingCardColor;
 
-        var dragHandle = cardObject.AddComponent<AdventurerDragHandle>();
+        var dragHandle = root.GetComponent<AdventurerDragHandle>();
+        if (dragHandle == null)
+            dragHandle = root.AddComponent<AdventurerDragHandle>();
         dragHandle.SetOrchestrator(orchestrator);
 
-        var highlight = cardObject.AddComponent<AdventurerProcessingHighlight>();
+        var highlight = root.GetComponent<AdventurerProcessingHighlight>();
+        if (highlight == null)
+            highlight = root.AddComponent<AdventurerProcessingHighlight>();
         highlight.SetOrchestrator(orchestrator);
 
-        var headerRect = CreateUiContainer("Header", cardRect);
-        headerRect.anchorMin = new Vector2(0f, 1f);
-        headerRect.anchorMax = new Vector2(1f, 1f);
-        headerRect.pivot = new Vector2(0.5f, 1f);
-        headerRect.anchoredPosition = new Vector2(0f, -8f);
-        headerRect.sizeDelta = new Vector2(-16f, 28f);
+        var slotText = FindTextByName(cardRect, "SlotText");
+        var nameText = FindTextByName(cardRect, "NameText");
+        var infoText = FindTextByName(cardRect, "InfoText");
+        var expectedDamageText = FindTextByName(cardRect, "ExpectedDamageText");
+        var statusText = FindTextByName(cardRect, "StatusText");
+        var rollButtonText = FindTextByName(cardRect, "RollButtonText");
 
-        var slotText = CreateLabel("SlotText", headerRect, 19f, FontStyles.Bold, TextAlignmentOptions.Left, subtleLabelColor);
-        slotText.rectTransform.anchorMin = new Vector2(0f, 0f);
-        slotText.rectTransform.anchorMax = new Vector2(0f, 1f);
-        slotText.rectTransform.pivot = new Vector2(0f, 0.5f);
-        slotText.rectTransform.anchoredPosition = Vector2.zero;
-        slotText.rectTransform.sizeDelta = new Vector2(44f, 0f);
+        var diceRowRoot = FindRectByName(cardRect, "DiceRow");
 
-        var nameText = CreateLabel("NameText", headerRect, 24f, FontStyles.Bold, TextAlignmentOptions.Left, labelColor);
-        nameText.rectTransform.anchorMin = new Vector2(0f, 0f);
-        nameText.rectTransform.anchorMax = new Vector2(1f, 1f);
-        nameText.rectTransform.pivot = new Vector2(0f, 0.5f);
-        nameText.rectTransform.offsetMin = new Vector2(50f, 0f);
-        nameText.rectTransform.offsetMax = new Vector2(-120f, 0f);
+        var rollButton = FindButtonByName(cardRect, "RollButton");
+        AdventurerRollButton rollComponent = null;
+        if (rollButton != null)
+        {
+            rollComponent = rollButton.GetComponent<AdventurerRollButton>();
+            if (rollComponent == null)
+                rollComponent = rollButton.gameObject.AddComponent<AdventurerRollButton>();
+            rollComponent.SetOrchestrator(orchestrator);
+            rollComponent.SetButton(rollButton);
+            rollButton.onClick.RemoveListener(rollComponent.OnRollPressed);
+            rollButton.onClick.AddListener(rollComponent.OnRollPressed);
+        }
 
-        var badgeRoot = new GameObject("ProcessingBadge", typeof(RectTransform), typeof(Image));
-        badgeRoot.layer = LayerMask.NameToLayer("UI");
-        var badgeRect = badgeRoot.GetComponent<RectTransform>();
-        badgeRect.SetParent(headerRect, false);
-        badgeRect.anchorMin = new Vector2(1f, 0.5f);
-        badgeRect.anchorMax = new Vector2(1f, 0.5f);
-        badgeRect.pivot = new Vector2(1f, 0.5f);
-        badgeRect.anchoredPosition = Vector2.zero;
-        badgeRect.sizeDelta = new Vector2(112f, 26f);
+        var badge = FindTransformByName(cardRect, "ProcessingBadge")?.gameObject;
+        highlight.ConfigureVisuals(background, badge);
 
-        var badgeImage = badgeRoot.GetComponent<Image>();
-        badgeImage.color = badgeColor;
-        badgeImage.raycastTarget = false;
-
-        var badgeText = CreateLabel("BadgeText", badgeRect, 17f, FontStyles.Bold, TextAlignmentOptions.Center, Color.black);
-        badgeText.rectTransform.anchorMin = Vector2.zero;
-        badgeText.rectTransform.anchorMax = Vector2.one;
-        badgeText.rectTransform.offsetMin = Vector2.zero;
-        badgeText.rectTransform.offsetMax = Vector2.zero;
-        badgeText.text = "ACTIVE";
-        badgeRoot.SetActive(false);
-
-        var infoText = CreateLabel("InfoText", cardRect, 18f, FontStyles.Bold, TextAlignmentOptions.TopLeft, infoEmphasisColor);
-        infoText.rectTransform.anchorMin = new Vector2(0f, 1f);
-        infoText.rectTransform.anchorMax = new Vector2(1f, 1f);
-        infoText.rectTransform.pivot = new Vector2(0.5f, 1f);
-        infoText.rectTransform.anchoredPosition = new Vector2(0f, -42f);
-        infoText.rectTransform.sizeDelta = new Vector2(-24f, 24f);
-        infoText.enableWordWrapping = false;
-        infoText.overflowMode = TextOverflowModes.Ellipsis;
-
-        var diceRowObject = new GameObject(
-            "DiceRow",
-            typeof(RectTransform),
-            typeof(HorizontalLayoutGroup));
-        diceRowObject.layer = LayerMask.NameToLayer("UI");
-        var diceRowRect = diceRowObject.GetComponent<RectTransform>();
-        diceRowRect.SetParent(cardRect, false);
-        diceRowRect.anchorMin = new Vector2(0f, 1f);
-        diceRowRect.anchorMax = new Vector2(1f, 1f);
-        diceRowRect.pivot = new Vector2(0.5f, 1f);
-        diceRowRect.anchoredPosition = new Vector2(0f, -70f);
-        diceRowRect.sizeDelta = new Vector2(-24f, 44f);
-
-        var diceRowLayout = diceRowObject.GetComponent<HorizontalLayoutGroup>();
-        diceRowLayout.childAlignment = TextAnchor.MiddleLeft;
-        diceRowLayout.childControlWidth = false;
-        diceRowLayout.childControlHeight = true;
-        diceRowLayout.childForceExpandWidth = false;
-        diceRowLayout.childForceExpandHeight = false;
-        diceRowLayout.spacing = 8f;
-
-        var expectedDamageText = CreateLabel(
-            "ExpectedDamageText",
-            cardRect,
-            25f,
-            FontStyles.Bold,
-            TextAlignmentOptions.TopLeft,
-            damageHighlightColor);
-        expectedDamageText.rectTransform.anchorMin = new Vector2(0f, 1f);
-        expectedDamageText.rectTransform.anchorMax = new Vector2(1f, 1f);
-        expectedDamageText.rectTransform.pivot = new Vector2(0.5f, 1f);
-        expectedDamageText.rectTransform.anchoredPosition = new Vector2(0f, -118f);
-        expectedDamageText.rectTransform.sizeDelta = new Vector2(-24f, 28f);
-        expectedDamageText.enableWordWrapping = false;
-        expectedDamageText.overflowMode = TextOverflowModes.Ellipsis;
-
-        var statusText = CreateLabel("StatusText", cardRect, 18f, FontStyles.Normal, TextAlignmentOptions.BottomLeft, subtleLabelColor);
-        statusText.rectTransform.anchorMin = new Vector2(0f, 0f);
-        statusText.rectTransform.anchorMax = new Vector2(1f, 0f);
-        statusText.rectTransform.pivot = new Vector2(0.5f, 0f);
-        statusText.rectTransform.anchoredPosition = new Vector2(0f, 44f);
-        statusText.rectTransform.sizeDelta = new Vector2(-24f, 28f);
-
-        var rollButtonObject = new GameObject(
-            "RollButton",
-            typeof(RectTransform),
-            typeof(Image),
-            typeof(Button),
-            typeof(AdventurerRollButton));
-        rollButtonObject.layer = LayerMask.NameToLayer("UI");
-        var rollButtonRect = rollButtonObject.GetComponent<RectTransform>();
-        rollButtonRect.SetParent(cardRect, false);
-        rollButtonRect.anchorMin = new Vector2(0.5f, 0f);
-        rollButtonRect.anchorMax = new Vector2(0.5f, 0f);
-        rollButtonRect.pivot = new Vector2(0.5f, 0f);
-        rollButtonRect.anchoredPosition = new Vector2(0f, 8f);
-        rollButtonRect.sizeDelta = new Vector2(162f, 34f);
-
-        var rollButtonImage = rollButtonObject.GetComponent<Image>();
-        rollButtonImage.color = rollButtonColor;
-        rollButtonImage.raycastTarget = true;
-
-        var rollButton = rollButtonObject.GetComponent<Button>();
-        rollButton.targetGraphic = rollButtonImage;
-
-        var rollButtonText = CreateLabel("RollButtonText", rollButtonRect, 20f, FontStyles.Bold, TextAlignmentOptions.Center, Color.white);
-        rollButtonText.rectTransform.anchorMin = Vector2.zero;
-        rollButtonText.rectTransform.anchorMax = Vector2.one;
-        rollButtonText.rectTransform.offsetMin = Vector2.zero;
-        rollButtonText.rectTransform.offsetMax = Vector2.zero;
-
-        var rollComponent = rollButtonObject.GetComponent<AdventurerRollButton>();
-        rollComponent.SetOrchestrator(orchestrator);
-        rollComponent.SetButton(rollButton);
-        rollButton.onClick.AddListener(rollComponent.OnRollPressed);
-
-        highlight.ConfigureVisuals(cardImage, badgeRoot);
-
-        slotText.text = $"A{slotIndex + 1}";
-        rollButtonText.text = $"Roll [{slotIndex + 1}]";
+        if (slotText != null)
+            slotText.text = $"A{slotIndex + 1}";
+        if (rollButtonText != null)
+            rollButtonText.text = $"Roll [{slotIndex + 1}]";
 
         return new CardWidgets
         {
             root = cardRect,
-            background = cardImage,
+            background = background,
             slotText = slotText,
             nameText = nameText,
             infoText = infoText,
-            diceRowRoot = diceRowRect,
+            diceRowRoot = diceRowRoot,
             expectedDamageText = expectedDamageText,
             statusText = statusText,
             rollButtonText = rollButtonText,
@@ -317,6 +220,33 @@ public sealed class AdventurerPanelController : MonoBehaviour
             rollComponent = rollComponent,
             highlight = highlight
         };
+    }
+
+    static void RemoveLocalizationComponents(GameObject root)
+    {
+        if (root == null)
+            return;
+
+        var components = root.GetComponentsInChildren<Component>(true);
+        for (int index = 0; index < components.Length; index++)
+        {
+            var component = components[index];
+            if (component == null)
+                continue;
+
+            if (!string.Equals(
+                    component.GetType().FullName,
+                    "UnityEngine.Localization.Components.LocalizeStringEvent",
+                    StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (Application.isPlaying)
+                Destroy(component);
+            else
+                DestroyImmediate(component);
+        }
     }
 
     void RefreshAllCards()
@@ -344,35 +274,52 @@ public sealed class AdventurerPanelController : MonoBehaviour
             return;
 
         card.adventurerInstanceId = adventurer.instanceId;
-        card.dragHandle.SetAdventurerInstanceId(adventurer.instanceId);
-        card.dragHandle.SetOrchestrator(orchestrator);
-        card.rollComponent.SetAdventurerInstanceId(adventurer.instanceId);
-        card.rollComponent.SetOrchestrator(orchestrator);
-        card.highlight.SetAdventurerInstanceId(adventurer.instanceId);
-        card.highlight.SetOrchestrator(orchestrator);
+
+        card.dragHandle?.SetAdventurerInstanceId(adventurer.instanceId);
+        card.dragHandle?.SetOrchestrator(orchestrator);
+
+        card.rollComponent?.SetAdventurerInstanceId(adventurer.instanceId);
+        card.rollComponent?.SetOrchestrator(orchestrator);
+
+        card.highlight?.SetAdventurerInstanceId(adventurer.instanceId);
+        card.highlight?.SetOrchestrator(orchestrator);
     }
 
     void RefreshCardVisual(CardWidgets card, AdventurerState adventurer, int slotIndex)
     {
-        card.slotText.text = $"A{slotIndex + 1}";
-        card.rollButtonText.text = $"Roll [{slotIndex + 1}]";
-        card.nameText.text = ResolveAdventurerName(adventurer.adventurerDefId);
-        int diceCount = ResolveDiceCount(adventurer.adventurerDefId);
-        card.infoText.text = BuildInfoLine(adventurer.adventurerDefId);
-        RefreshDiceFaces(card, adventurer, diceCount);
-        card.expectedDamageText.text = BuildExpectedDamageLine(adventurer);
-        card.statusText.text = BuildStatusLine(adventurer);
-        card.statusText.color = ResolveStatusColor(adventurer);
+        if (card.slotText != null)
+            card.slotText.text = $"A{slotIndex + 1}";
+        if (card.rollButtonText != null)
+            card.rollButtonText.text = $"Roll [{slotIndex + 1}]";
+        if (card.nameText != null)
+            card.nameText.text = ResolveAdventurerName(adventurer.adventurerDefId);
 
-        bool isProcessing = orchestrator.IsCurrentProcessingAdventurer(adventurer.instanceId);
-        if (adventurer.actionConsumed)
-            card.background.color = consumedCardColor;
-        else if (isProcessing)
-            card.background.color = rolledCardColor;
-        else if (adventurer.rolledDiceValues != null && adventurer.rolledDiceValues.Count > 0)
-            card.background.color = rolledCardColor;
-        else
-            card.background.color = pendingCardColor;
+        int diceCount = ResolveDiceCount(adventurer.adventurerDefId);
+        if (card.infoText != null)
+            card.infoText.text = BuildInfoLine(adventurer.adventurerDefId);
+
+        RefreshDiceFaces(card, adventurer, diceCount);
+
+        if (card.expectedDamageText != null)
+            card.expectedDamageText.text = BuildExpectedDamageLine(adventurer);
+        if (card.statusText != null)
+        {
+            card.statusText.text = BuildStatusLine(adventurer);
+            card.statusText.color = ResolveStatusColor(adventurer);
+        }
+
+        if (card.background != null)
+        {
+            bool isProcessing = orchestrator.IsCurrentProcessingAdventurer(adventurer.instanceId);
+            if (adventurer.actionConsumed)
+                card.background.color = consumedCardColor;
+            else if (isProcessing)
+                card.background.color = rolledCardColor;
+            else if (adventurer.rolledDiceValues != null && adventurer.rolledDiceValues.Count > 0)
+                card.background.color = rolledCardColor;
+            else
+                card.background.color = pendingCardColor;
+        }
     }
 
     string BuildInfoLine(string adventurerDefId)
@@ -386,6 +333,8 @@ public sealed class AdventurerPanelController : MonoBehaviour
     {
         if (card == null)
             return;
+        if (card.diceRowRoot == null)
+            return;
         if (diceCount < 1)
             diceCount = 1;
 
@@ -393,6 +342,10 @@ public sealed class AdventurerPanelController : MonoBehaviour
 
         for (int index = 0; index < card.diceFaces.Count; index++)
         {
+            var face = card.diceFaces[index];
+            if (face?.valueText == null)
+                continue;
+
             string display = "-";
             if (adventurer?.rolledDiceValues != null &&
                 index < adventurer.rolledDiceValues.Count)
@@ -400,7 +353,7 @@ public sealed class AdventurerPanelController : MonoBehaviour
                 display = adventurer.rolledDiceValues[index].ToString();
             }
 
-            card.diceFaces[index].valueText.text = display;
+            face.valueText.text = display;
         }
     }
 
@@ -422,47 +375,38 @@ public sealed class AdventurerPanelController : MonoBehaviour
         }
 
         while (card.diceFaces.Count < targetCount)
-            card.diceFaces.Add(CreateDiceFace(card.diceRowRoot, card.diceFaces.Count));
+        {
+            var face = CreateDiceFace(card.diceRowRoot, card.diceFaces.Count);
+            if (face == null)
+                return;
+
+            card.diceFaces.Add(face);
+        }
     }
 
     DiceFaceWidgets CreateDiceFace(Transform parent, int index)
     {
-        var faceObject = new GameObject(
-            $"Dice_{index + 1}",
-            typeof(RectTransform),
-            typeof(LayoutElement),
-            typeof(Image));
-        faceObject.layer = LayerMask.NameToLayer("UI");
+        if (dicePrefab == null)
+        {
+            Debug.LogWarning("[AdventurerPanelController] dicePrefab is not assigned.");
+            return null;
+        }
 
-        var faceRect = faceObject.GetComponent<RectTransform>();
-        faceRect.SetParent(parent, false);
+        var root = Instantiate(dicePrefab, parent, false);
+        root.name = $"Dice_{index + 1}";
+        root.layer = LayerMask.NameToLayer("UI");
 
-        var layout = faceObject.GetComponent<LayoutElement>();
-        layout.preferredWidth = 40f;
-        layout.preferredHeight = 40f;
-        layout.minWidth = 40f;
-        layout.minHeight = 40f;
+        var rootRect = root.GetComponent<RectTransform>();
+        if (rootRect == null)
+            rootRect = root.AddComponent<RectTransform>();
 
-        var faceBackground = faceObject.GetComponent<Image>();
-        faceBackground.color = diceFaceBackgroundColor;
-        faceBackground.raycastTarget = false;
-
-        var valueText = CreateLabel(
-            "ValueText",
-            faceRect,
-            24f,
-            FontStyles.Bold,
-            TextAlignmentOptions.Center,
-            diceFaceTextColor);
-        valueText.rectTransform.anchorMin = Vector2.zero;
-        valueText.rectTransform.anchorMax = Vector2.one;
-        valueText.rectTransform.offsetMin = Vector2.zero;
-        valueText.rectTransform.offsetMax = Vector2.zero;
-        valueText.text = "-";
+        var valueText = FindTextByName(rootRect, "ValueText");
+        if (valueText == null)
+            valueText = root.GetComponentInChildren<TextMeshProUGUI>(true);
 
         return new DiceFaceWidgets
         {
-            root = faceRect,
+            root = rootRect,
             valueText = valueText
         };
     }
@@ -627,36 +571,69 @@ public sealed class AdventurerPanelController : MonoBehaviour
         }
     }
 
-    static RectTransform CreateUiContainer(string name, Transform parent)
+    static Transform FindTransformByName(Transform root, string name)
     {
-        var go = new GameObject(name, typeof(RectTransform));
-        go.layer = LayerMask.NameToLayer("UI");
-        var rect = go.GetComponent<RectTransform>();
-        rect.SetParent(parent, false);
-        return rect;
+        if (root == null || string.IsNullOrWhiteSpace(name))
+            return null;
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            var child = root.GetChild(i);
+            if (string.Equals(child.name, name, StringComparison.Ordinal))
+                return child;
+
+            var nested = FindTransformByName(child, name);
+            if (nested != null)
+                return nested;
+        }
+
+        return null;
     }
 
-    static TextMeshProUGUI CreateLabel(
-        string name,
-        Transform parent,
-        float fontSize,
-        FontStyles style,
-        TextAlignmentOptions alignment,
-        Color color)
+    static RectTransform FindRectByName(RectTransform root, string name)
     {
-        var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
-        go.layer = LayerMask.NameToLayer("UI");
-        var rect = go.GetComponent<RectTransform>();
-        rect.SetParent(parent, false);
+        var target = FindTransformByName(root, name) as RectTransform;
+        return target;
+    }
 
-        var text = go.GetComponent<TextMeshProUGUI>();
-        text.fontSize = fontSize;
-        text.fontStyle = style;
-        text.alignment = alignment;
-        text.color = color;
-        text.raycastTarget = false;
-        text.text = string.Empty;
-        return text;
+    static TextMeshProUGUI FindTextByName(RectTransform root, string name)
+    {
+        if (root == null || string.IsNullOrWhiteSpace(name))
+            return null;
+
+        var texts = root.GetComponentsInChildren<TextMeshProUGUI>(true);
+        for (int index = 0; index < texts.Length; index++)
+        {
+            var text = texts[index];
+            if (text == null)
+                continue;
+            if (!string.Equals(text.gameObject.name, name, StringComparison.Ordinal))
+                continue;
+
+            return text;
+        }
+
+        return null;
+    }
+
+    static Button FindButtonByName(RectTransform root, string name)
+    {
+        if (root == null || string.IsNullOrWhiteSpace(name))
+            return null;
+
+        var buttons = root.GetComponentsInChildren<Button>(true);
+        for (int index = 0; index < buttons.Length; index++)
+        {
+            var button = buttons[index];
+            if (button == null)
+                continue;
+            if (!string.Equals(button.gameObject.name, name, StringComparison.Ordinal))
+                continue;
+
+            return button;
+        }
+
+        return null;
     }
 
     static string ToEffectSummary(EffectSpec effect)
