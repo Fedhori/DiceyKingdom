@@ -13,6 +13,9 @@ public sealed class TopHudController : MonoBehaviour
     [SerializeField] Color titleColor = new(0.72f, 0.80f, 0.90f, 1.00f);
     [SerializeField] Color valueColor = new(0.94f, 0.97f, 1.00f, 1.00f);
     [SerializeField] Color gameOverValueColor = new(1.00f, 0.84f, 0.84f, 1.00f);
+    [SerializeField] Color stabilityWarningValueColor = new(1.00f, 0.70f, 0.70f, 1.00f);
+    [SerializeField] Color stabilitySafeValueColor = new(0.78f, 1.00f, 0.82f, 1.00f);
+    [SerializeField] Color goldValueColor = new(1.00f, 0.90f, 0.38f, 1.00f);
 
     RectTransform rowRoot;
     HudItem turnItem;
@@ -118,6 +121,19 @@ public sealed class TopHudController : MonoBehaviour
             runItem.background.color = isRunOver ? panelWarningColor : panelColor;
         if (runItem?.valueText != null)
             runItem.valueText.color = isRunOver ? gameOverValueColor : valueColor;
+
+        if (stabilityItem?.valueText != null)
+        {
+            float ratio = runState.maxStability > 0
+                ? (float)runState.stability / runState.maxStability
+                : 0f;
+            stabilityItem.valueText.color = ratio <= 0.35f
+                ? stabilityWarningValueColor
+                : stabilitySafeValueColor;
+        }
+
+        if (goldItem?.valueText != null)
+            goldItem.valueText.color = goldValueColor;
     }
 
     string BuildStageValue(GameRunState runState)
@@ -216,7 +232,7 @@ public sealed class TopHudController : MonoBehaviour
         titleText.rectTransform.offsetMin = new Vector2(10f, -26f);
         titleText.rectTransform.offsetMax = new Vector2(-10f, -4f);
 
-        var valueText = CreateLabel("ValueText", panelRect, 21f, FontStyles.Bold, TextAlignmentOptions.BottomLeft, valueColor);
+        var valueText = CreateLabel("ValueText", panelRect, 24f, FontStyles.Bold, TextAlignmentOptions.BottomLeft, valueColor);
         valueText.rectTransform.anchorMin = new Vector2(0f, 0f);
         valueText.rectTransform.anchorMax = new Vector2(1f, 1f);
         valueText.rectTransform.offsetMin = new Vector2(10f, 8f);

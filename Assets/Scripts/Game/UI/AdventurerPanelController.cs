@@ -8,12 +8,16 @@ public sealed class AdventurerPanelController : MonoBehaviour
 {
     [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] RectTransform contentRoot;
-    [SerializeField] float cardHeight = 172f;
+    [SerializeField] float cardHeight = 194f;
     [SerializeField] Color pendingCardColor = new(0.18f, 0.22f, 0.30f, 0.95f);
     [SerializeField] Color rolledCardColor = new(0.20f, 0.27f, 0.36f, 0.95f);
     [SerializeField] Color consumedCardColor = new(0.13f, 0.16f, 0.20f, 0.85f);
     [SerializeField] Color labelColor = new(0.93f, 0.96f, 1.00f, 1.00f);
     [SerializeField] Color subtleLabelColor = new(0.72f, 0.80f, 0.90f, 1.00f);
+    [SerializeField] Color infoEmphasisColor = new(0.86f, 0.93f, 1.00f, 1.00f);
+    [SerializeField] Color damageHighlightColor = new(1.00f, 0.88f, 0.28f, 1.00f);
+    [SerializeField] Color diceFaceBackgroundColor = new(0.94f, 0.96f, 1.00f, 0.98f);
+    [SerializeField] Color diceFaceTextColor = new(0.10f, 0.14f, 0.20f, 1.00f);
     [SerializeField] Color rollButtonColor = new(0.28f, 0.46f, 0.80f, 1.00f);
     [SerializeField] Color badgeColor = new(0.95f, 0.74f, 0.24f, 0.95f);
 
@@ -204,13 +208,50 @@ public sealed class AdventurerPanelController : MonoBehaviour
         badgeText.text = "ACTIVE";
         badgeRoot.SetActive(false);
 
-        var diceText = CreateLabel("DiceText", cardRect, 20f, FontStyles.Normal, TextAlignmentOptions.TopLeft, labelColor);
-        diceText.rectTransform.anchorMin = new Vector2(0f, 0f);
-        diceText.rectTransform.anchorMax = new Vector2(1f, 1f);
-        diceText.rectTransform.offsetMin = new Vector2(12f, 52f);
-        diceText.rectTransform.offsetMax = new Vector2(-12f, -42f);
-        diceText.enableWordWrapping = true;
-        diceText.overflowMode = TextOverflowModes.Ellipsis;
+        var infoText = CreateLabel("InfoText", cardRect, 18f, FontStyles.Bold, TextAlignmentOptions.TopLeft, infoEmphasisColor);
+        infoText.rectTransform.anchorMin = new Vector2(0f, 1f);
+        infoText.rectTransform.anchorMax = new Vector2(1f, 1f);
+        infoText.rectTransform.pivot = new Vector2(0.5f, 1f);
+        infoText.rectTransform.anchoredPosition = new Vector2(0f, -42f);
+        infoText.rectTransform.sizeDelta = new Vector2(-24f, 24f);
+        infoText.enableWordWrapping = false;
+        infoText.overflowMode = TextOverflowModes.Ellipsis;
+
+        var diceRowObject = new GameObject(
+            "DiceRow",
+            typeof(RectTransform),
+            typeof(HorizontalLayoutGroup));
+        diceRowObject.layer = LayerMask.NameToLayer("UI");
+        var diceRowRect = diceRowObject.GetComponent<RectTransform>();
+        diceRowRect.SetParent(cardRect, false);
+        diceRowRect.anchorMin = new Vector2(0f, 1f);
+        diceRowRect.anchorMax = new Vector2(1f, 1f);
+        diceRowRect.pivot = new Vector2(0.5f, 1f);
+        diceRowRect.anchoredPosition = new Vector2(0f, -70f);
+        diceRowRect.sizeDelta = new Vector2(-24f, 44f);
+
+        var diceRowLayout = diceRowObject.GetComponent<HorizontalLayoutGroup>();
+        diceRowLayout.childAlignment = TextAnchor.MiddleLeft;
+        diceRowLayout.childControlWidth = false;
+        diceRowLayout.childControlHeight = true;
+        diceRowLayout.childForceExpandWidth = false;
+        diceRowLayout.childForceExpandHeight = false;
+        diceRowLayout.spacing = 8f;
+
+        var expectedDamageText = CreateLabel(
+            "ExpectedDamageText",
+            cardRect,
+            25f,
+            FontStyles.Bold,
+            TextAlignmentOptions.TopLeft,
+            damageHighlightColor);
+        expectedDamageText.rectTransform.anchorMin = new Vector2(0f, 1f);
+        expectedDamageText.rectTransform.anchorMax = new Vector2(1f, 1f);
+        expectedDamageText.rectTransform.pivot = new Vector2(0.5f, 1f);
+        expectedDamageText.rectTransform.anchoredPosition = new Vector2(0f, -118f);
+        expectedDamageText.rectTransform.sizeDelta = new Vector2(-24f, 28f);
+        expectedDamageText.enableWordWrapping = false;
+        expectedDamageText.overflowMode = TextOverflowModes.Ellipsis;
 
         var statusText = CreateLabel("StatusText", cardRect, 18f, FontStyles.Normal, TextAlignmentOptions.BottomLeft, subtleLabelColor);
         statusText.rectTransform.anchorMin = new Vector2(0f, 0f);
@@ -263,7 +304,9 @@ public sealed class AdventurerPanelController : MonoBehaviour
             background = cardImage,
             slotText = slotText,
             nameText = nameText,
-            diceText = diceText,
+            infoText = infoText,
+            diceRowRoot = diceRowRect,
+            expectedDamageText = expectedDamageText,
             statusText = statusText,
             rollButtonText = rollButtonText,
             rollButton = rollButton,
@@ -311,8 +354,12 @@ public sealed class AdventurerPanelController : MonoBehaviour
         card.slotText.text = $"A{slotIndex + 1}";
         card.rollButtonText.text = $"Roll [{slotIndex + 1}]";
         card.nameText.text = ResolveAdventurerName(adventurer.adventurerDefId);
-        card.diceText.text = BuildDiceLine(adventurer, adventurer.adventurerDefId);
+        int diceCount = ResolveDiceCount(adventurer.adventurerDefId);
+        card.infoText.text = BuildInfoLine(adventurer.adventurerDefId);
+        RefreshDiceFaces(card, adventurer, diceCount);
+        card.expectedDamageText.text = BuildExpectedDamageLine(adventurer);
         card.statusText.text = BuildStatusLine(adventurer);
+        card.statusText.color = ResolveStatusColor(adventurer);
 
         bool isProcessing = orchestrator.IsCurrentProcessingAdventurer(adventurer.instanceId);
         if (adventurer.actionConsumed)
@@ -325,36 +372,108 @@ public sealed class AdventurerPanelController : MonoBehaviour
             card.background.color = pendingCardColor;
     }
 
-    string BuildDiceLine(AdventurerState adventurer, string adventurerDefId)
+    string BuildInfoLine(string adventurerDefId)
     {
         int diceCount = ResolveDiceCount(adventurerDefId);
         string innateSummary = ResolveInnateSummary(adventurerDefId);
+        return $"Dice {diceCount}  |  Innate: {innateSummary}";
+    }
 
-        if (adventurer?.rolledDiceValues != null && adventurer.rolledDiceValues.Count > 0)
-        {
-            int sum = 0;
-            var parts = new string[adventurer.rolledDiceValues.Count];
-            for (int index = 0; index < adventurer.rolledDiceValues.Count; index++)
-            {
-                int value = adventurer.rolledDiceValues[index];
-                sum += value;
-                parts[index] = value.ToString();
-            }
-
-            return $"Dice Count: {diceCount} | Innate: {innateSummary}\n" +
-                   $"Dice: [{string.Join("] [", parts)}]\n" +
-                   $"Expected Damage: {sum}";
-        }
-
+    void RefreshDiceFaces(CardWidgets card, AdventurerState adventurer, int diceCount)
+    {
+        if (card == null)
+            return;
         if (diceCount < 1)
             diceCount = 1;
 
-        var placeholders = new string[diceCount];
-        for (int index = 0; index < diceCount; index++)
-            placeholders[index] = "-";
-        return $"Dice Count: {diceCount} | Innate: {innateSummary}\n" +
-               $"Dice: [{string.Join("] [", placeholders)}]\n" +
-               "Expected Damage: -";
+        EnsureDiceFaceCount(card, diceCount);
+
+        for (int index = 0; index < card.diceFaces.Count; index++)
+        {
+            string display = "-";
+            if (adventurer?.rolledDiceValues != null &&
+                index < adventurer.rolledDiceValues.Count)
+            {
+                display = adventurer.rolledDiceValues[index].ToString();
+            }
+
+            card.diceFaces[index].valueText.text = display;
+        }
+    }
+
+    void EnsureDiceFaceCount(CardWidgets card, int targetCount)
+    {
+        while (card.diceFaces.Count > targetCount)
+        {
+            int lastIndex = card.diceFaces.Count - 1;
+            var face = card.diceFaces[lastIndex];
+            if (face?.root != null)
+            {
+                if (Application.isPlaying)
+                    Destroy(face.root.gameObject);
+                else
+                    DestroyImmediate(face.root.gameObject);
+            }
+
+            card.diceFaces.RemoveAt(lastIndex);
+        }
+
+        while (card.diceFaces.Count < targetCount)
+            card.diceFaces.Add(CreateDiceFace(card.diceRowRoot, card.diceFaces.Count));
+    }
+
+    DiceFaceWidgets CreateDiceFace(Transform parent, int index)
+    {
+        var faceObject = new GameObject(
+            $"Dice_{index + 1}",
+            typeof(RectTransform),
+            typeof(LayoutElement),
+            typeof(Image));
+        faceObject.layer = LayerMask.NameToLayer("UI");
+
+        var faceRect = faceObject.GetComponent<RectTransform>();
+        faceRect.SetParent(parent, false);
+
+        var layout = faceObject.GetComponent<LayoutElement>();
+        layout.preferredWidth = 40f;
+        layout.preferredHeight = 40f;
+        layout.minWidth = 40f;
+        layout.minHeight = 40f;
+
+        var faceBackground = faceObject.GetComponent<Image>();
+        faceBackground.color = diceFaceBackgroundColor;
+        faceBackground.raycastTarget = false;
+
+        var valueText = CreateLabel(
+            "ValueText",
+            faceRect,
+            24f,
+            FontStyles.Bold,
+            TextAlignmentOptions.Center,
+            diceFaceTextColor);
+        valueText.rectTransform.anchorMin = Vector2.zero;
+        valueText.rectTransform.anchorMax = Vector2.one;
+        valueText.rectTransform.offsetMin = Vector2.zero;
+        valueText.rectTransform.offsetMax = Vector2.zero;
+        valueText.text = "-";
+
+        return new DiceFaceWidgets
+        {
+            root = faceRect,
+            valueText = valueText
+        };
+    }
+
+    string BuildExpectedDamageLine(AdventurerState adventurer)
+    {
+        if (adventurer?.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return "ATK  -";
+
+        int sum = 0;
+        for (int index = 0; index < adventurer.rolledDiceValues.Count; index++)
+            sum += adventurer.rolledDiceValues[index];
+
+        return $"ATK  {sum}";
     }
 
     string BuildStatusLine(AdventurerState adventurer)
@@ -375,6 +494,23 @@ public sealed class AdventurerPanelController : MonoBehaviour
         if (orchestrator.CanRollAdventurer(adventurer.instanceId))
             return "Status: Ready to roll";
         return "Status: Waiting";
+    }
+
+    Color ResolveStatusColor(AdventurerState adventurer)
+    {
+        if (adventurer == null)
+            return subtleLabelColor;
+        if (adventurer.actionConsumed)
+            return subtleLabelColor;
+
+        var phase = orchestrator.RunState.turn.phase;
+        bool isProcessing = orchestrator.IsCurrentProcessingAdventurer(adventurer.instanceId);
+        if (isProcessing && (phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack))
+            return damageHighlightColor;
+        if (adventurer.rolledDiceValues != null && adventurer.rolledDiceValues.Count > 0)
+            return infoEmphasisColor;
+
+        return subtleLabelColor;
     }
 
     string ResolveAdventurerName(string adventurerDefId)
@@ -586,12 +722,21 @@ public sealed class AdventurerPanelController : MonoBehaviour
         public Image background;
         public TextMeshProUGUI slotText;
         public TextMeshProUGUI nameText;
-        public TextMeshProUGUI diceText;
+        public TextMeshProUGUI infoText;
+        public RectTransform diceRowRoot;
+        public TextMeshProUGUI expectedDamageText;
+        public List<DiceFaceWidgets> diceFaces = new();
         public TextMeshProUGUI statusText;
         public TextMeshProUGUI rollButtonText;
         public Button rollButton;
         public AdventurerDragHandle dragHandle;
         public AdventurerRollButton rollComponent;
         public AdventurerProcessingHighlight highlight;
+    }
+
+    sealed class DiceFaceWidgets
+    {
+        public RectTransform root;
+        public TextMeshProUGUI valueText;
     }
 }

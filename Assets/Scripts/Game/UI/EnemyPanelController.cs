@@ -8,12 +8,15 @@ public sealed class EnemyPanelController : MonoBehaviour
 {
     [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] RectTransform contentRoot;
-    [SerializeField] float cardHeight = 170f;
+    [SerializeField] float cardHeight = 192f;
     [SerializeField] Color cardColor = new(0.32f, 0.18f, 0.18f, 0.94f);
     [SerializeField] Color lowRequirementCardColor = new(0.45f, 0.16f, 0.16f, 0.98f);
     [SerializeField] Color labelColor = new(0.98f, 0.94f, 0.93f, 1f);
     [SerializeField] Color subtleLabelColor = new(0.88f, 0.78f, 0.76f, 1f);
     [SerializeField] Color deadlineBadgeColor = new(0.94f, 0.72f, 0.30f, 0.95f);
+    [SerializeField] Color requirementHighlightColor = new(1.00f, 0.92f, 0.32f, 1.00f);
+    [SerializeField] Color successHighlightColor = new(0.68f, 0.96f, 0.74f, 1.00f);
+    [SerializeField] Color failureHighlightColor = new(1.00f, 0.66f, 0.66f, 1.00f);
 
     readonly List<CardWidgets> cards = new();
     readonly Dictionary<string, SituationDef> situationDefById = new(StringComparer.Ordinal);
@@ -180,33 +183,33 @@ public sealed class EnemyPanelController : MonoBehaviour
         slotText.rectTransform.anchoredPosition = Vector2.zero;
         slotText.rectTransform.sizeDelta = new Vector2(44f, 0f);
 
-        var nameText = CreateLabel("NameText", headerRect, 24f, FontStyles.Bold, TextAlignmentOptions.Left, labelColor);
+        var nameText = CreateLabel("NameText", headerRect, 26f, FontStyles.Bold, TextAlignmentOptions.Left, labelColor);
         nameText.rectTransform.anchorMin = new Vector2(0f, 0f);
         nameText.rectTransform.anchorMax = new Vector2(1f, 1f);
         nameText.rectTransform.pivot = new Vector2(0f, 0.5f);
         nameText.rectTransform.offsetMin = new Vector2(50f, 0f);
         nameText.rectTransform.offsetMax = new Vector2(-10f, 0f);
 
-        var hpText = CreateLabel("HpText", cardRect, 24f, FontStyles.Bold, TextAlignmentOptions.TopLeft, labelColor);
+        var hpText = CreateLabel("HpText", cardRect, 31f, FontStyles.Bold, TextAlignmentOptions.TopLeft, requirementHighlightColor);
         hpText.rectTransform.anchorMin = new Vector2(0f, 1f);
         hpText.rectTransform.anchorMax = new Vector2(1f, 1f);
         hpText.rectTransform.pivot = new Vector2(0.5f, 1f);
         hpText.rectTransform.anchoredPosition = new Vector2(0f, -46f);
-        hpText.rectTransform.sizeDelta = new Vector2(-24f, 28f);
+        hpText.rectTransform.sizeDelta = new Vector2(-24f, 36f);
 
-        var actionText = CreateLabel("ActionText", cardRect, 20f, FontStyles.Normal, TextAlignmentOptions.TopLeft, labelColor);
+        var actionText = CreateLabel("ActionText", cardRect, 20f, FontStyles.Bold, TextAlignmentOptions.TopLeft, successHighlightColor);
         actionText.rectTransform.anchorMin = new Vector2(0f, 1f);
         actionText.rectTransform.anchorMax = new Vector2(1f, 1f);
         actionText.rectTransform.pivot = new Vector2(0.5f, 1f);
-        actionText.rectTransform.anchoredPosition = new Vector2(0f, -78f);
-        actionText.rectTransform.sizeDelta = new Vector2(-24f, 28f);
+        actionText.rectTransform.anchoredPosition = new Vector2(0f, -86f);
+        actionText.rectTransform.sizeDelta = new Vector2(-24f, 30f);
 
-        var actionEffectText = CreateLabel("ActionEffectText", cardRect, 18f, FontStyles.Normal, TextAlignmentOptions.TopLeft, subtleLabelColor);
+        var actionEffectText = CreateLabel("ActionEffectText", cardRect, 20f, FontStyles.Bold, TextAlignmentOptions.TopLeft, failureHighlightColor);
         actionEffectText.rectTransform.anchorMin = new Vector2(0f, 1f);
         actionEffectText.rectTransform.anchorMax = new Vector2(1f, 1f);
         actionEffectText.rectTransform.pivot = new Vector2(0.5f, 1f);
-        actionEffectText.rectTransform.anchoredPosition = new Vector2(0f, -104f);
-        actionEffectText.rectTransform.sizeDelta = new Vector2(-24f, 28f);
+        actionEffectText.rectTransform.anchoredPosition = new Vector2(0f, -116f);
+        actionEffectText.rectTransform.sizeDelta = new Vector2(-24f, 30f);
 
         var prepBadgeObject = new GameObject("PrepBadge", typeof(RectTransform), typeof(Image));
         prepBadgeObject.layer = LayerMask.NameToLayer("UI");
@@ -216,19 +219,19 @@ public sealed class EnemyPanelController : MonoBehaviour
         prepBadgeRect.anchorMax = new Vector2(1f, 0f);
         prepBadgeRect.pivot = new Vector2(1f, 0f);
         prepBadgeRect.anchoredPosition = new Vector2(-10f, 10f);
-        prepBadgeRect.sizeDelta = new Vector2(126f, 32f);
+        prepBadgeRect.sizeDelta = new Vector2(138f, 36f);
 
         var prepBadgeImage = prepBadgeObject.GetComponent<Image>();
         prepBadgeImage.color = deadlineBadgeColor;
         prepBadgeImage.raycastTarget = false;
 
-        var prepText = CreateLabel("PrepText", prepBadgeRect, 19f, FontStyles.Bold, TextAlignmentOptions.Center, Color.black);
+        var prepText = CreateLabel("PrepText", prepBadgeRect, 21f, FontStyles.Bold, TextAlignmentOptions.Center, Color.black);
         prepText.rectTransform.anchorMin = Vector2.zero;
         prepText.rectTransform.anchorMax = Vector2.one;
         prepText.rectTransform.offsetMin = Vector2.zero;
         prepText.rectTransform.offsetMax = Vector2.zero;
 
-        var targetHintText = CreateLabel("TargetHintText", cardRect, 20f, FontStyles.Normal, TextAlignmentOptions.BottomLeft, subtleLabelColor);
+        var targetHintText = CreateLabel("TargetHintText", cardRect, 18f, FontStyles.Bold, TextAlignmentOptions.BottomLeft, subtleLabelColor);
         targetHintText.rectTransform.anchorMin = new Vector2(0f, 0f);
         targetHintText.rectTransform.anchorMax = new Vector2(1f, 0f);
         targetHintText.rectTransform.pivot = new Vector2(0.5f, 0f);
@@ -236,7 +239,7 @@ public sealed class EnemyPanelController : MonoBehaviour
         targetHintText.rectTransform.sizeDelta = new Vector2(-24f, 26f);
 
         slotText.text = $"S{slotIndex + 1}";
-        prepText.text = "D: -";
+        prepText.text = "D -";
         targetHintText.text = "Drop target";
 
         return new CardWidgets
@@ -290,8 +293,11 @@ public sealed class EnemyPanelController : MonoBehaviour
         card.hpText.text = BuildRequirementLine(situation);
         card.actionText.text = BuildSuccessLine(situation);
         card.actionEffectText.text = BuildFailureLine(situation);
-        card.prepText.text = $"D: {Mathf.Max(0, situation.deadlineTurnsLeft)}";
+        card.prepText.text = $"D {Mathf.Max(0, situation.deadlineTurnsLeft)}";
         card.targetHintText.text = BuildTargetHintLine();
+        card.hpText.color = requirementHighlightColor;
+        card.actionText.color = successHighlightColor;
+        card.actionEffectText.color = failureHighlightColor;
 
         int baseRequirement = ResolveBaseRequirement(situation.situationDefId);
         bool isLowRequirement = baseRequirement > 0 &&
@@ -303,9 +309,9 @@ public sealed class EnemyPanelController : MonoBehaviour
     {
         int baseRequirement = ResolveBaseRequirement(situation?.situationDefId);
         if (baseRequirement <= 0)
-            return $"Req: {Mathf.Max(0, situation?.currentRequirement ?? 0)}";
+            return $"REQ {Mathf.Max(0, situation?.currentRequirement ?? 0)}";
 
-        return $"Req: {Mathf.Max(0, situation.currentRequirement)} / {baseRequirement}";
+        return $"REQ {Mathf.Max(0, situation.currentRequirement)} / {baseRequirement}";
     }
 
     string BuildSuccessLine(SituationState situation)
