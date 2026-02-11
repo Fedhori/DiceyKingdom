@@ -43,11 +43,11 @@ public sealed class AdventurerPanelController : MonoBehaviour
 
     void Update()
     {
-        if (!IsReady())
-            return;
-
-        RebuildCardsIfNeeded(forceRebuild: false);
-        RefreshAllCards();
+        // if (!IsReady())
+        //     return;
+        //
+        // RebuildCardsIfNeeded(forceRebuild: false);
+        // RefreshAllCards();
     }
 
     void OnRunStarted(GameRunState _)
