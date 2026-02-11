@@ -169,11 +169,6 @@ public sealed class AdventurerPanelController : MonoBehaviour
             dragHandle = root.AddComponent<AdventurerDragHandle>();
         dragHandle.SetOrchestrator(orchestrator);
 
-        var highlight = root.GetComponent<AdventurerProcessingHighlight>();
-        if (highlight == null)
-            highlight = root.AddComponent<AdventurerProcessingHighlight>();
-        highlight.SetOrchestrator(orchestrator);
-
         var slotText = FindTextByName(cardRect, "SlotText");
         var nameText = FindTextByName(cardRect, "NameText");
         var infoText = FindTextByName(cardRect, "InfoText");
@@ -196,9 +191,6 @@ public sealed class AdventurerPanelController : MonoBehaviour
             rollButton.onClick.AddListener(rollComponent.OnRollPressed);
         }
 
-        var badge = FindTransformByName(cardRect, "ProcessingBadge")?.gameObject;
-        highlight.ConfigureVisuals(background, badge);
-
         if (slotText != null)
             slotText.text = $"A{slotIndex + 1}";
         if (rollButtonText != null)
@@ -217,8 +209,7 @@ public sealed class AdventurerPanelController : MonoBehaviour
             rollButtonText = rollButtonText,
             rollButton = rollButton,
             dragHandle = dragHandle,
-            rollComponent = rollComponent,
-            highlight = highlight
+            rollComponent = rollComponent
         };
     }
 
@@ -280,9 +271,6 @@ public sealed class AdventurerPanelController : MonoBehaviour
 
         card.rollComponent?.SetAdventurerInstanceId(adventurer.instanceId);
         card.rollComponent?.SetOrchestrator(orchestrator);
-
-        card.highlight?.SetAdventurerInstanceId(adventurer.instanceId);
-        card.highlight?.SetOrchestrator(orchestrator);
     }
 
     void RefreshCardVisual(CardWidgets card, AdventurerState adventurer, int slotIndex)
@@ -713,7 +701,6 @@ public sealed class AdventurerPanelController : MonoBehaviour
         public Button rollButton;
         public AdventurerDragHandle dragHandle;
         public AdventurerRollButton rollComponent;
-        public AdventurerProcessingHighlight highlight;
     }
 
     sealed class DiceFaceWidgets

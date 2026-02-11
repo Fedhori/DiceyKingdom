@@ -53,7 +53,6 @@
   - `TopHudController.cs`: 상단 HUD(턴/스테이지/페이즈/안정도/골드/런 상태) 이벤트 동기화
   - `GameTurnHotkeyController.cs`: 롤(1~4) / 스킬(QWER) 단축키 입력
   - `AdventurerDragHandle.cs`, `EnemyDropTarget.cs`: 드래그 타게팅/공격 입력(`EnemyDropTarget`은 레거시 이름 유지)
-  - `AdventurerProcessingHighlight.cs`: 현재 처리 중 모험가 강조 표시
 - 저장/로드: `Assets/Scripts/Save`
 - 로컬라이징: `Assets/Scripts/Data/LocalizationUtil.cs`
 - 오디오: `Assets/Scripts/Audio`
