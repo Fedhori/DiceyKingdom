@@ -198,7 +198,7 @@ MonoBehaviour:
   m_ChildAlignment: 1
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 292, y: 192}
+  m_CellSize: {x: 256, y: 256}
   m_Spacing: {x: 10, y: 10}
   m_Constraint: 2
   m_ConstraintCount: 1
@@ -296,7 +296,7 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 220, y: 194}
+  m_CellSize: {x: 256, y: 256}
   m_Spacing: {x: 10, y: 10}
   m_Constraint: 2
   m_ConstraintCount: 1
@@ -740,6 +740,9 @@ MonoBehaviour:
   titleColor: {r: 0.72, g: 0.8, b: 0.9, a: 1}
   valueColor: {r: 0.94, g: 0.97, b: 1, a: 1}
   gameOverValueColor: {r: 1, g: 0.84, b: 0.84, a: 1}
+  stabilityWarningValueColor: {r: 1, g: 0.7, b: 0.7, a: 1}
+  stabilitySafeValueColor: {r: 0.78, g: 1, b: 0.82, a: 1}
+  goldValueColor: {r: 1, g: 0.9, b: 0.38, a: 1}
 --- !u!1 &1431755835
 GameObject:
   m_ObjectHideFlags: 0
@@ -975,7 +978,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
   m_UiScaleMode: 1
-  m_ReferencePixelsPerUnit: 1
+  m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 2
