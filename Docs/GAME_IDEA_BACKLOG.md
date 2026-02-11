@@ -87,6 +87,32 @@
 
 ## 설계 결정 로그
 
+### 2026-02-11 - 카드 View 인스펙터 직결 참조 규칙 고정
+
+- 최종 확정:
+  - `SituationController`, `AdventurerController`의 UI/입력 참조는 인스펙터 직결(`SerializeField`)만 사용
+  - 카드 생성 시 매니저(`SituationManager`, `AdventurerManager`)는 프리팹의 View 컴포넌트를 필수로 요구
+  - 런타임 자동 참조 탐색(`Find*`, `GetComponent*`) 및 자동 컴포넌트 추가(`AddComponent`)는 카드 View에서 사용하지 않음
+- 채택 이유:
+  - 프리팹 기반 UI의 소유권을 명확히 해 렌더 깨짐/참조 유실 원인 추적을 단순화
+  - 코드가 프리팹 레이아웃/구성 요소를 덮어쓰지 않도록 강제해 유지보수 안정성 확보
+- 상태:
+  - `[채택]`
+
+### 2026-02-11 - 런 보드 UI Manager/View 분리 + 요구치 표기 정리
+
+- 최종 확정:
+  - 상황 카드의 `HpText` 용어를 `RequirementText`로 교체
+  - 상황 카드 요구 수치 표시는 `SituationController`에서 직접 바인딩
+  - 모험가/상황 카드 모두 프리팹 View 컴포넌트가 렌더링/입력 배선을 담당
+  - 런타임 로직은 `Managers/Adventurer(AdventurerManager)`, `Managers/Situation(SituationManager)`에서 담당
+- 채택 이유:
+  - 용어 일관성(`HP` 제거, `요구치` 통일) 확보
+  - 패널 매니저와 카드 뷰 책임 분리로 유지보수성과 디버깅 효율 개선
+  - 카드 프리팹 자체가 자신의 UI를 관리해 씬 결합도 감소
+- 상태:
+  - `[채택]`
+
 ### 2026-02-11 - 타깃 스킬 UX/실패 잔류 검증 완화
 
 - 최종 확정:

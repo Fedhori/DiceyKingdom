@@ -44,8 +44,11 @@
 - v0 런타임 상태: `Assets/Scripts/Game/Runtime`
 - v0 턴 오케스트레이터: `Assets/Scripts/Game/Runtime/GameTurnOrchestrator.cs`
 - v0 전투 입력 컴포넌트: `Assets/Scripts/Game/UI`
-  - `AdventurerPanelController.cs`: 좌측 모험가 패널(4슬롯) 런타임 생성/상태 표시/입력 컴포넌트 배선
-  - `EnemyPanelController.cs`: 우측 Situation 패널 런타임 생성/요구치·기한·성공·실패 요약 표시/드롭 타깃 배선
+  - `AdventurerManager.cs`: 모험가 카드 목록 생성/상태 동기화(매니저 로직)
+  - `SituationManager.cs`: 상황 카드 목록 생성/상태 동기화(매니저 로직)
+  - `AdventurerController.cs`: 모험가 카드 프리팹 View(텍스트/주사위/롤·드래그 입력 배선)
+  - `SituationController.cs`: 상황 카드 프리팹 View(요구치/기한/성공·실패/드롭·클릭 입력 배선)
+    - 두 View는 인스펙터 직결 참조만 사용(런타임 자동 탐색/자동 컴포넌트 추가 금지)
   - `AssignmentDragArrowPresenter.cs`: 드래그 타게팅 중 연결 라인/화살표 표시(OverlayRoot)
   - `AdventurerRollButton.cs`: 모험가별 굴리기 버튼 입력
   - `BottomActionBarController.cs`: 하단 액션 바(스킬 슬롯 QWER 상태, 턴 종료 CTA) 런타임 생성/동기화

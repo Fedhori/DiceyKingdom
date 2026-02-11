@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class EnemyPanelController : MonoBehaviour
+public sealed class SituationManager : MonoBehaviour
 {
     [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] RectTransform contentRoot;
@@ -16,7 +15,7 @@ public sealed class EnemyPanelController : MonoBehaviour
     [SerializeField] Color successHighlightColor = new(0.68f, 0.96f, 0.74f, 1.00f);
     [SerializeField] Color failureHighlightColor = new(1.00f, 0.66f, 0.66f, 1.00f);
 
-    readonly List<CardWidgets> cards = new();
+    readonly List<SituationController> cards = new();
     readonly Dictionary<string, SituationDef> situationDefById = new(StringComparer.Ordinal);
     bool loadedDefs;
 
@@ -31,6 +30,12 @@ public sealed class EnemyPanelController : MonoBehaviour
     void OnEnable()
     {
         SubscribeEvents();
+        RebuildCardsIfNeeded(forceRebuild: true);
+        RefreshAllCards();
+    }
+
+    void Start()
+    {
         RebuildCardsIfNeeded(forceRebuild: true);
         RefreshAllCards();
     }
@@ -144,103 +149,57 @@ public sealed class EnemyPanelController : MonoBehaviour
         for (int index = 0; index < cards.Count; index++)
         {
             var card = cards[index];
-            if (card?.root == null)
+            if (card == null)
                 continue;
 
             if (Application.isPlaying)
-                Destroy(card.root.gameObject);
+                Destroy(card.gameObject);
             else
-                DestroyImmediate(card.root.gameObject);
+                DestroyImmediate(card.gameObject);
         }
 
         cards.Clear();
     }
 
-    CardWidgets CreateCard(int slotIndex)
+    SituationController CreateCard(int slotIndex)
     {
         if (cardPrefab == null)
         {
-            Debug.LogWarning("[EnemyPanelController] cardPrefab is not assigned.");
+            Debug.LogWarning("[SituationManager] cardPrefab is not assigned.");
             return null;
         }
 
-        var root = Instantiate(cardPrefab);
+        var root = Instantiate(cardPrefab, contentRoot, false);
         root.name = $"SituationCard_{slotIndex + 1}";
-        root.layer = LayerMask.NameToLayer("UI");
 
-        var cardRect = root.GetComponent<RectTransform>();
-        if (cardRect == null)
-            cardRect = root.AddComponent<RectTransform>();
-        cardRect.SetParent(contentRoot, false);
-
-        RemoveLocalizationComponents(root);
-
-        var background = root.GetComponent<Image>();
-        if (background == null)
-            background = root.AddComponent<Image>();
-        background.raycastTarget = true;
-        background.color = cardColor;
-
-        var dropTarget = root.GetComponent<EnemyDropTarget>();
-        if (dropTarget == null)
-            dropTarget = root.AddComponent<EnemyDropTarget>();
-        dropTarget.SetOrchestrator(orchestrator);
-
-        var slotText = FindTextByName(cardRect, "SlotText");
-        var nameText = FindTextByName(cardRect, "NameText");
-        var hpText = FindTextByName(cardRect, "HpText");
-        var actionText = FindTextByName(cardRect, "ActionText");
-        var actionEffectText = FindTextByName(cardRect, "ActionEffectText");
-        var prepText = FindTextByName(cardRect, "PrepText");
-        var targetHintText = FindTextByName(cardRect, "TargetHintText");
-
-        if (slotText != null)
-            slotText.text = $"S{slotIndex + 1}";
-        if (prepText != null)
-            prepText.text = "D -";
-        if (targetHintText != null)
-            targetHintText.text = "Drop target";
-
-        return new CardWidgets
+        var controller = root.GetComponent<SituationController>();
+        if (controller == null)
         {
-            root = cardRect,
-            background = background,
-            slotText = slotText,
-            nameText = nameText,
-            hpText = hpText,
-            actionText = actionText,
-            actionEffectText = actionEffectText,
-            prepText = prepText,
-            targetHintText = targetHintText,
-            dropTarget = dropTarget
-        };
-    }
-
-    static void RemoveLocalizationComponents(GameObject root)
-    {
-        if (root == null)
-            return;
-
-        var components = root.GetComponentsInChildren<Component>(true);
-        for (int index = 0; index < components.Length; index++)
-        {
-            var component = components[index];
-            if (component == null)
-                continue;
-
-            if (!string.Equals(
-                    component.GetType().FullName,
-                    "UnityEngine.Localization.Components.LocalizeStringEvent",
-                    StringComparison.Ordinal))
-            {
-                continue;
-            }
-
+            Debug.LogWarning("[SituationManager] cardPrefab requires SituationController.", root);
             if (Application.isPlaying)
-                Destroy(component);
+                Destroy(root);
             else
-                DestroyImmediate(component);
+                DestroyImmediate(root);
+            return null;
         }
+
+        controller.BindOrchestrator(orchestrator);
+        controller.BindSituation(string.Empty);
+        controller.Render(
+            $"S{slotIndex + 1}",
+            "Unknown Situation",
+            "REQ -",
+            "Success: -",
+            "Failure: -",
+            "D -",
+            "Drop target",
+            cardColor,
+            requirementHighlightColor,
+            successHighlightColor,
+            failureHighlightColor,
+            subtleLabelColor);
+
+        return controller;
     }
 
     void RefreshAllCards()
@@ -257,54 +216,33 @@ public sealed class EnemyPanelController : MonoBehaviour
             if (card == null || situation == null)
                 continue;
 
-            BindCardIdentity(card, situation);
             RefreshCardVisual(card, situation, index);
         }
     }
 
-    void BindCardIdentity(CardWidgets card, SituationState situation)
+    void RefreshCardVisual(SituationController card, SituationState situation, int slotIndex)
     {
-        if (card.situationInstanceId == situation.instanceId)
-            return;
+        card.BindOrchestrator(orchestrator);
+        card.BindSituation(situation.instanceId);
 
-        card.situationInstanceId = situation.instanceId;
-        card.dropTarget?.SetSituationInstanceId(situation.instanceId);
-        card.dropTarget?.SetOrchestrator(orchestrator);
-    }
+        int baseRequirement = ResolveBaseRequirement(situation.situationDefId);
+        bool isLowRequirement = baseRequirement > 0 &&
+                                situation.currentRequirement <= Mathf.Max(1, baseRequirement / 2);
+        Color backgroundColor = isLowRequirement ? lowRequirementCardColor : cardColor;
 
-    void RefreshCardVisual(CardWidgets card, SituationState situation, int slotIndex)
-    {
-        if (card.slotText != null)
-            card.slotText.text = $"S{slotIndex + 1}";
-        if (card.nameText != null)
-            card.nameText.text = ResolveSituationName(situation.situationDefId);
-        if (card.hpText != null)
-            card.hpText.text = BuildRequirementLine(situation);
-        if (card.actionText != null)
-            card.actionText.text = BuildSuccessLine(situation);
-        if (card.actionEffectText != null)
-            card.actionEffectText.text = BuildFailureLine(situation);
-        if (card.prepText != null)
-            card.prepText.text = $"D {Mathf.Max(0, situation.deadlineTurnsLeft)}";
-        if (card.targetHintText != null)
-            card.targetHintText.text = BuildTargetHintLine();
-
-        if (card.hpText != null)
-            card.hpText.color = requirementHighlightColor;
-        if (card.actionText != null)
-            card.actionText.color = successHighlightColor;
-        if (card.actionEffectText != null)
-            card.actionEffectText.color = failureHighlightColor;
-        if (card.targetHintText != null)
-            card.targetHintText.color = subtleLabelColor;
-
-        if (card.background != null)
-        {
-            int baseRequirement = ResolveBaseRequirement(situation.situationDefId);
-            bool isLowRequirement = baseRequirement > 0 &&
-                                    situation.currentRequirement <= Mathf.Max(1, baseRequirement / 2);
-            card.background.color = isLowRequirement ? lowRequirementCardColor : cardColor;
-        }
+        card.Render(
+            $"S{slotIndex + 1}",
+            ResolveSituationName(situation.situationDefId),
+            BuildRequirementLine(situation),
+            BuildSuccessLine(situation),
+            BuildFailureLine(situation),
+            $"D {Mathf.Max(0, situation.deadlineTurnsLeft)}",
+            BuildTargetHintLine(),
+            backgroundColor,
+            requirementHighlightColor,
+            successHighlightColor,
+            failureHighlightColor,
+            subtleLabelColor);
     }
 
     string BuildRequirementLine(SituationState situation)
@@ -419,13 +357,13 @@ public sealed class EnemyPanelController : MonoBehaviour
             contentRoot.GetComponent<HorizontalLayoutGroup>() == null)
         {
             Debug.LogWarning(
-                "[EnemyPanelController] contentRoot requires a LayoutGroup configured in the editor.");
+                "[SituationManager] contentRoot requires a LayoutGroup configured in the editor.");
         }
 
         if (contentRoot.GetComponent<RectMask2D>() == null)
         {
             Debug.LogWarning(
-                "[EnemyPanelController] contentRoot requires RectMask2D configured in the editor.");
+                "[SituationManager] contentRoot requires RectMask2D configured in the editor.");
         }
     }
 
@@ -451,28 +389,8 @@ public sealed class EnemyPanelController : MonoBehaviour
         }
         catch (Exception exception)
         {
-            Debug.LogWarning($"[EnemyPanelController] Failed to load situation defs: {exception.Message}");
+            Debug.LogWarning($"[SituationManager] Failed to load situation defs: {exception.Message}");
         }
-    }
-
-    static TextMeshProUGUI FindTextByName(RectTransform root, string name)
-    {
-        if (root == null || string.IsNullOrWhiteSpace(name))
-            return null;
-
-        var texts = root.GetComponentsInChildren<TextMeshProUGUI>(true);
-        for (int index = 0; index < texts.Length; index++)
-        {
-            var text = texts[index];
-            if (text == null)
-                continue;
-            if (!string.Equals(text.gameObject.name, name, StringComparison.Ordinal))
-                continue;
-
-            return text;
-        }
-
-        return null;
     }
 
     static string ToEffectSummary(EffectSpec effect)
@@ -536,20 +454,5 @@ public sealed class EnemyPanelController : MonoBehaviour
         }
 
         return string.Join(" ", parts);
-    }
-
-    sealed class CardWidgets
-    {
-        public RectTransform root;
-        public string situationInstanceId = string.Empty;
-        public Image background;
-        public TextMeshProUGUI slotText;
-        public TextMeshProUGUI nameText;
-        public TextMeshProUGUI hpText;
-        public TextMeshProUGUI actionText;
-        public TextMeshProUGUI actionEffectText;
-        public TextMeshProUGUI prepText;
-        public TextMeshProUGUI targetHintText;
-        public EnemyDropTarget dropTarget;
     }
 }

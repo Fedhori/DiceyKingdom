@@ -148,7 +148,7 @@ GameObject:
   - component: {fileID: 3624984530728507649}
   - component: {fileID: 4148805489072954056}
   m_Layer: 5
-  m_Name: HpText
+  m_Name: RequirementText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1078,6 +1078,7 @@ GameObject:
   - component: {fileID: 2395018353100182810}
   - component: {fileID: 2544003209908522453}
   - component: {fileID: 1581466902111245157}
+  - component: {fileID: 918273645546372819}
   m_Layer: 5
   m_Name: SituationCard
   m_TagString: Untagged
@@ -1182,3 +1183,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyDropTarget
   orchestrator: {fileID: 0}
   situationInstanceId: situation_1
+--- !u!114 &918273645546372819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8981085117825814380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f6cae2125d24fa6b2b8f7ac43d9185c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SituationController
+  rootRect: {fileID: 1755545419464409237}
+  backgroundImage: {fileID: 2395018353100182810}
+  dropTarget: {fileID: 1581466902111245157}
+  slotText: {fileID: 8294591032016259562}
+  nameText: {fileID: 6952539404601689627}
+  requirementText: {fileID: 4148805489072954056}
+  successText: {fileID: 7992822600612679941}
+  failureText: {fileID: 3000417261637812287}
+  deadlineText: {fileID: 7419504173539319459}
+  targetHintText: {fileID: 8224611214796986123}

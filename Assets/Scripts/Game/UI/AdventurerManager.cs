@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class AdventurerPanelController : MonoBehaviour
+public sealed class AdventurerManager : MonoBehaviour
 {
     [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] RectTransform contentRoot;
@@ -17,7 +16,7 @@ public sealed class AdventurerPanelController : MonoBehaviour
     [SerializeField] Color infoEmphasisColor = new(0.86f, 0.93f, 1.00f, 1.00f);
     [SerializeField] Color damageHighlightColor = new(1.00f, 0.88f, 0.28f, 1.00f);
 
-    readonly List<CardWidgets> cards = new();
+    readonly List<AdventurerController> cards = new();
     readonly Dictionary<string, AdventurerDef> adventurerDefById = new(StringComparer.Ordinal);
     bool loadedDefs;
 
@@ -32,6 +31,12 @@ public sealed class AdventurerPanelController : MonoBehaviour
     void OnEnable()
     {
         SubscribeEvents();
+        RebuildCardsIfNeeded(forceRebuild: true);
+        RefreshAllCards();
+    }
+
+    void Start()
+    {
         RebuildCardsIfNeeded(forceRebuild: true);
         RefreshAllCards();
     }
@@ -127,117 +132,56 @@ public sealed class AdventurerPanelController : MonoBehaviour
         for (int index = 0; index < cards.Count; index++)
         {
             var card = cards[index];
-            if (card?.root == null)
+            if (card == null)
                 continue;
 
             if (Application.isPlaying)
-                Destroy(card.root.gameObject);
+                Destroy(card.gameObject);
             else
-                DestroyImmediate(card.root.gameObject);
+                DestroyImmediate(card.gameObject);
         }
 
         cards.Clear();
     }
 
-    CardWidgets CreateCard(int slotIndex)
+    AdventurerController CreateCard(int slotIndex)
     {
         if (cardPrefab == null)
         {
-            Debug.LogWarning("[AdventurerPanelController] cardPrefab is not assigned.");
+            Debug.LogWarning("[AdventurerManager] cardPrefab is not assigned.");
             return null;
         }
 
-        var root = Instantiate(cardPrefab);
+        var root = Instantiate(cardPrefab, contentRoot, false);
         root.name = $"AdventurerCard_{slotIndex + 1}";
-        root.layer = LayerMask.NameToLayer("UI");
 
-        var cardRect = root.GetComponent<RectTransform>();
-        if (cardRect == null)
-            cardRect = root.AddComponent<RectTransform>();
-        cardRect.SetParent(contentRoot, false);
-
-        RemoveLocalizationComponents(root);
-
-        var background = root.GetComponent<Image>();
-        if (background == null)
-            background = root.AddComponent<Image>();
-        background.raycastTarget = true;
-        background.color = pendingCardColor;
-
-        var dragHandle = root.GetComponent<AdventurerDragHandle>();
-        if (dragHandle == null)
-            dragHandle = root.AddComponent<AdventurerDragHandle>();
-        dragHandle.SetOrchestrator(orchestrator);
-
-        var slotText = FindTextByName(cardRect, "SlotText");
-        var nameText = FindTextByName(cardRect, "NameText");
-        var infoText = FindTextByName(cardRect, "InfoText");
-        var expectedDamageText = FindTextByName(cardRect, "ExpectedDamageText");
-        var statusText = FindTextByName(cardRect, "StatusText");
-        var rollButtonText = FindTextByName(cardRect, "RollButtonText");
-
-        var diceRowRoot = FindRectByName(cardRect, "DiceRow");
-
-        var rollButton = FindButtonByName(cardRect, "RollButton");
-        AdventurerRollButton rollComponent = null;
-        if (rollButton != null)
+        var controller = root.GetComponent<AdventurerController>();
+        if (controller == null)
         {
-            rollComponent = rollButton.GetComponent<AdventurerRollButton>();
-            if (rollComponent == null)
-                rollComponent = rollButton.gameObject.AddComponent<AdventurerRollButton>();
-            rollComponent.SetOrchestrator(orchestrator);
-            rollComponent.SetButton(rollButton);
-            rollButton.onClick.RemoveListener(rollComponent.OnRollPressed);
-            rollButton.onClick.AddListener(rollComponent.OnRollPressed);
-        }
-
-        if (slotText != null)
-            slotText.text = $"A{slotIndex + 1}";
-        if (rollButtonText != null)
-            rollButtonText.text = $"Roll [{slotIndex + 1}]";
-
-        return new CardWidgets
-        {
-            root = cardRect,
-            background = background,
-            slotText = slotText,
-            nameText = nameText,
-            infoText = infoText,
-            diceRowRoot = diceRowRoot,
-            expectedDamageText = expectedDamageText,
-            statusText = statusText,
-            rollButtonText = rollButtonText,
-            rollButton = rollButton,
-            dragHandle = dragHandle,
-            rollComponent = rollComponent
-        };
-    }
-
-    static void RemoveLocalizationComponents(GameObject root)
-    {
-        if (root == null)
-            return;
-
-        var components = root.GetComponentsInChildren<Component>(true);
-        for (int index = 0; index < components.Length; index++)
-        {
-            var component = components[index];
-            if (component == null)
-                continue;
-
-            if (!string.Equals(
-                    component.GetType().FullName,
-                    "UnityEngine.Localization.Components.LocalizeStringEvent",
-                    StringComparison.Ordinal))
-            {
-                continue;
-            }
-
+            Debug.LogWarning("[AdventurerManager] cardPrefab requires AdventurerController.", root);
             if (Application.isPlaying)
-                Destroy(component);
+                Destroy(root);
             else
-                DestroyImmediate(component);
+                DestroyImmediate(root);
+            return null;
         }
+
+        controller.SetDicePrefab(dicePrefab);
+        controller.BindOrchestrator(orchestrator);
+        controller.BindAdventurer(string.Empty);
+        controller.Render(
+            $"A{slotIndex + 1}",
+            "Unknown Adventurer",
+            "Dice 1  |  Innate: None",
+            "ATK  -",
+            "Status: Waiting",
+            $"Roll [{slotIndex + 1}]",
+            subtleLabelColor,
+            pendingCardColor,
+            null,
+            1);
+
+        return controller;
     }
 
     void RefreshAllCards()
@@ -254,60 +198,40 @@ public sealed class AdventurerPanelController : MonoBehaviour
             if (card == null || adventurer == null)
                 continue;
 
-            BindCardIdentity(card, adventurer);
             RefreshCardVisual(card, adventurer, index);
         }
     }
 
-    void BindCardIdentity(CardWidgets card, AdventurerState adventurer)
+    void RefreshCardVisual(AdventurerController card, AdventurerState adventurer, int slotIndex)
     {
-        if (card.adventurerInstanceId == adventurer.instanceId)
-            return;
-
-        card.adventurerInstanceId = adventurer.instanceId;
-
-        card.dragHandle?.SetAdventurerInstanceId(adventurer.instanceId);
-        card.dragHandle?.SetOrchestrator(orchestrator);
-
-        card.rollComponent?.SetAdventurerInstanceId(adventurer.instanceId);
-        card.rollComponent?.SetOrchestrator(orchestrator);
-    }
-
-    void RefreshCardVisual(CardWidgets card, AdventurerState adventurer, int slotIndex)
-    {
-        if (card.slotText != null)
-            card.slotText.text = $"A{slotIndex + 1}";
-        if (card.rollButtonText != null)
-            card.rollButtonText.text = $"Roll [{slotIndex + 1}]";
-        if (card.nameText != null)
-            card.nameText.text = ResolveAdventurerName(adventurer.adventurerDefId);
+        card.SetDicePrefab(dicePrefab);
+        card.BindOrchestrator(orchestrator);
+        card.BindAdventurer(adventurer.instanceId);
 
         int diceCount = ResolveDiceCount(adventurer.adventurerDefId);
-        if (card.infoText != null)
-            card.infoText.text = BuildInfoLine(adventurer.adventurerDefId);
+        Color statusColor = ResolveStatusColor(adventurer);
+        Color backgroundColor;
+        bool isProcessing = orchestrator.IsCurrentProcessingAdventurer(adventurer.instanceId);
+        if (adventurer.actionConsumed)
+            backgroundColor = consumedCardColor;
+        else if (isProcessing)
+            backgroundColor = rolledCardColor;
+        else if (adventurer.rolledDiceValues != null && adventurer.rolledDiceValues.Count > 0)
+            backgroundColor = rolledCardColor;
+        else
+            backgroundColor = pendingCardColor;
 
-        RefreshDiceFaces(card, adventurer, diceCount);
-
-        if (card.expectedDamageText != null)
-            card.expectedDamageText.text = BuildExpectedDamageLine(adventurer);
-        if (card.statusText != null)
-        {
-            card.statusText.text = BuildStatusLine(adventurer);
-            card.statusText.color = ResolveStatusColor(adventurer);
-        }
-
-        if (card.background != null)
-        {
-            bool isProcessing = orchestrator.IsCurrentProcessingAdventurer(adventurer.instanceId);
-            if (adventurer.actionConsumed)
-                card.background.color = consumedCardColor;
-            else if (isProcessing)
-                card.background.color = rolledCardColor;
-            else if (adventurer.rolledDiceValues != null && adventurer.rolledDiceValues.Count > 0)
-                card.background.color = rolledCardColor;
-            else
-                card.background.color = pendingCardColor;
-        }
+        card.Render(
+            $"A{slotIndex + 1}",
+            ResolveAdventurerName(adventurer.adventurerDefId),
+            BuildInfoLine(adventurer.adventurerDefId),
+            BuildExpectedDamageLine(adventurer),
+            BuildStatusLine(adventurer),
+            $"Roll [{slotIndex + 1}]",
+            statusColor,
+            backgroundColor,
+            adventurer.rolledDiceValues,
+            diceCount);
     }
 
     string BuildInfoLine(string adventurerDefId)
@@ -315,88 +239,6 @@ public sealed class AdventurerPanelController : MonoBehaviour
         int diceCount = ResolveDiceCount(adventurerDefId);
         string innateSummary = ResolveInnateSummary(adventurerDefId);
         return $"Dice {diceCount}  |  Innate: {innateSummary}";
-    }
-
-    void RefreshDiceFaces(CardWidgets card, AdventurerState adventurer, int diceCount)
-    {
-        if (card == null)
-            return;
-        if (card.diceRowRoot == null)
-            return;
-        if (diceCount < 1)
-            diceCount = 1;
-
-        EnsureDiceFaceCount(card, diceCount);
-
-        for (int index = 0; index < card.diceFaces.Count; index++)
-        {
-            var face = card.diceFaces[index];
-            if (face?.valueText == null)
-                continue;
-
-            string display = "-";
-            if (adventurer?.rolledDiceValues != null &&
-                index < adventurer.rolledDiceValues.Count)
-            {
-                display = adventurer.rolledDiceValues[index].ToString();
-            }
-
-            face.valueText.text = display;
-        }
-    }
-
-    void EnsureDiceFaceCount(CardWidgets card, int targetCount)
-    {
-        while (card.diceFaces.Count > targetCount)
-        {
-            int lastIndex = card.diceFaces.Count - 1;
-            var face = card.diceFaces[lastIndex];
-            if (face?.root != null)
-            {
-                if (Application.isPlaying)
-                    Destroy(face.root.gameObject);
-                else
-                    DestroyImmediate(face.root.gameObject);
-            }
-
-            card.diceFaces.RemoveAt(lastIndex);
-        }
-
-        while (card.diceFaces.Count < targetCount)
-        {
-            var face = CreateDiceFace(card.diceRowRoot, card.diceFaces.Count);
-            if (face == null)
-                return;
-
-            card.diceFaces.Add(face);
-        }
-    }
-
-    DiceFaceWidgets CreateDiceFace(Transform parent, int index)
-    {
-        if (dicePrefab == null)
-        {
-            Debug.LogWarning("[AdventurerPanelController] dicePrefab is not assigned.");
-            return null;
-        }
-
-        var root = Instantiate(dicePrefab, parent, false);
-        root.name = $"Dice_{index + 1}";
-        root.layer = LayerMask.NameToLayer("UI");
-
-        var rootRect = root.GetComponent<RectTransform>();
-        if (rootRect == null)
-            rootRect = root.AddComponent<RectTransform>();
-
-        var valueText = FindTextByName(rootRect, "ValueText");
-        if (valueText == null)
-            valueText = root.GetComponentInChildren<TextMeshProUGUI>(true);
-
-        return new DiceFaceWidgets
-        {
-            root = rootRect,
-            valueText = valueText
-        };
     }
 
     string BuildExpectedDamageLine(AdventurerState adventurer)
@@ -523,13 +365,13 @@ public sealed class AdventurerPanelController : MonoBehaviour
             contentRoot.GetComponent<HorizontalLayoutGroup>() == null)
         {
             Debug.LogWarning(
-                "[AdventurerPanelController] contentRoot requires a LayoutGroup configured in the editor.");
+                "[AdventurerManager] contentRoot requires a LayoutGroup configured in the editor.");
         }
 
         if (contentRoot.GetComponent<RectMask2D>() == null)
         {
             Debug.LogWarning(
-                "[AdventurerPanelController] contentRoot requires RectMask2D configured in the editor.");
+                "[AdventurerManager] contentRoot requires RectMask2D configured in the editor.");
         }
     }
 
@@ -555,73 +397,8 @@ public sealed class AdventurerPanelController : MonoBehaviour
         }
         catch (Exception exception)
         {
-            Debug.LogWarning($"[AdventurerPanelController] Failed to load adventurer defs: {exception.Message}");
+            Debug.LogWarning($"[AdventurerManager] Failed to load adventurer defs: {exception.Message}");
         }
-    }
-
-    static Transform FindTransformByName(Transform root, string name)
-    {
-        if (root == null || string.IsNullOrWhiteSpace(name))
-            return null;
-
-        for (int i = 0; i < root.childCount; i++)
-        {
-            var child = root.GetChild(i);
-            if (string.Equals(child.name, name, StringComparison.Ordinal))
-                return child;
-
-            var nested = FindTransformByName(child, name);
-            if (nested != null)
-                return nested;
-        }
-
-        return null;
-    }
-
-    static RectTransform FindRectByName(RectTransform root, string name)
-    {
-        var target = FindTransformByName(root, name) as RectTransform;
-        return target;
-    }
-
-    static TextMeshProUGUI FindTextByName(RectTransform root, string name)
-    {
-        if (root == null || string.IsNullOrWhiteSpace(name))
-            return null;
-
-        var texts = root.GetComponentsInChildren<TextMeshProUGUI>(true);
-        for (int index = 0; index < texts.Length; index++)
-        {
-            var text = texts[index];
-            if (text == null)
-                continue;
-            if (!string.Equals(text.gameObject.name, name, StringComparison.Ordinal))
-                continue;
-
-            return text;
-        }
-
-        return null;
-    }
-
-    static Button FindButtonByName(RectTransform root, string name)
-    {
-        if (root == null || string.IsNullOrWhiteSpace(name))
-            return null;
-
-        var buttons = root.GetComponentsInChildren<Button>(true);
-        for (int index = 0; index < buttons.Length; index++)
-        {
-            var button = buttons[index];
-            if (button == null)
-                continue;
-            if (!string.Equals(button.gameObject.name, name, StringComparison.Ordinal))
-                continue;
-
-            return button;
-        }
-
-        return null;
     }
 
     static string ToEffectSummary(EffectSpec effect)
@@ -683,29 +460,5 @@ public sealed class AdventurerPanelController : MonoBehaviour
         }
 
         return string.Join(" ", parts);
-    }
-
-    sealed class CardWidgets
-    {
-        public RectTransform root;
-        public string adventurerInstanceId = string.Empty;
-        public Image background;
-        public TextMeshProUGUI slotText;
-        public TextMeshProUGUI nameText;
-        public TextMeshProUGUI infoText;
-        public RectTransform diceRowRoot;
-        public TextMeshProUGUI expectedDamageText;
-        public List<DiceFaceWidgets> diceFaces = new();
-        public TextMeshProUGUI statusText;
-        public TextMeshProUGUI rollButtonText;
-        public Button rollButton;
-        public AdventurerDragHandle dragHandle;
-        public AdventurerRollButton rollComponent;
-    }
-
-    sealed class DiceFaceWidgets
-    {
-        public RectTransform root;
-        public TextMeshProUGUI valueText;
     }
 }

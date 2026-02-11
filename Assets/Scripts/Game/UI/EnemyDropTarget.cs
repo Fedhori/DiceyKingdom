@@ -11,11 +11,6 @@ public sealed class EnemyDropTarget : MonoBehaviour, IDropHandler, IPointerClick
         orchestrator = value;
     }
 
-    public void SetEnemyInstanceId(string instanceId)
-    {
-        situationInstanceId = instanceId ?? string.Empty;
-    }
-
     public void SetSituationInstanceId(string instanceId)
     {
         situationInstanceId = instanceId ?? string.Empty;

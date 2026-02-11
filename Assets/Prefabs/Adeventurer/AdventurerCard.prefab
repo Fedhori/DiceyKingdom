@@ -187,6 +187,7 @@ GameObject:
   - component: {fileID: 869526748136697366}
   - component: {fileID: 3814098836865180793}
   - component: {fileID: 2337354869827316251}
+  - component: {fileID: 817263540019283746}
   m_Layer: 5
   m_Name: AdventurerCard
   m_TagString: Untagged
@@ -291,6 +292,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AdventurerDragHandle
   orchestrator: {fileID: 0}
   adventurerInstanceId: adventurer_1
+--- !u!114 &817263540019283746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6180465234383281509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d86a14c9d2b4d25a2f6c2eb7c6e5b1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AdventurerController
+  rootRect: {fileID: 8204395720131101985}
+  backgroundImage: {fileID: 869526748136697366}
+  dragHandle: {fileID: 2337354869827316251}
+  diceRowRoot: {fileID: 6058134000868374427}
+  slotText: {fileID: 597440744933628984}
+  nameText: {fileID: 3579432394629758734}
+  infoText: {fileID: 6673697074916291038}
+  expectedDamageText: {fileID: 2635694197600574883}
+  statusText: {fileID: 2327951261317442939}
+  rollButtonText: {fileID: 2957879675028468085}
+  rollButton: {fileID: 4163594786771723254}
+  rollButtonHandler: {fileID: 7858174425786146346}
 --- !u!1 &6290234719002095424
 GameObject:
   m_ObjectHideFlags: 0
