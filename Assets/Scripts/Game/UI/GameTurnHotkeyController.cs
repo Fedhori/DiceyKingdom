@@ -24,16 +24,47 @@ public sealed class GameTurnHotkeyController : MonoBehaviour
             orchestrator.TryRollAdventurerBySlotIndex(3);
 
         if (keyboard.qKey.wasPressedThisFrame)
-            orchestrator.TryUseSkillBySlotIndex(0);
+            HandleSkillHotkey(0);
         if (keyboard.wKey.wasPressedThisFrame)
-            orchestrator.TryUseSkillBySlotIndex(1);
+            HandleSkillHotkey(1);
         if (keyboard.eKey.wasPressedThisFrame)
-            orchestrator.TryUseSkillBySlotIndex(2);
+            HandleSkillHotkey(2);
         if (keyboard.rKey.wasPressedThisFrame)
-            orchestrator.TryUseSkillBySlotIndex(3);
+            HandleSkillHotkey(3);
 
         if (keyboard.spaceKey.wasPressedThisFrame)
             orchestrator.RequestCommitAssignmentPhase();
+
+        if (SkillTargetingSession.IsFor(orchestrator) &&
+            !orchestrator.CanUseSkillBySlotIndex(SkillTargetingSession.ActiveSkillSlotIndex))
+        {
+            SkillTargetingSession.Cancel();
+        }
+    }
+
+    void HandleSkillHotkey(int skillSlotIndex)
+    {
+        if (orchestrator == null)
+            return;
+        if (!orchestrator.CanUseSkillBySlotIndex(skillSlotIndex))
+            return;
+
+        bool needsSituationTarget = orchestrator.SkillRequiresSituationTargetBySlotIndex(skillSlotIndex);
+        if (!needsSituationTarget)
+        {
+            bool used = orchestrator.TryUseSkillBySlotIndex(skillSlotIndex);
+            if (used && SkillTargetingSession.IsFor(orchestrator, skillSlotIndex))
+                SkillTargetingSession.Cancel();
+            return;
+        }
+
+        if (SkillTargetingSession.IsFor(orchestrator, skillSlotIndex))
+        {
+            SkillTargetingSession.Cancel();
+            return;
+        }
+
+        SkillTargetingSession.Begin(orchestrator, skillSlotIndex);
     }
 
     static bool IsRollKeyPressed(Keyboard keyboard, int slotIndex)

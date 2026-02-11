@@ -1,0 +1,69 @@
+using System;
+
+public static class SkillTargetingSession
+{
+    public static GameTurnOrchestrator ActiveOrchestrator { get; private set; }
+    public static int ActiveSkillSlotIndex { get; private set; } = -1;
+
+    public static bool IsActive => ActiveOrchestrator != null && ActiveSkillSlotIndex >= 0;
+
+    public static event Action SessionChanged;
+
+    public static void Begin(GameTurnOrchestrator orchestrator, int skillSlotIndex)
+    {
+        if (orchestrator == null || skillSlotIndex < 0)
+        {
+            Cancel();
+            return;
+        }
+
+        if (ReferenceEquals(ActiveOrchestrator, orchestrator) &&
+            ActiveSkillSlotIndex == skillSlotIndex)
+        {
+            return;
+        }
+
+        ActiveOrchestrator = orchestrator;
+        ActiveSkillSlotIndex = skillSlotIndex;
+        SessionChanged?.Invoke();
+    }
+
+    public static void Cancel()
+    {
+        if (!IsActive)
+            return;
+
+        ActiveOrchestrator = null;
+        ActiveSkillSlotIndex = -1;
+        SessionChanged?.Invoke();
+    }
+
+    public static bool IsFor(GameTurnOrchestrator orchestrator, int skillSlotIndex)
+    {
+        return ReferenceEquals(ActiveOrchestrator, orchestrator) &&
+               ActiveSkillSlotIndex == skillSlotIndex;
+    }
+
+    public static bool IsFor(GameTurnOrchestrator orchestrator)
+    {
+        return ReferenceEquals(ActiveOrchestrator, orchestrator) && IsActive;
+    }
+
+    public static bool TryConsumeSituationTarget(string situationInstanceId)
+    {
+        if (!IsActive)
+            return false;
+        if (string.IsNullOrWhiteSpace(situationInstanceId))
+            return false;
+
+        bool used = ActiveOrchestrator.TryUseSkillBySlotIndex(
+            ActiveSkillSlotIndex,
+            selectedAdventurerInstanceId: null,
+            selectedSituationInstanceId: situationInstanceId,
+            selectedDieIndex: -1);
+        if (used)
+            Cancel();
+
+        return used;
+    }
+}

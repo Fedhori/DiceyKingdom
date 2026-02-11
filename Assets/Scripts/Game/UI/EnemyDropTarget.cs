@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public sealed class EnemyDropTarget : MonoBehaviour, IDropHandler
+public sealed class EnemyDropTarget : MonoBehaviour, IDropHandler, IPointerClickHandler
 {
     [SerializeField] GameTurnOrchestrator orchestrator;
-    [SerializeField] string enemyInstanceId = string.Empty;
+    [SerializeField] string situationInstanceId = string.Empty;
 
     public void SetOrchestrator(GameTurnOrchestrator value)
     {
@@ -13,7 +13,12 @@ public sealed class EnemyDropTarget : MonoBehaviour, IDropHandler
 
     public void SetEnemyInstanceId(string instanceId)
     {
-        enemyInstanceId = instanceId ?? string.Empty;
+        situationInstanceId = instanceId ?? string.Empty;
+    }
+
+    public void SetSituationInstanceId(string instanceId)
+    {
+        situationInstanceId = instanceId ?? string.Empty;
     }
 
     void Awake()
@@ -28,14 +33,32 @@ public sealed class EnemyDropTarget : MonoBehaviour, IDropHandler
 
         if (orchestrator == null)
             return;
-        if (string.IsNullOrWhiteSpace(enemyInstanceId))
+        if (string.IsNullOrWhiteSpace(situationInstanceId))
             return;
 
-        bool assigned = orchestrator.TryAssignAdventurer(AssignmentDragSession.AdventurerInstanceId, enemyInstanceId);
+        bool assigned = orchestrator.TryAssignAdventurer(AssignmentDragSession.AdventurerInstanceId, situationInstanceId);
         if (!assigned)
             return;
 
         AssignmentDragSession.MarkDropHandled();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData == null || eventData.button != PointerEventData.InputButton.Left)
+            return;
+        if (AssignmentDragSession.IsActive)
+            return;
+        if (!SkillTargetingSession.IsActive)
+            return;
+        if (orchestrator == null)
+            return;
+        if (!SkillTargetingSession.IsFor(orchestrator))
+            return;
+        if (string.IsNullOrWhiteSpace(situationInstanceId))
+            return;
+
+        SkillTargetingSession.TryConsumeSituationTarget(situationInstanceId);
     }
 
     void TryResolveOrchestrator()

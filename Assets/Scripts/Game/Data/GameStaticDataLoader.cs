@@ -6,16 +6,15 @@ using UnityEngine;
 
 public static class GameStaticDataLoader
 {
-    public const string EnemiesPath = "Data/Enemies.json";
+    public const string SituationsPath = "Data/Situations.json";
     public const string AdventurersPath = "Data/Adventurers.json";
     public const string SkillsPath = "Data/Skills.json";
-    public const string EnemyStagePresetsPath = "Data/EnemyStagePresets.json";
 
-    public static List<EnemyDef> LoadEnemyDefs(string relativePath = EnemiesPath)
+    public static List<SituationDef> LoadSituationDefs(string relativePath = SituationsPath)
     {
-        var enemies = ParseCatalogList<EnemyDef>(relativePath, "enemies");
-        ValidateEnemyDefs(enemies, relativePath);
-        return enemies;
+        var situations = ParseCatalogList<SituationDef>(relativePath, "situations");
+        ValidateSituationDefs(situations, relativePath);
+        return situations;
     }
 
     public static List<AdventurerDef> LoadAdventurerDefs(string relativePath = AdventurersPath)
@@ -28,24 +27,13 @@ public static class GameStaticDataLoader
         return ParseCatalogList<SkillDef>(relativePath, "skills");
     }
 
-    public static List<EnemyStagePresetDef> LoadEnemyStagePresetDefs(
-        IReadOnlyList<EnemyDef> enemyDefs,
-        string relativePath = EnemyStagePresetsPath)
-    {
-        var presets = ParseCatalogList<EnemyStagePresetDef>(relativePath, "stage_presets");
-        ValidateEnemyStagePresetDefs(presets, enemyDefs, relativePath);
-        return presets;
-    }
-
     public static GameStaticDataSet LoadAll()
     {
-        var enemyDefs = LoadEnemyDefs();
         return new GameStaticDataSet
         {
-            enemyDefs = enemyDefs,
+            situationDefs = LoadSituationDefs(),
             adventurerDefs = LoadAdventurerDefs(),
-            skillDefs = LoadSkillDefs(),
-            stagePresetDefs = LoadEnemyStagePresetDefs(enemyDefs)
+            skillDefs = LoadSkillDefs()
         };
     }
 
@@ -70,60 +58,49 @@ public static class GameStaticDataLoader
         throw new InvalidDataException($"[GameStaticDataLoader] Invalid json shape: {relativePath}");
     }
 
-    static void ValidateEnemyDefs(IReadOnlyList<EnemyDef> enemyDefs, string sourcePath)
+    static void ValidateSituationDefs(IReadOnlyList<SituationDef> situationDefs, string sourcePath)
     {
         var errors = new List<string>();
+        var ids = new HashSet<string>(StringComparer.Ordinal);
 
-        for (int i = 0; i < enemyDefs.Count; i++)
+        for (int i = 0; i < situationDefs.Count; i++)
         {
-            var def = enemyDefs[i];
+            var def = situationDefs[i];
             if (def == null)
             {
-                errors.Add($"enemies[{i}] is null");
+                errors.Add($"situations[{i}] is null");
                 continue;
             }
 
-            if (def.actionPool == null)
+            if (string.IsNullOrWhiteSpace(def.situationId))
             {
-                errors.Add($"{def.enemyId}: action_pool is null");
-                continue;
+                errors.Add($"situations[{i}].situation_id is empty");
+            }
+            else if (!ids.Add(def.situationId))
+            {
+                errors.Add($"duplicated situation_id '{def.situationId}'");
             }
 
-            if (def.actionPool.Count != 2)
-                errors.Add($"{def.enemyId}: action_pool count must be 2 (actual={def.actionPool.Count})");
+            if (def.baseRequirement < 1)
+                errors.Add($"{def.situationId}: base_requirement must be >= 1 (actual={def.baseRequirement})");
 
-            bool hasPrep1 = false;
-            bool hasPrep2 = false;
-            var ids = new HashSet<string>(StringComparer.Ordinal);
+            if (def.baseDeadlineTurns < 1)
+                errors.Add($"{def.situationId}: base_deadline_turns must be >= 1 (actual={def.baseDeadlineTurns})");
 
-            for (int j = 0; j < def.actionPool.Count; j++)
+            if (def.successReward == null)
+                def.successReward = new EffectBundle();
+            if (def.failureEffect == null)
+                def.failureEffect = new EffectBundle();
+
+            string persistMode = NormalizePersistMode(def.failurePersistMode);
+            if (!string.Equals(persistMode, "remove", StringComparison.Ordinal) &&
+                !string.Equals(persistMode, "reset_deadline", StringComparison.Ordinal))
             {
-                var action = def.actionPool[j];
-                if (action == null)
-                {
-                    errors.Add($"{def.enemyId}: action_pool[{j}] is null");
-                    continue;
-                }
-
-                if (string.IsNullOrWhiteSpace(action.actionId))
-                    errors.Add($"{def.enemyId}: action_pool[{j}].action_id is empty");
-                else if (!ids.Add(action.actionId))
-                    errors.Add($"{def.enemyId}: duplicated action_id '{action.actionId}'");
-
-                if (action.weight < 1 || action.weight > 5)
-                    errors.Add($"{def.enemyId}:{action.actionId} weight out of range (1..5): {action.weight}");
-
-                if (action.prepTurns < 1 || action.prepTurns > 2)
-                    errors.Add($"{def.enemyId}:{action.actionId} prep_turns out of range (1..2): {action.prepTurns}");
-
-                hasPrep1 |= action.prepTurns == 1;
-                hasPrep2 |= action.prepTurns == 2;
+                errors.Add(
+                    $"{def.situationId}: failure_persist_mode must be 'remove' or 'reset_deadline' (actual='{def.failurePersistMode}')");
             }
 
-            if (!hasPrep1)
-                errors.Add($"{def.enemyId}: requires at least one prep_turns=1 action");
-            if (!hasPrep2)
-                errors.Add($"{def.enemyId}: requires at least one prep_turns=2 action");
+            def.failurePersistMode = persistMode;
         }
 
         if (errors.Count == 0)
@@ -135,86 +112,25 @@ public static class GameStaticDataLoader
         throw new InvalidDataException(message);
     }
 
-    static void ValidateEnemyStagePresetDefs(
-        IReadOnlyList<EnemyStagePresetDef> presetDefs,
-        IReadOnlyList<EnemyDef> enemyDefs,
-        string sourcePath)
+    static string NormalizePersistMode(string raw)
     {
-        var errors = new List<string>();
+        if (string.IsNullOrWhiteSpace(raw))
+            return "remove";
 
-        if (presetDefs.Count != 3)
-            errors.Add($"stage_presets count must be 3 (actual={presetDefs.Count})");
+        string trimmed = raw.Trim();
+        if (string.Equals(trimmed, "remove", StringComparison.OrdinalIgnoreCase))
+            return "remove";
+        if (string.Equals(trimmed, "reset_deadline", StringComparison.OrdinalIgnoreCase))
+            return "reset_deadline";
 
-        var knownEnemyIds = new HashSet<string>(StringComparer.Ordinal);
-        for (int i = 0; i < enemyDefs.Count; i++)
-        {
-            var enemyDef = enemyDefs[i];
-            if (enemyDef == null || string.IsNullOrWhiteSpace(enemyDef.enemyId))
-                continue;
-
-            knownEnemyIds.Add(enemyDef.enemyId);
-        }
-
-        var presetIds = new HashSet<string>(StringComparer.Ordinal);
-        for (int i = 0; i < presetDefs.Count; i++)
-        {
-            var preset = presetDefs[i];
-            if (preset == null)
-            {
-                errors.Add($"stage_presets[{i}] is null");
-                continue;
-            }
-
-            if (string.IsNullOrWhiteSpace(preset.presetId))
-                errors.Add($"stage_presets[{i}].preset_id is empty");
-            else if (!presetIds.Add(preset.presetId))
-                errors.Add($"duplicated preset_id '{preset.presetId}'");
-
-            if (preset.spawns == null || preset.spawns.Count == 0)
-            {
-                errors.Add($"{preset.presetId}: spawns must contain at least one entry");
-                continue;
-            }
-
-            for (int j = 0; j < preset.spawns.Count; j++)
-            {
-                var spawn = preset.spawns[j];
-                if (spawn == null)
-                {
-                    errors.Add($"{preset.presetId}: spawns[{j}] is null");
-                    continue;
-                }
-
-                if (string.IsNullOrWhiteSpace(spawn.enemyId))
-                {
-                    errors.Add($"{preset.presetId}: spawns[{j}].enemy_id is empty");
-                }
-                else if (!knownEnemyIds.Contains(spawn.enemyId))
-                {
-                    errors.Add($"{preset.presetId}: unknown enemy_id '{spawn.enemyId}'");
-                }
-
-                if (spawn.count < 1)
-                    errors.Add($"{preset.presetId}: spawns[{j}].count must be >= 1 (actual={spawn.count})");
-            }
-        }
-
-        if (errors.Count == 0)
-            return;
-
-        var message = $"[GameStaticDataLoader] Validation failed ({sourcePath})\n- " +
-                      string.Join("\n- ", errors);
-        Debug.LogError(message);
-        throw new InvalidDataException(message);
+        return trimmed.ToLowerInvariant();
     }
 }
 
 [Serializable]
 public sealed class GameStaticDataSet
 {
-    public List<EnemyDef> enemyDefs = new();
+    public List<SituationDef> situationDefs = new();
     public List<AdventurerDef> adventurerDefs = new();
     public List<SkillDef> skillDefs = new();
-    public List<EnemyStagePresetDef> stagePresetDefs = new();
 }
-

@@ -18,22 +18,16 @@ public sealed class EffectSpec
 }
 
 [Serializable]
-public sealed class ActionDef
+public sealed class SituationDef
 {
-    [JsonProperty("action_id")] public string actionId = string.Empty;
-    [JsonProperty("weight")] public int weight = 1;
-    [JsonProperty("prep_turns")] public int prepTurns = 1;
-    [JsonProperty("on_resolve")] public EffectBundle onResolve = new();
-}
-
-[Serializable]
-public sealed class EnemyDef
-{
-    [JsonProperty("enemy_id")] public string enemyId = string.Empty;
+    [JsonProperty("situation_id")] public string situationId = string.Empty;
     [JsonProperty("name_key")] public string nameKey = string.Empty;
     [JsonProperty("tags")] public List<string> tags = new();
-    [JsonProperty("base_health")] public int baseHealth = 1;
-    [JsonProperty("action_pool")] public List<ActionDef> actionPool = new();
+    [JsonProperty("base_requirement")] public int baseRequirement = 1;
+    [JsonProperty("base_deadline_turns")] public int baseDeadlineTurns = 1;
+    [JsonProperty("success_reward")] public EffectBundle successReward = new();
+    [JsonProperty("failure_effect")] public EffectBundle failureEffect = new();
+    [JsonProperty("failure_persist_mode")] public string failurePersistMode = "remove";
 }
 
 [Serializable]
@@ -57,23 +51,9 @@ public sealed class SkillDef
 }
 
 [Serializable]
-public sealed class EnemyStageSpawnDef
+public sealed class SituationDefCatalog
 {
-    [JsonProperty("enemy_id")] public string enemyId = string.Empty;
-    [JsonProperty("count")] public int count = 1;
-}
-
-[Serializable]
-public sealed class EnemyStagePresetDef
-{
-    [JsonProperty("preset_id")] public string presetId = string.Empty;
-    [JsonProperty("spawns")] public List<EnemyStageSpawnDef> spawns = new();
-}
-
-[Serializable]
-public sealed class EnemyDefCatalog
-{
-    [JsonProperty("enemies")] public List<EnemyDef> enemies = new();
+    [JsonProperty("situations")] public List<SituationDef> situations = new();
 }
 
 [Serializable]
@@ -86,11 +66,5 @@ public sealed class AdventurerDefCatalog
 public sealed class SkillDefCatalog
 {
     [JsonProperty("skills")] public List<SkillDef> skills = new();
-}
-
-[Serializable]
-public sealed class EnemyStagePresetCatalog
-{
-    [JsonProperty("stage_presets")] public List<EnemyStagePresetDef> stagePresets = new();
 }
 

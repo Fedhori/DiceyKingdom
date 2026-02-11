@@ -10,13 +10,13 @@ public sealed class EnemyPanelController : MonoBehaviour
     [SerializeField] RectTransform contentRoot;
     [SerializeField] float cardHeight = 170f;
     [SerializeField] Color cardColor = new(0.32f, 0.18f, 0.18f, 0.94f);
-    [SerializeField] Color lowHealthCardColor = new(0.45f, 0.16f, 0.16f, 0.98f);
+    [SerializeField] Color lowRequirementCardColor = new(0.45f, 0.16f, 0.16f, 0.98f);
     [SerializeField] Color labelColor = new(0.98f, 0.94f, 0.93f, 1f);
     [SerializeField] Color subtleLabelColor = new(0.88f, 0.78f, 0.76f, 1f);
-    [SerializeField] Color prepBadgeColor = new(0.94f, 0.72f, 0.30f, 0.95f);
+    [SerializeField] Color deadlineBadgeColor = new(0.94f, 0.72f, 0.30f, 0.95f);
 
     readonly List<CardWidgets> cards = new();
-    readonly Dictionary<string, EnemyDef> enemyDefById = new(StringComparer.Ordinal);
+    readonly Dictionary<string, SituationDef> situationDefById = new(StringComparer.Ordinal);
     bool loadedDefs;
 
     void Awake()
@@ -24,7 +24,7 @@ public sealed class EnemyPanelController : MonoBehaviour
         TryResolveOrchestrator();
         TryResolveContentRoot();
         EnsureContentLayout();
-        LoadEnemyDefsIfNeeded();
+        LoadSituationDefsIfNeeded();
     }
 
     void OnEnable()
@@ -103,7 +103,7 @@ public sealed class EnemyPanelController : MonoBehaviour
             return false;
         if (contentRoot == null)
             return false;
-        if (orchestrator.RunState == null || orchestrator.RunState.enemies == null)
+        if (orchestrator.RunState == null || orchestrator.RunState.situations == null)
             return false;
 
         return true;
@@ -114,7 +114,7 @@ public sealed class EnemyPanelController : MonoBehaviour
         if (!IsReady())
             return;
 
-        int desiredCount = orchestrator.RunState.enemies.Count;
+        int desiredCount = orchestrator.RunState.situations.Count;
         if (!forceRebuild && cards.Count == desiredCount)
             return;
 
@@ -219,7 +219,7 @@ public sealed class EnemyPanelController : MonoBehaviour
         prepBadgeRect.sizeDelta = new Vector2(126f, 32f);
 
         var prepBadgeImage = prepBadgeObject.GetComponent<Image>();
-        prepBadgeImage.color = prepBadgeColor;
+        prepBadgeImage.color = deadlineBadgeColor;
         prepBadgeImage.raycastTarget = false;
 
         var prepText = CreateLabel("PrepText", prepBadgeRect, 19f, FontStyles.Bold, TextAlignmentOptions.Center, Color.black);
@@ -235,8 +235,8 @@ public sealed class EnemyPanelController : MonoBehaviour
         targetHintText.rectTransform.anchoredPosition = new Vector2(0f, 8f);
         targetHintText.rectTransform.sizeDelta = new Vector2(-24f, 26f);
 
-        slotText.text = $"E{slotIndex + 1}";
-        prepText.text = "Prep: -";
+        slotText.text = $"S{slotIndex + 1}";
+        prepText.text = "D: -";
         targetHintText.text = "Drop target";
 
         return new CardWidgets
@@ -258,76 +258,85 @@ public sealed class EnemyPanelController : MonoBehaviour
     {
         if (!IsReady())
             return;
-        if (cards.Count != orchestrator.RunState.enemies.Count)
+        if (cards.Count != orchestrator.RunState.situations.Count)
             return;
 
         for (int index = 0; index < cards.Count; index++)
         {
             var card = cards[index];
-            var enemy = orchestrator.RunState.enemies[index];
-            if (card == null || enemy == null)
+            var situation = orchestrator.RunState.situations[index];
+            if (card == null || situation == null)
                 continue;
 
-            BindCardIdentity(card, enemy);
-            RefreshCardVisual(card, enemy, index);
+            BindCardIdentity(card, situation);
+            RefreshCardVisual(card, situation, index);
         }
     }
 
-    void BindCardIdentity(CardWidgets card, EnemyState enemy)
+    void BindCardIdentity(CardWidgets card, SituationState situation)
     {
-        if (card.enemyInstanceId == enemy.instanceId)
+        if (card.situationInstanceId == situation.instanceId)
             return;
 
-        card.enemyInstanceId = enemy.instanceId;
-        card.dropTarget.SetEnemyInstanceId(enemy.instanceId);
+        card.situationInstanceId = situation.instanceId;
+        card.dropTarget.SetSituationInstanceId(situation.instanceId);
         card.dropTarget.SetOrchestrator(orchestrator);
     }
 
-    void RefreshCardVisual(CardWidgets card, EnemyState enemy, int slotIndex)
+    void RefreshCardVisual(CardWidgets card, SituationState situation, int slotIndex)
     {
-        card.slotText.text = $"E{slotIndex + 1}";
-        card.nameText.text = ResolveEnemyName(enemy.enemyDefId);
-        card.hpText.text = BuildHealthLine(enemy);
-        card.actionText.text = BuildActionLine(enemy);
-        card.actionEffectText.text = BuildActionEffectLine(enemy);
-        card.prepText.text = $"Prep: {Mathf.Max(0, enemy.actionTurnsLeft)}";
+        card.slotText.text = $"S{slotIndex + 1}";
+        card.nameText.text = ResolveSituationName(situation.situationDefId);
+        card.hpText.text = BuildRequirementLine(situation);
+        card.actionText.text = BuildSuccessLine(situation);
+        card.actionEffectText.text = BuildFailureLine(situation);
+        card.prepText.text = $"D: {Mathf.Max(0, situation.deadlineTurnsLeft)}";
         card.targetHintText.text = BuildTargetHintLine();
 
-        int maxHealth = ResolveBaseHealth(enemy.enemyDefId);
-        bool isLowHealth = maxHealth > 0 && enemy.currentHealth <= Mathf.Max(1, maxHealth / 2);
-        card.background.color = isLowHealth ? lowHealthCardColor : cardColor;
+        int baseRequirement = ResolveBaseRequirement(situation.situationDefId);
+        bool isLowRequirement = baseRequirement > 0 &&
+                                situation.currentRequirement <= Mathf.Max(1, baseRequirement / 2);
+        card.background.color = isLowRequirement ? lowRequirementCardColor : cardColor;
     }
 
-    string BuildHealthLine(EnemyState enemy)
+    string BuildRequirementLine(SituationState situation)
     {
-        int maxHealth = ResolveBaseHealth(enemy?.enemyDefId);
-        if (maxHealth <= 0)
-            return $"HP: {Mathf.Max(0, enemy?.currentHealth ?? 0)}";
+        int baseRequirement = ResolveBaseRequirement(situation?.situationDefId);
+        if (baseRequirement <= 0)
+            return $"Req: {Mathf.Max(0, situation?.currentRequirement ?? 0)}";
 
-        return $"HP: {Mathf.Max(0, enemy.currentHealth)} / {maxHealth}";
+        return $"Req: {Mathf.Max(0, situation.currentRequirement)} / {baseRequirement}";
     }
 
-    string BuildActionLine(EnemyState enemy)
+    string BuildSuccessLine(SituationState situation)
     {
-        if (enemy == null || string.IsNullOrWhiteSpace(enemy.currentActionId))
-            return "Action: -";
+        if (situation == null)
+            return "Success: -";
+        if (!situationDefById.TryGetValue(situation.situationDefId, out var def))
+            return "Success: -";
 
-        return $"Action: {ToDisplayTitle(enemy.currentActionId)}";
+        return $"Success: {BuildEffectBundleSummary(def.successReward)}";
     }
 
-    string BuildActionEffectLine(EnemyState enemy)
+    string BuildFailureLine(SituationState situation)
     {
-        if (enemy == null || string.IsNullOrWhiteSpace(enemy.currentActionId))
-            return "Resolve: -";
+        if (situation == null)
+            return "Failure: -";
+        if (!situationDefById.TryGetValue(situation.situationDefId, out var def))
+            return "Failure: -";
 
-        var actionDef = FindActionDef(enemy.enemyDefId, enemy.currentActionId);
-        if (actionDef == null || actionDef.onResolve?.effects == null || actionDef.onResolve.effects.Count == 0)
-            return "Resolve: -";
+        return $"Failure: {BuildEffectBundleSummary(def.failureEffect)}";
+    }
 
-        var tokens = new List<string>(actionDef.onResolve.effects.Count);
-        for (int index = 0; index < actionDef.onResolve.effects.Count; index++)
+    string BuildEffectBundleSummary(EffectBundle bundle)
+    {
+        if (bundle?.effects == null || bundle.effects.Count == 0)
+            return "-";
+
+        var tokens = new List<string>(bundle.effects.Count);
+        for (int index = 0; index < bundle.effects.Count; index++)
         {
-            string token = ToEffectSummary(actionDef.onResolve.effects[index]);
+            string token = ToEffectSummary(bundle.effects[index]);
             if (string.IsNullOrWhiteSpace(token))
                 continue;
 
@@ -335,68 +344,46 @@ public sealed class EnemyPanelController : MonoBehaviour
         }
 
         if (tokens.Count == 0)
-            return "Resolve: -";
-
-        return $"Resolve: {string.Join(", ", tokens)}";
+            return "-";
+        return string.Join(", ", tokens);
     }
 
     string BuildTargetHintLine()
     {
         if (orchestrator?.RunState == null)
             return "Drop target";
+        if (SkillTargetingSession.IsFor(orchestrator))
+            return "Click to cast";
 
         return orchestrator.RunState.turn.phase == TurnPhase.TargetAndAttack
             ? "Drop to attack"
             : "Drop target";
     }
 
-    string ResolveEnemyName(string enemyDefId)
+    string ResolveSituationName(string situationDefId)
     {
-        if (!string.IsNullOrWhiteSpace(enemyDefId) &&
-            enemyDefById.TryGetValue(enemyDefId, out var def))
+        if (!string.IsNullOrWhiteSpace(situationDefId) &&
+            situationDefById.TryGetValue(situationDefId, out var def))
         {
-            if (!string.IsNullOrWhiteSpace(def.enemyId))
-                return ToDisplayTitle(def.enemyId);
+            if (!string.IsNullOrWhiteSpace(def.situationId))
+                return ToDisplayTitle(def.situationId);
             if (!string.IsNullOrWhiteSpace(def.nameKey))
                 return ToDisplayTitle(def.nameKey);
         }
 
-        if (string.IsNullOrWhiteSpace(enemyDefId))
-            return "Unknown Enemy";
-        return ToDisplayTitle(enemyDefId);
+        if (string.IsNullOrWhiteSpace(situationDefId))
+            return "Unknown Situation";
+        return ToDisplayTitle(situationDefId);
     }
 
-    int ResolveBaseHealth(string enemyDefId)
+    int ResolveBaseRequirement(string situationDefId)
     {
-        if (string.IsNullOrWhiteSpace(enemyDefId))
+        if (string.IsNullOrWhiteSpace(situationDefId))
             return 0;
-        if (!enemyDefById.TryGetValue(enemyDefId, out var def))
+        if (!situationDefById.TryGetValue(situationDefId, out var def))
             return 0;
 
-        return Mathf.Max(1, def.baseHealth);
-    }
-
-    ActionDef FindActionDef(string enemyDefId, string actionId)
-    {
-        if (string.IsNullOrWhiteSpace(enemyDefId) || string.IsNullOrWhiteSpace(actionId))
-            return null;
-        if (!enemyDefById.TryGetValue(enemyDefId, out var enemyDef))
-            return null;
-        if (enemyDef.actionPool == null)
-            return null;
-
-        for (int index = 0; index < enemyDef.actionPool.Count; index++)
-        {
-            var action = enemyDef.actionPool[index];
-            if (action == null)
-                continue;
-            if (!string.Equals(action.actionId, actionId, StringComparison.Ordinal))
-                continue;
-
-            return action;
-        }
-
-        return null;
+        return Mathf.Max(1, def.baseRequirement);
     }
 
     void TryResolveOrchestrator()
@@ -432,29 +419,29 @@ public sealed class EnemyPanelController : MonoBehaviour
         layout.padding = new RectOffset(12, 12, 12, 12);
     }
 
-    void LoadEnemyDefsIfNeeded()
+    void LoadSituationDefsIfNeeded()
     {
         if (loadedDefs)
             return;
         loadedDefs = true;
 
-        enemyDefById.Clear();
+        situationDefById.Clear();
 
         try
         {
-            var defs = GameStaticDataLoader.LoadEnemyDefs();
+            var defs = GameStaticDataLoader.LoadSituationDefs();
             for (int index = 0; index < defs.Count; index++)
             {
                 var def = defs[index];
-                if (def == null || string.IsNullOrWhiteSpace(def.enemyId))
+                if (def == null || string.IsNullOrWhiteSpace(def.situationId))
                     continue;
 
-                enemyDefById[def.enemyId] = def;
+                situationDefById[def.situationId] = def;
             }
         }
         catch (Exception exception)
         {
-            Debug.LogWarning($"[EnemyPanelController] Failed to load enemy defs: {exception.Message}");
+            Debug.LogWarning($"[EnemyPanelController] Failed to load situation defs: {exception.Message}");
         }
     }
 
@@ -503,7 +490,7 @@ public sealed class EnemyPanelController : MonoBehaviour
         {
             "stability_delta" => $"Stability {FormatSignedValue(value)}",
             "gold_delta" => $"Gold {FormatSignedValue(value)}",
-            "enemy_health_delta" => $"Enemy HP {FormatSignedValue(value)}",
+            "situation_requirement_delta" => $"Req {FormatSignedValue(value)}",
             "die_face_delta" => $"Die {FormatSignedValue(value)}",
             "reroll_adventurer_dice" => "Reroll Adventurer Dice",
             _ => $"{ToDisplayTitle(effect.effectType)} {FormatSignedValue(value)}"
@@ -525,6 +512,8 @@ public sealed class EnemyPanelController : MonoBehaviour
         string normalized = raw.Trim();
         if (normalized.StartsWith("enemy_", StringComparison.OrdinalIgnoreCase))
             normalized = normalized.Substring("enemy_".Length);
+        if (normalized.StartsWith("situation_", StringComparison.OrdinalIgnoreCase))
+            normalized = normalized.Substring("situation_".Length);
 
         normalized = normalized.Replace('_', ' ').Replace('.', ' ');
         var parts = normalized.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -552,7 +541,7 @@ public sealed class EnemyPanelController : MonoBehaviour
     sealed class CardWidgets
     {
         public RectTransform root;
-        public string enemyInstanceId = string.Empty;
+        public string situationInstanceId = string.Empty;
         public Image background;
         public TextMeshProUGUI slotText;
         public TextMeshProUGUI nameText;

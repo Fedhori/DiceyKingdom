@@ -1,0 +1,118 @@
+{
+  "situations": [
+    {
+      "situation_id": "orc_raiders",
+      "name_key": "situation.orc_raiders.name",
+      "tags": [
+        "invasion"
+      ],
+      "base_requirement": 20,
+      "base_deadline_turns": 1,
+      "success_reward": {
+        "effects": [
+          {
+            "effect_type": "gold_delta",
+            "value": 3,
+            "params": null
+          }
+        ]
+      },
+      "failure_effect": {
+        "effects": [
+          {
+            "effect_type": "stability_delta",
+            "value": -2,
+            "params": null
+          }
+        ]
+      },
+      "failure_persist_mode": "remove"
+    },
+    {
+      "situation_id": "locust_swarm",
+      "name_key": "situation.locust_swarm.name",
+      "tags": [
+        "famine"
+      ],
+      "base_requirement": 17,
+      "base_deadline_turns": 2,
+      "success_reward": {
+        "effects": [
+          {
+            "effect_type": "stability_delta",
+            "value": 1,
+            "params": null
+          }
+        ]
+      },
+      "failure_effect": {
+        "effects": [
+          {
+            "effect_type": "stability_delta",
+            "value": -1,
+            "params": null
+          }
+        ]
+      },
+      "failure_persist_mode": "remove"
+    },
+    {
+      "situation_id": "bandit_smugglers",
+      "name_key": "situation.bandit_smugglers.name",
+      "tags": [
+        "invasion",
+        "economy"
+      ],
+      "base_requirement": 18,
+      "base_deadline_turns": 1,
+      "success_reward": {
+        "effects": [
+          {
+            "effect_type": "gold_delta",
+            "value": 2,
+            "params": null
+          }
+        ]
+      },
+      "failure_effect": {
+        "effects": [
+          {
+            "effect_type": "gold_delta",
+            "value": -2,
+            "params": null
+          }
+        ]
+      },
+      "failure_persist_mode": "remove"
+    },
+    {
+      "situation_id": "siege_shaman",
+      "name_key": "situation.siege_shaman.name",
+      "tags": [
+        "invasion",
+        "ritual"
+      ],
+      "base_requirement": 23,
+      "base_deadline_turns": 2,
+      "success_reward": {
+        "effects": [
+          {
+            "effect_type": "gold_delta",
+            "value": 4,
+            "params": null
+          }
+        ]
+      },
+      "failure_effect": {
+        "effects": [
+          {
+            "effect_type": "stability_delta",
+            "value": -4,
+            "params": null
+          }
+        ]
+      },
+      "failure_persist_mode": "remove"
+    }
+  ]
+}

@@ -36,13 +36,12 @@ public sealed class SkillCooldownState
 }
 
 [Serializable]
-public sealed class EnemyState
+public sealed class SituationState
 {
     public string instanceId = string.Empty;
-    public string enemyDefId = string.Empty;
-    public int currentHealth;
-    public string currentActionId = string.Empty;
-    public int actionTurnsLeft;
+    public string situationDefId = string.Empty;
+    public int currentRequirement;
+    public int deadlineTurnsLeft;
     public List<string> assignedAdventurerIds = new();
 }
 
@@ -52,7 +51,7 @@ public sealed class AdventurerState
     public string instanceId = string.Empty;
     public string adventurerDefId = string.Empty;
     public List<int> rolledDiceValues = new();
-    public string assignedEnemyInstanceId;
+    public string assignedSituationInstanceId;
     public bool actionConsumed;
 }
 
@@ -65,9 +64,9 @@ public sealed class GameRunState
     public int maxStability;
     public int gold;
     public int rngSeed;
-    public int nextEnemyInstanceSequence = 1;
+    public int nextSituationInstanceSequence = 1;
     public int nextAdventurerInstanceSequence = 1;
-    public List<EnemyState> enemies = new();
+    public List<SituationState> situations = new();
     public List<AdventurerState> adventurers = new();
     public List<SkillCooldownState> skillCooldowns = new();
 
@@ -75,13 +74,13 @@ public sealed class GameRunState
     {
         turn.processingAdventurerInstanceId = string.Empty;
 
-        for (int i = 0; i < enemies.Count; i++)
+        for (int i = 0; i < situations.Count; i++)
         {
-            var enemy = enemies[i];
-            if (enemy == null)
+            var situation = situations[i];
+            if (situation == null)
                 continue;
 
-            enemy.assignedAdventurerIds.Clear();
+            situation.assignedAdventurerIds.Clear();
         }
 
         for (int i = 0; i < adventurers.Count; i++)
@@ -91,7 +90,7 @@ public sealed class GameRunState
                 continue;
 
             adventurer.rolledDiceValues.Clear();
-            adventurer.assignedEnemyInstanceId = null;
+            adventurer.assignedSituationInstanceId = null;
             adventurer.actionConsumed = false;
         }
 
@@ -111,20 +110,22 @@ public static class GameRunBootstrap
     public const int InitialStability = 20;
     public const int InitialGold = 0;
     public const int AdventurerSlotCount = 4;
-    public const int RequiredStagePresetCount = 3;
+    public const int InitialSituationSpawnCount = 3;
+    public const int PeriodicSituationSpawnCount = 3;
+    public const int PeriodicSituationSpawnIntervalTurns = 4;
 
     public static GameRunState CreateNewRun(GameStaticDataSet staticData, int rngSeed)
     {
         if (staticData == null)
             throw new ArgumentNullException(nameof(staticData));
         if (staticData.adventurerDefs == null || staticData.adventurerDefs.Count != AdventurerSlotCount)
+        {
             throw new InvalidOperationException(
                 $"v0 requires exactly {AdventurerSlotCount} adventurer defs (actual={staticData.adventurerDefs?.Count ?? 0})");
-        if (staticData.enemyDefs == null || staticData.enemyDefs.Count == 0)
-            throw new InvalidOperationException("Enemy defs are empty.");
-        if (staticData.stagePresetDefs == null || staticData.stagePresetDefs.Count != RequiredStagePresetCount)
-            throw new InvalidOperationException(
-                $"v0 requires exactly {RequiredStagePresetCount} stage presets (actual={staticData.stagePresetDefs?.Count ?? 0})");
+        }
+
+        if (staticData.situationDefs == null || staticData.situationDefs.Count == 0)
+            throw new InvalidOperationException("Situation defs are empty.");
 
         var runState = new GameRunState
         {
@@ -161,11 +162,11 @@ public static class GameRunBootstrap
         }
 
         var rng = new Random(rngSeed);
-        SpawnRandomStagePreset(runState, staticData, rng);
+        SpawnRandomSituations(runState, staticData, rng, InitialSituationSpawnCount, "initial");
         return runState;
     }
 
-    public static bool TrySpawnStagePresetIfBoardCleared(
+    public static bool TrySpawnPeriodicSituations(
         GameRunState runState,
         GameStaticDataSet staticData,
         Random rng)
@@ -176,93 +177,60 @@ public static class GameRunBootstrap
             throw new ArgumentNullException(nameof(staticData));
         if (rng == null)
             throw new ArgumentNullException(nameof(rng));
-        if (runState.enemies.Count > 0)
+        if (!IsPeriodicSpawnTurn(runState.turn.turnNumber))
             return false;
 
-        SpawnRandomStagePreset(runState, staticData, rng);
+        SpawnRandomSituations(runState, staticData, rng, PeriodicSituationSpawnCount, "periodic");
         return true;
     }
 
-    static void SpawnRandomStagePreset(GameRunState runState, GameStaticDataSet staticData, Random rng)
+    public static bool IsPeriodicSpawnTurn(int turnNumber)
     {
-        if (staticData.stagePresetDefs == null || staticData.stagePresetDefs.Count == 0)
-            throw new InvalidOperationException("Stage presets are empty.");
+        if (turnNumber <= 1)
+            return false;
 
-        var enemyDefById = new Dictionary<string, EnemyDef>(StringComparer.Ordinal);
-        for (int i = 0; i < staticData.enemyDefs.Count; i++)
+        // Turn 1 starts with the initial spawn. Periodic spawns occur after each full 4-turn block.
+        return (turnNumber - 1) % PeriodicSituationSpawnIntervalTurns == 0;
+    }
+
+    static void SpawnRandomSituations(
+        GameRunState runState,
+        GameStaticDataSet staticData,
+        Random rng,
+        int count,
+        string stageLabel)
+    {
+        if (count <= 0)
+            return;
+        if (staticData.situationDefs == null || staticData.situationDefs.Count == 0)
+            throw new InvalidOperationException("Situation defs are empty.");
+
+        var pool = new List<SituationDef>(staticData.situationDefs.Count);
+        for (int i = 0; i < staticData.situationDefs.Count; i++)
         {
-            var enemyDef = staticData.enemyDefs[i];
-            if (enemyDef == null || string.IsNullOrWhiteSpace(enemyDef.enemyId))
+            var def = staticData.situationDefs[i];
+            if (def == null || string.IsNullOrWhiteSpace(def.situationId))
                 continue;
 
-            enemyDefById[enemyDef.enemyId] = enemyDef;
+            pool.Add(def);
         }
 
-        var presetIndex = rng.Next(0, staticData.stagePresetDefs.Count);
-        var preset = staticData.stagePresetDefs[presetIndex];
-        if (preset == null)
-            throw new InvalidOperationException($"Stage preset at index {presetIndex} is null.");
+        if (pool.Count == 0)
+            throw new InvalidOperationException("Situation defs do not contain valid entries.");
 
         runState.stage.stageNumber += 1;
-        runState.stage.activePresetId = preset.presetId ?? string.Empty;
+        runState.stage.activePresetId = stageLabel ?? string.Empty;
 
-        for (int i = 0; i < preset.spawns.Count; i++)
+        for (int i = 0; i < count; i++)
         {
-            var spawn = preset.spawns[i];
-            if (spawn == null)
-                continue;
-            if (!enemyDefById.TryGetValue(spawn.enemyId, out var enemyDef))
-                throw new InvalidOperationException(
-                    $"Preset '{preset.presetId}' references unknown enemy '{spawn.enemyId}'.");
-
-            for (int count = 0; count < spawn.count; count++)
+            var def = pool[rng.Next(0, pool.Count)];
+            runState.situations.Add(new SituationState
             {
-                var actionDef = PickWeightedAction(enemyDef.actionPool, rng);
-                runState.enemies.Add(new EnemyState
-                {
-                    instanceId = $"enemy_{runState.nextEnemyInstanceSequence++}",
-                    enemyDefId = enemyDef.enemyId,
-                    currentHealth = enemyDef.baseHealth,
-                    currentActionId = actionDef.actionId,
-                    actionTurnsLeft = actionDef.prepTurns
-                });
-            }
+                instanceId = $"situation_{runState.nextSituationInstanceSequence++}",
+                situationDefId = def.situationId,
+                currentRequirement = Math.Max(1, def.baseRequirement),
+                deadlineTurnsLeft = Math.Max(1, def.baseDeadlineTurns)
+            });
         }
-    }
-
-    static ActionDef PickWeightedAction(IReadOnlyList<ActionDef> actionPool, Random rng)
-    {
-        if (actionPool == null || actionPool.Count == 0)
-            throw new InvalidOperationException("action_pool is empty.");
-
-        int totalWeight = 0;
-        for (int i = 0; i < actionPool.Count; i++)
-        {
-            var action = actionPool[i];
-            if (action == null)
-                continue;
-
-            totalWeight += Math.Max(0, action.weight);
-        }
-
-        if (totalWeight <= 0)
-            throw new InvalidOperationException("action_pool total weight must be > 0.");
-
-        int roll = rng.Next(1, totalWeight + 1);
-        int cumulative = 0;
-
-        for (int i = 0; i < actionPool.Count; i++)
-        {
-            var action = actionPool[i];
-            if (action == null)
-                continue;
-
-            cumulative += Math.Max(0, action.weight);
-            if (roll <= cumulative)
-                return action;
-        }
-
-        throw new InvalidOperationException("Failed to pick weighted action.");
     }
 }
-

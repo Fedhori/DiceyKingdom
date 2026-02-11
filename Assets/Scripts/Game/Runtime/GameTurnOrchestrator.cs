@@ -10,7 +10,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     [SerializeField] int fixedSeed = 1001;
 
     GameStaticDataSet staticData;
-    Dictionary<string, EnemyDef> enemyDefById;
+    Dictionary<string, SituationDef> situationDefById;
     Dictionary<string, AdventurerDef> adventurerDefById;
     Dictionary<string, SkillDef> skillDefById;
     System.Random rng;
@@ -120,13 +120,13 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return true;
     }
 
-    public bool TryAssignAdventurer(string adventurerInstanceId, string enemyInstanceId)
+    public bool TryAssignAdventurer(string adventurerInstanceId, string situationInstanceId)
     {
         if (!CanAcceptTargetingInput())
             return false;
         if (string.IsNullOrWhiteSpace(adventurerInstanceId))
             return false;
-        if (string.IsNullOrWhiteSpace(enemyInstanceId))
+        if (string.IsNullOrWhiteSpace(situationInstanceId))
             return false;
         if (!string.Equals(
                 adventurerInstanceId,
@@ -142,21 +142,21 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         if (adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
             return false;
 
-        var enemy = FindEnemyState(enemyInstanceId);
-        if (enemy == null)
+        var situation = FindSituationState(situationInstanceId);
+        if (situation == null)
             return false;
 
-        adventurer.assignedEnemyInstanceId = enemy.instanceId;
+        adventurer.assignedSituationInstanceId = situation.instanceId;
         int attackValue = SumDice(adventurer.rolledDiceValues);
         if (attackValue > 0)
         {
-            ApplyEnemyHealthDelta(
-                enemy.instanceId,
+            ApplySituationRequirementDelta(
+                situation.instanceId,
                 -attackValue,
-                markAssignedAsConsumedOnKill: false);
+                markAssignedAsConsumedOnSuccess: false);
         }
 
-        adventurer.assignedEnemyInstanceId = null;
+        adventurer.assignedSituationInstanceId = null;
         adventurer.actionConsumed = true;
         RunState.turn.processingAdventurerInstanceId = string.Empty;
 
@@ -246,7 +246,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     public bool TryUseSkill(
         string skillDefId,
         string selectedAdventurerInstanceId = null,
-        string selectedEnemyInstanceId = null,
+        string selectedSituationInstanceId = null,
         int selectedDieIndex = -1)
     {
         if (!CanAcceptSkillInput())
@@ -274,10 +274,9 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         }
 
         var context = new EffectTargetContext(
-            selectedEnemyInstanceId,
+            selectedSituationInstanceId,
             selectedAdventurerInstanceId,
-            selectedDieIndex,
-            null);
+            selectedDieIndex);
 
         if (!TryApplyEffectBundle(skillDef.effectBundle, context))
             return false;
@@ -290,7 +289,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     public bool TryUseSkillBySlotIndex(
         int skillSlotIndex,
         string selectedAdventurerInstanceId = null,
-        string selectedEnemyInstanceId = null,
+        string selectedSituationInstanceId = null,
         int selectedDieIndex = -1)
     {
         if (RunState?.skillCooldowns == null)
@@ -305,7 +304,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return TryUseSkill(
             cooldown.skillDefId,
             selectedAdventurerInstanceId,
-            selectedEnemyInstanceId,
+            selectedSituationInstanceId,
             selectedDieIndex);
     }
 
@@ -329,6 +328,22 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             return false;
 
         return CanUseSkillInPhase(skillDef, RunState.turn.phase);
+    }
+
+    public bool SkillRequiresSituationTargetBySlotIndex(int skillSlotIndex)
+    {
+        if (RunState?.skillCooldowns == null)
+            return false;
+        if (skillSlotIndex < 0 || skillSlotIndex >= RunState.skillCooldowns.Count)
+            return false;
+
+        var cooldown = RunState.skillCooldowns[skillSlotIndex];
+        if (cooldown == null || string.IsNullOrWhiteSpace(cooldown.skillDefId))
+            return false;
+        if (!skillDefById.TryGetValue(cooldown.skillDefId, out var skillDef))
+            return false;
+
+        return SkillRequiresSituationTarget(skillDef);
     }
 
     public void AdvanceToDecisionPoint()
@@ -391,7 +406,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     {
         RunState.turn.processingAdventurerInstanceId = string.Empty;
 
-        bool spawned = GameRunBootstrap.TrySpawnStagePresetIfBoardCleared(RunState, staticData, rng);
+        bool spawned = GameRunBootstrap.TrySpawnPeriodicSituations(RunState, staticData, rng);
         if (spawned)
             StageSpawned?.Invoke(RunState.stage.stageNumber, RunState.stage.activePresetId);
 
@@ -405,7 +420,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             return;
 
         adventurer.rolledDiceValues.Clear();
-        adventurer.assignedEnemyInstanceId = null;
+        adventurer.assignedSituationInstanceId = null;
 
         if (!adventurerDefById.TryGetValue(adventurer.adventurerDefId, out var adventurerDef))
             return;
@@ -417,61 +432,47 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     void ExecuteSettlementPhase()
     {
-        var enemyOrder = new List<string>(RunState.enemies.Count);
-        for (int i = 0; i < RunState.enemies.Count; i++)
+        var situationOrder = new List<string>(RunState.situations.Count);
+        for (int i = 0; i < RunState.situations.Count; i++)
         {
-            var enemy = RunState.enemies[i];
-            if (enemy == null)
+            var situation = RunState.situations[i];
+            if (situation == null)
                 continue;
 
-            enemyOrder.Add(enemy.instanceId);
+            situationOrder.Add(situation.instanceId);
         }
 
-        for (int enemyOrderIndex = 0; enemyOrderIndex < enemyOrder.Count; enemyOrderIndex++)
+        for (int i = 0; i < situationOrder.Count; i++)
         {
-            string enemyInstanceId = enemyOrder[enemyOrderIndex];
-            var enemy = FindEnemyState(enemyInstanceId);
-            if (enemy == null)
+            string situationInstanceId = situationOrder[i];
+            var situation = FindSituationState(situationInstanceId);
+            if (situation == null)
+                continue;
+            if (situation.currentRequirement <= 0)
                 continue;
 
-            enemy.actionTurnsLeft -= 1;
-            if (enemy.actionTurnsLeft > 0)
+            situation.deadlineTurnsLeft -= 1;
+            if (situation.deadlineTurnsLeft > 0)
                 continue;
 
-            if (!enemyDefById.TryGetValue(enemy.enemyDefId, out var enemyDef))
-                continue;
-
-            var currentAction = FindActionDef(enemyDef, enemy.currentActionId);
-            if (currentAction == null)
+            if (!situationDefById.TryGetValue(situation.situationDefId, out var situationDef))
             {
-                var fallbackAction = PickNextActionDef(enemyDef, previousActionId: null);
-                if (fallbackAction == null)
-                    continue;
-
-                enemy.currentActionId = fallbackAction.actionId;
-                enemy.actionTurnsLeft = Math.Max(1, fallbackAction.prepTurns);
+                RemoveSituationState(situation.instanceId);
+                ClearAdventurerAssignmentsForSituation(situation.instanceId, markAssignedAsConsumed: false);
                 continue;
             }
 
             var context = new EffectTargetContext(
-                selectedEnemyInstanceId: enemy.instanceId,
+                selectedSituationInstanceId: situation.instanceId,
                 selectedAdventurerInstanceId: null,
-                selectedDieIndex: -1,
-                actionOwnerEnemyInstanceId: enemy.instanceId);
-            TryApplyEffectBundle(currentAction.onResolve, context);
+                selectedDieIndex: -1);
+            TryApplyEffectBundle(situationDef.failureEffect, context);
 
-            enemy = FindEnemyState(enemyInstanceId);
-            if (enemy == null)
-                continue;
-            if (!enemyDefById.TryGetValue(enemy.enemyDefId, out enemyDef))
+            situation = FindSituationState(situationInstanceId);
+            if (situation == null)
                 continue;
 
-            var nextAction = PickNextActionDef(enemyDef, currentAction.actionId);
-            if (nextAction == null)
-                continue;
-
-            enemy.currentActionId = nextAction.actionId;
-            enemy.actionTurnsLeft = Math.Max(1, nextAction.prepTurns);
+            HandleSituationFailurePostEffect(situation, situationDef);
         }
 
         SetPhase(TurnPhase.EndTurn);
@@ -626,7 +627,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             if (adventurer == null || adventurer.actionConsumed)
                 continue;
 
-            adventurer.assignedEnemyInstanceId = null;
+            adventurer.assignedSituationInstanceId = null;
             adventurer.actionConsumed = true;
         }
 
@@ -691,7 +692,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             {
                 "stability_delta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack,
                 "gold_delta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack,
-                "enemy_health_delta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.TargetAndAttack,
+                "situation_requirement_delta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.TargetAndAttack,
                 "die_face_delta" => phase == TurnPhase.Adjustment,
                 "reroll_adventurer_dice" => phase == TurnPhase.Adjustment,
                 _ => false
@@ -702,6 +703,29 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         }
 
         return true;
+    }
+
+    static bool SkillRequiresSituationTarget(SkillDef skillDef)
+    {
+        if (skillDef?.effectBundle?.effects == null)
+            return false;
+
+        for (int i = 0; i < skillDef.effectBundle.effects.Count; i++)
+        {
+            var effect = skillDef.effectBundle.effects[i];
+            if (effect == null || string.IsNullOrWhiteSpace(effect.effectType))
+                continue;
+
+            if (string.Equals(
+                    effect.effectType.Trim(),
+                    "situation_requirement_delta",
+                    StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     bool TryApplyEffectBundle(EffectBundle effectBundle, EffectTargetContext context)
@@ -731,8 +755,8 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             return TryApplyStabilityDelta(value);
         if (effectType == "gold_delta")
             return TryApplyGoldDelta(value);
-        if (effectType == "enemy_health_delta")
-            return TryApplyEnemyHealthDeltaEffect(effect, context, value);
+        if (effectType == "situation_requirement_delta")
+            return TryApplySituationRequirementDeltaEffect(effect, context, value);
         if (effectType == "die_face_delta")
             return TryApplyDieFaceDeltaEffect(effect, context, value);
         if (effectType == "reroll_adventurer_dice")
@@ -755,25 +779,22 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return true;
     }
 
-    bool TryApplyEnemyHealthDeltaEffect(EffectSpec effect, EffectTargetContext context, int delta)
+    bool TryApplySituationRequirementDeltaEffect(EffectSpec effect, EffectTargetContext context, int delta)
     {
         string targetMode = GetParamString(effect.effectParams, "target_mode");
-        string targetEnemyInstanceId = targetMode switch
-        {
-            "selected_enemy" => context.selectedEnemyInstanceId,
-            "action_owner_enemy" => context.actionOwnerEnemyInstanceId,
-            _ => null
-        };
-
-        if (string.IsNullOrWhiteSpace(targetEnemyInstanceId))
-            return false;
-        if (FindEnemyState(targetEnemyInstanceId) == null)
+        if (!string.Equals(targetMode, "selected_situation", StringComparison.Ordinal))
             return false;
 
-        ApplyEnemyHealthDelta(
-            targetEnemyInstanceId,
+        string targetSituationInstanceId = context.selectedSituationInstanceId;
+        if (string.IsNullOrWhiteSpace(targetSituationInstanceId))
+            return false;
+        if (FindSituationState(targetSituationInstanceId) == null)
+            return false;
+
+        ApplySituationRequirementDelta(
+            targetSituationInstanceId,
             delta,
-            markAssignedAsConsumedOnKill: false);
+            markAssignedAsConsumedOnSuccess: false);
         return true;
     }
 
@@ -861,63 +882,106 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return false;
     }
 
-    bool ApplyEnemyHealthDelta(
-        string enemyInstanceId,
+    bool ApplySituationRequirementDelta(
+        string situationInstanceId,
         int delta,
-        bool markAssignedAsConsumedOnKill)
+        bool markAssignedAsConsumedOnSuccess)
     {
-        var enemy = FindEnemyState(enemyInstanceId);
-        if (enemy == null)
+        var situation = FindSituationState(situationInstanceId);
+        if (situation == null)
             return false;
 
-        int next = enemy.currentHealth + delta;
-        if (next < 0)
-            next = 0;
-        enemy.currentHealth = next;
-
-        if (enemy.currentHealth > 0)
+        situation.currentRequirement += delta;
+        if (situation.currentRequirement > 0)
             return true;
 
-        HandleEnemyKilled(enemy.instanceId, markAssignedAsConsumedOnKill);
+        HandleSituationSucceeded(situation.instanceId, markAssignedAsConsumedOnSuccess);
         return false;
     }
 
-    void HandleEnemyKilled(
-        string enemyInstanceId,
-        bool markAssignedAsConsumedOnKill)
+    void HandleSituationSucceeded(
+        string situationInstanceId,
+        bool markAssignedAsConsumedOnSuccess)
     {
-        var enemy = FindEnemyState(enemyInstanceId);
-        if (enemy == null)
+        var situation = FindSituationState(situationInstanceId);
+        if (situation == null)
             return;
 
-        RemoveEnemyState(enemy.instanceId);
+        situationDefById.TryGetValue(situation.situationDefId, out var situationDef);
 
+        RemoveSituationState(situation.instanceId);
+        ClearAdventurerAssignmentsForSituation(situation.instanceId, markAssignedAsConsumedOnSuccess);
+
+        if (situationDef == null)
+            return;
+
+        var context = new EffectTargetContext(
+            selectedSituationInstanceId: situation.instanceId,
+            selectedAdventurerInstanceId: null,
+            selectedDieIndex: -1);
+        TryApplyEffectBundle(situationDef.successReward, context);
+    }
+
+    void HandleSituationFailurePostEffect(SituationState situation, SituationDef situationDef)
+    {
+        if (situation == null)
+            return;
+
+        string mode = NormalizeFailurePersistMode(situationDef?.failurePersistMode);
+        if (string.Equals(mode, "reset_deadline", StringComparison.Ordinal))
+        {
+            int baseDeadline = situationDef != null
+                ? Math.Max(1, situationDef.baseDeadlineTurns)
+                : 1;
+            situation.deadlineTurnsLeft = baseDeadline;
+            return;
+        }
+
+        RemoveSituationState(situation.instanceId);
+        ClearAdventurerAssignmentsForSituation(situation.instanceId, markAssignedAsConsumed: false);
+    }
+
+    static string NormalizeFailurePersistMode(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return "remove";
+
+        string mode = raw.Trim();
+        if (string.Equals(mode, "remove", StringComparison.OrdinalIgnoreCase))
+            return "remove";
+        if (string.Equals(mode, "reset_deadline", StringComparison.OrdinalIgnoreCase))
+            return "reset_deadline";
+        return "remove";
+    }
+
+    void RemoveSituationState(string situationInstanceId)
+    {
+        for (int i = RunState.situations.Count - 1; i >= 0; i--)
+        {
+            var situation = RunState.situations[i];
+            if (situation == null)
+                continue;
+            if (!string.Equals(situation.instanceId, situationInstanceId, StringComparison.Ordinal))
+                continue;
+
+            RunState.situations.RemoveAt(i);
+            break;
+        }
+    }
+
+    void ClearAdventurerAssignmentsForSituation(string situationInstanceId, bool markAssignedAsConsumed)
+    {
         for (int i = 0; i < RunState.adventurers.Count; i++)
         {
             var adventurer = RunState.adventurers[i];
             if (adventurer == null)
                 continue;
-            if (!string.Equals(adventurer.assignedEnemyInstanceId, enemyInstanceId, StringComparison.Ordinal))
+            if (!string.Equals(adventurer.assignedSituationInstanceId, situationInstanceId, StringComparison.Ordinal))
                 continue;
 
-            adventurer.assignedEnemyInstanceId = null;
-            if (markAssignedAsConsumedOnKill)
+            adventurer.assignedSituationInstanceId = null;
+            if (markAssignedAsConsumed)
                 adventurer.actionConsumed = true;
-        }
-    }
-
-    void RemoveEnemyState(string enemyInstanceId)
-    {
-        for (int i = RunState.enemies.Count - 1; i >= 0; i--)
-        {
-            var enemy = RunState.enemies[i];
-            if (enemy == null)
-                continue;
-            if (!string.Equals(enemy.instanceId, enemyInstanceId, StringComparison.Ordinal))
-                continue;
-
-            RunState.enemies.RemoveAt(i);
-            break;
         }
     }
 
@@ -937,17 +1001,17 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return null;
     }
 
-    EnemyState FindEnemyState(string enemyInstanceId)
+    SituationState FindSituationState(string situationInstanceId)
     {
-        for (int i = 0; i < RunState.enemies.Count; i++)
+        for (int i = 0; i < RunState.situations.Count; i++)
         {
-            var enemy = RunState.enemies[i];
-            if (enemy == null)
+            var situation = RunState.situations[i];
+            if (situation == null)
                 continue;
-            if (!string.Equals(enemy.instanceId, enemyInstanceId, StringComparison.Ordinal))
+            if (!string.Equals(situation.instanceId, situationInstanceId, StringComparison.Ordinal))
                 continue;
 
-            return enemy;
+            return situation;
         }
 
         return null;
@@ -1063,19 +1127,19 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     void BuildDefinitionLookups(GameStaticDataSet dataSet)
     {
-        enemyDefById = new Dictionary<string, EnemyDef>(StringComparer.Ordinal);
+        situationDefById = new Dictionary<string, SituationDef>(StringComparer.Ordinal);
         adventurerDefById = new Dictionary<string, AdventurerDef>(StringComparer.Ordinal);
         skillDefById = new Dictionary<string, SkillDef>(StringComparer.Ordinal);
 
-        if (dataSet?.enemyDefs != null)
+        if (dataSet?.situationDefs != null)
         {
-            for (int i = 0; i < dataSet.enemyDefs.Count; i++)
+            for (int i = 0; i < dataSet.situationDefs.Count; i++)
             {
-                var def = dataSet.enemyDefs[i];
-                if (def == null || string.IsNullOrWhiteSpace(def.enemyId))
+                var def = dataSet.situationDefs[i];
+                if (def == null || string.IsNullOrWhiteSpace(def.situationId))
                     continue;
 
-                enemyDefById[def.enemyId] = def;
+                situationDefById[def.situationId] = def;
             }
         }
 
@@ -1131,102 +1195,20 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return value < 0 ? 0 : value;
     }
 
-    ActionDef FindActionDef(EnemyDef enemyDef, string actionId)
-    {
-        if (enemyDef?.actionPool == null)
-            return null;
-        if (string.IsNullOrWhiteSpace(actionId))
-            return null;
-
-        for (int i = 0; i < enemyDef.actionPool.Count; i++)
-        {
-            var action = enemyDef.actionPool[i];
-            if (action == null)
-                continue;
-            if (!string.Equals(action.actionId, actionId, StringComparison.Ordinal))
-                continue;
-
-            return action;
-        }
-
-        return null;
-    }
-
-    ActionDef PickNextActionDef(EnemyDef enemyDef, string previousActionId)
-    {
-        if (enemyDef?.actionPool == null || enemyDef.actionPool.Count == 0)
-            return null;
-
-        var candidates = new List<ActionDef>(enemyDef.actionPool.Count);
-        int totalWeight = 0;
-
-        for (int i = 0; i < enemyDef.actionPool.Count; i++)
-        {
-            var action = enemyDef.actionPool[i];
-            if (action == null)
-                continue;
-            if (action.weight <= 0)
-                continue;
-            if (!string.IsNullOrWhiteSpace(previousActionId) &&
-                string.Equals(action.actionId, previousActionId, StringComparison.Ordinal) &&
-                enemyDef.actionPool.Count > 1)
-            {
-                continue;
-            }
-
-            candidates.Add(action);
-            totalWeight += action.weight;
-        }
-
-        if (candidates.Count == 0)
-        {
-            for (int i = 0; i < enemyDef.actionPool.Count; i++)
-            {
-                var action = enemyDef.actionPool[i];
-                if (action == null)
-                    continue;
-                if (action.weight <= 0)
-                    continue;
-
-                candidates.Add(action);
-                totalWeight += action.weight;
-            }
-        }
-
-        if (totalWeight <= 0 || candidates.Count == 0)
-            return null;
-
-        int roll = rng.Next(1, totalWeight + 1);
-        int cumulative = 0;
-
-        for (int i = 0; i < candidates.Count; i++)
-        {
-            var action = candidates[i];
-            cumulative += action.weight;
-            if (roll <= cumulative)
-                return action;
-        }
-
-        return candidates[candidates.Count - 1];
-    }
-
     readonly struct EffectTargetContext
     {
-        public readonly string selectedEnemyInstanceId;
+        public readonly string selectedSituationInstanceId;
         public readonly string selectedAdventurerInstanceId;
         public readonly int selectedDieIndex;
-        public readonly string actionOwnerEnemyInstanceId;
 
         public EffectTargetContext(
-            string selectedEnemyInstanceId,
+            string selectedSituationInstanceId,
             string selectedAdventurerInstanceId,
-            int selectedDieIndex,
-            string actionOwnerEnemyInstanceId)
+            int selectedDieIndex)
         {
-            this.selectedEnemyInstanceId = selectedEnemyInstanceId;
+            this.selectedSituationInstanceId = selectedSituationInstanceId;
             this.selectedAdventurerInstanceId = selectedAdventurerInstanceId;
             this.selectedDieIndex = selectedDieIndex;
-            this.actionOwnerEnemyInstanceId = actionOwnerEnemyInstanceId;
         }
     }
 }

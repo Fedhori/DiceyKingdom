@@ -4,23 +4,23 @@ public enum AssignmentResult
 {
     Success = 0,
     AdventurerNotFound = 1,
-    EnemyNotFound = 2,
+    SituationNotFound = 2,
     AdventurerUnavailable = 3
 }
 
 public static class GameAssignmentService
 {
-    public static AssignmentResult AssignAdventurerToEnemy(
+    public static AssignmentResult AssignAdventurerToSituation(
         GameRunState runState,
         string adventurerInstanceId,
-        string enemyInstanceId)
+        string situationInstanceId)
     {
         if (runState == null)
             throw new ArgumentNullException(nameof(runState));
         if (string.IsNullOrWhiteSpace(adventurerInstanceId))
             return AssignmentResult.AdventurerNotFound;
-        if (string.IsNullOrWhiteSpace(enemyInstanceId))
-            return AssignmentResult.EnemyNotFound;
+        if (string.IsNullOrWhiteSpace(situationInstanceId))
+            return AssignmentResult.SituationNotFound;
 
         var adventurer = FindAdventurer(runState, adventurerInstanceId);
         if (adventurer == null)
@@ -28,16 +28,16 @@ public static class GameAssignmentService
         if (adventurer.actionConsumed)
             return AssignmentResult.AdventurerUnavailable;
 
-        var enemy = FindEnemy(runState, enemyInstanceId);
-        if (enemy == null)
-            return AssignmentResult.EnemyNotFound;
+        var situation = FindSituation(runState, situationInstanceId);
+        if (situation == null)
+            return AssignmentResult.SituationNotFound;
 
-        RemoveFromAssignedEnemy(runState, adventurer.instanceId, adventurer.assignedEnemyInstanceId);
+        RemoveFromAssignedSituation(runState, adventurer.instanceId, adventurer.assignedSituationInstanceId);
 
-        if (!ContainsAssignedAdventurer(enemy, adventurer.instanceId))
-            enemy.assignedAdventurerIds.Add(adventurer.instanceId);
+        if (!ContainsAssignedAdventurer(situation, adventurer.instanceId))
+            situation.assignedAdventurerIds.Add(adventurer.instanceId);
 
-        adventurer.assignedEnemyInstanceId = enemy.instanceId;
+        adventurer.assignedSituationInstanceId = situation.instanceId;
         return AssignmentResult.Success;
     }
 
@@ -52,8 +52,8 @@ public static class GameAssignmentService
         if (adventurer == null)
             return AssignmentResult.AdventurerNotFound;
 
-        RemoveFromAssignedEnemy(runState, adventurer.instanceId, adventurer.assignedEnemyInstanceId);
-        adventurer.assignedEnemyInstanceId = null;
+        RemoveFromAssignedSituation(runState, adventurer.instanceId, adventurer.assignedSituationInstanceId);
+        adventurer.assignedSituationInstanceId = null;
         return AssignmentResult.Success;
     }
 
@@ -70,7 +70,7 @@ public static class GameAssignmentService
                 continue;
             if (adventurer.actionConsumed)
                 continue;
-            if (!string.IsNullOrWhiteSpace(adventurer.assignedEnemyInstanceId))
+            if (!string.IsNullOrWhiteSpace(adventurer.assignedSituationInstanceId))
                 continue;
 
             count += 1;
@@ -115,54 +115,62 @@ public static class GameAssignmentService
         return null;
     }
 
-    static EnemyState FindEnemy(GameRunState runState, string enemyInstanceId)
+    static SituationState FindSituation(GameRunState runState, string situationInstanceId)
     {
-        for (int i = 0; i < runState.enemies.Count; i++)
+        for (int i = 0; i < runState.situations.Count; i++)
         {
-            var enemy = runState.enemies[i];
-            if (enemy == null)
+            var situation = runState.situations[i];
+            if (situation == null)
                 continue;
-            if (!string.Equals(enemy.instanceId, enemyInstanceId, StringComparison.Ordinal))
+            if (!string.Equals(situation.instanceId, situationInstanceId, StringComparison.Ordinal))
                 continue;
 
-            return enemy;
+            return situation;
         }
 
         return null;
     }
 
-    static bool ContainsAssignedAdventurer(EnemyState enemy, string adventurerInstanceId)
+    static bool ContainsAssignedAdventurer(SituationState situation, string adventurerInstanceId)
     {
-        if (enemy?.assignedAdventurerIds == null)
+        if (situation?.assignedAdventurerIds == null)
             return false;
 
-        for (int i = 0; i < enemy.assignedAdventurerIds.Count; i++)
+        for (int i = 0; i < situation.assignedAdventurerIds.Count; i++)
         {
-            if (string.Equals(enemy.assignedAdventurerIds[i], adventurerInstanceId, StringComparison.Ordinal))
+            if (string.Equals(situation.assignedAdventurerIds[i], adventurerInstanceId, StringComparison.Ordinal))
                 return true;
         }
 
         return false;
     }
 
-    static void RemoveFromAssignedEnemy(
+    static void RemoveFromAssignedSituation(
         GameRunState runState,
         string adventurerInstanceId,
-        string assignedEnemyInstanceId)
+        string assignedSituationInstanceId)
     {
-        if (string.IsNullOrWhiteSpace(assignedEnemyInstanceId))
+        if (string.IsNullOrWhiteSpace(assignedSituationInstanceId))
             return;
 
-        var enemy = FindEnemy(runState, assignedEnemyInstanceId);
-        if (enemy?.assignedAdventurerIds == null)
+        var situation = FindSituation(runState, assignedSituationInstanceId);
+        if (situation?.assignedAdventurerIds == null)
             return;
 
-        for (int i = enemy.assignedAdventurerIds.Count - 1; i >= 0; i--)
+        for (int i = situation.assignedAdventurerIds.Count - 1; i >= 0; i--)
         {
-            if (!string.Equals(enemy.assignedAdventurerIds[i], adventurerInstanceId, StringComparison.Ordinal))
+            if (!string.Equals(situation.assignedAdventurerIds[i], adventurerInstanceId, StringComparison.Ordinal))
                 continue;
 
-            enemy.assignedAdventurerIds.RemoveAt(i);
+            situation.assignedAdventurerIds.RemoveAt(i);
         }
+    }
+
+    public static AssignmentResult AssignAdventurerToEnemy(
+        GameRunState runState,
+        string adventurerInstanceId,
+        string enemyInstanceId)
+    {
+        return AssignAdventurerToSituation(runState, adventurerInstanceId, enemyInstanceId);
     }
 }

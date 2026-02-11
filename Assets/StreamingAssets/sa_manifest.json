@@ -1,26 +1,31 @@
 {
   "appVersion": "1.0",
-  "generatedAt": "2026-02-09 14:14:48",
+  "generatedAt": "2026-02-11 00:00:00",
   "files": [
     {
       "path": "Data/Adventurers.json",
-      "size": 750,
-      "md5": "d33bc4e918b02922adad55c18464bf4f"
+      "size": 782,
+      "md5": "0ac2f05cb571629dd680ee31b1f027d1"
     },
     {
       "path": "Data/Enemies.json",
-      "size": 4189,
-      "md5": "3290daaa33ce2388a70ab65fc08ca84e"
+      "size": 3611,
+      "md5": "07dfcac6490903ae084b9ac993a0bfbe"
     },
     {
       "path": "Data/EnemyStagePresets.json",
-      "size": 922,
-      "md5": "82d43704363b924d45bb897c4cb64bac"
+      "size": 973,
+      "md5": "b04e68b6631a19649ec342ca7bf3df4f"
     },
     {
       "path": "Data/Skills.json",
-      "size": 1366,
-      "md5": "324ae7c94bede571f7112c4e33820675"
+      "size": 1461,
+      "md5": "369ac31648bd2dc20f25cbba570df72a"
+    },
+    {
+      "path": "Data/Situations.json",
+      "size": 2527,
+      "md5": "c27efd6c47ec59bd07ddba179ef8ad43"
     }
   ]
 }

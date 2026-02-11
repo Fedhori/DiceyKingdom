@@ -37,17 +37,17 @@
       }
     },
     {
-      "skill_id": "skill_damage_enemy_two",
-      "name_key": "skill.damage_enemy_two.name",
+      "skill_id": "skill_reduce_situation_requirement_two",
+      "name_key": "skill.reduce_situation_requirement_two.name",
       "cooldown_turns": 2,
       "max_uses_per_turn": 1,
       "effect_bundle": {
         "effects": [
           {
-            "effect_type": "enemy_health_delta",
+            "effect_type": "situation_requirement_delta",
             "value": -2,
             "params": {
-              "target_mode": "selected_enemy"
+              "target_mode": "selected_situation"
             }
           }
         ]

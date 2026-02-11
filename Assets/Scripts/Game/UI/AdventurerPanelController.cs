@@ -531,7 +531,7 @@ public sealed class AdventurerPanelController : MonoBehaviour
         {
             "stability_delta" => $"Stability {FormatSignedValue(value)}",
             "gold_delta" => $"Gold {FormatSignedValue(value)}",
-            "enemy_health_delta" => $"Enemy HP {FormatSignedValue(value)}",
+            "situation_requirement_delta" => $"Req {FormatSignedValue(value)}",
             "die_face_delta" => $"Die {FormatSignedValue(value)}",
             "reroll_adventurer_dice" => "Reroll Dice",
             _ => value == 0

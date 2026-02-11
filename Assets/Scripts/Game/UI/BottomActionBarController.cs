@@ -48,6 +48,9 @@ public sealed class BottomActionBarController : MonoBehaviour
     void OnDisable()
     {
         UnsubscribeEvents();
+
+        if (SkillTargetingSession.IsFor(orchestrator))
+            SkillTargetingSession.Cancel();
     }
 
     void Update()
@@ -99,6 +102,7 @@ public sealed class BottomActionBarController : MonoBehaviour
         if (contentRoot == null)
             return;
 
+        EnsureTargetingSessionValidity();
         RefreshSkillSlots();
         RefreshCommitButton();
     }
@@ -130,10 +134,11 @@ public sealed class BottomActionBarController : MonoBehaviour
 
             bool baseUsable = orchestrator != null && orchestrator.CanUseSkillBySlotIndex(index);
             bool canQuickCast = baseUsable && CanQuickCastWithoutAdditionalTarget(cooldown.skillDefId);
+            bool isTargetingThisSlot = SkillTargetingSession.IsFor(orchestrator, index);
 
-            slot.button.interactable = canQuickCast;
-            slot.statusText.text = BuildSkillStatusText(cooldown, baseUsable, canQuickCast);
-            slot.background.color = ResolveSkillSlotColor(cooldown, baseUsable, canQuickCast);
+            slot.button.interactable = baseUsable;
+            slot.statusText.text = BuildSkillStatusText(cooldown, baseUsable, canQuickCast, isTargetingThisSlot);
+            slot.background.color = ResolveSkillSlotColor(cooldown, baseUsable, canQuickCast, isTargetingThisSlot);
         }
     }
 
@@ -386,7 +391,28 @@ public sealed class BottomActionBarController : MonoBehaviour
         if (orchestrator == null)
             return;
 
-        orchestrator.TryUseSkillBySlotIndex(skillSlotIndex);
+        var cooldown = GetCooldownBySlotIndex(skillSlotIndex);
+        if (cooldown == null || string.IsNullOrWhiteSpace(cooldown.skillDefId))
+            return;
+        if (!orchestrator.CanUseSkillBySlotIndex(skillSlotIndex))
+            return;
+
+        bool canQuickCast = CanQuickCastWithoutAdditionalTarget(cooldown.skillDefId);
+        if (canQuickCast)
+        {
+            bool used = orchestrator.TryUseSkillBySlotIndex(skillSlotIndex);
+            if (used && SkillTargetingSession.IsFor(orchestrator, skillSlotIndex))
+                SkillTargetingSession.Cancel();
+            return;
+        }
+
+        if (SkillTargetingSession.IsFor(orchestrator, skillSlotIndex))
+        {
+            SkillTargetingSession.Cancel();
+            return;
+        }
+
+        SkillTargetingSession.Begin(orchestrator, skillSlotIndex);
     }
 
     void OnCommitButtonPressed()
@@ -436,7 +462,7 @@ public sealed class BottomActionBarController : MonoBehaviour
                 return false;
 
             string effectType = effect.effectType.Trim();
-            if (effectType == "enemy_health_delta")
+            if (effectType == "situation_requirement_delta")
                 return false;
 
             if (effectType == "die_face_delta")
@@ -457,10 +483,16 @@ public sealed class BottomActionBarController : MonoBehaviour
         return true;
     }
 
-    string BuildSkillStatusText(SkillCooldownState cooldown, bool baseUsable, bool canQuickCast)
+    string BuildSkillStatusText(
+        SkillCooldownState cooldown,
+        bool baseUsable,
+        bool canQuickCast,
+        bool isTargetingThisSlot)
     {
         if (cooldown == null)
             return "-";
+        if (isTargetingThisSlot)
+            return "Select Situation";
         if (cooldown.cooldownRemainingTurns > 0)
             return $"CD {cooldown.cooldownRemainingTurns}";
         if (cooldown.usedThisTurn)
@@ -472,10 +504,16 @@ public sealed class BottomActionBarController : MonoBehaviour
         return "Blocked";
     }
 
-    Color ResolveSkillSlotColor(SkillCooldownState cooldown, bool baseUsable, bool canQuickCast)
+    Color ResolveSkillSlotColor(
+        SkillCooldownState cooldown,
+        bool baseUsable,
+        bool canQuickCast,
+        bool isTargetingThisSlot)
     {
         if (cooldown == null)
             return slotEmptyColor;
+        if (isTargetingThisSlot)
+            return slotReadyColor;
         if (canQuickCast)
             return slotReadyColor;
         if (cooldown.cooldownRemainingTurns > 0 || cooldown.usedThisTurn)
@@ -483,6 +521,29 @@ public sealed class BottomActionBarController : MonoBehaviour
         if (baseUsable)
             return slotBlockedColor;
         return slotCooldownColor;
+    }
+
+    void EnsureTargetingSessionValidity()
+    {
+        if (!SkillTargetingSession.IsFor(orchestrator))
+            return;
+
+        int slotIndex = SkillTargetingSession.ActiveSkillSlotIndex;
+        var cooldown = GetCooldownBySlotIndex(slotIndex);
+        if (cooldown == null || string.IsNullOrWhiteSpace(cooldown.skillDefId))
+        {
+            SkillTargetingSession.Cancel();
+            return;
+        }
+
+        if (!orchestrator.CanUseSkillBySlotIndex(slotIndex))
+        {
+            SkillTargetingSession.Cancel();
+            return;
+        }
+
+        if (CanQuickCastWithoutAdditionalTarget(cooldown.skillDefId))
+            SkillTargetingSession.Cancel();
     }
 
     bool CanRequestCommitByPhase()
