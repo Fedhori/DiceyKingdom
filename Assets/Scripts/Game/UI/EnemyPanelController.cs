@@ -8,6 +8,7 @@ public sealed class EnemyPanelController : MonoBehaviour
 {
     [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] RectTransform contentRoot;
+    [SerializeField] float cardMinWidth = 270f;
     [SerializeField] float cardHeight = 192f;
     [SerializeField] Color cardColor = new(0.32f, 0.18f, 0.18f, 0.94f);
     [SerializeField] Color lowRequirementCardColor = new(0.45f, 0.16f, 0.16f, 0.98f);
@@ -26,7 +27,7 @@ public sealed class EnemyPanelController : MonoBehaviour
     {
         TryResolveOrchestrator();
         TryResolveContentRoot();
-        EnsureContentLayout();
+        ValidateEditorLayoutSetup();
         LoadSituationDefsIfNeeded();
     }
 
@@ -149,7 +150,7 @@ public sealed class EnemyPanelController : MonoBehaviour
     CardWidgets CreateCard(int slotIndex)
     {
         var cardObject = new GameObject(
-            $"EnemyCard_{slotIndex + 1}",
+            $"SituationCard_{slotIndex + 1}",
             typeof(RectTransform),
             typeof(Image),
             typeof(LayoutElement));
@@ -163,7 +164,10 @@ public sealed class EnemyPanelController : MonoBehaviour
         cardImage.raycastTarget = true;
 
         var layout = cardObject.GetComponent<LayoutElement>();
+        layout.minWidth = cardMinWidth;
+        layout.preferredWidth = cardMinWidth;
         layout.preferredHeight = cardHeight;
+        layout.minHeight = cardHeight;
         layout.flexibleWidth = 1f;
 
         var dropTarget = cardObject.AddComponent<EnemyDropTarget>();
@@ -189,6 +193,8 @@ public sealed class EnemyPanelController : MonoBehaviour
         nameText.rectTransform.pivot = new Vector2(0f, 0.5f);
         nameText.rectTransform.offsetMin = new Vector2(50f, 0f);
         nameText.rectTransform.offsetMax = new Vector2(-10f, 0f);
+        nameText.enableWordWrapping = false;
+        nameText.overflowMode = TextOverflowModes.Ellipsis;
 
         var hpText = CreateLabel("HpText", cardRect, 31f, FontStyles.Bold, TextAlignmentOptions.TopLeft, requirementHighlightColor);
         hpText.rectTransform.anchorMin = new Vector2(0f, 1f);
@@ -196,6 +202,8 @@ public sealed class EnemyPanelController : MonoBehaviour
         hpText.rectTransform.pivot = new Vector2(0.5f, 1f);
         hpText.rectTransform.anchoredPosition = new Vector2(0f, -46f);
         hpText.rectTransform.sizeDelta = new Vector2(-24f, 36f);
+        hpText.enableWordWrapping = false;
+        hpText.overflowMode = TextOverflowModes.Ellipsis;
 
         var actionText = CreateLabel("ActionText", cardRect, 20f, FontStyles.Bold, TextAlignmentOptions.TopLeft, successHighlightColor);
         actionText.rectTransform.anchorMin = new Vector2(0f, 1f);
@@ -203,6 +211,8 @@ public sealed class EnemyPanelController : MonoBehaviour
         actionText.rectTransform.pivot = new Vector2(0.5f, 1f);
         actionText.rectTransform.anchoredPosition = new Vector2(0f, -86f);
         actionText.rectTransform.sizeDelta = new Vector2(-24f, 30f);
+        actionText.enableWordWrapping = false;
+        actionText.overflowMode = TextOverflowModes.Ellipsis;
 
         var actionEffectText = CreateLabel("ActionEffectText", cardRect, 20f, FontStyles.Bold, TextAlignmentOptions.TopLeft, failureHighlightColor);
         actionEffectText.rectTransform.anchorMin = new Vector2(0f, 1f);
@@ -210,6 +220,8 @@ public sealed class EnemyPanelController : MonoBehaviour
         actionEffectText.rectTransform.pivot = new Vector2(0.5f, 1f);
         actionEffectText.rectTransform.anchoredPosition = new Vector2(0f, -116f);
         actionEffectText.rectTransform.sizeDelta = new Vector2(-24f, 30f);
+        actionEffectText.enableWordWrapping = false;
+        actionEffectText.overflowMode = TextOverflowModes.Ellipsis;
 
         var prepBadgeObject = new GameObject("PrepBadge", typeof(RectTransform), typeof(Image));
         prepBadgeObject.layer = LayerMask.NameToLayer("UI");
@@ -237,6 +249,8 @@ public sealed class EnemyPanelController : MonoBehaviour
         targetHintText.rectTransform.pivot = new Vector2(0.5f, 0f);
         targetHintText.rectTransform.anchoredPosition = new Vector2(0f, 8f);
         targetHintText.rectTransform.sizeDelta = new Vector2(-24f, 26f);
+        targetHintText.enableWordWrapping = false;
+        targetHintText.overflowMode = TextOverflowModes.Ellipsis;
 
         slotText.text = $"S{slotIndex + 1}";
         prepText.text = "D -";
@@ -408,21 +422,23 @@ public sealed class EnemyPanelController : MonoBehaviour
         contentRoot = transform as RectTransform;
     }
 
-    void EnsureContentLayout()
+    void ValidateEditorLayoutSetup()
     {
         if (contentRoot == null)
             return;
 
-        var layout = contentRoot.GetComponent<VerticalLayoutGroup>();
-        if (layout == null)
-        layout = contentRoot.gameObject.AddComponent<VerticalLayoutGroup>();
-        layout.childAlignment = TextAnchor.UpperLeft;
-        layout.childControlWidth = true;
-        layout.childControlHeight = true;
-        layout.childForceExpandWidth = true;
-        layout.childForceExpandHeight = false;
-        layout.spacing = 10f;
-        layout.padding = new RectOffset(12, 12, 12, 12);
+        if (contentRoot.GetComponent<GridLayoutGroup>() == null &&
+            contentRoot.GetComponent<HorizontalLayoutGroup>() == null)
+        {
+            Debug.LogWarning(
+                "[EnemyPanelController] contentRoot requires a LayoutGroup configured in the editor.");
+        }
+
+        if (contentRoot.GetComponent<RectMask2D>() == null)
+        {
+            Debug.LogWarning(
+                "[EnemyPanelController] contentRoot requires RectMask2D configured in the editor.");
+        }
     }
 
     void LoadSituationDefsIfNeeded()

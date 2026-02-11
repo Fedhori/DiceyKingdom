@@ -9,6 +9,7 @@ public sealed class AdventurerPanelController : MonoBehaviour
     [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] RectTransform contentRoot;
     [SerializeField] float cardHeight = 194f;
+    [SerializeField] float cardMinWidth = 210f;
     [SerializeField] Color pendingCardColor = new(0.18f, 0.22f, 0.30f, 0.95f);
     [SerializeField] Color rolledCardColor = new(0.20f, 0.27f, 0.36f, 0.95f);
     [SerializeField] Color consumedCardColor = new(0.13f, 0.16f, 0.20f, 0.85f);
@@ -29,7 +30,7 @@ public sealed class AdventurerPanelController : MonoBehaviour
     {
         TryResolveOrchestrator();
         TryResolveContentRoot();
-        EnsureContentLayout();
+        ValidateEditorLayoutSetup();
         LoadAdventurerDefsIfNeeded();
     }
 
@@ -156,6 +157,8 @@ public sealed class AdventurerPanelController : MonoBehaviour
         cardImage.raycastTarget = true;
 
         var layout = cardObject.GetComponent<LayoutElement>();
+        layout.minWidth = cardMinWidth;
+        layout.preferredWidth = cardMinWidth;
         layout.preferredHeight = cardHeight;
         layout.flexibleWidth = 1f;
 
@@ -579,21 +582,23 @@ public sealed class AdventurerPanelController : MonoBehaviour
         contentRoot = transform as RectTransform;
     }
 
-    void EnsureContentLayout()
+    void ValidateEditorLayoutSetup()
     {
         if (contentRoot == null)
             return;
 
-        var layout = contentRoot.GetComponent<VerticalLayoutGroup>();
-        if (layout == null)
-            layout = contentRoot.gameObject.AddComponent<VerticalLayoutGroup>();
-        layout.childAlignment = TextAnchor.UpperLeft;
-        layout.childControlWidth = true;
-        layout.childControlHeight = true;
-        layout.childForceExpandWidth = true;
-        layout.childForceExpandHeight = false;
-        layout.spacing = 10f;
-        layout.padding = new RectOffset(12, 12, 12, 12);
+        if (contentRoot.GetComponent<GridLayoutGroup>() == null &&
+            contentRoot.GetComponent<HorizontalLayoutGroup>() == null)
+        {
+            Debug.LogWarning(
+                "[AdventurerPanelController] contentRoot requires a LayoutGroup configured in the editor.");
+        }
+
+        if (contentRoot.GetComponent<RectMask2D>() == null)
+        {
+            Debug.LogWarning(
+                "[AdventurerPanelController] contentRoot requires RectMask2D configured in the editor.");
+        }
     }
 
     void LoadAdventurerDefsIfNeeded()

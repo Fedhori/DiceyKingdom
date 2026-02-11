@@ -129,6 +129,8 @@ GameObject:
   m_Component:
   - component: {fileID: 20900711}
   - component: {fileID: 20900712}
+  - component: {fileID: 20900713}
+  - component: {fileID: 20900714}
   m_Layer: 5
   m_Name: RightEnemyPanelRoot
   m_TagString: Untagged
@@ -150,11 +152,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2114596191}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -210, y: -60}
-  m_SizeDelta: {x: 400, y: -220}
-  m_Pivot: {x: 1, y: 0.5}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -146}
+  m_SizeDelta: {x: 1760, y: 320}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &20900712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -169,12 +171,54 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyPanelController
   orchestrator: {fileID: 0}
   contentRoot: {fileID: 0}
-  cardHeight: 158
+  cardMinWidth: 292
+  cardHeight: 192
   cardColor: {r: 0.32, g: 0.18, b: 0.18, a: 0.94}
-  lowHealthCardColor: {r: 0.45, g: 0.16, b: 0.16, a: 0.98}
+  lowRequirementCardColor: {r: 0.45, g: 0.16, b: 0.16, a: 0.98}
   labelColor: {r: 0.98, g: 0.94, b: 0.93, a: 1}
   subtleLabelColor: {r: 0.88, g: 0.78, b: 0.76, a: 1}
-  prepBadgeColor: {r: 0.94, g: 0.72, b: 0.3, a: 0.95}
+  deadlineBadgeColor: {r: 0.94, g: 0.72, b: 0.3, a: 0.95}
+  requirementHighlightColor: {r: 1, g: 0.92, b: 0.32, a: 1}
+  successHighlightColor: {r: 0.68, g: 0.96, b: 0.74, a: 1}
+  failureHighlightColor: {r: 1, g: 0.66, b: 0.66, a: 1}
+--- !u!114 &20900713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 20900710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
+  m_Padding:
+    m_Left: 12
+    m_Right: 12
+    m_Top: 12
+    m_Bottom: 12
+  m_ChildAlignment: 1
+  m_StartCorner: 0
+  m_StartAxis: 0
+  m_CellSize: {x: 292, y: 192}
+  m_Spacing: {x: 10, y: 10}
+  m_Constraint: 2
+  m_ConstraintCount: 1
+--- !u!114 &20900714
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 20900710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &255186373
 GameObject:
   m_ObjectHideFlags: 0
@@ -185,6 +229,8 @@ GameObject:
   m_Component:
   - component: {fileID: 255186374}
   - component: {fileID: 255186375}
+  - component: {fileID: 255186376}
+  - component: {fileID: 255186377}
   m_Layer: 5
   m_Name: LeftAdventurerPanelRoot
   m_TagString: Untagged
@@ -206,11 +252,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2114596191}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 210, y: -60}
-  m_SizeDelta: {x: 400, y: -220}
-  m_Pivot: {x: 0, y: 0.5}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 0, y: 172}
+  m_SizeDelta: {x: 1760, y: 258}
+  m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &255186375
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -225,14 +271,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AdventurerPanelController
   orchestrator: {fileID: 0}
   contentRoot: {fileID: 0}
-  cardHeight: 172
+  cardHeight: 194
+  cardMinWidth: 220
   pendingCardColor: {r: 0.18, g: 0.22, b: 0.3, a: 0.95}
   rolledCardColor: {r: 0.2, g: 0.27, b: 0.36, a: 0.95}
   consumedCardColor: {r: 0.13, g: 0.16, b: 0.2, a: 0.85}
   labelColor: {r: 0.93, g: 0.96, b: 1, a: 1}
   subtleLabelColor: {r: 0.72, g: 0.8, b: 0.9, a: 1}
+  infoEmphasisColor: {r: 0.86, g: 0.93, b: 1, a: 1}
+  damageHighlightColor: {r: 1, g: 0.88, b: 0.28, a: 1}
+  diceFaceBackgroundColor: {r: 0.94, g: 0.96, b: 1, a: 0.98}
+  diceFaceTextColor: {r: 0.1, g: 0.14, b: 0.2, a: 1}
   rollButtonColor: {r: 0.28, g: 0.46, b: 0.8, a: 1}
   badgeColor: {r: 0.95, g: 0.74, b: 0.24, a: 0.95}
+--- !u!114 &255186376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 255186373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GridLayoutGroup
+  m_Padding:
+    m_Left: 14
+    m_Right: 14
+    m_Top: 14
+    m_Bottom: 14
+  m_ChildAlignment: 4
+  m_StartCorner: 0
+  m_StartAxis: 0
+  m_CellSize: {x: 220, y: 194}
+  m_Spacing: {x: 10, y: 10}
+  m_Constraint: 2
+  m_ConstraintCount: 1
+--- !u!114 &255186377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 255186373}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
