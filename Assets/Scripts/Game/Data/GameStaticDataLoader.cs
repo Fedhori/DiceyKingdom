@@ -1,361 +1,220 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using UnityEngine;
 
 public static class GameStaticDataLoader
 {
-    static readonly JsonSerializerSettings jsonSettings = new JsonSerializerSettings
-    {
-        MissingMemberHandling = MissingMemberHandling.Ignore,
-        NullValueHandling = NullValueHandling.Ignore
-    };
+    public const string EnemiesPath = "Data/Enemies.json";
+    public const string AdventurersPath = "Data/Adventurers.json";
+    public const string SkillsPath = "Data/Skills.json";
+    public const string EnemyStagePresetsPath = "Data/EnemyStagePresets.json";
 
-    static readonly HashSet<string> situationResourceTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    public static List<EnemyDef> LoadEnemyDefs(string relativePath = EnemiesPath)
     {
-        "defense",
-        "stability"
-    };
+        var enemies = ParseCatalogList<EnemyDef>(relativePath, "enemies");
+        ValidateEnemyDefs(enemies, relativePath);
+        return enemies;
+    }
 
-    static readonly HashSet<string> demandTargetModes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    public static List<AdventurerDef> LoadAdventurerDefs(string relativePath = AdventurersPath)
     {
-        "self",
-        "selected_situation",
-        "by_tag",
-        "all_other_situations"
-    };
+        return ParseCatalogList<AdventurerDef>(relativePath, "adventurers");
+    }
 
-    static readonly HashSet<string> deadlineTargetModes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    public static List<SkillDef> LoadSkillDefs(string relativePath = SkillsPath)
     {
-        "self",
-        "selected_situation",
-        "by_tag",
-        "random_other_situation"
-    };
+        return ParseCatalogList<SkillDef>(relativePath, "skills");
+    }
 
-    static readonly HashSet<string> diceUpgradeConditionWhitelist = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    public static List<EnemyStagePresetDef> LoadEnemyStagePresetDefs(
+        IReadOnlyList<EnemyDef> enemyDefs,
+        string relativePath = EnemyStagePresetsPath)
     {
-        "assigned_situation_deadline_lte",
-        "die_face_lte",
-        "die_face_eq",
-        "die_face_gte",
-        "assigned_dice_count_in_situation_gte",
-        "assigned_dice_count_in_situation_lte",
-        "player_defense_lte",
-        "player_defense_gte",
-        "player_stability_lte",
-        "player_stability_gte",
-        "board_order_first",
-        "board_order_last",
-        "on_resolve_success"
-    };
+        var presets = ParseCatalogList<EnemyStagePresetDef>(relativePath, "stage_presets");
+        ValidateEnemyStagePresetDefs(presets, enemyDefs, relativePath);
+        return presets;
+    }
 
-    static readonly HashSet<string> diceUpgradeTriggerWhitelist = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    public static GameStaticDataSet LoadAll()
     {
-        "roll_once_after_roll",
-        "recheck_on_die_face_change"
-    };
+        var enemyDefs = LoadEnemyDefs();
+        return new GameStaticDataSet
+        {
+            enemyDefs = enemyDefs,
+            adventurerDefs = LoadAdventurerDefs(),
+            skillDefs = LoadSkillDefs(),
+            stagePresetDefs = LoadEnemyStagePresetDefs(enemyDefs)
+        };
+    }
 
-    public static bool TryLoadDefault(out GameStaticDataCatalog catalog, out string errorMessage)
+    static List<T> ParseCatalogList<T>(string relativePath, string listKey)
     {
-        catalog = null;
-        errorMessage = string.Empty;
+        string json = SaCache.ReadText(relativePath);
+        if (string.IsNullOrWhiteSpace(json))
+            return new List<T>();
 
+        var token = JToken.Parse(json);
+        if (token.Type == JTokenType.Array)
+            return token.ToObject<List<T>>() ?? new List<T>();
+
+        if (token.Type == JTokenType.Object)
+        {
+            var objectToken = (JObject)token;
+            var listToken = objectToken[listKey];
+            if (listToken != null && listToken.Type == JTokenType.Array)
+                return listToken.ToObject<List<T>>() ?? new List<T>();
+        }
+
+        throw new InvalidDataException($"[GameStaticDataLoader] Invalid json shape: {relativePath}");
+    }
+
+    static void ValidateEnemyDefs(IReadOnlyList<EnemyDef> enemyDefs, string sourcePath)
+    {
         var errors = new List<string>();
 
-        var situationDataSet = TryLoadDataSet<GameSituationDataSet>(GameDataPaths.situations, "situations", errors);
-        var advisorDataSet = TryLoadDataSet<GameAdvisorDataSet>(GameDataPaths.advisors, "advisors", errors);
-        var decreeDataSet = TryLoadDataSet<GameDecreeDataSet>(GameDataPaths.decrees, "decrees", errors);
-        var diceUpgradeDataSet = TryLoadDataSet<GameDiceUpgradeDataSet>(GameDataPaths.diceUpgrades, "dice_upgrades", errors);
-
-        if (situationDataSet != null)
-            ValidateSituationDataSet(situationDataSet, errors);
-        if (advisorDataSet != null)
-            ValidateAdvisorDataSet(advisorDataSet, errors);
-        if (decreeDataSet != null)
-            ValidateDecreeDataSet(decreeDataSet, errors);
-        if (diceUpgradeDataSet != null)
-            ValidateDiceUpgradeDataSet(diceUpgradeDataSet, errors);
-
-        if (errors.Count > 0)
+        for (int i = 0; i < enemyDefs.Count; i++)
         {
-            errorMessage = string.Join("\n", errors);
-            return false;
-        }
-
-        catalog = new GameStaticDataCatalog(
-            situationDataSet.situations,
-            advisorDataSet.advisors,
-            decreeDataSet.decrees,
-            diceUpgradeDataSet.diceUpgrades);
-
-        return true;
-    }
-
-    static TDataSet TryLoadDataSet<TDataSet>(string relativePath, string label, List<string> errors)
-        where TDataSet : class
-    {
-        try
-        {
-            var json = SaCache.ReadText(relativePath);
-            if (string.IsNullOrWhiteSpace(json))
+            var def = enemyDefs[i];
+            if (def == null)
             {
-                errors.Add($"[{label}] empty json: {relativePath}");
-                return null;
+                errors.Add($"enemies[{i}] is null");
+                continue;
             }
 
-            var dataSet = JsonConvert.DeserializeObject<TDataSet>(json, jsonSettings);
-            if (dataSet == null)
-                errors.Add($"[{label}] deserialize failed: {relativePath}");
-
-            return dataSet;
-        }
-        catch (IOException e)
-        {
-            errors.Add($"[{label}] read failed: {relativePath} ({e.Message})");
-            return null;
-        }
-        catch (Exception e)
-        {
-            errors.Add($"[{label}] parse failed: {relativePath} ({e.Message})");
-            return null;
-        }
-    }
-
-    static void ValidateSituationDataSet(GameSituationDataSet dataSet, List<string> errors)
-    {
-        if (dataSet.situations == null || dataSet.situations.Count == 0)
-        {
-            errors.Add("[situations] no entries");
-            return;
-        }
-
-        ValidateUniqueIds(dataSet.situations, data => data.situationId, "situations", errors);
-
-        for (int i = 0; i < dataSet.situations.Count; i++)
-        {
-            var data = dataSet.situations[i];
-            var prefix = $"[situations:{data.situationId}]";
-            if (string.IsNullOrWhiteSpace(data.situationId))
-                errors.Add("[situations] missing situation_id");
-            if (data.demand <= 0)
-                errors.Add($"{prefix} demand must be > 0");
-            if (data.deadline <= 0)
-                errors.Add($"{prefix} deadline must be > 0");
-            if (data.riskValue <= 0f)
-                errors.Add($"{prefix} risk_value must be > 0");
-
-            NormalizeCollections(data);
-
-            ValidateEffects(data.onTurnStartEffects, prefix, errors);
-            ValidateEffects(data.onSuccess, prefix, errors);
-            ValidateEffects(data.onFail, prefix, errors);
-        }
-    }
-
-    static void ValidateAdvisorDataSet(GameAdvisorDataSet dataSet, List<string> errors)
-    {
-        if (dataSet.advisors == null || dataSet.advisors.Count == 0)
-        {
-            errors.Add("[advisors] no entries");
-            return;
-        }
-
-        ValidateUniqueIds(dataSet.advisors, data => data.advisorId, "advisors", errors);
-
-        for (int i = 0; i < dataSet.advisors.Count; i++)
-        {
-            var data = dataSet.advisors[i];
-            var prefix = $"[advisors:{data.advisorId}]";
-            if (string.IsNullOrWhiteSpace(data.advisorId))
-                errors.Add("[advisors] missing advisor_id");
-            if (data.cooldown < 0)
-                errors.Add($"{prefix} cooldown must be >= 0");
-            if (string.IsNullOrWhiteSpace(data.targetType))
-                errors.Add($"{prefix} target_type is required");
-
-            data.conditions ??= new List<GameConditionDefinition>();
-            data.effects ??= new List<GameEffectDefinition>();
-
-            if (data.effects.Count == 0)
-                errors.Add($"{prefix} effects must contain at least one entry");
-
-            ValidateEffects(data.effects, prefix, errors);
-        }
-    }
-
-    static void ValidateDecreeDataSet(GameDecreeDataSet dataSet, List<string> errors)
-    {
-        if (dataSet.decrees == null || dataSet.decrees.Count == 0)
-        {
-            errors.Add("[decrees] no entries");
-            return;
-        }
-
-        ValidateUniqueIds(dataSet.decrees, data => data.decreeId, "decrees", errors);
-
-        for (int i = 0; i < dataSet.decrees.Count; i++)
-        {
-            var data = dataSet.decrees[i];
-            var prefix = $"[decrees:{data.decreeId}]";
-            if (string.IsNullOrWhiteSpace(data.decreeId))
-                errors.Add("[decrees] missing decree_id");
-
-            data.conditions ??= new List<GameConditionDefinition>();
-            data.effects ??= new List<GameEffectDefinition>();
-
-            if (data.effects.Count == 0)
-                errors.Add($"{prefix} effects must contain at least one entry");
-
-            ValidateEffects(data.effects, prefix, errors);
-        }
-    }
-
-    static void ValidateDiceUpgradeDataSet(GameDiceUpgradeDataSet dataSet, List<string> errors)
-    {
-        if (dataSet.diceUpgrades == null || dataSet.diceUpgrades.Count == 0)
-        {
-            errors.Add("[dice_upgrades] no entries");
-            return;
-        }
-
-        ValidateUniqueIds(dataSet.diceUpgrades, data => data.upgradeId, "dice_upgrades", errors);
-
-        for (int i = 0; i < dataSet.diceUpgrades.Count; i++)
-        {
-            var data = dataSet.diceUpgrades[i];
-            var prefix = $"[dice_upgrades:{data.upgradeId}]";
-            if (string.IsNullOrWhiteSpace(data.upgradeId))
-                errors.Add("[dice_upgrades] missing upgrade_id");
-            if (string.IsNullOrWhiteSpace(data.triggerType))
-                errors.Add($"{prefix} trigger_type is required");
-            else if (!diceUpgradeTriggerWhitelist.Contains(data.triggerType))
-                errors.Add($"{prefix} trigger_type is not allowed: {data.triggerType}");
-
-            data.conditions ??= new List<GameConditionDefinition>();
-            data.effects ??= new List<GameEffectDefinition>();
-
-            if (data.conditions.Count > 1)
-                errors.Add($"{prefix} conditions count must be <= 1");
-
-            for (int conditionIndex = 0; conditionIndex < data.conditions.Count; conditionIndex++)
+            if (def.actionPool == null)
             {
-                var condition = data.conditions[conditionIndex];
-                if (string.IsNullOrWhiteSpace(condition.conditionType))
+                errors.Add($"{def.enemyId}: action_pool is null");
+                continue;
+            }
+
+            if (def.actionPool.Count != 2)
+                errors.Add($"{def.enemyId}: action_pool count must be 2 (actual={def.actionPool.Count})");
+
+            bool hasPrep1 = false;
+            bool hasPrep2 = false;
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+
+            for (int j = 0; j < def.actionPool.Count; j++)
+            {
+                var action = def.actionPool[j];
+                if (action == null)
                 {
-                    errors.Add($"{prefix} condition_type is required");
+                    errors.Add($"{def.enemyId}: action_pool[{j}] is null");
                     continue;
                 }
 
-                if (!diceUpgradeConditionWhitelist.Contains(condition.conditionType))
-                    errors.Add($"{prefix} condition_type is not allowed: {condition.conditionType}");
+                if (string.IsNullOrWhiteSpace(action.actionId))
+                    errors.Add($"{def.enemyId}: action_pool[{j}].action_id is empty");
+                else if (!ids.Add(action.actionId))
+                    errors.Add($"{def.enemyId}: duplicated action_id '{action.actionId}'");
+
+                if (action.weight < 1 || action.weight > 5)
+                    errors.Add($"{def.enemyId}:{action.actionId} weight out of range (1..5): {action.weight}");
+
+                if (action.prepTurns < 1 || action.prepTurns > 2)
+                    errors.Add($"{def.enemyId}:{action.actionId} prep_turns out of range (1..2): {action.prepTurns}");
+
+                hasPrep1 |= action.prepTurns == 1;
+                hasPrep2 |= action.prepTurns == 2;
             }
 
-            if (data.effects.Count == 0)
-                errors.Add($"{prefix} effects must contain at least one entry");
-
-            ValidateEffects(data.effects, prefix, errors);
+            if (!hasPrep1)
+                errors.Add($"{def.enemyId}: requires at least one prep_turns=1 action");
+            if (!hasPrep2)
+                errors.Add($"{def.enemyId}: requires at least one prep_turns=2 action");
         }
-    }
 
-    static void ValidateEffects(List<GameEffectDefinition> effects, string prefix, List<string> errors)
-    {
-        if (effects == null)
+        if (errors.Count == 0)
             return;
 
-        for (int i = 0; i < effects.Count; i++)
+        var message = $"[GameStaticDataLoader] Validation failed ({sourcePath})\n- " +
+                      string.Join("\n- ", errors);
+        Debug.LogError(message);
+        throw new InvalidDataException(message);
+    }
+
+    static void ValidateEnemyStagePresetDefs(
+        IReadOnlyList<EnemyStagePresetDef> presetDefs,
+        IReadOnlyList<EnemyDef> enemyDefs,
+        string sourcePath)
+    {
+        var errors = new List<string>();
+
+        if (presetDefs.Count != 3)
+            errors.Add($"stage_presets count must be 3 (actual={presetDefs.Count})");
+
+        var knownEnemyIds = new HashSet<string>(StringComparer.Ordinal);
+        for (int i = 0; i < enemyDefs.Count; i++)
         {
-            var effect = effects[i];
-            if (effect == null)
+            var enemyDef = enemyDefs[i];
+            if (enemyDef == null || string.IsNullOrWhiteSpace(enemyDef.enemyId))
+                continue;
+
+            knownEnemyIds.Add(enemyDef.enemyId);
+        }
+
+        var presetIds = new HashSet<string>(StringComparer.Ordinal);
+        for (int i = 0; i < presetDefs.Count; i++)
+        {
+            var preset = presetDefs[i];
+            if (preset == null)
             {
-                errors.Add($"{prefix} effect[{i}] is null");
+                errors.Add($"stage_presets[{i}] is null");
                 continue;
             }
 
-            if (string.IsNullOrWhiteSpace(effect.effectType))
+            if (string.IsNullOrWhiteSpace(preset.presetId))
+                errors.Add($"stage_presets[{i}].preset_id is empty");
+            else if (!presetIds.Add(preset.presetId))
+                errors.Add($"duplicated preset_id '{preset.presetId}'");
+
+            if (preset.spawns == null || preset.spawns.Count == 0)
             {
-                errors.Add($"{prefix} effect[{i}] missing effect_type");
+                errors.Add($"{preset.presetId}: spawns must contain at least one entry");
                 continue;
             }
 
-            switch (effect.effectType)
+            for (int j = 0; j < preset.spawns.Count; j++)
             {
-                case "resource_delta":
-                    ValidateRequiredValue(effect, prefix, i, errors);
-                    if (!situationResourceTypes.Contains(effect.targetResource))
-                        errors.Add($"{prefix} effect[{i}] resource_delta requires target_resource(defense|stability)");
-                    break;
+                var spawn = preset.spawns[j];
+                if (spawn == null)
+                {
+                    errors.Add($"{preset.presetId}: spawns[{j}] is null");
+                    continue;
+                }
 
-                case "gold_delta":
-                    ValidateRequiredValue(effect, prefix, i, errors);
-                    break;
+                if (string.IsNullOrWhiteSpace(spawn.enemyId))
+                {
+                    errors.Add($"{preset.presetId}: spawns[{j}].enemy_id is empty");
+                }
+                else if (!knownEnemyIds.Contains(spawn.enemyId))
+                {
+                    errors.Add($"{preset.presetId}: unknown enemy_id '{spawn.enemyId}'");
+                }
 
-                case "demand_delta":
-                    ValidateRequiredValue(effect, prefix, i, errors);
-                    if (!demandTargetModes.Contains(effect.targetMode))
-                        errors.Add($"{prefix} effect[{i}] demand_delta target_mode is invalid: {effect.targetMode}");
-                    if (effect.targetMode == "by_tag" && string.IsNullOrWhiteSpace(effect.targetTag))
-                        errors.Add($"{prefix} effect[{i}] demand_delta by_tag requires target_tag");
-                    break;
-
-                case "deadline_delta":
-                    ValidateRequiredValue(effect, prefix, i, errors);
-                    if (!deadlineTargetModes.Contains(effect.targetMode))
-                        errors.Add($"{prefix} effect[{i}] deadline_delta target_mode is invalid: {effect.targetMode}");
-                    if (effect.targetMode == "by_tag" && string.IsNullOrWhiteSpace(effect.targetTag))
-                        errors.Add($"{prefix} effect[{i}] deadline_delta by_tag requires target_tag");
-                    break;
-
-                case "resource_guard":
-                    if (!situationResourceTypes.Contains(effect.targetResource))
-                        errors.Add($"{prefix} effect[{i}] resource_guard requires target_resource(defense|stability)");
-                    if (!effect.duration.HasValue || effect.duration.Value <= 0)
-                        errors.Add($"{prefix} effect[{i}] resource_guard requires duration > 0");
-                    break;
-
-                case "die_face_delta":
-                case "die_face_set":
-                case "die_face_min":
-                case "die_face_mult":
-                    ValidateRequiredValue(effect, prefix, i, errors);
-                    break;
-
-                case "reroll_assigned_dice":
-                    break;
-
-                default:
-                    errors.Add($"{prefix} effect[{i}] unknown effect_type: {effect.effectType}");
-                    break;
+                if (spawn.count < 1)
+                    errors.Add($"{preset.presetId}: spawns[{j}].count must be >= 1 (actual={spawn.count})");
             }
         }
-    }
 
-    static void ValidateRequiredValue(GameEffectDefinition effect, string prefix, int effectIndex, List<string> errors)
-    {
-        if (!effect.value.HasValue)
-            errors.Add($"{prefix} effect[{effectIndex}] {effect.effectType} requires value");
-    }
+        if (errors.Count == 0)
+            return;
 
-    static void ValidateUniqueIds<TData>(IReadOnlyList<TData> source, Func<TData, string> idSelector, string label, List<string> errors)
-    {
-        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        for (int i = 0; i < source.Count; i++)
-        {
-            var id = idSelector(source[i]) ?? string.Empty;
-            if (string.IsNullOrWhiteSpace(id))
-                continue;
-
-            if (!set.Add(id))
-                errors.Add($"[{label}] duplicate id: {id}");
-        }
+        var message = $"[GameStaticDataLoader] Validation failed ({sourcePath})\n- " +
+                      string.Join("\n- ", errors);
+        Debug.LogError(message);
+        throw new InvalidDataException(message);
     }
+}
 
-    static void NormalizeCollections(GameSituationDefinition data)
-    {
-        data.tags ??= new List<string>();
-        data.onTurnStartEffects ??= new List<GameEffectDefinition>();
-        data.onSuccess ??= new List<GameEffectDefinition>();
-        data.onFail ??= new List<GameEffectDefinition>();
-    }
+[Serializable]
+public sealed class GameStaticDataSet
+{
+    public List<EnemyDef> enemyDefs = new();
+    public List<AdventurerDef> adventurerDefs = new();
+    public List<SkillDef> skillDefs = new();
+    public List<EnemyStagePresetDef> stagePresetDefs = new();
 }
 

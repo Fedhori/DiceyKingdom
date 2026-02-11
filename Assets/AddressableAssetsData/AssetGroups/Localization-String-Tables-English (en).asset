@@ -21,14 +21,51 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-en
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3c6b8ff22996ae543a282b103c99f8e1
+    m_Address: shop_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 62adda2ea82f6b441b15047776970f57
     m_Address: tooltip_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6e66aee997f07e54880ee41a4927613e
+    m_Address: game_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7fadeeb2cd9868c4bbd424d874f49a30
+    m_Address: option_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 83412927e80e29244baee85f83d426eb
+    m_Address: upgrade_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9174e1bd972df714d80460f65653409b
+    m_Address: result_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: abc7dab8e533b404bb471d5d2b184a94
     m_Address: mainmenu_en
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-en
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ecfc890781bb26f4aa21472f8c6def0e
+    m_Address: item_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en

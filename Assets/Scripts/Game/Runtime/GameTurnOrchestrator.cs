@@ -1,0 +1,1233 @@
+using System;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
+using UnityEngine;
+
+public sealed class GameTurnOrchestrator : MonoBehaviour
+{
+    [SerializeField] bool autoStartOnAwake = true;
+    [SerializeField] bool useFixedSeed;
+    [SerializeField] int fixedSeed = 1001;
+
+    GameStaticDataSet staticData;
+    Dictionary<string, EnemyDef> enemyDefById;
+    Dictionary<string, AdventurerDef> adventurerDefById;
+    Dictionary<string, SkillDef> skillDefById;
+    System.Random rng;
+    bool isRunOver;
+
+    public GameRunState RunState { get; private set; }
+
+    public event Action<GameRunState> RunStarted;
+    public event Action<TurnPhase> PhaseChanged;
+    public event Action<GameRunState> RunEnded;
+    public event Action<int, string> StageSpawned;
+    public event Action<int> AssignmentCommitConfirmationRequested;
+
+    void Awake()
+    {
+        if (!autoStartOnAwake)
+            return;
+
+        StartNewRun();
+    }
+
+    public void StartNewRun(int? seedOverride = null)
+    {
+        int seed = seedOverride ?? (useFixedSeed ? fixedSeed : Environment.TickCount);
+
+        staticData = GameStaticDataLoader.LoadAll();
+        BuildDefinitionLookups(staticData);
+        rng = new System.Random(seed);
+        RunState = GameRunBootstrap.CreateNewRun(staticData, seed);
+        isRunOver = false;
+
+        RunStarted?.Invoke(RunState);
+        StageSpawned?.Invoke(RunState.stage.stageNumber, RunState.stage.activePresetId);
+
+        // TurnStart -> BoardUpdate -> AdventurerRoll까지 자동 진행.
+        AdvanceToDecisionPoint();
+    }
+
+    public bool CommitAssignmentPhase()
+    {
+        if (!CanRequestTurnCommit())
+            return false;
+        if (GetPendingAdventurerCount() > 0)
+            return false;
+
+        RunState.turn.processingAdventurerInstanceId = string.Empty;
+        SetPhase(TurnPhase.Settlement);
+        AdvanceToDecisionPoint();
+        return true;
+    }
+
+    public bool TryRollAdventurerBySlotIndex(int slotIndex)
+    {
+        if (RunState?.adventurers == null)
+            return false;
+        if (slotIndex < 0 || slotIndex >= RunState.adventurers.Count)
+            return false;
+
+        var adventurer = RunState.adventurers[slotIndex];
+        if (adventurer == null)
+            return false;
+
+        return TryRollAdventurer(adventurer.instanceId);
+    }
+
+    public bool TryRollAdventurer(string adventurerInstanceId)
+    {
+        if (!CanAcceptRollInput())
+            return false;
+        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+            return false;
+        if (!IsAdventurerPending(adventurerInstanceId))
+            return false;
+
+        var adventurer = FindAdventurerState(adventurerInstanceId);
+        if (adventurer == null)
+            return false;
+
+        RunState.turn.processingAdventurerInstanceId = adventurer.instanceId;
+        ExecuteRollPhase();
+
+        if (adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        {
+            RunState.turn.processingAdventurerInstanceId = string.Empty;
+            return false;
+        }
+
+        SetPhase(TurnPhase.Adjustment);
+        return true;
+    }
+
+    public bool TryBeginAdventurerTargeting(string adventurerInstanceId)
+    {
+        if (!CanEnterTargetingInput())
+            return false;
+        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+            return false;
+        if (!string.Equals(
+                adventurerInstanceId,
+                RunState.turn.processingAdventurerInstanceId,
+                StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        SetPhase(TurnPhase.TargetAndAttack);
+        return true;
+    }
+
+    public bool TryAssignAdventurer(string adventurerInstanceId, string enemyInstanceId)
+    {
+        if (!CanAcceptTargetingInput())
+            return false;
+        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+            return false;
+        if (string.IsNullOrWhiteSpace(enemyInstanceId))
+            return false;
+        if (!string.Equals(
+                adventurerInstanceId,
+                RunState.turn.processingAdventurerInstanceId,
+                StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var adventurer = FindCurrentProcessingAdventurer();
+        if (adventurer == null || adventurer.actionConsumed)
+            return false;
+        if (adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return false;
+
+        var enemy = FindEnemyState(enemyInstanceId);
+        if (enemy == null)
+            return false;
+
+        adventurer.assignedEnemyInstanceId = enemy.instanceId;
+        int attackValue = SumDice(adventurer.rolledDiceValues);
+        if (attackValue > 0)
+        {
+            ApplyEnemyHealthDelta(
+                enemy.instanceId,
+                -attackValue,
+                markAssignedAsConsumedOnKill: false);
+        }
+
+        adventurer.assignedEnemyInstanceId = null;
+        adventurer.actionConsumed = true;
+        RunState.turn.processingAdventurerInstanceId = string.Empty;
+
+        if (GetPendingAdventurerCount() > 0)
+        {
+            SetPhase(TurnPhase.AdventurerRoll);
+        }
+        else
+        {
+            SetPhase(TurnPhase.Settlement);
+            AdvanceToDecisionPoint();
+        }
+
+        return true;
+    }
+
+    public bool TryClearAdventurerAssignment(string adventurerInstanceId)
+    {
+        if (!CanAcceptTargetingInput())
+            return false;
+        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+            return false;
+        if (!string.Equals(
+                adventurerInstanceId,
+                RunState.turn.processingAdventurerInstanceId,
+                StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        SetPhase(TurnPhase.Adjustment);
+        return true;
+    }
+
+    public int GetUnassignedAdventurerCount()
+    {
+        if (RunState == null)
+            return 0;
+
+        return GameAssignmentService.CountPendingAdventurers(RunState);
+    }
+
+    public bool RequestCommitAssignmentPhase()
+    {
+        if (!CanRequestTurnCommit())
+            return false;
+
+        int pendingCount = GetUnassignedAdventurerCount();
+        if (pendingCount > 0)
+        {
+            AssignmentCommitConfirmationRequested?.Invoke(pendingCount);
+            return false;
+        }
+
+        return CommitAssignmentPhase();
+    }
+
+    public bool ConfirmCommitAssignmentPhase()
+    {
+        if (!CanRequestTurnCommit())
+            return false;
+
+        MarkAllPendingAdventurersConsumed();
+        SetPhase(TurnPhase.Settlement);
+        AdvanceToDecisionPoint();
+        return true;
+    }
+
+    public bool CommitRollPhase()
+    {
+        return false;
+    }
+
+    public bool CommitAdjustmentPhase()
+    {
+        if (RunState == null || isRunOver)
+            return false;
+        if (RunState.turn.phase != TurnPhase.Adjustment)
+            return false;
+        if (FindCurrentProcessingAdventurer() == null)
+            return false;
+
+        SetPhase(TurnPhase.TargetAndAttack);
+        return true;
+    }
+
+    public bool TryUseSkill(
+        string skillDefId,
+        string selectedAdventurerInstanceId = null,
+        string selectedEnemyInstanceId = null,
+        int selectedDieIndex = -1)
+    {
+        if (!CanAcceptSkillInput())
+            return false;
+        if (string.IsNullOrWhiteSpace(skillDefId))
+            return false;
+
+        if (!skillDefById.TryGetValue(skillDefId, out var skillDef))
+            return false;
+
+        var cooldownState = FindSkillCooldownState(skillDefId);
+        if (cooldownState == null)
+            return false;
+        if (cooldownState.cooldownRemainingTurns > 0)
+            return false;
+        if (cooldownState.usedThisTurn)
+            return false;
+        if (!CanUseSkillInPhase(skillDef, RunState.turn.phase))
+            return false;
+
+        if (RunState.turn.phase == TurnPhase.Adjustment &&
+            string.IsNullOrWhiteSpace(selectedAdventurerInstanceId))
+        {
+            selectedAdventurerInstanceId = RunState.turn.processingAdventurerInstanceId;
+        }
+
+        var context = new EffectTargetContext(
+            selectedEnemyInstanceId,
+            selectedAdventurerInstanceId,
+            selectedDieIndex,
+            null);
+
+        if (!TryApplyEffectBundle(skillDef.effectBundle, context))
+            return false;
+
+        cooldownState.cooldownRemainingTurns = Math.Max(0, skillDef.cooldownTurns);
+        cooldownState.usedThisTurn = true;
+        return true;
+    }
+
+    public bool TryUseSkillBySlotIndex(
+        int skillSlotIndex,
+        string selectedAdventurerInstanceId = null,
+        string selectedEnemyInstanceId = null,
+        int selectedDieIndex = -1)
+    {
+        if (RunState?.skillCooldowns == null)
+            return false;
+        if (skillSlotIndex < 0 || skillSlotIndex >= RunState.skillCooldowns.Count)
+            return false;
+
+        var cooldown = RunState.skillCooldowns[skillSlotIndex];
+        if (cooldown == null || string.IsNullOrWhiteSpace(cooldown.skillDefId))
+            return false;
+
+        return TryUseSkill(
+            cooldown.skillDefId,
+            selectedAdventurerInstanceId,
+            selectedEnemyInstanceId,
+            selectedDieIndex);
+    }
+
+    public bool CanUseSkillBySlotIndex(int skillSlotIndex)
+    {
+        if (!CanAcceptSkillInput())
+            return false;
+        if (RunState?.skillCooldowns == null)
+            return false;
+        if (skillSlotIndex < 0 || skillSlotIndex >= RunState.skillCooldowns.Count)
+            return false;
+
+        var cooldown = RunState.skillCooldowns[skillSlotIndex];
+        if (cooldown == null || string.IsNullOrWhiteSpace(cooldown.skillDefId))
+            return false;
+        if (cooldown.cooldownRemainingTurns > 0)
+            return false;
+        if (cooldown.usedThisTurn)
+            return false;
+        if (!skillDefById.TryGetValue(cooldown.skillDefId, out var skillDef))
+            return false;
+
+        return CanUseSkillInPhase(skillDef, RunState.turn.phase);
+    }
+
+    public void AdvanceToDecisionPoint()
+    {
+        if (RunState == null || isRunOver)
+            return;
+
+        bool keepRunning = true;
+        while (keepRunning && !isRunOver)
+        {
+            switch (RunState.turn.phase)
+            {
+                case TurnPhase.TurnStart:
+                    ExecuteTurnStartPhase();
+                    break;
+
+                case TurnPhase.BoardUpdate:
+                    ExecuteBoardUpdatePhase();
+                    break;
+
+                case TurnPhase.AdventurerRoll:
+                case TurnPhase.Adjustment:
+                case TurnPhase.TargetAndAttack:
+                    keepRunning = false;
+                    break;
+
+                case TurnPhase.Settlement:
+                    ExecuteSettlementPhase();
+                    break;
+
+                case TurnPhase.EndTurn:
+                    ExecuteEndTurnPhase();
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+    }
+
+    void ExecuteTurnStartPhase()
+    {
+        // 턴 시작 초기화: 배치/소비 상태 리셋 + 스킬 쿨다운 감소.
+        RunState.ResetTurnTransientState();
+
+        for (int i = 0; i < RunState.skillCooldowns.Count; i++)
+        {
+            var skillCooldown = RunState.skillCooldowns[i];
+            if (skillCooldown == null)
+                continue;
+
+            if (skillCooldown.cooldownRemainingTurns > 0)
+                skillCooldown.cooldownRemainingTurns -= 1;
+        }
+
+        SetPhase(TurnPhase.BoardUpdate);
+    }
+
+    void ExecuteBoardUpdatePhase()
+    {
+        RunState.turn.processingAdventurerInstanceId = string.Empty;
+
+        bool spawned = GameRunBootstrap.TrySpawnStagePresetIfBoardCleared(RunState, staticData, rng);
+        if (spawned)
+            StageSpawned?.Invoke(RunState.stage.stageNumber, RunState.stage.activePresetId);
+
+        SetPhase(TurnPhase.AdventurerRoll);
+    }
+
+    void ExecuteRollPhase()
+    {
+        var adventurer = FindCurrentProcessingAdventurer();
+        if (adventurer == null)
+            return;
+
+        adventurer.rolledDiceValues.Clear();
+        adventurer.assignedEnemyInstanceId = null;
+
+        if (!adventurerDefById.TryGetValue(adventurer.adventurerDefId, out var adventurerDef))
+            return;
+
+        int diceCount = Math.Max(1, adventurerDef.diceCount);
+        for (int dieIndex = 0; dieIndex < diceCount; dieIndex++)
+            adventurer.rolledDiceValues.Add(RollD6());
+    }
+
+    void ExecuteSettlementPhase()
+    {
+        var enemyOrder = new List<string>(RunState.enemies.Count);
+        for (int i = 0; i < RunState.enemies.Count; i++)
+        {
+            var enemy = RunState.enemies[i];
+            if (enemy == null)
+                continue;
+
+            enemyOrder.Add(enemy.instanceId);
+        }
+
+        for (int enemyOrderIndex = 0; enemyOrderIndex < enemyOrder.Count; enemyOrderIndex++)
+        {
+            string enemyInstanceId = enemyOrder[enemyOrderIndex];
+            var enemy = FindEnemyState(enemyInstanceId);
+            if (enemy == null)
+                continue;
+
+            enemy.actionTurnsLeft -= 1;
+            if (enemy.actionTurnsLeft > 0)
+                continue;
+
+            if (!enemyDefById.TryGetValue(enemy.enemyDefId, out var enemyDef))
+                continue;
+
+            var currentAction = FindActionDef(enemyDef, enemy.currentActionId);
+            if (currentAction == null)
+            {
+                var fallbackAction = PickNextActionDef(enemyDef, previousActionId: null);
+                if (fallbackAction == null)
+                    continue;
+
+                enemy.currentActionId = fallbackAction.actionId;
+                enemy.actionTurnsLeft = Math.Max(1, fallbackAction.prepTurns);
+                continue;
+            }
+
+            var context = new EffectTargetContext(
+                selectedEnemyInstanceId: enemy.instanceId,
+                selectedAdventurerInstanceId: null,
+                selectedDieIndex: -1,
+                actionOwnerEnemyInstanceId: enemy.instanceId);
+            TryApplyEffectBundle(currentAction.onResolve, context);
+
+            enemy = FindEnemyState(enemyInstanceId);
+            if (enemy == null)
+                continue;
+            if (!enemyDefById.TryGetValue(enemy.enemyDefId, out enemyDef))
+                continue;
+
+            var nextAction = PickNextActionDef(enemyDef, currentAction.actionId);
+            if (nextAction == null)
+                continue;
+
+            enemy.currentActionId = nextAction.actionId;
+            enemy.actionTurnsLeft = Math.Max(1, nextAction.prepTurns);
+        }
+
+        SetPhase(TurnPhase.EndTurn);
+    }
+
+    void ExecuteEndTurnPhase()
+    {
+        NormalizeRunResources();
+
+        if (IsRunGameOver())
+        {
+            isRunOver = true;
+            RunEnded?.Invoke(RunState);
+            return;
+        }
+
+        RunState.turn.turnNumber += 1;
+        SetPhase(TurnPhase.TurnStart);
+    }
+
+    void SetPhase(TurnPhase phase)
+    {
+        RunState.turn.phase = phase;
+        PhaseChanged?.Invoke(phase);
+    }
+
+    bool CanAcceptRollInput()
+    {
+        if (RunState == null || isRunOver)
+            return false;
+        if (!string.IsNullOrWhiteSpace(RunState.turn.processingAdventurerInstanceId))
+            return false;
+
+        return RunState.turn.phase == TurnPhase.AdventurerRoll;
+    }
+
+    bool CanEnterTargetingInput()
+    {
+        if (RunState == null || isRunOver)
+            return false;
+        if (RunState.turn.phase != TurnPhase.Adjustment)
+            return false;
+
+        var adventurer = FindCurrentProcessingAdventurer();
+        if (adventurer == null || adventurer.actionConsumed)
+            return false;
+        if (adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return false;
+
+        return true;
+    }
+
+    bool CanAcceptTargetingInput()
+    {
+        if (RunState == null || isRunOver)
+            return false;
+        if (RunState.turn.phase != TurnPhase.TargetAndAttack)
+            return false;
+
+        var adventurer = FindCurrentProcessingAdventurer();
+        if (adventurer == null || adventurer.actionConsumed)
+            return false;
+        if (adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return false;
+
+        return true;
+    }
+
+    bool CanRequestTurnCommit()
+    {
+        if (RunState == null || isRunOver)
+            return false;
+
+        var phase = RunState.turn.phase;
+        return phase == TurnPhase.AdventurerRoll ||
+               phase == TurnPhase.Adjustment ||
+               phase == TurnPhase.TargetAndAttack;
+    }
+
+    bool CanAcceptSkillInput()
+    {
+        if (RunState == null || isRunOver)
+            return false;
+
+        var phase = RunState.turn.phase;
+        return phase == TurnPhase.AdventurerRoll ||
+               phase == TurnPhase.Adjustment ||
+               phase == TurnPhase.TargetAndAttack;
+    }
+
+    public bool CanRollAdventurer(string adventurerInstanceId)
+    {
+        if (!CanAcceptRollInput())
+            return false;
+        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+            return false;
+
+        return IsAdventurerPending(adventurerInstanceId);
+    }
+
+    public bool CanAssignAdventurer(string adventurerInstanceId)
+    {
+        if (RunState == null || isRunOver)
+            return false;
+        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+            return false;
+        if (!string.Equals(
+                adventurerInstanceId,
+                RunState.turn.processingAdventurerInstanceId,
+                StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var phase = RunState.turn.phase;
+        if (phase != TurnPhase.Adjustment && phase != TurnPhase.TargetAndAttack)
+            return false;
+
+        var adventurer = FindCurrentProcessingAdventurer();
+        if (adventurer == null || adventurer.actionConsumed)
+            return false;
+
+        return adventurer.rolledDiceValues != null && adventurer.rolledDiceValues.Count > 0;
+    }
+
+    public bool IsCurrentProcessingAdventurer(string adventurerInstanceId)
+    {
+        if (RunState == null)
+            return false;
+        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+            return false;
+
+        return string.Equals(
+            RunState.turn.processingAdventurerInstanceId,
+            adventurerInstanceId,
+            StringComparison.Ordinal);
+    }
+
+    int GetPendingAdventurerCount()
+    {
+        if (RunState == null)
+            return 0;
+
+        return GameAssignmentService.CountPendingAdventurers(RunState);
+    }
+
+    void MarkAllPendingAdventurersConsumed()
+    {
+        for (int i = 0; i < RunState.adventurers.Count; i++)
+        {
+            var adventurer = RunState.adventurers[i];
+            if (adventurer == null || adventurer.actionConsumed)
+                continue;
+
+            adventurer.assignedEnemyInstanceId = null;
+            adventurer.actionConsumed = true;
+        }
+
+        RunState.turn.processingAdventurerInstanceId = string.Empty;
+    }
+
+    bool IsAdventurerPending(string adventurerInstanceId)
+    {
+        var adventurer = FindAdventurerState(adventurerInstanceId);
+        if (adventurer == null)
+            return false;
+
+        return !adventurer.actionConsumed;
+    }
+
+    AdventurerState FindCurrentProcessingAdventurer()
+    {
+        if (RunState == null)
+            return null;
+        if (string.IsNullOrWhiteSpace(RunState.turn.processingAdventurerInstanceId))
+            return null;
+
+        return FindAdventurerState(RunState.turn.processingAdventurerInstanceId);
+    }
+
+    bool ResolveCurrentProcessingAdventurerId(string requestedAdventurerInstanceId, out string resolvedAdventurerInstanceId)
+    {
+        resolvedAdventurerInstanceId = null;
+
+        if (RunState == null)
+            return false;
+        if (RunState.turn.phase != TurnPhase.Adjustment)
+            return false;
+
+        var currentAdventurerId = RunState.turn.processingAdventurerInstanceId;
+        if (string.IsNullOrWhiteSpace(currentAdventurerId))
+            return false;
+
+        if (!string.IsNullOrWhiteSpace(requestedAdventurerInstanceId) &&
+            !string.Equals(requestedAdventurerInstanceId, currentAdventurerId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        resolvedAdventurerInstanceId = currentAdventurerId;
+        return true;
+    }
+
+    bool CanUseSkillInPhase(SkillDef skillDef, TurnPhase phase)
+    {
+        if (skillDef?.effectBundle?.effects == null)
+            return false;
+
+        for (int i = 0; i < skillDef.effectBundle.effects.Count; i++)
+        {
+            var effect = skillDef.effectBundle.effects[i];
+            if (effect == null || string.IsNullOrWhiteSpace(effect.effectType))
+                return false;
+
+            string effectType = effect.effectType.Trim();
+            bool allowed = effectType switch
+            {
+                "stability_delta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack,
+                "gold_delta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack,
+                "enemy_health_delta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.TargetAndAttack,
+                "die_face_delta" => phase == TurnPhase.Adjustment,
+                "reroll_adventurer_dice" => phase == TurnPhase.Adjustment,
+                _ => false
+            };
+
+            if (!allowed)
+                return false;
+        }
+
+        return true;
+    }
+
+    bool TryApplyEffectBundle(EffectBundle effectBundle, EffectTargetContext context)
+    {
+        if (effectBundle?.effects == null)
+            return true;
+
+        for (int i = 0; i < effectBundle.effects.Count; i++)
+        {
+            var effect = effectBundle.effects[i];
+            if (!TryApplyEffect(effect, context))
+                return false;
+        }
+
+        return true;
+    }
+
+    bool TryApplyEffect(EffectSpec effect, EffectTargetContext context)
+    {
+        if (effect == null || string.IsNullOrWhiteSpace(effect.effectType))
+            return false;
+
+        string effectType = effect.effectType.Trim();
+        int value = ToIntValue(effect.value);
+
+        if (effectType == "stability_delta")
+            return TryApplyStabilityDelta(value);
+        if (effectType == "gold_delta")
+            return TryApplyGoldDelta(value);
+        if (effectType == "enemy_health_delta")
+            return TryApplyEnemyHealthDeltaEffect(effect, context, value);
+        if (effectType == "die_face_delta")
+            return TryApplyDieFaceDeltaEffect(effect, context, value);
+        if (effectType == "reroll_adventurer_dice")
+            return TryApplyRerollAdventurerDiceEffect(effect, context);
+
+        return false;
+    }
+
+    bool TryApplyStabilityDelta(int delta)
+    {
+        int next = RunState.stability + delta;
+        RunState.stability = ClampStability(next);
+        return true;
+    }
+
+    bool TryApplyGoldDelta(int delta)
+    {
+        int next = RunState.gold + delta;
+        RunState.gold = ClampGold(next);
+        return true;
+    }
+
+    bool TryApplyEnemyHealthDeltaEffect(EffectSpec effect, EffectTargetContext context, int delta)
+    {
+        string targetMode = GetParamString(effect.effectParams, "target_mode");
+        string targetEnemyInstanceId = targetMode switch
+        {
+            "selected_enemy" => context.selectedEnemyInstanceId,
+            "action_owner_enemy" => context.actionOwnerEnemyInstanceId,
+            _ => null
+        };
+
+        if (string.IsNullOrWhiteSpace(targetEnemyInstanceId))
+            return false;
+        if (FindEnemyState(targetEnemyInstanceId) == null)
+            return false;
+
+        ApplyEnemyHealthDelta(
+            targetEnemyInstanceId,
+            delta,
+            markAssignedAsConsumedOnKill: false);
+        return true;
+    }
+
+    bool TryApplyDieFaceDeltaEffect(EffectSpec effect, EffectTargetContext context, int delta)
+    {
+        string targetMode = GetParamString(effect.effectParams, "target_adventurer_mode");
+        if (targetMode != "selected_adventurer")
+            return false;
+        if (!ResolveCurrentProcessingAdventurerId(context.selectedAdventurerInstanceId, out var adventurerInstanceId))
+            return false;
+
+        var adventurer = FindAdventurerState(adventurerInstanceId);
+        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return false;
+
+        string pickRule = GetParamString(effect.effectParams, "die_pick_rule");
+        if (pickRule == "selected")
+        {
+            if (!IsValidDieIndex(adventurer, context.selectedDieIndex))
+                return false;
+
+            ApplyDieDelta(adventurer, context.selectedDieIndex, delta);
+            return true;
+        }
+
+        if (pickRule == "lowest")
+        {
+            int index = GetLowestDieIndex(adventurer.rolledDiceValues);
+            if (index < 0)
+                return false;
+
+            ApplyDieDelta(adventurer, index, delta);
+            return true;
+        }
+
+        if (pickRule == "highest")
+        {
+            int index = GetHighestDieIndex(adventurer.rolledDiceValues);
+            if (index < 0)
+                return false;
+
+            ApplyDieDelta(adventurer, index, delta);
+            return true;
+        }
+
+        if (pickRule == "all")
+        {
+            for (int i = 0; i < adventurer.rolledDiceValues.Count; i++)
+                ApplyDieDelta(adventurer, i, delta);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool TryApplyRerollAdventurerDiceEffect(EffectSpec effect, EffectTargetContext context)
+    {
+        string targetMode = GetParamString(effect.effectParams, "target_adventurer_mode");
+        if (targetMode != "selected_adventurer")
+            return false;
+        if (!ResolveCurrentProcessingAdventurerId(context.selectedAdventurerInstanceId, out var adventurerInstanceId))
+            return false;
+
+        var adventurer = FindAdventurerState(adventurerInstanceId);
+        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return false;
+
+        string rerollRule = GetParamString(effect.effectParams, "reroll_rule");
+        if (rerollRule == "all")
+        {
+            for (int i = 0; i < adventurer.rolledDiceValues.Count; i++)
+                adventurer.rolledDiceValues[i] = RollD6();
+            return true;
+        }
+
+        if (rerollRule == "single")
+        {
+            if (!IsValidDieIndex(adventurer, context.selectedDieIndex))
+                return false;
+
+            adventurer.rolledDiceValues[context.selectedDieIndex] = RollD6();
+            return true;
+        }
+
+        return false;
+    }
+
+    bool ApplyEnemyHealthDelta(
+        string enemyInstanceId,
+        int delta,
+        bool markAssignedAsConsumedOnKill)
+    {
+        var enemy = FindEnemyState(enemyInstanceId);
+        if (enemy == null)
+            return false;
+
+        int next = enemy.currentHealth + delta;
+        if (next < 0)
+            next = 0;
+        enemy.currentHealth = next;
+
+        if (enemy.currentHealth > 0)
+            return true;
+
+        HandleEnemyKilled(enemy.instanceId, markAssignedAsConsumedOnKill);
+        return false;
+    }
+
+    void HandleEnemyKilled(
+        string enemyInstanceId,
+        bool markAssignedAsConsumedOnKill)
+    {
+        var enemy = FindEnemyState(enemyInstanceId);
+        if (enemy == null)
+            return;
+
+        RemoveEnemyState(enemy.instanceId);
+
+        for (int i = 0; i < RunState.adventurers.Count; i++)
+        {
+            var adventurer = RunState.adventurers[i];
+            if (adventurer == null)
+                continue;
+            if (!string.Equals(adventurer.assignedEnemyInstanceId, enemyInstanceId, StringComparison.Ordinal))
+                continue;
+
+            adventurer.assignedEnemyInstanceId = null;
+            if (markAssignedAsConsumedOnKill)
+                adventurer.actionConsumed = true;
+        }
+    }
+
+    void RemoveEnemyState(string enemyInstanceId)
+    {
+        for (int i = RunState.enemies.Count - 1; i >= 0; i--)
+        {
+            var enemy = RunState.enemies[i];
+            if (enemy == null)
+                continue;
+            if (!string.Equals(enemy.instanceId, enemyInstanceId, StringComparison.Ordinal))
+                continue;
+
+            RunState.enemies.RemoveAt(i);
+            break;
+        }
+    }
+
+    SkillCooldownState FindSkillCooldownState(string skillDefId)
+    {
+        for (int i = 0; i < RunState.skillCooldowns.Count; i++)
+        {
+            var cooldown = RunState.skillCooldowns[i];
+            if (cooldown == null)
+                continue;
+            if (!string.Equals(cooldown.skillDefId, skillDefId, StringComparison.Ordinal))
+                continue;
+
+            return cooldown;
+        }
+
+        return null;
+    }
+
+    EnemyState FindEnemyState(string enemyInstanceId)
+    {
+        for (int i = 0; i < RunState.enemies.Count; i++)
+        {
+            var enemy = RunState.enemies[i];
+            if (enemy == null)
+                continue;
+            if (!string.Equals(enemy.instanceId, enemyInstanceId, StringComparison.Ordinal))
+                continue;
+
+            return enemy;
+        }
+
+        return null;
+    }
+
+    AdventurerState FindAdventurerState(string adventurerInstanceId)
+    {
+        for (int i = 0; i < RunState.adventurers.Count; i++)
+        {
+            var adventurer = RunState.adventurers[i];
+            if (adventurer == null)
+                continue;
+            if (!string.Equals(adventurer.instanceId, adventurerInstanceId, StringComparison.Ordinal))
+                continue;
+
+            return adventurer;
+        }
+
+        return null;
+    }
+
+    int RollD6()
+    {
+        return rng.Next(1, 7);
+    }
+
+    static int SumDice(List<int> dice)
+    {
+        if (dice == null || dice.Count == 0)
+            return 0;
+
+        int sum = 0;
+        for (int i = 0; i < dice.Count; i++)
+            sum += dice[i];
+
+        return sum;
+    }
+
+    static int ToIntValue(double? value)
+    {
+        if (!value.HasValue)
+            return 0;
+
+        return (int)Math.Round(value.Value, MidpointRounding.AwayFromZero);
+    }
+
+    static string GetParamString(JObject effectParams, string key)
+    {
+        if (effectParams == null || string.IsNullOrWhiteSpace(key))
+            return string.Empty;
+
+        var token = effectParams[key];
+        if (token == null || token.Type == JTokenType.Null)
+            return string.Empty;
+
+        return token.ToString().Trim();
+    }
+
+    static bool IsValidDieIndex(AdventurerState adventurer, int dieIndex)
+    {
+        if (adventurer?.rolledDiceValues == null)
+            return false;
+
+        return dieIndex >= 0 && dieIndex < adventurer.rolledDiceValues.Count;
+    }
+
+    static int GetLowestDieIndex(IReadOnlyList<int> dice)
+    {
+        if (dice == null || dice.Count == 0)
+            return -1;
+
+        int index = 0;
+        int value = dice[0];
+        for (int i = 1; i < dice.Count; i++)
+        {
+            if (dice[i] >= value)
+                continue;
+
+            value = dice[i];
+            index = i;
+        }
+
+        return index;
+    }
+
+    static int GetHighestDieIndex(IReadOnlyList<int> dice)
+    {
+        if (dice == null || dice.Count == 0)
+            return -1;
+
+        int index = 0;
+        int value = dice[0];
+        for (int i = 1; i < dice.Count; i++)
+        {
+            if (dice[i] <= value)
+                continue;
+
+            value = dice[i];
+            index = i;
+        }
+
+        return index;
+    }
+
+    static void ApplyDieDelta(AdventurerState adventurer, int dieIndex, int delta)
+    {
+        int next = adventurer.rolledDiceValues[dieIndex] + delta;
+        if (next < 1)
+            next = 1;
+
+        adventurer.rolledDiceValues[dieIndex] = next;
+    }
+
+    void BuildDefinitionLookups(GameStaticDataSet dataSet)
+    {
+        enemyDefById = new Dictionary<string, EnemyDef>(StringComparer.Ordinal);
+        adventurerDefById = new Dictionary<string, AdventurerDef>(StringComparer.Ordinal);
+        skillDefById = new Dictionary<string, SkillDef>(StringComparer.Ordinal);
+
+        if (dataSet?.enemyDefs != null)
+        {
+            for (int i = 0; i < dataSet.enemyDefs.Count; i++)
+            {
+                var def = dataSet.enemyDefs[i];
+                if (def == null || string.IsNullOrWhiteSpace(def.enemyId))
+                    continue;
+
+                enemyDefById[def.enemyId] = def;
+            }
+        }
+
+        if (dataSet?.adventurerDefs != null)
+        {
+            for (int i = 0; i < dataSet.adventurerDefs.Count; i++)
+            {
+                var def = dataSet.adventurerDefs[i];
+                if (def == null || string.IsNullOrWhiteSpace(def.adventurerId))
+                    continue;
+
+                adventurerDefById[def.adventurerId] = def;
+            }
+        }
+
+        if (dataSet?.skillDefs != null)
+        {
+            for (int i = 0; i < dataSet.skillDefs.Count; i++)
+            {
+                var def = dataSet.skillDefs[i];
+                if (def == null || string.IsNullOrWhiteSpace(def.skillId))
+                    continue;
+
+                skillDefById[def.skillId] = def;
+            }
+        }
+    }
+
+    void NormalizeRunResources()
+    {
+        RunState.stability = ClampStability(RunState.stability);
+        RunState.gold = ClampGold(RunState.gold);
+    }
+
+    bool IsRunGameOver()
+    {
+        return RunState.stability <= 0;
+    }
+
+    int ClampStability(int value)
+    {
+        if (value < 0)
+            return 0;
+
+        if (value > RunState.maxStability)
+            return RunState.maxStability;
+
+        return value;
+    }
+
+    static int ClampGold(int value)
+    {
+        return value < 0 ? 0 : value;
+    }
+
+    ActionDef FindActionDef(EnemyDef enemyDef, string actionId)
+    {
+        if (enemyDef?.actionPool == null)
+            return null;
+        if (string.IsNullOrWhiteSpace(actionId))
+            return null;
+
+        for (int i = 0; i < enemyDef.actionPool.Count; i++)
+        {
+            var action = enemyDef.actionPool[i];
+            if (action == null)
+                continue;
+            if (!string.Equals(action.actionId, actionId, StringComparison.Ordinal))
+                continue;
+
+            return action;
+        }
+
+        return null;
+    }
+
+    ActionDef PickNextActionDef(EnemyDef enemyDef, string previousActionId)
+    {
+        if (enemyDef?.actionPool == null || enemyDef.actionPool.Count == 0)
+            return null;
+
+        var candidates = new List<ActionDef>(enemyDef.actionPool.Count);
+        int totalWeight = 0;
+
+        for (int i = 0; i < enemyDef.actionPool.Count; i++)
+        {
+            var action = enemyDef.actionPool[i];
+            if (action == null)
+                continue;
+            if (action.weight <= 0)
+                continue;
+            if (!string.IsNullOrWhiteSpace(previousActionId) &&
+                string.Equals(action.actionId, previousActionId, StringComparison.Ordinal) &&
+                enemyDef.actionPool.Count > 1)
+            {
+                continue;
+            }
+
+            candidates.Add(action);
+            totalWeight += action.weight;
+        }
+
+        if (candidates.Count == 0)
+        {
+            for (int i = 0; i < enemyDef.actionPool.Count; i++)
+            {
+                var action = enemyDef.actionPool[i];
+                if (action == null)
+                    continue;
+                if (action.weight <= 0)
+                    continue;
+
+                candidates.Add(action);
+                totalWeight += action.weight;
+            }
+        }
+
+        if (totalWeight <= 0 || candidates.Count == 0)
+            return null;
+
+        int roll = rng.Next(1, totalWeight + 1);
+        int cumulative = 0;
+
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            var action = candidates[i];
+            cumulative += action.weight;
+            if (roll <= cumulative)
+                return action;
+        }
+
+        return candidates[candidates.Count - 1];
+    }
+
+    readonly struct EffectTargetContext
+    {
+        public readonly string selectedEnemyInstanceId;
+        public readonly string selectedAdventurerInstanceId;
+        public readonly int selectedDieIndex;
+        public readonly string actionOwnerEnemyInstanceId;
+
+        public EffectTargetContext(
+            string selectedEnemyInstanceId,
+            string selectedAdventurerInstanceId,
+            int selectedDieIndex,
+            string actionOwnerEnemyInstanceId)
+        {
+            this.selectedEnemyInstanceId = selectedEnemyInstanceId;
+            this.selectedAdventurerInstanceId = selectedAdventurerInstanceId;
+            this.selectedDieIndex = selectedDieIndex;
+            this.actionOwnerEnemyInstanceId = actionOwnerEnemyInstanceId;
+        }
+    }
+}
+

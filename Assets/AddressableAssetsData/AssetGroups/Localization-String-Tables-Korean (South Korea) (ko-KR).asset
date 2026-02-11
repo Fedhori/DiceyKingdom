@@ -21,14 +21,51 @@ MonoBehaviour:
     m_SerializedLabels:
     - Locale-ko-KR
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3c465c66abaca0947a41204b2bb86c38
+    m_Address: shop_ko-KR
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko-KR
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 81810fb2917c5da45b15ebf4034fc319
+    m_Address: game_ko-KR
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko-KR
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a46a3e3429a4aee4c8e87ea22c085a66
+    m_Address: upgrade_ko-KR
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko-KR
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b9dd48f2661e9624ca8aaacd3e89263a
     m_Address: mainmenu_ko-KR
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ko-KR
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c3f722e6256298446beaa81273c6b4e5
+    m_Address: option_ko-KR
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko-KR
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c50ceea50fea9bd4e997eada8d725ab3
     m_Address: modal_ko-KR
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko-KR
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dcc820b7ef9ea424bb025a77a355999e
+    m_Address: result_ko-KR
+    m_ReadOnly: 1
+    m_SerializedLabels:
+    - Locale-ko-KR
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f69c7286024e7764bba6fb24c53cd157
+    m_Address: item_ko-KR
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ko-KR

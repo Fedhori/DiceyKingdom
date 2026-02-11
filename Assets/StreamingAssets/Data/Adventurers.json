@@ -1,0 +1,32 @@
+{
+  "adventurers": [
+    {
+      "adventurer_id": "adventurer_guard",
+      "name_key": "adventurer.guard.name",
+      "dice_count": 4,
+      "gear_slot_count": 1,
+      "innate_effect": null
+    },
+    {
+      "adventurer_id": "adventurer_scout",
+      "name_key": "adventurer.scout.name",
+      "dice_count": 4,
+      "gear_slot_count": 1,
+      "innate_effect": null
+    },
+    {
+      "adventurer_id": "adventurer_mercenary",
+      "name_key": "adventurer.mercenary.name",
+      "dice_count": 4,
+      "gear_slot_count": 1,
+      "innate_effect": null
+    },
+    {
+      "adventurer_id": "adventurer_veteran",
+      "name_key": "adventurer.veteran.name",
+      "dice_count": 4,
+      "gear_slot_count": 2,
+      "innate_effect": null
+    }
+  ]
+}
