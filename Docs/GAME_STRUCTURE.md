@@ -412,6 +412,10 @@
 - v1 조건 타입:
   - `always`
   - `diceAtLeastCount` (`threshold`, `count`)
+- 검증 규칙:
+  - `GameStaticDataLoader`가 로드 시 rule 스키마/허용 타입을 검증합니다.
+  - 로컬라이즈 키 누락/고아는 경고로만 처리하며, 런타임에서는 1회만 출력합니다.
+  - 에디터 메뉴 `Tools/Game/Validate Static Data`가 동일 검증 함수를 재사용합니다.
 
 ### 스킬(Skill)
 - 액티브 능력으로 턴 쿨다운을 가집니다.
