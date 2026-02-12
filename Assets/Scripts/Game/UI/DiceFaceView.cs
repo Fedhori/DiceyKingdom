@@ -1,14 +1,15 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 public sealed class DiceFaceView : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI valueText;
+    [SerializeField] Image backgroundImage;
 
     static readonly System.Random visualRng = new();
-    Color defaultColor = Colors.White;
     Coroutine rollRoutine;
 
     public bool IsRolling => rollRoutine != null;
@@ -16,6 +17,7 @@ public sealed class DiceFaceView : MonoBehaviour
     void Awake()
     {
         EnsureBinding();
+        ApplyActiveVisual();
     }
 
     void OnDisable()
@@ -26,13 +28,14 @@ public sealed class DiceFaceView : MonoBehaviour
             rollRoutine = null;
         }
 
-        if (valueText != null)
-            valueText.color = defaultColor;
+        ApplyActiveVisual();
     }
 
     void OnValidate()
     {
         EnsureBinding();
+        if (!Application.isPlaying)
+            ApplyActiveVisual();
     }
 
     public void SetLabel(string text)
@@ -40,11 +43,31 @@ public sealed class DiceFaceView : MonoBehaviour
         EnsureBinding();
         if (valueText == null)
             return;
-        if (IsRolling)
-            return;
+
+        if (rollRoutine != null)
+        {
+            StopCoroutine(rollRoutine);
+            rollRoutine = null;
+        }
 
         valueText.text = text ?? string.Empty;
-        valueText.color = defaultColor;
+        ApplyActiveVisual();
+    }
+
+    public void SetDisabledLabel(string text)
+    {
+        EnsureBinding();
+        if (valueText == null)
+            return;
+
+        if (rollRoutine != null)
+        {
+            StopCoroutine(rollRoutine);
+            rollRoutine = null;
+        }
+
+        valueText.text = text ?? string.Empty;
+        ApplyDisabledVisual();
     }
 
     public void PlayRollEffect(int dieFace, int finalRoll, bool isSuccess)
@@ -55,6 +78,7 @@ public sealed class DiceFaceView : MonoBehaviour
 
         if (rollRoutine != null)
             StopCoroutine(rollRoutine);
+        ApplyActiveVisual();
         rollRoutine = StartCoroutine(PlayRollEffectRoutine(
             Mathf.Max(2, dieFace),
             Mathf.Max(1, finalRoll),
@@ -65,8 +89,28 @@ public sealed class DiceFaceView : MonoBehaviour
     {
         if (valueText == null)
             valueText = GetComponentInChildren<TextMeshProUGUI>(true);
-        if (valueText != null)
-            defaultColor = valueText.color;
+        if (backgroundImage == null)
+            backgroundImage = GetComponent<Image>();
+    }
+
+    void ApplyActiveVisual()
+    {
+        if (valueText == null)
+            return;
+
+        valueText.color = Colors.DuelDefault;
+        if (backgroundImage != null)
+            backgroundImage.color = Colors.DuelDieBackgroundActive;
+    }
+
+    void ApplyDisabledVisual()
+    {
+        if (valueText == null)
+            return;
+
+        valueText.color = Colors.DuelDisabledText;
+        if (backgroundImage != null)
+            backgroundImage.color = Colors.DuelDieBackgroundInactive;
     }
 
     IEnumerator PlayRollEffectRoutine(int dieFace, int finalRoll, bool isSuccess)
@@ -84,7 +128,7 @@ public sealed class DiceFaceView : MonoBehaviour
         }
 
         valueText.text = finalRoll.ToString();
-        valueText.color = isSuccess ? Colors.DuelWin : Colors.DuelLose;
+        valueText.color = isSuccess ? Colors.DuelSuccess : Colors.DuelFailure;
 
         float holdSeconds = Mathf.Max(0f, GameConfig.DuelRollResultHoldSeconds);
         if (holdSeconds > 0f)

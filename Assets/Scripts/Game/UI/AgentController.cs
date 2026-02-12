@@ -127,43 +127,37 @@ public sealed class AgentController : MonoBehaviour
             diceCount = 0;
 
         EnsureDiceFaceCount(diceCount);
+        int remainingCount = remainingDiceFaces?.Count ?? 0;
 
         for (int index = 0; index < diceFaces.Count; index++)
         {
             var face = diceFaces[index];
-            if (face == null || face.view == null)
+            if (face == null || face.root == null || face.view == null)
                 continue;
+
+            bool isActiveDie = index < diceCount && index < remainingCount;
 
             if (face.clickTarget != null)
-                face.clickTarget.Bind(this, index);
-            if (face.view.IsRolling)
-                continue;
+            {
+                face.clickTarget.enabled = isActiveDie;
+                if (isActiveDie)
+                    face.clickTarget.Bind(this, index);
+            }
 
-            string display = "-";
-            if (remainingDiceFaces != null && index < remainingDiceFaces.Count)
-                display = $"d{remainingDiceFaces[index]}";
-
-            face.view.SetLabel(display);
+            if (isActiveDie)
+            {
+                string display = remainingDiceFaces[index].ToString();
+                face.view.SetLabel(display);
+            }
+            else
+            {
+                face.view.SetDisabledLabel("-");
+            }
         }
     }
 
     void EnsureDiceFaceCount(int targetCount)
     {
-        while (diceFaces.Count > targetCount)
-        {
-            int lastIndex = diceFaces.Count - 1;
-            var face = diceFaces[lastIndex];
-            if (face.root != null)
-            {
-                if (Application.isPlaying)
-                    Destroy(face.root.gameObject);
-                else
-                    DestroyImmediate(face.root.gameObject);
-            }
-
-            diceFaces.RemoveAt(lastIndex);
-        }
-
         while (diceFaces.Count < targetCount)
         {
             var face = CreateDiceFace(diceFaces.Count);

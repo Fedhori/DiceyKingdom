@@ -217,7 +217,8 @@ public sealed class SituationManager : MonoBehaviour
             successHighlightColor,
             failureHighlightColor,
             subtleLabelColor,
-            null);
+            null,
+            0);
 
         return controller;
     }
@@ -247,6 +248,9 @@ public sealed class SituationManager : MonoBehaviour
         card.SetDicePrefab(dicePrefab);
 
         int remainingCount = situation?.remainingDiceFaces?.Count ?? 0;
+        int totalDiceCount = ResolveSituationDiceCount(situation?.situationDefId);
+        if (totalDiceCount <= 0)
+            totalDiceCount = remainingCount;
         Color backgroundColor = remainingCount <= 1 ? lowDiceCountCardColor : cardColor;
 
         card.Render(
@@ -262,7 +266,8 @@ public sealed class SituationManager : MonoBehaviour
             successHighlightColor,
             failureHighlightColor,
             subtleLabelColor,
-            situation.remainingDiceFaces);
+            situation.remainingDiceFaces,
+            totalDiceCount);
     }
 
     string BuildRequirementLine(SituationState situation)
@@ -335,6 +340,16 @@ public sealed class SituationManager : MonoBehaviour
         if (string.IsNullOrWhiteSpace(situationDefId))
             return "Unknown Situation";
         return ToDisplayTitle(situationDefId);
+    }
+
+    int ResolveSituationDiceCount(string situationDefId)
+    {
+        if (string.IsNullOrWhiteSpace(situationDefId))
+            return 0;
+        if (!situationDefById.TryGetValue(situationDefId, out var def))
+            return 0;
+
+        return Mathf.Max(0, def.diceFaces?.Count ?? 0);
     }
 
     void TryResolveOrchestrator()

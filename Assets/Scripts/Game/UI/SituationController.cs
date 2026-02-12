@@ -83,7 +83,8 @@ public sealed class SituationController : MonoBehaviour
         Color successColor,
         Color failureColor,
         Color hintColor,
-        IReadOnlyList<int> remainingDiceFaces)
+        IReadOnlyList<int> remainingDiceFaces,
+        int totalDiceCount)
     {
         if (slotText != null)
             slotText.text = slotLabel ?? string.Empty;
@@ -120,7 +121,7 @@ public sealed class SituationController : MonoBehaviour
         if (backgroundImage != null)
             backgroundImage.color = backgroundColor;
 
-        RefreshDiceFaces(remainingDiceFaces);
+        RefreshDiceFaces(remainingDiceFaces, totalDiceCount);
     }
 
     public void PlayDuelRollEffect(int dieIndex, int dieFace, int finalRoll, bool isDestroyedByAgent)
@@ -138,28 +139,40 @@ public sealed class SituationController : MonoBehaviour
             !isDestroyedByAgent);
     }
 
-    void RefreshDiceFaces(IReadOnlyList<int> remainingDiceFaces)
+    void RefreshDiceFaces(IReadOnlyList<int> remainingDiceFaces, int totalDiceCount)
     {
         EnsureDiceRowRoot();
         if (diceRowRoot == null)
             return;
 
-        int targetCount = Mathf.Max(0, remainingDiceFaces?.Count ?? 0);
+        int targetCount = Mathf.Max(0, totalDiceCount);
         EnsureDiceFaceCount(targetCount);
+        int remainingCount = remainingDiceFaces?.Count ?? 0;
 
         for (int index = 0; index < diceFaces.Count; index++)
         {
             var face = diceFaces[index];
-            if (face == null || face.view == null)
+            if (face == null || face.root == null || face.view == null)
                 continue;
+
+            bool isActiveDie = index < targetCount && index < remainingCount;
 
             if (face.clickTarget != null)
-                face.clickTarget.Bind(this, index);
-            if (face.view.IsRolling)
-                continue;
+            {
+                face.clickTarget.enabled = isActiveDie;
+                if (isActiveDie)
+                    face.clickTarget.Bind(this, index);
+            }
 
-            int dieFace = remainingDiceFaces[index];
-            face.view.SetLabel($"d{dieFace}");
+            if (isActiveDie)
+            {
+                int dieFace = remainingDiceFaces[index];
+                face.view.SetLabel(dieFace.ToString());
+            }
+            else
+            {
+                face.view.SetDisabledLabel("-");
+            }
         }
     }
 
@@ -199,21 +212,6 @@ public sealed class SituationController : MonoBehaviour
 
     void EnsureDiceFaceCount(int targetCount)
     {
-        while (diceFaces.Count > targetCount)
-        {
-            int lastIndex = diceFaces.Count - 1;
-            var face = diceFaces[lastIndex];
-            if (face.root != null)
-            {
-                if (Application.isPlaying)
-                    Destroy(face.root.gameObject);
-                else
-                    DestroyImmediate(face.root.gameObject);
-            }
-
-            diceFaces.RemoveAt(lastIndex);
-        }
-
         while (diceFaces.Count < targetCount)
         {
             var face = CreateDiceFace(diceFaces.Count);

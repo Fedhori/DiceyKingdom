@@ -247,7 +247,7 @@ public sealed class AgentManager : MonoBehaviour
             statusColor,
             backgroundColor,
             agent.remainingDiceFaces,
-            Mathf.Max(0, agent?.remainingDiceFaces?.Count ?? diceCount));
+            diceCount);
     }
 
     string BuildInfoLine(string agentDefId)
