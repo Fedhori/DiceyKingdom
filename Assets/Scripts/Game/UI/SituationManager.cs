@@ -53,6 +53,7 @@ public sealed class SituationManager : MonoBehaviour
 
     void OnPhaseChanged(TurnPhase _)
     {
+        RebuildCardsIfNeeded(forceRebuild: false);
         RefreshAllCards();
     }
 
