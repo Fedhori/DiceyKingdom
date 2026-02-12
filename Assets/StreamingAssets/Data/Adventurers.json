@@ -5,28 +5,102 @@
       "nameKey": "adventurer.warrior.name",
       "diceCount": 4,
       "gearSlotCount": 2,
-      "innateEffect": null
+      "rules": [
+        {
+          "trigger": {
+            "type": "onRoll",
+            "params": {}
+          },
+          "condition": {
+            "type": "always",
+            "params": {}
+          },
+          "effect": {
+            "effectType": "dieFaceDelta",
+            "value": 1,
+            "params": {
+              "diePickRule": "lowest",
+              "count": 2
+            }
+          }
+        }
+      ]
     },
     {
       "adventurerId": "adventurer_archer",
       "nameKey": "adventurer.archer.name",
       "diceCount": 4,
       "gearSlotCount": 2,
-      "innateEffect": null
+      "rules": [
+        {
+          "trigger": {
+            "type": "onRoll",
+            "params": {}
+          },
+          "condition": {
+            "type": "always",
+            "params": {}
+          },
+          "effect": {
+            "effectType": "dieFaceDelta",
+            "value": 2,
+            "params": {
+              "diePickRule": "highest",
+              "count": 1
+            }
+          }
+        }
+      ]
     },
     {
       "adventurerId": "adventurer_mage",
       "nameKey": "adventurer.mage.name",
       "diceCount": 3,
       "gearSlotCount": 2,
-      "innateEffect": null
+      "rules": [
+        {
+          "trigger": {
+            "type": "onCalculation",
+            "params": {}
+          },
+          "condition": {
+            "type": "always",
+            "params": {}
+          },
+          "effect": {
+            "effectType": "attackBonusByThreshold",
+            "params": {
+              "threshold": 6,
+              "bonusPerMatch": 6
+            }
+          }
+        }
+      ]
     },
     {
       "adventurerId": "adventurer_rogue",
       "nameKey": "adventurer.rogue.name",
       "diceCount": 5,
       "gearSlotCount": 2,
-      "innateEffect": null
+      "rules": [
+        {
+          "trigger": {
+            "type": "onRoll",
+            "params": {}
+          },
+          "condition": {
+            "type": "always",
+            "params": {}
+          },
+          "effect": {
+            "effectType": "dieFaceDelta",
+            "value": -1,
+            "params": {
+              "diePickRule": "all"
+            }
+          }
+        }
+      ]
     }
   ]
 }

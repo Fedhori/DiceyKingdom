@@ -172,7 +172,7 @@ public sealed class AdventurerManager : MonoBehaviour
         controller.Render(
             $"A{slotIndex + 1}",
             "Unknown Adventurer",
-            "Dice 1  |  Innate: None",
+            "Dice 1  |  Rules: -",
             "ATK  -",
             "Status: Waiting",
             $"Roll [{slotIndex + 1}]",
@@ -237,8 +237,8 @@ public sealed class AdventurerManager : MonoBehaviour
     string BuildInfoLine(string adventurerDefId)
     {
         int diceCount = ResolveDiceCount(adventurerDefId);
-        string innateSummary = ResolveInnateSummary(adventurerDefId);
-        return $"Dice {diceCount}  |  Innate: {innateSummary}";
+        string ruleSummary = ResolveRuleSummary(adventurerDefId);
+        return $"Dice {diceCount}  |  Rules: {ruleSummary}";
     }
 
     string BuildExpectedDamageLine(AdventurerState adventurer)
@@ -250,10 +250,10 @@ public sealed class AdventurerManager : MonoBehaviour
             orchestrator.TryGetAdventurerAttackBreakdown(
                 adventurer.instanceId,
                 out int baseAttack,
-                out int innateBonus,
+                out int ruleBonus,
                 out int totalAttack))
         {
-            return $"ATK  {totalAttack} ({baseAttack} + {innateBonus})";
+            return $"ATK  {totalAttack} ({baseAttack} + {ruleBonus})";
         }
 
         int sum = 0;
@@ -326,29 +326,25 @@ public sealed class AdventurerManager : MonoBehaviour
         return Mathf.Max(1, def.diceCount);
     }
 
-    string ResolveInnateSummary(string adventurerDefId)
+    string ResolveRuleSummary(string adventurerDefId)
     {
         if (string.IsNullOrWhiteSpace(adventurerDefId))
             return "None";
 
-        if (IsWarrior(adventurerDefId))
-            return "Roll: Lowest 2 +1";
-        if (IsArcher(adventurerDefId))
-            return "Roll: Highest 1 +2";
-        if (IsMage(adventurerDefId))
-            return "ATK: +6 per die >= 6";
-        if (IsRogue(adventurerDefId))
-            return "Roll: All dice -1 (min 1)";
-
         if (!adventurerDefById.TryGetValue(adventurerDefId, out var def))
             return "None";
-        if (def.innateEffect?.effects == null || def.innateEffect.effects.Count == 0)
+        if (def.rules == null || def.rules.Count == 0)
             return "None";
 
-        var tokens = new List<string>(def.innateEffect.effects.Count);
-        for (int index = 0; index < def.innateEffect.effects.Count; index++)
+        var tokens = new List<string>(def.rules.Count);
+        for (int index = 0; index < def.rules.Count; index++)
         {
-            string token = ToEffectSummary(def.innateEffect.effects[index]);
+            var rule = def.rules[index];
+            string key = $"{adventurerDefId}.rule.{index}";
+            var args = AdventurerRuleTextArgsBuilder.Build(rule);
+            string token = LocalizationUtil.Get("adventurer", key, args);
+            if (string.IsNullOrWhiteSpace(token))
+                token = key;
             if (string.IsNullOrWhiteSpace(token))
                 continue;
 
@@ -421,35 +417,6 @@ public sealed class AdventurerManager : MonoBehaviour
         }
     }
 
-    static string ToEffectSummary(EffectSpec effect)
-    {
-        if (effect == null || string.IsNullOrWhiteSpace(effect.effectType))
-            return string.Empty;
-
-        int value = effect.value.HasValue
-            ? Mathf.RoundToInt((float)effect.value.Value)
-            : 0;
-
-        return effect.effectType switch
-        {
-            "stabilityDelta" => $"Stability {FormatSignedValue(value)}",
-            "goldDelta" => $"Gold {FormatSignedValue(value)}",
-            "situationRequirementDelta" => $"Req {FormatSignedValue(value)}",
-            "dieFaceDelta" => $"Die {FormatSignedValue(value)}",
-            "rerollAdventurerDice" => "Reroll Dice",
-            _ => value == 0
-                ? ToDisplayTitle(effect.effectType)
-                : $"{ToDisplayTitle(effect.effectType)} {FormatSignedValue(value)}"
-        };
-    }
-
-    static string FormatSignedValue(int value)
-    {
-        if (value > 0)
-            return $"+{value}";
-        return value.ToString();
-    }
-
     static string ToDisplayTitle(string raw)
     {
         if (string.IsNullOrWhiteSpace(raw))
@@ -482,23 +449,4 @@ public sealed class AdventurerManager : MonoBehaviour
         return string.Join(" ", parts);
     }
 
-    static bool IsWarrior(string adventurerDefId)
-    {
-        return string.Equals(adventurerDefId, "adventurer_warrior", StringComparison.Ordinal);
-    }
-
-    static bool IsArcher(string adventurerDefId)
-    {
-        return string.Equals(adventurerDefId, "adventurer_archer", StringComparison.Ordinal);
-    }
-
-    static bool IsMage(string adventurerDefId)
-    {
-        return string.Equals(adventurerDefId, "adventurer_mage", StringComparison.Ordinal);
-    }
-
-    static bool IsRogue(string adventurerDefId)
-    {
-        return string.Equals(adventurerDefId, "adventurer_rogue", StringComparison.Ordinal);
-    }
 }

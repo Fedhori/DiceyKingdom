@@ -5,6 +5,13 @@ using UnityEngine;
 
 public sealed class GameTurnOrchestrator : MonoBehaviour
 {
+    const string RuleTriggerOnRoll = "onRoll";
+    const string RuleTriggerOnCalculation = "onCalculation";
+    const string RuleConditionAlways = "always";
+    const string RuleConditionDiceAtLeastCount = "diceAtLeastCount";
+    const string RuleEffectAttackBonusByThreshold = "attackBonusByThreshold";
+    const string RuleEffectFlatAttackBonus = "flatAttackBonus";
+
     [SerializeField] bool autoStartOnAwake = true;
     [SerializeField] bool useFixedSeed;
     [SerializeField] int fixedSeed = 1001;
@@ -433,7 +440,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         for (int dieIndex = 0; dieIndex < diceCount; dieIndex++)
             adventurer.rolledDiceValues.Add(RollD6());
 
-        ApplyRollTriggeredInnateEffects(adventurer);
+        ApplyAdventurerRules(adventurer, RuleTriggerOnRoll);
     }
 
     void ExecuteSettlementPhase()
@@ -612,11 +619,11 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     public bool TryGetAdventurerAttackBreakdown(
         string adventurerInstanceId,
         out int baseAttack,
-        out int innateBonus,
+        out int ruleBonus,
         out int totalAttack)
     {
         baseAttack = 0;
-        innateBonus = 0;
+        ruleBonus = 0;
         totalAttack = 0;
 
         if (RunState == null || string.IsNullOrWhiteSpace(adventurerInstanceId))
@@ -626,7 +633,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
             return false;
 
-        return TryComputeAdventurerAttackBreakdown(adventurer, out baseAttack, out innateBonus, out totalAttack);
+        return TryComputeAdventurerAttackBreakdown(adventurer, out baseAttack, out ruleBonus, out totalAttack);
     }
 
     public bool IsCurrentProcessingAdventurer(string adventurerInstanceId)
@@ -841,33 +848,38 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
             return false;
 
+        return TryApplyDieFaceDeltaToAdventurer(effect, adventurer, context.selectedDieIndex, delta);
+    }
+
+    bool TryApplyDieFaceDeltaToAdventurer(
+        EffectSpec effect,
+        AdventurerState adventurer,
+        int selectedDieIndex,
+        int delta)
+    {
+        if (effect == null || adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return false;
+
         string pickRule = GetParamString(effect.effectParams, "diePickRule");
         if (pickRule == "selected")
         {
-            if (!IsValidDieIndex(adventurer, context.selectedDieIndex))
+            if (!IsValidDieIndex(adventurer, selectedDieIndex))
                 return false;
 
-            ApplyDieDelta(adventurer, context.selectedDieIndex, delta);
+            ApplyDieDelta(adventurer, selectedDieIndex, delta);
             return true;
         }
 
+        int count = Math.Max(1, GetParamInt(effect.effectParams, "count", 1));
         if (pickRule == "lowest")
         {
-            int index = GetLowestDieIndex(adventurer.rolledDiceValues);
-            if (index < 0)
-                return false;
-
-            ApplyDieDelta(adventurer, index, delta);
+            ApplySortedDiceDelta(adventurer, count, delta, ascending: true);
             return true;
         }
 
         if (pickRule == "highest")
         {
-            int index = GetHighestDieIndex(adventurer.rolledDiceValues);
-            if (index < 0)
-                return false;
-
-            ApplyDieDelta(adventurer, index, delta);
+            ApplySortedDiceDelta(adventurer, count, delta, ascending: false);
             return true;
         }
 
@@ -898,7 +910,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         {
             for (int i = 0; i < adventurer.rolledDiceValues.Count; i++)
                 adventurer.rolledDiceValues[i] = RollD6();
-            ApplyRollTriggeredInnateEffects(adventurer);
+            ApplyAdventurerRules(adventurer, RuleTriggerOnRoll);
             return true;
         }
 
@@ -1102,6 +1114,24 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return token.ToString().Trim();
     }
 
+    static int GetParamInt(JObject effectParams, string key, int defaultValue)
+    {
+        if (effectParams == null || string.IsNullOrWhiteSpace(key))
+            return defaultValue;
+
+        var token = effectParams[key];
+        if (token == null || token.Type == JTokenType.Null)
+            return defaultValue;
+
+        if (token.Type == JTokenType.Integer || token.Type == JTokenType.Float)
+            return ToIntValue(token.Value<double>());
+
+        if (int.TryParse(token.ToString().Trim(), out int parsed))
+            return parsed;
+
+        return defaultValue;
+    }
+
     static bool IsValidDieIndex(AdventurerState adventurer, int dieIndex)
     {
         if (adventurer?.rolledDiceValues == null)
@@ -1110,42 +1140,19 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return dieIndex >= 0 && dieIndex < adventurer.rolledDiceValues.Count;
     }
 
-    static int GetLowestDieIndex(IReadOnlyList<int> dice)
+    static int CountDiceAtLeast(IReadOnlyList<int> dice, int threshold)
     {
         if (dice == null || dice.Count == 0)
-            return -1;
+            return 0;
 
-        int index = 0;
-        int value = dice[0];
-        for (int i = 1; i < dice.Count; i++)
+        int count = 0;
+        for (int i = 0; i < dice.Count; i++)
         {
-            if (dice[i] >= value)
-                continue;
-
-            value = dice[i];
-            index = i;
+            if (dice[i] >= threshold)
+                count += 1;
         }
 
-        return index;
-    }
-
-    static int GetHighestDieIndex(IReadOnlyList<int> dice)
-    {
-        if (dice == null || dice.Count == 0)
-            return -1;
-
-        int index = 0;
-        int value = dice[0];
-        for (int i = 1; i < dice.Count; i++)
-        {
-            if (dice[i] <= value)
-                continue;
-
-            value = dice[i];
-            index = i;
-        }
-
-        return index;
+        return count;
     }
 
     static void ApplyDieDelta(AdventurerState adventurer, int dieIndex, int delta)
@@ -1157,111 +1164,186 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         adventurer.rolledDiceValues[dieIndex] = next;
     }
 
-    bool TryComputeAdventurerAttackBreakdown(
-        AdventurerState adventurer,
-        out int baseAttack,
-        out int innateBonus,
-        out int totalAttack)
+    static void ApplySortedDiceDelta(AdventurerState adventurer, int pickCount, int delta, bool ascending)
     {
-        baseAttack = 0;
-        innateBonus = 0;
-        totalAttack = 0;
-
         if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
-            return false;
+            return;
+        if (pickCount <= 0)
+            return;
 
-        baseAttack = SumDice(adventurer.rolledDiceValues);
-        innateBonus = ResolveInnateAttackBonus(adventurer);
-        totalAttack = Math.Max(0, baseAttack + innateBonus);
-        return true;
+        var orderedIndices = GetOrderedDieIndices(adventurer.rolledDiceValues, ascending);
+        int applyCount = Math.Min(pickCount, orderedIndices.Count);
+        for (int i = 0; i < applyCount; i++)
+            ApplyDieDelta(adventurer, orderedIndices[i], delta);
     }
 
-    int ResolveInnateAttackBonus(AdventurerState adventurer)
+    static List<int> GetOrderedDieIndices(IReadOnlyList<int> dice, bool ascending)
     {
-        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
-            return 0;
-        if (!IsMage(adventurer.adventurerDefId))
-            return 0;
+        var indices = new List<int>(dice?.Count ?? 0);
+        if (dice == null || dice.Count == 0)
+            return indices;
 
-        int sixOrMoreCount = 0;
-        for (int i = 0; i < adventurer.rolledDiceValues.Count; i++)
-        {
-            if (adventurer.rolledDiceValues[i] >= 6)
-                sixOrMoreCount += 1;
-        }
-
-        return sixOrMoreCount * 6;
-    }
-
-    void ApplyRollTriggeredInnateEffects(AdventurerState adventurer)
-    {
-        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
-            return;
-
-        if (IsWarrior(adventurer.adventurerDefId))
-        {
-            ApplyLowestDiceDelta(adventurer, pickCount: 2, delta: 1);
-            return;
-        }
-
-        if (IsArcher(adventurer.adventurerDefId))
-        {
-            int highestIndex = GetHighestDieIndex(adventurer.rolledDiceValues);
-            if (highestIndex >= 0)
-                ApplyDieDelta(adventurer, highestIndex, 2);
-            return;
-        }
-
-        if (IsRogue(adventurer.adventurerDefId))
-        {
-            for (int i = 0; i < adventurer.rolledDiceValues.Count; i++)
-                ApplyDieDelta(adventurer, i, -1);
-        }
-    }
-
-    static void ApplyLowestDiceDelta(AdventurerState adventurer, int pickCount, int delta)
-    {
-        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
-            return;
-        if (pickCount <= 0 || delta == 0)
-            return;
-
-        var indices = new List<int>(adventurer.rolledDiceValues.Count);
-        for (int i = 0; i < adventurer.rolledDiceValues.Count; i++)
+        for (int i = 0; i < dice.Count; i++)
             indices.Add(i);
 
         indices.Sort((left, right) =>
         {
-            int valueCompare = adventurer.rolledDiceValues[left].CompareTo(adventurer.rolledDiceValues[right]);
+            int valueCompare = dice[left].CompareTo(dice[right]);
+            if (!ascending)
+                valueCompare = -valueCompare;
             if (valueCompare != 0)
                 return valueCompare;
 
             return left.CompareTo(right);
         });
 
-        int applyCount = Math.Min(pickCount, indices.Count);
-        for (int i = 0; i < applyCount; i++)
-            ApplyDieDelta(adventurer, indices[i], delta);
+        return indices;
     }
 
-    static bool IsWarrior(string adventurerDefId)
+    bool TryComputeAdventurerAttackBreakdown(
+        AdventurerState adventurer,
+        out int baseAttack,
+        out int ruleBonus,
+        out int totalAttack)
     {
-        return string.Equals(adventurerDefId, "adventurer_warrior", StringComparison.Ordinal);
+        baseAttack = 0;
+        ruleBonus = 0;
+        totalAttack = 0;
+
+        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return false;
+
+        baseAttack = SumDice(adventurer.rolledDiceValues);
+        ruleBonus = ResolveAdventurerRuleAttackBonus(adventurer);
+        totalAttack = Math.Max(0, baseAttack + ruleBonus);
+        return true;
     }
 
-    static bool IsArcher(string adventurerDefId)
+    void ApplyAdventurerRules(AdventurerState adventurer, string triggerType)
     {
-        return string.Equals(adventurerDefId, "adventurer_archer", StringComparison.Ordinal);
+        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return;
+        if (string.IsNullOrWhiteSpace(triggerType))
+            return;
+        if (!adventurerDefById.TryGetValue(adventurer.adventurerDefId, out var adventurerDef))
+            return;
+        if (adventurerDef.rules == null || adventurerDef.rules.Count == 0)
+            return;
+
+        for (int i = 0; i < adventurerDef.rules.Count; i++)
+        {
+            var rule = adventurerDef.rules[i];
+            if (!IsRuleTriggerMatch(rule?.trigger, triggerType))
+                continue;
+            if (!EvaluateRuleCondition(adventurer, rule?.condition))
+                continue;
+
+            ApplyRuleRuntimeEffect(adventurer, rule?.effect);
+        }
     }
 
-    static bool IsMage(string adventurerDefId)
+    int ResolveAdventurerRuleAttackBonus(AdventurerState adventurer)
     {
-        return string.Equals(adventurerDefId, "adventurer_mage", StringComparison.Ordinal);
+        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return 0;
+        if (!adventurerDefById.TryGetValue(adventurer.adventurerDefId, out var adventurerDef))
+            return 0;
+        if (adventurerDef.rules == null || adventurerDef.rules.Count == 0)
+            return 0;
+
+        int totalBonus = 0;
+        for (int i = 0; i < adventurerDef.rules.Count; i++)
+        {
+            var rule = adventurerDef.rules[i];
+            if (!IsRuleTriggerMatch(rule?.trigger, RuleTriggerOnCalculation))
+                continue;
+            if (!EvaluateRuleCondition(adventurer, rule?.condition))
+                continue;
+
+            totalBonus += ResolveRuleCalculationBonus(adventurer, rule?.effect);
+        }
+
+        return totalBonus;
     }
 
-    static bool IsRogue(string adventurerDefId)
+    static bool IsRuleTriggerMatch(AdventurerRuleTriggerDef trigger, string expected)
     {
-        return string.Equals(adventurerDefId, "adventurer_rogue", StringComparison.Ordinal);
+        if (trigger == null || string.IsNullOrWhiteSpace(expected))
+            return false;
+
+        string type = trigger.type?.Trim();
+        if (string.IsNullOrWhiteSpace(type))
+            return false;
+
+        return string.Equals(type, expected, StringComparison.Ordinal);
+    }
+
+    bool EvaluateRuleCondition(AdventurerState adventurer, AdventurerRuleConditionDef condition)
+    {
+        string conditionType = condition?.type?.Trim();
+        if (string.IsNullOrWhiteSpace(conditionType) ||
+            string.Equals(conditionType, RuleConditionAlways, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        if (string.Equals(conditionType, RuleConditionDiceAtLeastCount, StringComparison.Ordinal))
+        {
+            int threshold = Math.Max(1, GetParamInt(condition.conditionParams, "threshold", 1));
+            int requiredCount = Math.Max(1, GetParamInt(condition.conditionParams, "count", 1));
+            int matchCount = CountDiceAtLeast(adventurer?.rolledDiceValues, threshold);
+            return matchCount >= requiredCount;
+        }
+
+        return false;
+    }
+
+    void ApplyRuleRuntimeEffect(AdventurerState adventurer, EffectSpec effect)
+    {
+        if (adventurer == null || effect == null || string.IsNullOrWhiteSpace(effect.effectType))
+            return;
+
+        string effectType = effect.effectType.Trim();
+        int value = ToIntValue(effect.value);
+        if (string.Equals(effectType, "dieFaceDelta", StringComparison.Ordinal))
+        {
+            TryApplyDieFaceDeltaToAdventurer(effect, adventurer, selectedDieIndex: -1, delta: value);
+            return;
+        }
+
+        if (string.Equals(effectType, "stabilityDelta", StringComparison.Ordinal))
+        {
+            TryApplyStabilityDelta(value);
+            return;
+        }
+
+        if (string.Equals(effectType, "goldDelta", StringComparison.Ordinal))
+            TryApplyGoldDelta(value);
+    }
+
+    int ResolveRuleCalculationBonus(AdventurerState adventurer, EffectSpec effect)
+    {
+        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return 0;
+        if (effect == null || string.IsNullOrWhiteSpace(effect.effectType))
+            return 0;
+
+        string effectType = effect.effectType.Trim();
+        if (string.Equals(effectType, RuleEffectAttackBonusByThreshold, StringComparison.Ordinal))
+        {
+            int threshold = Math.Max(1, GetParamInt(effect.effectParams, "threshold", 6));
+            int bonusPerMatch = GetParamInt(effect.effectParams, "bonusPerMatch", ToIntValue(effect.value));
+            if (bonusPerMatch == 0)
+                return 0;
+
+            int matchCount = CountDiceAtLeast(adventurer.rolledDiceValues, threshold);
+            return matchCount * bonusPerMatch;
+        }
+
+        if (string.Equals(effectType, RuleEffectFlatAttackBonus, StringComparison.Ordinal))
+            return ToIntValue(effect.value);
+
+        return 0;
     }
 
     void BuildDefinitionLookups(GameStaticDataSet dataSet)

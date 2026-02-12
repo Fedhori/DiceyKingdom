@@ -37,7 +37,29 @@ public sealed class AdventurerDef
     [JsonProperty("nameKey")] public string nameKey = string.Empty;
     [JsonProperty("diceCount")] public int diceCount = 1;
     [JsonProperty("gearSlotCount")] public int gearSlotCount;
-    [JsonProperty("innateEffect")] public EffectBundle innateEffect;
+    [JsonProperty("rules")] public List<AdventurerRuleDef> rules = new();
+}
+
+[Serializable]
+public sealed class AdventurerRuleDef
+{
+    [JsonProperty("trigger")] public AdventurerRuleTriggerDef trigger = new();
+    [JsonProperty("condition")] public AdventurerRuleConditionDef condition = new();
+    [JsonProperty("effect")] public EffectSpec effect = new();
+}
+
+[Serializable]
+public sealed class AdventurerRuleTriggerDef
+{
+    [JsonProperty("type")] public string type = string.Empty;
+    [JsonProperty("params")] public JObject triggerParams = new();
+}
+
+[Serializable]
+public sealed class AdventurerRuleConditionDef
+{
+    [JsonProperty("type")] public string type = "always";
+    [JsonProperty("params")] public JObject conditionParams = new();
 }
 
 [Serializable]

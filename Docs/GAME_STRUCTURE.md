@@ -372,6 +372,7 @@
   - `situationRequirementDelta`
   - `dieFaceDelta`
   - `rerollAdventurerDice`
+  - `attackBonusByThreshold` (모험가 rule의 `onCalculation` 전용)
 - `effectType`별 `params` 필수 키 규칙(v0 확정):
   - `stabilityDelta`
     - 필수 키 없음 (`params = null`)
@@ -384,12 +385,16 @@
     - 필수: `targetAdventurerMode`, `diePickRule`
     - 허용값:
       - `targetAdventurerMode`: `selectedAdventurer`
-      - `diePickRule`: `selected` | `lowest` | `highest` | `all` | `lowestN` | `highestN`
+      - `diePickRule`: `selected` | `lowest` | `highest` | `all`
+    - 선택: `count` (정수, `lowest`/`highest`에서 적용 개수)
   - `rerollAdventurerDice`
     - 필수: `targetAdventurerMode`, `rerollRule`
     - 허용값:
       - `targetAdventurerMode`: `selectedAdventurer`
       - `rerollRule`: `all` | `single`
+  - `attackBonusByThreshold`
+    - 필수: `threshold`, `bonusPerMatch`
+    - 동작: `threshold` 이상인 주사위 개수 × `bonusPerMatch`를 최종 공격 보정치로 더함
 
 ### 모험가 Rule 스키마/실행 규칙(v0 확정)
 
@@ -404,6 +409,9 @@
   - 트리거 1회 처리 중 같은 rule은 최대 1회만 발동
 - 룰 문자열 규칙:
   - 트리거/조건/효과 타입 및 params 키는 전부 camelCase를 사용
+- v1 조건 타입:
+  - `always`
+  - `diceAtLeastCount` (`threshold`, `count`)
 
 ### 스킬(Skill)
 - 액티브 능력으로 턴 쿨다운을 가집니다.
