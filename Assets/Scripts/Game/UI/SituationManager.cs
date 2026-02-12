@@ -404,11 +404,11 @@ public sealed class SituationManager : MonoBehaviour
 
         return effect.effectType switch
         {
-            "stability_delta" => $"Stability {FormatSignedValue(value)}",
-            "gold_delta" => $"Gold {FormatSignedValue(value)}",
-            "situation_requirement_delta" => $"Req {FormatSignedValue(value)}",
-            "die_face_delta" => $"Die {FormatSignedValue(value)}",
-            "reroll_adventurer_dice" => "Reroll Adventurer Dice",
+            "stabilityDelta" => $"Stability {FormatSignedValue(value)}",
+            "goldDelta" => $"Gold {FormatSignedValue(value)}",
+            "situationRequirementDelta" => $"Req {FormatSignedValue(value)}",
+            "dieFaceDelta" => $"Die {FormatSignedValue(value)}",
+            "rerollAdventurerDice" => "Reroll Adventurer Dice",
             _ => value == 0
                 ? ToDisplayTitle(effect.effectType)
                 : $"{ToDisplayTitle(effect.effectType)} {FormatSignedValue(value)}"

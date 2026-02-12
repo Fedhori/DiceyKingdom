@@ -1,48 +1,48 @@
 {
-  "stage_presets": [
+  "stagePresets": [
     {
-      "preset_id": "preset_frontier_raid",
+      "presetId": "preset_frontier_raid",
       "spawns": [
         {
-          "enemy_id": "orc_raiders",
+          "enemyId": "orc_raiders",
           "count": 2
         },
         {
-          "enemy_id": "locust_swarm",
+          "enemyId": "locust_swarm",
           "count": 1
         }
       ]
     },
     {
-      "preset_id": "preset_smuggler_ritual",
+      "presetId": "preset_smuggler_ritual",
       "spawns": [
         {
-          "enemy_id": "bandit_smugglers",
+          "enemyId": "bandit_smugglers",
           "count": 2
         },
         {
-          "enemy_id": "siege_shaman",
+          "enemyId": "siege_shaman",
           "count": 1
         }
       ]
     },
     {
-      "preset_id": "preset_mixed_pressure",
+      "presetId": "preset_mixed_pressure",
       "spawns": [
         {
-          "enemy_id": "orc_raiders",
+          "enemyId": "orc_raiders",
           "count": 1
         },
         {
-          "enemy_id": "locust_swarm",
+          "enemyId": "locust_swarm",
           "count": 1
         },
         {
-          "enemy_id": "bandit_smugglers",
+          "enemyId": "bandit_smugglers",
           "count": 1
         },
         {
-          "enemy_id": "siege_shaman",
+          "enemyId": "siege_shaman",
           "count": 1
         }
       ]

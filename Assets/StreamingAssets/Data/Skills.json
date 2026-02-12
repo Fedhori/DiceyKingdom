@@ -1,53 +1,53 @@
 {
   "skills": [
     {
-      "skill_id": "skill_reroll_adventurer",
-      "name_key": "skill.reroll_adventurer.name",
-      "cooldown_turns": 1,
-      "max_uses_per_turn": 1,
-      "effect_bundle": {
+      "skillId": "skill_reroll_adventurer",
+      "nameKey": "skill.reroll_adventurer.name",
+      "cooldownTurns": 1,
+      "maxUsesPerTurn": 1,
+      "effectBundle": {
         "effects": [
           {
-            "effect_type": "reroll_adventurer_dice",
+            "effectType": "rerollAdventurerDice",
             "value": null,
             "params": {
-              "target_adventurer_mode": "selected_adventurer",
-              "reroll_rule": "all"
+              "targetAdventurerMode": "selectedAdventurer",
+              "rerollRule": "all"
             }
           }
         ]
       }
     },
     {
-      "skill_id": "skill_die_face_plus_one",
-      "name_key": "skill.die_face_plus_one.name",
-      "cooldown_turns": 1,
-      "max_uses_per_turn": 1,
-      "effect_bundle": {
+      "skillId": "skill_die_face_plus_one",
+      "nameKey": "skill.die_face_plus_one.name",
+      "cooldownTurns": 1,
+      "maxUsesPerTurn": 1,
+      "effectBundle": {
         "effects": [
           {
-            "effect_type": "die_face_delta",
+            "effectType": "dieFaceDelta",
             "value": 1,
             "params": {
-              "target_adventurer_mode": "selected_adventurer",
-              "die_pick_rule": "selected"
+              "targetAdventurerMode": "selectedAdventurer",
+              "diePickRule": "selected"
             }
           }
         ]
       }
     },
     {
-      "skill_id": "skill_reduce_situation_requirement_two",
-      "name_key": "skill.reduce_situation_requirement_two.name",
-      "cooldown_turns": 2,
-      "max_uses_per_turn": 1,
-      "effect_bundle": {
+      "skillId": "skill_reduce_situation_requirement_two",
+      "nameKey": "skill.reduce_situation_requirement_two.name",
+      "cooldownTurns": 2,
+      "maxUsesPerTurn": 1,
+      "effectBundle": {
         "effects": [
           {
-            "effect_type": "situation_requirement_delta",
+            "effectType": "situationRequirementDelta",
             "value": -2,
             "params": {
-              "target_mode": "selected_situation"
+              "targetMode": "selectedSituation"
             }
           }
         ]

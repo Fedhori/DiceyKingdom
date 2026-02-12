@@ -1,32 +1,32 @@
 {
   "adventurers": [
     {
-      "adventurer_id": "adventurer_guard",
-      "name_key": "adventurer.guard.name",
-      "dice_count": 4,
-      "gear_slot_count": 1,
-      "innate_effect": null
+      "adventurerId": "adventurer_warrior",
+      "nameKey": "adventurer.warrior.name",
+      "diceCount": 4,
+      "gearSlotCount": 2,
+      "innateEffect": null
     },
     {
-      "adventurer_id": "adventurer_scout",
-      "name_key": "adventurer.scout.name",
-      "dice_count": 4,
-      "gear_slot_count": 1,
-      "innate_effect": null
+      "adventurerId": "adventurer_archer",
+      "nameKey": "adventurer.archer.name",
+      "diceCount": 4,
+      "gearSlotCount": 2,
+      "innateEffect": null
     },
     {
-      "adventurer_id": "adventurer_mercenary",
-      "name_key": "adventurer.mercenary.name",
-      "dice_count": 4,
-      "gear_slot_count": 1,
-      "innate_effect": null
+      "adventurerId": "adventurer_mage",
+      "nameKey": "adventurer.mage.name",
+      "diceCount": 3,
+      "gearSlotCount": 2,
+      "innateEffect": null
     },
     {
-      "adventurer_id": "adventurer_veteran",
-      "name_key": "adventurer.veteran.name",
-      "dice_count": 4,
-      "gear_slot_count": 2,
-      "innate_effect": null
+      "adventurerId": "adventurer_rogue",
+      "nameKey": "adventurer.rogue.name",
+      "diceCount": 5,
+      "gearSlotCount": 2,
+      "innateEffect": null
     }
   ]
 }

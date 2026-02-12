@@ -148,7 +148,9 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             return false;
 
         adventurer.assignedSituationInstanceId = situation.instanceId;
-        int attackValue = SumDice(adventurer.rolledDiceValues);
+        int attackValue;
+        if (!TryComputeAdventurerAttackBreakdown(adventurer, out _, out _, out attackValue))
+            attackValue = SumDice(adventurer.rolledDiceValues);
         if (attackValue > 0)
         {
             ApplySituationRequirementDelta(
@@ -430,6 +432,8 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         int diceCount = Math.Max(1, adventurerDef.diceCount);
         for (int dieIndex = 0; dieIndex < diceCount; dieIndex++)
             adventurer.rolledDiceValues.Add(RollD6());
+
+        ApplyRollTriggeredInnateEffects(adventurer);
     }
 
     void ExecuteSettlementPhase()
@@ -605,6 +609,26 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return adventurer.rolledDiceValues != null && adventurer.rolledDiceValues.Count > 0;
     }
 
+    public bool TryGetAdventurerAttackBreakdown(
+        string adventurerInstanceId,
+        out int baseAttack,
+        out int innateBonus,
+        out int totalAttack)
+    {
+        baseAttack = 0;
+        innateBonus = 0;
+        totalAttack = 0;
+
+        if (RunState == null || string.IsNullOrWhiteSpace(adventurerInstanceId))
+            return false;
+
+        var adventurer = FindAdventurerState(adventurerInstanceId);
+        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return false;
+
+        return TryComputeAdventurerAttackBreakdown(adventurer, out baseAttack, out innateBonus, out totalAttack);
+    }
+
     public bool IsCurrentProcessingAdventurer(string adventurerInstanceId)
     {
         if (RunState == null)
@@ -697,11 +721,11 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             string effectType = effect.effectType.Trim();
             bool allowed = effectType switch
             {
-                "stability_delta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack,
-                "gold_delta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack,
-                "situation_requirement_delta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.TargetAndAttack,
-                "die_face_delta" => phase == TurnPhase.Adjustment,
-                "reroll_adventurer_dice" => phase == TurnPhase.Adjustment,
+                "stabilityDelta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack,
+                "goldDelta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack,
+                "situationRequirementDelta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.TargetAndAttack,
+                "dieFaceDelta" => phase == TurnPhase.Adjustment,
+                "rerollAdventurerDice" => phase == TurnPhase.Adjustment,
                 _ => false
             };
 
@@ -725,7 +749,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
             if (string.Equals(
                     effect.effectType.Trim(),
-                    "situation_requirement_delta",
+                    "situationRequirementDelta",
                     StringComparison.Ordinal))
             {
                 return true;
@@ -758,15 +782,15 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         string effectType = effect.effectType.Trim();
         int value = ToIntValue(effect.value);
 
-        if (effectType == "stability_delta")
+        if (effectType == "stabilityDelta")
             return TryApplyStabilityDelta(value);
-        if (effectType == "gold_delta")
+        if (effectType == "goldDelta")
             return TryApplyGoldDelta(value);
-        if (effectType == "situation_requirement_delta")
+        if (effectType == "situationRequirementDelta")
             return TryApplySituationRequirementDeltaEffect(effect, context, value);
-        if (effectType == "die_face_delta")
+        if (effectType == "dieFaceDelta")
             return TryApplyDieFaceDeltaEffect(effect, context, value);
-        if (effectType == "reroll_adventurer_dice")
+        if (effectType == "rerollAdventurerDice")
             return TryApplyRerollAdventurerDiceEffect(effect, context);
 
         return false;
@@ -788,8 +812,8 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     bool TryApplySituationRequirementDeltaEffect(EffectSpec effect, EffectTargetContext context, int delta)
     {
-        string targetMode = GetParamString(effect.effectParams, "target_mode");
-        if (!string.Equals(targetMode, "selected_situation", StringComparison.Ordinal))
+        string targetMode = GetParamString(effect.effectParams, "targetMode");
+        if (!string.Equals(targetMode, "selectedSituation", StringComparison.Ordinal))
             return false;
 
         string targetSituationInstanceId = context.selectedSituationInstanceId;
@@ -807,8 +831,8 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     bool TryApplyDieFaceDeltaEffect(EffectSpec effect, EffectTargetContext context, int delta)
     {
-        string targetMode = GetParamString(effect.effectParams, "target_adventurer_mode");
-        if (targetMode != "selected_adventurer")
+        string targetMode = GetParamString(effect.effectParams, "targetAdventurerMode");
+        if (targetMode != "selectedAdventurer")
             return false;
         if (!ResolveCurrentProcessingAdventurerId(context.selectedAdventurerInstanceId, out var adventurerInstanceId))
             return false;
@@ -817,7 +841,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
             return false;
 
-        string pickRule = GetParamString(effect.effectParams, "die_pick_rule");
+        string pickRule = GetParamString(effect.effectParams, "diePickRule");
         if (pickRule == "selected")
         {
             if (!IsValidDieIndex(adventurer, context.selectedDieIndex))
@@ -859,8 +883,8 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     bool TryApplyRerollAdventurerDiceEffect(EffectSpec effect, EffectTargetContext context)
     {
-        string targetMode = GetParamString(effect.effectParams, "target_adventurer_mode");
-        if (targetMode != "selected_adventurer")
+        string targetMode = GetParamString(effect.effectParams, "targetAdventurerMode");
+        if (targetMode != "selectedAdventurer")
             return false;
         if (!ResolveCurrentProcessingAdventurerId(context.selectedAdventurerInstanceId, out var adventurerInstanceId))
             return false;
@@ -869,11 +893,12 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
             return false;
 
-        string rerollRule = GetParamString(effect.effectParams, "reroll_rule");
+        string rerollRule = GetParamString(effect.effectParams, "rerollRule");
         if (rerollRule == "all")
         {
             for (int i = 0; i < adventurer.rolledDiceValues.Count; i++)
                 adventurer.rolledDiceValues[i] = RollD6();
+            ApplyRollTriggeredInnateEffects(adventurer);
             return true;
         }
 
@@ -935,7 +960,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             return;
 
         string mode = NormalizeFailurePersistMode(situationDef?.failurePersistMode);
-        if (string.Equals(mode, "reset_deadline", StringComparison.Ordinal))
+        if (string.Equals(mode, "resetDeadline", StringComparison.Ordinal))
         {
             int baseDeadline = situationDef != null
                 ? Math.Max(1, situationDef.baseDeadlineTurns)
@@ -956,8 +981,8 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         string mode = raw.Trim();
         if (string.Equals(mode, "remove", StringComparison.OrdinalIgnoreCase))
             return "remove";
-        if (string.Equals(mode, "reset_deadline", StringComparison.OrdinalIgnoreCase))
-            return "reset_deadline";
+        if (string.Equals(mode, "resetDeadline", StringComparison.OrdinalIgnoreCase))
+            return "resetDeadline";
         return "remove";
     }
 
@@ -1130,6 +1155,113 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             next = 1;
 
         adventurer.rolledDiceValues[dieIndex] = next;
+    }
+
+    bool TryComputeAdventurerAttackBreakdown(
+        AdventurerState adventurer,
+        out int baseAttack,
+        out int innateBonus,
+        out int totalAttack)
+    {
+        baseAttack = 0;
+        innateBonus = 0;
+        totalAttack = 0;
+
+        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return false;
+
+        baseAttack = SumDice(adventurer.rolledDiceValues);
+        innateBonus = ResolveInnateAttackBonus(adventurer);
+        totalAttack = Math.Max(0, baseAttack + innateBonus);
+        return true;
+    }
+
+    int ResolveInnateAttackBonus(AdventurerState adventurer)
+    {
+        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return 0;
+        if (!IsMage(adventurer.adventurerDefId))
+            return 0;
+
+        int sixOrMoreCount = 0;
+        for (int i = 0; i < adventurer.rolledDiceValues.Count; i++)
+        {
+            if (adventurer.rolledDiceValues[i] >= 6)
+                sixOrMoreCount += 1;
+        }
+
+        return sixOrMoreCount * 6;
+    }
+
+    void ApplyRollTriggeredInnateEffects(AdventurerState adventurer)
+    {
+        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return;
+
+        if (IsWarrior(adventurer.adventurerDefId))
+        {
+            ApplyLowestDiceDelta(adventurer, pickCount: 2, delta: 1);
+            return;
+        }
+
+        if (IsArcher(adventurer.adventurerDefId))
+        {
+            int highestIndex = GetHighestDieIndex(adventurer.rolledDiceValues);
+            if (highestIndex >= 0)
+                ApplyDieDelta(adventurer, highestIndex, 2);
+            return;
+        }
+
+        if (IsRogue(adventurer.adventurerDefId))
+        {
+            for (int i = 0; i < adventurer.rolledDiceValues.Count; i++)
+                ApplyDieDelta(adventurer, i, -1);
+        }
+    }
+
+    static void ApplyLowestDiceDelta(AdventurerState adventurer, int pickCount, int delta)
+    {
+        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+            return;
+        if (pickCount <= 0 || delta == 0)
+            return;
+
+        var indices = new List<int>(adventurer.rolledDiceValues.Count);
+        for (int i = 0; i < adventurer.rolledDiceValues.Count; i++)
+            indices.Add(i);
+
+        indices.Sort((left, right) =>
+        {
+            int valueCompare = adventurer.rolledDiceValues[left].CompareTo(adventurer.rolledDiceValues[right]);
+            if (valueCompare != 0)
+                return valueCompare;
+
+            return left.CompareTo(right);
+        });
+
+        int applyCount = Math.Min(pickCount, indices.Count);
+        for (int i = 0; i < applyCount; i++)
+            ApplyDieDelta(adventurer, indices[i], delta);
+    }
+
+    static bool IsWarrior(string adventurerDefId)
+    {
+        return string.Equals(adventurerDefId, "adventurer_warrior", StringComparison.Ordinal);
+    }
+
+    static bool IsArcher(string adventurerDefId)
+    {
+        return string.Equals(adventurerDefId, "adventurer_archer", StringComparison.Ordinal);
+    }
+
+    static bool IsMage(string adventurerDefId)
+    {
+        return string.Equals(adventurerDefId, "adventurer_mage", StringComparison.Ordinal);
+    }
+
+    static bool IsRogue(string adventurerDefId)
+    {
+        return string.Equals(adventurerDefId, "adventurer_rogue", StringComparison.Ordinal);
     }
 
     void BuildDefinitionLookups(GameStaticDataSet dataSet)

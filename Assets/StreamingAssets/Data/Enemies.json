@@ -1,21 +1,21 @@
 {
   "enemies": [
     {
-      "enemy_id": "orc_raiders",
-      "name_key": "enemy.orc_raiders.name",
+      "enemyId": "orc_raiders",
+      "nameKey": "enemy.orc_raiders.name",
       "tags": [
         "invasion"
       ],
-      "base_health": 20,
-      "action_pool": [
+      "baseHealth": 20,
+      "actionPool": [
         {
-          "action_id": "raid",
+          "actionId": "raid",
           "weight": 3,
-          "prep_turns": 1,
-          "on_resolve": {
+          "prepTurns": 1,
+          "onResolve": {
             "effects": [
               {
-                "effect_type": "stability_delta",
+                "effectType": "stabilityDelta",
                 "value": -2,
                 "params": null
               }
@@ -23,13 +23,13 @@
           }
         },
         {
-          "action_id": "pillage",
+          "actionId": "pillage",
           "weight": 2,
-          "prep_turns": 2,
-          "on_resolve": {
+          "prepTurns": 2,
+          "onResolve": {
             "effects": [
               {
-                "effect_type": "stability_delta",
+                "effectType": "stabilityDelta",
                 "value": -3,
                 "params": null
               }
@@ -39,21 +39,21 @@
       ]
     },
     {
-      "enemy_id": "locust_swarm",
-      "name_key": "enemy.locust_swarm.name",
+      "enemyId": "locust_swarm",
+      "nameKey": "enemy.locust_swarm.name",
       "tags": [
         "famine"
       ],
-      "base_health": 17,
-      "action_pool": [
+      "baseHealth": 17,
+      "actionPool": [
         {
-          "action_id": "devour_fields",
+          "actionId": "devour_fields",
           "weight": 3,
-          "prep_turns": 2,
-          "on_resolve": {
+          "prepTurns": 2,
+          "onResolve": {
             "effects": [
               {
-                "effect_type": "stability_delta",
+                "effectType": "stabilityDelta",
                 "value": -1,
                 "params": null
               }
@@ -61,13 +61,13 @@
           }
         },
         {
-          "action_id": "strip_harvest",
+          "actionId": "strip_harvest",
           "weight": 2,
-          "prep_turns": 1,
-          "on_resolve": {
+          "prepTurns": 1,
+          "onResolve": {
             "effects": [
               {
-                "effect_type": "stability_delta",
+                "effectType": "stabilityDelta",
                 "value": -1,
                 "params": null
               }
@@ -77,22 +77,22 @@
       ]
     },
     {
-      "enemy_id": "bandit_smugglers",
-      "name_key": "enemy.bandit_smugglers.name",
+      "enemyId": "bandit_smugglers",
+      "nameKey": "enemy.bandit_smugglers.name",
       "tags": [
         "invasion",
         "economy"
       ],
-      "base_health": 18,
-      "action_pool": [
+      "baseHealth": 18,
+      "actionPool": [
         {
-          "action_id": "loot_caravans",
+          "actionId": "loot_caravans",
           "weight": 3,
-          "prep_turns": 1,
-          "on_resolve": {
+          "prepTurns": 1,
+          "onResolve": {
             "effects": [
               {
-                "effect_type": "gold_delta",
+                "effectType": "goldDelta",
                 "value": -2,
                 "params": null
               }
@@ -100,13 +100,13 @@
           }
         },
         {
-          "action_id": "extort_markets",
+          "actionId": "extort_markets",
           "weight": 2,
-          "prep_turns": 2,
-          "on_resolve": {
+          "prepTurns": 2,
+          "onResolve": {
             "effects": [
               {
-                "effect_type": "stability_delta",
+                "effectType": "stabilityDelta",
                 "value": -2,
                 "params": null
               }
@@ -116,22 +116,22 @@
       ]
     },
     {
-      "enemy_id": "siege_shaman",
-      "name_key": "enemy.siege_shaman.name",
+      "enemyId": "siege_shaman",
+      "nameKey": "enemy.siege_shaman.name",
       "tags": [
         "invasion",
         "ritual"
       ],
-      "base_health": 23,
-      "action_pool": [
+      "baseHealth": 23,
+      "actionPool": [
         {
-          "action_id": "curse_barrage",
+          "actionId": "curse_barrage",
           "weight": 2,
-          "prep_turns": 1,
-          "on_resolve": {
+          "prepTurns": 1,
+          "onResolve": {
             "effects": [
               {
-                "effect_type": "stability_delta",
+                "effectType": "stabilityDelta",
                 "value": -1,
                 "params": null
               }
@@ -139,13 +139,13 @@
           }
         },
         {
-          "action_id": "cataclysm_ritual",
+          "actionId": "cataclysm_ritual",
           "weight": 3,
-          "prep_turns": 2,
-          "on_resolve": {
+          "prepTurns": 2,
+          "onResolve": {
             "effects": [
               {
-                "effect_type": "stability_delta",
+                "effectType": "stabilityDelta",
                 "value": -4,
                 "params": null
               }

@@ -12,7 +12,7 @@ public sealed class EffectBundle
 [Serializable]
 public sealed class EffectSpec
 {
-    [JsonProperty("effect_type")] public string effectType = string.Empty;
+    [JsonProperty("effectType")] public string effectType = string.Empty;
     [JsonProperty("value")] public double? value;
     [JsonProperty("params")] public JObject effectParams = new();
 }
@@ -20,34 +20,34 @@ public sealed class EffectSpec
 [Serializable]
 public sealed class SituationDef
 {
-    [JsonProperty("situation_id")] public string situationId = string.Empty;
-    [JsonProperty("name_key")] public string nameKey = string.Empty;
+    [JsonProperty("situationId")] public string situationId = string.Empty;
+    [JsonProperty("nameKey")] public string nameKey = string.Empty;
     [JsonProperty("tags")] public List<string> tags = new();
-    [JsonProperty("base_requirement")] public int baseRequirement = 1;
-    [JsonProperty("base_deadline_turns")] public int baseDeadlineTurns = 1;
-    [JsonProperty("success_reward")] public EffectBundle successReward = new();
-    [JsonProperty("failure_effect")] public EffectBundle failureEffect = new();
-    [JsonProperty("failure_persist_mode")] public string failurePersistMode = "remove";
+    [JsonProperty("baseRequirement")] public int baseRequirement = 1;
+    [JsonProperty("baseDeadlineTurns")] public int baseDeadlineTurns = 1;
+    [JsonProperty("successReward")] public EffectBundle successReward = new();
+    [JsonProperty("failureEffect")] public EffectBundle failureEffect = new();
+    [JsonProperty("failurePersistMode")] public string failurePersistMode = "remove";
 }
 
 [Serializable]
 public sealed class AdventurerDef
 {
-    [JsonProperty("adventurer_id")] public string adventurerId = string.Empty;
-    [JsonProperty("name_key")] public string nameKey = string.Empty;
-    [JsonProperty("dice_count")] public int diceCount = 1;
-    [JsonProperty("gear_slot_count")] public int gearSlotCount;
-    [JsonProperty("innate_effect")] public EffectBundle innateEffect;
+    [JsonProperty("adventurerId")] public string adventurerId = string.Empty;
+    [JsonProperty("nameKey")] public string nameKey = string.Empty;
+    [JsonProperty("diceCount")] public int diceCount = 1;
+    [JsonProperty("gearSlotCount")] public int gearSlotCount;
+    [JsonProperty("innateEffect")] public EffectBundle innateEffect;
 }
 
 [Serializable]
 public sealed class SkillDef
 {
-    [JsonProperty("skill_id")] public string skillId = string.Empty;
-    [JsonProperty("name_key")] public string nameKey = string.Empty;
-    [JsonProperty("cooldown_turns")] public int cooldownTurns;
-    [JsonProperty("max_uses_per_turn")] public int maxUsesPerTurn = 1;
-    [JsonProperty("effect_bundle")] public EffectBundle effectBundle = new();
+    [JsonProperty("skillId")] public string skillId = string.Empty;
+    [JsonProperty("nameKey")] public string nameKey = string.Empty;
+    [JsonProperty("cooldownTurns")] public int cooldownTurns;
+    [JsonProperty("maxUsesPerTurn")] public int maxUsesPerTurn = 1;
+    [JsonProperty("effectBundle")] public EffectBundle effectBundle = new();
 }
 
 [Serializable]

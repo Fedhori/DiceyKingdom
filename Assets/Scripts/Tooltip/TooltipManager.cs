@@ -10,7 +10,6 @@ public sealed class TooltipManager : MonoBehaviour
     [SerializeField] Canvas tooltipCanvas;      // Screen Space - Overlay
     [SerializeField] TooltipView tooltipView;
     [SerializeField] Camera worldCamera;
-    [SerializeField] float showDelay = 0.2f;
     [SerializeField] Vector2 screenOffset = new Vector2(16f, -16f);
 
     // 화면 가장자리와의 최소 여백
@@ -259,8 +258,9 @@ public sealed class TooltipManager : MonoBehaviour
 
     IEnumerator ShowDelayed()
     {
-        if (showDelay > 0f)
-            yield return new WaitForSecondsRealtime(showDelay);
+        float showDelaySeconds = Mathf.Max(0f, GameConfig.TooltipShowDelaySeconds);
+        if (showDelaySeconds > 0f)
+            yield return new WaitForSecondsRealtime(showDelaySeconds);
 
         if (!hasCurrentModel || currentOwner == null)
         {

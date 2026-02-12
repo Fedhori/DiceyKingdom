@@ -74,18 +74,18 @@ public static class GameStaticDataLoader
 
             if (string.IsNullOrWhiteSpace(def.situationId))
             {
-                errors.Add($"situations[{i}].situation_id is empty");
+                errors.Add($"situations[{i}].situationId is empty");
             }
             else if (!ids.Add(def.situationId))
             {
-                errors.Add($"duplicated situation_id '{def.situationId}'");
+                errors.Add($"duplicated situationId '{def.situationId}'");
             }
 
             if (def.baseRequirement < 1)
-                errors.Add($"{def.situationId}: base_requirement must be >= 1 (actual={def.baseRequirement})");
+                errors.Add($"{def.situationId}: baseRequirement must be >= 1 (actual={def.baseRequirement})");
 
             if (def.baseDeadlineTurns < 1)
-                errors.Add($"{def.situationId}: base_deadline_turns must be >= 1 (actual={def.baseDeadlineTurns})");
+                errors.Add($"{def.situationId}: baseDeadlineTurns must be >= 1 (actual={def.baseDeadlineTurns})");
 
             if (def.successReward == null)
                 def.successReward = new EffectBundle();
@@ -94,10 +94,10 @@ public static class GameStaticDataLoader
 
             string persistMode = NormalizePersistMode(def.failurePersistMode);
             if (!string.Equals(persistMode, "remove", StringComparison.Ordinal) &&
-                !string.Equals(persistMode, "reset_deadline", StringComparison.Ordinal))
+                !string.Equals(persistMode, "resetDeadline", StringComparison.Ordinal))
             {
                 errors.Add(
-                    $"{def.situationId}: failure_persist_mode must be 'remove' or 'reset_deadline' (actual='{def.failurePersistMode}')");
+                    $"{def.situationId}: failurePersistMode must be 'remove' or 'resetDeadline' (actual='{def.failurePersistMode}')");
             }
 
             def.failurePersistMode = persistMode;
@@ -120,8 +120,8 @@ public static class GameStaticDataLoader
         string trimmed = raw.Trim();
         if (string.Equals(trimmed, "remove", StringComparison.OrdinalIgnoreCase))
             return "remove";
-        if (string.Equals(trimmed, "reset_deadline", StringComparison.OrdinalIgnoreCase))
-            return "reset_deadline";
+        if (string.Equals(trimmed, "resetDeadline", StringComparison.OrdinalIgnoreCase))
+            return "resetDeadline";
 
         return trimmed.ToLowerInvariant();
     }

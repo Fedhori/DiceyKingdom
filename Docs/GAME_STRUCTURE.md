@@ -45,7 +45,7 @@
 
 - `Enemy(몬스터)` 용어를 `Situation(상황)`으로 전환합니다.
 - `Health(체력/HP)` 용어를 `Requirement(요구치)`로 전환합니다.
-- 상황의 `행동(Action)` 및 `행동 풀(action_pool)` 시스템은 v0 범위에서 폐기합니다.
+- 상황의 `행동(Action)` 및 `행동 풀(actionPool)` 시스템은 v0 범위에서 폐기합니다.
 - 각 상황은 아래 3개를 가집니다.
   - `기한(Deadline)`
   - `성공 시 보상(Success Reward)`
@@ -61,7 +61,7 @@
   - 생성 대상은 상황 풀에서 `균등 랜덤`으로 선택합니다.
   - 보드 최대 상황 수 상한은 두지 않습니다.
 - 스킬 `지정 몬스터 피해 2`는 `지정 상황 요구치 -2`로 전환합니다.
-- 이 절의 규칙은 문서 내 기존 `Enemy/action_pool` 관련 서술보다 우선합니다.
+- 이 절의 규칙은 문서 내 기존 `Enemy/actionPool` 관련 서술보다 우선합니다.
 
 ### v0 구현 범위(확정)
 
@@ -84,7 +84,7 @@
 
 - 초기 안정도(`Stability`)는 `20`으로 고정합니다.
 - 초기 골드(`Gold`)는 `0`으로 고정합니다.
-- v0 현재 실험값으로, 4명의 모험가는 모두 `dice_count = 4`를 사용합니다.
+- v0 현재 실험값으로, 4명의 모험가는 모두 `diceCount = 4`를 사용합니다.
 - 런 시작 시 초기 상황 `3`개를 생성합니다.
 - 신규 상황 생성 규칙은 `4`턴마다 `3`개 생성으로 고정합니다.
 - 상황 생성은 사전 제작 데이터 풀에서 `균등 랜덤`으로 선정합니다.
@@ -218,9 +218,13 @@
   - 상단 HUD에 `Turn`, `Stage`, `Phase`, `Stability`, `Gold`, `Run` 상태를 고정 표시
   - 상황 카드별 태그, 요구치, 남은 기한, 성공 보상/실패 효과 요약 표시
   - 모험가 배치 가능/불가 상태 가시화
-  - 모험가 공격력 표시는 `ATK 18 (12 + 6)` 형식(최종피해 = 눈 합 + 보정 수치)으로 고정
+  - 모험가 공격력 표시는 카드 본문에서 `ATK 18 (12 + 6)` 형식으로만 고정 표시
   - 마법사 보너스처럼 `Adjustment`에서 변하는 보정값은 카드에 실시간 반영
-  - 상세 근거는 툴팁으로 제공하고 카드 본문은 간결 표기를 유지
+  - 툴팁 포맷은 공통으로 `기본공격 X + 고유보너스 Y = 최종피해 Z`
+  - 툴팁 숫자 색상은 역할별로 고정(기본공격/고유보너스/최종피해)하고 `Colors.cs`에서 중앙 관리
+  - 보정 근거(예: `6 이상 주사위 1개 × +6`)는 카드 본문이 아니라 툴팁에만 표시
+  - 툴팁 표시 지연은 고정값 `0.2s`로 유지
+  - 툴팁 가능 아이콘은 추가하지 않음
   - 드래그 타게팅 중 연결 라인/화살표 표시
   - 스킬 쿨다운 및 사용 가능 조건 표시
   - `P4` 종료 시 미배치 모험가 경고 모달 표시
@@ -273,22 +277,22 @@
 ### 모험가 최소 스키마(v0 확정)
 
 - 정적 데이터(`AdventurerDef`):
-  - `adventurer_id`: string (고유 ID)
-  - `name_key`: string (로컬라이즈 키)
-  - `dice_count`: int (`>= 1`)
-  - `gear_slot_count`: int (`>= 0`)
-  - `innate_effect`: effect_bundle or null (고유 패시브/전투 효과)
+  - `adventurerId`: string (고유 ID)
+  - `nameKey`: string (로컬라이즈 키)
+  - `diceCount`: int (`>= 1`)
+  - `gearSlotCount`: int (`>= 0`)
+  - `rules`: adventurerRule[] or null (고유 룰)
 - 런타임 데이터(`AdventurerState`):
-  - `instance_id`: string (런 내 모험가 인스턴스 ID)
-  - `adventurer_def_id`: string (`AdventurerDef.adventurer_id` 참조)
-  - `rolled_dice_values`: int[] (`P3` 결과값)
-  - `assigned_situation_instance_id`: string or null (`P4` 드래그 공격 대상)
-  - `action_consumed`: bool (`P4`에서 공격 반영 완료 여부)
+  - `instanceId`: string (런 내 모험가 인스턴스 ID)
+  - `adventurerDefId`: string (`AdventurerDef.adventurerId` 참조)
+  - `rolledDiceValues`: int[] (`P3` 결과값)
+  - `assignedSituationInstanceId`: string or null (`P4` 드래그 공격 대상)
+  - `actionConsumed`: bool (`P4`에서 공격 반영 완료 여부)
 - v0 처리 규칙:
   - 런 시작 시 모험가 슬롯은 `4`개로 고정합니다.
-  - 각 모험가는 `dice_count`만큼 기본 d6(1~6)을 굴립니다.
+  - 각 모험가는 `diceCount`만큼 기본 d6(1~6)을 굴립니다.
   - `P2`에서 배치되지 않은 모험가는 `P4`에서 공격에 기여하지 않습니다.
-  - `P4`에서 모험가의 공격 반영이 끝나면 `action_consumed = true`로 확정합니다.
+  - `P4`에서 모험가의 공격 반영이 끝나면 `actionConsumed = true`로 확정합니다.
   - 턴 종료 시 모험가 배치/굴림/소비 상태는 다음 턴 시작에 리셋됩니다.
 
 ### 시작 모험가 프리셋(v0, 2026-02-12)
@@ -298,16 +302,21 @@
   - 궁수: 주사위 `4`, 굴린 직후 가장 높은 눈 `1`개에 `+2`
   - 마법사: 주사위 `3`, `6 이상`인 주사위 `1`개당 최종 피해 `+6` (주사위 눈 자체는 변경하지 않음)
   - 도적: 주사위 `5`, 굴린 직후 모든 눈 `-1` (최소 `1`)
-- 기본 장비 슬롯(`gear_slot_count`)은 시작 4종 모두 `2`로 통일합니다.
+- 기본 장비 슬롯(`gearSlotCount`)은 시작 4종 모두 `2`로 통일합니다.
 - 동률 처리 규칙:
   - 가장 낮은/높은 눈 선택이 필요한 경우, 동일 눈에서는 좌->우(인덱스 오름차순) 우선으로 선택합니다.
 - 고유효과 발동 규칙:
   - 발동 시점은 `롤 결과 확정 -> 고유효과 적용 -> UI 갱신 -> Adjustment 스킬` 순서로 고정합니다.
-  - 전사/궁수/도적의 `롤 이벤트 트리거형` 고유효과는 `리롤 포함 모든 롤 이벤트`에서 발동합니다.
-  - 단, 단일 주사위 리롤(`reroll_rule = single`)에는 위 `롤 이벤트 트리거형` 고유효과 재트리거를 적용하지 않습니다.
-  - 마법사의 고유효과는 트리거형이 아니라 `최종 피해 계산형`으로 처리합니다.
-    - `현재 주사위 값`에서 `6 이상`인 주사위 개수 * `+6`을 최종 피해 보너스로 적용합니다.
-    - 이 보너스는 스냅샷 고정이 아니라, `Adjustment` 단계에서 주사위 값이 바뀌면 즉시 재계산합니다.
+  - `onRoll`은 `기본 롤 + 전체 리롤 계열`에서 발동합니다.
+  - `onRoll`은 단일 주사위 리롤에는 발동하지 않습니다.
+  - `onCalculation`은 ATK 계산 시마다 발동합니다(카드 갱신/공격 확정 포함).
+- 구현 원칙(확정):
+  - 모험가 효과 로직을 `adventurerId` 기반 코드 분기(하드코딩)로 구현하지 않습니다.
+  - 고유효과는 `rules` 데이터와 공통 룰 실행기에서 처리합니다.
+  - 각 rule은 `trigger`, `condition`, `effect` 3요소로 구성합니다.
+  - 룰 실행은 `rules` 배열 인덱스 오름차순 live 평가를 사용합니다.
+  - 트리거 1회 처리에서 같은 rule은 최대 1회만 발동합니다.
+  - 효과/조건/트리거 문자열은 camelCase로 통일합니다.
 
 ### 상황(Situation) (2026-02-11 확정)
 
@@ -319,68 +328,82 @@
 ### 상황 최소 스키마(v0 확정)
 
 - 정적 데이터(`SituationDef`):
-  - `situation_id`: string (고유 ID)
-  - `name_key`: string (로컬라이즈 키)
+  - `situationId`: string (고유 ID)
+  - `nameKey`: string (로컬라이즈 키)
   - `tags`: string[] (예: `invasion`, `famine`)
-  - `base_requirement`: int (`>= 1`)
-  - `base_deadline_turns`: int (`>= 1`)
-  - `success_reward`: effect_bundle
-  - `failure_effect`: effect_bundle
-  - `failure_persist_mode`: string (`remove` | `reset_deadline`) (현재 v0는 `remove`만 사용)
+  - `baseRequirement`: int (`>= 1`)
+  - `baseDeadlineTurns`: int (`>= 1`)
+  - `successReward`: effectBundle
+  - `failureEffect`: effectBundle
+  - `failurePersistMode`: string (`remove` | `resetDeadline`) (현재 v0는 `remove`만 사용)
 - 런타임 데이터(`SituationState`):
-  - `instance_id`: string (보드 인스턴스 ID)
-  - `situation_def_id`: string (`SituationDef.situation_id` 참조)
-  - `current_requirement`: int
-  - `deadline_turns_left`: int
-  - `resolved_this_turn`: bool
+  - `instanceId`: string (보드 인스턴스 ID)
+  - `situationDefId`: string (`SituationDef.situationId` 참조)
+  - `currentRequirement`: int
+  - `deadlineTurnsLeft`: int
+  - `resolvedThisTurn`: bool
 - v0 처리 규칙:
-  - 스폰 시 `current_requirement = base_requirement`, `deadline_turns_left = base_deadline_turns`
-  - `P4`에서 `current_requirement <= 0`이 되면 즉시 성공 처리(보상 획득 후 제거)
-  - `P5`에서 미해결 상황의 `deadline_turns_left -= 1`
-  - 감소 후 `deadline_turns_left <= 0`이면 실패 처리
+  - 스폰 시 `currentRequirement = baseRequirement`, `deadlineTurnsLeft = baseDeadlineTurns`
+  - `P4`에서 `currentRequirement <= 0`이 되면 즉시 성공 처리(보상 획득 후 제거)
+  - `P5`에서 미해결 상황의 `deadlineTurnsLeft -= 1`
+  - 감소 후 `deadlineTurnsLeft <= 0`이면 실패 처리
   - 실패 기본 동작은 실패 효과 적용 후 제거(`remove`)
-  - `failure_persist_mode = reset_deadline`은 데이터에서 선택 가능하며, 선택 시 실패 후 기한을 기본값으로 초기화해 잔류합니다.
+  - `failurePersistMode = resetDeadline`은 데이터에서 선택 가능하며, 선택 시 실패 후 기한을 기본값으로 초기화해 잔류합니다.
 
 ### 행동/행동 풀 폐기 규칙(확정)
 
-- `action_pool`, `current_action_id`, `action_turns_left`는 신규 설계에서 사용하지 않습니다.
+- `actionPool`, `currentActionId`, `actionTurnsLeft`는 신규 설계에서 사용하지 않습니다.
 - 기존 몬스터 행동 로직은 상황 기한/성공·실패 로직으로 대체합니다.
 
 ### 범용 효과 스키마(v0 확정)
 
-- 효과 포맷은 참조형이 아니라 `범용형(effect_bundle)`으로 고정합니다.
-- `effect_bundle`:
-  - `effects`: effect_spec[]
-- `effect_spec`(JSON, snake_case):
-  - `effect_type`: string (필수)
+- 효과 포맷은 참조형이 아니라 `범용형(effectBundle)`으로 고정합니다.
+- `effectBundle`:
+  - `effects`: effectSpec[]
+- `effectSpec`(JSON, camelCase):
+  - `effectType`: string (필수)
   - `value`: number or null
   - `params`: object or null
 - 부호 규칙:
   - 증가는 양수, 감소는 음수로 통일합니다.
-- v0 최소 지원 `effect_type`:
-  - `stability_delta`
-  - `gold_delta`
-  - `situation_requirement_delta`
-  - `die_face_delta`
-  - `reroll_adventurer_dice`
-- `effect_type`별 `params` 필수 키 규칙(v0 확정):
-  - `stability_delta`
+- v0 최소 지원 `effectType`:
+  - `stabilityDelta`
+  - `goldDelta`
+  - `situationRequirementDelta`
+  - `dieFaceDelta`
+  - `rerollAdventurerDice`
+- `effectType`별 `params` 필수 키 규칙(v0 확정):
+  - `stabilityDelta`
     - 필수 키 없음 (`params = null`)
-  - `gold_delta`
+  - `goldDelta`
     - 필수 키 없음 (`params = null`)
-  - `situation_requirement_delta`
-    - 필수: `target_mode`
-    - 허용값: `selected_situation`
-  - `die_face_delta`
-    - 필수: `target_adventurer_mode`, `die_pick_rule`
+  - `situationRequirementDelta`
+    - 필수: `targetMode`
+    - 허용값: `selectedSituation`
+  - `dieFaceDelta`
+    - 필수: `targetAdventurerMode`, `diePickRule`
     - 허용값:
-      - `target_adventurer_mode`: `selected_adventurer`
-      - `die_pick_rule`: `selected` | `lowest` | `highest` | `all`
-  - `reroll_adventurer_dice`
-    - 필수: `target_adventurer_mode`, `reroll_rule`
+      - `targetAdventurerMode`: `selectedAdventurer`
+      - `diePickRule`: `selected` | `lowest` | `highest` | `all` | `lowestN` | `highestN`
+  - `rerollAdventurerDice`
+    - 필수: `targetAdventurerMode`, `rerollRule`
     - 허용값:
-      - `target_adventurer_mode`: `selected_adventurer`
-      - `reroll_rule`: `all` | `single`
+      - `targetAdventurerMode`: `selectedAdventurer`
+      - `rerollRule`: `all` | `single`
+
+### 모험가 Rule 스키마/실행 규칙(v0 확정)
+
+- 모험가 고유효과는 `rules` 배열로 표현합니다.
+- 각 rule은 `trigger`, `condition`, `effect` 3개 오브젝트로 구성합니다.
+- 트리거:
+  - `onRoll`: 기본 롤 + 전체 리롤 계열에서 발동(단일 주사위 리롤 제외)
+  - `onCalculation`: ATK 계산 시마다 발동(카드 갱신/공격 확정 포함)
+- 평가 방식:
+  - 같은 트리거 내에서 `rules` 배열 인덱스 오름차순으로 live 평가
+  - 앞 rule 효과는 뒤 rule 조건 평가에 반영
+  - 트리거 1회 처리 중 같은 rule은 최대 1회만 발동
+- 룰 문자열 규칙:
+  - 트리거/조건/효과 타입 및 params 키는 전부 camelCase를 사용
 
 ### 스킬(Skill)
 - 액티브 능력으로 턴 쿨다운을 가집니다.
@@ -471,9 +494,9 @@
 - 효과 비용은 대부분 무료를 기본값으로 보되, 일부 스킬/칙령은 골드 비용을 가질 수 있습니다.
 - 사용 윈도우는 `P2 AdventurerRoll`, `P3 Adjustment`, `P4 TargetAndAttack`로 제한합니다.
 - v0 기본 스킬 3종의 사용 윈도우는 아래로 고정합니다.
-  - 리롤(`reroll_adventurer_dice`): `P3` 전용
-  - 눈 +1(`die_face_delta`): `P3` 전용
-  - 상황 요구치 -2(`situation_requirement_delta`): `P2`, `P4`
+  - 리롤(`rerollAdventurerDice`): `P3` 전용
+  - 눈 +1(`dieFaceDelta`): `P3` 전용
+  - 상황 요구치 -2(`situationRequirementDelta`): `P2`, `P4`
 - 순차 처리에서는 "현재 처리 중인 모험가"를 기준으로만 대상 지정이 가능합니다.
 - 스킬 입력 방식은 `스킬 슬롯 클릭` 또는 `Q/W/E/R` 단축키 선택 후, 유효 타깃 클릭으로 고정합니다.
 - 턴 종료 입력은 하단 중앙 `End Turn` CTA 버튼 또는 `Space` 단축키를 사용합니다.

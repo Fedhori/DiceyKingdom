@@ -473,19 +473,19 @@ public sealed class BottomActionBarController : MonoBehaviour
                 return false;
 
             string effectType = effect.effectType.Trim();
-            if (effectType == "situation_requirement_delta")
+            if (effectType == "situationRequirementDelta")
                 return false;
 
-            if (effectType == "die_face_delta")
+            if (effectType == "dieFaceDelta")
             {
-                string diePickRule = GetParamString(effect.effectParams, "die_pick_rule");
+                string diePickRule = GetParamString(effect.effectParams, "diePickRule");
                 if (diePickRule == "selected")
                     return false;
             }
 
-            if (effectType == "reroll_adventurer_dice")
+            if (effectType == "rerollAdventurerDice")
             {
-                string rerollRule = GetParamString(effect.effectParams, "reroll_rule");
+                string rerollRule = GetParamString(effect.effectParams, "rerollRule");
                 if (rerollRule == "single")
                     return false;
             }

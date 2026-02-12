@@ -246,11 +246,21 @@ public sealed class AdventurerManager : MonoBehaviour
         if (adventurer?.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
             return "ATK  -";
 
+        if (orchestrator != null &&
+            orchestrator.TryGetAdventurerAttackBreakdown(
+                adventurer.instanceId,
+                out int baseAttack,
+                out int innateBonus,
+                out int totalAttack))
+        {
+            return $"ATK  {totalAttack} ({baseAttack} + {innateBonus})";
+        }
+
         int sum = 0;
         for (int index = 0; index < adventurer.rolledDiceValues.Count; index++)
             sum += adventurer.rolledDiceValues[index];
 
-        return $"ATK  {sum}";
+        return $"ATK  {sum} ({sum} + 0)";
     }
 
     string BuildStatusLine(AdventurerState adventurer)
@@ -320,6 +330,16 @@ public sealed class AdventurerManager : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(adventurerDefId))
             return "None";
+
+        if (IsWarrior(adventurerDefId))
+            return "Roll: Lowest 2 +1";
+        if (IsArcher(adventurerDefId))
+            return "Roll: Highest 1 +2";
+        if (IsMage(adventurerDefId))
+            return "ATK: +6 per die >= 6";
+        if (IsRogue(adventurerDefId))
+            return "Roll: All dice -1 (min 1)";
+
         if (!adventurerDefById.TryGetValue(adventurerDefId, out var def))
             return "None";
         if (def.innateEffect?.effects == null || def.innateEffect.effects.Count == 0)
@@ -412,11 +432,11 @@ public sealed class AdventurerManager : MonoBehaviour
 
         return effect.effectType switch
         {
-            "stability_delta" => $"Stability {FormatSignedValue(value)}",
-            "gold_delta" => $"Gold {FormatSignedValue(value)}",
-            "situation_requirement_delta" => $"Req {FormatSignedValue(value)}",
-            "die_face_delta" => $"Die {FormatSignedValue(value)}",
-            "reroll_adventurer_dice" => "Reroll Dice",
+            "stabilityDelta" => $"Stability {FormatSignedValue(value)}",
+            "goldDelta" => $"Gold {FormatSignedValue(value)}",
+            "situationRequirementDelta" => $"Req {FormatSignedValue(value)}",
+            "dieFaceDelta" => $"Die {FormatSignedValue(value)}",
+            "rerollAdventurerDice" => "Reroll Dice",
             _ => value == 0
                 ? ToDisplayTitle(effect.effectType)
                 : $"{ToDisplayTitle(effect.effectType)} {FormatSignedValue(value)}"
@@ -460,5 +480,25 @@ public sealed class AdventurerManager : MonoBehaviour
         }
 
         return string.Join(" ", parts);
+    }
+
+    static bool IsWarrior(string adventurerDefId)
+    {
+        return string.Equals(adventurerDefId, "adventurer_warrior", StringComparison.Ordinal);
+    }
+
+    static bool IsArcher(string adventurerDefId)
+    {
+        return string.Equals(adventurerDefId, "adventurer_archer", StringComparison.Ordinal);
+    }
+
+    static bool IsMage(string adventurerDefId)
+    {
+        return string.Equals(adventurerDefId, "adventurer_mage", StringComparison.Ordinal);
+    }
+
+    static bool IsRogue(string adventurerDefId)
+    {
+        return string.Equals(adventurerDefId, "adventurer_rogue", StringComparison.Ordinal);
     }
 }
