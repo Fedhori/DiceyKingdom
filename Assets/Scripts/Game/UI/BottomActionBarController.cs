@@ -159,7 +159,7 @@ public sealed class BottomActionBarController : MonoBehaviour
             return;
 
         bool canCommit = CanRequestCommitByPhase();
-        int pendingCount = orchestrator?.GetUnassignedAdventurerCount() ?? 0;
+        int pendingCount = orchestrator?.GetUnassignedAgentCount() ?? 0;
 
         commitButton.interactable = canCommit;
         commitButtonImage.color = canCommit ? commitReadyColor : commitBlockedColor;
@@ -483,7 +483,7 @@ public sealed class BottomActionBarController : MonoBehaviour
                     return false;
             }
 
-            if (effectType == "rerollAdventurerDice")
+            if (effectType == "rerollAgentDice")
             {
                 string rerollRule = GetParamString(effect.effectParams, "rerollRule");
                 if (rerollRule == "single")
@@ -563,7 +563,7 @@ public sealed class BottomActionBarController : MonoBehaviour
             return false;
 
         var phase = orchestrator.RunState.turn.phase;
-        return phase == TurnPhase.AdventurerRoll ||
+        return phase == TurnPhase.AgentRoll ||
                phase == TurnPhase.Adjustment ||
                phase == TurnPhase.TargetAndAttack;
     }
@@ -691,3 +691,4 @@ public sealed class BottomActionBarController : MonoBehaviour
         public TextMeshProUGUI statusText;
     }
 }
+

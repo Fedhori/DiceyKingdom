@@ -1,16 +1,16 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public sealed class AdventurerDragHandle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public sealed class AgentDragHandle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] GameTurnOrchestrator orchestrator;
-    [SerializeField] string adventurerInstanceId = string.Empty;
+    [SerializeField] string agentInstanceId = string.Empty;
 
-    public string AdventurerInstanceId => adventurerInstanceId;
+    public string AgentInstanceId => agentInstanceId;
 
-    public void SetAdventurerInstanceId(string instanceId)
+    public void SetAgentInstanceId(string instanceId)
     {
-        adventurerInstanceId = instanceId ?? string.Empty;
+        agentInstanceId = instanceId ?? string.Empty;
     }
 
     public void SetOrchestrator(GameTurnOrchestrator value)
@@ -29,10 +29,10 @@ public sealed class AdventurerDragHandle : MonoBehaviour, IBeginDragHandler, IDr
             return;
         if (orchestrator == null)
             return;
-        if (!orchestrator.TryBeginAdventurerTargeting(adventurerInstanceId))
+        if (!orchestrator.TryBeginAgentTargeting(agentInstanceId))
             return;
 
-        AssignmentDragSession.Begin(adventurerInstanceId, eventData.position);
+        AssignmentDragSession.Begin(agentInstanceId, eventData.position);
         AssignmentDragSession.Move(eventData.position);
     }
 
@@ -57,17 +57,17 @@ public sealed class AdventurerDragHandle : MonoBehaviour, IBeginDragHandler, IDr
         if (orchestrator == null)
             return;
 
-        orchestrator.TryClearAdventurerAssignment(adventurerInstanceId);
+        orchestrator.TryClearAgentAssignment(agentInstanceId);
     }
 
     bool CanDrag()
     {
         if (orchestrator == null)
             return false;
-        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+        if (string.IsNullOrWhiteSpace(agentInstanceId))
             return false;
 
-        return orchestrator.CanAssignAdventurer(adventurerInstanceId);
+        return orchestrator.CanAssignAgent(agentInstanceId);
     }
 
     void TryResolveOrchestrator()
@@ -78,3 +78,4 @@ public sealed class AdventurerDragHandle : MonoBehaviour, IBeginDragHandler, IDr
         orchestrator = FindFirstObjectByType<GameTurnOrchestrator>();
     }
 }
+

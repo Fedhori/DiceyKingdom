@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class AdventurerManager : MonoBehaviour
+public sealed class AgentManager : MonoBehaviour
 {
     [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] RectTransform contentRoot;
@@ -16,8 +16,8 @@ public sealed class AdventurerManager : MonoBehaviour
     [SerializeField] Color infoEmphasisColor = new(0.86f, 0.93f, 1.00f, 1.00f);
     [SerializeField] Color damageHighlightColor = new(1.00f, 0.88f, 0.28f, 1.00f);
 
-    readonly List<AdventurerController> cards = new();
-    readonly Dictionary<string, AdventurerDef> adventurerDefById = new(StringComparer.Ordinal);
+    readonly List<AgentController> cards = new();
+    readonly Dictionary<string, AgentDef> agentDefById = new(StringComparer.Ordinal);
     bool loadedDefs;
 
     void Awake()
@@ -25,7 +25,7 @@ public sealed class AdventurerManager : MonoBehaviour
         TryResolveOrchestrator();
         TryResolveContentRoot();
         ValidateEditorLayoutSetup();
-        LoadAdventurerDefsIfNeeded();
+        LoadAgentDefsIfNeeded();
     }
 
     void OnEnable()
@@ -100,7 +100,7 @@ public sealed class AdventurerManager : MonoBehaviour
             return false;
         if (contentRoot == null)
             return false;
-        if (orchestrator.RunState == null || orchestrator.RunState.adventurers == null)
+        if (orchestrator.RunState == null || orchestrator.RunState.agents == null)
             return false;
 
         return true;
@@ -111,7 +111,7 @@ public sealed class AdventurerManager : MonoBehaviour
         if (!IsReady())
             return;
 
-        int desiredCount = orchestrator.RunState.adventurers.Count;
+        int desiredCount = orchestrator.RunState.agents.Count;
         if (!forceRebuild && cards.Count == desiredCount)
             return;
 
@@ -144,21 +144,21 @@ public sealed class AdventurerManager : MonoBehaviour
         cards.Clear();
     }
 
-    AdventurerController CreateCard(int slotIndex)
+    AgentController CreateCard(int slotIndex)
     {
         if (cardPrefab == null)
         {
-            Debug.LogWarning("[AdventurerManager] cardPrefab is not assigned.");
+            Debug.LogWarning("[AgentManager] cardPrefab is not assigned.");
             return null;
         }
 
         var root = Instantiate(cardPrefab, contentRoot, false);
-        root.name = $"AdventurerCard_{slotIndex + 1}";
+        root.name = $"AgentCard_{slotIndex + 1}";
 
-        var controller = root.GetComponent<AdventurerController>();
+        var controller = root.GetComponent<AgentController>();
         if (controller == null)
         {
-            Debug.LogWarning("[AdventurerManager] cardPrefab requires AdventurerController.", root);
+            Debug.LogWarning("[AgentManager] cardPrefab requires AgentController.", root);
             if (Application.isPlaying)
                 Destroy(root);
             else
@@ -168,10 +168,10 @@ public sealed class AdventurerManager : MonoBehaviour
 
         controller.SetDicePrefab(dicePrefab);
         controller.BindOrchestrator(orchestrator);
-        controller.BindAdventurer(string.Empty);
+        controller.BindAgent(string.Empty);
         controller.Render(
             $"A{slotIndex + 1}",
-            "Unknown Adventurer",
+            "Unknown Agent",
             "Dice 1  |  Rules: -",
             "ATK  -",
             "Status: Waiting",
@@ -188,67 +188,67 @@ public sealed class AdventurerManager : MonoBehaviour
     {
         if (!IsReady())
             return;
-        if (cards.Count != orchestrator.RunState.adventurers.Count)
+        if (cards.Count != orchestrator.RunState.agents.Count)
             return;
 
         for (int index = 0; index < cards.Count; index++)
         {
             var card = cards[index];
-            var adventurer = orchestrator.RunState.adventurers[index];
-            if (card == null || adventurer == null)
+            var agent = orchestrator.RunState.agents[index];
+            if (card == null || agent == null)
                 continue;
 
-            RefreshCardVisual(card, adventurer, index);
+            RefreshCardVisual(card, agent, index);
         }
     }
 
-    void RefreshCardVisual(AdventurerController card, AdventurerState adventurer, int slotIndex)
+    void RefreshCardVisual(AgentController card, AgentState agent, int slotIndex)
     {
         card.SetDicePrefab(dicePrefab);
         card.BindOrchestrator(orchestrator);
-        card.BindAdventurer(adventurer.instanceId);
+        card.BindAgent(agent.instanceId);
 
-        int diceCount = ResolveDiceCount(adventurer.adventurerDefId);
-        Color statusColor = ResolveStatusColor(adventurer);
+        int diceCount = ResolveDiceCount(agent.agentDefId);
+        Color statusColor = ResolveStatusColor(agent);
         Color backgroundColor;
-        bool isProcessing = orchestrator.IsCurrentProcessingAdventurer(adventurer.instanceId);
-        if (adventurer.actionConsumed)
+        bool isProcessing = orchestrator.IsCurrentProcessingAgent(agent.instanceId);
+        if (agent.actionConsumed)
             backgroundColor = consumedCardColor;
         else if (isProcessing)
             backgroundColor = rolledCardColor;
-        else if (adventurer.rolledDiceValues != null && adventurer.rolledDiceValues.Count > 0)
+        else if (agent.rolledDiceValues != null && agent.rolledDiceValues.Count > 0)
             backgroundColor = rolledCardColor;
         else
             backgroundColor = pendingCardColor;
 
         card.Render(
             $"A{slotIndex + 1}",
-            ResolveAdventurerName(adventurer.adventurerDefId),
-            BuildInfoLine(adventurer.adventurerDefId),
-            BuildExpectedDamageLine(adventurer),
-            BuildStatusLine(adventurer),
+            ResolveAgentName(agent.agentDefId),
+            BuildInfoLine(agent.agentDefId),
+            BuildExpectedDamageLine(agent),
+            BuildStatusLine(agent),
             $"Roll [{slotIndex + 1}]",
             statusColor,
             backgroundColor,
-            adventurer.rolledDiceValues,
+            agent.rolledDiceValues,
             diceCount);
     }
 
-    string BuildInfoLine(string adventurerDefId)
+    string BuildInfoLine(string agentDefId)
     {
-        int diceCount = ResolveDiceCount(adventurerDefId);
-        string ruleSummary = ResolveRuleSummary(adventurerDefId);
+        int diceCount = ResolveDiceCount(agentDefId);
+        string ruleSummary = ResolveRuleSummary(agentDefId);
         return $"Dice {diceCount}  |  Rules: {ruleSummary}";
     }
 
-    string BuildExpectedDamageLine(AdventurerState adventurer)
+    string BuildExpectedDamageLine(AgentState agent)
     {
-        if (adventurer?.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        if (agent?.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
             return "ATK  -";
 
         if (orchestrator != null &&
-            orchestrator.TryGetAdventurerAttackBreakdown(
-                adventurer.instanceId,
+            orchestrator.TryGetAgentAttackBreakdown(
+                agent.instanceId,
                 out int baseAttack,
                 out int ruleBonus,
                 out int totalAttack))
@@ -257,81 +257,81 @@ public sealed class AdventurerManager : MonoBehaviour
         }
 
         int sum = 0;
-        for (int index = 0; index < adventurer.rolledDiceValues.Count; index++)
-            sum += adventurer.rolledDiceValues[index];
+        for (int index = 0; index < agent.rolledDiceValues.Count; index++)
+            sum += agent.rolledDiceValues[index];
 
         return $"ATK  {sum} ({sum} + 0)";
     }
 
-    string BuildStatusLine(AdventurerState adventurer)
+    string BuildStatusLine(AgentState agent)
     {
-        if (adventurer == null)
+        if (agent == null)
             return string.Empty;
-        if (adventurer.actionConsumed)
+        if (agent.actionConsumed)
             return "Status: Resolved";
 
         var phase = orchestrator.RunState.turn.phase;
-        bool isProcessing = orchestrator.IsCurrentProcessingAdventurer(adventurer.instanceId);
+        bool isProcessing = orchestrator.IsCurrentProcessingAgent(agent.instanceId);
         if (isProcessing && phase == TurnPhase.Adjustment)
             return "Status: Adjusting";
         if (isProcessing && phase == TurnPhase.TargetAndAttack)
             return "Status: Choose target";
-        if (adventurer.rolledDiceValues != null && adventurer.rolledDiceValues.Count > 0)
+        if (agent.rolledDiceValues != null && agent.rolledDiceValues.Count > 0)
             return "Status: Ready to attack";
-        if (orchestrator.CanRollAdventurer(adventurer.instanceId))
+        if (orchestrator.CanRollAgent(agent.instanceId))
             return "Status: Ready to roll";
         return "Status: Waiting";
     }
 
-    Color ResolveStatusColor(AdventurerState adventurer)
+    Color ResolveStatusColor(AgentState agent)
     {
-        if (adventurer == null)
+        if (agent == null)
             return subtleLabelColor;
-        if (adventurer.actionConsumed)
+        if (agent.actionConsumed)
             return subtleLabelColor;
 
         var phase = orchestrator.RunState.turn.phase;
-        bool isProcessing = orchestrator.IsCurrentProcessingAdventurer(adventurer.instanceId);
+        bool isProcessing = orchestrator.IsCurrentProcessingAgent(agent.instanceId);
         if (isProcessing && (phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack))
             return damageHighlightColor;
-        if (adventurer.rolledDiceValues != null && adventurer.rolledDiceValues.Count > 0)
+        if (agent.rolledDiceValues != null && agent.rolledDiceValues.Count > 0)
             return infoEmphasisColor;
 
         return subtleLabelColor;
     }
 
-    string ResolveAdventurerName(string adventurerDefId)
+    string ResolveAgentName(string agentDefId)
     {
-        if (!string.IsNullOrWhiteSpace(adventurerDefId) &&
-            adventurerDefById.TryGetValue(adventurerDefId, out var def))
+        if (!string.IsNullOrWhiteSpace(agentDefId) &&
+            agentDefById.TryGetValue(agentDefId, out var def))
         {
-            if (!string.IsNullOrWhiteSpace(def.adventurerId))
-                return ToDisplayTitle(def.adventurerId);
+            if (!string.IsNullOrWhiteSpace(def.agentId))
+                return ToDisplayTitle(def.agentId);
             if (!string.IsNullOrWhiteSpace(def.nameKey))
                 return ToDisplayTitle(def.nameKey);
         }
 
-        if (string.IsNullOrWhiteSpace(adventurerDefId))
-            return "Unknown Adventurer";
-        return ToDisplayTitle(adventurerDefId);
+        if (string.IsNullOrWhiteSpace(agentDefId))
+            return "Unknown Agent";
+        return ToDisplayTitle(agentDefId);
     }
 
-    int ResolveDiceCount(string adventurerDefId)
+    int ResolveDiceCount(string agentDefId)
     {
-        if (string.IsNullOrWhiteSpace(adventurerDefId))
+        if (string.IsNullOrWhiteSpace(agentDefId))
             return 1;
-        if (!adventurerDefById.TryGetValue(adventurerDefId, out var def))
+        if (!agentDefById.TryGetValue(agentDefId, out var def))
             return 1;
 
         return Mathf.Max(1, def.diceCount);
     }
 
-    string ResolveRuleSummary(string adventurerDefId)
+    string ResolveRuleSummary(string agentDefId)
     {
-        if (string.IsNullOrWhiteSpace(adventurerDefId))
+        if (string.IsNullOrWhiteSpace(agentDefId))
             return "None";
 
-        if (!adventurerDefById.TryGetValue(adventurerDefId, out var def))
+        if (!agentDefById.TryGetValue(agentDefId, out var def))
             return "None";
         if (def.rules == null || def.rules.Count == 0)
             return "None";
@@ -340,9 +340,9 @@ public sealed class AdventurerManager : MonoBehaviour
         for (int index = 0; index < def.rules.Count; index++)
         {
             var rule = def.rules[index];
-            string key = $"{adventurerDefId}.rule.{index}";
-            var args = AdventurerRuleTextArgsBuilder.Build(rule);
-            string token = LocalizationUtil.Get("adventurer", key, args);
+            string key = $"{agentDefId}.rule.{index}";
+            var args = AgentRuleTextArgsBuilder.Build(rule);
+            string token = LocalizationUtil.Get("agent", key, args);
             if (string.IsNullOrWhiteSpace(token))
                 token = key;
             if (string.IsNullOrWhiteSpace(token))
@@ -381,39 +381,39 @@ public sealed class AdventurerManager : MonoBehaviour
             contentRoot.GetComponent<HorizontalLayoutGroup>() == null)
         {
             Debug.LogWarning(
-                "[AdventurerManager] contentRoot requires a LayoutGroup configured in the editor.");
+                "[AgentManager] contentRoot requires a LayoutGroup configured in the editor.");
         }
 
         if (contentRoot.GetComponent<RectMask2D>() == null)
         {
             Debug.LogWarning(
-                "[AdventurerManager] contentRoot requires RectMask2D configured in the editor.");
+                "[AgentManager] contentRoot requires RectMask2D configured in the editor.");
         }
     }
 
-    void LoadAdventurerDefsIfNeeded()
+    void LoadAgentDefsIfNeeded()
     {
         if (loadedDefs)
             return;
         loadedDefs = true;
 
-        adventurerDefById.Clear();
+        agentDefById.Clear();
 
         try
         {
-            var defs = GameStaticDataLoader.LoadAdventurerDefs();
+            var defs = GameStaticDataLoader.LoadAgentDefs();
             for (int index = 0; index < defs.Count; index++)
             {
                 var def = defs[index];
-                if (def == null || string.IsNullOrWhiteSpace(def.adventurerId))
+                if (def == null || string.IsNullOrWhiteSpace(def.agentId))
                     continue;
 
-                adventurerDefById[def.adventurerId] = def;
+                agentDefById[def.agentId] = def;
             }
         }
         catch (Exception exception)
         {
-            Debug.LogWarning($"[AdventurerManager] Failed to load adventurer defs: {exception.Message}");
+            Debug.LogWarning($"[AgentManager] Failed to load agent defs: {exception.Message}");
         }
     }
 
@@ -423,8 +423,8 @@ public sealed class AdventurerManager : MonoBehaviour
             return string.Empty;
 
         string normalized = raw.Trim();
-        if (normalized.StartsWith("adventurer_", StringComparison.OrdinalIgnoreCase))
-            normalized = normalized.Substring("adventurer_".Length);
+        if (normalized.StartsWith("agent_", StringComparison.OrdinalIgnoreCase))
+            normalized = normalized.Substring("agent_".Length);
 
         normalized = normalized.Replace('_', ' ').Replace('.', ' ');
         var parts = normalized.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -450,3 +450,4 @@ public sealed class AdventurerManager : MonoBehaviour
     }
 
 }
+

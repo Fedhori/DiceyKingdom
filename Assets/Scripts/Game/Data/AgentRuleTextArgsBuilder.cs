@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-public static class AdventurerRuleTextArgsBuilder
+public static class AgentRuleTextArgsBuilder
 {
-    public static Dictionary<string, object> Build(AdventurerRuleDef rule)
+    public static Dictionary<string, object> Build(AgentRuleDef rule)
     {
         var args = new Dictionary<string, object>(StringComparer.Ordinal)
         {
@@ -74,3 +74,4 @@ public static class AdventurerRuleTextArgsBuilder
         return token.ToString().Trim();
     }
 }
+

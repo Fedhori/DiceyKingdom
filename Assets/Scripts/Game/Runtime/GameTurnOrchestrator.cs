@@ -18,7 +18,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     GameStaticDataSet staticData;
     Dictionary<string, SituationDef> situationDefById;
-    Dictionary<string, AdventurerDef> adventurerDefById;
+    Dictionary<string, AgentDef> agentDefById;
     Dictionary<string, SkillDef> skillDefById;
     System.Random rng;
     bool isRunOver;
@@ -53,7 +53,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         RunStarted?.Invoke(RunState);
         StageSpawned?.Invoke(RunState.stage.stageNumber, RunState.stage.activePresetId);
 
-        // TurnStart -> BoardUpdate -> AdventurerRoll까지 자동 진행.
+        // TurnStart -> BoardUpdate -> AgentRoll까지 자동 진행.
         AdvanceToDecisionPoint();
     }
 
@@ -61,48 +61,48 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     {
         if (!CanRequestTurnCommit())
             return false;
-        if (GetPendingAdventurerCount() > 0)
+        if (GetPendingAgentCount() > 0)
             return false;
 
-        RunState.turn.processingAdventurerInstanceId = string.Empty;
+        RunState.turn.processingAgentInstanceId = string.Empty;
         SetPhase(TurnPhase.Settlement);
         AdvanceToDecisionPoint();
         return true;
     }
 
-    public bool TryRollAdventurerBySlotIndex(int slotIndex)
+    public bool TryRollAgentBySlotIndex(int slotIndex)
     {
-        if (RunState?.adventurers == null)
+        if (RunState?.agents == null)
             return false;
-        if (slotIndex < 0 || slotIndex >= RunState.adventurers.Count)
-            return false;
-
-        var adventurer = RunState.adventurers[slotIndex];
-        if (adventurer == null)
+        if (slotIndex < 0 || slotIndex >= RunState.agents.Count)
             return false;
 
-        return TryRollAdventurer(adventurer.instanceId);
+        var agent = RunState.agents[slotIndex];
+        if (agent == null)
+            return false;
+
+        return TryRollAgent(agent.instanceId);
     }
 
-    public bool TryRollAdventurer(string adventurerInstanceId)
+    public bool TryRollAgent(string agentInstanceId)
     {
         if (!CanAcceptRollInput())
             return false;
-        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+        if (string.IsNullOrWhiteSpace(agentInstanceId))
             return false;
-        if (!IsAdventurerPending(adventurerInstanceId))
-            return false;
-
-        var adventurer = FindAdventurerState(adventurerInstanceId);
-        if (adventurer == null)
+        if (!IsAgentPending(agentInstanceId))
             return false;
 
-        RunState.turn.processingAdventurerInstanceId = adventurer.instanceId;
+        var agent = FindAgentState(agentInstanceId);
+        if (agent == null)
+            return false;
+
+        RunState.turn.processingAgentInstanceId = agent.instanceId;
         ExecuteRollPhase();
 
-        if (adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        if (agent.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
         {
-            RunState.turn.processingAdventurerInstanceId = string.Empty;
+            RunState.turn.processingAgentInstanceId = string.Empty;
             return false;
         }
 
@@ -110,15 +110,15 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return true;
     }
 
-    public bool TryBeginAdventurerTargeting(string adventurerInstanceId)
+    public bool TryBeginAgentTargeting(string agentInstanceId)
     {
         if (!CanEnterTargetingInput())
             return false;
-        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+        if (string.IsNullOrWhiteSpace(agentInstanceId))
             return false;
         if (!string.Equals(
-                adventurerInstanceId,
-                RunState.turn.processingAdventurerInstanceId,
+                agentInstanceId,
+                RunState.turn.processingAgentInstanceId,
                 StringComparison.Ordinal))
         {
             return false;
@@ -128,36 +128,36 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return true;
     }
 
-    public bool TryAssignAdventurer(string adventurerInstanceId, string situationInstanceId)
+    public bool TryAssignAgent(string agentInstanceId, string situationInstanceId)
     {
         if (!CanAcceptTargetingInput())
             return false;
-        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+        if (string.IsNullOrWhiteSpace(agentInstanceId))
             return false;
         if (string.IsNullOrWhiteSpace(situationInstanceId))
             return false;
         if (!string.Equals(
-                adventurerInstanceId,
-                RunState.turn.processingAdventurerInstanceId,
+                agentInstanceId,
+                RunState.turn.processingAgentInstanceId,
                 StringComparison.Ordinal))
         {
             return false;
         }
 
-        var adventurer = FindCurrentProcessingAdventurer();
-        if (adventurer == null || adventurer.actionConsumed)
+        var agent = FindCurrentProcessingAgent();
+        if (agent == null || agent.actionConsumed)
             return false;
-        if (adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        if (agent.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
             return false;
 
         var situation = FindSituationState(situationInstanceId);
         if (situation == null)
             return false;
 
-        adventurer.assignedSituationInstanceId = situation.instanceId;
+        agent.assignedSituationInstanceId = situation.instanceId;
         int attackValue;
-        if (!TryComputeAdventurerAttackBreakdown(adventurer, out _, out _, out attackValue))
-            attackValue = SumDice(adventurer.rolledDiceValues);
+        if (!TryComputeAgentAttackBreakdown(agent, out _, out _, out attackValue))
+            attackValue = SumDice(agent.rolledDiceValues);
         if (attackValue > 0)
         {
             ApplySituationRequirementDelta(
@@ -166,13 +166,13 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
                 markAssignedAsConsumedOnSuccess: false);
         }
 
-        adventurer.assignedSituationInstanceId = null;
-        adventurer.actionConsumed = true;
-        RunState.turn.processingAdventurerInstanceId = string.Empty;
+        agent.assignedSituationInstanceId = null;
+        agent.actionConsumed = true;
+        RunState.turn.processingAgentInstanceId = string.Empty;
 
-        if (GetPendingAdventurerCount() > 0)
+        if (GetPendingAgentCount() > 0)
         {
-            SetPhase(TurnPhase.AdventurerRoll);
+            SetPhase(TurnPhase.AgentRoll);
         }
         else
         {
@@ -183,15 +183,15 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return true;
     }
 
-    public bool TryClearAdventurerAssignment(string adventurerInstanceId)
+    public bool TryClearAgentAssignment(string agentInstanceId)
     {
         if (!CanAcceptTargetingInput())
             return false;
-        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+        if (string.IsNullOrWhiteSpace(agentInstanceId))
             return false;
         if (!string.Equals(
-                adventurerInstanceId,
-                RunState.turn.processingAdventurerInstanceId,
+                agentInstanceId,
+                RunState.turn.processingAgentInstanceId,
                 StringComparison.Ordinal))
         {
             return false;
@@ -201,12 +201,12 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return true;
     }
 
-    public int GetUnassignedAdventurerCount()
+    public int GetUnassignedAgentCount()
     {
         if (RunState == null)
             return 0;
 
-        return GameAssignmentService.CountPendingAdventurers(RunState);
+        return GameAssignmentService.CountPendingAgents(RunState);
     }
 
     public bool RequestCommitAssignmentPhase()
@@ -214,7 +214,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         if (!CanRequestTurnCommit())
             return false;
 
-        int pendingCount = GetUnassignedAdventurerCount();
+        int pendingCount = GetUnassignedAgentCount();
         if (pendingCount > 0)
         {
             AssignmentCommitConfirmationRequested?.Invoke(pendingCount);
@@ -229,7 +229,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         if (!CanRequestTurnCommit())
             return false;
 
-        MarkAllPendingAdventurersConsumed();
+        MarkAllPendingAgentsConsumed();
         SetPhase(TurnPhase.Settlement);
         AdvanceToDecisionPoint();
         return true;
@@ -246,7 +246,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             return false;
         if (RunState.turn.phase != TurnPhase.Adjustment)
             return false;
-        if (FindCurrentProcessingAdventurer() == null)
+        if (FindCurrentProcessingAgent() == null)
             return false;
 
         SetPhase(TurnPhase.TargetAndAttack);
@@ -255,7 +255,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     public bool TryUseSkill(
         string skillDefId,
-        string selectedAdventurerInstanceId = null,
+        string selectedAgentInstanceId = null,
         string selectedSituationInstanceId = null,
         int selectedDieIndex = -1)
     {
@@ -278,14 +278,14 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             return false;
 
         if (RunState.turn.phase == TurnPhase.Adjustment &&
-            string.IsNullOrWhiteSpace(selectedAdventurerInstanceId))
+            string.IsNullOrWhiteSpace(selectedAgentInstanceId))
         {
-            selectedAdventurerInstanceId = RunState.turn.processingAdventurerInstanceId;
+            selectedAgentInstanceId = RunState.turn.processingAgentInstanceId;
         }
 
         var context = new EffectTargetContext(
             selectedSituationInstanceId,
-            selectedAdventurerInstanceId,
+            selectedAgentInstanceId,
             selectedDieIndex);
 
         if (!TryApplyEffectBundle(skillDef.effectBundle, context))
@@ -299,7 +299,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     public bool TryUseSkillBySlotIndex(
         int skillSlotIndex,
-        string selectedAdventurerInstanceId = null,
+        string selectedAgentInstanceId = null,
         string selectedSituationInstanceId = null,
         int selectedDieIndex = -1)
     {
@@ -314,7 +314,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
         return TryUseSkill(
             cooldown.skillDefId,
-            selectedAdventurerInstanceId,
+            selectedAgentInstanceId,
             selectedSituationInstanceId,
             selectedDieIndex);
     }
@@ -375,7 +375,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
                     ExecuteBoardUpdatePhase();
                     break;
 
-                case TurnPhase.AdventurerRoll:
+                case TurnPhase.AgentRoll:
                 case TurnPhase.Adjustment:
                 case TurnPhase.TargetAndAttack:
                     keepRunning = false;
@@ -415,32 +415,32 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     void ExecuteBoardUpdatePhase()
     {
-        RunState.turn.processingAdventurerInstanceId = string.Empty;
+        RunState.turn.processingAgentInstanceId = string.Empty;
 
         bool spawned = GameRunBootstrap.TrySpawnPeriodicSituations(RunState, staticData, rng);
         if (spawned)
             StageSpawned?.Invoke(RunState.stage.stageNumber, RunState.stage.activePresetId);
 
-        SetPhase(TurnPhase.AdventurerRoll);
+        SetPhase(TurnPhase.AgentRoll);
     }
 
     void ExecuteRollPhase()
     {
-        var adventurer = FindCurrentProcessingAdventurer();
-        if (adventurer == null)
+        var agent = FindCurrentProcessingAgent();
+        if (agent == null)
             return;
 
-        adventurer.rolledDiceValues.Clear();
-        adventurer.assignedSituationInstanceId = null;
+        agent.rolledDiceValues.Clear();
+        agent.assignedSituationInstanceId = null;
 
-        if (!adventurerDefById.TryGetValue(adventurer.adventurerDefId, out var adventurerDef))
+        if (!agentDefById.TryGetValue(agent.agentDefId, out var agentDef))
             return;
 
-        int diceCount = Math.Max(1, adventurerDef.diceCount);
+        int diceCount = Math.Max(1, agentDef.diceCount);
         for (int dieIndex = 0; dieIndex < diceCount; dieIndex++)
-            adventurer.rolledDiceValues.Add(RollD6());
+            agent.rolledDiceValues.Add(RollD6());
 
-        ApplyAdventurerRules(adventurer, RuleTriggerOnRoll);
+        ApplyAgentRules(agent, RuleTriggerOnRoll);
     }
 
     void ExecuteSettlementPhase()
@@ -471,13 +471,13 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             if (!situationDefById.TryGetValue(situation.situationDefId, out var situationDef))
             {
                 RemoveSituationState(situation.instanceId);
-                ClearAdventurerAssignmentsForSituation(situation.instanceId, markAssignedAsConsumed: false);
+                ClearAgentAssignmentsForSituation(situation.instanceId, markAssignedAsConsumed: false);
                 continue;
             }
 
             var context = new EffectTargetContext(
                 selectedSituationInstanceId: situation.instanceId,
-                selectedAdventurerInstanceId: null,
+                selectedAgentInstanceId: null,
                 selectedDieIndex: -1);
             TryApplyEffectBundle(situationDef.failureEffect, context);
 
@@ -521,10 +521,10 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     {
         if (RunState == null || isRunOver)
             return false;
-        if (!string.IsNullOrWhiteSpace(RunState.turn.processingAdventurerInstanceId))
+        if (!string.IsNullOrWhiteSpace(RunState.turn.processingAgentInstanceId))
             return false;
 
-        return RunState.turn.phase == TurnPhase.AdventurerRoll;
+        return RunState.turn.phase == TurnPhase.AgentRoll;
     }
 
     bool CanEnterTargetingInput()
@@ -534,10 +534,10 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         if (RunState.turn.phase != TurnPhase.Adjustment)
             return false;
 
-        var adventurer = FindCurrentProcessingAdventurer();
-        if (adventurer == null || adventurer.actionConsumed)
+        var agent = FindCurrentProcessingAgent();
+        if (agent == null || agent.actionConsumed)
             return false;
-        if (adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        if (agent.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
             return false;
 
         return true;
@@ -550,10 +550,10 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         if (RunState.turn.phase != TurnPhase.TargetAndAttack)
             return false;
 
-        var adventurer = FindCurrentProcessingAdventurer();
-        if (adventurer == null || adventurer.actionConsumed)
+        var agent = FindCurrentProcessingAgent();
+        if (agent == null || agent.actionConsumed)
             return false;
-        if (adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        if (agent.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
             return false;
 
         return true;
@@ -565,7 +565,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             return false;
 
         var phase = RunState.turn.phase;
-        return phase == TurnPhase.AdventurerRoll ||
+        return phase == TurnPhase.AgentRoll ||
                phase == TurnPhase.Adjustment ||
                phase == TurnPhase.TargetAndAttack;
     }
@@ -576,30 +576,30 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             return false;
 
         var phase = RunState.turn.phase;
-        return phase == TurnPhase.AdventurerRoll ||
+        return phase == TurnPhase.AgentRoll ||
                phase == TurnPhase.Adjustment ||
                phase == TurnPhase.TargetAndAttack;
     }
 
-    public bool CanRollAdventurer(string adventurerInstanceId)
+    public bool CanRollAgent(string agentInstanceId)
     {
         if (!CanAcceptRollInput())
             return false;
-        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+        if (string.IsNullOrWhiteSpace(agentInstanceId))
             return false;
 
-        return IsAdventurerPending(adventurerInstanceId);
+        return IsAgentPending(agentInstanceId);
     }
 
-    public bool CanAssignAdventurer(string adventurerInstanceId)
+    public bool CanAssignAgent(string agentInstanceId)
     {
         if (RunState == null || isRunOver)
             return false;
-        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+        if (string.IsNullOrWhiteSpace(agentInstanceId))
             return false;
         if (!string.Equals(
-                adventurerInstanceId,
-                RunState.turn.processingAdventurerInstanceId,
+                agentInstanceId,
+                RunState.turn.processingAgentInstanceId,
                 StringComparison.Ordinal))
         {
             return false;
@@ -609,15 +609,15 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         if (phase != TurnPhase.Adjustment && phase != TurnPhase.TargetAndAttack)
             return false;
 
-        var adventurer = FindCurrentProcessingAdventurer();
-        if (adventurer == null || adventurer.actionConsumed)
+        var agent = FindCurrentProcessingAgent();
+        if (agent == null || agent.actionConsumed)
             return false;
 
-        return adventurer.rolledDiceValues != null && adventurer.rolledDiceValues.Count > 0;
+        return agent.rolledDiceValues != null && agent.rolledDiceValues.Count > 0;
     }
 
-    public bool TryGetAdventurerAttackBreakdown(
-        string adventurerInstanceId,
+    public bool TryGetAgentAttackBreakdown(
+        string agentInstanceId,
         out int baseAttack,
         out int ruleBonus,
         out int totalAttack)
@@ -626,91 +626,91 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         ruleBonus = 0;
         totalAttack = 0;
 
-        if (RunState == null || string.IsNullOrWhiteSpace(adventurerInstanceId))
+        if (RunState == null || string.IsNullOrWhiteSpace(agentInstanceId))
             return false;
 
-        var adventurer = FindAdventurerState(adventurerInstanceId);
-        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        var agent = FindAgentState(agentInstanceId);
+        if (agent == null || agent.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
             return false;
 
-        return TryComputeAdventurerAttackBreakdown(adventurer, out baseAttack, out ruleBonus, out totalAttack);
+        return TryComputeAgentAttackBreakdown(agent, out baseAttack, out ruleBonus, out totalAttack);
     }
 
-    public bool IsCurrentProcessingAdventurer(string adventurerInstanceId)
+    public bool IsCurrentProcessingAgent(string agentInstanceId)
     {
         if (RunState == null)
             return false;
-        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+        if (string.IsNullOrWhiteSpace(agentInstanceId))
             return false;
 
         return string.Equals(
-            RunState.turn.processingAdventurerInstanceId,
-            adventurerInstanceId,
+            RunState.turn.processingAgentInstanceId,
+            agentInstanceId,
             StringComparison.Ordinal);
     }
 
-    int GetPendingAdventurerCount()
+    int GetPendingAgentCount()
     {
         if (RunState == null)
             return 0;
 
-        return GameAssignmentService.CountPendingAdventurers(RunState);
+        return GameAssignmentService.CountPendingAgents(RunState);
     }
 
-    void MarkAllPendingAdventurersConsumed()
+    void MarkAllPendingAgentsConsumed()
     {
-        for (int i = 0; i < RunState.adventurers.Count; i++)
+        for (int i = 0; i < RunState.agents.Count; i++)
         {
-            var adventurer = RunState.adventurers[i];
-            if (adventurer == null || adventurer.actionConsumed)
+            var agent = RunState.agents[i];
+            if (agent == null || agent.actionConsumed)
                 continue;
 
-            adventurer.assignedSituationInstanceId = null;
-            adventurer.actionConsumed = true;
+            agent.assignedSituationInstanceId = null;
+            agent.actionConsumed = true;
         }
 
-        RunState.turn.processingAdventurerInstanceId = string.Empty;
+        RunState.turn.processingAgentInstanceId = string.Empty;
     }
 
-    bool IsAdventurerPending(string adventurerInstanceId)
+    bool IsAgentPending(string agentInstanceId)
     {
-        var adventurer = FindAdventurerState(adventurerInstanceId);
-        if (adventurer == null)
+        var agent = FindAgentState(agentInstanceId);
+        if (agent == null)
             return false;
 
-        return !adventurer.actionConsumed;
+        return !agent.actionConsumed;
     }
 
-    AdventurerState FindCurrentProcessingAdventurer()
+    AgentState FindCurrentProcessingAgent()
     {
         if (RunState == null)
             return null;
-        if (string.IsNullOrWhiteSpace(RunState.turn.processingAdventurerInstanceId))
+        if (string.IsNullOrWhiteSpace(RunState.turn.processingAgentInstanceId))
             return null;
 
-        return FindAdventurerState(RunState.turn.processingAdventurerInstanceId);
+        return FindAgentState(RunState.turn.processingAgentInstanceId);
     }
 
-    bool ResolveCurrentProcessingAdventurerId(string requestedAdventurerInstanceId, out string resolvedAdventurerInstanceId)
+    bool ResolveCurrentProcessingAgentId(string requestedAgentInstanceId, out string resolvedAgentInstanceId)
     {
-        resolvedAdventurerInstanceId = null;
+        resolvedAgentInstanceId = null;
 
         if (RunState == null)
             return false;
         if (RunState.turn.phase != TurnPhase.Adjustment)
             return false;
 
-        var currentAdventurerId = RunState.turn.processingAdventurerInstanceId;
-        if (string.IsNullOrWhiteSpace(currentAdventurerId))
+        var currentAgentId = RunState.turn.processingAgentInstanceId;
+        if (string.IsNullOrWhiteSpace(currentAgentId))
             return false;
 
-        if (!string.IsNullOrWhiteSpace(requestedAdventurerInstanceId) &&
-            !string.Equals(requestedAdventurerInstanceId, currentAdventurerId, StringComparison.Ordinal))
+        if (!string.IsNullOrWhiteSpace(requestedAgentInstanceId) &&
+            !string.Equals(requestedAgentInstanceId, currentAgentId, StringComparison.Ordinal))
         {
             return false;
         }
 
-        resolvedAdventurerInstanceId = currentAdventurerId;
+        resolvedAgentInstanceId = currentAgentId;
         return true;
     }
 
@@ -728,11 +728,11 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             string effectType = effect.effectType.Trim();
             bool allowed = effectType switch
             {
-                "stabilityDelta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack,
-                "goldDelta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack,
-                "situationRequirementDelta" => phase == TurnPhase.AdventurerRoll || phase == TurnPhase.TargetAndAttack,
+                "stabilityDelta" => phase == TurnPhase.AgentRoll || phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack,
+                "goldDelta" => phase == TurnPhase.AgentRoll || phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack,
+                "situationRequirementDelta" => phase == TurnPhase.AgentRoll || phase == TurnPhase.TargetAndAttack,
                 "dieFaceDelta" => phase == TurnPhase.Adjustment,
-                "rerollAdventurerDice" => phase == TurnPhase.Adjustment,
+                "rerollAgentDice" => phase == TurnPhase.Adjustment,
                 _ => false
             };
 
@@ -797,8 +797,8 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             return TryApplySituationRequirementDeltaEffect(effect, context, value);
         if (effectType == "dieFaceDelta")
             return TryApplyDieFaceDeltaEffect(effect, context, value);
-        if (effectType == "rerollAdventurerDice")
-            return TryApplyRerollAdventurerDiceEffect(effect, context);
+        if (effectType == "rerollAgentDice")
+            return TryApplyRerollAgentDiceEffect(effect, context);
 
         return false;
     }
@@ -838,88 +838,88 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     bool TryApplyDieFaceDeltaEffect(EffectSpec effect, EffectTargetContext context, int delta)
     {
-        string targetMode = GetParamString(effect.effectParams, "targetAdventurerMode");
-        if (targetMode != "selectedAdventurer")
+        string targetMode = GetParamString(effect.effectParams, "targetAgentMode");
+        if (targetMode != "selectedAgent")
             return false;
-        if (!ResolveCurrentProcessingAdventurerId(context.selectedAdventurerInstanceId, out var adventurerInstanceId))
-            return false;
-
-        var adventurer = FindAdventurerState(adventurerInstanceId);
-        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        if (!ResolveCurrentProcessingAgentId(context.selectedAgentInstanceId, out var agentInstanceId))
             return false;
 
-        return TryApplyDieFaceDeltaToAdventurer(effect, adventurer, context.selectedDieIndex, delta);
+        var agent = FindAgentState(agentInstanceId);
+        if (agent == null || agent.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
+            return false;
+
+        return TryApplyDieFaceDeltaToAgent(effect, agent, context.selectedDieIndex, delta);
     }
 
-    bool TryApplyDieFaceDeltaToAdventurer(
+    bool TryApplyDieFaceDeltaToAgent(
         EffectSpec effect,
-        AdventurerState adventurer,
+        AgentState agent,
         int selectedDieIndex,
         int delta)
     {
-        if (effect == null || adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        if (effect == null || agent == null || agent.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
             return false;
 
         string pickRule = GetParamString(effect.effectParams, "diePickRule");
         if (pickRule == "selected")
         {
-            if (!IsValidDieIndex(adventurer, selectedDieIndex))
+            if (!IsValidDieIndex(agent, selectedDieIndex))
                 return false;
 
-            ApplyDieDelta(adventurer, selectedDieIndex, delta);
+            ApplyDieDelta(agent, selectedDieIndex, delta);
             return true;
         }
 
         int count = Math.Max(1, GetParamInt(effect.effectParams, "count", 1));
         if (pickRule == "lowest")
         {
-            ApplySortedDiceDelta(adventurer, count, delta, ascending: true);
+            ApplySortedDiceDelta(agent, count, delta, ascending: true);
             return true;
         }
 
         if (pickRule == "highest")
         {
-            ApplySortedDiceDelta(adventurer, count, delta, ascending: false);
+            ApplySortedDiceDelta(agent, count, delta, ascending: false);
             return true;
         }
 
         if (pickRule == "all")
         {
-            for (int i = 0; i < adventurer.rolledDiceValues.Count; i++)
-                ApplyDieDelta(adventurer, i, delta);
+            for (int i = 0; i < agent.rolledDiceValues.Count; i++)
+                ApplyDieDelta(agent, i, delta);
             return true;
         }
 
         return false;
     }
 
-    bool TryApplyRerollAdventurerDiceEffect(EffectSpec effect, EffectTargetContext context)
+    bool TryApplyRerollAgentDiceEffect(EffectSpec effect, EffectTargetContext context)
     {
-        string targetMode = GetParamString(effect.effectParams, "targetAdventurerMode");
-        if (targetMode != "selectedAdventurer")
+        string targetMode = GetParamString(effect.effectParams, "targetAgentMode");
+        if (targetMode != "selectedAgent")
             return false;
-        if (!ResolveCurrentProcessingAdventurerId(context.selectedAdventurerInstanceId, out var adventurerInstanceId))
+        if (!ResolveCurrentProcessingAgentId(context.selectedAgentInstanceId, out var agentInstanceId))
             return false;
 
-        var adventurer = FindAdventurerState(adventurerInstanceId);
-        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        var agent = FindAgentState(agentInstanceId);
+        if (agent == null || agent.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
             return false;
 
         string rerollRule = GetParamString(effect.effectParams, "rerollRule");
         if (rerollRule == "all")
         {
-            for (int i = 0; i < adventurer.rolledDiceValues.Count; i++)
-                adventurer.rolledDiceValues[i] = RollD6();
-            ApplyAdventurerRules(adventurer, RuleTriggerOnRoll);
+            for (int i = 0; i < agent.rolledDiceValues.Count; i++)
+                agent.rolledDiceValues[i] = RollD6();
+            ApplyAgentRules(agent, RuleTriggerOnRoll);
             return true;
         }
 
         if (rerollRule == "single")
         {
-            if (!IsValidDieIndex(adventurer, context.selectedDieIndex))
+            if (!IsValidDieIndex(agent, context.selectedDieIndex))
                 return false;
 
-            adventurer.rolledDiceValues[context.selectedDieIndex] = RollD6();
+            agent.rolledDiceValues[context.selectedDieIndex] = RollD6();
             return true;
         }
 
@@ -954,14 +954,14 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         situationDefById.TryGetValue(situation.situationDefId, out var situationDef);
 
         RemoveSituationState(situation.instanceId);
-        ClearAdventurerAssignmentsForSituation(situation.instanceId, markAssignedAsConsumedOnSuccess);
+        ClearAgentAssignmentsForSituation(situation.instanceId, markAssignedAsConsumedOnSuccess);
 
         if (situationDef == null)
             return;
 
         var context = new EffectTargetContext(
             selectedSituationInstanceId: situation.instanceId,
-            selectedAdventurerInstanceId: null,
+            selectedAgentInstanceId: null,
             selectedDieIndex: -1);
         TryApplyEffectBundle(situationDef.successReward, context);
     }
@@ -982,7 +982,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         }
 
         RemoveSituationState(situation.instanceId);
-        ClearAdventurerAssignmentsForSituation(situation.instanceId, markAssignedAsConsumed: false);
+        ClearAgentAssignmentsForSituation(situation.instanceId, markAssignedAsConsumed: false);
     }
 
     static string NormalizeFailurePersistMode(string raw)
@@ -1013,19 +1013,19 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         }
     }
 
-    void ClearAdventurerAssignmentsForSituation(string situationInstanceId, bool markAssignedAsConsumed)
+    void ClearAgentAssignmentsForSituation(string situationInstanceId, bool markAssignedAsConsumed)
     {
-        for (int i = 0; i < RunState.adventurers.Count; i++)
+        for (int i = 0; i < RunState.agents.Count; i++)
         {
-            var adventurer = RunState.adventurers[i];
-            if (adventurer == null)
+            var agent = RunState.agents[i];
+            if (agent == null)
                 continue;
-            if (!string.Equals(adventurer.assignedSituationInstanceId, situationInstanceId, StringComparison.Ordinal))
+            if (!string.Equals(agent.assignedSituationInstanceId, situationInstanceId, StringComparison.Ordinal))
                 continue;
 
-            adventurer.assignedSituationInstanceId = null;
+            agent.assignedSituationInstanceId = null;
             if (markAssignedAsConsumed)
-                adventurer.actionConsumed = true;
+                agent.actionConsumed = true;
         }
     }
 
@@ -1061,17 +1061,17 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return null;
     }
 
-    AdventurerState FindAdventurerState(string adventurerInstanceId)
+    AgentState FindAgentState(string agentInstanceId)
     {
-        for (int i = 0; i < RunState.adventurers.Count; i++)
+        for (int i = 0; i < RunState.agents.Count; i++)
         {
-            var adventurer = RunState.adventurers[i];
-            if (adventurer == null)
+            var agent = RunState.agents[i];
+            if (agent == null)
                 continue;
-            if (!string.Equals(adventurer.instanceId, adventurerInstanceId, StringComparison.Ordinal))
+            if (!string.Equals(agent.instanceId, agentInstanceId, StringComparison.Ordinal))
                 continue;
 
-            return adventurer;
+            return agent;
         }
 
         return null;
@@ -1132,12 +1132,12 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return defaultValue;
     }
 
-    static bool IsValidDieIndex(AdventurerState adventurer, int dieIndex)
+    static bool IsValidDieIndex(AgentState agent, int dieIndex)
     {
-        if (adventurer?.rolledDiceValues == null)
+        if (agent?.rolledDiceValues == null)
             return false;
 
-        return dieIndex >= 0 && dieIndex < adventurer.rolledDiceValues.Count;
+        return dieIndex >= 0 && dieIndex < agent.rolledDiceValues.Count;
     }
 
     static int CountDiceAtLeast(IReadOnlyList<int> dice, int threshold)
@@ -1155,26 +1155,26 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return count;
     }
 
-    static void ApplyDieDelta(AdventurerState adventurer, int dieIndex, int delta)
+    static void ApplyDieDelta(AgentState agent, int dieIndex, int delta)
     {
-        int next = adventurer.rolledDiceValues[dieIndex] + delta;
+        int next = agent.rolledDiceValues[dieIndex] + delta;
         if (next < 1)
             next = 1;
 
-        adventurer.rolledDiceValues[dieIndex] = next;
+        agent.rolledDiceValues[dieIndex] = next;
     }
 
-    static void ApplySortedDiceDelta(AdventurerState adventurer, int pickCount, int delta, bool ascending)
+    static void ApplySortedDiceDelta(AgentState agent, int pickCount, int delta, bool ascending)
     {
-        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        if (agent == null || agent.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
             return;
         if (pickCount <= 0)
             return;
 
-        var orderedIndices = GetOrderedDieIndices(adventurer.rolledDiceValues, ascending);
+        var orderedIndices = GetOrderedDieIndices(agent.rolledDiceValues, ascending);
         int applyCount = Math.Min(pickCount, orderedIndices.Count);
         for (int i = 0; i < applyCount; i++)
-            ApplyDieDelta(adventurer, orderedIndices[i], delta);
+            ApplyDieDelta(agent, orderedIndices[i], delta);
     }
 
     static List<int> GetOrderedDieIndices(IReadOnlyList<int> dice, bool ascending)
@@ -1200,8 +1200,8 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return indices;
     }
 
-    bool TryComputeAdventurerAttackBreakdown(
-        AdventurerState adventurer,
+    bool TryComputeAgentAttackBreakdown(
+        AgentState agent,
         out int baseAttack,
         out int ruleBonus,
         out int totalAttack)
@@ -1210,63 +1210,63 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         ruleBonus = 0;
         totalAttack = 0;
 
-        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        if (agent == null || agent.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
             return false;
 
-        baseAttack = SumDice(adventurer.rolledDiceValues);
-        ruleBonus = ResolveAdventurerRuleAttackBonus(adventurer);
+        baseAttack = SumDice(agent.rolledDiceValues);
+        ruleBonus = ResolveAgentRuleAttackBonus(agent);
         totalAttack = Math.Max(0, baseAttack + ruleBonus);
         return true;
     }
 
-    void ApplyAdventurerRules(AdventurerState adventurer, string triggerType)
+    void ApplyAgentRules(AgentState agent, string triggerType)
     {
-        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        if (agent == null || agent.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
             return;
         if (string.IsNullOrWhiteSpace(triggerType))
             return;
-        if (!adventurerDefById.TryGetValue(adventurer.adventurerDefId, out var adventurerDef))
+        if (!agentDefById.TryGetValue(agent.agentDefId, out var agentDef))
             return;
-        if (adventurerDef.rules == null || adventurerDef.rules.Count == 0)
+        if (agentDef.rules == null || agentDef.rules.Count == 0)
             return;
 
-        for (int i = 0; i < adventurerDef.rules.Count; i++)
+        for (int i = 0; i < agentDef.rules.Count; i++)
         {
-            var rule = adventurerDef.rules[i];
+            var rule = agentDef.rules[i];
             if (!IsRuleTriggerMatch(rule?.trigger, triggerType))
                 continue;
-            if (!EvaluateRuleCondition(adventurer, rule?.condition))
+            if (!EvaluateRuleCondition(agent, rule?.condition))
                 continue;
 
-            ApplyRuleRuntimeEffect(adventurer, rule?.effect);
+            ApplyRuleRuntimeEffect(agent, rule?.effect);
         }
     }
 
-    int ResolveAdventurerRuleAttackBonus(AdventurerState adventurer)
+    int ResolveAgentRuleAttackBonus(AgentState agent)
     {
-        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        if (agent == null || agent.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
             return 0;
-        if (!adventurerDefById.TryGetValue(adventurer.adventurerDefId, out var adventurerDef))
+        if (!agentDefById.TryGetValue(agent.agentDefId, out var agentDef))
             return 0;
-        if (adventurerDef.rules == null || adventurerDef.rules.Count == 0)
+        if (agentDef.rules == null || agentDef.rules.Count == 0)
             return 0;
 
         int totalBonus = 0;
-        for (int i = 0; i < adventurerDef.rules.Count; i++)
+        for (int i = 0; i < agentDef.rules.Count; i++)
         {
-            var rule = adventurerDef.rules[i];
+            var rule = agentDef.rules[i];
             if (!IsRuleTriggerMatch(rule?.trigger, RuleTriggerOnCalculation))
                 continue;
-            if (!EvaluateRuleCondition(adventurer, rule?.condition))
+            if (!EvaluateRuleCondition(agent, rule?.condition))
                 continue;
 
-            totalBonus += ResolveRuleCalculationBonus(adventurer, rule?.effect);
+            totalBonus += ResolveRuleCalculationBonus(agent, rule?.effect);
         }
 
         return totalBonus;
     }
 
-    static bool IsRuleTriggerMatch(AdventurerRuleTriggerDef trigger, string expected)
+    static bool IsRuleTriggerMatch(AgentRuleTriggerDef trigger, string expected)
     {
         if (trigger == null || string.IsNullOrWhiteSpace(expected))
             return false;
@@ -1278,7 +1278,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         return string.Equals(type, expected, StringComparison.Ordinal);
     }
 
-    bool EvaluateRuleCondition(AdventurerState adventurer, AdventurerRuleConditionDef condition)
+    bool EvaluateRuleCondition(AgentState agent, AgentRuleConditionDef condition)
     {
         string conditionType = condition?.type?.Trim();
         if (string.IsNullOrWhiteSpace(conditionType) ||
@@ -1291,23 +1291,23 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         {
             int threshold = Math.Max(1, GetParamInt(condition.conditionParams, "threshold", 1));
             int requiredCount = Math.Max(1, GetParamInt(condition.conditionParams, "count", 1));
-            int matchCount = CountDiceAtLeast(adventurer?.rolledDiceValues, threshold);
+            int matchCount = CountDiceAtLeast(agent?.rolledDiceValues, threshold);
             return matchCount >= requiredCount;
         }
 
         return false;
     }
 
-    void ApplyRuleRuntimeEffect(AdventurerState adventurer, EffectSpec effect)
+    void ApplyRuleRuntimeEffect(AgentState agent, EffectSpec effect)
     {
-        if (adventurer == null || effect == null || string.IsNullOrWhiteSpace(effect.effectType))
+        if (agent == null || effect == null || string.IsNullOrWhiteSpace(effect.effectType))
             return;
 
         string effectType = effect.effectType.Trim();
         int value = ToIntValue(effect.value);
         if (string.Equals(effectType, "dieFaceDelta", StringComparison.Ordinal))
         {
-            TryApplyDieFaceDeltaToAdventurer(effect, adventurer, selectedDieIndex: -1, delta: value);
+            TryApplyDieFaceDeltaToAgent(effect, agent, selectedDieIndex: -1, delta: value);
             return;
         }
 
@@ -1321,9 +1321,9 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             TryApplyGoldDelta(value);
     }
 
-    int ResolveRuleCalculationBonus(AdventurerState adventurer, EffectSpec effect)
+    int ResolveRuleCalculationBonus(AgentState agent, EffectSpec effect)
     {
-        if (adventurer == null || adventurer.rolledDiceValues == null || adventurer.rolledDiceValues.Count == 0)
+        if (agent == null || agent.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
             return 0;
         if (effect == null || string.IsNullOrWhiteSpace(effect.effectType))
             return 0;
@@ -1336,7 +1336,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             if (bonusPerMatch == 0)
                 return 0;
 
-            int matchCount = CountDiceAtLeast(adventurer.rolledDiceValues, threshold);
+            int matchCount = CountDiceAtLeast(agent.rolledDiceValues, threshold);
             return matchCount * bonusPerMatch;
         }
 
@@ -1349,7 +1349,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     void BuildDefinitionLookups(GameStaticDataSet dataSet)
     {
         situationDefById = new Dictionary<string, SituationDef>(StringComparer.Ordinal);
-        adventurerDefById = new Dictionary<string, AdventurerDef>(StringComparer.Ordinal);
+        agentDefById = new Dictionary<string, AgentDef>(StringComparer.Ordinal);
         skillDefById = new Dictionary<string, SkillDef>(StringComparer.Ordinal);
 
         if (dataSet?.situationDefs != null)
@@ -1364,15 +1364,15 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             }
         }
 
-        if (dataSet?.adventurerDefs != null)
+        if (dataSet?.agentDefs != null)
         {
-            for (int i = 0; i < dataSet.adventurerDefs.Count; i++)
+            for (int i = 0; i < dataSet.agentDefs.Count; i++)
             {
-                var def = dataSet.adventurerDefs[i];
-                if (def == null || string.IsNullOrWhiteSpace(def.adventurerId))
+                var def = dataSet.agentDefs[i];
+                if (def == null || string.IsNullOrWhiteSpace(def.agentId))
                     continue;
 
-                adventurerDefById[def.adventurerId] = def;
+                agentDefById[def.agentId] = def;
             }
         }
 
@@ -1419,18 +1419,19 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     readonly struct EffectTargetContext
     {
         public readonly string selectedSituationInstanceId;
-        public readonly string selectedAdventurerInstanceId;
+        public readonly string selectedAgentInstanceId;
         public readonly int selectedDieIndex;
 
         public EffectTargetContext(
             string selectedSituationInstanceId,
-            string selectedAdventurerInstanceId,
+            string selectedAgentInstanceId,
             int selectedDieIndex)
         {
             this.selectedSituationInstanceId = selectedSituationInstanceId;
-            this.selectedAdventurerInstanceId = selectedAdventurerInstanceId;
+            this.selectedAgentInstanceId = selectedAgentInstanceId;
             this.selectedDieIndex = selectedDieIndex;
         }
     }
 }
+
 

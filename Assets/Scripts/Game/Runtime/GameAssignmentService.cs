@@ -3,74 +3,74 @@ using System;
 public enum AssignmentResult
 {
     Success = 0,
-    AdventurerNotFound = 1,
+    AgentNotFound = 1,
     SituationNotFound = 2,
-    AdventurerUnavailable = 3
+    AgentUnavailable = 3
 }
 
 public static class GameAssignmentService
 {
-    public static AssignmentResult AssignAdventurerToSituation(
+    public static AssignmentResult AssignAgentToSituation(
         GameRunState runState,
-        string adventurerInstanceId,
+        string agentInstanceId,
         string situationInstanceId)
     {
         if (runState == null)
             throw new ArgumentNullException(nameof(runState));
-        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
-            return AssignmentResult.AdventurerNotFound;
+        if (string.IsNullOrWhiteSpace(agentInstanceId))
+            return AssignmentResult.AgentNotFound;
         if (string.IsNullOrWhiteSpace(situationInstanceId))
             return AssignmentResult.SituationNotFound;
 
-        var adventurer = FindAdventurer(runState, adventurerInstanceId);
-        if (adventurer == null)
-            return AssignmentResult.AdventurerNotFound;
-        if (adventurer.actionConsumed)
-            return AssignmentResult.AdventurerUnavailable;
+        var agent = FindAgent(runState, agentInstanceId);
+        if (agent == null)
+            return AssignmentResult.AgentNotFound;
+        if (agent.actionConsumed)
+            return AssignmentResult.AgentUnavailable;
 
         var situation = FindSituation(runState, situationInstanceId);
         if (situation == null)
             return AssignmentResult.SituationNotFound;
 
-        RemoveFromAssignedSituation(runState, adventurer.instanceId, adventurer.assignedSituationInstanceId);
+        RemoveFromAssignedSituation(runState, agent.instanceId, agent.assignedSituationInstanceId);
 
-        if (!ContainsAssignedAdventurer(situation, adventurer.instanceId))
-            situation.assignedAdventurerIds.Add(adventurer.instanceId);
+        if (!ContainsAssignedAgent(situation, agent.instanceId))
+            situation.assignedAgentIds.Add(agent.instanceId);
 
-        adventurer.assignedSituationInstanceId = situation.instanceId;
+        agent.assignedSituationInstanceId = situation.instanceId;
         return AssignmentResult.Success;
     }
 
-    public static AssignmentResult ClearAdventurerAssignment(GameRunState runState, string adventurerInstanceId)
+    public static AssignmentResult ClearAgentAssignment(GameRunState runState, string agentInstanceId)
     {
         if (runState == null)
             throw new ArgumentNullException(nameof(runState));
-        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
-            return AssignmentResult.AdventurerNotFound;
+        if (string.IsNullOrWhiteSpace(agentInstanceId))
+            return AssignmentResult.AgentNotFound;
 
-        var adventurer = FindAdventurer(runState, adventurerInstanceId);
-        if (adventurer == null)
-            return AssignmentResult.AdventurerNotFound;
+        var agent = FindAgent(runState, agentInstanceId);
+        if (agent == null)
+            return AssignmentResult.AgentNotFound;
 
-        RemoveFromAssignedSituation(runState, adventurer.instanceId, adventurer.assignedSituationInstanceId);
-        adventurer.assignedSituationInstanceId = null;
+        RemoveFromAssignedSituation(runState, agent.instanceId, agent.assignedSituationInstanceId);
+        agent.assignedSituationInstanceId = null;
         return AssignmentResult.Success;
     }
 
-    public static int CountUnassignedAdventurers(GameRunState runState)
+    public static int CountUnassignedAgents(GameRunState runState)
     {
         if (runState == null)
             throw new ArgumentNullException(nameof(runState));
 
         int count = 0;
-        for (int i = 0; i < runState.adventurers.Count; i++)
+        for (int i = 0; i < runState.agents.Count; i++)
         {
-            var adventurer = runState.adventurers[i];
-            if (adventurer == null)
+            var agent = runState.agents[i];
+            if (agent == null)
                 continue;
-            if (adventurer.actionConsumed)
+            if (agent.actionConsumed)
                 continue;
-            if (!string.IsNullOrWhiteSpace(adventurer.assignedSituationInstanceId))
+            if (!string.IsNullOrWhiteSpace(agent.assignedSituationInstanceId))
                 continue;
 
             count += 1;
@@ -79,18 +79,18 @@ public static class GameAssignmentService
         return count;
     }
 
-    public static int CountPendingAdventurers(GameRunState runState)
+    public static int CountPendingAgents(GameRunState runState)
     {
         if (runState == null)
             throw new ArgumentNullException(nameof(runState));
 
         int count = 0;
-        for (int i = 0; i < runState.adventurers.Count; i++)
+        for (int i = 0; i < runState.agents.Count; i++)
         {
-            var adventurer = runState.adventurers[i];
-            if (adventurer == null)
+            var agent = runState.agents[i];
+            if (agent == null)
                 continue;
-            if (adventurer.actionConsumed)
+            if (agent.actionConsumed)
                 continue;
 
             count += 1;
@@ -99,17 +99,17 @@ public static class GameAssignmentService
         return count;
     }
 
-    static AdventurerState FindAdventurer(GameRunState runState, string adventurerInstanceId)
+    static AgentState FindAgent(GameRunState runState, string agentInstanceId)
     {
-        for (int i = 0; i < runState.adventurers.Count; i++)
+        for (int i = 0; i < runState.agents.Count; i++)
         {
-            var adventurer = runState.adventurers[i];
-            if (adventurer == null)
+            var agent = runState.agents[i];
+            if (agent == null)
                 continue;
-            if (!string.Equals(adventurer.instanceId, adventurerInstanceId, StringComparison.Ordinal))
+            if (!string.Equals(agent.instanceId, agentInstanceId, StringComparison.Ordinal))
                 continue;
 
-            return adventurer;
+            return agent;
         }
 
         return null;
@@ -131,14 +131,14 @@ public static class GameAssignmentService
         return null;
     }
 
-    static bool ContainsAssignedAdventurer(SituationState situation, string adventurerInstanceId)
+    static bool ContainsAssignedAgent(SituationState situation, string agentInstanceId)
     {
-        if (situation?.assignedAdventurerIds == null)
+        if (situation?.assignedAgentIds == null)
             return false;
 
-        for (int i = 0; i < situation.assignedAdventurerIds.Count; i++)
+        for (int i = 0; i < situation.assignedAgentIds.Count; i++)
         {
-            if (string.Equals(situation.assignedAdventurerIds[i], adventurerInstanceId, StringComparison.Ordinal))
+            if (string.Equals(situation.assignedAgentIds[i], agentInstanceId, StringComparison.Ordinal))
                 return true;
         }
 
@@ -147,30 +147,31 @@ public static class GameAssignmentService
 
     static void RemoveFromAssignedSituation(
         GameRunState runState,
-        string adventurerInstanceId,
+        string agentInstanceId,
         string assignedSituationInstanceId)
     {
         if (string.IsNullOrWhiteSpace(assignedSituationInstanceId))
             return;
 
         var situation = FindSituation(runState, assignedSituationInstanceId);
-        if (situation?.assignedAdventurerIds == null)
+        if (situation?.assignedAgentIds == null)
             return;
 
-        for (int i = situation.assignedAdventurerIds.Count - 1; i >= 0; i--)
+        for (int i = situation.assignedAgentIds.Count - 1; i >= 0; i--)
         {
-            if (!string.Equals(situation.assignedAdventurerIds[i], adventurerInstanceId, StringComparison.Ordinal))
+            if (!string.Equals(situation.assignedAgentIds[i], agentInstanceId, StringComparison.Ordinal))
                 continue;
 
-            situation.assignedAdventurerIds.RemoveAt(i);
+            situation.assignedAgentIds.RemoveAt(i);
         }
     }
 
-    public static AssignmentResult AssignAdventurerToEnemy(
+    public static AssignmentResult AssignAgentToEnemy(
         GameRunState runState,
-        string adventurerInstanceId,
+        string agentInstanceId,
         string enemyInstanceId)
     {
-        return AssignAdventurerToSituation(runState, adventurerInstanceId, enemyInstanceId);
+        return AssignAgentToSituation(runState, agentInstanceId, enemyInstanceId);
     }
 }
+

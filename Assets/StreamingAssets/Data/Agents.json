@@ -1,8 +1,8 @@
 {
-  "adventurers": [
+  "agents": [
     {
-      "adventurerId": "adventurer_warrior",
-      "nameKey": "adventurer.warrior.name",
+      "agentId": "agent_warrior",
+      "nameKey": "agent.warrior.name",
       "diceCount": 4,
       "gearSlotCount": 2,
       "rules": [
@@ -27,8 +27,8 @@
       ]
     },
     {
-      "adventurerId": "adventurer_archer",
-      "nameKey": "adventurer.archer.name",
+      "agentId": "agent_archer",
+      "nameKey": "agent.archer.name",
       "diceCount": 4,
       "gearSlotCount": 2,
       "rules": [
@@ -53,8 +53,8 @@
       ]
     },
     {
-      "adventurerId": "adventurer_mage",
-      "nameKey": "adventurer.mage.name",
+      "agentId": "agent_mage",
+      "nameKey": "agent.mage.name",
       "diceCount": 3,
       "gearSlotCount": 2,
       "rules": [
@@ -78,8 +78,8 @@
       ]
     },
     {
-      "adventurerId": "adventurer_rogue",
-      "nameKey": "adventurer.rogue.name",
+      "agentId": "agent_rogue",
+      "nameKey": "agent.rogue.name",
       "diceCount": 5,
       "gearSlotCount": 2,
       "rules": [
@@ -104,3 +104,4 @@
     }
   ]
 }
+

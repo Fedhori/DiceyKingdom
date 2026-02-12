@@ -5,7 +5,7 @@ public enum TurnPhase
 {
     TurnStart = 0,
     BoardUpdate = 1,
-    AdventurerRoll = 2,
+    AgentRoll = 2,
     Adjustment = 3,
     TargetAndAttack = 4,
     Settlement = 5,
@@ -17,7 +17,7 @@ public sealed class TurnRuntimeState
 {
     public int turnNumber = 1;
     public TurnPhase phase = TurnPhase.TurnStart;
-    public string processingAdventurerInstanceId = string.Empty;
+    public string processingAgentInstanceId = string.Empty;
 }
 
 [Serializable]
@@ -42,14 +42,14 @@ public sealed class SituationState
     public string situationDefId = string.Empty;
     public int currentRequirement;
     public int deadlineTurnsLeft;
-    public List<string> assignedAdventurerIds = new();
+    public List<string> assignedAgentIds = new();
 }
 
 [Serializable]
-public sealed class AdventurerState
+public sealed class AgentState
 {
     public string instanceId = string.Empty;
-    public string adventurerDefId = string.Empty;
+    public string agentDefId = string.Empty;
     public List<int> rolledDiceValues = new();
     public string assignedSituationInstanceId;
     public bool actionConsumed;
@@ -65,14 +65,14 @@ public sealed class GameRunState
     public int gold;
     public int rngSeed;
     public int nextSituationInstanceSequence = 1;
-    public int nextAdventurerInstanceSequence = 1;
+    public int nextAgentInstanceSequence = 1;
     public List<SituationState> situations = new();
-    public List<AdventurerState> adventurers = new();
+    public List<AgentState> agents = new();
     public List<SkillCooldownState> skillCooldowns = new();
 
     public void ResetTurnTransientState()
     {
-        turn.processingAdventurerInstanceId = string.Empty;
+        turn.processingAgentInstanceId = string.Empty;
 
         for (int i = 0; i < situations.Count; i++)
         {
@@ -80,18 +80,18 @@ public sealed class GameRunState
             if (situation == null)
                 continue;
 
-            situation.assignedAdventurerIds.Clear();
+            situation.assignedAgentIds.Clear();
         }
 
-        for (int i = 0; i < adventurers.Count; i++)
+        for (int i = 0; i < agents.Count; i++)
         {
-            var adventurer = adventurers[i];
-            if (adventurer == null)
+            var agent = agents[i];
+            if (agent == null)
                 continue;
 
-            adventurer.rolledDiceValues.Clear();
-            adventurer.assignedSituationInstanceId = null;
-            adventurer.actionConsumed = false;
+            agent.rolledDiceValues.Clear();
+            agent.assignedSituationInstanceId = null;
+            agent.actionConsumed = false;
         }
 
         for (int i = 0; i < skillCooldowns.Count; i++)
@@ -109,7 +109,7 @@ public static class GameRunBootstrap
 {
     public const int InitialStability = 20;
     public const int InitialGold = 0;
-    public const int AdventurerSlotCount = 4;
+    public const int AgentSlotCount = 4;
     public const int InitialSituationSpawnCount = 3;
     public const int PeriodicSituationSpawnCount = 3;
     public const int PeriodicSituationSpawnIntervalTurns = 4;
@@ -118,10 +118,10 @@ public static class GameRunBootstrap
     {
         if (staticData == null)
             throw new ArgumentNullException(nameof(staticData));
-        if (staticData.adventurerDefs == null || staticData.adventurerDefs.Count != AdventurerSlotCount)
+        if (staticData.agentDefs == null || staticData.agentDefs.Count != AgentSlotCount)
         {
             throw new InvalidOperationException(
-                $"v0 requires exactly {AdventurerSlotCount} adventurer defs (actual={staticData.adventurerDefs?.Count ?? 0})");
+                $"v0 requires exactly {AgentSlotCount} agent defs (actual={staticData.agentDefs?.Count ?? 0})");
         }
 
         if (staticData.situationDefs == null || staticData.situationDefs.Count == 0)
@@ -140,13 +140,13 @@ public static class GameRunBootstrap
             }
         };
 
-        for (int i = 0; i < staticData.adventurerDefs.Count; i++)
+        for (int i = 0; i < staticData.agentDefs.Count; i++)
         {
-            var def = staticData.adventurerDefs[i];
-            runState.adventurers.Add(new AdventurerState
+            var def = staticData.agentDefs[i];
+            runState.agents.Add(new AgentState
             {
-                instanceId = $"adventurer_{runState.nextAdventurerInstanceSequence++}",
-                adventurerDefId = def.adventurerId
+                instanceId = $"agent_{runState.nextAgentInstanceSequence++}",
+                agentDefId = def.agentId
             });
         }
 
@@ -234,3 +234,4 @@ public static class GameRunBootstrap
         }
     }
 }
+

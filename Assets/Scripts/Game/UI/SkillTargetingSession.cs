@@ -58,7 +58,7 @@ public static class SkillTargetingSession
 
         bool used = ActiveOrchestrator.TryUseSkillBySlotIndex(
             ActiveSkillSlotIndex,
-            selectedAdventurerInstanceId: null,
+            selectedAgentInstanceId: null,
             selectedSituationInstanceId: situationInstanceId,
             selectedDieIndex: -1);
         if (used)
@@ -67,3 +67,4 @@ public static class SkillTargetingSession
         return used;
     }
 }
+

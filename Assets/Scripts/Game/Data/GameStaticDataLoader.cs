@@ -7,10 +7,10 @@ using UnityEngine;
 public static class GameStaticDataLoader
 {
     public const string SituationsPath = "Data/Situations.json";
-    public const string AdventurersPath = "Data/Adventurers.json";
+    public const string AgentsPath = "Data/Agents.json";
     public const string SkillsPath = "Data/Skills.json";
 
-    const string AdventurerLocalizationTable = "adventurer";
+    const string AgentLocalizationTable = "agent";
     const string RuleTriggerOnRoll = "onRoll";
     const string RuleTriggerOnCalculation = "onCalculation";
     const string RuleConditionAlways = "always";
@@ -21,7 +21,7 @@ public static class GameStaticDataLoader
     const string RuleEffectAttackBonusByThreshold = "attackBonusByThreshold";
     const string RuleEffectFlatAttackBonus = "flatAttackBonus";
 
-    static bool hasLoggedAdventurerLocalizationWarnings;
+    static bool hasLoggedAgentLocalizationWarnings;
 
     public static List<SituationDef> LoadSituationDefs(string relativePath = SituationsPath)
     {
@@ -30,11 +30,11 @@ public static class GameStaticDataLoader
         return situations;
     }
 
-    public static List<AdventurerDef> LoadAdventurerDefs(string relativePath = AdventurersPath)
+    public static List<AgentDef> LoadAgentDefs(string relativePath = AgentsPath)
     {
-        var adventurers = ParseCatalogList<AdventurerDef>(relativePath, "adventurers");
-        ValidateAdventurerDefs(adventurers, relativePath);
-        return adventurers;
+        var agents = ParseCatalogList<AgentDef>(relativePath, "agents");
+        ValidateAgentDefs(agents, relativePath);
+        return agents;
     }
 
     public static List<SkillDef> LoadSkillDefs(string relativePath = SkillsPath)
@@ -49,24 +49,24 @@ public static class GameStaticDataLoader
         var dataSet = new GameStaticDataSet
         {
             situationDefs = LoadSituationDefs(),
-            adventurerDefs = LoadAdventurerDefs(),
+            agentDefs = LoadAgentDefs(),
             skillDefs = LoadSkillDefs()
         };
 
         if (logWarningsOnce)
-            LogAdventurerLocalizationWarningsOnce(dataSet.adventurerDefs);
+            LogAgentLocalizationWarningsOnce(dataSet.agentDefs);
 
         return dataSet;
     }
 
-    public static List<string> CollectAdventurerLocalizationWarnings(IReadOnlyList<AdventurerDef> adventurerDefs)
+    public static List<string> CollectAgentLocalizationWarnings(IReadOnlyList<AgentDef> agentDefs)
     {
         var warnings = new List<string>();
-        if (adventurerDefs == null)
+        if (agentDefs == null)
             return warnings;
 
-        var expectedKeys = BuildExpectedAdventurerLocalizationKeys(adventurerDefs);
-        string sharedDataPath = GetLocalizationSharedDataPath(AdventurerLocalizationTable);
+        var expectedKeys = BuildExpectedAgentLocalizationKeys(agentDefs);
+        string sharedDataPath = GetLocalizationSharedDataPath(AgentLocalizationTable);
         if (!File.Exists(sharedDataPath))
         {
             warnings.Add($"Localization table asset missing: {sharedDataPath}");
@@ -80,7 +80,7 @@ public static class GameStaticDataLoader
         {
             string key = expectedOrdered[i];
             if (!actualKeys.Contains(key))
-                warnings.Add($"Missing localization key: {AdventurerLocalizationTable}/{key}");
+                warnings.Add($"Missing localization key: {AgentLocalizationTable}/{key}");
         }
 
         var actualOrdered = new List<string>(actualKeys);
@@ -89,7 +89,7 @@ public static class GameStaticDataLoader
         {
             string key = actualOrdered[i];
             if (!expectedKeys.Contains(key))
-                warnings.Add($"Orphan localization key: {AdventurerLocalizationTable}/{key}");
+                warnings.Add($"Orphan localization key: {AgentLocalizationTable}/{key}");
         }
 
         return warnings;
@@ -116,38 +116,38 @@ public static class GameStaticDataLoader
         throw new InvalidDataException($"[GameStaticDataLoader] Invalid json shape: {relativePath}");
     }
 
-    static void ValidateAdventurerDefs(IReadOnlyList<AdventurerDef> adventurerDefs, string sourcePath)
+    static void ValidateAgentDefs(IReadOnlyList<AgentDef> agentDefs, string sourcePath)
     {
         var errors = new List<string>();
         var ids = new HashSet<string>(StringComparer.Ordinal);
 
-        for (int i = 0; i < adventurerDefs.Count; i++)
+        for (int i = 0; i < agentDefs.Count; i++)
         {
-            var def = adventurerDefs[i];
+            var def = agentDefs[i];
             if (def == null)
             {
-                errors.Add($"adventurers[{i}] is null");
+                errors.Add($"agents[{i}] is null");
                 continue;
             }
 
-            if (string.IsNullOrWhiteSpace(def.adventurerId))
+            if (string.IsNullOrWhiteSpace(def.agentId))
             {
-                errors.Add($"adventurers[{i}].adventurerId is empty");
+                errors.Add($"agents[{i}].agentId is empty");
             }
-            else if (!ids.Add(def.adventurerId))
+            else if (!ids.Add(def.agentId))
             {
-                errors.Add($"duplicated adventurerId '{def.adventurerId}'");
+                errors.Add($"duplicated agentId '{def.agentId}'");
             }
 
             if (def.diceCount < 1)
-                errors.Add($"{def.adventurerId}: diceCount must be >= 1 (actual={def.diceCount})");
+                errors.Add($"{def.agentId}: diceCount must be >= 1 (actual={def.diceCount})");
 
             if (def.gearSlotCount < 0)
-                errors.Add($"{def.adventurerId}: gearSlotCount must be >= 0 (actual={def.gearSlotCount})");
+                errors.Add($"{def.agentId}: gearSlotCount must be >= 0 (actual={def.gearSlotCount})");
 
             if (def.rules == null)
             {
-                def.rules = new List<AdventurerRuleDef>();
+                def.rules = new List<AgentRuleDef>();
                 continue;
             }
 
@@ -156,7 +156,7 @@ public static class GameStaticDataLoader
                 var rule = def.rules[ruleIndex];
                 if (rule == null)
                 {
-                    errors.Add($"{def.adventurerId}.rules[{ruleIndex}] is null");
+                    errors.Add($"{def.agentId}.rules[{ruleIndex}] is null");
                     continue;
                 }
 
@@ -165,12 +165,12 @@ public static class GameStaticDataLoader
                     !string.Equals(triggerType, RuleTriggerOnCalculation, StringComparison.Ordinal))
                 {
                     errors.Add(
-                        $"{def.adventurerId}.rules[{ruleIndex}].trigger.type must be '{RuleTriggerOnRoll}' or '{RuleTriggerOnCalculation}' (actual='{triggerType}')");
+                        $"{def.agentId}.rules[{ruleIndex}].trigger.type must be '{RuleTriggerOnRoll}' or '{RuleTriggerOnCalculation}' (actual='{triggerType}')");
                     continue;
                 }
 
                 if (rule.condition == null)
-                    rule.condition = new AdventurerRuleConditionDef();
+                    rule.condition = new AgentRuleConditionDef();
 
                 string conditionType = rule.condition.type?.Trim();
                 if (string.IsNullOrWhiteSpace(conditionType))
@@ -183,26 +183,26 @@ public static class GameStaticDataLoader
                     !string.Equals(conditionType, RuleConditionDiceAtLeastCount, StringComparison.Ordinal))
                 {
                     errors.Add(
-                        $"{def.adventurerId}.rules[{ruleIndex}].condition.type must be '{RuleConditionAlways}' or '{RuleConditionDiceAtLeastCount}' (actual='{conditionType}')");
+                        $"{def.agentId}.rules[{ruleIndex}].condition.type must be '{RuleConditionAlways}' or '{RuleConditionDiceAtLeastCount}' (actual='{conditionType}')");
                 }
                 else if (string.Equals(conditionType, RuleConditionDiceAtLeastCount, StringComparison.Ordinal))
                 {
                     if (!TryGetIntParam(rule.condition.conditionParams, "threshold", out int threshold) || threshold < 1)
                     {
                         errors.Add(
-                            $"{def.adventurerId}.rules[{ruleIndex}].condition.params.threshold must be >= 1 for '{RuleConditionDiceAtLeastCount}'");
+                            $"{def.agentId}.rules[{ruleIndex}].condition.params.threshold must be >= 1 for '{RuleConditionDiceAtLeastCount}'");
                     }
 
                     if (!TryGetIntParam(rule.condition.conditionParams, "count", out int count) || count < 1)
                     {
                         errors.Add(
-                            $"{def.adventurerId}.rules[{ruleIndex}].condition.params.count must be >= 1 for '{RuleConditionDiceAtLeastCount}'");
+                            $"{def.agentId}.rules[{ruleIndex}].condition.params.count must be >= 1 for '{RuleConditionDiceAtLeastCount}'");
                     }
                 }
 
                 if (rule.effect == null || string.IsNullOrWhiteSpace(rule.effect.effectType))
                 {
-                    errors.Add($"{def.adventurerId}.rules[{ruleIndex}].effect.effectType is empty");
+                    errors.Add($"{def.agentId}.rules[{ruleIndex}].effect.effectType is empty");
                     continue;
                 }
 
@@ -216,7 +216,7 @@ public static class GameStaticDataLoader
                     if (!allowed)
                     {
                         errors.Add(
-                            $"{def.adventurerId}.rules[{ruleIndex}].effect.effectType '{effectType}' is not allowed for trigger '{RuleTriggerOnRoll}'");
+                            $"{def.agentId}.rules[{ruleIndex}].effect.effectType '{effectType}' is not allowed for trigger '{RuleTriggerOnRoll}'");
                     }
                 }
                 else if (string.Equals(triggerType, RuleTriggerOnCalculation, StringComparison.Ordinal))
@@ -227,7 +227,7 @@ public static class GameStaticDataLoader
                     if (!allowed)
                     {
                         errors.Add(
-                            $"{def.adventurerId}.rules[{ruleIndex}].effect.effectType '{effectType}' is not allowed for trigger '{RuleTriggerOnCalculation}'");
+                            $"{def.agentId}.rules[{ruleIndex}].effect.effectType '{effectType}' is not allowed for trigger '{RuleTriggerOnCalculation}'");
                     }
                 }
 
@@ -242,7 +242,7 @@ public static class GameStaticDataLoader
                     if (!validPickRule)
                     {
                         errors.Add(
-                            $"{def.adventurerId}.rules[{ruleIndex}].effect.params.diePickRule must be selected|lowest|highest|all (actual='{diePickRule}')");
+                            $"{def.agentId}.rules[{ruleIndex}].effect.params.diePickRule must be selected|lowest|highest|all (actual='{diePickRule}')");
                     }
 
                     if ((string.Equals(diePickRule, "lowest", StringComparison.Ordinal) ||
@@ -251,7 +251,7 @@ public static class GameStaticDataLoader
                         applyCount < 1)
                     {
                         errors.Add(
-                            $"{def.adventurerId}.rules[{ruleIndex}].effect.params.count must be >= 1 when diePickRule is lowest/highest");
+                            $"{def.agentId}.rules[{ruleIndex}].effect.params.count must be >= 1 when diePickRule is lowest/highest");
                     }
                 }
                 else if (string.Equals(effectType, RuleEffectAttackBonusByThreshold, StringComparison.Ordinal))
@@ -259,13 +259,13 @@ public static class GameStaticDataLoader
                     if (!TryGetIntParam(rule.effect.effectParams, "threshold", out int threshold) || threshold < 1)
                     {
                         errors.Add(
-                            $"{def.adventurerId}.rules[{ruleIndex}].effect.params.threshold must be >= 1 for '{RuleEffectAttackBonusByThreshold}'");
+                            $"{def.agentId}.rules[{ruleIndex}].effect.params.threshold must be >= 1 for '{RuleEffectAttackBonusByThreshold}'");
                     }
 
                     if (!TryGetIntParam(rule.effect.effectParams, "bonusPerMatch", out _))
                     {
                         errors.Add(
-                            $"{def.adventurerId}.rules[{ruleIndex}].effect.params.bonusPerMatch is required for '{RuleEffectAttackBonusByThreshold}'");
+                            $"{def.agentId}.rules[{ruleIndex}].effect.params.bonusPerMatch is required for '{RuleEffectAttackBonusByThreshold}'");
                     }
                 }
             }
@@ -387,41 +387,41 @@ public static class GameStaticDataLoader
         return trimmed.ToLowerInvariant();
     }
 
-    static void LogAdventurerLocalizationWarningsOnce(IReadOnlyList<AdventurerDef> adventurerDefs)
+    static void LogAgentLocalizationWarningsOnce(IReadOnlyList<AgentDef> agentDefs)
     {
-        if (hasLoggedAdventurerLocalizationWarnings)
+        if (hasLoggedAgentLocalizationWarnings)
             return;
 
-        hasLoggedAdventurerLocalizationWarnings = true;
-        var warnings = CollectAdventurerLocalizationWarnings(adventurerDefs);
+        hasLoggedAgentLocalizationWarnings = true;
+        var warnings = CollectAgentLocalizationWarnings(agentDefs);
         if (warnings.Count == 0)
         {
-            Debug.Log("[GameStaticDataLoader] Adventurer localization key validation passed.");
+            Debug.Log("[GameStaticDataLoader] Agent localization key validation passed.");
             return;
         }
 
         Debug.LogWarning(
-            "[GameStaticDataLoader] Adventurer localization key warnings\n- " +
+            "[GameStaticDataLoader] Agent localization key warnings\n- " +
             string.Join("\n- ", warnings));
     }
 
-    static HashSet<string> BuildExpectedAdventurerLocalizationKeys(IReadOnlyList<AdventurerDef> adventurerDefs)
+    static HashSet<string> BuildExpectedAgentLocalizationKeys(IReadOnlyList<AgentDef> agentDefs)
     {
         var keys = new HashSet<string>(StringComparer.Ordinal);
-        for (int i = 0; i < adventurerDefs.Count; i++)
+        for (int i = 0; i < agentDefs.Count; i++)
         {
-            var def = adventurerDefs[i];
+            var def = agentDefs[i];
             if (def == null)
                 continue;
 
             if (!string.IsNullOrWhiteSpace(def.nameKey))
                 keys.Add(def.nameKey.Trim());
 
-            if (string.IsNullOrWhiteSpace(def.adventurerId) || def.rules == null)
+            if (string.IsNullOrWhiteSpace(def.agentId) || def.rules == null)
                 continue;
 
             for (int ruleIndex = 0; ruleIndex < def.rules.Count; ruleIndex++)
-                keys.Add($"{def.adventurerId}.rule.{ruleIndex}");
+                keys.Add($"{def.agentId}.rule.{ruleIndex}");
         }
 
         return keys;
@@ -507,6 +507,7 @@ public static class GameStaticDataLoader
 public sealed class GameStaticDataSet
 {
     public List<SituationDef> situationDefs = new();
-    public List<AdventurerDef> adventurerDefs = new();
+    public List<AgentDef> agentDefs = new();
     public List<SkillDef> skillDefs = new();
 }
+

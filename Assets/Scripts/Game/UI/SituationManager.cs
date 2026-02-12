@@ -408,7 +408,7 @@ public sealed class SituationManager : MonoBehaviour
             "goldDelta" => $"Gold {FormatSignedValue(value)}",
             "situationRequirementDelta" => $"Req {FormatSignedValue(value)}",
             "dieFaceDelta" => $"Die {FormatSignedValue(value)}",
-            "rerollAdventurerDice" => "Reroll Adventurer Dice",
+            "rerollAgentDice" => "Reroll Agent Dice",
             _ => value == 0
                 ? ToDisplayTitle(effect.effectType)
                 : $"{ToDisplayTitle(effect.effectType)} {FormatSignedValue(value)}"
@@ -456,3 +456,4 @@ public sealed class SituationManager : MonoBehaviour
         return string.Join(" ", parts);
     }
 }
+

@@ -44,18 +44,18 @@
 - v0 런타임 상태: `Assets/Scripts/Game/Runtime`
 - v0 턴 오케스트레이터: `Assets/Scripts/Game/Runtime/GameTurnOrchestrator.cs`
 - v0 전투 입력 컴포넌트: `Assets/Scripts/Game/UI`
-  - `AdventurerManager.cs`: 모험가 카드 목록 생성/상태 동기화(매니저 로직)
+  - `AgentManager.cs`: 모험가 카드 목록 생성/상태 동기화(매니저 로직)
   - `SituationManager.cs`: 상황 카드 목록 생성/상태 동기화(매니저 로직)
-  - `AdventurerController.cs`: 모험가 카드 프리팹 View(텍스트/주사위/롤·드래그 입력 배선)
+  - `AgentController.cs`: 모험가 카드 프리팹 View(텍스트/주사위/롤·드래그 입력 배선)
   - `SituationController.cs`: 상황 카드 프리팹 View(요구치/기한/성공·실패/드롭·클릭 입력 배선)
     - 두 View는 인스펙터 직결 참조만 사용(런타임 자동 탐색/자동 컴포넌트 추가 금지)
   - `AssignmentDragArrowPresenter.cs`: 드래그 타게팅 중 연결 라인/화살표 표시(OverlayRoot)
-  - `AdventurerRollButton.cs`: 모험가별 굴리기 버튼 입력
+  - `AgentRollButton.cs`: 모험가별 굴리기 버튼 입력
   - `BottomActionBarController.cs`: 하단 액션 바(스킬 슬롯 QWER 상태, 턴 종료 CTA) 런타임 생성/동기화
   - `SkillTargetingSession.cs`: 타깃 지정이 필요한 스킬의 선택/취소/적용 세션 상태 관리
   - `TopHudController.cs`: 상단 HUD(턴/스테이지/페이즈/안정도/골드/런 상태) 이벤트 동기화
   - `GameTurnHotkeyController.cs`: 롤(1~4) / 스킬(QWER) 단축키 입력
-  - `AdventurerDragHandle.cs`, `EnemyDropTarget.cs`: 드래그 타게팅/공격 입력(`EnemyDropTarget`은 레거시 이름 유지)
+  - `AgentDragHandle.cs`, `EnemyDropTarget.cs`: 드래그 타게팅/공격 입력(`EnemyDropTarget`은 레거시 이름 유지)
 - 저장/로드: `Assets/Scripts/Save`
 - 로컬라이징: `Assets/Scripts/Data/LocalizationUtil.cs`
 - 오디오: `Assets/Scripts/Audio`
@@ -69,4 +69,5 @@
 - 공통 규칙: `Docs/GENERAL_RULES.md`
 - 게임 구조: `Docs/GAME_STRUCTURE.md`
 - 아이디어 백로그: `Docs/GAME_IDEA_BACKLOG.md`
+
 

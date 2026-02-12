@@ -2,15 +2,15 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public sealed class AdventurerRollButton : MonoBehaviour
+public sealed class AgentRollButton : MonoBehaviour
 {
     [SerializeField] GameTurnOrchestrator orchestrator;
-    [SerializeField] string adventurerInstanceId = string.Empty;
+    [SerializeField] string agentInstanceId = string.Empty;
     [SerializeField] Button button;
 
-    public void SetAdventurerInstanceId(string instanceId)
+    public void SetAgentInstanceId(string instanceId)
     {
-        adventurerInstanceId = instanceId ?? string.Empty;
+        agentInstanceId = instanceId ?? string.Empty;
     }
 
     public void SetOrchestrator(GameTurnOrchestrator value)
@@ -33,10 +33,10 @@ public sealed class AdventurerRollButton : MonoBehaviour
     {
         if (orchestrator == null)
             return;
-        if (string.IsNullOrWhiteSpace(adventurerInstanceId))
+        if (string.IsNullOrWhiteSpace(agentInstanceId))
             return;
 
-        orchestrator.TryRollAdventurer(adventurerInstanceId);
+        orchestrator.TryRollAgent(agentInstanceId);
     }
 
     void Reset()
@@ -127,7 +127,7 @@ public sealed class AdventurerRollButton : MonoBehaviour
         if (button == null)
             return;
 
-        bool canRoll = orchestrator != null && orchestrator.CanRollAdventurer(adventurerInstanceId);
+        bool canRoll = orchestrator != null && orchestrator.CanRollAgent(agentInstanceId);
         if (button.interactable == canRoll)
             return;
 
@@ -142,3 +142,4 @@ public sealed class AdventurerRollButton : MonoBehaviour
         orchestrator = FindFirstObjectByType<GameTurnOrchestrator>();
     }
 }
+

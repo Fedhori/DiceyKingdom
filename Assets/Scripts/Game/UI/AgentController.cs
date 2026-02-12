@@ -5,11 +5,11 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
-public sealed class AdventurerController : MonoBehaviour
+public sealed class AgentController : MonoBehaviour
 {
     [SerializeField] RectTransform rootRect;
     [SerializeField] Image backgroundImage;
-    [SerializeField] AdventurerDragHandle dragHandle;
+    [SerializeField] AgentDragHandle dragHandle;
     [SerializeField] RectTransform diceRowRoot;
     [SerializeField] TextMeshProUGUI slotText;
     [SerializeField] TextMeshProUGUI nameText;
@@ -18,7 +18,7 @@ public sealed class AdventurerController : MonoBehaviour
     [SerializeField] TextMeshProUGUI statusText;
     [SerializeField] TextMeshProUGUI rollButtonText;
     [SerializeField] Button rollButton;
-    [SerializeField] AdventurerRollButton rollButtonHandler;
+    [SerializeField] AgentRollButton rollButtonHandler;
     GameObject dicePrefab;
     readonly List<DiceFaceWidgets> diceFaces = new();
 
@@ -44,12 +44,12 @@ public sealed class AdventurerController : MonoBehaviour
         }
     }
 
-    public void BindAdventurer(string adventurerInstanceId)
+    public void BindAgent(string agentInstanceId)
     {
         if (dragHandle != null)
-            dragHandle.SetAdventurerInstanceId(adventurerInstanceId);
+            dragHandle.SetAgentInstanceId(agentInstanceId);
         if (rollButtonHandler != null)
-            rollButtonHandler.SetAdventurerInstanceId(adventurerInstanceId);
+            rollButtonHandler.SetAgentInstanceId(agentInstanceId);
     }
 
     public void Render(
@@ -140,12 +140,12 @@ public sealed class AdventurerController : MonoBehaviour
     {
         if (dicePrefab == null)
         {
-            Debug.LogWarning("[AdventurerController] dicePrefab is not assigned.", this);
+            Debug.LogWarning("[AgentController] dicePrefab is not assigned.", this);
             return null;
         }
         if (diceRowRoot == null)
         {
-            Debug.LogWarning("[AdventurerController] diceRowRoot is not assigned.", this);
+            Debug.LogWarning("[AgentController] diceRowRoot is not assigned.", this);
             return null;
         }
 
@@ -155,7 +155,7 @@ public sealed class AdventurerController : MonoBehaviour
         var rootTransform = root.GetComponent<RectTransform>();
         if (rootTransform == null)
         {
-            Debug.LogWarning("[AdventurerController] Dice prefab must include RectTransform.", root);
+            Debug.LogWarning("[AgentController] Dice prefab must include RectTransform.", root);
             if (Application.isPlaying)
                 Destroy(root);
             else
@@ -167,7 +167,7 @@ public sealed class AdventurerController : MonoBehaviour
         if (valueText == null)
             valueText = root.GetComponentInChildren<TextMeshProUGUI>(true);
         if (valueText == null)
-            Debug.LogWarning("[AdventurerController] Dice prefab is missing a TMP_Text for value.", root);
+            Debug.LogWarning("[AgentController] Dice prefab is missing a TMP_Text for value.", root);
 
         return new DiceFaceWidgets
         {
@@ -202,3 +202,4 @@ public sealed class AdventurerController : MonoBehaviour
         public TextMeshProUGUI valueText;
     }
 }
+

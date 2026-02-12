@@ -15,13 +15,13 @@ public sealed class GameTurnHotkeyController : MonoBehaviour
             return;
 
         if (IsRollKeyPressed(keyboard, 0))
-            orchestrator.TryRollAdventurerBySlotIndex(0);
+            orchestrator.TryRollAgentBySlotIndex(0);
         if (IsRollKeyPressed(keyboard, 1))
-            orchestrator.TryRollAdventurerBySlotIndex(1);
+            orchestrator.TryRollAgentBySlotIndex(1);
         if (IsRollKeyPressed(keyboard, 2))
-            orchestrator.TryRollAdventurerBySlotIndex(2);
+            orchestrator.TryRollAgentBySlotIndex(2);
         if (IsRollKeyPressed(keyboard, 3))
-            orchestrator.TryRollAdventurerBySlotIndex(3);
+            orchestrator.TryRollAgentBySlotIndex(3);
 
         if (keyboard.qKey.wasPressedThisFrame)
             HandleSkillHotkey(0);
@@ -79,3 +79,4 @@ public sealed class GameTurnHotkeyController : MonoBehaviour
         };
     }
 }
+

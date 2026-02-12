@@ -31,7 +31,7 @@ public sealed class EnemyDropTarget : MonoBehaviour, IDropHandler, IPointerClick
         if (string.IsNullOrWhiteSpace(situationInstanceId))
             return;
 
-        bool assigned = orchestrator.TryAssignAdventurer(AssignmentDragSession.AdventurerInstanceId, situationInstanceId);
+        bool assigned = orchestrator.TryAssignAgent(AssignmentDragSession.AgentInstanceId, situationInstanceId);
         if (!assigned)
             return;
 
@@ -64,3 +64,4 @@ public sealed class EnemyDropTarget : MonoBehaviour, IDropHandler, IPointerClick
         orchestrator = FindFirstObjectByType<GameTurnOrchestrator>();
     }
 }
+

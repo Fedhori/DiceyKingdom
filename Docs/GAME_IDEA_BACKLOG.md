@@ -90,7 +90,7 @@
 ### 2026-02-12 - 모험가 효과 하드코딩 제거 및 데이터 기반 효과 시스템 전환
 
 - 최종 확정:
-  - 모험가 효과의 `adventurerId` 분기 하드코딩을 제거
+  - 모험가 효과의 `agentId` 분기 하드코딩을 제거
   - 효과 로직은 데이터(`rules`) + 공통 룰 실행기 기반으로 통합
   - 각 rule은 `trigger - condition - effect` 3요소로 구성
   - 트리거는 `onRoll`, `onCalculation`으로 고정
@@ -98,7 +98,7 @@
   - `onCalculation`은 ATK 계산 시마다 호출(카드 갱신/공격 확정 포함)
   - 룰 실행은 `rules` 배열 인덱스 오름차순 live 평가
   - 트리거 1회 처리 중 같은 rule은 최대 1회만 발동
-  - rule 설명 키는 `adventurer` 테이블의 `{adventurerId}.rule.{index}` 구조 사용
+  - rule 설명 키는 `agent` 테이블의 `{agentId}.rule.{index}` 구조 사용
   - 설명용 인자 구성은 `RuleTextArgsBuilder` 단일 빌더로 통합하고, Smart Format 인자는 평탄화 키를 사용
   - JSON 키/효과 타입/params 키는 전역 camelCase로 통일(기존 JSON도 마이그레이션)
   - 룰/로컬라이즈 검증은 로드 시 1회 경고 + 에디터 메뉴 검증을 동일 함수로 제공
@@ -148,8 +148,8 @@
 ### 2026-02-11 - 카드 View 인스펙터 직결 참조 규칙 고정
 
 - 최종 확정:
-  - `SituationController`, `AdventurerController`의 UI/입력 참조는 인스펙터 직결(`SerializeField`)만 사용
-  - 카드 생성 시 매니저(`SituationManager`, `AdventurerManager`)는 프리팹의 View 컴포넌트를 필수로 요구
+  - `SituationController`, `AgentController`의 UI/입력 참조는 인스펙터 직결(`SerializeField`)만 사용
+  - 카드 생성 시 매니저(`SituationManager`, `AgentManager`)는 프리팹의 View 컴포넌트를 필수로 요구
   - 런타임 자동 참조 탐색(`Find*`, `GetComponent*`) 및 자동 컴포넌트 추가(`AddComponent`)는 카드 View에서 사용하지 않음
 - 채택 이유:
   - 프리팹 기반 UI의 소유권을 명확히 해 렌더 깨짐/참조 유실 원인 추적을 단순화
@@ -163,7 +163,7 @@
   - 상황 카드의 `HpText` 용어를 `RequirementText`로 교체
   - 상황 카드 요구 수치 표시는 `SituationController`에서 직접 바인딩
   - 모험가/상황 카드 모두 프리팹 View 컴포넌트가 렌더링/입력 배선을 담당
-  - 런타임 로직은 `Managers/Adventurer(AdventurerManager)`, `Managers/Situation(SituationManager)`에서 담당
+  - 런타임 로직은 `Managers/Agent(AgentManager)`, `Managers/Situation(SituationManager)`에서 담당
 - 채택 이유:
   - 용어 일관성(`HP` 제거, `요구치` 통일) 확보
   - 패널 매니저와 카드 뷰 책임 분리로 유지보수성과 디버깅 효율 개선
@@ -578,3 +578,4 @@
 - 오버킬 보상 규칙(남는 수치 이월, 추가 골드 획득, 전용 트리거 여부)
 - 증가형 몬스터 위협의 누적 강도 곡선과 완화 장치(상한/감소/정지) 기준
 - 은행형 대출 한도(`N`) 값 확정
+

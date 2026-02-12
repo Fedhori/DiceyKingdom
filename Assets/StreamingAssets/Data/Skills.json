@@ -1,17 +1,17 @@
 {
   "skills": [
     {
-      "skillId": "skill_reroll_adventurer",
-      "nameKey": "skill.reroll_adventurer.name",
+      "skillId": "skill_reroll_agent",
+      "nameKey": "skill.reroll_agent.name",
       "cooldownTurns": 1,
       "maxUsesPerTurn": 1,
       "effectBundle": {
         "effects": [
           {
-            "effectType": "rerollAdventurerDice",
+            "effectType": "rerollAgentDice",
             "value": null,
             "params": {
-              "targetAdventurerMode": "selectedAdventurer",
+              "targetAgentMode": "selectedAgent",
               "rerollRule": "all"
             }
           }
@@ -29,7 +29,7 @@
             "effectType": "dieFaceDelta",
             "value": 1,
             "params": {
-              "targetAdventurerMode": "selectedAdventurer",
+              "targetAgentMode": "selectedAgent",
               "diePickRule": "selected"
             }
           }
@@ -55,4 +55,5 @@
     }
   ]
 }
+
 

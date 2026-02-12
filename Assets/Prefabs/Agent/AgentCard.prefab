@@ -133,9 +133,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be464b1d7a47b834da79accd87bb5bd2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AdventurerRollButton
+  m_EditorClassIdentifier: Assembly-CSharp::AgentRollButton
   orchestrator: {fileID: 0}
-  adventurerInstanceId: adventurer_1
+  agentInstanceId: agent_1
   button: {fileID: 4163594786771723254}
 --- !u!1 &6058765530371240269
 GameObject:
@@ -189,7 +189,7 @@ GameObject:
   - component: {fileID: 2337354869827316251}
   - component: {fileID: 817263540019283746}
   m_Layer: 5
-  m_Name: AdventurerCard
+  m_Name: AgentCard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -289,9 +289,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f0cd39fb8758174ea19edc29531f501, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AdventurerDragHandle
+  m_EditorClassIdentifier: Assembly-CSharp::AgentDragHandle
   orchestrator: {fileID: 0}
-  adventurerInstanceId: adventurer_1
+  agentInstanceId: agent_1
 --- !u!114 &817263540019283746
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303,7 +303,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0d86a14c9d2b4d25a2f6c2eb7c6e5b1e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AdventurerController
+  m_EditorClassIdentifier: Assembly-CSharp::AgentController
   rootRect: {fileID: 8204395720131101985}
   backgroundImage: {fileID: 869526748136697366}
   dragHandle: {fileID: 2337354869827316251}
@@ -1194,3 +1194,4 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+

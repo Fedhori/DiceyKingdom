@@ -13,7 +13,7 @@ public static class GameStaticDataValidationMenu
         try
         {
             var dataSet = GameStaticDataLoader.LoadAll(logWarningsOnce: false);
-            var warnings = GameStaticDataLoader.CollectAdventurerLocalizationWarnings(dataSet.adventurerDefs);
+            var warnings = GameStaticDataLoader.CollectAgentLocalizationWarnings(dataSet.agentDefs);
             LogValidationResult(warnings);
         }
         catch (Exception exception)
@@ -36,3 +36,4 @@ public static class GameStaticDataValidationMenu
             string.Join("\n- ", warnings));
     }
 }
+

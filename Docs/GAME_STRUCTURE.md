@@ -203,14 +203,14 @@
 - 모달/토스트/툴팁/플로팅 텍스트는 공용 UI 유틸로 제공됩니다.
 - 런 보드 카드/주사위 UI는 프리팹 기반으로 구성합니다.
   - 상황 카드: `Assets/Prefabs/Situation/SituationCard.prefab`
-  - 모험가 카드: `Assets/Prefabs/Adeventurer/AdventurerCard.prefab`
+- 모험가 카드: `Assets/Prefabs/Agent/AgentCard.prefab`
   - 주사위: `Assets/Prefabs/Dice/Dice.prefab`
 - 런 보드 UI 구조는 `Manager + View`로 분리합니다.
-  - 로직/상태 동기화: `SituationManager`, `AdventurerManager`
-  - 카드 렌더/입력 배선: `SituationController`, `AdventurerController`(각 카드 프리팹 컴포넌트)
-- 카드 View(`SituationController`, `AdventurerController`)의 참조 컴포넌트는 인스펙터 직결(`SerializeField`)만 사용합니다.
+  - 로직/상태 동기화: `SituationManager`, `AgentManager`
+  - 카드 렌더/입력 배선: `SituationController`, `AgentController`(각 카드 프리팹 컴포넌트)
+- 카드 View(`SituationController`, `AgentController`)의 참조 컴포넌트는 인스펙터 직결(`SerializeField`)만 사용합니다.
   - 런타임에서 `GetComponent` 기반 자동 탐색/자동 `AddComponent`로 참조를 보정하지 않습니다.
-- `Managers` 루트 하위에 `Adventurer`, `Situation` 오브젝트를 두고, 각 매니저를 배치합니다.
+- `Managers` 루트 하위에 `Agent`, `Situation` 오브젝트를 두고, 각 매니저를 배치합니다.
 - 프로토타입 런 보드 카드 텍스트는 `TMP_Text` 직접 바인딩만 사용하며, `LocalizeStringEvent`는 사용하지 않습니다.
 - 카드/주사위의 크기, 피벗, 오프셋, 레이아웃 수치는 프리팹(또는 프리팹 인스턴스)에서 관리하고, 코드에서는 상태 바인딩만 담당합니다.
 - 런 보드 UI는 매 프레임 폴링(`Update`)으로 상태를 갱신하지 않고, 런타임 이벤트(`RunStarted`, `PhaseChanged`, `StageSpawned`, `RunEnded`, `StateChanged`) 기반으로만 갱신합니다.
@@ -268,7 +268,7 @@
   - 최소 1회 리롤 보장
   - 2회 굴림 후 높은 눈 채택
 
-### 모험가(Adventurer)
+### 모험가(Agent)
 
 - 모험가는 플레이어가 턴마다 상황에 배치하는 전투 단위입니다.
 - 각 모험가는 자신의 주사위를 굴려 `공격` 값을 생성합니다.
@@ -276,15 +276,15 @@
 
 ### 모험가 최소 스키마(v0 확정)
 
-- 정적 데이터(`AdventurerDef`):
-  - `adventurerId`: string (고유 ID)
+- 정적 데이터(`AgentDef`):
+  - `agentId`: string (고유 ID)
   - `nameKey`: string (로컬라이즈 키)
   - `diceCount`: int (`>= 1`)
   - `gearSlotCount`: int (`>= 0`)
-  - `rules`: adventurerRule[] or null (고유 룰)
-- 런타임 데이터(`AdventurerState`):
+  - `rules`: agentRule[] or null (고유 룰)
+- 런타임 데이터(`AgentState`):
   - `instanceId`: string (런 내 모험가 인스턴스 ID)
-  - `adventurerDefId`: string (`AdventurerDef.adventurerId` 참조)
+  - `agentDefId`: string (`AgentDef.agentId` 참조)
   - `rolledDiceValues`: int[] (`P3` 결과값)
   - `assignedSituationInstanceId`: string or null (`P4` 드래그 공격 대상)
   - `actionConsumed`: bool (`P4`에서 공격 반영 완료 여부)
@@ -311,7 +311,7 @@
   - `onRoll`은 단일 주사위 리롤에는 발동하지 않습니다.
   - `onCalculation`은 ATK 계산 시마다 발동합니다(카드 갱신/공격 확정 포함).
 - 구현 원칙(확정):
-  - 모험가 효과 로직을 `adventurerId` 기반 코드 분기(하드코딩)로 구현하지 않습니다.
+  - 모험가 효과 로직을 `agentId` 기반 코드 분기(하드코딩)로 구현하지 않습니다.
   - 고유효과는 `rules` 데이터와 공통 룰 실행기에서 처리합니다.
   - 각 rule은 `trigger`, `condition`, `effect` 3요소로 구성합니다.
   - 룰 실행은 `rules` 배열 인덱스 오름차순 live 평가를 사용합니다.
@@ -371,7 +371,7 @@
   - `goldDelta`
   - `situationRequirementDelta`
   - `dieFaceDelta`
-  - `rerollAdventurerDice`
+  - `rerollAgentDice`
   - `attackBonusByThreshold` (모험가 rule의 `onCalculation` 전용)
 - `effectType`별 `params` 필수 키 규칙(v0 확정):
   - `stabilityDelta`
@@ -382,15 +382,15 @@
     - 필수: `targetMode`
     - 허용값: `selectedSituation`
   - `dieFaceDelta`
-    - 필수: `targetAdventurerMode`, `diePickRule`
+    - 필수: `targetAgentMode`, `diePickRule`
     - 허용값:
-      - `targetAdventurerMode`: `selectedAdventurer`
+      - `targetAgentMode`: `selectedAgent`
       - `diePickRule`: `selected` | `lowest` | `highest` | `all`
     - 선택: `count` (정수, `lowest`/`highest`에서 적용 개수)
-  - `rerollAdventurerDice`
-    - 필수: `targetAdventurerMode`, `rerollRule`
+  - `rerollAgentDice`
+    - 필수: `targetAgentMode`, `rerollRule`
     - 허용값:
-      - `targetAdventurerMode`: `selectedAdventurer`
+      - `targetAgentMode`: `selectedAgent`
       - `rerollRule`: `all` | `single`
   - `attackBonusByThreshold`
     - 필수: `threshold`, `bonusPerMatch`
@@ -462,7 +462,7 @@
     - `4`턴마다 상황 `3`개 생성
     - 생성 대상은 상황 풀에서 `균등 랜덤` 선택
     - `Commit`: 이번 턴 보드 구성 확정
-  - `P2 AdventurerRoll`
+  - `P2 AgentRoll`
     - 현재 처리할 모험가를 선택하고 굴림 입력을 수행
     - 입력: 모험가별 `굴리기` 버튼 또는 단축키 `1/2/3/4`
     - 현재 모험가가 굴려지면 다른 모험가 굴림 입력은 일시 비활성화
@@ -504,9 +504,9 @@
   - 지정 상황 요구치 -2: `2`
 - 턴당 소모품 사용 횟수 제한은 없습니다.
 - 효과 비용은 대부분 무료를 기본값으로 보되, 일부 스킬/칙령은 골드 비용을 가질 수 있습니다.
-- 사용 윈도우는 `P2 AdventurerRoll`, `P3 Adjustment`, `P4 TargetAndAttack`로 제한합니다.
+- 사용 윈도우는 `P2 AgentRoll`, `P3 Adjustment`, `P4 TargetAndAttack`로 제한합니다.
 - v0 기본 스킬 3종의 사용 윈도우는 아래로 고정합니다.
-  - 리롤(`rerollAdventurerDice`): `P3` 전용
+  - 리롤(`rerollAgentDice`): `P3` 전용
   - 눈 +1(`dieFaceDelta`): `P3` 전용
   - 상황 요구치 -2(`situationRequirementDelta`): `P2`, `P4`
 - 순차 처리에서는 "현재 처리 중인 모험가"를 기준으로만 대상 지정이 가능합니다.
@@ -540,7 +540,7 @@
 
 - 레이아웃은 상-하 분리 구도:
   - 상단 중앙: `Situation` 카드 영역
-  - 하단 중앙: `Adventurer` 카드 영역
+  - 하단 중앙: `Agent` 카드 영역
   - 상단 HUD/하단 액션바와 겹치지 않도록 고정 여백을 유지
 - 모험가별 `굴리기` 버튼과 단축키 `1/2/3/4`를 모두 지원합니다.
 - `1/2/3/4` 단축키는 하단 중앙 모험가 슬롯(좌->우)과 고정 매핑합니다.
@@ -649,4 +649,5 @@
 - 레포 지도: `Docs/PROJECT_MAP.md`
 - 아이디어 백로그: `Docs/GAME_IDEA_BACKLOG.md`
 - 상황 로스터: `Docs/ENEMY_ROSTER.md`
+
 

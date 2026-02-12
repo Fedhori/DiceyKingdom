@@ -31,32 +31,32 @@ public sealed class SituationDef
 }
 
 [Serializable]
-public sealed class AdventurerDef
+public sealed class AgentDef
 {
-    [JsonProperty("adventurerId")] public string adventurerId = string.Empty;
+    [JsonProperty("agentId")] public string agentId = string.Empty;
     [JsonProperty("nameKey")] public string nameKey = string.Empty;
     [JsonProperty("diceCount")] public int diceCount = 1;
     [JsonProperty("gearSlotCount")] public int gearSlotCount;
-    [JsonProperty("rules")] public List<AdventurerRuleDef> rules = new();
+    [JsonProperty("rules")] public List<AgentRuleDef> rules = new();
 }
 
 [Serializable]
-public sealed class AdventurerRuleDef
+public sealed class AgentRuleDef
 {
-    [JsonProperty("trigger")] public AdventurerRuleTriggerDef trigger = new();
-    [JsonProperty("condition")] public AdventurerRuleConditionDef condition = new();
+    [JsonProperty("trigger")] public AgentRuleTriggerDef trigger = new();
+    [JsonProperty("condition")] public AgentRuleConditionDef condition = new();
     [JsonProperty("effect")] public EffectSpec effect = new();
 }
 
 [Serializable]
-public sealed class AdventurerRuleTriggerDef
+public sealed class AgentRuleTriggerDef
 {
     [JsonProperty("type")] public string type = string.Empty;
     [JsonProperty("params")] public JObject triggerParams = new();
 }
 
 [Serializable]
-public sealed class AdventurerRuleConditionDef
+public sealed class AgentRuleConditionDef
 {
     [JsonProperty("type")] public string type = "always";
     [JsonProperty("params")] public JObject conditionParams = new();
@@ -79,9 +79,9 @@ public sealed class SituationDefCatalog
 }
 
 [Serializable]
-public sealed class AdventurerDefCatalog
+public sealed class AgentDefCatalog
 {
-    [JsonProperty("adventurers")] public List<AdventurerDef> adventurers = new();
+    [JsonProperty("agents")] public List<AgentDef> agents = new();
 }
 
 [Serializable]
@@ -89,4 +89,5 @@ public sealed class SkillDefCatalog
 {
     [JsonProperty("skills")] public List<SkillDef> skills = new();
 }
+
 
