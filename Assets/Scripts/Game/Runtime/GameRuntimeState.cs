@@ -18,6 +18,7 @@ public sealed class TurnRuntimeState
     public int turnNumber = 1;
     public TurnPhase phase = TurnPhase.TurnStart;
     public string processingAgentInstanceId = string.Empty;
+    public int selectedAgentDieIndex = -1;
 }
 
 [Serializable]
@@ -40,9 +41,8 @@ public sealed class SituationState
 {
     public string instanceId = string.Empty;
     public string situationDefId = string.Empty;
-    public int currentRequirement;
+    public List<int> remainingDiceFaces = new();
     public int deadlineTurnsLeft;
-    public List<string> assignedAgentIds = new();
 }
 
 [Serializable]
@@ -50,8 +50,7 @@ public sealed class AgentState
 {
     public string instanceId = string.Empty;
     public string agentDefId = string.Empty;
-    public List<int> rolledDiceValues = new();
-    public string assignedSituationInstanceId;
+    public List<int> remainingDiceFaces = new();
     public bool actionConsumed;
 }
 
@@ -73,24 +72,13 @@ public sealed class GameRunState
     public void ResetTurnTransientState()
     {
         turn.processingAgentInstanceId = string.Empty;
-
-        for (int i = 0; i < situations.Count; i++)
-        {
-            var situation = situations[i];
-            if (situation == null)
-                continue;
-
-            situation.assignedAgentIds.Clear();
-        }
+        turn.selectedAgentDieIndex = -1;
 
         for (int i = 0; i < agents.Count; i++)
         {
             var agent = agents[i];
             if (agent == null)
                 continue;
-
-            agent.rolledDiceValues.Clear();
-            agent.assignedSituationInstanceId = null;
             agent.actionConsumed = false;
         }
 
@@ -146,7 +134,8 @@ public static class GameRunBootstrap
             runState.agents.Add(new AgentState
             {
                 instanceId = $"agent_{runState.nextAgentInstanceSequence++}",
-                agentDefId = def.agentId
+                agentDefId = def.agentId,
+                remainingDiceFaces = new List<int>(def.diceFaces ?? new List<int>())
             });
         }
 
@@ -224,11 +213,12 @@ public static class GameRunBootstrap
         for (int i = 0; i < count; i++)
         {
             var def = pool[rng.Next(0, pool.Count)];
+            var diceFaces = def.diceFaces ?? new List<int>();
             runState.situations.Add(new SituationState
             {
                 instanceId = $"situation_{runState.nextSituationInstanceSequence++}",
                 situationDefId = def.situationId,
-                currentRequirement = Math.Max(1, def.baseRequirement),
+                remainingDiceFaces = new List<int>(diceFaces),
                 deadlineTurnsLeft = Math.Max(1, def.baseDeadlineTurns)
             });
         }

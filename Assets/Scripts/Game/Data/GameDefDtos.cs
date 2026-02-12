@@ -23,7 +23,7 @@ public sealed class SituationDef
     [JsonProperty("situationId")] public string situationId = string.Empty;
     [JsonProperty("nameKey")] public string nameKey = string.Empty;
     [JsonProperty("tags")] public List<string> tags = new();
-    [JsonProperty("baseRequirement")] public int baseRequirement = 1;
+    [JsonProperty("diceFaces")] public List<int> diceFaces = new();
     [JsonProperty("baseDeadlineTurns")] public int baseDeadlineTurns = 1;
     [JsonProperty("successReward")] public EffectBundle successReward = new();
     [JsonProperty("failureEffect")] public EffectBundle failureEffect = new();
@@ -34,7 +34,7 @@ public sealed class SituationDef
 public sealed class AgentDef
 {
     [JsonProperty("agentId")] public string agentId = string.Empty;
-    [JsonProperty("diceCount")] public int diceCount = 1;
+    [JsonProperty("diceFaces")] public List<int> diceFaces = new();
     [JsonProperty("gearSlotCount")] public int gearSlotCount;
     [JsonProperty("rules")] public List<AgentRuleDef> rules = new();
 }

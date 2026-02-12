@@ -41,6 +41,25 @@
 - 충돌 시 우선순위:
   - v0 검증 목표 > 기존 상세 규칙
 
+### 2026-02-12 주사위 대결 전환 규칙(최신 우선)
+
+- 기존 `요구치(Requirement)를 공격(ATK)으로 감소`하는 전투 루프를 폐기합니다.
+- 전투는 `주사위 대결`로 처리합니다.
+  - 에이전트와 상황은 각각 `1개 이상`의 주사위를 보유합니다.
+  - 플레이어는 처리 중인 에이전트의 주사위 `1개`를 선택하고, 상황의 주사위 `1개`를 선택해 테스트합니다.
+  - 양쪽 주사위를 굴려 `에이전트 눈 >= 상황 눈`이면 성공, 해당 상황 주사위를 파괴합니다.
+  - 테스트 시도 시 에이전트 주사위는 성공/실패와 무관하게 소모됩니다.
+  - 상황 주사위가 `0`개가 되는 즉시 해결(보상 적용 + 제거)합니다.
+  - 처리 중 에이전트의 주사위를 모두 소모하면 해당 에이전트는 소진됩니다.
+- 턴 종료 정산의 `기한(Deadline) / 실패 효과(Failure Effect)` 규칙은 유지합니다.
+- 데이터 스키마 전환:
+  - `AgentDef.diceCount` -> `AgentDef.diceFaces: int[]`
+  - `SituationDef.baseRequirement` -> `SituationDef.diceFaces: int[]`
+  - `AgentState.rolledDiceValues` -> `AgentState.remainingDiceFaces`
+  - `SituationState.currentRequirement` -> `SituationState.remainingDiceFaces`
+- 스킬/룰은 이 전환 단계에서 임시 비활성화합니다(후속 재설계 예정).
+- 이 절은 문서의 기존 `요구치/공격/ATK` 중심 서술보다 우선합니다.
+
 ### 2026-02-11 우선순위 리워크 규칙(확정)
 
 - `Enemy(몬스터)` 용어를 `Situation(상황)`으로 전환합니다.
@@ -130,11 +149,13 @@
 - `Health` / `체력`
   - 레거시 용어(요구치로 대체)
 - `Requirement` / `요구치`
-  - 상황 해결을 위해 감소시켜야 하는 수치
+  - 레거시 용어(2026-02-12 주사위 대결 전환 이후 기본 사용 중단)
 - `Deadline` / `기한`
   - 상황이 실패 판정되기까지 남은 턴 수
 - `Attack` / `공격`
-  - 모험가 주사위 눈의 합으로 생성되는 피해량
+  - 레거시 용어(요구치 감소형 전투에서 사용)
+- `Die Face` / `주사위 면 수`
+  - dX에서 X 값(예: d10의 면 수는 10)
 - `Tags` / `태그`
   - 상황/효과 분류 키워드(예: 침략, 기근)
 - `Run` / `런`
@@ -171,7 +192,10 @@
 1. 턴 시작
 2. 보드 갱신(상황 생성/만료 대상 확인)
 3. 모험가 순차 처리 루프
-   - 모험가 1명 선택 -> 굴리기 -> 보정 -> 드래그 공격(소비)
+   - 모험가 1명 선택
+   - 해당 모험가 주사위 선택
+   - 상황 주사위 선택 후 대결 테스트(성공 시 상황 주사위 파괴, 에이전트 주사위는 항상 소모)
+   - 선택한 모험가의 주사위를 모두 소모할 때까지 반복
    - 남은 모험가가 있으면 반복
 4. 턴 종료 정산(미해결 상황 기한 감소, 실패 효과 적용, 안정도/골드 증감)
 5. 다음 턴 반복
@@ -195,7 +219,7 @@
   - 보유 주사위/강화 상태
   - 보유 스킬/쿨다운 상태
   - 보유 구조물
-  - 보드 위 상황 상태(현재 요구치/남은 기한/성공·실패 처리 상태)
+  - 보드 위 상황 상태(남은 상황 주사위/남은 기한/성공·실패 처리 상태)
   - 경제 값(골드)
 
 ## UI/UX 공용 시스템
@@ -216,19 +240,11 @@
 - 런 보드 UI는 매 프레임 폴링(`Update`)으로 상태를 갱신하지 않고, 런타임 이벤트(`RunStarted`, `PhaseChanged`, `StageSpawned`, `RunEnded`, `StateChanged`) 기반으로만 갱신합니다.
 - 런 보드 UI 요구사항 초안:
   - 상단 HUD에 `Turn`, `Stage`, `Phase`, `Stability`, `Gold`, `Run` 상태를 고정 표시
-  - 상황 카드별 태그, 요구치, 남은 기한, 성공 보상/실패 효과 요약 표시
-  - 모험가 배치 가능/불가 상태 가시화
-  - 모험가 공격력 표시는 카드 본문에서 `ATK 18 (12 + 6)` 형식으로만 고정 표시
-  - 마법사 보너스처럼 `Adjustment`에서 변하는 보정값은 카드에 실시간 반영
-  - 툴팁 포맷은 공통으로 `기본공격 X + 고유보너스 Y = 최종피해 Z`
-  - 툴팁 숫자 색상은 역할별로 고정(기본공격/고유보너스/최종피해)하고 `Colors.cs`에서 중앙 관리
-  - 보정 근거(예: `6 이상 주사위 1개 × +6`)는 카드 본문이 아니라 툴팁에만 표시
-  - 툴팁 표시 지연은 고정값 `0.2s`로 유지
-  - 툴팁 가능 아이콘은 추가하지 않음
-  - 드래그 타게팅 중 연결 라인/화살표 표시
-  - 스킬 쿨다운 및 사용 가능 조건 표시
-  - `P4` 종료 시 미배치 모험가 경고 모달 표시
-  - 안정도 변화 로그 표시
+  - 상황 카드별 태그, 남은 상황 주사위, 남은 기한, 성공 보상/실패 효과 요약 표시
+  - 모험가 카드별 남은 주사위 목록(`dX`)과 소진 상태 표시
+  - 처리 중 모험가 상태(`주사위 선택`/`상황 주사위 선택`) 가시화
+  - 상황 주사위 개별 클릭 입력 지원
+  - 스킬 슬롯은 전환 단계에서 비활성 상태 표시
 
 ### 상태-UI 동기화 규칙(v0)
 
@@ -259,101 +275,62 @@
 - 상황 실패, 디버프, 이벤트 등에 의해 감소합니다.
 - 효과, 유산, 고정 행동(예: 영지 순찰) 등으로 회복할 수 있습니다.
 
-### 주사위
-- 매 턴 플레이어는 보유한 주사위를 굴립니다.
-- 기본 주사위 눈 범위는 1~6입니다.
-- 각 주사위는 강화 1개를 장착할 수 있습니다.
-- 강화 예시:
-  - 모든 눈 +1
-  - 최소 1회 리롤 보장
-  - 2회 굴림 후 높은 눈 채택
+### 주사위(2026-02-12 전환)
+
+- 에이전트/상황 주사위는 모두 `dX` 형태의 면 수로 정의합니다.
+  - 예: `6`은 d6, `10`은 d10
+- 테스트 시 양쪽 주사위를 각각 1회 굴립니다.
+- 성공 판정은 `에이전트 눈 >= 상황 눈`입니다.
+- 에이전트 주사위는 테스트 시도 즉시 소모됩니다(성공/실패 무관).
+- 성공 시 선택한 상황 주사위 1개가 파괴됩니다.
 
 ### 모험가(Agent)
 
-- 모험가는 플레이어가 턴마다 상황에 배치하는 전투 단위입니다.
-- 각 모험가는 자신의 주사위를 굴려 `공격` 값을 생성합니다.
-- 한 턴에 한 모험가는 하나의 상황에만 배치할 수 있습니다.
+- 모험가는 턴마다 순차 처리하는 전투 단위입니다.
+- 모험가를 선택하면 해당 모험가의 남은 주사위를 연속으로 소모합니다.
+- 남은 주사위가 0개가 되면 해당 모험가는 소진(`actionConsumed = true`)됩니다.
 
-### 모험가 최소 스키마(v0 확정)
+### 모험가 최소 스키마(v0 최신)
 
 - 정적 데이터(`AgentDef`):
-  - `agentId`: string (고유 ID, `agent.warrior` 같은 dot 포맷 사용)
-  - `nameKey`는 두지 않으며, 이름 키는 `{agentId}.name` 규칙으로 파생합니다.
-  - `diceCount`: int (`>= 1`)
+  - `agentId`: string (고유 ID, `agent.warrior` 같은 dot 포맷)
+  - `diceFaces`: int[] (`>=1`, 각 값 `>=2`)
   - `gearSlotCount`: int (`>= 0`)
-  - `rules`: agentRule[] or null (고유 룰)
+  - `rules`: agentRule[] or null (현재 전환 단계에서는 임시 비활성)
 - 런타임 데이터(`AgentState`):
-  - `instanceId`: string (런 내 모험가 인스턴스 ID)
-  - `agentDefId`: string (`AgentDef.agentId` 참조)
-  - `rolledDiceValues`: int[] (`P3` 결과값)
-  - `assignedSituationInstanceId`: string or null (`P4` 드래그 공격 대상)
-  - `actionConsumed`: bool (`P4`에서 공격 반영 완료 여부)
-- v0 처리 규칙:
-  - 런 시작 시 모험가 슬롯은 `4`개로 고정합니다.
-  - 각 모험가는 `diceCount`만큼 기본 d6(1~6)을 굴립니다.
-  - `P2`에서 배치되지 않은 모험가는 `P4`에서 공격에 기여하지 않습니다.
-  - `P4`에서 모험가의 공격 반영이 끝나면 `actionConsumed = true`로 확정합니다.
-  - 턴 종료 시 모험가 배치/굴림/소비 상태는 다음 턴 시작에 리셋됩니다.
+  - `instanceId`: string
+  - `agentDefId`: string
+  - `remainingDiceFaces`: int[] (이번 턴에 아직 소모되지 않은 주사위)
+  - `actionConsumed`: bool
+- 턴 시작 시 각 에이전트의 `remainingDiceFaces`는 `AgentDef.diceFaces`로 재초기화됩니다.
 
-### 시작 모험가 프리셋(v0, 2026-02-12)
+### 상황(Situation)
 
-- 시작 모험가 4종을 아래로 고정합니다.
-  - 전사: 주사위 `4`, 굴린 직후 가장 낮은 눈 `2`개에 `+1`
-  - 궁수: 주사위 `4`, 굴린 직후 가장 높은 눈 `1`개에 `+2`
-  - 마법사: 주사위 `3`, `6 이상`인 주사위 `1`개당 최종 피해 `+6` (주사위 눈 자체는 변경하지 않음)
-  - 도적: 주사위 `5`, 굴린 직후 모든 눈 `-1` (최소 `1`)
-- 기본 장비 슬롯(`gearSlotCount`)은 시작 4종 모두 `2`로 통일합니다.
-- 동률 처리 규칙:
-  - 가장 낮은/높은 눈 선택이 필요한 경우, 동일 눈에서는 좌->우(인덱스 오름차순) 우선으로 선택합니다.
-- 고유효과 발동 규칙:
-  - 발동 시점은 `롤 결과 확정 -> 고유효과 적용 -> UI 갱신 -> Adjustment 스킬` 순서로 고정합니다.
-  - `onRoll`은 `기본 롤 + 전체 리롤 계열`에서 발동합니다.
-  - `onRoll`은 단일 주사위 리롤에는 발동하지 않습니다.
-  - `onCalculation`은 ATK 계산 시마다 발동합니다(카드 갱신/공격 확정 포함).
-- 구현 원칙(확정):
-  - 모험가 효과 로직을 `agentId` 기반 코드 분기(하드코딩)로 구현하지 않습니다.
-  - 고유효과는 `rules` 데이터와 공통 룰 실행기에서 처리합니다.
-  - 각 rule은 `trigger`, `condition`, `effect` 3요소로 구성합니다.
-  - 룰 실행은 `rules` 배열 인덱스 오름차순 live 평가를 사용합니다.
-  - 트리거 1회 처리에서 같은 rule은 최대 1회만 발동합니다.
-  - 효과/조건/트리거 문자열은 camelCase로 통일합니다.
+- 상황은 `태그`, `주사위 배열`, `기한`, `성공 보상`, `실패 효과`를 가집니다.
+- 상황의 남은 주사위가 0개가 되면 즉시 성공 처리(보상 적용 + 제거)합니다.
+- 기한 만료 실패 처리 규칙은 유지됩니다.
 
-### 상황(Situation) (2026-02-11 확정)
-
-- 상황은 `태그`, `요구치(Requirement)`, `기한(Deadline)`, `성공 보상`, `실패 효과`를 가집니다.
-- 모험가가 굴린 주사위 눈 합은 해당 상황의 `요구치`를 감소시키는 `공격`으로 적용됩니다.
-- 상황 요구치가 0 이하가 되면 즉시 성공 처리하고, 보상 적용 후 보드에서 제거합니다.
-- 상황 행동/행동 풀 시스템은 폐기하며, 위협은 기한 만료 실패 효과로 표현합니다.
-
-### 상황 최소 스키마(v0 확정)
+### 상황 최소 스키마(v0 최신)
 
 - 정적 데이터(`SituationDef`):
-  - `situationId`: string (고유 ID)
-  - `nameKey`: string (로컬라이즈 키)
-  - `tags`: string[] (예: `invasion`, `famine`)
-  - `baseRequirement`: int (`>= 1`)
-  - `baseDeadlineTurns`: int (`>= 1`)
+  - `situationId`: string
+  - `nameKey`: string
+  - `tags`: string[]
+  - `diceFaces`: int[] (`>=1`, 각 값 `>=2`)
+  - `baseDeadlineTurns`: int (`>=1`)
   - `successReward`: effectBundle
   - `failureEffect`: effectBundle
-  - `failurePersistMode`: string (`remove` | `resetDeadline`) (현재 v0는 `remove`만 사용)
+  - `failurePersistMode`: string (`remove` | `resetDeadline`)
 - 런타임 데이터(`SituationState`):
-  - `instanceId`: string (보드 인스턴스 ID)
-  - `situationDefId`: string (`SituationDef.situationId` 참조)
-  - `currentRequirement`: int
+  - `instanceId`: string
+  - `situationDefId`: string
+  - `remainingDiceFaces`: int[]
   - `deadlineTurnsLeft`: int
-  - `resolvedThisTurn`: bool
-- v0 처리 규칙:
-  - 스폰 시 `currentRequirement = baseRequirement`, `deadlineTurnsLeft = baseDeadlineTurns`
-  - `P4`에서 `currentRequirement <= 0`이 되면 즉시 성공 처리(보상 획득 후 제거)
-  - `P5`에서 미해결 상황의 `deadlineTurnsLeft -= 1`
-  - 감소 후 `deadlineTurnsLeft <= 0`이면 실패 처리
-  - 실패 기본 동작은 실패 효과 적용 후 제거(`remove`)
-  - `failurePersistMode = resetDeadline`은 데이터에서 선택 가능하며, 선택 시 실패 후 기한을 기본값으로 초기화해 잔류합니다.
 
 ### 행동/행동 풀 폐기 규칙(확정)
 
-- `actionPool`, `currentActionId`, `actionTurnsLeft`는 신규 설계에서 사용하지 않습니다.
-- 기존 몬스터 행동 로직은 상황 기한/성공·실패 로직으로 대체합니다.
+- `actionPool`, `currentActionId`, `actionTurnsLeft`는 사용하지 않습니다.
+- 위협은 상황 주사위 잔량 + 기한 만료 실패 효과로 표현합니다.
 
 ### 범용 효과 스키마(v0 확정)
 

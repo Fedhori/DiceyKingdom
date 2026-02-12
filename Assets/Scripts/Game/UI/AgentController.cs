@@ -25,6 +25,7 @@ public sealed class AgentController : MonoBehaviour
     readonly List<DiceFaceWidgets> diceFaces = new();
 
     public RectTransform RootRect => rootRect;
+    public string AgentInstanceId => agentInstanceId;
 
     public void SetDicePrefab(GameObject prefab)
     {
@@ -62,18 +63,14 @@ public sealed class AgentController : MonoBehaviour
     {
         if (dieIndex < 0)
             return;
-        if (AssignmentDragSession.IsActive)
-            return;
-        if (!SkillTargetingSession.IsActive)
-            return;
         if (orchestrator == null)
             return;
-        if (!SkillTargetingSession.IsFor(orchestrator))
+        if (!orchestrator.IsCurrentProcessingAgent(agentInstanceId))
             return;
         if (string.IsNullOrWhiteSpace(agentInstanceId))
             return;
 
-        SkillTargetingSession.TryConsumeAgentDieTarget(agentInstanceId, dieIndex);
+        orchestrator.TrySelectProcessingAgentDie(dieIndex);
     }
 
     public void Render(
@@ -85,7 +82,7 @@ public sealed class AgentController : MonoBehaviour
         string rollLabel,
         Color statusColor,
         Color backgroundColor,
-        IReadOnlyList<int> rolledDiceValues,
+        IReadOnlyList<int> remainingDiceFaces,
         int diceCount)
     {
         if (slotText != null)
@@ -107,29 +104,46 @@ public sealed class AgentController : MonoBehaviour
         if (backgroundImage != null)
             backgroundImage.color = backgroundColor;
 
-        RefreshDiceFaces(rolledDiceValues, diceCount);
+        RefreshDiceFaces(remainingDiceFaces, diceCount);
     }
 
-    void RefreshDiceFaces(IReadOnlyList<int> rolledDiceValues, int diceCount)
+    public void PlayDuelRollEffect(int dieIndex, int dieFace, int finalRoll, bool isSuccess)
+    {
+        if (dieIndex < 0 || dieIndex >= diceFaces.Count)
+            return;
+
+        var face = diceFaces[dieIndex];
+        if (face?.view == null)
+            return;
+
+        face.view.PlayRollEffect(Math.Max(2, dieFace), Mathf.Max(1, finalRoll), isSuccess);
+    }
+
+    void RefreshDiceFaces(IReadOnlyList<int> remainingDiceFaces, int diceCount)
     {
         if (diceRowRoot == null)
             return;
-        if (diceCount < 1)
-            diceCount = 1;
+        if (diceCount < 0)
+            diceCount = 0;
 
         EnsureDiceFaceCount(diceCount);
 
         for (int index = 0; index < diceFaces.Count; index++)
         {
             var face = diceFaces[index];
-            if (face.valueText == null)
+            if (face == null || face.view == null)
+                continue;
+
+            if (face.clickTarget != null)
+                face.clickTarget.Bind(this, index);
+            if (face.view.IsRolling)
                 continue;
 
             string display = "-";
-            if (rolledDiceValues != null && index < rolledDiceValues.Count)
-                display = rolledDiceValues[index].ToString();
+            if (remainingDiceFaces != null && index < remainingDiceFaces.Count)
+                display = $"d{remainingDiceFaces[index]}";
 
-            face.valueText.text = display;
+            face.view.SetLabel(display);
         }
     }
 
@@ -187,11 +201,16 @@ public sealed class AgentController : MonoBehaviour
             return null;
         }
 
-        var valueText = FindTextByName(rootTransform, "ValueText");
-        if (valueText == null)
-            valueText = root.GetComponentInChildren<TextMeshProUGUI>(true);
-        if (valueText == null)
-            Debug.LogWarning("[AgentController] Dice prefab is missing a TMP_Text for value.", root);
+        var view = root.GetComponent<DiceFaceView>();
+        if (view == null)
+        {
+            Debug.LogWarning("[AgentController] Dice prefab requires DiceFaceView.", root);
+            if (Application.isPlaying)
+                Destroy(root);
+            else
+                DestroyImmediate(root);
+            return null;
+        }
 
         var clickTarget = root.GetComponent<AgentDiceFaceClickTarget>();
         if (clickTarget == null)
@@ -201,34 +220,16 @@ public sealed class AgentController : MonoBehaviour
         return new DiceFaceWidgets
         {
             root = rootTransform,
-            valueText = valueText
+            view = view,
+            clickTarget = clickTarget
         };
-    }
-
-    static TextMeshProUGUI FindTextByName(RectTransform root, string name)
-    {
-        if (root == null || string.IsNullOrEmpty(name))
-            return null;
-
-        var texts = root.GetComponentsInChildren<TextMeshProUGUI>(true);
-        for (int index = 0; index < texts.Length; index++)
-        {
-            var text = texts[index];
-            if (text == null)
-                continue;
-            if (!string.Equals(text.gameObject.name, name, StringComparison.Ordinal))
-                continue;
-
-            return text;
-        }
-
-        return null;
     }
 
     sealed class DiceFaceWidgets
     {
         public RectTransform root;
-        public TextMeshProUGUI valueText;
+        public DiceFaceView view;
+        public AgentDiceFaceClickTarget clickTarget;
     }
 }
 

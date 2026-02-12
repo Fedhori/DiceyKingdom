@@ -6,7 +6,7 @@
       "tags": [
         "invasion"
       ],
-      "baseRequirement": 20,
+      "diceFaces": [12, 8],
       "baseDeadlineTurns": 1,
       "successReward": {
         "effects": [
@@ -34,7 +34,7 @@
       "tags": [
         "famine"
       ],
-      "baseRequirement": 17,
+      "diceFaces": [10, 7],
       "baseDeadlineTurns": 2,
       "successReward": {
         "effects": [
@@ -63,7 +63,7 @@
         "invasion",
         "economy"
       ],
-      "baseRequirement": 18,
+      "diceFaces": [10, 8],
       "baseDeadlineTurns": 1,
       "successReward": {
         "effects": [
@@ -92,7 +92,7 @@
         "invasion",
         "ritual"
       ],
-      "baseRequirement": 23,
+      "diceFaces": [12, 11],
       "baseDeadlineTurns": 2,
       "successReward": {
         "effects": [

@@ -12,7 +12,7 @@ public sealed class AgentManager : MonoBehaviour
     [SerializeField] GameObject cardPrefab;
     [SerializeField] GameObject dicePrefab;
     [SerializeField] Color pendingCardColor = new(0.18f, 0.22f, 0.30f, 0.95f);
-    [SerializeField] Color rolledCardColor = new(0.20f, 0.27f, 0.36f, 0.95f);
+    [SerializeField] Color selectedCardColor = new(0.20f, 0.27f, 0.36f, 0.95f);
     [SerializeField] Color consumedCardColor = new(0.13f, 0.16f, 0.20f, 0.85f);
     [SerializeField] Color subtleLabelColor = new(0.72f, 0.80f, 0.90f, 1.00f);
     [SerializeField] Color infoEmphasisColor = new(0.86f, 0.93f, 1.00f, 1.00f);
@@ -70,6 +70,19 @@ public sealed class AgentManager : MonoBehaviour
         RefreshAllCards();
     }
 
+    void OnDuelRollStarted(GameTurnOrchestrator.DuelRollPresentation presentation)
+    {
+        var card = FindCardByInstanceId(presentation.agentInstanceId);
+        if (card == null)
+            return;
+
+        card.PlayDuelRollEffect(
+            presentation.agentDieIndex,
+            presentation.agentDieFace,
+            presentation.agentRoll,
+            presentation.success);
+    }
+
     void SubscribeEvents()
     {
         if (orchestrator == null)
@@ -79,10 +92,12 @@ public sealed class AgentManager : MonoBehaviour
         orchestrator.PhaseChanged -= OnPhaseChanged;
         orchestrator.RunEnded -= OnRunEnded;
         orchestrator.StateChanged -= OnStateChanged;
+        orchestrator.DuelRollStarted -= OnDuelRollStarted;
         orchestrator.RunStarted += OnRunStarted;
         orchestrator.PhaseChanged += OnPhaseChanged;
         orchestrator.RunEnded += OnRunEnded;
         orchestrator.StateChanged += OnStateChanged;
+        orchestrator.DuelRollStarted += OnDuelRollStarted;
     }
 
     void UnsubscribeEvents()
@@ -94,6 +109,7 @@ public sealed class AgentManager : MonoBehaviour
         orchestrator.PhaseChanged -= OnPhaseChanged;
         orchestrator.RunEnded -= OnRunEnded;
         orchestrator.StateChanged -= OnStateChanged;
+        orchestrator.DuelRollStarted -= OnDuelRollStarted;
     }
 
     bool IsReady()
@@ -175,13 +191,13 @@ public sealed class AgentManager : MonoBehaviour
             $"A{slotIndex + 1}",
             "Unknown Agent",
             "Rules: -",
-            "ATK  -",
+            "Dice Left: -",
             "Status: Waiting",
-            $"Roll [{slotIndex + 1}]",
+            $"Select [{slotIndex + 1}]",
             subtleLabelColor,
             pendingCardColor,
             null,
-            1);
+            0);
 
         return controller;
     }
@@ -217,9 +233,7 @@ public sealed class AgentManager : MonoBehaviour
         if (agent.actionConsumed)
             backgroundColor = consumedCardColor;
         else if (isProcessing)
-            backgroundColor = rolledCardColor;
-        else if (agent.rolledDiceValues != null && agent.rolledDiceValues.Count > 0)
-            backgroundColor = rolledCardColor;
+            backgroundColor = selectedCardColor;
         else
             backgroundColor = pendingCardColor;
 
@@ -227,13 +241,13 @@ public sealed class AgentManager : MonoBehaviour
             $"A{slotIndex + 1}",
             ResolveAgentName(agent.agentDefId),
             BuildInfoLine(agent.agentDefId),
-            BuildExpectedDamageLine(agent),
+            BuildDiceSummaryLine(agent),
             BuildStatusLine(agent),
-            $"Roll [{slotIndex + 1}]",
+            $"Select [{slotIndex + 1}]",
             statusColor,
             backgroundColor,
-            agent.rolledDiceValues,
-            diceCount);
+            agent.remainingDiceFaces,
+            Mathf.Max(0, agent?.remainingDiceFaces?.Count ?? diceCount));
     }
 
     string BuildInfoLine(string agentDefId)
@@ -242,26 +256,10 @@ public sealed class AgentManager : MonoBehaviour
         return $"Rules: {ruleSummary}";
     }
 
-    string BuildExpectedDamageLine(AgentState agent)
+    string BuildDiceSummaryLine(AgentState agent)
     {
-        if (agent?.rolledDiceValues == null || agent.rolledDiceValues.Count == 0)
-            return "ATK  -";
-
-        if (orchestrator != null &&
-            orchestrator.TryGetAgentAttackBreakdown(
-                agent.instanceId,
-                out int baseAttack,
-                out int ruleBonus,
-                out int totalAttack))
-        {
-            return $"ATK  {totalAttack} ({baseAttack} + {ruleBonus})";
-        }
-
-        int sum = 0;
-        for (int index = 0; index < agent.rolledDiceValues.Count; index++)
-            sum += agent.rolledDiceValues[index];
-
-        return $"ATK  {sum} ({sum} + 0)";
+        int remaining = agent?.remainingDiceFaces?.Count ?? 0;
+        return $"Dice Left: {remaining}";
     }
 
     string BuildStatusLine(AgentState agent)
@@ -269,18 +267,16 @@ public sealed class AgentManager : MonoBehaviour
         if (agent == null)
             return string.Empty;
         if (agent.actionConsumed)
-            return "Status: Resolved";
+            return "Status: Exhausted";
 
         var phase = orchestrator.RunState.turn.phase;
         bool isProcessing = orchestrator.IsCurrentProcessingAgent(agent.instanceId);
         if (isProcessing && phase == TurnPhase.Adjustment)
-            return "Status: Adjusting";
+            return "Status: Pick your die";
         if (isProcessing && phase == TurnPhase.TargetAndAttack)
-            return "Status: Choose target";
-        if (agent.rolledDiceValues != null && agent.rolledDiceValues.Count > 0)
-            return "Status: Ready to attack";
+            return "Status: Pick situation die";
         if (orchestrator.CanRollAgent(agent.instanceId))
-            return "Status: Ready to roll";
+            return "Status: Ready";
         return "Status: Waiting";
     }
 
@@ -295,7 +291,7 @@ public sealed class AgentManager : MonoBehaviour
         bool isProcessing = orchestrator.IsCurrentProcessingAgent(agent.instanceId);
         if (isProcessing && (phase == TurnPhase.Adjustment || phase == TurnPhase.TargetAndAttack))
             return damageHighlightColor;
-        if (agent.rolledDiceValues != null && agent.rolledDiceValues.Count > 0)
+        if (agent.remainingDiceFaces != null && agent.remainingDiceFaces.Count > 0)
             return infoEmphasisColor;
 
         return subtleLabelColor;
@@ -333,7 +329,7 @@ public sealed class AgentManager : MonoBehaviour
         if (!agentDefById.TryGetValue(agentDefId, out var def))
             return 1;
 
-        return Mathf.Max(1, def.diceCount);
+        return Mathf.Max(0, def.diceFaces?.Count ?? 0);
     }
 
     string ResolveRuleSummary(string agentDefId)
@@ -459,6 +455,25 @@ public sealed class AgentManager : MonoBehaviour
         }
 
         return string.Join(" ", parts);
+    }
+
+    AgentController FindCardByInstanceId(string instanceId)
+    {
+        if (string.IsNullOrWhiteSpace(instanceId))
+            return null;
+
+        for (int index = 0; index < cards.Count; index++)
+        {
+            var card = cards[index];
+            if (card == null)
+                continue;
+            if (!string.Equals(card.AgentInstanceId, instanceId, StringComparison.Ordinal))
+                continue;
+
+            return card;
+        }
+
+        return null;
     }
 
 }

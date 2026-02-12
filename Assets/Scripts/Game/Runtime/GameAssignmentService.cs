@@ -10,6 +10,7 @@ public enum AssignmentResult
 
 public static class GameAssignmentService
 {
+    // Legacy compatibility shim. The dice-duel loop no longer keeps assignment state.
     public static AssignmentResult AssignAgentToSituation(
         GameRunState runState,
         string agentInstanceId,
@@ -25,19 +26,13 @@ public static class GameAssignmentService
         var agent = FindAgent(runState, agentInstanceId);
         if (agent == null)
             return AssignmentResult.AgentNotFound;
-        if (agent.actionConsumed)
+        if (agent.actionConsumed || agent.remainingDiceFaces == null || agent.remainingDiceFaces.Count == 0)
             return AssignmentResult.AgentUnavailable;
 
         var situation = FindSituation(runState, situationInstanceId);
         if (situation == null)
             return AssignmentResult.SituationNotFound;
 
-        RemoveFromAssignedSituation(runState, agent.instanceId, agent.assignedSituationInstanceId);
-
-        if (!ContainsAssignedAgent(situation, agent.instanceId))
-            situation.assignedAgentIds.Add(agent.instanceId);
-
-        agent.assignedSituationInstanceId = situation.instanceId;
         return AssignmentResult.Success;
     }
 
@@ -49,34 +44,12 @@ public static class GameAssignmentService
             return AssignmentResult.AgentNotFound;
 
         var agent = FindAgent(runState, agentInstanceId);
-        if (agent == null)
-            return AssignmentResult.AgentNotFound;
-
-        RemoveFromAssignedSituation(runState, agent.instanceId, agent.assignedSituationInstanceId);
-        agent.assignedSituationInstanceId = null;
-        return AssignmentResult.Success;
+        return agent == null ? AssignmentResult.AgentNotFound : AssignmentResult.Success;
     }
 
     public static int CountUnassignedAgents(GameRunState runState)
     {
-        if (runState == null)
-            throw new ArgumentNullException(nameof(runState));
-
-        int count = 0;
-        for (int i = 0; i < runState.agents.Count; i++)
-        {
-            var agent = runState.agents[i];
-            if (agent == null)
-                continue;
-            if (agent.actionConsumed)
-                continue;
-            if (!string.IsNullOrWhiteSpace(agent.assignedSituationInstanceId))
-                continue;
-
-            count += 1;
-        }
-
-        return count;
+        return CountPendingAgents(runState);
     }
 
     public static int CountPendingAgents(GameRunState runState)
@@ -91,6 +64,8 @@ public static class GameAssignmentService
             if (agent == null)
                 continue;
             if (agent.actionConsumed)
+                continue;
+            if (agent.remainingDiceFaces == null || agent.remainingDiceFaces.Count == 0)
                 continue;
 
             count += 1;
@@ -131,41 +106,6 @@ public static class GameAssignmentService
         return null;
     }
 
-    static bool ContainsAssignedAgent(SituationState situation, string agentInstanceId)
-    {
-        if (situation?.assignedAgentIds == null)
-            return false;
-
-        for (int i = 0; i < situation.assignedAgentIds.Count; i++)
-        {
-            if (string.Equals(situation.assignedAgentIds[i], agentInstanceId, StringComparison.Ordinal))
-                return true;
-        }
-
-        return false;
-    }
-
-    static void RemoveFromAssignedSituation(
-        GameRunState runState,
-        string agentInstanceId,
-        string assignedSituationInstanceId)
-    {
-        if (string.IsNullOrWhiteSpace(assignedSituationInstanceId))
-            return;
-
-        var situation = FindSituation(runState, assignedSituationInstanceId);
-        if (situation?.assignedAgentIds == null)
-            return;
-
-        for (int i = situation.assignedAgentIds.Count - 1; i >= 0; i--)
-        {
-            if (!string.Equals(situation.assignedAgentIds[i], agentInstanceId, StringComparison.Ordinal))
-                continue;
-
-            situation.assignedAgentIds.RemoveAt(i);
-        }
-    }
-
     public static AssignmentResult AssignAgentToEnemy(
         GameRunState runState,
         string agentInstanceId,
@@ -174,4 +114,3 @@ public static class GameAssignmentService
         return AssignAgentToSituation(runState, agentInstanceId, enemyInstanceId);
     }
 }
-

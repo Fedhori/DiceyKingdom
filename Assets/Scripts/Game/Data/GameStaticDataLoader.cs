@@ -149,8 +149,9 @@ public static class GameStaticDataLoader
                 }
             }
 
-            if (def.diceCount < 1)
-                errors.Add($"{def.agentId}: diceCount must be >= 1 (actual={def.diceCount})");
+            if (def.diceFaces == null)
+                def.diceFaces = new List<int>();
+            ValidateDiceFaces(def.diceFaces, $"{def.agentId}: diceFaces", errors);
 
             if (def.gearSlotCount < 0)
                 errors.Add($"{def.agentId}: gearSlotCount must be >= 0 (actual={def.gearSlotCount})");
@@ -313,8 +314,9 @@ public static class GameStaticDataLoader
                 errors.Add($"duplicated situationId '{def.situationId}'");
             }
 
-            if (def.baseRequirement < 1)
-                errors.Add($"{def.situationId}: baseRequirement must be >= 1 (actual={def.baseRequirement})");
+            if (def.diceFaces == null)
+                def.diceFaces = new List<int>();
+            ValidateDiceFaces(def.diceFaces, $"{def.situationId}: diceFaces", errors);
 
             if (def.baseDeadlineTurns < 1)
                 errors.Add($"{def.situationId}: baseDeadlineTurns must be >= 1 (actual={def.baseDeadlineTurns})");
@@ -395,6 +397,22 @@ public static class GameStaticDataLoader
             return "resetDeadline";
 
         return trimmed.ToLowerInvariant();
+    }
+
+    static void ValidateDiceFaces(IReadOnlyList<int> diceFaces, string fieldName, List<string> errors)
+    {
+        if (diceFaces == null || diceFaces.Count == 0)
+        {
+            errors.Add($"{fieldName} must contain at least one die face.");
+            return;
+        }
+
+        for (int index = 0; index < diceFaces.Count; index++)
+        {
+            int face = diceFaces[index];
+            if (face < 2)
+                errors.Add($"{fieldName}[{index}] must be >= 2 (actual={face})");
+        }
     }
 
     static string BuildAgentNameKey(string agentId)

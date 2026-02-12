@@ -593,6 +593,8 @@ public sealed class BottomActionBarController : MonoBehaviour
             return "Ready";
         if (baseUsable)
             return BuildNeedTargetStatus(cooldown.skillDefId);
+        if (cooldown.cooldownRemainingTurns == 0 && !cooldown.usedThisTurn)
+            return "Disabled";
         return "Blocked";
     }
 

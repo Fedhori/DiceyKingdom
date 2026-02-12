@@ -42,18 +42,12 @@ public sealed class EnemyDropTarget : MonoBehaviour, IDropHandler, IPointerClick
     {
         if (eventData == null || eventData.button != PointerEventData.InputButton.Left)
             return;
-        if (AssignmentDragSession.IsActive)
-            return;
-        if (!SkillTargetingSession.IsActive)
-            return;
         if (orchestrator == null)
-            return;
-        if (!SkillTargetingSession.IsFor(orchestrator))
             return;
         if (string.IsNullOrWhiteSpace(situationInstanceId))
             return;
 
-        SkillTargetingSession.TryConsumeSituationTarget(situationInstanceId);
+        orchestrator.TryTestAgainstSituationDie(situationInstanceId, 0);
     }
 
     void TryResolveOrchestrator()

@@ -886,8 +886,9 @@ MonoBehaviour:
   orchestrator: {fileID: 1831022635}
   contentRoot: {fileID: 20900711}
   cardPrefab: {fileID: 8981085117825814380, guid: a98a74325b0c0c748b22672ba8661065, type: 3}
+  dicePrefab: {fileID: 738695666529021882, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
   cardColor: {r: 0.32, g: 0.18, b: 0.18, a: 0.94}
-  lowRequirementCardColor: {r: 0.45, g: 0.16, b: 0.16, a: 0.98}
+  lowDiceCountCardColor: {r: 0.45, g: 0.16, b: 0.16, a: 0.98}
   subtleLabelColor: {r: 0.88, g: 0.78, b: 0.76, a: 1}
   requirementHighlightColor: {r: 1, g: 0.92, b: 0.32, a: 1}
   successHighlightColor: {r: 0.68, g: 0.96, b: 0.74, a: 1}
@@ -941,7 +942,7 @@ MonoBehaviour:
   cardPrefab: {fileID: 6180465234383281509, guid: 5b05d096a22d6b846853c7a9733bc028, type: 3}
   dicePrefab: {fileID: 738695666529021882, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
   pendingCardColor: {r: 0.18, g: 0.22, b: 0.3, a: 0.95}
-  rolledCardColor: {r: 0.2, g: 0.27, b: 0.36, a: 0.95}
+  selectedCardColor: {r: 0.2, g: 0.27, b: 0.36, a: 0.95}
   consumedCardColor: {r: 0.13, g: 0.16, b: 0.2, a: 0.85}
   subtleLabelColor: {r: 0.72, g: 0.8, b: 0.9, a: 1}
   infoEmphasisColor: {r: 0.86, g: 0.93, b: 1, a: 1}

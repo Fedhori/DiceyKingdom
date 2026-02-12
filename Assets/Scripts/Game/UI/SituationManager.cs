@@ -8,8 +8,9 @@ public sealed class SituationManager : MonoBehaviour
     [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] RectTransform contentRoot;
     [SerializeField] GameObject cardPrefab;
+    [SerializeField] GameObject dicePrefab;
     [SerializeField] Color cardColor = new(0.32f, 0.18f, 0.18f, 0.94f);
-    [SerializeField] Color lowRequirementCardColor = new(0.45f, 0.16f, 0.16f, 0.98f);
+    [SerializeField] Color lowDiceCountCardColor = new(0.45f, 0.16f, 0.16f, 0.98f);
     [SerializeField] Color subtleLabelColor = new(0.88f, 0.78f, 0.76f, 1f);
     [SerializeField] Color requirementHighlightColor = new(1.00f, 0.92f, 0.32f, 1.00f);
     [SerializeField] Color successHighlightColor = new(0.68f, 0.96f, 0.74f, 1.00f);
@@ -74,6 +75,19 @@ public sealed class SituationManager : MonoBehaviour
         RefreshAllCards();
     }
 
+    void OnDuelRollStarted(GameTurnOrchestrator.DuelRollPresentation presentation)
+    {
+        var card = FindCardByInstanceId(presentation.situationInstanceId);
+        if (card == null)
+            return;
+
+        card.PlayDuelRollEffect(
+            presentation.situationDieIndex,
+            presentation.situationDieFace,
+            presentation.situationRoll,
+            presentation.success);
+    }
+
     void OnTargetingSessionChanged()
     {
         RefreshAllCards();
@@ -89,6 +103,7 @@ public sealed class SituationManager : MonoBehaviour
         orchestrator.StageSpawned -= OnStageSpawned;
         orchestrator.RunEnded -= OnRunEnded;
         orchestrator.StateChanged -= OnStateChanged;
+        orchestrator.DuelRollStarted -= OnDuelRollStarted;
         SkillTargetingSession.SessionChanged -= OnTargetingSessionChanged;
 
         orchestrator.RunStarted += OnRunStarted;
@@ -96,6 +111,7 @@ public sealed class SituationManager : MonoBehaviour
         orchestrator.StageSpawned += OnStageSpawned;
         orchestrator.RunEnded += OnRunEnded;
         orchestrator.StateChanged += OnStateChanged;
+        orchestrator.DuelRollStarted += OnDuelRollStarted;
         SkillTargetingSession.SessionChanged += OnTargetingSessionChanged;
     }
 
@@ -109,6 +125,7 @@ public sealed class SituationManager : MonoBehaviour
         orchestrator.StageSpawned -= OnStageSpawned;
         orchestrator.RunEnded -= OnRunEnded;
         orchestrator.StateChanged -= OnStateChanged;
+        orchestrator.DuelRollStarted -= OnDuelRollStarted;
         SkillTargetingSession.SessionChanged -= OnTargetingSessionChanged;
     }
 
@@ -186,19 +203,21 @@ public sealed class SituationManager : MonoBehaviour
 
         controller.BindOrchestrator(orchestrator);
         controller.BindSituation(string.Empty);
+        controller.SetDicePrefab(dicePrefab);
         controller.Render(
             $"S{slotIndex + 1}",
             "Unknown Situation",
-            "REQ -",
+            "Dice -",
             "Success: -",
             "Failure: -",
             "D -",
-            "Drop target",
+            "Select target",
             cardColor,
             requirementHighlightColor,
             successHighlightColor,
             failureHighlightColor,
-            subtleLabelColor);
+            subtleLabelColor,
+            null);
 
         return controller;
     }
@@ -225,11 +244,10 @@ public sealed class SituationManager : MonoBehaviour
     {
         card.BindOrchestrator(orchestrator);
         card.BindSituation(situation.instanceId);
+        card.SetDicePrefab(dicePrefab);
 
-        int baseRequirement = ResolveBaseRequirement(situation.situationDefId);
-        bool isLowRequirement = baseRequirement > 0 &&
-                                situation.currentRequirement <= Mathf.Max(1, baseRequirement / 2);
-        Color backgroundColor = isLowRequirement ? lowRequirementCardColor : cardColor;
+        int remainingCount = situation?.remainingDiceFaces?.Count ?? 0;
+        Color backgroundColor = remainingCount <= 1 ? lowDiceCountCardColor : cardColor;
 
         card.Render(
             $"S{slotIndex + 1}",
@@ -243,16 +261,14 @@ public sealed class SituationManager : MonoBehaviour
             requirementHighlightColor,
             successHighlightColor,
             failureHighlightColor,
-            subtleLabelColor);
+            subtleLabelColor,
+            situation.remainingDiceFaces);
     }
 
     string BuildRequirementLine(SituationState situation)
     {
-        int baseRequirement = ResolveBaseRequirement(situation?.situationDefId);
-        if (baseRequirement <= 0)
-            return $"REQ {Mathf.Max(0, situation?.currentRequirement ?? 0)}";
-
-        return $"REQ {Mathf.Max(0, situation.currentRequirement)} / {baseRequirement}";
+        int remaining = situation?.remainingDiceFaces?.Count ?? 0;
+        return $"Dice {Mathf.Max(0, remaining)}";
     }
 
     string BuildSuccessLine(SituationState situation)
@@ -298,13 +314,11 @@ public sealed class SituationManager : MonoBehaviour
     string BuildTargetHintLine()
     {
         if (orchestrator?.RunState == null)
-            return "Drop target";
-        if (SkillTargetingSession.IsFor(orchestrator))
-            return "Click to cast";
+            return "Select target";
 
         return orchestrator.RunState.turn.phase == TurnPhase.TargetAndAttack
-            ? "Drop to attack"
-            : "Drop target";
+            ? "Choose situation die"
+            : "Waiting";
     }
 
     string ResolveSituationName(string situationDefId)
@@ -321,16 +335,6 @@ public sealed class SituationManager : MonoBehaviour
         if (string.IsNullOrWhiteSpace(situationDefId))
             return "Unknown Situation";
         return ToDisplayTitle(situationDefId);
-    }
-
-    int ResolveBaseRequirement(string situationDefId)
-    {
-        if (string.IsNullOrWhiteSpace(situationDefId))
-            return 0;
-        if (!situationDefById.TryGetValue(situationDefId, out var def))
-            return 0;
-
-        return Mathf.Max(1, def.baseRequirement);
     }
 
     void TryResolveOrchestrator()
@@ -455,6 +459,25 @@ public sealed class SituationManager : MonoBehaviour
         }
 
         return string.Join(" ", parts);
+    }
+
+    SituationController FindCardByInstanceId(string instanceId)
+    {
+        if (string.IsNullOrWhiteSpace(instanceId))
+            return null;
+
+        for (int index = 0; index < cards.Count; index++)
+        {
+            var card = cards[index];
+            if (card == null)
+                continue;
+            if (!string.Equals(card.SituationInstanceId, instanceId, StringComparison.Ordinal))
+                continue;
+
+            return card;
+        }
+
+        return null;
     }
 }
 
