@@ -494,6 +494,87 @@ public sealed class BottomActionBarController : MonoBehaviour
         return true;
     }
 
+    bool SkillRequiresSituationTarget(string skillDefId)
+    {
+        if (string.IsNullOrWhiteSpace(skillDefId))
+            return false;
+        if (!skillDefById.TryGetValue(skillDefId, out var skillDef))
+            return false;
+        if (skillDef.effectBundle?.effects == null)
+            return false;
+
+        for (int index = 0; index < skillDef.effectBundle.effects.Count; index++)
+        {
+            var effect = skillDef.effectBundle.effects[index];
+            if (effect == null || string.IsNullOrWhiteSpace(effect.effectType))
+                continue;
+            if (string.Equals(effect.effectType.Trim(), "situationRequirementDelta", StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
+    }
+
+    bool SkillRequiresSelectedDieTarget(string skillDefId)
+    {
+        if (string.IsNullOrWhiteSpace(skillDefId))
+            return false;
+        if (!skillDefById.TryGetValue(skillDefId, out var skillDef))
+            return false;
+        if (skillDef.effectBundle?.effects == null)
+            return false;
+
+        for (int index = 0; index < skillDef.effectBundle.effects.Count; index++)
+        {
+            var effect = skillDef.effectBundle.effects[index];
+            if (effect == null || string.IsNullOrWhiteSpace(effect.effectType))
+                continue;
+
+            string effectType = effect.effectType.Trim();
+            if (effectType == "dieFaceDelta")
+            {
+                string diePickRule = GetParamString(effect.effectParams, "diePickRule");
+                if (diePickRule == "selected")
+                    return true;
+            }
+
+            if (effectType == "rerollAgentDice")
+            {
+                string rerollRule = GetParamString(effect.effectParams, "rerollRule");
+                if (rerollRule == "single")
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    string BuildSelectTargetStatus(string skillDefId)
+    {
+        bool needsSituation = SkillRequiresSituationTarget(skillDefId);
+        bool needsDie = SkillRequiresSelectedDieTarget(skillDefId);
+        if (needsSituation && needsDie)
+            return "Select Target";
+        if (needsSituation)
+            return "Select Situation";
+        if (needsDie)
+            return "Select Die";
+        return "Select Target";
+    }
+
+    string BuildNeedTargetStatus(string skillDefId)
+    {
+        bool needsSituation = SkillRequiresSituationTarget(skillDefId);
+        bool needsDie = SkillRequiresSelectedDieTarget(skillDefId);
+        if (needsSituation && needsDie)
+            return "Need Target";
+        if (needsSituation)
+            return "Need Situation";
+        if (needsDie)
+            return "Need Die";
+        return "Need Target";
+    }
+
     string BuildSkillStatusText(
         SkillCooldownState cooldown,
         bool baseUsable,
@@ -503,7 +584,7 @@ public sealed class BottomActionBarController : MonoBehaviour
         if (cooldown == null)
             return "-";
         if (isTargetingThisSlot)
-            return "Select Situation";
+            return BuildSelectTargetStatus(cooldown.skillDefId);
         if (cooldown.cooldownRemainingTurns > 0)
             return $"CD {cooldown.cooldownRemainingTurns}";
         if (cooldown.usedThisTurn)
@@ -511,7 +592,7 @@ public sealed class BottomActionBarController : MonoBehaviour
         if (canQuickCast)
             return "Ready";
         if (baseUsable)
-            return "Need Target";
+            return BuildNeedTargetStatus(cooldown.skillDefId);
         return "Blocked";
     }
 

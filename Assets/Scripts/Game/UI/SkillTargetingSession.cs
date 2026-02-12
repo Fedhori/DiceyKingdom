@@ -66,5 +66,25 @@ public static class SkillTargetingSession
 
         return used;
     }
+
+    public static bool TryConsumeAgentDieTarget(string agentInstanceId, int dieIndex)
+    {
+        if (!IsActive)
+            return false;
+        if (string.IsNullOrWhiteSpace(agentInstanceId))
+            return false;
+        if (dieIndex < 0)
+            return false;
+
+        bool used = ActiveOrchestrator.TryUseSkillBySlotIndex(
+            ActiveSkillSlotIndex,
+            selectedAgentInstanceId: agentInstanceId,
+            selectedSituationInstanceId: null,
+            selectedDieIndex: dieIndex);
+        if (used)
+            Cancel();
+
+        return used;
+    }
 }
 

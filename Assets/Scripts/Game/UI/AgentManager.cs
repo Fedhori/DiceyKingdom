@@ -174,7 +174,7 @@ public sealed class AgentManager : MonoBehaviour
         controller.Render(
             $"A{slotIndex + 1}",
             "Unknown Agent",
-            "Dice 1  |  Rules: -",
+            "Rules: -",
             "ATK  -",
             "Status: Waiting",
             $"Roll [{slotIndex + 1}]",
@@ -238,9 +238,8 @@ public sealed class AgentManager : MonoBehaviour
 
     string BuildInfoLine(string agentDefId)
     {
-        int diceCount = ResolveDiceCount(agentDefId);
         string ruleSummary = ResolveRuleSummary(agentDefId);
-        return $"Dice {diceCount}  |  Rules: {ruleSummary}";
+        return $"Rules: {ruleSummary}";
     }
 
     string BuildExpectedDamageLine(AgentState agent)

@@ -20,6 +20,8 @@ public sealed class AgentController : MonoBehaviour
     [SerializeField] Button rollButton;
     [SerializeField] AgentRollButton rollButtonHandler;
     GameObject dicePrefab;
+    GameTurnOrchestrator orchestrator;
+    string agentInstanceId = string.Empty;
     readonly List<DiceFaceWidgets> diceFaces = new();
 
     public RectTransform RootRect => rootRect;
@@ -31,6 +33,8 @@ public sealed class AgentController : MonoBehaviour
 
     public void BindOrchestrator(GameTurnOrchestrator orchestrator)
     {
+        this.orchestrator = orchestrator;
+
         if (dragHandle != null)
             dragHandle.SetOrchestrator(orchestrator);
         if (rollButtonHandler != null)
@@ -46,10 +50,30 @@ public sealed class AgentController : MonoBehaviour
 
     public void BindAgent(string agentInstanceId)
     {
+        this.agentInstanceId = agentInstanceId ?? string.Empty;
+
         if (dragHandle != null)
             dragHandle.SetAgentInstanceId(agentInstanceId);
         if (rollButtonHandler != null)
             rollButtonHandler.SetAgentInstanceId(agentInstanceId);
+    }
+
+    public void OnDiceFacePressed(int dieIndex)
+    {
+        if (dieIndex < 0)
+            return;
+        if (AssignmentDragSession.IsActive)
+            return;
+        if (!SkillTargetingSession.IsActive)
+            return;
+        if (orchestrator == null)
+            return;
+        if (!SkillTargetingSession.IsFor(orchestrator))
+            return;
+        if (string.IsNullOrWhiteSpace(agentInstanceId))
+            return;
+
+        SkillTargetingSession.TryConsumeAgentDieTarget(agentInstanceId, dieIndex);
     }
 
     public void Render(
@@ -168,6 +192,11 @@ public sealed class AgentController : MonoBehaviour
             valueText = root.GetComponentInChildren<TextMeshProUGUI>(true);
         if (valueText == null)
             Debug.LogWarning("[AgentController] Dice prefab is missing a TMP_Text for value.", root);
+
+        var clickTarget = root.GetComponent<AgentDiceFaceClickTarget>();
+        if (clickTarget == null)
+            clickTarget = root.AddComponent<AgentDiceFaceClickTarget>();
+        clickTarget.Bind(this, index);
 
         return new DiceFaceWidgets
         {
