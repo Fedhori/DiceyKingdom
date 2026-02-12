@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public sealed class AgentManager : MonoBehaviour
 {
+    const string AgentLocalizationTable = "Agent";
+
     [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] RectTransform contentRoot;
     [SerializeField] GameObject cardPrefab;
@@ -306,13 +308,22 @@ public sealed class AgentManager : MonoBehaviour
             agentDefById.TryGetValue(agentDefId, out var def))
         {
             if (!string.IsNullOrWhiteSpace(def.agentId))
+            {
+                string nameKey = $"{def.agentId}.name";
+                string localized = LocalizationUtil.Get(AgentLocalizationTable, nameKey);
+                if (!string.IsNullOrWhiteSpace(localized))
+                    return localized;
+
                 return ToDisplayTitle(def.agentId);
-            if (!string.IsNullOrWhiteSpace(def.nameKey))
-                return ToDisplayTitle(def.nameKey);
+            }
         }
 
         if (string.IsNullOrWhiteSpace(agentDefId))
             return "Unknown Agent";
+
+        string fallbackLocalized = LocalizationUtil.Get(AgentLocalizationTable, $"{agentDefId}.name");
+        if (!string.IsNullOrWhiteSpace(fallbackLocalized))
+            return fallbackLocalized;
         return ToDisplayTitle(agentDefId);
     }
 
@@ -342,7 +353,7 @@ public sealed class AgentManager : MonoBehaviour
             var rule = def.rules[index];
             string key = $"{agentDefId}.rule.{index}";
             var args = AgentRuleTextArgsBuilder.Build(rule);
-            string token = LocalizationUtil.Get("agent", key, args);
+            string token = LocalizationUtil.Get(AgentLocalizationTable, key, args);
             if (string.IsNullOrWhiteSpace(token))
                 token = key;
             if (string.IsNullOrWhiteSpace(token))
@@ -425,6 +436,8 @@ public sealed class AgentManager : MonoBehaviour
         string normalized = raw.Trim();
         if (normalized.StartsWith("agent_", StringComparison.OrdinalIgnoreCase))
             normalized = normalized.Substring("agent_".Length);
+        else if (normalized.StartsWith("agent.", StringComparison.OrdinalIgnoreCase))
+            normalized = normalized.Substring("agent.".Length);
 
         normalized = normalized.Replace('_', ' ').Replace('.', ' ');
         var parts = normalized.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);

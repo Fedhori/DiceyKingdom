@@ -1,8 +1,7 @@
 {
   "agents": [
     {
-      "agentId": "agent_warrior",
-      "nameKey": "agent.warrior.name",
+      "agentId": "agent.warrior",
       "diceCount": 4,
       "gearSlotCount": 2,
       "rules": [
@@ -27,8 +26,7 @@
       ]
     },
     {
-      "agentId": "agent_archer",
-      "nameKey": "agent.archer.name",
+      "agentId": "agent.archer",
       "diceCount": 4,
       "gearSlotCount": 2,
       "rules": [
@@ -53,8 +51,7 @@
       ]
     },
     {
-      "agentId": "agent_mage",
-      "nameKey": "agent.mage.name",
+      "agentId": "agent.mage",
       "diceCount": 3,
       "gearSlotCount": 2,
       "rules": [
@@ -78,8 +75,7 @@
       ]
     },
     {
-      "agentId": "agent_rogue",
-      "nameKey": "agent.rogue.name",
+      "agentId": "agent.rogue",
       "diceCount": 5,
       "gearSlotCount": 2,
       "rules": [

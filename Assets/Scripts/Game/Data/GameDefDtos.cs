@@ -34,7 +34,6 @@ public sealed class SituationDef
 public sealed class AgentDef
 {
     [JsonProperty("agentId")] public string agentId = string.Empty;
-    [JsonProperty("nameKey")] public string nameKey = string.Empty;
     [JsonProperty("diceCount")] public int diceCount = 1;
     [JsonProperty("gearSlotCount")] public int gearSlotCount;
     [JsonProperty("rules")] public List<AgentRuleDef> rules = new();

@@ -277,8 +277,8 @@
 ### 모험가 최소 스키마(v0 확정)
 
 - 정적 데이터(`AgentDef`):
-  - `agentId`: string (고유 ID)
-  - `nameKey`: string (로컬라이즈 키)
+  - `agentId`: string (고유 ID, `agent.warrior` 같은 dot 포맷 사용)
+  - `nameKey`는 두지 않으며, 이름 키는 `{agentId}.name` 규칙으로 파생합니다.
   - `diceCount`: int (`>= 1`)
   - `gearSlotCount`: int (`>= 0`)
   - `rules`: agentRule[] or null (고유 룰)

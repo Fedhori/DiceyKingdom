@@ -206,7 +206,7 @@ GameObject:
   - component: {fileID: 255186376}
   - component: {fileID: 255186377}
   m_Layer: 5
-  m_Name: LeftAgentPanelRoot
+  m_Name: LeftAdventurerPanelRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -351,7 +351,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 0}
+  m_BackGroundColor: {r: 0.4056604, g: 0.4056604, b: 0.4056604, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -903,7 +903,7 @@ GameObject:
   - component: {fileID: 1831022712}
   - component: {fileID: 1831022713}
   m_Layer: 0
-  m_Name: Agent
+  m_Name: Adventurer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -935,7 +935,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 56af38c673248a74bae816992a8b2f32, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AgentManager
+  m_EditorClassIdentifier: Assembly-CSharp::AdventurerManager
   orchestrator: {fileID: 1831022635}
   contentRoot: {fileID: 255186374}
   cardPrefab: {fileID: 6180465234383281509, guid: 5b05d096a22d6b846853c7a9733bc028, type: 3}
@@ -1061,4 +1061,3 @@ SceneRoots:
   - {fileID: 617915112}
   - {fileID: 1831022632}
   - {fileID: 2114596191}
-

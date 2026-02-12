@@ -87,6 +87,19 @@
 
 ## 설계 결정 로그
 
+### 2026-02-12 - Agent ID dot 포맷 고정 + nameKey 제거
+
+- 최종 확정:
+  - `AgentDef.agentId`는 `agent.warrior`처럼 dot 포맷으로 사용
+  - `AgentDef`에서 `nameKey`를 제거
+  - Agent 이름 로컬라이즈 키는 `{agentId}.name` 파생 규칙으로 고정
+  - rule 설명 키는 기존대로 `{agentId}.rule.{index}` 유지
+- 채택 이유:
+  - ID/로컬라이즈 키 규칙을 단일화해 데이터 작성 규칙을 단순화
+  - 중복 필드(`nameKey`) 제거로 유지보수 비용 및 불일치 리스크 감소
+- 상태:
+  - `[채택]`
+
 ### 2026-02-12 - 모험가 효과 하드코딩 제거 및 데이터 기반 효과 시스템 전환
 
 - 최종 확정:
@@ -98,7 +111,7 @@
   - `onCalculation`은 ATK 계산 시마다 호출(카드 갱신/공격 확정 포함)
   - 룰 실행은 `rules` 배열 인덱스 오름차순 live 평가
   - 트리거 1회 처리 중 같은 rule은 최대 1회만 발동
-  - rule 설명 키는 `agent` 테이블의 `{agentId}.rule.{index}` 구조 사용
+  - rule 설명 키는 `Agent` 테이블의 `{agentId}.rule.{index}` 구조 사용
   - 설명용 인자 구성은 `RuleTextArgsBuilder` 단일 빌더로 통합하고, Smart Format 인자는 평탄화 키를 사용
   - JSON 키/효과 타입/params 키는 전역 camelCase로 통일(기존 JSON도 마이그레이션)
   - 룰/로컬라이즈 검증은 로드 시 1회 경고 + 에디터 메뉴 검증을 동일 함수로 제공

@@ -10,7 +10,7 @@ public static class GameStaticDataLoader
     public const string AgentsPath = "Data/Agents.json";
     public const string SkillsPath = "Data/Skills.json";
 
-    const string AgentLocalizationTable = "agent";
+    const string AgentLocalizationTable = "Agent";
     const string RuleTriggerOnRoll = "onRoll";
     const string RuleTriggerOnCalculation = "onCalculation";
     const string RuleConditionAlways = "always";
@@ -134,9 +134,19 @@ public static class GameStaticDataLoader
             {
                 errors.Add($"agents[{i}].agentId is empty");
             }
-            else if (!ids.Add(def.agentId))
+            else
             {
-                errors.Add($"duplicated agentId '{def.agentId}'");
+                def.agentId = def.agentId.Trim();
+                if (!ids.Add(def.agentId))
+                {
+                    errors.Add($"duplicated agentId '{def.agentId}'");
+                }
+
+                if (!IsValidAgentIdFormat(def.agentId))
+                {
+                    errors.Add(
+                        $"agents[{i}].agentId must be dot-style 'agent.xxx' without '_' (actual='{def.agentId}')");
+                }
             }
 
             if (def.diceCount < 1)
@@ -387,6 +397,37 @@ public static class GameStaticDataLoader
         return trimmed.ToLowerInvariant();
     }
 
+    static string BuildAgentNameKey(string agentId)
+    {
+        if (string.IsNullOrWhiteSpace(agentId))
+            return string.Empty;
+
+        return $"{agentId.Trim()}.name";
+    }
+
+    static bool IsValidAgentIdFormat(string agentId)
+    {
+        if (string.IsNullOrWhiteSpace(agentId))
+            return false;
+
+        string normalized = agentId.Trim();
+        if (!normalized.StartsWith("agent.", StringComparison.Ordinal))
+            return false;
+        if (normalized.Contains("_", StringComparison.Ordinal))
+            return false;
+
+        var parts = normalized.Split('.');
+        if (parts.Length < 2)
+            return false;
+        for (int i = 0; i < parts.Length; i++)
+        {
+            if (string.IsNullOrWhiteSpace(parts[i]))
+                return false;
+        }
+
+        return true;
+    }
+
     static void LogAgentLocalizationWarningsOnce(IReadOnlyList<AgentDef> agentDefs)
     {
         if (hasLoggedAgentLocalizationWarnings)
@@ -414,8 +455,8 @@ public static class GameStaticDataLoader
             if (def == null)
                 continue;
 
-            if (!string.IsNullOrWhiteSpace(def.nameKey))
-                keys.Add(def.nameKey.Trim());
+            if (!string.IsNullOrWhiteSpace(def.agentId))
+                keys.Add(BuildAgentNameKey(def.agentId));
 
             if (string.IsNullOrWhiteSpace(def.agentId) || def.rules == null)
                 continue;
