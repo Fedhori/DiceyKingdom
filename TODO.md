@@ -11,7 +11,11 @@
 
 ## Planned
 
-- (비어 있음)
+- 규칙 위반 리팩토링 2단계: Inspector 우선 원칙 정리(코드에서 UI 레이아웃/크기/피벗/오프셋 강제 설정 제거, 프리팹/씬 설정으로 이관)
+- 규칙 위반 리팩토링 2단계: `FindFirstObjectByType`/런타임 탐색 의존 제거 및 인스펙터 참조 고정 누락 점검
+- 규칙 위반 리팩토링 3단계: 하드코딩 상수 정리(색상 값은 `Assets/Scripts/Data/Colors.cs`, 인게임 수치는 `Assets/Scripts/Data/GameConfig.cs`로 이관)
+- 규칙 위반 리팩토링 3단계: 잔여 `DontDestroyOnLoad` 사용처 제거 및 씬 전환 구조 정리
+- 검증 작업: 리팩토링 후 플레이모드 스모크 테스트(런 시작, 결투, 턴 종료, 상황 해소) + 콘솔 오류/경고 0건 확인
 
 ## In Progress
 

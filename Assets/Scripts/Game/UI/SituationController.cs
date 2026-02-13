@@ -12,7 +12,6 @@ public sealed class SituationController : MonoBehaviour
     [SerializeField] EnemyDropTarget dropTarget;
     [SerializeField] TextMeshProUGUI slotText;
     [SerializeField] TextMeshProUGUI nameText;
-    [SerializeField] TextMeshProUGUI requirementText;
     [SerializeField] TextMeshProUGUI successText;
     [SerializeField] TextMeshProUGUI failureText;
     [SerializeField] TextMeshProUGUI deadlineText;
@@ -74,13 +73,6 @@ public sealed class SituationController : MonoBehaviour
             slotText.text = slotLabel ?? string.Empty;
         if (nameText != null)
             nameText.text = nameLabel ?? string.Empty;
-        if (requirementText != null)
-        {
-            requirementText.text = dicePrefab != null
-                ? string.Empty
-                : (requirementLabel ?? string.Empty);
-            requirementText.color = requirementColor;
-        }
 
         if (successText != null)
         {
@@ -125,8 +117,6 @@ public sealed class SituationController : MonoBehaviour
 
     void RefreshDiceFaces(IReadOnlyList<int> remainingDiceFaces, int totalDiceCount)
     {
-        if (diceRowRoot == null && requirementText != null)
-            diceRowRoot = requirementText.rectTransform;
         if (diceRowRoot == null)
             return;
 
