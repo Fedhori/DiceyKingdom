@@ -51,6 +51,14 @@
 - 범용 이벤트(`StateChanged` 등) 대신, 값 단위의 명시적 이벤트를 사용합니다.
   - 예: `OnStabilityChanged`, `OnGoldChanged`, `OnPhaseChanged`
 
+## Unity 라이프사이클 원칙(확정)
+
+- `OnEnable`은 사용하지 않습니다.
+- `OnDisable`은 사용하지 않습니다.
+- 초기 구독/초기화는 `Start()`에서 수행합니다.
+- 해제/정리는 `OnDestroy()`에서 수행합니다.
+- 싱글톤 매니저 패턴에서 이벤트 구독 실패를 방지하기 위해, 라이프사이클 로직은 위 규칙으로 통일합니다.
+
 ## 작업 추적 규칙 (TODO.md)
 
 - 작업 추적은 루트의 `TODO.md`를 단일 기준으로 사용합니다.

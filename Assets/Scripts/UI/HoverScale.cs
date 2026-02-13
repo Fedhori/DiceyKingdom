@@ -21,13 +21,13 @@ public sealed class HoverScale : MonoBehaviour, IPointerEnterHandler, IPointerEx
             baseScale = target.localScale;
     }
 
-    void OnEnable()
+    void Start()
     {
         if (target != null)
             target.localScale = baseScale;
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
         if (scaleRoutine != null)
         {

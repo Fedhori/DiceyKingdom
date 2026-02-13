@@ -20,7 +20,7 @@ public sealed class DiceFaceView : MonoBehaviour
         ApplyActiveVisual();
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
         if (rollRoutine != null)
         {

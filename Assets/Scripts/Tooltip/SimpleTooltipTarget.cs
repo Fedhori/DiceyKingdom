@@ -57,7 +57,7 @@ public sealed class SimpleTooltipTarget : MonoBehaviour, IPointerEnterHandler, I
         manager.EndHover(this);
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
         var manager = TooltipManager.Instance;
         if (manager == null)

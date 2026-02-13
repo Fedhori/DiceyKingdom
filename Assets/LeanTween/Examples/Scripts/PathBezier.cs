@@ -11,12 +11,13 @@ public class PathBezier : MonoBehaviour {
 	LTBezierPath cr;
 	private GameObject avatar1;
 
-	void OnEnable(){
+	void BuildPath(){
 		// create the path
 		cr = new LTBezierPath( new Vector3[] {trans[0].position, trans[2].position, trans[1].position, trans[3].position, trans[3].position, trans[5].position, trans[4].position, trans[6].position} );
 	}
 
 	void Start () {
+		BuildPath();
 		avatar1 = GameObject.Find("Avatar1");
 
 		// Tween automatically
@@ -38,7 +39,7 @@ public class PathBezier : MonoBehaviour {
 	void OnDrawGizmos(){
 		// Debug.Log("drwaing");
 		if(cr!=null)
-			OnEnable();
+			BuildPath();
 		Gizmos.color = Color.red;
 		if(cr!=null)
 			cr.gizmoDraw(); // To Visualize the path, use this method

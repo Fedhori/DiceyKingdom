@@ -139,7 +139,7 @@ public class GameSpeedManager : MonoBehaviour
             GameSpeed = 1f;
     }
 
-    private void OnDisable() => ResetTime();
+    private void OnDestroy() => ResetTime();
     private void OnApplicationQuit() => ResetTime();
 
     private void ResetTime()

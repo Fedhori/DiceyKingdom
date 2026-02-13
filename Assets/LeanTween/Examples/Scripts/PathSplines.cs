@@ -9,13 +9,14 @@ public class PathSplines : MonoBehaviour {
 	LTSpline cr;
 	private GameObject avatar1;
 
-	void OnEnable(){
+	void BuildPath(){
 		// create the path
 		cr = new LTSpline( new Vector3[] {trans[0].position, trans[1].position, trans[2].position, trans[3].position, trans[4].position} );
 		// cr = new LTSpline( new Vector3[] {new Vector3(-1f,0f,0f), new Vector3(0f,0f,0f), new Vector3(4f,0f,0f), new Vector3(20f,0f,0f), new Vector3(30f,0f,0f)} );
 	}
 
 	void Start () {
+		BuildPath();
 		avatar1 = GameObject.Find("Avatar1");
 
 		// Tween automatically
@@ -38,7 +39,7 @@ public class PathSplines : MonoBehaviour {
 	void OnDrawGizmos(){
 		// Debug.Log("drwaing");
 		if(cr==null)
-			OnEnable();
+			BuildPath();
 		Gizmos.color = Color.red;
 		if(cr!=null)
 			cr.gizmoDraw(); // To Visualize the path, use this method

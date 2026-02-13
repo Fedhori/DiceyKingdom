@@ -40,7 +40,7 @@ public sealed class SituationManager : MonoBehaviour
         LoadSituationDefsIfNeeded();
     }
 
-    void OnEnable()
+    void Start()
     {
         SubscribeEvents();
         staticData = GameManager.Instance != null ? GameManager.Instance.StaticData : staticData;
@@ -49,15 +49,12 @@ public sealed class SituationManager : MonoBehaviour
         RefreshAllCards();
     }
 
-    void Start()
-    {
-        RebuildCardsIfNeeded(forceRebuild: true);
-        RefreshAllCards();
-    }
-
-    void OnDisable()
+    void OnDestroy()
     {
         UnsubscribeEvents();
+
+        if (Instance == this)
+            Instance = null;
     }
 
     public void InitializeForRun(

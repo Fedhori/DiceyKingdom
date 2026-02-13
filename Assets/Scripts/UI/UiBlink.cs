@@ -25,12 +25,12 @@ public sealed class UiBlink : MonoBehaviour
         baseColor = graphic.color;
     }
 
-    void OnEnable()
+    void Start()
     {
         StartTween();
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
         StopTween();
         graphic.color = baseColor;

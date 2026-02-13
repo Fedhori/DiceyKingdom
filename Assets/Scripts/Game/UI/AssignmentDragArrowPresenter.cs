@@ -28,14 +28,17 @@ public sealed class AssignmentDragArrowPresenter : MonoBehaviour
         SetVisualsActive(false);
     }
 
-    void OnEnable()
+    void Start()
     {
+        AssignmentDragSession.DragStarted -= OnDragStarted;
+        AssignmentDragSession.DragMoved -= OnDragMoved;
+        AssignmentDragSession.DragEnded -= OnDragEnded;
         AssignmentDragSession.DragStarted += OnDragStarted;
         AssignmentDragSession.DragMoved += OnDragMoved;
         AssignmentDragSession.DragEnded += OnDragEnded;
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
         AssignmentDragSession.DragStarted -= OnDragStarted;
         AssignmentDragSession.DragMoved -= OnDragMoved;

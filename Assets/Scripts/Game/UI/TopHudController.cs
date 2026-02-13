@@ -31,13 +31,13 @@ public sealed class TopHudController : MonoBehaviour
         EnsureVisualTree();
     }
 
-    void OnEnable()
+    void Start()
     {
         SubscribeEvents();
         RefreshHud();
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
         UnsubscribeEvents();
     }

@@ -11,13 +11,18 @@ public class OptionOpener : MonoBehaviour
         button = GetComponent<Button>();
     }
 
-    void OnEnable()
+    void Start()
     {
-        if (button == null) button = GetComponent<Button>();
+        if (button == null)
+            button = GetComponent<Button>();
+        if (button == null)
+            return;
+
+        button.onClick.RemoveListener(OnClickOpenOptions);
         button.onClick.AddListener(OnClickOpenOptions);
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
         if (button != null)
             button.onClick.RemoveListener(OnClickOpenOptions);

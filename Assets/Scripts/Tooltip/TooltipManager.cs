@@ -50,18 +50,28 @@ public sealed class TooltipManager : MonoBehaviour
         UpdateWorldCamera();
     }
 
-    void OnEnable()
+    void Start()
     {
+        SceneManager.activeSceneChanged -= OnActiveSceneChanged;
         SceneManager.activeSceneChanged += OnActiveSceneChanged;
+        UiSelectionEvents.OnSelectionCleared -= HandleSelectionCleared;
         UiSelectionEvents.OnSelectionCleared += HandleSelectionCleared;
         UpdateWorldCamera();
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
-        if (Instance == this)
-            SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+        SceneManager.activeSceneChanged -= OnActiveSceneChanged;
         UiSelectionEvents.OnSelectionCleared -= HandleSelectionCleared;
+
+        if (showRoutine != null)
+        {
+            StopCoroutine(showRoutine);
+            showRoutine = null;
+        }
+
+        if (Instance == this)
+            Instance = null;
     }
 
     void OnActiveSceneChanged(Scene oldScene, Scene newScene)

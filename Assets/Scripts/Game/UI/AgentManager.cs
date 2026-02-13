@@ -39,23 +39,20 @@ public sealed class AgentManager : MonoBehaviour
         LoadAgentDefsIfNeeded();
     }
 
-    void OnEnable()
-    {
-        SubscribeEvents();
-        runState = GameManager.Instance != null ? GameManager.Instance.CurrentRunState : null;
-        RebuildCardsIfNeeded(forceRebuild: true);
-        RefreshAllCards();
-    }
-
     void Start()
     {
+        SubscribeEvents();
+        runState = GameManager.Instance != null ? GameManager.Instance.CurrentRunState : runState;
         RebuildCardsIfNeeded(forceRebuild: true);
         RefreshAllCards();
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
         UnsubscribeEvents();
+
+        if (Instance == this)
+            Instance = null;
     }
 
     public void InitializeForRun(GameRunState state, IReadOnlyDictionary<string, AgentDef> defs)

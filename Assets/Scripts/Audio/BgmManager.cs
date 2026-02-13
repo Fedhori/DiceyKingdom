@@ -50,19 +50,11 @@ public sealed class BgmManager : MonoBehaviour
         baseVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(PrefsKeyBaseVolume, volume));
     }
 
-    void OnEnable()
-    {
-        ApplyVolume();
-    }
-
     void Start()
     {
+        ApplyVolume();
         if (playOnStart)
             Play();
-    }
-
-    void OnDisable()
-    {
     }
 
     public float BaseVolume => baseVolume;

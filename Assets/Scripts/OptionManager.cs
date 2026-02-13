@@ -31,20 +31,6 @@ public class OptionManager : MonoBehaviour
         ToggleOption(false);
     }
 
-    void OnEnable()
-    {
-        // 씬이 로드될 때마다 OnSceneLoaded 실행
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    void OnDisable()
-    {
-        // 이벤트 중복 등록 방지
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-        if (bgmSlider != null)
-            bgmSlider.onValueChanged.RemoveListener(HandleBgmSliderChanged);
-    }
-
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         UpdateOptionButtons();
@@ -53,7 +39,18 @@ public class OptionManager : MonoBehaviour
 
     void Start()
     {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneLoaded += OnSceneLoaded;
         InitializeBgmControls();
+        UpdateOptionButtons();
+        SyncBgmSliderValue();
+    }
+
+    void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        if (bgmSlider != null)
+            bgmSlider.onValueChanged.RemoveListener(HandleBgmSliderChanged);
     }
 
     void HideAllOptionButtons()

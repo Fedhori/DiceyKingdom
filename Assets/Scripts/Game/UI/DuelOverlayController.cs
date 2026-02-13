@@ -21,13 +21,13 @@ public sealed class DuelOverlayController : MonoBehaviour
         SetOverlayVisible(false);
     }
 
-    void OnEnable()
+    void Start()
     {
         DuelManager.Instance.DuelRollStarted -= OnDuelRollStarted;
         DuelManager.Instance.DuelRollStarted += OnDuelRollStarted;
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
         if (DuelManager.Instance != null)
             DuelManager.Instance.DuelRollStarted -= OnDuelRollStarted;

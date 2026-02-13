@@ -38,13 +38,13 @@ public sealed class AgentRollButton : MonoBehaviour
             button = GetComponent<Button>();
     }
 
-    void OnEnable()
+    void Start()
     {
         SubscribeEvents();
         RefreshInteractable();
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
         UnsubscribeEvents();
     }

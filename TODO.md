@@ -23,6 +23,7 @@
 
 ## Done
 
+- 2026-02-13: 전 스크립트 `OnEnable/OnDisable` 제거 및 `Start/OnDestroy` 일괄 전환(이벤트 구독/해제 포함) + 규칙 문서화(`Docs/GENERAL_RULES.md`)
 - 2026-02-13: `GameTurnOrchestrator` 제거 및 매니저 분리 리팩토링 완료(`GameManager`, `PhaseManager`, `PlayerManager`, `DuelManager`, `AgentManager`, `SituationManager`) + `Managers` 하위 오브젝트/컴포넌트 반영
 - 2026-02-13: 이벤트는 UI 갱신 전용/로직 이벤트 금지 원칙을 `Docs/GENERAL_RULES.md`에 반영하고, `Docs/REFACTORING_PLAN_MANAGER_SPLIT.md` 리팩토링 계획서 작성
 - 2026-02-13: 중앙 결투 오버레이 UI 추가(상황/요원 주사위 연출) 및 오버레이 종료 후 상태 반영 방식으로 전환

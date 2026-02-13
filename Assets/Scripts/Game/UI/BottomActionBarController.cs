@@ -41,13 +41,13 @@ public sealed class BottomActionBarController : MonoBehaviour
         LoadSkillDefsIfNeeded();
     }
 
-    void OnEnable()
+    void Start()
     {
         SubscribeEvents();
         RefreshView();
     }
 
-    void OnDisable()
+    void OnDestroy()
     {
         UnsubscribeEvents();
 
