@@ -212,7 +212,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &175408389
 RectTransform:
   m_ObjectHideFlags: 0
@@ -248,6 +248,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DuelOverlayController
   orchestrator: {fileID: 1831022635}
   overlayRoot: {fileID: 175408388}
+  overlayBlockerImage: {fileID: 175408391}
   situationDieView: {fileID: 212270669}
   agentDieView: {fileID: 515854596}
 --- !u!114 &175408391
@@ -301,6 +302,14 @@ PrefabInstance:
       value: SituationDuelDie
       objectReference: {fileID: 0}
     - target: {fileID: 8096864371120894629, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
+      propertyPath: m_fontSize
+      value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 8096864371120894629, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 8096864371120894629, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4280358415
       objectReference: {fileID: 0}
@@ -330,11 +339,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8153620813877971138, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 32
+      value: 128
       objectReference: {fileID: 0}
     - target: {fileID: 8153620813877971138, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 32
+      value: 128
       objectReference: {fileID: 0}
     - target: {fileID: 8153620813877971138, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
       propertyPath: m_LocalPosition.x
@@ -493,6 +502,14 @@ PrefabInstance:
       value: AgentDuelDie
       objectReference: {fileID: 0}
     - target: {fileID: 8096864371120894629, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
+      propertyPath: m_fontSize
+      value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 8096864371120894629, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 8096864371120894629, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4280358415
       objectReference: {fileID: 0}
@@ -522,11 +539,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8153620813877971138, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 32
+      value: 128
       objectReference: {fileID: 0}
     - target: {fileID: 8153620813877971138, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 32
+      value: 128
       objectReference: {fileID: 0}
     - target: {fileID: 8153620813877971138, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
       propertyPath: m_LocalPosition.x
@@ -963,7 +980,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e44aa827bb9424c45a9aeb70fc3035f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AssignmentDragArrowPresenter
-  overlayRoot: {fileID: 0}
+  overlayRoot: {fileID: 1274208117}
   lineThickness: 6
   lineColor: {r: 0.92, g: 0.96, b: 1, a: 0.95}
   arrowColor: {r: 0.96, g: 0.84, b: 0.26, a: 1}

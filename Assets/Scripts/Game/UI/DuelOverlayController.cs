@@ -1,10 +1,12 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public sealed class DuelOverlayController : MonoBehaviour
 {
     [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] GameObject overlayRoot;
+    [SerializeField] Image overlayBlockerImage;
     [SerializeField] DiceFaceView situationDieView;
     [SerializeField] DiceFaceView agentDieView;
 
@@ -12,7 +14,12 @@ public sealed class DuelOverlayController : MonoBehaviour
 
     void Awake()
     {
-        HideOverlay();
+        if (overlayRoot == null)
+            overlayRoot = gameObject;
+        if (overlayBlockerImage == null && overlayRoot != null)
+            overlayBlockerImage = overlayRoot.GetComponent<Image>();
+
+        SetOverlayVisible(false);
     }
 
     void OnEnable()
@@ -34,8 +41,6 @@ public sealed class DuelOverlayController : MonoBehaviour
             StopCoroutine(duelRoutine);
             duelRoutine = null;
         }
-
-        HideOverlay();
     }
 
     void OnDuelRollStarted(GameTurnOrchestrator.DuelRollPresentation presentation)
@@ -43,12 +48,13 @@ public sealed class DuelOverlayController : MonoBehaviour
         if (duelRoutine != null)
             StopCoroutine(duelRoutine);
 
+        SetOverlayVisible(false);
         duelRoutine = StartCoroutine(PlayDuelRoutine(presentation));
     }
 
     IEnumerator PlayDuelRoutine(GameTurnOrchestrator.DuelRollPresentation presentation)
     {
-        ShowOverlay();
+        SetOverlayVisible(true);
 
         if (situationDieView != null)
         {
@@ -71,7 +77,7 @@ public sealed class DuelOverlayController : MonoBehaviour
         while (IsAnyDieRolling())
             yield return null;
 
-        HideOverlay();
+        SetOverlayVisible(false);
         yield return null;
 
         if (orchestrator != null)
@@ -90,15 +96,20 @@ public sealed class DuelOverlayController : MonoBehaviour
         return false;
     }
 
-    void ShowOverlay()
+    void SetOverlayVisible(bool visible)
     {
         if (overlayRoot != null)
             overlayRoot.SetActive(true);
-    }
 
-    void HideOverlay()
-    {
-        if (overlayRoot != null)
-            overlayRoot.SetActive(false);
+        if (overlayBlockerImage != null)
+        {
+            overlayBlockerImage.enabled = visible;
+            overlayBlockerImage.raycastTarget = visible;
+        }
+
+        if (situationDieView != null)
+            situationDieView.gameObject.SetActive(visible);
+        if (agentDieView != null)
+            agentDieView.gameObject.SetActive(visible);
     }
 }
