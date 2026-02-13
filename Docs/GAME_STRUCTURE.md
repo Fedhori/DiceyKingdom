@@ -6,13 +6,7 @@
 
 - 범용 규칙/컨벤션: `Docs/GENERAL_RULES.md`
 - 레포 지도(파일 위치/책임 요약): `Docs/PROJECT_MAP.md`
-- 아이디어 인덱스: `Docs/GAME_IDEA.md`
-- 아이디어(시스템): `Docs/GAME_IDEA_SYSTEM.md`
-- 아이디어(상황): `Docs/GAME_IDEA_SITUATION.md`
-- 아이디어(요원): `Docs/GAME_IDEA_AGENT.md`
-- 아이디어(스킬): `Docs/GAME_IDEA_SKILL.md`
-- 아이디어(구조물): `Docs/GAME_IDEA_STRUCTURE.md`
-- 아이디어(칙령): `Docs/GAME_IDEA_DECREE.md`
+- 아이디어 문서: `Docs/GAME_IDEA.md`
 - 상황 컨셉/대응 요약: `Docs/ENEMY_ROSTER.md`
 - 상황 상세 규칙: `Docs/SITUATION.md`
 - 요원 상세 규칙: `Docs/AGENT.md`

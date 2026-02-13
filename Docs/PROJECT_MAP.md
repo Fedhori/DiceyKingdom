@@ -6,13 +6,7 @@
 
 - 게임 구조/시스템/플로우: `Docs/GAME_STRUCTURE.md`
 - 범용 규칙/컨벤션: `Docs/GENERAL_RULES.md`
-- 아이디어 인덱스: `Docs/GAME_IDEA.md`
-- 아이디어(시스템): `Docs/GAME_IDEA_SYSTEM.md`
-- 아이디어(상황): `Docs/GAME_IDEA_SITUATION.md`
-- 아이디어(요원): `Docs/GAME_IDEA_AGENT.md`
-- 아이디어(스킬): `Docs/GAME_IDEA_SKILL.md`
-- 아이디어(구조물): `Docs/GAME_IDEA_STRUCTURE.md`
-- 아이디어(칙령): `Docs/GAME_IDEA_DECREE.md`
+- 아이디어 문서: `Docs/GAME_IDEA.md`
 - 상황 컨셉 요약: `Docs/ENEMY_ROSTER.md`
 - 상황 상세 규칙: `Docs/SITUATION.md`
 - 요원 상세 규칙: `Docs/AGENT.md`
@@ -41,13 +35,7 @@
   - 공통 규칙 및 프로젝트 문서
   - `GENERAL_RULES.md`: Unity 공통 규칙
   - `GAME_STRUCTURE.md`: 현재 기준 게임 구조/시스템
-  - `GAME_IDEA.md`: 아이디어 문서 인덱스/기록 규칙
-  - `GAME_IDEA_SYSTEM.md`: 시스템 아이디어
-  - `GAME_IDEA_SITUATION.md`: 상황 아이디어
-  - `GAME_IDEA_AGENT.md`: 요원 아이디어
-  - `GAME_IDEA_SKILL.md`: 스킬 아이디어
-  - `GAME_IDEA_STRUCTURE.md`: 구조물 아이디어
-  - `GAME_IDEA_DECREE.md`: 칙령 아이디어
+  - `GAME_IDEA.md`: 아이디어 수집/후보 관리
   - `ENEMY_ROSTER.md`: 상황 컨셉/강점/약점/대응법 요약
   - `SITUATION.md`: 상황 데이터/생성/해결/실패 규칙
   - `AGENT.md`: 요원 데이터/스타팅 구성/룰 규칙
