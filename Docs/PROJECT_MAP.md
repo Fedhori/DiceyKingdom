@@ -56,6 +56,7 @@
   - `SituationController.cs`: 상황 카드 프리팹 View(상황 주사위/기한/성공·실패/드롭·클릭 입력 배선)
     - 두 View는 인스펙터 직결 참조만 사용(런타임 자동 탐색/자동 컴포넌트 추가 금지)
   - `AssignmentDragArrowPresenter.cs`: 드래그 타게팅 중 연결 라인/화살표 표시(OverlayRoot)
+  - `DuelOverlayController.cs`: 중앙 결투 오버레이(롤 연출/입력 차단/연출 종료 콜백)
   - `AgentRollButton.cs`: 요원별 굴리기 버튼 입력
   - `BottomActionBarController.cs`: 하단 액션 바(스킬 슬롯 QWER 상태, 턴 종료 CTA) 런타임 생성/동기화
   - `SkillTargetingSession.cs`: 타깃 지정이 필요한 스킬의 선택/취소/적용 세션 상태 관리

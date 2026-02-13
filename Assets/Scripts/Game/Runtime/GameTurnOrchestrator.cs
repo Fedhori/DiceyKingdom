@@ -15,6 +15,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
     System.Random rng;
     bool isRunOver;
     bool isDuelResolutionPending;
+    bool duelPresentationCompleted;
 
     public GameRunState RunState { get; private set; }
 
@@ -81,6 +82,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         RunState = GameRunBootstrap.CreateNewRun(staticData, seed);
         isRunOver = false;
         isDuelResolutionPending = false;
+        duelPresentationCompleted = false;
 
         RunStarted?.Invoke(RunState);
         StageSpawned?.Invoke(RunState.stage.stageNumber, RunState.stage.activePresetId);
@@ -188,6 +190,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
             success);
 
         isDuelResolutionPending = true;
+        duelPresentationCompleted = false;
         DuelRollStarted?.Invoke(duelPresentation);
         StartCoroutine(ResolveDuelAfterPresentation(duelPresentation));
         return true;
@@ -242,14 +245,20 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     IEnumerator ResolveDuelAfterPresentation(DuelRollPresentation presentation)
     {
-        float spinDuration = Mathf.Max(0f, GameConfig.DuelRollSpinDurationSeconds);
-        float holdDuration = Mathf.Max(0f, GameConfig.DuelRollResultHoldSeconds);
-        float waitDuration = spinDuration + holdDuration;
-        if (waitDuration > 0f)
-            yield return new WaitForSeconds(waitDuration);
+        while (!duelPresentationCompleted)
+            yield return null;
 
         ResolveDuelState(presentation);
         isDuelResolutionPending = false;
+        duelPresentationCompleted = false;
+    }
+
+    public void NotifyDuelPresentationFinished()
+    {
+        if (!isDuelResolutionPending)
+            return;
+
+        duelPresentationCompleted = true;
     }
 
     void ResolveDuelState(DuelRollPresentation presentation)

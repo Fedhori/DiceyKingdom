@@ -222,6 +222,8 @@
 - 런 보드 UI 구조는 `Manager + View`로 분리합니다.
   - 로직/상태 동기화: `SituationManager`, `AgentManager`
   - 카드 렌더/입력 배선: `SituationController`, `AgentController`(각 카드 프리팹 컴포넌트)
+- 대결 롤 연출은 카드 개별 연출이 아니라 중앙 오버레이(`DuelOverlayController`)에서만 처리합니다.
+- 대결 결과는 중앙 오버레이가 사라진 뒤 보드 상태에 반영합니다.
 - 카드 View(`SituationController`, `AgentController`)의 참조 컴포넌트는 인스펙터 직결(`SerializeField`)만 사용합니다.
   - 런타임에서 `GetComponent` 기반 자동 탐색/자동 `AddComponent`로 참조를 보정하지 않습니다.
 - `Managers` 루트 하위에 `Agent`, `Situation` 오브젝트를 두고, 각 매니저를 배치합니다.
@@ -331,6 +333,7 @@
     - `Commit`: 현재 요원 주사위 선택 확정
   - `P4 TargetAndAttack`
     - 대상 상황의 주사위 `1`개를 선택해 대결 테스트를 수행합니다.
+    - 중앙 결투 오버레이에서 요원/상황 주사위 롤 연출을 표시합니다.
     - 성공 시 선택한 상황 주사위 `1`개를 파괴합니다.
     - 실패 시에도 선택한 상황 주사위 면수(`dX`)를 `X -= 에이전트 눈`만큼 감소시킵니다.
     - 실패 감소 결과가 `0` 이하이면 해당 상황 주사위를 즉시 파괴합니다.

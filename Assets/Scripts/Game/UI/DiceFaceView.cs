@@ -115,8 +115,8 @@ public sealed class DiceFaceView : MonoBehaviour
 
     IEnumerator PlayRollEffectRoutine(int dieFace, int finalRoll, bool isSuccess)
     {
-        float tickSeconds = Mathf.Max(0.01f, GameConfig.DuelRollSpinTickSeconds);
-        float spinDuration = Mathf.Max(0f, GameConfig.DuelRollSpinDurationSeconds);
+        float tickSeconds = Mathf.Max(0.01f, GameConfig.DuelOverlaySpinTickSeconds);
+        float spinDuration = Mathf.Max(0f, GameConfig.DuelOverlaySpinDurationSeconds);
         float elapsed = 0f;
 
         while (elapsed < spinDuration)
@@ -130,7 +130,7 @@ public sealed class DiceFaceView : MonoBehaviour
         valueText.text = finalRoll.ToString();
         valueText.color = isSuccess ? Colors.DuelSuccess : Colors.DuelFailure;
 
-        float holdSeconds = Mathf.Max(0f, GameConfig.DuelRollResultHoldSeconds);
+        float holdSeconds = Mathf.Max(0f, GameConfig.DuelOverlayResultHoldSeconds);
         if (holdSeconds > 0f)
             yield return new WaitForSeconds(holdSeconds);
 

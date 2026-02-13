@@ -75,19 +75,6 @@ public sealed class SituationManager : MonoBehaviour
         RefreshAllCards();
     }
 
-    void OnDuelRollStarted(GameTurnOrchestrator.DuelRollPresentation presentation)
-    {
-        var card = FindCardByInstanceId(presentation.situationInstanceId);
-        if (card == null)
-            return;
-
-        card.PlayDuelRollEffect(
-            presentation.situationDieIndex,
-            presentation.situationDieFace,
-            presentation.situationRoll,
-            presentation.success);
-    }
-
     void OnTargetingSessionChanged()
     {
         RefreshAllCards();
@@ -103,7 +90,6 @@ public sealed class SituationManager : MonoBehaviour
         orchestrator.StageSpawned -= OnStageSpawned;
         orchestrator.RunEnded -= OnRunEnded;
         orchestrator.StateChanged -= OnStateChanged;
-        orchestrator.DuelRollStarted -= OnDuelRollStarted;
         SkillTargetingSession.SessionChanged -= OnTargetingSessionChanged;
 
         orchestrator.RunStarted += OnRunStarted;
@@ -111,7 +97,6 @@ public sealed class SituationManager : MonoBehaviour
         orchestrator.StageSpawned += OnStageSpawned;
         orchestrator.RunEnded += OnRunEnded;
         orchestrator.StateChanged += OnStateChanged;
-        orchestrator.DuelRollStarted += OnDuelRollStarted;
         SkillTargetingSession.SessionChanged += OnTargetingSessionChanged;
     }
 
@@ -125,7 +110,6 @@ public sealed class SituationManager : MonoBehaviour
         orchestrator.StageSpawned -= OnStageSpawned;
         orchestrator.RunEnded -= OnRunEnded;
         orchestrator.StateChanged -= OnStateChanged;
-        orchestrator.DuelRollStarted -= OnDuelRollStarted;
         SkillTargetingSession.SessionChanged -= OnTargetingSessionChanged;
     }
 

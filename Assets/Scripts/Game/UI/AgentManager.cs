@@ -70,19 +70,6 @@ public sealed class AgentManager : MonoBehaviour
         RefreshAllCards();
     }
 
-    void OnDuelRollStarted(GameTurnOrchestrator.DuelRollPresentation presentation)
-    {
-        var card = FindCardByInstanceId(presentation.agentInstanceId);
-        if (card == null)
-            return;
-
-        card.PlayDuelRollEffect(
-            presentation.agentDieIndex,
-            presentation.agentDieFace,
-            presentation.agentRoll,
-            presentation.success);
-    }
-
     void SubscribeEvents()
     {
         if (orchestrator == null)
@@ -92,12 +79,10 @@ public sealed class AgentManager : MonoBehaviour
         orchestrator.PhaseChanged -= OnPhaseChanged;
         orchestrator.RunEnded -= OnRunEnded;
         orchestrator.StateChanged -= OnStateChanged;
-        orchestrator.DuelRollStarted -= OnDuelRollStarted;
         orchestrator.RunStarted += OnRunStarted;
         orchestrator.PhaseChanged += OnPhaseChanged;
         orchestrator.RunEnded += OnRunEnded;
         orchestrator.StateChanged += OnStateChanged;
-        orchestrator.DuelRollStarted += OnDuelRollStarted;
     }
 
     void UnsubscribeEvents()
@@ -109,7 +94,6 @@ public sealed class AgentManager : MonoBehaviour
         orchestrator.PhaseChanged -= OnPhaseChanged;
         orchestrator.RunEnded -= OnRunEnded;
         orchestrator.StateChanged -= OnStateChanged;
-        orchestrator.DuelRollStarted -= OnDuelRollStarted;
     }
 
     bool IsReady()
