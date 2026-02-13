@@ -6,9 +6,18 @@
 
 - 게임 구조/시스템/플로우: `Docs/GAME_STRUCTURE.md`
 - 범용 규칙/컨벤션: `Docs/GENERAL_RULES.md`
-- 아이디어 원문/백로그: `Docs/GAME_IDEA_BACKLOG.md`
-- v0 진행 마일스톤: `Docs/V0_MILESTONE.md`
+- 아이디어 인덱스: `Docs/GAME_IDEA.md`
+- 아이디어(시스템): `Docs/GAME_IDEA_SYSTEM.md`
+- 아이디어(상황): `Docs/GAME_IDEA_SITUATION.md`
+- 아이디어(요원): `Docs/GAME_IDEA_AGENT.md`
+- 아이디어(스킬): `Docs/GAME_IDEA_SKILL.md`
+- 아이디어(구조물): `Docs/GAME_IDEA_STRUCTURE.md`
+- 아이디어(칙령): `Docs/GAME_IDEA_DECREE.md`
 - 상황 컨셉 요약: `Docs/ENEMY_ROSTER.md`
+- 상황 상세 규칙: `Docs/SITUATION.md`
+- 요원 상세 규칙: `Docs/AGENT.md`
+- 스킬 상세 규칙: `Docs/SKILL.md`
+- 칙령 상세 규칙: `Docs/DECREE.md`
 - 이 문서: 파일 위치/책임 요약
 
 ## 주요 폴더 구조
@@ -32,9 +41,18 @@
   - 공통 규칙 및 프로젝트 문서
   - `GENERAL_RULES.md`: Unity 공통 규칙
   - `GAME_STRUCTURE.md`: 현재 기준 게임 구조/시스템
-  - `GAME_IDEA_BACKLOG.md`: 아이디어 수집/후보 관리
-  - `V0_MILESTONE.md`: v0 진행률/체크리스트
+  - `GAME_IDEA.md`: 아이디어 문서 인덱스/기록 규칙
+  - `GAME_IDEA_SYSTEM.md`: 시스템 아이디어
+  - `GAME_IDEA_SITUATION.md`: 상황 아이디어
+  - `GAME_IDEA_AGENT.md`: 요원 아이디어
+  - `GAME_IDEA_SKILL.md`: 스킬 아이디어
+  - `GAME_IDEA_STRUCTURE.md`: 구조물 아이디어
+  - `GAME_IDEA_DECREE.md`: 칙령 아이디어
   - `ENEMY_ROSTER.md`: 상황 컨셉/강점/약점/대응법 요약
+  - `SITUATION.md`: 상황 데이터/생성/해결/실패 규칙
+  - `AGENT.md`: 요원 데이터/스타팅 구성/룰 규칙
+  - `SKILL.md`: 스킬 데이터/현재 활성 상태/UI 규칙
+  - `DECREE.md`: 칙령 현재 상태/재도입 기준
   - `PROJECT_MAP.md`: 레포 위치/책임 요약
 
 ## 공용 시스템 위치
@@ -44,18 +62,18 @@
 - v0 런타임 상태: `Assets/Scripts/Game/Runtime`
 - v0 턴 오케스트레이터: `Assets/Scripts/Game/Runtime/GameTurnOrchestrator.cs`
 - v0 전투 입력 컴포넌트: `Assets/Scripts/Game/UI`
-  - `AgentManager.cs`: 모험가 카드 목록 생성/상태 동기화(매니저 로직)
+  - `AgentManager.cs`: 요원 카드 목록 생성/상태 동기화(매니저 로직)
   - `SituationManager.cs`: 상황 카드 목록 생성/상태 동기화(매니저 로직)
-  - `AgentController.cs`: 모험가 카드 프리팹 View(텍스트/주사위/롤·드래그 입력 배선)
-  - `SituationController.cs`: 상황 카드 프리팹 View(요구치/기한/성공·실패/드롭·클릭 입력 배선)
+  - `AgentController.cs`: 요원 카드 프리팹 View(텍스트/주사위/롤·드래그 입력 배선)
+  - `SituationController.cs`: 상황 카드 프리팹 View(상황 주사위/기한/성공·실패/드롭·클릭 입력 배선)
     - 두 View는 인스펙터 직결 참조만 사용(런타임 자동 탐색/자동 컴포넌트 추가 금지)
   - `AssignmentDragArrowPresenter.cs`: 드래그 타게팅 중 연결 라인/화살표 표시(OverlayRoot)
-  - `AgentRollButton.cs`: 모험가별 굴리기 버튼 입력
+  - `AgentRollButton.cs`: 요원별 굴리기 버튼 입력
   - `BottomActionBarController.cs`: 하단 액션 바(스킬 슬롯 QWER 상태, 턴 종료 CTA) 런타임 생성/동기화
   - `SkillTargetingSession.cs`: 타깃 지정이 필요한 스킬의 선택/취소/적용 세션 상태 관리
   - `TopHudController.cs`: 상단 HUD(턴/스테이지/페이즈/안정도/골드/런 상태) 이벤트 동기화
   - `GameTurnHotkeyController.cs`: 롤(1~4) / 스킬(QWER) 단축키 입력
-  - `AgentDragHandle.cs`, `EnemyDropTarget.cs`: 드래그 타게팅/공격 입력(`EnemyDropTarget`은 레거시 이름 유지)
+  - `AgentDragHandle.cs`, `EnemyDropTarget.cs`: 드래그 타게팅/대결 입력(`EnemyDropTarget`은 레거시 클래스명 유지)
 - 저장/로드: `Assets/Scripts/Save`
 - 로컬라이징: `Assets/Scripts/Data/LocalizationUtil.cs`
 - 오디오: `Assets/Scripts/Audio`
@@ -68,6 +86,8 @@
 
 - 공통 규칙: `Docs/GENERAL_RULES.md`
 - 게임 구조: `Docs/GAME_STRUCTURE.md`
-- 아이디어 백로그: `Docs/GAME_IDEA_BACKLOG.md`
+- 아이디어 인덱스: `Docs/GAME_IDEA.md`
+
+
 
 

@@ -3,7 +3,7 @@
 ## 1. Introduction / Overview
 - 전투 중 플레이어가 보유한 장비와 주사위 슬롯을 직관적으로 확인하고 상호작용할 수 있는 UI가 필요하다.  
 - 기존 `EquipmentManager`가 장비 인스턴스 생성과 UI 표현을 모두 담당해 복잡도가 높아 유지보수가 어려움.  
-- 목표는 Enemy 시스템과 유사한 구조(Factory + Controller + View)를 장비에도 적용하여, UI 생성/소멸과 상태 갱신을 일관적으로 처리하는 것이다.
+- 목표는 Situation 시스템과 유사한 구조(Factory + Controller + View)를 장비에도 적용하여, UI 생성/소멸과 상태 갱신을 일관적으로 처리하는 것이다.
 
 ## 2. Goals
 1. 장비 인스턴스 생성 로직을 `EquipmentFactory` 싱글톤으로 분리해 책임을 명확히 한다.  
@@ -14,7 +14,7 @@
 ## 3. User Stories
 - **전투 UI 사용자**: “전투 중 어떤 장비에 어떤 주사위를 넣어야 하는지 바로 알고 싶다. 조건이 맞지 않으면 즉시 알 수 있어야 한다.”  
 - **디자이너/밸런서**: “데이터(Equipment.json)만 수정해도 UI가 자동으로 장비 슬롯을 구성해주면 좋겠다.”  
-- **개발자**: “장비 UI 생성/파괴가 Enemy와 같은 패턴이라면 디버깅과 확장이 쉬워질 것이다.”
+- **개발자**: “장비 UI 생성/파괴가 Situation과 같은 패턴이라면 디버깅과 확장이 쉬워질 것이다.”  
 
 ## 4. Functional Requirements
 1. **EquipmentFactory**
@@ -27,7 +27,7 @@
    - `AddEquipment`/`RemoveEquipment` 방식 대신, 필요한 곳에서 Factory 호출 및 Controller Register/Unregister 호출만 수행하도록 변경.  
    - `EquipmentManager`는 인벤토리 목록/데이터 관리에 집중한다.
 3. **EquipmentController**
-   - EnemyController 패턴 참고: `Initialize(EquipmentInstance instance)`로 인스턴스 주입.  
+   - SituationController 패턴 참고: `Initialize(EquipmentInstance instance)`로 인스턴스 주입.  
    - Awake/OnEnable에서 `EquipmentManager` 또는 새 `EquipmentTracker`에 Register, OnDisable/OnDestroy에서 Unregister 수행.  
    - `EquipmentView` 참조를 보유하고 Instance 이벤트를 구독해 UI 반영 (쿨다운, 슬롯 상태 등).  
    - DiceSlotView 목록을 관리하며, `EquipmentInstance`가 가진 슬롯 수만큼 슬롯을 생성/삭제한다.
@@ -48,7 +48,7 @@
 - 플레이어 인벤토리/장비 획득 시스템의 UX는 이번 작업 범위에 포함되지 않는다.
 
 ## 6. Design Considerations
-- Enemy 시스템과 동일한 구조를 재사용함으로써 코드 일관성을 유지한다.  
+- Situation 시스템과 동일한 구조를 재사용함으로써 코드 일관성을 유지한다.  
 - DiceSlotView는 프리팹으로 제공되며, `EquipmentView`는 해당 프리팹을 동적 생성해 Grid/Horizontal Layout에서 배치한다.  
 - 조건 텍스트는 짧은 형식을 사용(N+, N-, N)하여 HUD 공간을 최소화한다.
 
@@ -56,7 +56,7 @@
 - `EquipmentFactory`는 `EquipmentRepository`와 `EquipmentInstance`를 통해 데이터를 가져온다.  
 - `EquipmentController`는 `EquipmentInstance` 이벤트(`OnDiceAssigned`, `OnCooldownChanged` 등 필요 시 구현)를 통해 UI를 동기화한다.  
 - Dice 조건 타입: 최신 enum (`More`, `Less`, `Same` 등)을 기반으로 표기 문자열을 결정해야 한다.  
-- 등록/해제 로직은 `EnemyManager`와 동일하게 `EquipmentManager` 혹은 별도 `EquipmentTracker`에서 리스트를 유지한다.  
+- 등록/해제 로직은 `SituationManager`와 동일하게 `EquipmentManager` 혹은 별도 `EquipmentTracker`에서 리스트를 유지한다.  
 - Prefab 참조는 Inspector에서 관리하며, `.meta` 파일은 건드리지 않는다.
 
 ## 8. Success Metrics

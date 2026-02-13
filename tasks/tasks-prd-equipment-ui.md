@@ -11,7 +11,7 @@
 ### Notes
 
 - Prefab 필드는 Unity Inspector에서 설정해야 하므로 코드 수정 후 참조 연결이 필요하다.
-- EnemyManager/EnemyController 구조를 참고해 일관된 수명주기와 이벤트 처리를 유지한다.
+- SituationManager/SituationController 구조를 참고해 일관된 수명주기와 이벤트 처리를 유지한다.
 
 ## Tasks
 
@@ -22,7 +22,7 @@
   - [x] 1.4 장비 제거 시 Factory 또는 Manager가 GameObject 파괴를 명확히 담당하도록 Destroy 경로를 정리한다.
 
 - [ ] 2.0 EquipmentController 및 등록 구조 구현  
-  - [x] 2.1 `EquipmentController`를 EnemyController 패턴에 맞게 작성하고 `Initialize(EquipmentInstance)`로 인스턴스를 주입받는다.  
+  - [x] 2.1 `EquipmentController`를 SituationController 패턴에 맞게 작성하고 `Initialize(EquipmentInstance)`로 인스턴스를 주입받는다.  
   - [x] 2.2 OnEnable/OnDisable에서 `EquipmentManager`에 Register/Unregister하도록 구현한다.  
   - [x] 2.3 Controller가 `EquipmentView`를 Bind/Unbind하고 추후 Instance 이벤트를 연결할 준비를 한다.
 
