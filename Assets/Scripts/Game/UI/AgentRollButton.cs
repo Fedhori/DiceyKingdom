@@ -1,26 +1,14 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public sealed class AgentRollButton : MonoBehaviour
 {
-    [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] string agentInstanceId = string.Empty;
     [SerializeField] Button button;
 
     public void SetAgentInstanceId(string instanceId)
     {
         agentInstanceId = instanceId ?? string.Empty;
-    }
-
-    public void SetOrchestrator(GameTurnOrchestrator value)
-    {
-        if (ReferenceEquals(orchestrator, value))
-            return;
-
-        UnsubscribeEvents();
-        orchestrator = value;
-        SubscribeEvents();
         RefreshInteractable();
     }
 
@@ -31,20 +19,16 @@ public sealed class AgentRollButton : MonoBehaviour
 
     public void OnRollPressed()
     {
-        if (orchestrator == null)
-            return;
         if (string.IsNullOrWhiteSpace(agentInstanceId))
             return;
 
-        orchestrator.TryRollAgent(agentInstanceId);
+        AgentManager.Instance.TryRollAgent(agentInstanceId);
     }
 
     void Reset()
     {
         if (button == null)
             button = GetComponent<Button>();
-
-        TryResolveOrchestrator();
         RefreshInteractable();
     }
 
@@ -52,14 +36,6 @@ public sealed class AgentRollButton : MonoBehaviour
     {
         if (button == null)
             button = GetComponent<Button>();
-    }
-
-    void Awake()
-    {
-        if (button == null)
-            button = GetComponent<Button>();
-
-        TryResolveOrchestrator();
     }
 
     void OnEnable()
@@ -78,46 +54,43 @@ public sealed class AgentRollButton : MonoBehaviour
         RefreshInteractable();
     }
 
-    void OnPhaseChanged(TurnPhase _)
-    {
-        RefreshInteractable();
-    }
-
     void OnRunEnded(GameRunState _)
     {
         RefreshInteractable();
     }
 
-    void OnStateChanged()
+    void OnPhaseChanged(TurnPhase _)
     {
         RefreshInteractable();
     }
 
     void SubscribeEvents()
     {
-        if (orchestrator == null)
-            return;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RunStarted -= OnRunStarted;
+            GameManager.Instance.RunEnded -= OnRunEnded;
+            GameManager.Instance.RunStarted += OnRunStarted;
+            GameManager.Instance.RunEnded += OnRunEnded;
+        }
 
-        orchestrator.RunStarted -= OnRunStarted;
-        orchestrator.PhaseChanged -= OnPhaseChanged;
-        orchestrator.RunEnded -= OnRunEnded;
-        orchestrator.StateChanged -= OnStateChanged;
-
-        orchestrator.RunStarted += OnRunStarted;
-        orchestrator.PhaseChanged += OnPhaseChanged;
-        orchestrator.RunEnded += OnRunEnded;
-        orchestrator.StateChanged += OnStateChanged;
+        if (PhaseManager.Instance != null)
+        {
+            PhaseManager.Instance.PhaseChanged -= OnPhaseChanged;
+            PhaseManager.Instance.PhaseChanged += OnPhaseChanged;
+        }
     }
 
     void UnsubscribeEvents()
     {
-        if (orchestrator == null)
-            return;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RunStarted -= OnRunStarted;
+            GameManager.Instance.RunEnded -= OnRunEnded;
+        }
 
-        orchestrator.RunStarted -= OnRunStarted;
-        orchestrator.PhaseChanged -= OnPhaseChanged;
-        orchestrator.RunEnded -= OnRunEnded;
-        orchestrator.StateChanged -= OnStateChanged;
+        if (PhaseManager.Instance != null)
+            PhaseManager.Instance.PhaseChanged -= OnPhaseChanged;
     }
 
     void RefreshInteractable()
@@ -127,19 +100,6 @@ public sealed class AgentRollButton : MonoBehaviour
         if (button == null)
             return;
 
-        bool canRoll = orchestrator != null && orchestrator.CanRollAgent(agentInstanceId);
-        if (button.interactable == canRoll)
-            return;
-
-        button.interactable = canRoll;
-    }
-
-    void TryResolveOrchestrator()
-    {
-        if (orchestrator != null)
-            return;
-
-        orchestrator = FindFirstObjectByType<GameTurnOrchestrator>();
+        button.interactable = AgentManager.Instance != null && AgentManager.Instance.CanRollAgent(agentInstanceId);
     }
 }
-

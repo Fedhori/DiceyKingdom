@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public sealed class SituationManager : MonoBehaviour
 {
-    [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] RectTransform contentRoot;
     [SerializeField] GameObject cardPrefab;
     [SerializeField] GameObject dicePrefab;
@@ -18,11 +17,24 @@ public sealed class SituationManager : MonoBehaviour
 
     readonly List<SituationController> cards = new();
     readonly Dictionary<string, SituationDef> situationDefById = new(StringComparer.Ordinal);
+
+    GameStaticDataSet staticData;
+    GameRunState runState;
     bool loadedDefs;
+
+    public static SituationManager Instance { get; private set; }
+
+    public event Action<int, string> StageSpawned;
 
     void Awake()
     {
-        TryResolveOrchestrator();
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
         TryResolveContentRoot();
         ValidateEditorLayoutSetup();
         LoadSituationDefsIfNeeded();
@@ -31,6 +43,8 @@ public sealed class SituationManager : MonoBehaviour
     void OnEnable()
     {
         SubscribeEvents();
+        staticData = GameManager.Instance != null ? GameManager.Instance.StaticData : staticData;
+        runState = GameManager.Instance != null ? GameManager.Instance.CurrentRunState : runState;
         RebuildCardsIfNeeded(forceRebuild: true);
         RefreshAllCards();
     }
@@ -46,8 +60,272 @@ public sealed class SituationManager : MonoBehaviour
         UnsubscribeEvents();
     }
 
-    void OnRunStarted(GameRunState _)
+    public void InitializeForRun(
+        GameRunState state,
+        GameStaticDataSet dataSet,
+        IReadOnlyDictionary<string, SituationDef> defs)
     {
+        runState = state;
+        staticData = dataSet;
+        situationDefById.Clear();
+        if (defs != null)
+        {
+            foreach (var pair in defs)
+            {
+                if (string.IsNullOrWhiteSpace(pair.Key) || pair.Value == null)
+                    continue;
+
+                situationDefById[pair.Key] = pair.Value;
+            }
+        }
+        else
+        {
+            LoadSituationDefsIfNeeded();
+        }
+
+        RebuildCardsIfNeeded(forceRebuild: true);
+        RefreshAllCards();
+    }
+
+    public void NotifyStageSpawned(int stageNumber, string presetId)
+    {
+        StageSpawned?.Invoke(stageNumber, presetId ?? string.Empty);
+    }
+
+    public bool TrySpawnPeriodicSituations()
+    {
+        if (runState == null || staticData == null)
+            return false;
+
+        bool spawned = GameRunBootstrap.TrySpawnPeriodicSituations(
+            runState,
+            staticData,
+            GameManager.Instance.Rng);
+        if (spawned)
+            NotifyStageSpawned(runState.stage.stageNumber, runState.stage.activePresetId);
+
+        return spawned;
+    }
+
+    public bool TryTestAgainstSituationDie(string situationInstanceId, int situationDieIndex)
+    {
+        if (!CanAcceptDuelTargetingInput())
+            return false;
+        if (string.IsNullOrWhiteSpace(situationInstanceId))
+            return false;
+
+        var agent = AgentManager.Instance.FindCurrentProcessingAgent();
+        if (agent == null)
+            return false;
+
+        int selectedAgentDieIndex = runState.turn.selectedAgentDieIndex;
+        if (!AgentManager.IsValidAgentDieIndex(agent, selectedAgentDieIndex))
+            return false;
+
+        var situation = FindSituationState(situationInstanceId);
+        if (!IsValidSituationDieIndex(situation, situationDieIndex))
+            return false;
+
+        int agentDieFace = Mathf.Max(1, agent.remainingDiceFaces[selectedAgentDieIndex]);
+        int situationDieFace = Mathf.Max(1, situation.remainingDiceFaces[situationDieIndex]);
+
+        return DuelManager.Instance.BeginDuel(
+            agent.instanceId,
+            selectedAgentDieIndex,
+            agentDieFace,
+            situation.instanceId,
+            situationDieIndex,
+            situationDieFace);
+    }
+
+    public bool RemoveSituationDie(string situationInstanceId, int situationDieIndex)
+    {
+        var situation = FindSituationState(situationInstanceId);
+        if (!IsValidSituationDieIndex(situation, situationDieIndex))
+            return false;
+
+        situation.remainingDiceFaces.RemoveAt(situationDieIndex);
+        return true;
+    }
+
+    public bool ReduceSituationDie(string situationInstanceId, int situationDieIndex, int amount)
+    {
+        var situation = FindSituationState(situationInstanceId);
+        if (!IsValidSituationDieIndex(situation, situationDieIndex))
+            return false;
+
+        int currentFace = situation.remainingDiceFaces[situationDieIndex];
+        int reducedFace = currentFace - Mathf.Max(0, amount);
+        if (reducedFace <= 0)
+            situation.remainingDiceFaces.RemoveAt(situationDieIndex);
+        else
+            situation.remainingDiceFaces[situationDieIndex] = reducedFace;
+
+        return true;
+    }
+
+    public int GetRemainingDieCount(string situationInstanceId)
+    {
+        var situation = FindSituationState(situationInstanceId);
+        if (situation?.remainingDiceFaces == null)
+            return 0;
+
+        return situation.remainingDiceFaces.Count;
+    }
+
+    public SituationState FindSituationState(string situationInstanceId)
+    {
+        if (runState?.situations == null)
+            return null;
+
+        for (int i = 0; i < runState.situations.Count; i++)
+        {
+            var situation = runState.situations[i];
+            if (situation == null)
+                continue;
+            if (!string.Equals(situation.instanceId, situationInstanceId, StringComparison.Ordinal))
+                continue;
+
+            return situation;
+        }
+
+        return null;
+    }
+
+    public void HandleSituationSucceeded(string situationInstanceId)
+    {
+        var situation = FindSituationState(situationInstanceId);
+        if (situation == null)
+            return;
+
+        situationDefById.TryGetValue(situation.situationDefId, out var situationDef);
+        RemoveSituationState(situation.instanceId);
+
+        if (situationDef != null)
+            PlayerManager.Instance.ApplyEffectBundle(situationDef.successReward);
+    }
+
+    public void ProcessSettlement()
+    {
+        if (runState?.situations == null)
+            return;
+
+        var situationOrder = new List<string>(runState.situations.Count);
+        for (int i = 0; i < runState.situations.Count; i++)
+        {
+            var situation = runState.situations[i];
+            if (situation == null)
+                continue;
+
+            situationOrder.Add(situation.instanceId);
+        }
+
+        for (int i = 0; i < situationOrder.Count; i++)
+        {
+            string situationInstanceId = situationOrder[i];
+            var situation = FindSituationState(situationInstanceId);
+            if (situation == null)
+                continue;
+            if (situation.remainingDiceFaces == null || situation.remainingDiceFaces.Count == 0)
+                continue;
+
+            situation.deadlineTurnsLeft -= 1;
+            if (situation.deadlineTurnsLeft > 0)
+                continue;
+
+            if (!situationDefById.TryGetValue(situation.situationDefId, out var situationDef))
+            {
+                RemoveSituationState(situation.instanceId);
+                continue;
+            }
+
+            PlayerManager.Instance.ApplyEffectBundle(situationDef.failureEffect);
+
+            situation = FindSituationState(situationInstanceId);
+            if (situation == null)
+                continue;
+
+            HandleSituationFailurePostEffect(situation, situationDef);
+        }
+    }
+
+    public static bool IsValidSituationDieIndex(SituationState situation, int dieIndex)
+    {
+        if (situation?.remainingDiceFaces == null)
+            return false;
+
+        return dieIndex >= 0 && dieIndex < situation.remainingDiceFaces.Count;
+    }
+
+    void HandleSituationFailurePostEffect(SituationState situation, SituationDef situationDef)
+    {
+        if (situation == null)
+            return;
+
+        string mode = NormalizeFailurePersistMode(situationDef?.failurePersistMode);
+        if (string.Equals(mode, "resetDeadline", StringComparison.Ordinal))
+        {
+            int baseDeadline = situationDef != null
+                ? Mathf.Max(1, situationDef.baseDeadlineTurns)
+                : 1;
+            situation.deadlineTurnsLeft = baseDeadline;
+            return;
+        }
+
+        RemoveSituationState(situation.instanceId);
+    }
+
+    void RemoveSituationState(string situationInstanceId)
+    {
+        if (runState?.situations == null)
+            return;
+
+        for (int i = runState.situations.Count - 1; i >= 0; i--)
+        {
+            var situation = runState.situations[i];
+            if (situation == null)
+                continue;
+            if (!string.Equals(situation.instanceId, situationInstanceId, StringComparison.Ordinal))
+                continue;
+
+            runState.situations.RemoveAt(i);
+            break;
+        }
+    }
+
+    bool CanAcceptDuelTargetingInput()
+    {
+        if (runState == null || GameManager.Instance.IsRunOver)
+            return false;
+        if (DuelManager.Instance.IsDuelResolutionPending)
+            return false;
+        if (PhaseManager.Instance.CurrentPhase != TurnPhase.TargetAndAttack)
+            return false;
+
+        var agent = AgentManager.Instance.FindCurrentProcessingAgent();
+        if (agent == null || agent.actionConsumed)
+            return false;
+
+        return AgentManager.IsValidAgentDieIndex(agent, runState.turn.selectedAgentDieIndex);
+    }
+
+    static string NormalizeFailurePersistMode(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return "remove";
+
+        string mode = raw.Trim();
+        if (string.Equals(mode, "remove", StringComparison.OrdinalIgnoreCase))
+            return "remove";
+        if (string.Equals(mode, "resetDeadline", StringComparison.OrdinalIgnoreCase))
+            return "resetDeadline";
+        return "remove";
+    }
+
+    void OnRunStarted(GameRunState state)
+    {
+        runState = state;
+        staticData = GameManager.Instance.StaticData;
         RebuildCardsIfNeeded(forceRebuild: false);
         RefreshAllCards();
     }
@@ -58,68 +336,45 @@ public sealed class SituationManager : MonoBehaviour
         RefreshAllCards();
     }
 
-    void OnStageSpawned(int _, string __)
-    {
-        RebuildCardsIfNeeded(forceRebuild: false);
-        RefreshAllCards();
-    }
-
     void OnRunEnded(GameRunState _)
-    {
-        RefreshAllCards();
-    }
-
-    void OnStateChanged()
-    {
-        RebuildCardsIfNeeded(forceRebuild: false);
-        RefreshAllCards();
-    }
-
-    void OnTargetingSessionChanged()
     {
         RefreshAllCards();
     }
 
     void SubscribeEvents()
     {
-        if (orchestrator == null)
-            return;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RunStarted -= OnRunStarted;
+            GameManager.Instance.RunEnded -= OnRunEnded;
+            GameManager.Instance.RunStarted += OnRunStarted;
+            GameManager.Instance.RunEnded += OnRunEnded;
+        }
 
-        orchestrator.RunStarted -= OnRunStarted;
-        orchestrator.PhaseChanged -= OnPhaseChanged;
-        orchestrator.StageSpawned -= OnStageSpawned;
-        orchestrator.RunEnded -= OnRunEnded;
-        orchestrator.StateChanged -= OnStateChanged;
-        SkillTargetingSession.SessionChanged -= OnTargetingSessionChanged;
-
-        orchestrator.RunStarted += OnRunStarted;
-        orchestrator.PhaseChanged += OnPhaseChanged;
-        orchestrator.StageSpawned += OnStageSpawned;
-        orchestrator.RunEnded += OnRunEnded;
-        orchestrator.StateChanged += OnStateChanged;
-        SkillTargetingSession.SessionChanged += OnTargetingSessionChanged;
+        if (PhaseManager.Instance != null)
+        {
+            PhaseManager.Instance.PhaseChanged -= OnPhaseChanged;
+            PhaseManager.Instance.PhaseChanged += OnPhaseChanged;
+        }
     }
 
     void UnsubscribeEvents()
     {
-        if (orchestrator == null)
-            return;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RunStarted -= OnRunStarted;
+            GameManager.Instance.RunEnded -= OnRunEnded;
+        }
 
-        orchestrator.RunStarted -= OnRunStarted;
-        orchestrator.PhaseChanged -= OnPhaseChanged;
-        orchestrator.StageSpawned -= OnStageSpawned;
-        orchestrator.RunEnded -= OnRunEnded;
-        orchestrator.StateChanged -= OnStateChanged;
-        SkillTargetingSession.SessionChanged -= OnTargetingSessionChanged;
+        if (PhaseManager.Instance != null)
+            PhaseManager.Instance.PhaseChanged -= OnPhaseChanged;
     }
 
     bool IsReady()
     {
-        if (orchestrator == null)
-            return false;
         if (contentRoot == null)
             return false;
-        if (orchestrator.RunState == null || orchestrator.RunState.situations == null)
+        if (runState == null || runState.situations == null)
             return false;
 
         return true;
@@ -130,7 +385,7 @@ public sealed class SituationManager : MonoBehaviour
         if (!IsReady())
             return;
 
-        int desiredCount = orchestrator.RunState.situations.Count;
+        int desiredCount = runState.situations.Count;
         if (!forceRebuild && cards.Count == desiredCount)
             return;
 
@@ -165,27 +420,10 @@ public sealed class SituationManager : MonoBehaviour
 
     SituationController CreateCard(int slotIndex)
     {
-        if (cardPrefab == null)
-        {
-            Debug.LogWarning("[SituationManager] cardPrefab is not assigned.");
-            return null;
-        }
-
         var root = Instantiate(cardPrefab, contentRoot, false);
         root.name = $"SituationCard_{slotIndex + 1}";
 
         var controller = root.GetComponent<SituationController>();
-        if (controller == null)
-        {
-            Debug.LogWarning("[SituationManager] cardPrefab requires SituationController.", root);
-            if (Application.isPlaying)
-                Destroy(root);
-            else
-                DestroyImmediate(root);
-            return null;
-        }
-
-        controller.BindOrchestrator(orchestrator);
         controller.BindSituation(string.Empty);
         controller.SetDicePrefab(dicePrefab);
         controller.Render(
@@ -211,13 +449,13 @@ public sealed class SituationManager : MonoBehaviour
     {
         if (!IsReady())
             return;
-        if (cards.Count != orchestrator.RunState.situations.Count)
+        if (cards.Count != runState.situations.Count)
             return;
 
         for (int index = 0; index < cards.Count; index++)
         {
             var card = cards[index];
-            var situation = orchestrator.RunState.situations[index];
+            var situation = runState.situations[index];
             if (card == null || situation == null)
                 continue;
 
@@ -227,7 +465,6 @@ public sealed class SituationManager : MonoBehaviour
 
     void RefreshCardVisual(SituationController card, SituationState situation, int slotIndex)
     {
-        card.BindOrchestrator(orchestrator);
         card.BindSituation(situation.instanceId);
         card.SetDicePrefab(dicePrefab);
 
@@ -254,7 +491,7 @@ public sealed class SituationManager : MonoBehaviour
             totalDiceCount);
     }
 
-    string BuildRequirementLine(SituationState situation)
+    static string BuildRequirementLine(SituationState situation)
     {
         int remaining = situation?.remainingDiceFaces?.Count ?? 0;
         return $"Dice {Mathf.Max(0, remaining)}";
@@ -302,10 +539,10 @@ public sealed class SituationManager : MonoBehaviour
 
     string BuildTargetHintLine()
     {
-        if (orchestrator?.RunState == null)
+        if (runState == null)
             return "Select target";
 
-        return orchestrator.RunState.turn.phase == TurnPhase.TargetAndAttack
+        return PhaseManager.Instance.CurrentPhase == TurnPhase.TargetAndAttack
             ? "Choose situation die"
             : "Waiting";
     }
@@ -334,14 +571,6 @@ public sealed class SituationManager : MonoBehaviour
             return 0;
 
         return Mathf.Max(0, def.diceFaces?.Count ?? 0);
-    }
-
-    void TryResolveOrchestrator()
-    {
-        if (orchestrator != null)
-            return;
-
-        orchestrator = FindFirstObjectByType<GameTurnOrchestrator>();
     }
 
     void TryResolveContentRoot()
@@ -378,22 +607,14 @@ public sealed class SituationManager : MonoBehaviour
         loadedDefs = true;
 
         situationDefById.Clear();
-
-        try
+        var defs = GameStaticDataLoader.LoadSituationDefs();
+        for (int index = 0; index < defs.Count; index++)
         {
-            var defs = GameStaticDataLoader.LoadSituationDefs();
-            for (int index = 0; index < defs.Count; index++)
-            {
-                var def = defs[index];
-                if (def == null || string.IsNullOrWhiteSpace(def.situationId))
-                    continue;
+            var def = defs[index];
+            if (def == null || string.IsNullOrWhiteSpace(def.situationId))
+                continue;
 
-                situationDefById[def.situationId] = def;
-            }
-        }
-        catch (Exception exception)
-        {
-            Debug.LogWarning($"[SituationManager] Failed to load situation defs: {exception.Message}");
+            situationDefById[def.situationId] = def;
         }
     }
 
@@ -459,24 +680,4 @@ public sealed class SituationManager : MonoBehaviour
 
         return string.Join(" ", parts);
     }
-
-    SituationController FindCardByInstanceId(string instanceId)
-    {
-        if (string.IsNullOrWhiteSpace(instanceId))
-            return null;
-
-        for (int index = 0; index < cards.Count; index++)
-        {
-            var card = cards[index];
-            if (card == null)
-                continue;
-            if (!string.Equals(card.SituationInstanceId, instanceId, StringComparison.Ordinal))
-                continue;
-
-            return card;
-        }
-
-        return null;
-    }
 }
-

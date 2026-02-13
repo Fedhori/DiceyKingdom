@@ -3,7 +3,6 @@ using UnityEngine.EventSystems;
 
 public sealed class AgentDragHandle : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] string agentInstanceId = string.Empty;
 
     public string AgentInstanceId => agentInstanceId;
@@ -13,23 +12,11 @@ public sealed class AgentDragHandle : MonoBehaviour, IBeginDragHandler, IDragHan
         agentInstanceId = instanceId ?? string.Empty;
     }
 
-    public void SetOrchestrator(GameTurnOrchestrator value)
-    {
-        orchestrator = value;
-    }
-
-    void Awake()
-    {
-        TryResolveOrchestrator();
-    }
-
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (!CanDrag())
             return;
-        if (orchestrator == null)
-            return;
-        if (!orchestrator.TryBeginAgentTargeting(agentInstanceId))
+        if (!AgentManager.Instance.TryBeginAgentTargeting(agentInstanceId))
             return;
 
         AssignmentDragSession.Begin(agentInstanceId, eventData.position);
@@ -54,28 +41,16 @@ public sealed class AgentDragHandle : MonoBehaviour, IBeginDragHandler, IDragHan
 
         if (!shouldCancelTargeting)
             return;
-        if (orchestrator == null)
-            return;
 
-        orchestrator.TryClearAgentAssignment(agentInstanceId);
+        AgentManager.Instance.TryClearAgentAssignment(agentInstanceId);
     }
 
     bool CanDrag()
     {
-        if (orchestrator == null)
-            return false;
         if (string.IsNullOrWhiteSpace(agentInstanceId))
             return false;
 
-        return orchestrator.CanAssignAgent(agentInstanceId);
-    }
-
-    void TryResolveOrchestrator()
-    {
-        if (orchestrator != null)
-            return;
-
-        orchestrator = FindFirstObjectByType<GameTurnOrchestrator>();
+        return AgentManager.Instance.CanAssignAgent(agentInstanceId);
     }
 }
 

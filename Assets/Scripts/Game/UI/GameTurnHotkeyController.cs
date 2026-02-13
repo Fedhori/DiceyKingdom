@@ -1,27 +1,28 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public sealed class GameTurnHotkeyController : MonoBehaviour
 {
-    [SerializeField] GameTurnOrchestrator orchestrator;
+    [SerializeField] string titleTable = "UI";
+    [SerializeField] string titleKey = "assignment.unassigned.title";
+    [SerializeField] string messageTable = "UI";
+    [SerializeField] string messageKey = "assignment.unassigned.message";
 
     void Update()
     {
-        if (orchestrator == null)
-            return;
-
         var keyboard = Keyboard.current;
         if (keyboard == null)
             return;
 
         if (IsRollKeyPressed(keyboard, 0))
-            orchestrator.TryRollAgentBySlotIndex(0);
+            AgentManager.Instance.TryRollAgentBySlotIndex(0);
         if (IsRollKeyPressed(keyboard, 1))
-            orchestrator.TryRollAgentBySlotIndex(1);
+            AgentManager.Instance.TryRollAgentBySlotIndex(1);
         if (IsRollKeyPressed(keyboard, 2))
-            orchestrator.TryRollAgentBySlotIndex(2);
+            AgentManager.Instance.TryRollAgentBySlotIndex(2);
         if (IsRollKeyPressed(keyboard, 3))
-            orchestrator.TryRollAgentBySlotIndex(3);
+            AgentManager.Instance.TryRollAgentBySlotIndex(3);
 
         if (keyboard.qKey.wasPressedThisFrame)
             HandleSkillHotkey(0);
@@ -33,10 +34,10 @@ public sealed class GameTurnHotkeyController : MonoBehaviour
             HandleSkillHotkey(3);
 
         if (keyboard.spaceKey.wasPressedThisFrame)
-            orchestrator.RequestCommitAssignmentPhase();
+            RequestCommitWithConfirmation();
 
-        if (SkillTargetingSession.IsFor(orchestrator) &&
-            !orchestrator.CanUseSkillBySlotIndex(SkillTargetingSession.ActiveSkillSlotIndex))
+        if (SkillTargetingSession.IsFor(GameManager.Instance) &&
+            !GameManager.Instance.CanUseSkillBySlotIndex(SkillTargetingSession.ActiveSkillSlotIndex))
         {
             SkillTargetingSession.Cancel();
         }
@@ -44,27 +45,47 @@ public sealed class GameTurnHotkeyController : MonoBehaviour
 
     void HandleSkillHotkey(int skillSlotIndex)
     {
-        if (orchestrator == null)
-            return;
-        if (!orchestrator.CanUseSkillBySlotIndex(skillSlotIndex))
+        if (!GameManager.Instance.CanUseSkillBySlotIndex(skillSlotIndex))
             return;
 
-        bool needsSituationTarget = orchestrator.SkillRequiresSituationTargetBySlotIndex(skillSlotIndex);
+        bool needsSituationTarget = GameManager.Instance.SkillRequiresSituationTargetBySlotIndex(skillSlotIndex);
         if (!needsSituationTarget)
         {
-            bool used = orchestrator.TryUseSkillBySlotIndex(skillSlotIndex);
-            if (used && SkillTargetingSession.IsFor(orchestrator, skillSlotIndex))
+            bool used = GameManager.Instance.TryUseSkillBySlotIndex(skillSlotIndex);
+            if (used && SkillTargetingSession.IsFor(GameManager.Instance, skillSlotIndex))
                 SkillTargetingSession.Cancel();
             return;
         }
 
-        if (SkillTargetingSession.IsFor(orchestrator, skillSlotIndex))
+        if (SkillTargetingSession.IsFor(GameManager.Instance, skillSlotIndex))
         {
             SkillTargetingSession.Cancel();
             return;
         }
 
-        SkillTargetingSession.Begin(orchestrator, skillSlotIndex);
+        SkillTargetingSession.Begin(GameManager.Instance, skillSlotIndex);
+    }
+
+    void RequestCommitWithConfirmation()
+    {
+        int pendingCount = PhaseManager.Instance.RequestCommitAssignmentPhase();
+        if (pendingCount <= 0)
+            return;
+
+        var modal = ModalManager.Instance;
+        var messageArgs = new Dictionary<string, object>
+        {
+            { "count", pendingCount }
+        };
+
+        modal.ShowConfirmation(
+            titleTable,
+            titleKey,
+            messageTable,
+            messageKey,
+            onConfirm: () => { PhaseManager.Instance.ConfirmCommitAssignmentPhase(); },
+            onCancel: null,
+            messageArgs: messageArgs);
     }
 
     static bool IsRollKeyPressed(Keyboard keyboard, int slotIndex)
@@ -79,4 +100,3 @@ public sealed class GameTurnHotkeyController : MonoBehaviour
         };
     }
 }
-

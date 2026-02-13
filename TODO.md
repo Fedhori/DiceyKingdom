@@ -23,6 +23,8 @@
 
 ## Done
 
+- 2026-02-13: `GameTurnOrchestrator` 제거 및 매니저 분리 리팩토링 완료(`GameManager`, `PhaseManager`, `PlayerManager`, `DuelManager`, `AgentManager`, `SituationManager`) + `Managers` 하위 오브젝트/컴포넌트 반영
+- 2026-02-13: 이벤트는 UI 갱신 전용/로직 이벤트 금지 원칙을 `Docs/GENERAL_RULES.md`에 반영하고, `Docs/REFACTORING_PLAN_MANAGER_SPLIT.md` 리팩토링 계획서 작성
 - 2026-02-13: 중앙 결투 오버레이 UI 추가(상황/요원 주사위 연출) 및 오버레이 종료 후 상태 반영 방식으로 전환
 - 2026-02-13: 대결 실패 시 상황 주사위 면수 감소(`X -= 요원 눈`) 및 `0 이하` 즉시 파괴 규칙 구현
 - 2026-02-13: 의사결정 기록 정책 변경(사용자 지시 시에만 기록) 반영 및 `Docs/GAME_IDEA.md` 기준으로 아이디어 문서 재정리

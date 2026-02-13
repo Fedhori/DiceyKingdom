@@ -8,9 +8,12 @@ public sealed class BottomActionBarController : MonoBehaviour
 {
     static readonly string[] SkillHotkeys = { "Q", "W", "E", "R" };
 
-    [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] RectTransform contentRoot;
     [SerializeField] int visibleSkillSlotCount = 4;
+    [SerializeField] string titleTable = "UI";
+    [SerializeField] string titleKey = "assignment.unassigned.title";
+    [SerializeField] string messageTable = "UI";
+    [SerializeField] string messageKey = "assignment.unassigned.message";
     [SerializeField] Color barBackgroundColor = new(0.10f, 0.12f, 0.15f, 0.90f);
     [SerializeField] Color slotReadyColor = new(0.20f, 0.38f, 0.64f, 0.96f);
     [SerializeField] Color slotCooldownColor = new(0.20f, 0.23f, 0.29f, 0.96f);
@@ -33,7 +36,6 @@ public sealed class BottomActionBarController : MonoBehaviour
 
     void Awake()
     {
-        TryResolveOrchestrator();
         TryResolveContentRoot();
         EnsureVisualTree();
         LoadSkillDefsIfNeeded();
@@ -49,7 +51,7 @@ public sealed class BottomActionBarController : MonoBehaviour
     {
         UnsubscribeEvents();
 
-        if (SkillTargetingSession.IsFor(orchestrator))
+        if (SkillTargetingSession.IsFor(GameManager.Instance))
             SkillTargetingSession.Cancel();
     }
 
@@ -68,11 +70,6 @@ public sealed class BottomActionBarController : MonoBehaviour
         RefreshView();
     }
 
-    void OnStateChanged()
-    {
-        RefreshView();
-    }
-
     void OnTargetingSessionChanged()
     {
         RefreshView();
@@ -80,31 +77,22 @@ public sealed class BottomActionBarController : MonoBehaviour
 
     void SubscribeEvents()
     {
-        if (orchestrator == null)
-            return;
-
-        orchestrator.RunStarted -= OnRunStarted;
-        orchestrator.PhaseChanged -= OnPhaseChanged;
-        orchestrator.RunEnded -= OnRunEnded;
-        orchestrator.StateChanged -= OnStateChanged;
+        GameManager.Instance.RunStarted -= OnRunStarted;
+        GameManager.Instance.RunEnded -= OnRunEnded;
+        PhaseManager.Instance.PhaseChanged -= OnPhaseChanged;
         SkillTargetingSession.SessionChanged -= OnTargetingSessionChanged;
 
-        orchestrator.RunStarted += OnRunStarted;
-        orchestrator.PhaseChanged += OnPhaseChanged;
-        orchestrator.RunEnded += OnRunEnded;
-        orchestrator.StateChanged += OnStateChanged;
+        GameManager.Instance.RunStarted += OnRunStarted;
+        GameManager.Instance.RunEnded += OnRunEnded;
+        PhaseManager.Instance.PhaseChanged += OnPhaseChanged;
         SkillTargetingSession.SessionChanged += OnTargetingSessionChanged;
     }
 
     void UnsubscribeEvents()
     {
-        if (orchestrator == null)
-            return;
-
-        orchestrator.RunStarted -= OnRunStarted;
-        orchestrator.PhaseChanged -= OnPhaseChanged;
-        orchestrator.RunEnded -= OnRunEnded;
-        orchestrator.StateChanged -= OnStateChanged;
+        GameManager.Instance.RunStarted -= OnRunStarted;
+        GameManager.Instance.RunEnded -= OnRunEnded;
+        PhaseManager.Instance.PhaseChanged -= OnPhaseChanged;
         SkillTargetingSession.SessionChanged -= OnTargetingSessionChanged;
     }
 
@@ -143,9 +131,9 @@ public sealed class BottomActionBarController : MonoBehaviour
 
             slot.nameText.text = ResolveSkillDisplayName(cooldown.skillDefId);
 
-            bool baseUsable = orchestrator != null && orchestrator.CanUseSkillBySlotIndex(index);
+            bool baseUsable = GameManager.Instance.CanUseSkillBySlotIndex(index);
             bool canQuickCast = baseUsable && CanQuickCastWithoutAdditionalTarget(cooldown.skillDefId);
-            bool isTargetingThisSlot = SkillTargetingSession.IsFor(orchestrator, index);
+            bool isTargetingThisSlot = SkillTargetingSession.IsFor(GameManager.Instance, index);
 
             slot.button.interactable = baseUsable;
             slot.statusText.text = BuildSkillStatusText(cooldown, baseUsable, canQuickCast, isTargetingThisSlot);
@@ -159,7 +147,7 @@ public sealed class BottomActionBarController : MonoBehaviour
             return;
 
         bool canCommit = CanRequestCommitByPhase();
-        int pendingCount = orchestrator?.GetUnassignedAgentCount() ?? 0;
+        int pendingCount = AgentManager.Instance.GetUnassignedAgentCount();
 
         commitButton.interactable = canCommit;
         commitButtonImage.color = canCommit ? commitReadyColor : commitBlockedColor;
@@ -399,39 +387,33 @@ public sealed class BottomActionBarController : MonoBehaviour
 
     void OnSkillSlotPressed(int skillSlotIndex)
     {
-        if (orchestrator == null)
-            return;
-
         var cooldown = GetCooldownBySlotIndex(skillSlotIndex);
         if (cooldown == null || string.IsNullOrWhiteSpace(cooldown.skillDefId))
             return;
-        if (!orchestrator.CanUseSkillBySlotIndex(skillSlotIndex))
+        if (!GameManager.Instance.CanUseSkillBySlotIndex(skillSlotIndex))
             return;
 
         bool canQuickCast = CanQuickCastWithoutAdditionalTarget(cooldown.skillDefId);
         if (canQuickCast)
         {
-            bool used = orchestrator.TryUseSkillBySlotIndex(skillSlotIndex);
-            if (used && SkillTargetingSession.IsFor(orchestrator, skillSlotIndex))
+            bool used = GameManager.Instance.TryUseSkillBySlotIndex(skillSlotIndex);
+            if (used && SkillTargetingSession.IsFor(GameManager.Instance, skillSlotIndex))
                 SkillTargetingSession.Cancel();
             return;
         }
 
-        if (SkillTargetingSession.IsFor(orchestrator, skillSlotIndex))
+        if (SkillTargetingSession.IsFor(GameManager.Instance, skillSlotIndex))
         {
             SkillTargetingSession.Cancel();
             return;
         }
 
-        SkillTargetingSession.Begin(orchestrator, skillSlotIndex);
+        SkillTargetingSession.Begin(GameManager.Instance, skillSlotIndex);
     }
 
     void OnCommitButtonPressed()
     {
-        if (orchestrator == null)
-            return;
-
-        orchestrator.RequestCommitAssignmentPhase();
+        RequestCommitWithConfirmation();
     }
 
     string ResolveSkillDisplayName(string skillDefId)
@@ -449,12 +431,12 @@ public sealed class BottomActionBarController : MonoBehaviour
 
     SkillCooldownState GetCooldownBySlotIndex(int slotIndex)
     {
-        if (orchestrator?.RunState?.skillCooldowns == null)
+        if (GameManager.Instance?.CurrentRunState?.skillCooldowns == null)
             return null;
-        if (slotIndex < 0 || slotIndex >= orchestrator.RunState.skillCooldowns.Count)
+        if (slotIndex < 0 || slotIndex >= GameManager.Instance.CurrentRunState.skillCooldowns.Count)
             return null;
 
-        return orchestrator.RunState.skillCooldowns[slotIndex];
+        return GameManager.Instance.CurrentRunState.skillCooldowns[slotIndex];
     }
 
     bool CanQuickCastWithoutAdditionalTarget(string skillDefId)
@@ -619,7 +601,7 @@ public sealed class BottomActionBarController : MonoBehaviour
 
     void EnsureTargetingSessionValidity()
     {
-        if (!SkillTargetingSession.IsFor(orchestrator))
+        if (!SkillTargetingSession.IsFor(GameManager.Instance))
             return;
 
         int slotIndex = SkillTargetingSession.ActiveSkillSlotIndex;
@@ -630,7 +612,7 @@ public sealed class BottomActionBarController : MonoBehaviour
             return;
         }
 
-        if (!orchestrator.CanUseSkillBySlotIndex(slotIndex))
+        if (!GameManager.Instance.CanUseSkillBySlotIndex(slotIndex))
         {
             SkillTargetingSession.Cancel();
             return;
@@ -642,21 +624,35 @@ public sealed class BottomActionBarController : MonoBehaviour
 
     bool CanRequestCommitByPhase()
     {
-        if (orchestrator?.RunState == null)
+        if (GameManager.Instance?.CurrentRunState == null)
             return false;
 
-        var phase = orchestrator.RunState.turn.phase;
+        var phase = PhaseManager.Instance.CurrentPhase;
         return phase == TurnPhase.AgentRoll ||
                phase == TurnPhase.Adjustment ||
                phase == TurnPhase.TargetAndAttack;
     }
 
-    void TryResolveOrchestrator()
+    void RequestCommitWithConfirmation()
     {
-        if (orchestrator != null)
+        int pendingCount = PhaseManager.Instance.RequestCommitAssignmentPhase();
+        if (pendingCount <= 0)
             return;
 
-        orchestrator = FindFirstObjectByType<GameTurnOrchestrator>();
+        var modal = ModalManager.Instance;
+        var messageArgs = new Dictionary<string, object>
+        {
+            { "count", pendingCount }
+        };
+
+        modal.ShowConfirmation(
+            titleTable,
+            titleKey,
+            messageTable,
+            messageKey,
+            onConfirm: () => { PhaseManager.Instance.ConfirmCommitAssignmentPhase(); },
+            onCancel: null,
+            messageArgs: messageArgs);
     }
 
     void TryResolveContentRoot()

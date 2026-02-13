@@ -7,6 +7,7 @@
 - 게임 구조/시스템/플로우: `Docs/GAME_STRUCTURE.md`
 - 범용 규칙/컨벤션: `Docs/GENERAL_RULES.md`
 - 아이디어 문서: `Docs/GAME_IDEA.md`
+- 리팩토링 계획서: `Docs/REFACTORING_PLAN_MANAGER_SPLIT.md`
 - 상황 컨셉 요약: `Docs/ENEMY_ROSTER.md`
 - 상황 상세 규칙: `Docs/SITUATION.md`
 - 요원 상세 규칙: `Docs/AGENT.md`
@@ -36,6 +37,7 @@
   - `GENERAL_RULES.md`: Unity 공통 규칙
   - `GAME_STRUCTURE.md`: 현재 기준 게임 구조/시스템
   - `GAME_IDEA.md`: 아이디어 수집/후보 관리
+  - `REFACTORING_PLAN_MANAGER_SPLIT.md`: 매니저 분리 리팩토링 실행 계획
   - `ENEMY_ROSTER.md`: 상황 컨셉/강점/약점/대응법 요약
   - `SITUATION.md`: 상황 데이터/생성/해결/실패 규칙
   - `AGENT.md`: 요원 데이터/스타팅 구성/룰 규칙
@@ -48,10 +50,14 @@
 - 데이터 로딩: `Assets/Scripts/Data`
 - v0 데이터 모델/로더: `Assets/Scripts/Game/Data`
 - v0 런타임 상태: `Assets/Scripts/Game/Runtime`
-- v0 턴 오케스트레이터: `Assets/Scripts/Game/Runtime/GameTurnOrchestrator.cs`
+- 런타임 매니저:
+  - `Assets/Scripts/GameManager.cs`: 런 세션/RunState 단일 진입점, 시드/RNG, 런 시작/종료
+  - `Assets/Scripts/Game/Runtime/PhaseManager.cs`: 턴 페이즈 진행/전환, 커밋 처리
+  - `Assets/Scripts/Game/Runtime/PlayerManager.cs`: 안정도/골드/최대안정도 상태값(Setter 이벤트)
+  - `Assets/Scripts/Game/Runtime/DuelManager.cs`: 대결 롤/연출 대기/결과 반영
 - v0 전투 입력 컴포넌트: `Assets/Scripts/Game/UI`
-  - `AgentManager.cs`: 요원 카드 목록 생성/상태 동기화(매니저 로직)
-  - `SituationManager.cs`: 상황 카드 목록 생성/상태 동기화(매니저 로직)
+  - `AgentManager.cs`: 요원 런타임 로직 + 카드 목록 생성/상태 동기화
+  - `SituationManager.cs`: 상황 런타임 로직 + 카드 목록 생성/상태 동기화
   - `AgentController.cs`: 요원 카드 프리팹 View(텍스트/주사위/롤·드래그 입력 배선)
   - `SituationController.cs`: 상황 카드 프리팹 View(상황 주사위/기한/성공·실패/드롭·클릭 입력 배선)
     - 두 View는 인스펙터 직결 참조만 사용(런타임 자동 탐색/자동 컴포넌트 추가 금지)

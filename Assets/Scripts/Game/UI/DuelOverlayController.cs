@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 public sealed class DuelOverlayController : MonoBehaviour
 {
-    [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] GameObject overlayRoot;
     [SerializeField] Image overlayBlockerImage;
     [SerializeField] DiceFaceView situationDieView;
@@ -24,17 +23,14 @@ public sealed class DuelOverlayController : MonoBehaviour
 
     void OnEnable()
     {
-        if (orchestrator != null)
-        {
-            orchestrator.DuelRollStarted -= OnDuelRollStarted;
-            orchestrator.DuelRollStarted += OnDuelRollStarted;
-        }
+        DuelManager.Instance.DuelRollStarted -= OnDuelRollStarted;
+        DuelManager.Instance.DuelRollStarted += OnDuelRollStarted;
     }
 
     void OnDisable()
     {
-        if (orchestrator != null)
-            orchestrator.DuelRollStarted -= OnDuelRollStarted;
+        if (DuelManager.Instance != null)
+            DuelManager.Instance.DuelRollStarted -= OnDuelRollStarted;
 
         if (duelRoutine != null)
         {
@@ -43,7 +39,7 @@ public sealed class DuelOverlayController : MonoBehaviour
         }
     }
 
-    void OnDuelRollStarted(GameTurnOrchestrator.DuelRollPresentation presentation)
+    void OnDuelRollStarted(DuelManager.DuelRollPresentation presentation)
     {
         if (duelRoutine != null)
             StopCoroutine(duelRoutine);
@@ -52,7 +48,7 @@ public sealed class DuelOverlayController : MonoBehaviour
         duelRoutine = StartCoroutine(PlayDuelRoutine(presentation));
     }
 
-    IEnumerator PlayDuelRoutine(GameTurnOrchestrator.DuelRollPresentation presentation)
+    IEnumerator PlayDuelRoutine(DuelManager.DuelRollPresentation presentation)
     {
         SetOverlayVisible(true);
 
@@ -80,8 +76,7 @@ public sealed class DuelOverlayController : MonoBehaviour
         SetOverlayVisible(false);
         yield return null;
 
-        if (orchestrator != null)
-            orchestrator.NotifyDuelPresentationFinished();
+        DuelManager.Instance.NotifyDuelPresentationFinished();
 
         duelRoutine = null;
     }

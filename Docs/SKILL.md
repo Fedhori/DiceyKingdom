@@ -26,7 +26,7 @@
 
 ## 현재 동작 상태 (주사위 대결 전환 단계)
 
-- `GameTurnOrchestrator.TryUseSkill*`는 현재 `false`를 반환하며 실제 적용은 비활성 상태입니다.
+- `GameManager.TryUseSkillBySlotIndex`는 현재 `false`를 반환하며 실제 적용은 비활성 상태입니다.
 - 스킬 쿨다운 상태(`SkillCooldownState`)는 런타임 상태에 유지됩니다.
 - 턴 시작 시 쿨다운 감소 및 턴당 사용 플래그 초기화는 유지됩니다.
 - 하단 액션 바(`BottomActionBarController`)는 슬롯 상태 UI를 표시하지만, 실제 캐스팅은 비활성입니다.

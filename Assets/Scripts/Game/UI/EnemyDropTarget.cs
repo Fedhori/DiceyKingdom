@@ -3,36 +3,22 @@ using UnityEngine.EventSystems;
 
 public sealed class EnemyDropTarget : MonoBehaviour, IDropHandler, IPointerClickHandler
 {
-    [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] string situationInstanceId = string.Empty;
-
-    public void SetOrchestrator(GameTurnOrchestrator value)
-    {
-        orchestrator = value;
-    }
 
     public void SetSituationInstanceId(string instanceId)
     {
         situationInstanceId = instanceId ?? string.Empty;
     }
 
-    void Awake()
-    {
-        TryResolveOrchestrator();
-    }
-
     public void OnDrop(PointerEventData eventData)
     {
         if (!AssignmentDragSession.IsActive)
             return;
-
-        if (orchestrator == null)
-            return;
         if (string.IsNullOrWhiteSpace(situationInstanceId))
             return;
 
-        bool assigned = orchestrator.TryAssignAgent(AssignmentDragSession.AgentInstanceId, situationInstanceId);
-        if (!assigned)
+        bool processed = SituationManager.Instance.TryTestAgainstSituationDie(situationInstanceId, 0);
+        if (!processed)
             return;
 
         AssignmentDragSession.MarkDropHandled();
@@ -42,20 +28,10 @@ public sealed class EnemyDropTarget : MonoBehaviour, IDropHandler, IPointerClick
     {
         if (eventData == null || eventData.button != PointerEventData.InputButton.Left)
             return;
-        if (orchestrator == null)
-            return;
         if (string.IsNullOrWhiteSpace(situationInstanceId))
             return;
 
-        orchestrator.TryTestAgainstSituationDie(situationInstanceId, 0);
-    }
-
-    void TryResolveOrchestrator()
-    {
-        if (orchestrator != null)
-            return;
-
-        orchestrator = FindFirstObjectByType<GameTurnOrchestrator>();
+        SituationManager.Instance.TryTestAgainstSituationDie(situationInstanceId, 0);
     }
 }
 

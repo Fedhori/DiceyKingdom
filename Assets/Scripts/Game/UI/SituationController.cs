@@ -20,7 +20,6 @@ public sealed class SituationController : MonoBehaviour
     [SerializeField] RectTransform diceRowRoot;
     [SerializeField] GameObject dicePrefab;
 
-    GameTurnOrchestrator orchestrator;
     string situationInstanceId = string.Empty;
     readonly List<DiceFaceWidgets> diceFaces = new();
 
@@ -30,19 +29,6 @@ public sealed class SituationController : MonoBehaviour
     public void SetDicePrefab(GameObject prefab)
     {
         dicePrefab = prefab;
-    }
-
-    public void BindOrchestrator(GameTurnOrchestrator value)
-    {
-        orchestrator = value;
-
-        if (dropTarget == null)
-        {
-            Debug.LogWarning("[SituationController] dropTarget is not assigned.", this);
-            return;
-        }
-
-        dropTarget.SetOrchestrator(value);
     }
 
     public void BindSituation(string value)
@@ -60,14 +46,12 @@ public sealed class SituationController : MonoBehaviour
 
     public void OnSituationDiePressed(int dieIndex)
     {
-        if (orchestrator == null)
-            return;
         if (string.IsNullOrWhiteSpace(situationInstanceId))
             return;
         if (dieIndex < 0)
             return;
 
-        orchestrator.TryTestAgainstSituationDie(situationInstanceId, dieIndex);
+        SituationManager.Instance.TryTestAgainstSituationDie(situationInstanceId, dieIndex);
     }
 
     public void Render(

@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public sealed class TopHudController : MonoBehaviour
 {
-    [SerializeField] GameTurnOrchestrator orchestrator;
     [SerializeField] RectTransform contentRoot;
     [SerializeField] Color barColor = new(0.12f, 0.14f, 0.18f, 0.90f);
     [SerializeField] Color panelColor = new(0.20f, 0.24f, 0.30f, 0.96f);
@@ -28,7 +27,6 @@ public sealed class TopHudController : MonoBehaviour
 
     void Awake()
     {
-        TryResolveOrchestrator();
         TryResolveContentRoot();
         EnsureVisualTree();
     }
@@ -50,7 +48,18 @@ public sealed class TopHudController : MonoBehaviour
         RefreshHud();
     }
 
+    void OnRunEnded(GameRunState _)
+    {
+        isRunOver = true;
+        RefreshHud();
+    }
+
     void OnPhaseChanged(TurnPhase _)
+    {
+        RefreshHud();
+    }
+
+    void OnTurnNumberChanged(int _)
     {
         RefreshHud();
     }
@@ -60,45 +69,79 @@ public sealed class TopHudController : MonoBehaviour
         RefreshHud();
     }
 
-    void OnRunEnded(GameRunState _)
+    void OnStabilityChanged(int _)
     {
-        isRunOver = true;
         RefreshHud();
     }
 
-    void OnStateChanged()
+    void OnMaxStabilityChanged(int _)
+    {
+        RefreshHud();
+    }
+
+    void OnGoldChanged(int _)
     {
         RefreshHud();
     }
 
     void SubscribeEvents()
     {
-        if (orchestrator == null)
-            return;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RunStarted -= OnRunStarted;
+            GameManager.Instance.RunEnded -= OnRunEnded;
+            GameManager.Instance.RunStarted += OnRunStarted;
+            GameManager.Instance.RunEnded += OnRunEnded;
+        }
 
-        orchestrator.RunStarted -= OnRunStarted;
-        orchestrator.PhaseChanged -= OnPhaseChanged;
-        orchestrator.StageSpawned -= OnStageSpawned;
-        orchestrator.RunEnded -= OnRunEnded;
-        orchestrator.StateChanged -= OnStateChanged;
+        if (PhaseManager.Instance != null)
+        {
+            PhaseManager.Instance.PhaseChanged -= OnPhaseChanged;
+            PhaseManager.Instance.TurnNumberChanged -= OnTurnNumberChanged;
+            PhaseManager.Instance.PhaseChanged += OnPhaseChanged;
+            PhaseManager.Instance.TurnNumberChanged += OnTurnNumberChanged;
+        }
 
-        orchestrator.RunStarted += OnRunStarted;
-        orchestrator.PhaseChanged += OnPhaseChanged;
-        orchestrator.StageSpawned += OnStageSpawned;
-        orchestrator.RunEnded += OnRunEnded;
-        orchestrator.StateChanged += OnStateChanged;
+        if (SituationManager.Instance != null)
+        {
+            SituationManager.Instance.StageSpawned -= OnStageSpawned;
+            SituationManager.Instance.StageSpawned += OnStageSpawned;
+        }
+
+        if (PlayerManager.Instance != null)
+        {
+            PlayerManager.Instance.StabilityChanged -= OnStabilityChanged;
+            PlayerManager.Instance.MaxStabilityChanged -= OnMaxStabilityChanged;
+            PlayerManager.Instance.GoldChanged -= OnGoldChanged;
+            PlayerManager.Instance.StabilityChanged += OnStabilityChanged;
+            PlayerManager.Instance.MaxStabilityChanged += OnMaxStabilityChanged;
+            PlayerManager.Instance.GoldChanged += OnGoldChanged;
+        }
     }
 
     void UnsubscribeEvents()
     {
-        if (orchestrator == null)
-            return;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RunStarted -= OnRunStarted;
+            GameManager.Instance.RunEnded -= OnRunEnded;
+        }
 
-        orchestrator.RunStarted -= OnRunStarted;
-        orchestrator.PhaseChanged -= OnPhaseChanged;
-        orchestrator.StageSpawned -= OnStageSpawned;
-        orchestrator.RunEnded -= OnRunEnded;
-        orchestrator.StateChanged -= OnStateChanged;
+        if (PhaseManager.Instance != null)
+        {
+            PhaseManager.Instance.PhaseChanged -= OnPhaseChanged;
+            PhaseManager.Instance.TurnNumberChanged -= OnTurnNumberChanged;
+        }
+
+        if (SituationManager.Instance != null)
+            SituationManager.Instance.StageSpawned -= OnStageSpawned;
+
+        if (PlayerManager.Instance != null)
+        {
+            PlayerManager.Instance.StabilityChanged -= OnStabilityChanged;
+            PlayerManager.Instance.MaxStabilityChanged -= OnMaxStabilityChanged;
+            PlayerManager.Instance.GoldChanged -= OnGoldChanged;
+        }
     }
 
     void RefreshHud()
@@ -106,7 +149,7 @@ public sealed class TopHudController : MonoBehaviour
         if (contentRoot == null)
             return;
 
-        var runState = orchestrator?.RunState;
+        var runState = GameManager.Instance != null ? GameManager.Instance.CurrentRunState : null;
         if (runState == null)
         {
             SetItem(turnItem, "Turn", "-");
@@ -120,9 +163,9 @@ public sealed class TopHudController : MonoBehaviour
 
         SetItem(turnItem, "Turn", runState.turn.turnNumber.ToString());
         SetItem(stageItem, "Stage", BuildStageValue(runState));
-        SetItem(phaseItem, "Phase", ToDisplayTitle(runState.turn.phase.ToString()));
-        SetItem(stabilityItem, "Stability", $"{runState.stability}/{runState.maxStability}");
-        SetItem(goldItem, "Gold", runState.gold.ToString());
+        SetItem(phaseItem, "Phase", ToDisplayTitle(PhaseManager.Instance.CurrentPhase.ToString()));
+        SetItem(stabilityItem, "Stability", $"{PlayerManager.Instance.Stability}/{PlayerManager.Instance.MaxStability}");
+        SetItem(goldItem, "Gold", PlayerManager.Instance.Gold.ToString());
         SetItem(runItem, "Run", isRunOver ? "Game Over" : "Running");
 
         if (runItem?.background != null)
@@ -132,8 +175,8 @@ public sealed class TopHudController : MonoBehaviour
 
         if (stabilityItem?.valueText != null)
         {
-            float ratio = runState.maxStability > 0
-                ? (float)runState.stability / runState.maxStability
+            float ratio = PlayerManager.Instance.MaxStability > 0
+                ? (float)PlayerManager.Instance.Stability / PlayerManager.Instance.MaxStability
                 : 0f;
             stabilityItem.valueText.color = ratio <= 0.35f
                 ? stabilityWarningValueColor
@@ -270,14 +313,6 @@ public sealed class TopHudController : MonoBehaviour
             item.valueText.text = value ?? string.Empty;
             item.valueText.color = valueColor;
         }
-    }
-
-    void TryResolveOrchestrator()
-    {
-        if (orchestrator != null)
-            return;
-
-        orchestrator = FindFirstObjectByType<GameTurnOrchestrator>();
     }
 
     void TryResolveContentRoot()

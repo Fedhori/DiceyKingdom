@@ -2,14 +2,14 @@ using System;
 
 public static class SkillTargetingSession
 {
-    public static GameTurnOrchestrator ActiveOrchestrator { get; private set; }
+    public static GameManager ActiveOrchestrator { get; private set; }
     public static int ActiveSkillSlotIndex { get; private set; } = -1;
 
     public static bool IsActive => ActiveOrchestrator != null && ActiveSkillSlotIndex >= 0;
 
     public static event Action SessionChanged;
 
-    public static void Begin(GameTurnOrchestrator orchestrator, int skillSlotIndex)
+    public static void Begin(GameManager orchestrator, int skillSlotIndex)
     {
         if (orchestrator == null || skillSlotIndex < 0)
         {
@@ -38,13 +38,13 @@ public static class SkillTargetingSession
         SessionChanged?.Invoke();
     }
 
-    public static bool IsFor(GameTurnOrchestrator orchestrator, int skillSlotIndex)
+    public static bool IsFor(GameManager orchestrator, int skillSlotIndex)
     {
         return ReferenceEquals(ActiveOrchestrator, orchestrator) &&
                ActiveSkillSlotIndex == skillSlotIndex;
     }
 
-    public static bool IsFor(GameTurnOrchestrator orchestrator)
+    public static bool IsFor(GameManager orchestrator)
     {
         return ReferenceEquals(ActiveOrchestrator, orchestrator) && IsActive;
     }

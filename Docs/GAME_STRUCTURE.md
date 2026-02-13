@@ -7,6 +7,7 @@
 - 범용 규칙/컨벤션: `Docs/GENERAL_RULES.md`
 - 레포 지도(파일 위치/책임 요약): `Docs/PROJECT_MAP.md`
 - 아이디어 문서: `Docs/GAME_IDEA.md`
+- 리팩토링 계획서: `Docs/REFACTORING_PLAN_MANAGER_SPLIT.md`
 - 상황 컨셉/대응 요약: `Docs/ENEMY_ROSTER.md`
 - 상황 상세 규칙: `Docs/SITUATION.md`
 - 요원 상세 규칙: `Docs/AGENT.md`
@@ -220,16 +221,17 @@
   - 요원 카드: `Assets/Prefabs/Agent/AgentCard.prefab`
   - 주사위: `Assets/Prefabs/Dice/Dice.prefab`
 - 런 보드 UI 구조는 `Manager + View`로 분리합니다.
+  - 런 세션/페이즈/자원/대결: `GameManager`, `PhaseManager`, `PlayerManager`, `DuelManager`
   - 로직/상태 동기화: `SituationManager`, `AgentManager`
   - 카드 렌더/입력 배선: `SituationController`, `AgentController`(각 카드 프리팹 컴포넌트)
 - 대결 롤 연출은 카드 개별 연출이 아니라 중앙 오버레이(`DuelOverlayController`)에서만 처리합니다.
 - 대결 결과는 중앙 오버레이가 사라진 뒤 보드 상태에 반영합니다.
 - 카드 View(`SituationController`, `AgentController`)의 참조 컴포넌트는 인스펙터 직결(`SerializeField`)만 사용합니다.
   - 런타임에서 `GetComponent` 기반 자동 탐색/자동 `AddComponent`로 참조를 보정하지 않습니다.
-- `Managers` 루트 하위에 `Agent`, `Situation` 오브젝트를 두고, 각 매니저를 배치합니다.
+- `Managers` 루트 하위에 `Game`, `Phase`, `Player`, `Duel`, `Agent`, `Situation` 오브젝트를 두고, 각 매니저를 배치합니다.
 - 프로토타입 런 보드 카드 텍스트는 `TMP_Text` 직접 바인딩만 사용하며, `LocalizeStringEvent`는 사용하지 않습니다.
 - 카드/주사위의 크기, 피벗, 오프셋, 레이아웃 수치는 프리팹(또는 프리팹 인스턴스)에서 관리하고, 코드에서는 상태 바인딩만 담당합니다.
-- 런 보드 UI는 매 프레임 폴링(`Update`)으로 상태를 갱신하지 않고, 런타임 이벤트(`RunStarted`, `PhaseChanged`, `StageSpawned`, `RunEnded`, `StateChanged`) 기반으로만 갱신합니다.
+- 런 보드 UI는 매 프레임 폴링(`Update`)으로 상태를 갱신하지 않고, 런타임 이벤트(`RunStarted`, `RunEnded`, `PhaseChanged`, `TurnNumberChanged`, `StageSpawned`, `StabilityChanged`, `MaxStabilityChanged`, `GoldChanged`) 기반으로만 갱신합니다.
 - 런 보드 카드 필드/상호작용 상세는 구성 요소 문서로 분리합니다.
   - 상황 카드: `Docs/SITUATION.md`
   - 요원 카드: `Docs/AGENT.md`
@@ -239,9 +241,11 @@
 
 - 상단 HUD는 아래 이벤트로 동기화합니다.
   - `RunStarted`: 런 시작 상태 반영
-  - `PhaseChanged`: 현재 페이즈 반영
-  - `StageSpawned`: 스테이지 번호/프리셋 반영
   - `RunEnded`: 게임오버 상태 반영
+  - `PhaseChanged`: 현재 페이즈 반영
+  - `TurnNumberChanged`: 턴 수 반영
+  - `StageSpawned`: 스테이지 번호/프리셋 반영
+  - `StabilityChanged`, `MaxStabilityChanged`, `GoldChanged`: 자원값 반영
 
 ## 오디오
 

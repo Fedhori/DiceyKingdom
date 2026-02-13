@@ -20,7 +20,6 @@ public sealed class AgentController : MonoBehaviour
     [SerializeField] Button rollButton;
     [SerializeField] AgentRollButton rollButtonHandler;
     GameObject dicePrefab;
-    GameTurnOrchestrator orchestrator;
     string agentInstanceId = string.Empty;
     readonly List<DiceFaceWidgets> diceFaces = new();
 
@@ -32,14 +31,14 @@ public sealed class AgentController : MonoBehaviour
         dicePrefab = prefab;
     }
 
-    public void BindOrchestrator(GameTurnOrchestrator orchestrator)
+    public void BindAgent(string agentInstanceId)
     {
-        this.orchestrator = orchestrator;
+        this.agentInstanceId = agentInstanceId ?? string.Empty;
 
         if (dragHandle != null)
-            dragHandle.SetOrchestrator(orchestrator);
+            dragHandle.SetAgentInstanceId(agentInstanceId);
         if (rollButtonHandler != null)
-            rollButtonHandler.SetOrchestrator(orchestrator);
+            rollButtonHandler.SetAgentInstanceId(agentInstanceId);
         if (rollButtonHandler != null)
             rollButtonHandler.SetButton(rollButton);
         if (rollButton != null && rollButtonHandler != null)
@@ -49,28 +48,16 @@ public sealed class AgentController : MonoBehaviour
         }
     }
 
-    public void BindAgent(string agentInstanceId)
-    {
-        this.agentInstanceId = agentInstanceId ?? string.Empty;
-
-        if (dragHandle != null)
-            dragHandle.SetAgentInstanceId(agentInstanceId);
-        if (rollButtonHandler != null)
-            rollButtonHandler.SetAgentInstanceId(agentInstanceId);
-    }
-
     public void OnDiceFacePressed(int dieIndex)
     {
         if (dieIndex < 0)
             return;
-        if (orchestrator == null)
-            return;
-        if (!orchestrator.IsCurrentProcessingAgent(agentInstanceId))
+        if (!AgentManager.Instance.IsCurrentProcessingAgent(agentInstanceId))
             return;
         if (string.IsNullOrWhiteSpace(agentInstanceId))
             return;
 
-        orchestrator.TrySelectProcessingAgentDie(dieIndex);
+        AgentManager.Instance.TrySelectProcessingAgentDie(dieIndex);
     }
 
     public void Render(
