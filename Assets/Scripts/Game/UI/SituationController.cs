@@ -134,7 +134,7 @@ public sealed class SituationController : MonoBehaviour
             return;
 
         face.view.PlayRollEffect(
-            Math.Max(2, dieFace),
+            Math.Max(1, dieFace),
             Mathf.Max(1, finalRoll),
             !isDestroyedByAgent);
     }

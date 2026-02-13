@@ -169,8 +169,8 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         if (!IsValidSituationDieIndex(situation, situationDieIndex))
             return false;
 
-        int agentDieFace = Math.Max(2, agent.remainingDiceFaces[selectedAgentDieIndex]);
-        int situationDieFace = Math.Max(2, situation.remainingDiceFaces[situationDieIndex]);
+        int agentDieFace = Math.Max(1, agent.remainingDiceFaces[selectedAgentDieIndex]);
+        int situationDieFace = Math.Max(1, situation.remainingDiceFaces[situationDieIndex]);
 
         int agentRoll = RollByFace(agentDieFace);
         int situationRoll = RollByFace(situationDieFace);
@@ -268,10 +268,19 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
         {
             if (IsValidSituationDieIndex(situation, presentation.situationDieIndex))
                 situation.remainingDiceFaces.RemoveAt(presentation.situationDieIndex);
-
-            if (situation.remainingDiceFaces.Count == 0)
-                HandleSituationSucceeded(situation.instanceId);
         }
+        else if (IsValidSituationDieIndex(situation, presentation.situationDieIndex))
+        {
+            int currentFace = situation.remainingDiceFaces[presentation.situationDieIndex];
+            int reducedFace = currentFace - Math.Max(0, presentation.agentRoll);
+            if (reducedFace <= 0)
+                situation.remainingDiceFaces.RemoveAt(presentation.situationDieIndex);
+            else
+                situation.remainingDiceFaces[presentation.situationDieIndex] = reducedFace;
+        }
+
+        if (situation.remainingDiceFaces.Count == 0)
+            HandleSituationSucceeded(situation.instanceId);
 
         AdvanceAfterAgentDieSpent(agent.instanceId);
     }
@@ -847,7 +856,7 @@ public sealed class GameTurnOrchestrator : MonoBehaviour
 
     int RollByFace(int face)
     {
-        int clampedFace = Math.Max(2, face);
+        int clampedFace = Math.Max(1, face);
         return rng.Next(1, clampedFace + 1);
     }
 

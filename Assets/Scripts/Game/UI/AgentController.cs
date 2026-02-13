@@ -116,7 +116,7 @@ public sealed class AgentController : MonoBehaviour
         if (face?.view == null)
             return;
 
-        face.view.PlayRollEffect(Math.Max(2, dieFace), Mathf.Max(1, finalRoll), isSuccess);
+        face.view.PlayRollEffect(Math.Max(1, dieFace), Mathf.Max(1, finalRoll), isSuccess);
     }
 
     void RefreshDiceFaces(IReadOnlyList<int> remainingDiceFaces, int diceCount)

@@ -80,7 +80,7 @@ public sealed class DiceFaceView : MonoBehaviour
             StopCoroutine(rollRoutine);
         ApplyActiveVisual();
         rollRoutine = StartCoroutine(PlayRollEffectRoutine(
-            Mathf.Max(2, dieFace),
+            Mathf.Max(1, dieFace),
             Mathf.Max(1, finalRoll),
             isSuccess));
     }
