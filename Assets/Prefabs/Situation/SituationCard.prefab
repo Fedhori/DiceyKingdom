@@ -1104,7 +1104,6 @@ MonoBehaviour:
   dropTarget: {fileID: 1581466902111245157}
   slotText: {fileID: 8294591032016259562}
   nameText: {fileID: 6952539404601689627}
-  requirementText: {fileID: 0}
   successText: {fileID: 7992822600612679941}
   failureText: {fileID: 3000417261637812287}
   deadlineText: {fileID: 7419504173539319459}

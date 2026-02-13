@@ -9,7 +9,6 @@ public sealed class AgentManager : MonoBehaviour
 
     [SerializeField] RectTransform contentRoot;
     [SerializeField] GameObject cardPrefab;
-    [SerializeField] GameObject dicePrefab;
     [SerializeField] Color pendingCardColor = new(0.18f, 0.22f, 0.30f, 0.95f);
     [SerializeField] Color selectedCardColor = new(0.20f, 0.27f, 0.36f, 0.95f);
     [SerializeField] Color consumedCardColor = new(0.13f, 0.16f, 0.20f, 0.85f);
@@ -34,7 +33,6 @@ public sealed class AgentManager : MonoBehaviour
         }
 
         Instance = this;
-        TryResolveContentRoot();
         ValidateEditorLayoutSetup();
         LoadAgentDefsIfNeeded();
     }
@@ -473,7 +471,6 @@ public sealed class AgentManager : MonoBehaviour
         root.name = $"AgentCard_{slotIndex + 1}";
 
         var controller = root.GetComponent<AgentController>();
-        controller.SetDicePrefab(dicePrefab);
         controller.BindAgent(string.Empty);
         controller.Render(
             $"A{slotIndex + 1}",
@@ -509,7 +506,6 @@ public sealed class AgentManager : MonoBehaviour
 
     void RefreshCardVisual(AgentController card, AgentState agent, int slotIndex)
     {
-        card.SetDicePrefab(dicePrefab);
         card.BindAgent(agent.instanceId);
 
         int diceCount = ResolveDiceCount(agent.agentDefId);
@@ -646,14 +642,6 @@ public sealed class AgentManager : MonoBehaviour
         if (tokens.Count == 0)
             return "None";
         return string.Join(", ", tokens);
-    }
-
-    void TryResolveContentRoot()
-    {
-        if (contentRoot != null)
-            return;
-
-        contentRoot = transform as RectTransform;
     }
 
     void ValidateEditorLayoutSetup()

@@ -316,6 +316,7 @@ MonoBehaviour:
   rollButtonText: {fileID: 2957879675028468085}
   rollButton: {fileID: 4163594786771723254}
   rollButtonHandler: {fileID: 7858174425786146346}
+  dicePrefab: {fileID: 738695666529021882, guid: 4cbb52d75cc0b024e8269dd179c0c6cc, type: 3}
 --- !u!1 &6290234719002095424
 GameObject:
   m_ObjectHideFlags: 0

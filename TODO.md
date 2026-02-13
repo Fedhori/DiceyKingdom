@@ -11,8 +11,6 @@
 
 ## Planned
 
-- 규칙 위반 리팩토링 2단계: Inspector 우선 원칙 정리(코드에서 UI 레이아웃/크기/피벗/오프셋 강제 설정 제거, 프리팹/씬 설정으로 이관)
-- 규칙 위반 리팩토링 2단계: `FindFirstObjectByType`/런타임 탐색 의존 제거 및 인스펙터 참조 고정 누락 점검
 - 규칙 위반 리팩토링 3단계: 하드코딩 상수 정리(색상 값은 `Assets/Scripts/Data/Colors.cs`, 인게임 수치는 `Assets/Scripts/Data/GameConfig.cs`로 이관)
 - 규칙 위반 리팩토링 3단계: 잔여 `DontDestroyOnLoad` 사용처 제거 및 씬 전환 구조 정리
 - 검증 작업: 리팩토링 후 플레이모드 스모크 테스트(런 시작, 결투, 턴 종료, 상황 해소) + 콘솔 오류/경고 0건 확인
@@ -27,6 +25,8 @@
 
 ## Done
 
+- 2026-02-13: `Docs/temp/GAME_IDEA_TEMP.md` 생성(게임 아이디어 임시 정리 템플릿)
+- 2026-02-13: 규칙 위반 리팩토링 2단계 완료 — `TopHudController`/`BottomActionBarController`/`AssignmentDragArrowPresenter` 런타임 탐색 제거 및 인스펙터 참조 고정, `AgentManager`/`SituationManager`의 카드 주사위 프리팹 런타임 주입 제거(카드 프리팹 직렬화 참조로 전환)
 - 2026-02-13: 규칙 위반 리팩토링 1단계 완료 — 런타임 `new GameObject`/`AddComponent` 제거, UI 바인딩을 씬/프리팹 참조 기반으로 전환, `BottomActionBarController`/`SituationController`의 레이아웃 강제 코드 제거
 - 2026-02-13: 전 스크립트 `OnEnable/OnDisable` 제거 및 `Start/OnDestroy` 일괄 전환(이벤트 구독/해제 포함) + 규칙 문서화(`Docs/GENERAL_RULES.md`)
 - 2026-02-13: `GameTurnOrchestrator` 제거 및 매니저 분리 리팩토링 완료(`GameManager`, `PhaseManager`, `PlayerManager`, `DuelManager`, `AgentManager`, `SituationManager`) + `Managers` 하위 오브젝트/컴포넌트 반영

@@ -7,7 +7,6 @@ public sealed class SituationManager : MonoBehaviour
 {
     [SerializeField] RectTransform contentRoot;
     [SerializeField] GameObject cardPrefab;
-    [SerializeField] GameObject dicePrefab;
     [SerializeField] Color cardColor = new(0.32f, 0.18f, 0.18f, 0.94f);
     [SerializeField] Color lowDiceCountCardColor = new(0.45f, 0.16f, 0.16f, 0.98f);
     [SerializeField] Color subtleLabelColor = new(0.88f, 0.78f, 0.76f, 1f);
@@ -35,7 +34,6 @@ public sealed class SituationManager : MonoBehaviour
         }
 
         Instance = this;
-        TryResolveContentRoot();
         ValidateEditorLayoutSetup();
         LoadSituationDefsIfNeeded();
     }
@@ -422,7 +420,6 @@ public sealed class SituationManager : MonoBehaviour
 
         var controller = root.GetComponent<SituationController>();
         controller.BindSituation(string.Empty);
-        controller.SetDicePrefab(dicePrefab);
         controller.Render(
             $"S{slotIndex + 1}",
             "Unknown Situation",
@@ -463,7 +460,6 @@ public sealed class SituationManager : MonoBehaviour
     void RefreshCardVisual(SituationController card, SituationState situation, int slotIndex)
     {
         card.BindSituation(situation.instanceId);
-        card.SetDicePrefab(dicePrefab);
 
         int remainingCount = situation?.remainingDiceFaces?.Count ?? 0;
         int totalDiceCount = ResolveSituationDiceCount(situation?.situationDefId);
@@ -568,14 +564,6 @@ public sealed class SituationManager : MonoBehaviour
             return 0;
 
         return Mathf.Max(0, def.diceFaces?.Count ?? 0);
-    }
-
-    void TryResolveContentRoot()
-    {
-        if (contentRoot != null)
-            return;
-
-        contentRoot = transform as RectTransform;
     }
 
     void ValidateEditorLayoutSetup()

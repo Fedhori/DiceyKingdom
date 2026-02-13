@@ -14,6 +14,45 @@ public sealed class BottomActionBarController : MonoBehaviour
     [SerializeField] string titleKey = "assignment.unassigned.title";
     [SerializeField] string messageTable = "UI";
     [SerializeField] string messageKey = "assignment.unassigned.message";
+
+    [Header("Commit")]
+    [SerializeField] Button commitButton;
+    [SerializeField] Image commitButtonImage;
+    [SerializeField] TextMeshProUGUI commitButtonText;
+
+    [Header("Skill Slot 1")]
+    [SerializeField] RectTransform slot1Root;
+    [SerializeField] Button slot1Button;
+    [SerializeField] Image slot1Background;
+    [SerializeField] TextMeshProUGUI slot1HotkeyText;
+    [SerializeField] TextMeshProUGUI slot1NameText;
+    [SerializeField] TextMeshProUGUI slot1StatusText;
+
+    [Header("Skill Slot 2")]
+    [SerializeField] RectTransform slot2Root;
+    [SerializeField] Button slot2Button;
+    [SerializeField] Image slot2Background;
+    [SerializeField] TextMeshProUGUI slot2HotkeyText;
+    [SerializeField] TextMeshProUGUI slot2NameText;
+    [SerializeField] TextMeshProUGUI slot2StatusText;
+
+    [Header("Skill Slot 3")]
+    [SerializeField] RectTransform slot3Root;
+    [SerializeField] Button slot3Button;
+    [SerializeField] Image slot3Background;
+    [SerializeField] TextMeshProUGUI slot3HotkeyText;
+    [SerializeField] TextMeshProUGUI slot3NameText;
+    [SerializeField] TextMeshProUGUI slot3StatusText;
+
+    [Header("Skill Slot 4")]
+    [SerializeField] RectTransform slot4Root;
+    [SerializeField] Button slot4Button;
+    [SerializeField] Image slot4Background;
+    [SerializeField] TextMeshProUGUI slot4HotkeyText;
+    [SerializeField] TextMeshProUGUI slot4NameText;
+    [SerializeField] TextMeshProUGUI slot4StatusText;
+
+    [Header("Colors")]
     [SerializeField] Color barBackgroundColor = new(0.10f, 0.12f, 0.15f, 0.90f);
     [SerializeField] Color slotReadyColor = new(0.20f, 0.38f, 0.64f, 0.96f);
     [SerializeField] Color slotCooldownColor = new(0.20f, 0.23f, 0.29f, 0.96f);
@@ -21,24 +60,16 @@ public sealed class BottomActionBarController : MonoBehaviour
     [SerializeField] Color slotEmptyColor = new(0.16f, 0.18f, 0.22f, 0.82f);
     [SerializeField] Color commitReadyColor = new(0.18f, 0.48f, 0.30f, 0.95f);
     [SerializeField] Color commitBlockedColor = new(0.24f, 0.26f, 0.30f, 0.86f);
-    [SerializeField] Color labelColor = new(0.94f, 0.97f, 1.00f, 1.00f);
-    [SerializeField] Color subtleLabelColor = new(0.76f, 0.82f, 0.90f, 1.00f);
 
     readonly List<SkillSlotWidgets> skillSlots = new();
     readonly Dictionary<string, SkillDef> skillDefById = new(StringComparer.Ordinal);
 
-    RectTransform bodyRoot;
-    RectTransform skillRowRoot;
-    Button commitButton;
-    Image commitButtonImage;
-    TextMeshProUGUI commitButtonText;
     bool loadedSkillDefs;
 
     void Awake()
     {
-        TryResolveContentRoot();
         LoadSkillDefsIfNeeded();
-        BindVisualTree();
+        RebuildSkillSlotsFromInspector();
         WireButtons();
     }
 
@@ -113,6 +144,13 @@ public sealed class BottomActionBarController : MonoBehaviour
     {
         if (contentRoot == null)
             return;
+
+        var background = contentRoot.GetComponent<Image>();
+        if (background != null)
+        {
+            background.color = barBackgroundColor;
+            background.raycastTarget = true;
+        }
 
         EnsureTargetingSessionValidity();
         RefreshSkillSlots();
@@ -462,14 +500,6 @@ public sealed class BottomActionBarController : MonoBehaviour
             messageArgs: messageArgs);
     }
 
-    void TryResolveContentRoot()
-    {
-        if (contentRoot != null)
-            return;
-
-        contentRoot = transform as RectTransform;
-    }
-
     void LoadSkillDefsIfNeeded()
     {
         if (loadedSkillDefs)
@@ -496,32 +526,35 @@ public sealed class BottomActionBarController : MonoBehaviour
         }
     }
 
-    void BindVisualTree()
+    void RebuildSkillSlotsFromInspector()
     {
-        if (contentRoot == null)
+        skillSlots.Clear();
+        AddSkillSlot(slot1Root, slot1Button, slot1Background, slot1HotkeyText, slot1NameText, slot1StatusText);
+        AddSkillSlot(slot2Root, slot2Button, slot2Background, slot2HotkeyText, slot2NameText, slot2StatusText);
+        AddSkillSlot(slot3Root, slot3Button, slot3Background, slot3HotkeyText, slot3NameText, slot3StatusText);
+        AddSkillSlot(slot4Root, slot4Button, slot4Background, slot4HotkeyText, slot4NameText, slot4StatusText);
+    }
+
+    void AddSkillSlot(
+        RectTransform root,
+        Button button,
+        Image background,
+        TextMeshProUGUI hotkeyText,
+        TextMeshProUGUI nameText,
+        TextMeshProUGUI statusText)
+    {
+        if (root == null)
             return;
 
-        var background = contentRoot.GetComponent<Image>();
-        if (background != null)
+        skillSlots.Add(new SkillSlotWidgets
         {
-            background.color = barBackgroundColor;
-            background.raycastTarget = true;
-        }
-
-        bodyRoot = FindRectChild(contentRoot, "ActionBarBody");
-        skillRowRoot = bodyRoot != null ? FindRectChild(bodyRoot, "SkillRow") : null;
-
-        var commitRoot = bodyRoot != null ? FindRectChild(bodyRoot, "CommitButton") : null;
-        if (commitRoot != null)
-        {
-            commitButton = commitRoot.GetComponent<Button>();
-            commitButtonImage = commitRoot.GetComponent<Image>();
-            var commitTextRoot = FindRectChild(commitRoot, "CommitText");
-            if (commitTextRoot != null)
-                commitButtonText = commitTextRoot.GetComponent<TextMeshProUGUI>();
-        }
-
-        CollectSkillSlots();
+            root = root,
+            button = button,
+            background = background,
+            hotkeyText = hotkeyText,
+            nameText = nameText,
+            statusText = statusText
+        });
     }
 
     void WireButtons()
@@ -542,74 +575,6 @@ public sealed class BottomActionBarController : MonoBehaviour
             slot.button.onClick.RemoveAllListeners();
             slot.button.onClick.AddListener(() => OnSkillSlotPressed(capturedIndex));
         }
-    }
-
-    void CollectSkillSlots()
-    {
-        skillSlots.Clear();
-        if (skillRowRoot == null)
-            return;
-
-        var unordered = new List<(int order, SkillSlotWidgets slot)>();
-        for (int i = 0; i < skillRowRoot.childCount; i++)
-        {
-            var child = skillRowRoot.GetChild(i) as RectTransform;
-            if (child == null)
-                continue;
-            if (!child.name.StartsWith("SkillSlot_", StringComparison.Ordinal))
-                continue;
-
-            var slot = new SkillSlotWidgets
-            {
-                root = child,
-                button = child.GetComponent<Button>(),
-                background = child.GetComponent<Image>(),
-                hotkeyText = FindTextChild(child, "HotkeyText"),
-                nameText = FindTextChild(child, "NameText"),
-                statusText = FindTextChild(child, "StatusText")
-            };
-
-            int order = ParseSlotOrder(child.name, i);
-            unordered.Add((order, slot));
-        }
-
-        unordered.Sort((a, b) => a.order.CompareTo(b.order));
-        for (int i = 0; i < unordered.Count; i++)
-            skillSlots.Add(unordered[i].slot);
-    }
-
-    static int ParseSlotOrder(string name, int fallback)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            return fallback;
-
-        int underscoreIndex = name.LastIndexOf('_');
-        if (underscoreIndex < 0 || underscoreIndex >= name.Length - 1)
-            return fallback;
-
-        string suffix = name.Substring(underscoreIndex + 1);
-        if (!int.TryParse(suffix, out int parsed))
-            return fallback;
-
-        return parsed;
-    }
-
-    static RectTransform FindRectChild(RectTransform parent, string childName)
-    {
-        if (parent == null || string.IsNullOrWhiteSpace(childName))
-            return null;
-
-        var child = parent.Find(childName) as RectTransform;
-        return child;
-    }
-
-    static TextMeshProUGUI FindTextChild(RectTransform parent, string childName)
-    {
-        var child = FindRectChild(parent, childName);
-        if (child == null)
-            return null;
-
-        return child.GetComponent<TextMeshProUGUI>();
     }
 
     static string ToDisplayTitle(string raw)

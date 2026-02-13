@@ -6,6 +6,37 @@ using UnityEngine.UI;
 public sealed class TopHudController : MonoBehaviour
 {
     [SerializeField] RectTransform contentRoot;
+
+    [Header("Turn")]
+    [SerializeField] Image turnBackground;
+    [SerializeField] TextMeshProUGUI turnTitleText;
+    [SerializeField] TextMeshProUGUI turnValueText;
+
+    [Header("Stage")]
+    [SerializeField] Image stageBackground;
+    [SerializeField] TextMeshProUGUI stageTitleText;
+    [SerializeField] TextMeshProUGUI stageValueText;
+
+    [Header("Phase")]
+    [SerializeField] Image phaseBackground;
+    [SerializeField] TextMeshProUGUI phaseTitleText;
+    [SerializeField] TextMeshProUGUI phaseValueText;
+
+    [Header("Stability")]
+    [SerializeField] Image stabilityBackground;
+    [SerializeField] TextMeshProUGUI stabilityTitleText;
+    [SerializeField] TextMeshProUGUI stabilityValueText;
+
+    [Header("Gold")]
+    [SerializeField] Image goldBackground;
+    [SerializeField] TextMeshProUGUI goldTitleText;
+    [SerializeField] TextMeshProUGUI goldValueText;
+
+    [Header("Run")]
+    [SerializeField] Image runBackground;
+    [SerializeField] TextMeshProUGUI runTitleText;
+    [SerializeField] TextMeshProUGUI runValueText;
+
     [SerializeField] Color barColor = new(0.12f, 0.14f, 0.18f, 0.90f);
     [SerializeField] Color panelColor = new(0.20f, 0.24f, 0.30f, 0.96f);
     [SerializeField] Color panelWarningColor = new(0.46f, 0.18f, 0.18f, 0.96f);
@@ -16,19 +47,10 @@ public sealed class TopHudController : MonoBehaviour
     [SerializeField] Color stabilitySafeValueColor = new(0.78f, 1.00f, 0.82f, 1.00f);
     [SerializeField] Color goldValueColor = new(1.00f, 0.90f, 0.38f, 1.00f);
 
-    RectTransform rowRoot;
-    HudItem turnItem;
-    HudItem stageItem;
-    HudItem phaseItem;
-    HudItem stabilityItem;
-    HudItem goldItem;
-    HudItem runItem;
     bool isRunOver;
 
     void Awake()
     {
-        TryResolveContentRoot();
-        BindVisualTree();
     }
 
     void Start()
@@ -149,42 +171,54 @@ public sealed class TopHudController : MonoBehaviour
         if (contentRoot == null)
             return;
 
+        var background = contentRoot.GetComponent<Image>();
+        if (background != null)
+        {
+            background.color = barColor;
+            background.raycastTarget = false;
+        }
+
         var runState = GameManager.Instance != null ? GameManager.Instance.CurrentRunState : null;
         if (runState == null)
         {
-            SetItem(turnItem, "Turn", "-");
-            SetItem(stageItem, "Stage", "-");
-            SetItem(phaseItem, "Phase", "-");
-            SetItem(stabilityItem, "Stability", "-");
-            SetItem(goldItem, "Gold", "-");
-            SetItem(runItem, "Run", "Idle");
+            SetItem(turnBackground, turnTitleText, turnValueText, "Turn", "-");
+            SetItem(stageBackground, stageTitleText, stageValueText, "Stage", "-");
+            SetItem(phaseBackground, phaseTitleText, phaseValueText, "Phase", "-");
+            SetItem(stabilityBackground, stabilityTitleText, stabilityValueText, "Stability", "-");
+            SetItem(goldBackground, goldTitleText, goldValueText, "Gold", "-");
+            SetItem(runBackground, runTitleText, runValueText, "Run", "Idle");
             return;
         }
 
-        SetItem(turnItem, "Turn", runState.turn.turnNumber.ToString());
-        SetItem(stageItem, "Stage", BuildStageValue(runState));
-        SetItem(phaseItem, "Phase", ToDisplayTitle(PhaseManager.Instance.CurrentPhase.ToString()));
-        SetItem(stabilityItem, "Stability", $"{PlayerManager.Instance.Stability}/{PlayerManager.Instance.MaxStability}");
-        SetItem(goldItem, "Gold", PlayerManager.Instance.Gold.ToString());
-        SetItem(runItem, "Run", isRunOver ? "Game Over" : "Running");
+        SetItem(turnBackground, turnTitleText, turnValueText, "Turn", runState.turn.turnNumber.ToString());
+        SetItem(stageBackground, stageTitleText, stageValueText, "Stage", BuildStageValue(runState));
+        SetItem(phaseBackground, phaseTitleText, phaseValueText, "Phase", ToDisplayTitle(PhaseManager.Instance.CurrentPhase.ToString()));
+        SetItem(
+            stabilityBackground,
+            stabilityTitleText,
+            stabilityValueText,
+            "Stability",
+            $"{PlayerManager.Instance.Stability}/{PlayerManager.Instance.MaxStability}");
+        SetItem(goldBackground, goldTitleText, goldValueText, "Gold", PlayerManager.Instance.Gold.ToString());
+        SetItem(runBackground, runTitleText, runValueText, "Run", isRunOver ? "Game Over" : "Running");
 
-        if (runItem?.background != null)
-            runItem.background.color = isRunOver ? panelWarningColor : panelColor;
-        if (runItem?.valueText != null)
-            runItem.valueText.color = isRunOver ? gameOverValueColor : valueColor;
+        if (runBackground != null)
+            runBackground.color = isRunOver ? panelWarningColor : panelColor;
+        if (runValueText != null)
+            runValueText.color = isRunOver ? gameOverValueColor : valueColor;
 
-        if (stabilityItem?.valueText != null)
+        if (stabilityValueText != null)
         {
             float ratio = PlayerManager.Instance.MaxStability > 0
                 ? (float)PlayerManager.Instance.Stability / PlayerManager.Instance.MaxStability
                 : 0f;
-            stabilityItem.valueText.color = ratio <= 0.35f
+            stabilityValueText.color = ratio <= 0.35f
                 ? stabilityWarningValueColor
                 : stabilitySafeValueColor;
         }
 
-        if (goldItem?.valueText != null)
-            goldItem.valueText.color = goldValueColor;
+        if (goldValueText != null)
+            goldValueText.color = goldValueColor;
     }
 
     string BuildStageValue(GameRunState runState)
@@ -196,86 +230,25 @@ public sealed class TopHudController : MonoBehaviour
         return $"{number} ({ToDisplayTitle(runState.stage.activePresetId)})";
     }
 
-    void BindVisualTree()
+    void SetItem(
+        Image background,
+        TextMeshProUGUI titleText,
+        TextMeshProUGUI valueTextComp,
+        string title,
+        string value)
     {
-        if (contentRoot == null)
-            return;
-
-        var background = contentRoot.GetComponent<Image>();
         if (background != null)
+            background.color = panelColor;
+        if (titleText != null)
         {
-            background.color = barColor;
-            background.raycastTarget = false;
+            titleText.text = title ?? string.Empty;
+            titleText.color = titleColor;
         }
-
-        rowRoot = FindRectChild(contentRoot, "TopHudRow");
-        turnItem = FindHudItem("TurnItem");
-        stageItem = FindHudItem("StageItem");
-        phaseItem = FindHudItem("PhaseItem");
-        stabilityItem = FindHudItem("StabilityItem");
-        goldItem = FindHudItem("GoldItem");
-        runItem = FindHudItem("RunItem");
-    }
-
-    HudItem FindHudItem(string objectName)
-    {
-        if (rowRoot == null || string.IsNullOrWhiteSpace(objectName))
-            return null;
-
-        var panelRoot = FindRectChild(rowRoot, objectName);
-        if (panelRoot == null)
-            return null;
-
-        return new HudItem
+        if (valueTextComp != null)
         {
-            background = panelRoot.GetComponent<Image>(),
-            titleText = FindTextChild(panelRoot, "TitleText"),
-            valueText = FindTextChild(panelRoot, "ValueText")
-        };
-    }
-
-    static RectTransform FindRectChild(RectTransform parent, string childName)
-    {
-        if (parent == null || string.IsNullOrWhiteSpace(childName))
-            return null;
-
-        return parent.Find(childName) as RectTransform;
-    }
-
-    static TextMeshProUGUI FindTextChild(RectTransform parent, string childName)
-    {
-        var child = FindRectChild(parent, childName);
-        if (child == null)
-            return null;
-
-        return child.GetComponent<TextMeshProUGUI>();
-    }
-
-    void SetItem(HudItem item, string title, string value)
-    {
-        if (item == null)
-            return;
-
-        if (item.background != null)
-            item.background.color = panelColor;
-        if (item.titleText != null)
-        {
-            item.titleText.text = title ?? string.Empty;
-            item.titleText.color = titleColor;
+            valueTextComp.text = value ?? string.Empty;
+            valueTextComp.color = valueColor;
         }
-        if (item.valueText != null)
-        {
-            item.valueText.text = value ?? string.Empty;
-            item.valueText.color = valueColor;
-        }
-    }
-
-    void TryResolveContentRoot()
-    {
-        if (contentRoot != null)
-            return;
-
-        contentRoot = transform as RectTransform;
     }
 
     static string ToDisplayTitle(string raw)
@@ -304,12 +277,5 @@ public sealed class TopHudController : MonoBehaviour
         }
 
         return string.Join(" ", parts);
-    }
-
-    sealed class HudItem
-    {
-        public Image background;
-        public TextMeshProUGUI titleText;
-        public TextMeshProUGUI valueText;
     }
 }

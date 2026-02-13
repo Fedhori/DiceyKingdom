@@ -19,17 +19,12 @@ public sealed class AgentController : MonoBehaviour
     [SerializeField] TextMeshProUGUI rollButtonText;
     [SerializeField] Button rollButton;
     [SerializeField] AgentRollButton rollButtonHandler;
-    GameObject dicePrefab;
+    [SerializeField] GameObject dicePrefab;
     string agentInstanceId = string.Empty;
     readonly List<DiceFaceWidgets> diceFaces = new();
 
     public RectTransform RootRect => rootRect;
     public string AgentInstanceId => agentInstanceId;
-
-    public void SetDicePrefab(GameObject prefab)
-    {
-        dicePrefab = prefab;
-    }
 
     public void BindAgent(string agentInstanceId)
     {

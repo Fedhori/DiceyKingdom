@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public sealed class AssignmentDragArrowPresenter : MonoBehaviour
 {
     [SerializeField] RectTransform overlayRoot;
+    [SerializeField] Canvas canvas;
     [SerializeField] RectTransform lineRect;
     [SerializeField] Image lineImage;
     [SerializeField] RectTransform arrowRect;
@@ -14,17 +15,11 @@ public sealed class AssignmentDragArrowPresenter : MonoBehaviour
     [SerializeField] Color arrowColor = new(0.96f, 0.84f, 0.26f, 1f);
     [SerializeField] float arrowFontSize = 44f;
 
-    Canvas canvas;
     Vector2 dragStartScreenPosition;
     bool isDragging;
 
     void Awake()
     {
-        if (overlayRoot == null)
-            overlayRoot = transform as RectTransform;
-
-        canvas = GetComponentInParent<Canvas>();
-        BindVisualReferences();
         ApplyVisualStyle();
         SetVisualsActive(false);
     }
@@ -115,22 +110,6 @@ public sealed class AssignmentDragArrowPresenter : MonoBehaviour
             screenPosition,
             eventCamera,
             out localPosition);
-    }
-
-    void BindVisualReferences()
-    {
-        if (overlayRoot == null)
-            return;
-
-        if (lineRect == null)
-            lineRect = overlayRoot.Find("DragLine") as RectTransform;
-        if (lineImage == null && lineRect != null)
-            lineImage = lineRect.GetComponent<Image>();
-
-        if (arrowRect == null)
-            arrowRect = overlayRoot.Find("DragArrowHead") as RectTransform;
-        if (arrowText == null && arrowRect != null)
-            arrowText = arrowRect.GetComponent<TextMeshProUGUI>();
     }
 
     void ApplyVisualStyle()

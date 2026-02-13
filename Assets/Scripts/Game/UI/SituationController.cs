@@ -25,11 +25,6 @@ public sealed class SituationController : MonoBehaviour
     public RectTransform RootRect => rootRect;
     public string SituationInstanceId => situationInstanceId;
 
-    public void SetDicePrefab(GameObject prefab)
-    {
-        dicePrefab = prefab;
-    }
-
     public void BindSituation(string value)
     {
         situationInstanceId = value ?? string.Empty;
