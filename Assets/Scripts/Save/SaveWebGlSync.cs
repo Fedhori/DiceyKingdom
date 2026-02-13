@@ -77,8 +77,7 @@ public static class SaveWebGlSync
 #if UNITY_WEBGL && !UNITY_EDITOR
         if (SaveWebGlSyncBridge.Instance != null)
             return;
-
-        SaveWebGlSyncBridge.Create();
+        SaveLogger.LogWarning("SaveWebGlSyncBridge is missing in scene.");
 #endif
     }
 }

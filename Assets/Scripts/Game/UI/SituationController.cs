@@ -125,7 +125,8 @@ public sealed class SituationController : MonoBehaviour
 
     void RefreshDiceFaces(IReadOnlyList<int> remainingDiceFaces, int totalDiceCount)
     {
-        EnsureDiceRowRoot();
+        if (diceRowRoot == null && requirementText != null)
+            diceRowRoot = requirementText.rectTransform;
         if (diceRowRoot == null)
             return;
 
@@ -158,40 +159,6 @@ public sealed class SituationController : MonoBehaviour
                 face.view.SetDisabledLabel("-");
             }
         }
-    }
-
-    void EnsureDiceRowRoot()
-    {
-        if (diceRowRoot != null)
-            return;
-        if (requirementText == null)
-            return;
-
-        var requirementRect = requirementText.rectTransform;
-        if (requirementRect == null || requirementRect.parent == null)
-            return;
-
-        var rowObject = new GameObject(
-            "SituationDiceRow",
-            typeof(RectTransform),
-            typeof(HorizontalLayoutGroup));
-        rowObject.layer = LayerMask.NameToLayer("UI");
-
-        diceRowRoot = rowObject.GetComponent<RectTransform>();
-        diceRowRoot.SetParent(requirementRect.parent, false);
-        diceRowRoot.anchorMin = requirementRect.anchorMin;
-        diceRowRoot.anchorMax = requirementRect.anchorMax;
-        diceRowRoot.pivot = requirementRect.pivot;
-        diceRowRoot.anchoredPosition = requirementRect.anchoredPosition;
-        diceRowRoot.sizeDelta = requirementRect.sizeDelta;
-
-        var layout = rowObject.GetComponent<HorizontalLayoutGroup>();
-        layout.childAlignment = TextAnchor.MiddleCenter;
-        layout.childControlWidth = false;
-        layout.childControlHeight = false;
-        layout.childForceExpandWidth = false;
-        layout.childForceExpandHeight = false;
-        layout.spacing = 6f;
     }
 
     void EnsureDiceFaceCount(int targetCount)
@@ -246,7 +213,14 @@ public sealed class SituationController : MonoBehaviour
 
         var clickTarget = root.GetComponent<SituationDiceFaceClickTarget>();
         if (clickTarget == null)
-            clickTarget = root.AddComponent<SituationDiceFaceClickTarget>();
+        {
+            Debug.LogWarning("[SituationController] Dice prefab requires SituationDiceFaceClickTarget.", root);
+            if (Application.isPlaying)
+                Destroy(root);
+            else
+                DestroyImmediate(root);
+            return null;
+        }
         clickTarget.Bind(this, index);
 
         return new DiceFaceWidgets

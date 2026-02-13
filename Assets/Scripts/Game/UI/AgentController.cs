@@ -195,7 +195,14 @@ public sealed class AgentController : MonoBehaviour
 
         var clickTarget = root.GetComponent<AgentDiceFaceClickTarget>();
         if (clickTarget == null)
-            clickTarget = root.AddComponent<AgentDiceFaceClickTarget>();
+        {
+            Debug.LogWarning("[AgentController] Dice prefab requires AgentDiceFaceClickTarget.", root);
+            if (Application.isPlaying)
+                Destroy(root);
+            else
+                DestroyImmediate(root);
+            return null;
+        }
         clickTarget.Bind(this, index);
 
         return new DiceFaceWidgets

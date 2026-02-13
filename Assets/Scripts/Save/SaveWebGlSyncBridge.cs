@@ -11,19 +11,7 @@ public sealed class SaveWebGlSyncBridge : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void Initialize()
     {
-#if UNITY_WEBGL && !UNITY_EDITOR
-        Create();
-#endif
-    }
-
-    public static void Create()
-    {
-        if (instance != null)
-            return;
-
-        var go = new GameObject(GameObjectName);
-        instance = go.AddComponent<SaveWebGlSyncBridge>();
-        DontDestroyOnLoad(go);
+        instance = null;
     }
 
     void Awake()

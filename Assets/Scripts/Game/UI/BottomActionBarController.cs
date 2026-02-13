@@ -37,8 +37,9 @@ public sealed class BottomActionBarController : MonoBehaviour
     void Awake()
     {
         TryResolveContentRoot();
-        EnsureVisualTree();
         LoadSkillDefsIfNeeded();
+        BindVisualTree();
+        WireButtons();
     }
 
     void Start()
@@ -50,6 +51,18 @@ public sealed class BottomActionBarController : MonoBehaviour
     void OnDestroy()
     {
         UnsubscribeEvents();
+
+        if (commitButton != null)
+            commitButton.onClick.RemoveListener(OnCommitButtonPressed);
+
+        for (int i = 0; i < skillSlots.Count; i++)
+        {
+            var slot = skillSlots[i];
+            if (slot?.button == null)
+                continue;
+
+            slot.button.onClick.RemoveAllListeners();
+        }
 
         if (SkillTargetingSession.IsFor(GameManager.Instance))
             SkillTargetingSession.Cancel();
@@ -109,7 +122,7 @@ public sealed class BottomActionBarController : MonoBehaviour
     void RefreshSkillSlots()
     {
         int requestedSlotCount = Mathf.Clamp(visibleSkillSlotCount, 1, SkillHotkeys.Length);
-        EnsureSkillSlotCount(requestedSlotCount);
+        int renderedSlotCount = Mathf.Min(requestedSlotCount, skillSlots.Count);
 
         for (int index = 0; index < skillSlots.Count; index++)
         {
@@ -117,27 +130,42 @@ public sealed class BottomActionBarController : MonoBehaviour
             if (slot == null)
                 continue;
 
-            slot.hotkeyText.text = $"[{SkillHotkeys[index]}]";
+            bool visible = index < renderedSlotCount;
+            if (slot.root != null)
+                slot.root.gameObject.SetActive(visible);
+            if (!visible)
+                continue;
+
+            if (slot.hotkeyText != null)
+                slot.hotkeyText.text = $"[{SkillHotkeys[index]}]";
 
             var cooldown = GetCooldownBySlotIndex(index);
             if (cooldown == null || string.IsNullOrWhiteSpace(cooldown.skillDefId))
             {
-                slot.nameText.text = "Empty";
-                slot.statusText.text = "-";
-                slot.background.color = slotEmptyColor;
-                slot.button.interactable = false;
+                if (slot.nameText != null)
+                    slot.nameText.text = "Empty";
+                if (slot.statusText != null)
+                    slot.statusText.text = "-";
+                if (slot.background != null)
+                    slot.background.color = slotEmptyColor;
+                if (slot.button != null)
+                    slot.button.interactable = false;
                 continue;
             }
 
-            slot.nameText.text = ResolveSkillDisplayName(cooldown.skillDefId);
+            if (slot.nameText != null)
+                slot.nameText.text = ResolveSkillDisplayName(cooldown.skillDefId);
 
             bool baseUsable = GameManager.Instance.CanUseSkillBySlotIndex(index);
             bool canQuickCast = baseUsable && CanQuickCastWithoutAdditionalTarget(cooldown.skillDefId);
             bool isTargetingThisSlot = SkillTargetingSession.IsFor(GameManager.Instance, index);
 
-            slot.button.interactable = baseUsable;
-            slot.statusText.text = BuildSkillStatusText(cooldown, baseUsable, canQuickCast, isTargetingThisSlot);
-            slot.background.color = ResolveSkillSlotColor(cooldown, baseUsable, canQuickCast, isTargetingThisSlot);
+            if (slot.button != null)
+                slot.button.interactable = baseUsable;
+            if (slot.statusText != null)
+                slot.statusText.text = BuildSkillStatusText(cooldown, baseUsable, canQuickCast, isTargetingThisSlot);
+            if (slot.background != null)
+                slot.background.color = ResolveSkillSlotColor(cooldown, baseUsable, canQuickCast, isTargetingThisSlot);
         }
     }
 
@@ -162,227 +190,6 @@ public sealed class BottomActionBarController : MonoBehaviour
             commitButtonText.text = $"End Turn [Space] ({pendingCount} pending)";
         else
             commitButtonText.text = "End Turn [Space]";
-    }
-
-    void EnsureVisualTree()
-    {
-        if (contentRoot == null)
-            return;
-
-        EnsureBarBackground();
-        EnsureBodyRoot();
-        EnsureSkillRowRoot();
-        EnsureCommitButton();
-        EnsureSkillSlotCount(Mathf.Clamp(visibleSkillSlotCount, 1, SkillHotkeys.Length));
-    }
-
-    void EnsureBarBackground()
-    {
-        var image = contentRoot.GetComponent<Image>();
-        if (image == null)
-            image = contentRoot.gameObject.AddComponent<Image>();
-
-        image.color = barBackgroundColor;
-        image.raycastTarget = true;
-    }
-
-    void EnsureBodyRoot()
-    {
-        if (bodyRoot != null)
-            return;
-
-        var bodyObject = new GameObject(
-            "ActionBarBody",
-            typeof(RectTransform),
-            typeof(HorizontalLayoutGroup));
-        bodyObject.layer = LayerMask.NameToLayer("UI");
-        bodyRoot = bodyObject.GetComponent<RectTransform>();
-        bodyRoot.SetParent(contentRoot, false);
-        bodyRoot.anchorMin = new Vector2(0f, 0f);
-        bodyRoot.anchorMax = new Vector2(1f, 1f);
-        bodyRoot.offsetMin = new Vector2(14f, 12f);
-        bodyRoot.offsetMax = new Vector2(-14f, -12f);
-
-        var layout = bodyObject.GetComponent<HorizontalLayoutGroup>();
-        layout.childAlignment = TextAnchor.MiddleLeft;
-        layout.childControlWidth = true;
-        layout.childControlHeight = true;
-        layout.childForceExpandWidth = false;
-        layout.childForceExpandHeight = true;
-        layout.spacing = 12f;
-    }
-
-    void EnsureSkillRowRoot()
-    {
-        if (skillRowRoot != null)
-            return;
-
-        var rowObject = new GameObject(
-            "SkillRow",
-            typeof(RectTransform),
-            typeof(LayoutElement),
-            typeof(HorizontalLayoutGroup));
-        rowObject.layer = LayerMask.NameToLayer("UI");
-        skillRowRoot = rowObject.GetComponent<RectTransform>();
-        skillRowRoot.SetParent(bodyRoot, false);
-
-        var rowLayoutElement = rowObject.GetComponent<LayoutElement>();
-        rowLayoutElement.flexibleWidth = 1f;
-        rowLayoutElement.preferredWidth = 1000f;
-        rowLayoutElement.minWidth = 400f;
-
-        var rowLayout = rowObject.GetComponent<HorizontalLayoutGroup>();
-        rowLayout.childAlignment = TextAnchor.MiddleLeft;
-        rowLayout.childControlWidth = true;
-        rowLayout.childControlHeight = true;
-        rowLayout.childForceExpandWidth = false;
-        rowLayout.childForceExpandHeight = true;
-        rowLayout.spacing = 10f;
-    }
-
-    void EnsureCommitButton()
-    {
-        if (commitButton != null)
-            return;
-
-        var buttonObject = new GameObject(
-            "CommitButton",
-            typeof(RectTransform),
-            typeof(LayoutElement),
-            typeof(Image),
-            typeof(Button));
-        buttonObject.layer = LayerMask.NameToLayer("UI");
-        var buttonRect = buttonObject.GetComponent<RectTransform>();
-        buttonRect.SetParent(bodyRoot, false);
-
-        var layoutElement = buttonObject.GetComponent<LayoutElement>();
-        layoutElement.preferredWidth = 320f;
-        layoutElement.minWidth = 280f;
-
-        commitButtonImage = buttonObject.GetComponent<Image>();
-        commitButtonImage.color = commitReadyColor;
-
-        commitButton = buttonObject.GetComponent<Button>();
-        commitButton.targetGraphic = commitButtonImage;
-        commitButton.onClick.AddListener(OnCommitButtonPressed);
-
-        commitButtonText = CreateLabel(
-            "CommitText",
-            buttonRect,
-            24f,
-            FontStyles.Bold,
-            TextAlignmentOptions.Center,
-            labelColor);
-        commitButtonText.rectTransform.anchorMin = Vector2.zero;
-        commitButtonText.rectTransform.anchorMax = Vector2.one;
-        commitButtonText.rectTransform.offsetMin = Vector2.zero;
-        commitButtonText.rectTransform.offsetMax = Vector2.zero;
-    }
-
-    void EnsureSkillSlotCount(int desiredCount)
-    {
-        if (skillRowRoot == null)
-            return;
-        if (desiredCount == skillSlots.Count)
-            return;
-
-        ClearSkillSlots();
-
-        for (int index = 0; index < desiredCount; index++)
-            skillSlots.Add(CreateSkillSlot(index));
-    }
-
-    void ClearSkillSlots()
-    {
-        for (int index = 0; index < skillSlots.Count; index++)
-        {
-            var slot = skillSlots[index];
-            if (slot?.root == null)
-                continue;
-
-            if (Application.isPlaying)
-                Destroy(slot.root.gameObject);
-            else
-                DestroyImmediate(slot.root.gameObject);
-        }
-
-        skillSlots.Clear();
-    }
-
-    SkillSlotWidgets CreateSkillSlot(int slotIndex)
-    {
-        var slotObject = new GameObject(
-            $"SkillSlot_{slotIndex + 1}",
-            typeof(RectTransform),
-            typeof(LayoutElement),
-            typeof(Image),
-            typeof(Button));
-        slotObject.layer = LayerMask.NameToLayer("UI");
-
-        var slotRect = slotObject.GetComponent<RectTransform>();
-        slotRect.SetParent(skillRowRoot, false);
-
-        var layoutElement = slotObject.GetComponent<LayoutElement>();
-        layoutElement.preferredWidth = 228f;
-        layoutElement.minWidth = 180f;
-
-        var background = slotObject.GetComponent<Image>();
-        background.color = slotCooldownColor;
-
-        var button = slotObject.GetComponent<Button>();
-        button.targetGraphic = background;
-        int capturedIndex = slotIndex;
-        button.onClick.AddListener(() => OnSkillSlotPressed(capturedIndex));
-
-        var hotkeyText = CreateLabel(
-            "HotkeyText",
-            slotRect,
-            19f,
-            FontStyles.Bold,
-            TextAlignmentOptions.TopLeft,
-            subtleLabelColor);
-        hotkeyText.rectTransform.anchorMin = new Vector2(0f, 1f);
-        hotkeyText.rectTransform.anchorMax = new Vector2(0f, 1f);
-        hotkeyText.rectTransform.pivot = new Vector2(0f, 1f);
-        hotkeyText.rectTransform.anchoredPosition = new Vector2(10f, -8f);
-        hotkeyText.rectTransform.sizeDelta = new Vector2(54f, 24f);
-
-        var nameText = CreateLabel(
-            "NameText",
-            slotRect,
-            20f,
-            FontStyles.Bold,
-            TextAlignmentOptions.Center,
-            labelColor);
-        nameText.rectTransform.anchorMin = new Vector2(0f, 0f);
-        nameText.rectTransform.anchorMax = new Vector2(1f, 1f);
-        nameText.rectTransform.offsetMin = new Vector2(10f, 34f);
-        nameText.rectTransform.offsetMax = new Vector2(-10f, -30f);
-        nameText.textWrappingMode = TextWrappingModes.Normal;
-        nameText.overflowMode = TextOverflowModes.Ellipsis;
-
-        var statusText = CreateLabel(
-            "StatusText",
-            slotRect,
-            18f,
-            FontStyles.Normal,
-            TextAlignmentOptions.Bottom,
-            subtleLabelColor);
-        statusText.rectTransform.anchorMin = new Vector2(0f, 0f);
-        statusText.rectTransform.anchorMax = new Vector2(1f, 0f);
-        statusText.rectTransform.pivot = new Vector2(0.5f, 0f);
-        statusText.rectTransform.anchoredPosition = new Vector2(0f, 8f);
-        statusText.rectTransform.sizeDelta = new Vector2(-12f, 24f);
-
-        return new SkillSlotWidgets
-        {
-            root = slotRect,
-            button = button,
-            background = background,
-            hotkeyText = hotkeyText,
-            nameText = nameText,
-            statusText = statusText
-        };
     }
 
     void OnSkillSlotPressed(int skillSlotIndex)
@@ -689,27 +496,120 @@ public sealed class BottomActionBarController : MonoBehaviour
         }
     }
 
-    static TextMeshProUGUI CreateLabel(
-        string name,
-        Transform parent,
-        float fontSize,
-        FontStyles style,
-        TextAlignmentOptions alignment,
-        Color color)
+    void BindVisualTree()
     {
-        var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
-        go.layer = LayerMask.NameToLayer("UI");
-        var rect = go.GetComponent<RectTransform>();
-        rect.SetParent(parent, false);
+        if (contentRoot == null)
+            return;
 
-        var text = go.GetComponent<TextMeshProUGUI>();
-        text.fontSize = fontSize;
-        text.fontStyle = style;
-        text.alignment = alignment;
-        text.color = color;
-        text.raycastTarget = false;
-        text.text = string.Empty;
-        return text;
+        var background = contentRoot.GetComponent<Image>();
+        if (background != null)
+        {
+            background.color = barBackgroundColor;
+            background.raycastTarget = true;
+        }
+
+        bodyRoot = FindRectChild(contentRoot, "ActionBarBody");
+        skillRowRoot = bodyRoot != null ? FindRectChild(bodyRoot, "SkillRow") : null;
+
+        var commitRoot = bodyRoot != null ? FindRectChild(bodyRoot, "CommitButton") : null;
+        if (commitRoot != null)
+        {
+            commitButton = commitRoot.GetComponent<Button>();
+            commitButtonImage = commitRoot.GetComponent<Image>();
+            var commitTextRoot = FindRectChild(commitRoot, "CommitText");
+            if (commitTextRoot != null)
+                commitButtonText = commitTextRoot.GetComponent<TextMeshProUGUI>();
+        }
+
+        CollectSkillSlots();
+    }
+
+    void WireButtons()
+    {
+        if (commitButton != null)
+        {
+            commitButton.onClick.RemoveListener(OnCommitButtonPressed);
+            commitButton.onClick.AddListener(OnCommitButtonPressed);
+        }
+
+        for (int index = 0; index < skillSlots.Count; index++)
+        {
+            var slot = skillSlots[index];
+            if (slot?.button == null)
+                continue;
+
+            int capturedIndex = index;
+            slot.button.onClick.RemoveAllListeners();
+            slot.button.onClick.AddListener(() => OnSkillSlotPressed(capturedIndex));
+        }
+    }
+
+    void CollectSkillSlots()
+    {
+        skillSlots.Clear();
+        if (skillRowRoot == null)
+            return;
+
+        var unordered = new List<(int order, SkillSlotWidgets slot)>();
+        for (int i = 0; i < skillRowRoot.childCount; i++)
+        {
+            var child = skillRowRoot.GetChild(i) as RectTransform;
+            if (child == null)
+                continue;
+            if (!child.name.StartsWith("SkillSlot_", StringComparison.Ordinal))
+                continue;
+
+            var slot = new SkillSlotWidgets
+            {
+                root = child,
+                button = child.GetComponent<Button>(),
+                background = child.GetComponent<Image>(),
+                hotkeyText = FindTextChild(child, "HotkeyText"),
+                nameText = FindTextChild(child, "NameText"),
+                statusText = FindTextChild(child, "StatusText")
+            };
+
+            int order = ParseSlotOrder(child.name, i);
+            unordered.Add((order, slot));
+        }
+
+        unordered.Sort((a, b) => a.order.CompareTo(b.order));
+        for (int i = 0; i < unordered.Count; i++)
+            skillSlots.Add(unordered[i].slot);
+    }
+
+    static int ParseSlotOrder(string name, int fallback)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return fallback;
+
+        int underscoreIndex = name.LastIndexOf('_');
+        if (underscoreIndex < 0 || underscoreIndex >= name.Length - 1)
+            return fallback;
+
+        string suffix = name.Substring(underscoreIndex + 1);
+        if (!int.TryParse(suffix, out int parsed))
+            return fallback;
+
+        return parsed;
+    }
+
+    static RectTransform FindRectChild(RectTransform parent, string childName)
+    {
+        if (parent == null || string.IsNullOrWhiteSpace(childName))
+            return null;
+
+        var child = parent.Find(childName) as RectTransform;
+        return child;
+    }
+
+    static TextMeshProUGUI FindTextChild(RectTransform parent, string childName)
+    {
+        var child = FindRectChild(parent, childName);
+        if (child == null)
+            return null;
+
+        return child.GetComponent<TextMeshProUGUI>();
     }
 
     static string ToDisplayTitle(string raw)
@@ -770,4 +670,3 @@ public sealed class BottomActionBarController : MonoBehaviour
         public TextMeshProUGUI statusText;
     }
 }
-

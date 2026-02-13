@@ -23,6 +23,7 @@
 
 ## Done
 
+- 2026-02-13: 규칙 위반 리팩토링 1단계 완료 — 런타임 `new GameObject`/`AddComponent` 제거, UI 바인딩을 씬/프리팹 참조 기반으로 전환, `BottomActionBarController`/`SituationController`의 레이아웃 강제 코드 제거
 - 2026-02-13: 전 스크립트 `OnEnable/OnDisable` 제거 및 `Start/OnDestroy` 일괄 전환(이벤트 구독/해제 포함) + 규칙 문서화(`Docs/GENERAL_RULES.md`)
 - 2026-02-13: `GameTurnOrchestrator` 제거 및 매니저 분리 리팩토링 완료(`GameManager`, `PhaseManager`, `PlayerManager`, `DuelManager`, `AgentManager`, `SituationManager`) + `Managers` 하위 오브젝트/컴포넌트 반영
 - 2026-02-13: 이벤트는 UI 갱신 전용/로직 이벤트 금지 원칙을 `Docs/GENERAL_RULES.md`에 반영하고, `Docs/REFACTORING_PLAN_MANAGER_SPLIT.md` 리팩토링 계획서 작성

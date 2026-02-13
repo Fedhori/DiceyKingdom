@@ -28,7 +28,7 @@ public sealed class TopHudController : MonoBehaviour
     void Awake()
     {
         TryResolveContentRoot();
-        EnsureVisualTree();
+        BindVisualTree();
     }
 
     void Start()
@@ -196,107 +196,59 @@ public sealed class TopHudController : MonoBehaviour
         return $"{number} ({ToDisplayTitle(runState.stage.activePresetId)})";
     }
 
-    void EnsureVisualTree()
+    void BindVisualTree()
     {
         if (contentRoot == null)
             return;
 
-        EnsureBarBackground();
-        EnsureRowRoot();
-        EnsureHudItems();
+        var background = contentRoot.GetComponent<Image>();
+        if (background != null)
+        {
+            background.color = barColor;
+            background.raycastTarget = false;
+        }
+
+        rowRoot = FindRectChild(contentRoot, "TopHudRow");
+        turnItem = FindHudItem("TurnItem");
+        stageItem = FindHudItem("StageItem");
+        phaseItem = FindHudItem("PhaseItem");
+        stabilityItem = FindHudItem("StabilityItem");
+        goldItem = FindHudItem("GoldItem");
+        runItem = FindHudItem("RunItem");
     }
 
-    void EnsureBarBackground()
+    HudItem FindHudItem(string objectName)
     {
-        var image = contentRoot.GetComponent<Image>();
-        if (image == null)
-            image = contentRoot.gameObject.AddComponent<Image>();
+        if (rowRoot == null || string.IsNullOrWhiteSpace(objectName))
+            return null;
 
-        image.color = barColor;
-        image.raycastTarget = false;
-    }
-
-    void EnsureRowRoot()
-    {
-        if (rowRoot != null)
-            return;
-
-        var rowObject = new GameObject(
-            "TopHudRow",
-            typeof(RectTransform),
-            typeof(HorizontalLayoutGroup));
-        rowObject.layer = LayerMask.NameToLayer("UI");
-
-        rowRoot = rowObject.GetComponent<RectTransform>();
-        rowRoot.SetParent(contentRoot, false);
-        rowRoot.anchorMin = new Vector2(0f, 0f);
-        rowRoot.anchorMax = new Vector2(1f, 1f);
-        rowRoot.offsetMin = new Vector2(12f, 10f);
-        rowRoot.offsetMax = new Vector2(-12f, -10f);
-
-        var layout = rowObject.GetComponent<HorizontalLayoutGroup>();
-        layout.childAlignment = TextAnchor.MiddleCenter;
-        layout.childControlWidth = true;
-        layout.childControlHeight = true;
-        layout.childForceExpandWidth = true;
-        layout.childForceExpandHeight = true;
-        layout.spacing = 10f;
-    }
-
-    void EnsureHudItems()
-    {
-        if (turnItem != null)
-            return;
-
-        turnItem = CreateHudItem("TurnItem");
-        stageItem = CreateHudItem("StageItem");
-        phaseItem = CreateHudItem("PhaseItem");
-        stabilityItem = CreateHudItem("StabilityItem");
-        goldItem = CreateHudItem("GoldItem");
-        runItem = CreateHudItem("RunItem");
-    }
-
-    HudItem CreateHudItem(string objectName)
-    {
-        var panelObject = new GameObject(
-            objectName,
-            typeof(RectTransform),
-            typeof(LayoutElement),
-            typeof(Image));
-        panelObject.layer = LayerMask.NameToLayer("UI");
-
-        var panelRect = panelObject.GetComponent<RectTransform>();
-        panelRect.SetParent(rowRoot, false);
-
-        var layout = panelObject.GetComponent<LayoutElement>();
-        layout.flexibleWidth = 1f;
-        layout.minWidth = 120f;
-
-        var background = panelObject.GetComponent<Image>();
-        background.color = panelColor;
-        background.raycastTarget = false;
-
-        var titleText = CreateLabel("TitleText", panelRect, 17f, FontStyles.Bold, TextAlignmentOptions.TopLeft, titleColor);
-        titleText.rectTransform.anchorMin = new Vector2(0f, 1f);
-        titleText.rectTransform.anchorMax = new Vector2(1f, 1f);
-        titleText.rectTransform.pivot = new Vector2(0.5f, 1f);
-        titleText.rectTransform.offsetMin = new Vector2(10f, -26f);
-        titleText.rectTransform.offsetMax = new Vector2(-10f, -4f);
-
-        var valueText = CreateLabel("ValueText", panelRect, 24f, FontStyles.Bold, TextAlignmentOptions.BottomLeft, valueColor);
-        valueText.rectTransform.anchorMin = new Vector2(0f, 0f);
-        valueText.rectTransform.anchorMax = new Vector2(1f, 1f);
-        valueText.rectTransform.offsetMin = new Vector2(10f, 8f);
-        valueText.rectTransform.offsetMax = new Vector2(-10f, -20f);
-        valueText.textWrappingMode = TextWrappingModes.NoWrap;
-        valueText.overflowMode = TextOverflowModes.Ellipsis;
+        var panelRoot = FindRectChild(rowRoot, objectName);
+        if (panelRoot == null)
+            return null;
 
         return new HudItem
         {
-            background = background,
-            titleText = titleText,
-            valueText = valueText
+            background = panelRoot.GetComponent<Image>(),
+            titleText = FindTextChild(panelRoot, "TitleText"),
+            valueText = FindTextChild(panelRoot, "ValueText")
         };
+    }
+
+    static RectTransform FindRectChild(RectTransform parent, string childName)
+    {
+        if (parent == null || string.IsNullOrWhiteSpace(childName))
+            return null;
+
+        return parent.Find(childName) as RectTransform;
+    }
+
+    static TextMeshProUGUI FindTextChild(RectTransform parent, string childName)
+    {
+        var child = FindRectChild(parent, childName);
+        if (child == null)
+            return null;
+
+        return child.GetComponent<TextMeshProUGUI>();
     }
 
     void SetItem(HudItem item, string title, string value)
@@ -307,7 +259,10 @@ public sealed class TopHudController : MonoBehaviour
         if (item.background != null)
             item.background.color = panelColor;
         if (item.titleText != null)
+        {
             item.titleText.text = title ?? string.Empty;
+            item.titleText.color = titleColor;
+        }
         if (item.valueText != null)
         {
             item.valueText.text = value ?? string.Empty;
@@ -321,29 +276,6 @@ public sealed class TopHudController : MonoBehaviour
             return;
 
         contentRoot = transform as RectTransform;
-    }
-
-    static TextMeshProUGUI CreateLabel(
-        string name,
-        Transform parent,
-        float fontSize,
-        FontStyles style,
-        TextAlignmentOptions alignment,
-        Color color)
-    {
-        var go = new GameObject(name, typeof(RectTransform), typeof(TextMeshProUGUI));
-        go.layer = LayerMask.NameToLayer("UI");
-        var rect = go.GetComponent<RectTransform>();
-        rect.SetParent(parent, false);
-
-        var text = go.GetComponent<TextMeshProUGUI>();
-        text.fontSize = fontSize;
-        text.fontStyle = style;
-        text.alignment = alignment;
-        text.color = color;
-        text.raycastTarget = false;
-        text.text = string.Empty;
-        return text;
     }
 
     static string ToDisplayTitle(string raw)

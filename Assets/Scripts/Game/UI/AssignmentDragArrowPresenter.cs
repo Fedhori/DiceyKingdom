@@ -5,15 +5,15 @@ using UnityEngine.UI;
 public sealed class AssignmentDragArrowPresenter : MonoBehaviour
 {
     [SerializeField] RectTransform overlayRoot;
+    [SerializeField] RectTransform lineRect;
+    [SerializeField] Image lineImage;
+    [SerializeField] RectTransform arrowRect;
+    [SerializeField] TextMeshProUGUI arrowText;
     [SerializeField] float lineThickness = 6f;
     [SerializeField] Color lineColor = new(0.92f, 0.96f, 1f, 0.95f);
     [SerializeField] Color arrowColor = new(0.96f, 0.84f, 0.26f, 1f);
     [SerializeField] float arrowFontSize = 44f;
 
-    RectTransform lineRect;
-    Image lineImage;
-    RectTransform arrowRect;
-    TextMeshProUGUI arrowText;
     Canvas canvas;
     Vector2 dragStartScreenPosition;
     bool isDragging;
@@ -24,7 +24,8 @@ public sealed class AssignmentDragArrowPresenter : MonoBehaviour
             overlayRoot = transform as RectTransform;
 
         canvas = GetComponentInParent<Canvas>();
-        EnsureVisuals();
+        BindVisualReferences();
+        ApplyVisualStyle();
         SetVisualsActive(false);
     }
 
@@ -85,12 +86,18 @@ public sealed class AssignmentDragArrowPresenter : MonoBehaviour
         float angle = Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg;
         var midpoint = (startLocal + endLocal) * 0.5f;
 
-        lineRect.anchoredPosition = midpoint;
-        lineRect.sizeDelta = new Vector2(distance, lineThickness);
-        lineRect.localRotation = Quaternion.Euler(0f, 0f, angle);
+        if (lineRect != null)
+        {
+            lineRect.anchoredPosition = midpoint;
+            lineRect.sizeDelta = new Vector2(distance, lineThickness);
+            lineRect.localRotation = Quaternion.Euler(0f, 0f, angle);
+        }
 
-        arrowRect.anchoredPosition = endLocal;
-        arrowRect.localRotation = Quaternion.Euler(0f, 0f, angle);
+        if (arrowRect != null)
+        {
+            arrowRect.anchoredPosition = endLocal;
+            arrowRect.localRotation = Quaternion.Euler(0f, 0f, angle);
+        }
     }
 
     bool TryScreenToLocal(Vector2 screenPosition, out Vector2 localPosition)
@@ -110,38 +117,32 @@ public sealed class AssignmentDragArrowPresenter : MonoBehaviour
             out localPosition);
     }
 
-    void EnsureVisuals()
+    void BindVisualReferences()
     {
         if (overlayRoot == null)
             return;
 
         if (lineRect == null)
-        {
-            var lineObject = new GameObject("DragLine", typeof(RectTransform), typeof(Image));
-            lineObject.layer = LayerMask.NameToLayer("UI");
-            lineRect = lineObject.GetComponent<RectTransform>();
-            lineRect.SetParent(overlayRoot, false);
-            lineRect.anchorMin = new Vector2(0.5f, 0.5f);
-            lineRect.anchorMax = new Vector2(0.5f, 0.5f);
-            lineRect.pivot = new Vector2(0.5f, 0.5f);
+            lineRect = overlayRoot.Find("DragLine") as RectTransform;
+        if (lineImage == null && lineRect != null)
+            lineImage = lineRect.GetComponent<Image>();
 
-            lineImage = lineObject.GetComponent<Image>();
+        if (arrowRect == null)
+            arrowRect = overlayRoot.Find("DragArrowHead") as RectTransform;
+        if (arrowText == null && arrowRect != null)
+            arrowText = arrowRect.GetComponent<TextMeshProUGUI>();
+    }
+
+    void ApplyVisualStyle()
+    {
+        if (lineImage != null)
+        {
             lineImage.raycastTarget = false;
             lineImage.color = lineColor;
         }
 
-        if (arrowRect == null)
+        if (arrowText != null)
         {
-            var arrowObject = new GameObject("DragArrowHead", typeof(RectTransform), typeof(TextMeshProUGUI));
-            arrowObject.layer = LayerMask.NameToLayer("UI");
-            arrowRect = arrowObject.GetComponent<RectTransform>();
-            arrowRect.SetParent(overlayRoot, false);
-            arrowRect.anchorMin = new Vector2(0.5f, 0.5f);
-            arrowRect.anchorMax = new Vector2(0.5f, 0.5f);
-            arrowRect.pivot = new Vector2(0.5f, 0.5f);
-            arrowRect.sizeDelta = new Vector2(36f, 36f);
-
-            arrowText = arrowObject.GetComponent<TextMeshProUGUI>();
             arrowText.raycastTarget = false;
             arrowText.fontSize = arrowFontSize;
             arrowText.fontStyle = FontStyles.Bold;
@@ -149,9 +150,6 @@ public sealed class AssignmentDragArrowPresenter : MonoBehaviour
             arrowText.color = arrowColor;
             arrowText.text = ">";
         }
-
-        lineRect.SetAsLastSibling();
-        arrowRect.SetAsLastSibling();
     }
 
     void SetVisualsActive(bool isActive)

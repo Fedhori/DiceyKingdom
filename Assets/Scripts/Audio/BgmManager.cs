@@ -32,7 +32,10 @@ public sealed class BgmManager : MonoBehaviour
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
-            audioSource = gameObject.AddComponent<AudioSource>();
+        {
+            Debug.LogWarning("[BgmManager] AudioSource is not assigned.", this);
+            return;
+        }
 
         audioSource.loop = true;
         audioSource.playOnAwake = false;
@@ -42,7 +45,10 @@ public sealed class BgmManager : MonoBehaviour
         if (lowPassFilter == null)
             lowPassFilter = GetComponent<AudioLowPassFilter>();
         if (lowPassFilter == null)
-            lowPassFilter = gameObject.AddComponent<AudioLowPassFilter>();
+        {
+            Debug.LogWarning("[BgmManager] AudioLowPassFilter is not assigned.", this);
+            return;
+        }
 
         lowPassFilter.enabled = true;
         lowPassFilter.cutoffFrequency = normalCutoff;
