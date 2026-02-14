@@ -11,17 +11,18 @@
 
 ## Planned
 
-- [P0] 신규 코어 데이터 스키마/DTO/로더 작성 (`Adventurers`, `Missions`, `Traits`, `EffectBundle`)
-- [P0] 런타임 상태 모델 구축 (`RunState`, `KingdomState`, `AdventurerState`, `MissionState`, `CandidateState`, `CemeteryState`)
-- [P0] 매니저 골격 구현 (`GameManager`, `KingdomManager`, `AdventurerManager`, `MissionManager`, `AbilityTestManager`, `TraitManager`)
-- [P0] 핵심 턴 루프 구현 (후보 생성/고용 -> 배치/재배치 -> 테스트 -> 원정 성공/실패 -> 턴 정산 -> 임무 실패 -> 게임오버)
-- [P0] 원정/임무 판정 규칙 구현 (영웅심 1회 제한, 참여 잠금, 전원 사망 자동 포기, 임무 진행도 유지, 임무 실패 시 제거)
-- [P0] 특성 시스템 구현 (성공 `60/30/10`, 실패 `60/10/30`, 임무당 1회 판정, 슬롯 부족 시 잠금 제외 랜덤 교체)
-- [P1] 회복/자원 정산 규칙 구현 (전원 HP +1, 휴식자 Stamina +1, 최대 체력 clamp, 실패 효과 즉시 적용)
-- [P1] 최소 플레이용 UI 연결 (후보/고용, 임무/기한/진행도, 배치, 테스트 실행, 결과/안정도 표시)
-- [P1] 컴파일/플레이 스모크 테스트 (런 시작, 1턴 진행, 원정 실패, 임무 실패, 사망자 공동묘지 이동)
-- [P1] 문서 동기화 (`Docs/GAME_STRUCTURE.md`, `Docs/ADVENTURER.md`, `Docs/MISSION.md`, `Docs/ABILITY_TEST.md`, `Docs/TRAIT.md`)
-- [P2] 후순위 시스템 틀만 추가 (장비/시설/스킬·소모품/태그 상호작용 placeholder)
+- [P0] 정적 Def 스키마/로더 구현 (`DefTypes.cs`, `StaticDataLoader.cs`, `StaticDataSet.cs` + `AdventurerDefList`, `MissionDefList`, `TraitDefList`, `EffectDef`)
+- [P0] 런타임 Instance 스키마 구현 (`AdventurerInstance`, `MissionInstance`, `TraitInstance`, `ModifierInstance`, `RunState`) 및 uid-only reference 규칙 적용
+- [P0] Rule 시스템 구현 (`RuleDef = trigger + condition + effects`) 및 Mission/Trait 공통 rules 파이프라인 구축
+- [P0] Effect 처리기 구현 (`EffectDef` + `params: List<float>` + `targetType/targetId` + `paramCount` 검증 + `Floor` 반올림 규칙)
+- [P0] Stat Modifier 시스템 구현 (`StatId enum`, `add -> mul -> set -> floor`, `layer: normal|mission`, `stackPolicy`, `owner dirty + on-demand recalc`)
+- [P0] 핵심 원정/임무 규칙 구현 (영웅심 임무당 1회, 첫 테스트 시작 시 참여 잠금, 전원 사망 자동 포기, 원정 실패 시 임무 유지/진행도 유지, 임무 실패 시 제거)
+- [P0] 턴 루프 구현 (후보 2명 생성/미채용 폐기, 정원 6, 임무 턴당 2개, 정산 시 deadline 감소/임무 실패 처리, 전원 HP+1/휴식자 Stamina+1)
+- [P0] 특성 시스템 구현 (성공 `60/30/10`, 실패 `60/10/30`, 임무당 단일 결과, 슬롯 부족 시 잠금 제외 랜덤 교체, 임무 종료 시 mission layer modifier 제거)
+- [P1] 최소 플레이용 UI 연결 (후보/고용, 임무/기한/진행도, 배치, 테스트 실행, 원정 실패/임무 실패/공동묘지 상태 표시)
+- [P1] 검증/스모크 테스트 (런 시작, 1턴 루프, 원정 실패 즉시 효과, 임무 실패 제거, 조건부 규칙 onHpChanged 재계산 반영)
+- [P1] 문서 동기화 (`Docs/GAME_STRUCTURE.md`, `Docs/ADVENTURER.md`, `Docs/MISSION.md`, `Docs/ABILITY_TEST.md`, `Docs/TRAIT.md`, `Docs/GENERAL_RULES.md`)
+- [P2] 후순위 placeholder 정리 (장비/시설/스킬·소모품/태그 시스템 필드만 유지, 로직 비활성)
 
 ## In Progress
 
