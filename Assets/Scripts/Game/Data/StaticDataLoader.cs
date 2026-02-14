@@ -84,13 +84,7 @@ public static class StaticDataLoader
         ValidateMissionDefs(missions, MissionsPath);
         ValidateTraitDefs(traits, TraitsPath);
 
-        var set = new StaticDataSet
-        {
-            adventurerDefs = adventurers,
-            missionDefs = missions,
-            traitDefs = traits
-        };
-        set.BuildIndexes();
+        var set = new StaticDataSet(adventurers, missions, traits);
         Current = set;
         return set;
     }

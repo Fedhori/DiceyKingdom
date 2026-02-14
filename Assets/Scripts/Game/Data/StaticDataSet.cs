@@ -3,15 +3,34 @@ using System.Collections.Generic;
 
 public sealed class StaticDataSet
 {
-    public List<AdventurerDef> adventurerDefs = new();
-    public List<MissionDef> missionDefs = new();
-    public List<TraitDef> traitDefs = new();
+    readonly List<AdventurerDef> adventurerDefs = new();
+    readonly List<MissionDef> missionDefs = new();
+    readonly List<TraitDef> traitDefs = new();
+
+    public IReadOnlyList<AdventurerDef> AdventurerDefs => adventurerDefs;
+    public IReadOnlyList<MissionDef> MissionDefs => missionDefs;
+    public IReadOnlyList<TraitDef> TraitDefs => traitDefs;
 
     readonly Dictionary<string, AdventurerDef> adventurerDefById = new(StringComparer.Ordinal);
     readonly Dictionary<string, MissionDef> missionDefById = new(StringComparer.Ordinal);
     readonly Dictionary<string, TraitDef> traitDefById = new(StringComparer.Ordinal);
 
-    public void BuildIndexes()
+    public StaticDataSet(
+        IReadOnlyList<AdventurerDef> adventurers,
+        IReadOnlyList<MissionDef> missions,
+        IReadOnlyList<TraitDef> traits)
+    {
+        if (adventurers != null)
+            adventurerDefs.AddRange(adventurers);
+        if (missions != null)
+            missionDefs.AddRange(missions);
+        if (traits != null)
+            traitDefs.AddRange(traits);
+
+        BuildIndexes();
+    }
+
+    void BuildIndexes()
     {
         adventurerDefById.Clear();
         missionDefById.Clear();
@@ -76,5 +95,29 @@ public sealed class StaticDataSet
         }
 
         return traitDefById.TryGetValue(id, out def);
+    }
+
+    public AdventurerDef GetAdventurerDefOrThrow(string id)
+    {
+        if (TryGetAdventurerDef(id, out AdventurerDef def))
+            return def;
+
+        throw new KeyNotFoundException($"[StaticDataSet] AdventurerDef not found: {id}");
+    }
+
+    public MissionDef GetMissionDefOrThrow(string id)
+    {
+        if (TryGetMissionDef(id, out MissionDef def))
+            return def;
+
+        throw new KeyNotFoundException($"[StaticDataSet] MissionDef not found: {id}");
+    }
+
+    public TraitDef GetTraitDefOrThrow(string id)
+    {
+        if (TryGetTraitDef(id, out TraitDef def))
+            return def;
+
+        throw new KeyNotFoundException($"[StaticDataSet] TraitDef not found: {id}");
     }
 }

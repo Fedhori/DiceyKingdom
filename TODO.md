@@ -33,5 +33,6 @@
 
 ## Done
 
+- 2026-02-14: [P0] 정적 Def 로더 안정화 (`StaticDataSet` 읽기 전용화/조회 API 보강 + `sa_manifest.json`을 `GameConfig/Adventurers/Missions/Traits` 기준으로 동기화)
 - 2026-02-14: [P0] 정적 Def 스키마/로더 구현 완료 (`DefTypes.cs`, `StaticDataLoader.cs`, `StaticDataSet.cs` + `Adventurers/Missions/Traits` JSON 추가, Bootstrap 로드 검증 연동)
 - 2026-02-14: `GameConfig.json` 로딩 파이프라인 구현 (`Bootstrap` 로드 -> `GameConfigProvider` -> `GameConfigData` 전역 접근) + `TooltipManager` 연동
