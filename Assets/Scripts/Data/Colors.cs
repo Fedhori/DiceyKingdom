@@ -2,19 +2,57 @@ using UnityEngine;
 
 public static class Colors
 {
-    public static readonly Color32 White = new Color32(0xFF, 0xFF, 0xFF, 0xFF); // #FFFFFF
+    // Primitive palette: dark fantasy + serious tone.
+    public static class Primitive
+    {
+        public static readonly Color32 Abyss950 = new Color32(0x0B, 0x0D, 0x12, 0xFF); // #0B0D12
+        public static readonly Color32 Abyss900 = new Color32(0x11, 0x16, 0x22, 0xFF); // #111622
+        public static readonly Color32 Slate800 = new Color32(0x1A, 0x22, 0x32, 0xFF); // #1A2232
+        public static readonly Color32 Slate700 = new Color32(0x26, 0x32, 0x48, 0xFF); // #263248
 
-    // ATK Tooltip Number Colors
-    public static readonly Color32 AtkBase = new Color32(0xF0, 0xF7, 0xFF, 0xFF);   // #F0F7FF
-    public static readonly Color32 AtkBonus = new Color32(0xAD, 0xF5, 0xBE, 0xFF);  // #ADF5BE
-    public static readonly Color32 AtkFinal = new Color32(0xFF, 0xE0, 0x47, 0xFF);  // #FFE047
+        public static readonly Color32 Mist300 = new Color32(0x9A, 0xA6, 0xBA, 0xFF);  // #9AA6BA
+        public static readonly Color32 Mist200 = new Color32(0xC3, 0xCB, 0xD9, 0xFF);  // #C3CBD9
+        public static readonly Color32 Bone100 = new Color32(0xE7, 0xE2, 0xD7, 0xFF);  // #E7E2D7
+        public static readonly Color32 Bone050 = new Color32(0xF4, 0xEF, 0xE4, 0xFF);  // #F4EFE4
 
-    // Dice Duel Effect Colors
-    public static readonly Color32 DuelDefault = new Color32(0x0F, 0x16, 0x21, 0xFF); // #0F1621
-    public static readonly Color32 DuelDisabledText = new Color32(0x5D, 0x65, 0x72, 0xFF); // #5D6572
-    public static readonly Color32 DuelDieBackgroundActive = new Color32(0xF0, 0xF5, 0xFF, 0xFA); // #F0F5FF
-    public static readonly Color32 DuelDieBackgroundInactive = new Color32(0xCF, 0xD7, 0xE4, 0xFA); // #CFD7E4
-    public static readonly Color32 DuelRolling = new Color32(0x16, 0x1F, 0x2B, 0xFF); // #161F2B
-    public static readonly Color32 DuelSuccess = new Color32(0x1E, 0x6B, 0x34, 0xFF); // #1E6B34
-    public static readonly Color32 DuelFailure = new Color32(0x8A, 0x2C, 0x2C, 0xFF); // #8A2C2C
+        public static readonly Color32 Moss600 = new Color32(0x32, 0x5A, 0x3A, 0xFF);  // #325A3A
+        public static readonly Color32 Moss500 = new Color32(0x4A, 0x7A, 0x53, 0xFF);  // #4A7A53
+        public static readonly Color32 Amber500 = new Color32(0xD0, 0x9A, 0x3B, 0xFF); // #D09A3B
+        public static readonly Color32 Gold500 = new Color32(0xC9, 0xA2, 0x4D, 0xFF);  // #C9A24D
+        public static readonly Color32 Blood600 = new Color32(0x8D, 0x2D, 0x2D, 0xFF); // #8D2D2D
+        public static readonly Color32 Blood500 = new Color32(0xB7, 0x42, 0x42, 0xFF); // #B74242
+    }
+
+    // Semantic tokens: always mapped from Primitive.
+    public static class Semantic
+    {
+        public static readonly Color32 TextPrimary = Primitive.Bone050;
+        public static readonly Color32 TextSecondary = Primitive.Mist200;
+        public static readonly Color32 TextDisabled = Primitive.Mist300;
+
+        public static readonly Color32 SurfacePrimary = Primitive.Abyss900;
+        public static readonly Color32 SurfaceSecondary = Primitive.Slate800;
+        public static readonly Color32 BorderSubtle = Primitive.Slate700;
+
+        public static readonly Color32 StatePositive = Primitive.Moss500;
+        public static readonly Color32 StateWarning = Primitive.Amber500;
+        public static readonly Color32 StateDanger = Primitive.Blood500;
+
+        public static readonly Color32 ValueBase = Primitive.Bone050;
+        public static readonly Color32 ValueBonus = Primitive.Moss500;
+        public static readonly Color32 ValueFinal = Primitive.Gold500;
+
+        public static readonly Color32 StabilityNormal = Primitive.Moss500;
+        public static readonly Color32 StabilityWarning = Primitive.Amber500;
+        public static readonly Color32 StabilityDanger = Primitive.Blood500;
+
+        public static readonly Color32 DiceFaceDefault = Primitive.Abyss900;
+        public static readonly Color32 DiceFaceDisabled = Primitive.Mist300;
+        public static readonly Color32 DiceFaceRolling = Primitive.Slate700;
+        public static readonly Color32 DiceFaceSuccess = Primitive.Moss600;
+        public static readonly Color32 DiceFaceFailure = Primitive.Blood600;
+
+        public static readonly Color32 DiceBackgroundActive = new Color32(0xF4, 0xEF, 0xE4, 0xF8);
+        public static readonly Color32 DiceBackgroundInactive = new Color32(0xC3, 0xCB, 0xD9, 0xF2);
+    }
 }

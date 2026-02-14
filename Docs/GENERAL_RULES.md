@@ -31,6 +31,11 @@
 ## 공용 값 관리 파일(확정)
 
 - 색상 상수는 `Assets/Scripts/Data/Colors.cs`에서 중앙 관리한다.
+- `Colors.cs`는 `Primitive -> Semantic` 2단 구조로 관리한다.
+- `Primitive`: 프로젝트 톤앤매너(팔레트) 자체를 정의한다.
+- `Semantic`: 실제 UI/게임 의미 색상(`TextPrimary`, `StateDanger` 등)을 `Primitive`에 매핑한다.
+- 코드에서는 의미 표현이 필요한 경우 `Semantic`만 사용하고, `Primitive`를 직접 사용하지 않는다.
+- `Hud` 같은 기능별 불필요 prefix 네이밍을 사용하지 않는다.
 - 인게임 수치/확률은 `Assets/StreamingAssets/Data/GameConfig.json`에서 중앙 관리한다.
 - `Bootstrap`에서 로드한 뒤 `Assets/Scripts/Data/GameConfigData.cs`를 통해 런타임에서 사용한다.
 - Tooltip 표시 지연/배치 같은 UI 표현 수치는 해당 UI 컴포넌트 인스펙터에서 관리한다.
