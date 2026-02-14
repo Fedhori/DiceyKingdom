@@ -11,9 +11,9 @@
 
 ## Planned
 
-- 규칙 위반 리팩토링 3단계: 하드코딩 상수 정리(색상 값은 `Assets/Scripts/Data/Colors.cs`, 인게임 수치는 `Assets/Scripts/Data/GameConfig.cs`로 이관)
-- 규칙 위반 리팩토링 3단계: 잔여 `DontDestroyOnLoad` 사용처 제거 및 씬 전환 구조 정리
-- 검증 작업: 리팩토링 후 플레이모드 스모크 테스트(런 시작, 결투, 턴 종료, 상황 해소) + 콘솔 오류/경고 0건 확인
+- 2단계: 기존 게임 로직 전체 제거(레거시 매니저/런타임/데이터 스키마 정리)
+- 3단계: 신규 게임 로직 구현 시작(왕국/모험가/임무/능력 테스트 최소 플레이어블)
+- 검증 작업: 신규 루프 스모크 테스트(모집, 배치, 테스트, 실패 효과, 안정도 게임오버)
 
 ## In Progress
 
@@ -25,6 +25,7 @@
 
 ## Done
 
+- 2026-02-14: 신규 기획 기준 문서 체계 전면 교체(`GAME_STRUCTURE`, `PROJECT_MAP`, `GAME_IDEA`, 신규 세부 문서 8종) + 레거시 문서 삭제(`AGENT`, `SITUATION`, `SKILL`, `DECREE`, `ENEMY_ROSTER`, `REFACTORING_PLAN_MANAGER_SPLIT`, `GAME_IDEA_TEMP`)
 - 2026-02-13: `Docs/temp/GAME_IDEA_TEMP.md`에 신규 기획 아이디어 초안 기록(인력 관리 로그라이크 컨셉/구성요소/특성·시설 아이디어 반영)
 - 2026-02-13: `Docs/temp/GAME_IDEA_TEMP.md` 생성(게임 아이디어 임시 정리 템플릿)
 - 2026-02-13: 규칙 위반 리팩토링 2단계 완료 — `TopHudController`/`BottomActionBarController`/`AssignmentDragArrowPresenter` 런타임 탐색 제거 및 인스펙터 참조 고정, `AgentManager`/`SituationManager`의 카드 주사위 프리팹 런타임 주입 제거(카드 프리팹 직렬화 참조로 전환)
