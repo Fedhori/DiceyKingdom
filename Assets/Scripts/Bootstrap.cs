@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 public class Bootstrap : MonoBehaviour
 {
     [SerializeField] GameObject managersRoot;
-    
+
     async void Awake()
     {
         Application.targetFrameRate = 60;
@@ -19,6 +19,13 @@ public class Bootstrap : MonoBehaviour
             refreshIfAppVersionChanged = true,
             verifyHash = true
         });
+
+        bool loadedConfig = await GameConfigProvider.LoadFromStreamingAssetsAsync();
+        if (!loadedConfig)
+        {
+            Debug.LogError("[Bootstrap] GameConfig loading failed. Bootstrap halted.");
+            return;
+        }
 
         // 2) 매니저들 활성 + DDoL
         if (managersRoot)

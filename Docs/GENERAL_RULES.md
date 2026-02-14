@@ -26,7 +26,9 @@
 ## 공용 값 관리 파일(확정)
 
 - 색상 상수는 `Assets/Scripts/Data/Colors.cs`에서 중앙 관리한다.
-- 인게임 수치 상수는 `Assets/Scripts/Data/GameConfig.cs`에서 중앙 관리한다.
+- 인게임 수치/확률은 `Assets/StreamingAssets/Data/GameConfig.json`에서 중앙 관리한다.
+- `Bootstrap`에서 로드한 뒤 `Assets/Scripts/Data/GameConfigData.cs`를 통해 런타임에서 사용한다.
+- Tooltip 표시 지연/배치 같은 UI 표현 수치는 해당 UI 컴포넌트 인스펙터에서 관리한다.
 - 위 범주 값의 하드코딩을 금지한다.
 
 ## 런타임 오브젝트 생성 원칙(확정)

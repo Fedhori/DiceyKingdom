@@ -14,6 +14,7 @@ public sealed class TooltipManager : MonoBehaviour
 
     // 화면 가장자리와의 최소 여백
     [SerializeField] float edgePadding = 8f;
+    [SerializeField] float showDelaySeconds = 0.2f;
 
     object currentOwner;
     TooltipModel currentModel;
@@ -268,9 +269,9 @@ public sealed class TooltipManager : MonoBehaviour
 
     IEnumerator ShowDelayed()
     {
-        float showDelaySeconds = Mathf.Max(0f, GameConfig.TooltipShowDelaySeconds);
-        if (showDelaySeconds > 0f)
-            yield return new WaitForSecondsRealtime(showDelaySeconds);
+        float delay = Mathf.Max(0f, showDelaySeconds);
+        if (delay > 0f)
+            yield return new WaitForSecondsRealtime(delay);
 
         if (!hasCurrentModel || currentOwner == null)
         {

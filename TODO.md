@@ -6,14 +6,22 @@
 
 - 새 작업을 시작하기 전에 `Planned`에 작업을 추가합니다.
 - 작업 진행 중에는 상태를 `In Progress`로 변경합니다.
-- 작업 완료 시 `Done`으로 이동하고 완료일/비고를 기록합니다.
+- 작업 완료 시 `Done`에 완료일과 핵심 결과를 기록합니다.
 - 보류/중단 작업은 `Blocked`에 기록하고 사유를 남깁니다.
 
 ## Planned
 
-- 2단계: 기존 게임 로직 전체 제거(레거시 매니저/런타임/데이터 스키마 정리)
-- 3단계: 신규 게임 로직 구현 시작(왕국/모험가/임무/능력 테스트 최소 플레이어블)
-- 검증 작업: 신규 루프 스모크 테스트(모집, 배치, 테스트, 실패 효과, 안정도 게임오버)
+- [P0] 신규 코어 데이터 스키마/DTO/로더 작성 (`Adventurers`, `Missions`, `Traits`, `EffectBundle`)
+- [P0] 런타임 상태 모델 구축 (`RunState`, `KingdomState`, `AdventurerState`, `MissionState`, `CandidateState`, `CemeteryState`)
+- [P0] 매니저 골격 구현 (`GameManager`, `KingdomManager`, `AdventurerManager`, `MissionManager`, `AbilityTestManager`, `TraitManager`)
+- [P0] 핵심 턴 루프 구현 (후보 생성/고용 -> 배치/재배치 -> 테스트 -> 원정 성공/실패 -> 턴 정산 -> 임무 실패 -> 게임오버)
+- [P0] 원정/임무 판정 규칙 구현 (영웅심 1회 제한, 참여 잠금, 전원 사망 자동 포기, 임무 진행도 유지, 임무 실패 시 제거)
+- [P0] 특성 시스템 구현 (성공 `60/30/10`, 실패 `60/10/30`, 임무당 1회 판정, 슬롯 부족 시 잠금 제외 랜덤 교체)
+- [P1] 회복/자원 정산 규칙 구현 (전원 HP +1, 휴식자 Stamina +1, 최대 체력 clamp, 실패 효과 즉시 적용)
+- [P1] 최소 플레이용 UI 연결 (후보/고용, 임무/기한/진행도, 배치, 테스트 실행, 결과/안정도 표시)
+- [P1] 컴파일/플레이 스모크 테스트 (런 시작, 1턴 진행, 원정 실패, 임무 실패, 사망자 공동묘지 이동)
+- [P1] 문서 동기화 (`Docs/GAME_STRUCTURE.md`, `Docs/ADVENTURER.md`, `Docs/MISSION.md`, `Docs/ABILITY_TEST.md`, `Docs/TRAIT.md`)
+- [P2] 후순위 시스템 틀만 추가 (장비/시설/스킬·소모품/태그 상호작용 placeholder)
 
 ## In Progress
 
@@ -25,20 +33,4 @@
 
 ## Done
 
-- 2026-02-14: 2단계 부분 진행(요청 범위 1/2/4) — `Assets/Scripts/Game/*` 레거시 로직 삭제, `Assets/Scripts/GameManager.cs` 최소 셸화, 레거시 데이터 JSON(`Agents/Situations/Skills/Enemies/EnemyStagePresets`) 완전 삭제
-- 2026-02-14: 신규 기획 기준 문서 체계 전면 교체(`GAME_STRUCTURE`, `PROJECT_MAP`, `GAME_IDEA`, 신규 세부 문서 8종) + 레거시 문서 삭제(`AGENT`, `SITUATION`, `SKILL`, `DECREE`, `ENEMY_ROSTER`, `REFACTORING_PLAN_MANAGER_SPLIT`, `GAME_IDEA_TEMP`)
-- 2026-02-13: `Docs/temp/GAME_IDEA_TEMP.md`에 신규 기획 아이디어 초안 기록(인력 관리 로그라이크 컨셉/구성요소/특성·시설 아이디어 반영)
-- 2026-02-13: `Docs/temp/GAME_IDEA_TEMP.md` 생성(게임 아이디어 임시 정리 템플릿)
-- 2026-02-13: 규칙 위반 리팩토링 2단계 완료 — `TopHudController`/`BottomActionBarController`/`AssignmentDragArrowPresenter` 런타임 탐색 제거 및 인스펙터 참조 고정, `AgentManager`/`SituationManager`의 카드 주사위 프리팹 런타임 주입 제거(카드 프리팹 직렬화 참조로 전환)
-- 2026-02-13: 규칙 위반 리팩토링 1단계 완료 — 런타임 `new GameObject`/`AddComponent` 제거, UI 바인딩을 씬/프리팹 참조 기반으로 전환, `BottomActionBarController`/`SituationController`의 레이아웃 강제 코드 제거
-- 2026-02-13: 전 스크립트 `OnEnable/OnDisable` 제거 및 `Start/OnDestroy` 일괄 전환(이벤트 구독/해제 포함) + 규칙 문서화(`Docs/GENERAL_RULES.md`)
-- 2026-02-13: `GameTurnOrchestrator` 제거 및 매니저 분리 리팩토링 완료(`GameManager`, `PhaseManager`, `PlayerManager`, `DuelManager`, `AgentManager`, `SituationManager`) + `Managers` 하위 오브젝트/컴포넌트 반영
-- 2026-02-13: 이벤트는 UI 갱신 전용/로직 이벤트 금지 원칙을 `Docs/GENERAL_RULES.md`에 반영하고, `Docs/REFACTORING_PLAN_MANAGER_SPLIT.md` 리팩토링 계획서 작성
-- 2026-02-13: 중앙 결투 오버레이 UI 추가(상황/요원 주사위 연출) 및 오버레이 종료 후 상태 반영 방식으로 전환
-- 2026-02-13: 대결 실패 시 상황 주사위 면수 감소(`X -= 요원 눈`) 및 `0 이하` 즉시 파괴 규칙 구현
-- 2026-02-13: 의사결정 기록 정책 변경(사용자 지시 시에만 기록) 반영 및 `Docs/GAME_IDEA.md` 기준으로 아이디어 문서 재정리
-- 2026-02-13: 아이디어 문서를 `Docs/GAME_IDEA.md`로 리네임하고 요소별 분리 구조를 시도
-- 2026-02-13: 사용자 피드백 반영으로 아이디어 문서를 단일 파일(`Docs/GAME_IDEA.md`)로 재통합하고 분리 문서 삭제
-- 2026-02-13: 문서 전역 레거시 용어 정리(요원/상황 용어 통일, 전환 로그는 레거시 표기로 명시)
-- 2026-02-13: `GAME_STRUCTURE` 구성요소 문서 분리 (`Docs/SITUATION.md`, `Docs/AGENT.md`, `Docs/SKILL.md`, `Docs/DECREE.md`) 및 문서 맵 업데이트
-- 2026-02-13: `TODO.md` 파일 생성 및 추적 규칙 초기화
+- 2026-02-14: `GameConfig.json` 로딩 파이프라인 구현 (`Bootstrap` 로드 -> `GameConfigProvider` -> `GameConfigData` 전역 접근) + `TooltipManager` 연동
