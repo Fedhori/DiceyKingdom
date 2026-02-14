@@ -3,6 +3,15 @@ using System.Collections.Generic;
 
 public sealed class EffectApplier : IRuleEffectApplier
 {
+    readonly ModifierService modifierService;
+    readonly StatService statService;
+
+    public EffectApplier(ModifierService modifierService, StatService statService)
+    {
+        this.modifierService = modifierService;
+        this.statService = statService;
+    }
+
     public void ApplyEffect(EffectDef effect, RuleEffectApplyContext context)
     {
         if (effect == null || context == null || context.runState == null)
@@ -57,7 +66,7 @@ public sealed class EffectApplier : IRuleEffectApplier
         }
     }
 
-    static void ApplyAbilityToSelf(EffectDef effect, RuleEffectApplyContext context)
+    void ApplyAbilityToSelf(EffectDef effect, RuleEffectApplyContext context)
     {
         AdventurerInstance adventurer = FindAdventurer(context.runState, context.ownerAdventurerUid);
         if (adventurer == null)
@@ -66,7 +75,7 @@ public sealed class EffectApplier : IRuleEffectApplier
         AddAbilityModifiers(effect, context, adventurer.uid);
     }
 
-    static void ApplyAbilityToAssignedParty(EffectDef effect, RuleEffectApplyContext context)
+    void ApplyAbilityToAssignedParty(EffectDef effect, RuleEffectApplyContext context)
     {
         MissionInstance mission = FindMission(context.runState, context.missionUid);
         if (mission == null || mission.assignedAdventurerUids == null || mission.assignedAdventurerUids.Count == 0)
@@ -82,7 +91,7 @@ public sealed class EffectApplier : IRuleEffectApplier
         }
     }
 
-    static void ApplyAbilityToAllAdventurers(EffectDef effect, RuleEffectApplyContext context)
+    void ApplyAbilityToAllAdventurers(EffectDef effect, RuleEffectApplyContext context)
     {
         if (context.runState.adventurers == null || context.runState.adventurers.Count == 0)
             return;
@@ -97,19 +106,33 @@ public sealed class EffectApplier : IRuleEffectApplier
         }
     }
 
-    static void AddAbilityModifiers(EffectDef effect, RuleEffectApplyContext context, string ownerUid)
+    void AddAbilityModifiers(EffectDef effect, RuleEffectApplyContext context, string ownerUid)
     {
-        if (context.runState.modifiers == null)
-            context.runState.modifiers = new List<ModifierInstance>();
+        AddAbilityModifier(effect, context, ownerUid, StatId.Strength, ReadIntParam(effect.@params, 0));
+        AddAbilityModifier(effect, context, ownerUid, StatId.Agility, ReadIntParam(effect.@params, 1));
+        AddAbilityModifier(effect, context, ownerUid, StatId.Intelligence, ReadIntParam(effect.@params, 2));
+    }
 
-        AddOrMergeModifier(context.runState.modifiers, CreateAbilityModifier(effect, context, ownerUid, StatId.Strength, ReadIntParam(effect.@params, 0)));
-        AddOrMergeModifier(context.runState.modifiers, CreateAbilityModifier(effect, context, ownerUid, StatId.Agility, ReadIntParam(effect.@params, 1)));
-        AddOrMergeModifier(context.runState.modifiers, CreateAbilityModifier(effect, context, ownerUid, StatId.Intelligence, ReadIntParam(effect.@params, 2)));
+    void AddAbilityModifier(EffectDef effect, RuleEffectApplyContext context, string ownerUid, StatId statId, int amount)
+    {
+        ModifierInstance modifier = CreateAbilityModifier(effect, context, ownerUid, statId, amount);
+        if (modifier == null)
+            return;
+
+        if (modifierService != null)
+        {
+            modifierService.AddOrMergeModifier(context.runState, modifier);
+            return;
+        }
+
+        context.runState.modifiers ??= new List<ModifierInstance>();
+        context.runState.modifiers.Add(modifier);
+        MarkDirty(ownerUid);
     }
 
     static ModifierInstance CreateAbilityModifier(EffectDef effect, RuleEffectApplyContext context, string ownerUid, StatId statId, int amount)
     {
-        if (amount == 0)
+        if (amount == 0 || string.IsNullOrWhiteSpace(ownerUid))
             return null;
 
         return new ModifierInstance
@@ -127,67 +150,7 @@ public sealed class EffectApplier : IRuleEffectApplier
         };
     }
 
-    static void AddOrMergeModifier(List<ModifierInstance> modifiers, ModifierInstance incoming)
-    {
-        if (incoming == null)
-            return;
-
-        int existingIndex = FindExistingModifierIndex(modifiers, incoming);
-        switch (incoming.stackPolicy)
-        {
-            case ModifierStackPolicy.Stack:
-                modifiers.Add(incoming);
-                return;
-            case ModifierStackPolicy.Replace:
-                if (existingIndex >= 0)
-                {
-                    ModifierInstance existing = modifiers[existingIndex];
-                    existing.value = incoming.value;
-                    existing.priority = incoming.priority;
-                    existing.layer = incoming.layer;
-                    existing.opType = incoming.opType;
-                    existing.missionUid = incoming.missionUid;
-                }
-                else
-                {
-                    modifiers.Add(incoming);
-                }
-
-                return;
-            case ModifierStackPolicy.IgnoreIfExists:
-                if (existingIndex < 0)
-                    modifiers.Add(incoming);
-
-                return;
-            default:
-                modifiers.Add(incoming);
-                return;
-        }
-    }
-
-    static int FindExistingModifierIndex(IReadOnlyList<ModifierInstance> modifiers, ModifierInstance probe)
-    {
-        for (int i = 0; i < modifiers.Count; i++)
-        {
-            ModifierInstance item = modifiers[i];
-            if (item == null)
-                continue;
-
-            if (!string.Equals(item.ownerUid, probe.ownerUid, StringComparison.Ordinal))
-                continue;
-            if (!string.Equals(item.sourceUid, probe.sourceUid, StringComparison.Ordinal))
-                continue;
-            if (!string.Equals(item.missionUid, probe.missionUid, StringComparison.Ordinal))
-                continue;
-            if (item.statId != probe.statId)
-                continue;
-            return i;
-        }
-
-        return -1;
-    }
-
-    static void ApplyToSelf(RuleEffectApplyContext context, Action<AdventurerInstance> apply)
+    void ApplyToSelf(RuleEffectApplyContext context, Action<AdventurerInstance> apply)
     {
         if (apply == null)
             return;
@@ -197,9 +160,10 @@ public sealed class EffectApplier : IRuleEffectApplier
             return;
 
         apply(adventurer);
+        MarkDirty(adventurer.uid);
     }
 
-    static void ApplyToAssignedParty(RunState runState, string missionUid, Action<AdventurerInstance> apply)
+    void ApplyToAssignedParty(RunState runState, string missionUid, Action<AdventurerInstance> apply)
     {
         if (apply == null)
             return;
@@ -215,10 +179,11 @@ public sealed class EffectApplier : IRuleEffectApplier
                 continue;
 
             apply(adventurer);
+            MarkDirty(adventurer.uid);
         }
     }
 
-    static void ApplyToAllAdventurers(RunState runState, Action<AdventurerInstance> apply)
+    void ApplyToAllAdventurers(RunState runState, Action<AdventurerInstance> apply)
     {
         if (apply == null || runState.adventurers == null || runState.adventurers.Count == 0)
             return;
@@ -230,7 +195,13 @@ public sealed class EffectApplier : IRuleEffectApplier
                 continue;
 
             apply(adventurer);
+            MarkDirty(adventurer.uid);
         }
+    }
+
+    void MarkDirty(string ownerUid)
+    {
+        statService?.MarkDirty(ownerUid);
     }
 
     static AdventurerInstance FindAdventurer(RunState runState, string uid)

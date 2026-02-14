@@ -11,7 +11,6 @@
 
 ## Planned
 
-- [P0] Stat Modifier 시스템 구현 (`StatId enum`, `add -> mul -> set -> floor`, `layer: normal|mission`, `stackPolicy`, `owner dirty + on-demand recalc`)
 - [P0] 핵심 원정/임무 규칙 구현 (영웅심 임무당 1회, 첫 테스트 시작 시 참여 잠금, 전원 사망 자동 포기, 원정 실패 시 임무 유지/진행도 유지, 임무 실패 시 제거)
 - [P0] 턴 루프 구현 (후보 2명 생성/미채용 폐기, 정원 6, 임무 턴당 2개, 정산 시 deadline 감소/임무 실패 처리, 전원 HP+1/휴식자 Stamina+1)
 - [P0] 특성 시스템 구현 (성공 `60/30/10`, 실패 `60/10/30`, 임무당 단일 결과, 슬롯 부족 시 잠금 제외 랜덤 교체, 임무 종료 시 mission layer modifier 제거)
@@ -30,6 +29,7 @@
 
 ## Done
 
+- 2026-02-14: [P0] Stat Modifier 시스템 구현 완료 (`StatService`, `ModifierService` 추가, `add -> mul -> set -> floor` 계산 순서, `layer/stackPolicy` 반영, owner dirty + on-demand recalc 연결)
 - 2026-02-14: [P0] Effect 처리기 구현 완료 (`EffectApplier` 연결, `effectId` 기반 대상 분기, `params: List<float>` 적용, `paramCount` 검증 연동 유지, `Floor` 반올림 규칙 적용)
 - 2026-02-14: [P0] Rule 시스템 구현 완료 (`RuleContext/RuleConditionEvaluator/RulePipeline/RuleRunner` 추가, `RuleDef = trigger + condition + effects` 공통 실행, Mission/Trait 파이프라인 통합, 전역 순서 `Trait -> Mission` 고정)
 - 2026-02-14: [P0] 런타임 Instance 스키마 구현 완료 (`InstanceTypes.cs`에 `RunState/AdventurerInstance/MissionInstance/TraitInstance/ModifierInstance` 추가, uid-only reference 구조 반영, `GameManager.CurrentRunState` 단일 진입점/API 연결)

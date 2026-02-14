@@ -4,7 +4,9 @@ public sealed class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     public RunState CurrentRunState { get; private set; } = new();
-    readonly IRuleEffectApplier ruleEffectApplier = new EffectApplier();
+    StatService statService;
+    ModifierService modifierService;
+    IRuleEffectApplier ruleEffectApplier;
 
     void Awake()
     {
@@ -15,10 +17,19 @@ public sealed class GameManager : MonoBehaviour
         }
 
         Instance = this;
+        EnsureServices();
+    }
+
+    void EnsureServices()
+    {
+        statService ??= new StatService();
+        modifierService ??= new ModifierService(statService);
+        ruleEffectApplier ??= new EffectApplier(modifierService, statService);
     }
 
     public RunState CreateNewRunState()
     {
+        EnsureServices();
         var runState = new RunState
         {
             uid = System.Guid.NewGuid().ToString("N"),
@@ -26,21 +37,26 @@ public sealed class GameManager : MonoBehaviour
         };
 
         CurrentRunState = runState;
+        statService.ClearCache();
         return CurrentRunState;
     }
 
     public void SetRunState(RunState runState)
     {
+        EnsureServices();
         CurrentRunState = runState ?? new RunState();
+        statService.ClearCache();
     }
 
     public string ExportRunStateJson(bool prettyPrint = false)
     {
+        EnsureServices();
         return JsonUtility.ToJson(CurrentRunState ?? new RunState(), prettyPrint);
     }
 
     public bool TryImportRunStateJson(string json)
     {
+        EnsureServices();
         if (string.IsNullOrWhiteSpace(json))
             return false;
 
@@ -49,11 +65,13 @@ public sealed class GameManager : MonoBehaviour
             return false;
 
         CurrentRunState = parsed;
+        statService.ClearCache();
         return true;
     }
 
     public RuleExecutionSummary RunMissionTrigger(string missionUid, string trigger, RuleContext context = null, IRuleEffectApplier effectApplier = null)
     {
+        EnsureServices();
         RuleContext effectiveContext = context?.Clone() ?? new RuleContext();
         effectiveContext.runState = CurrentRunState;
         effectiveContext.missionUid = missionUid ?? string.Empty;
@@ -62,9 +80,34 @@ public sealed class GameManager : MonoBehaviour
 
     public RuleExecutionSummary RunAdventurerTrigger(string adventurerUid, string trigger, RuleContext context = null, IRuleEffectApplier effectApplier = null)
     {
+        EnsureServices();
         RuleContext effectiveContext = context?.Clone() ?? new RuleContext();
         effectiveContext.runState = CurrentRunState;
         effectiveContext.adventurerUid = adventurerUid ?? string.Empty;
         return RuleRunner.RunTraitRulesByAdventurer(CurrentRunState, adventurerUid, trigger, effectiveContext, effectApplier ?? ruleEffectApplier);
+    }
+
+    public int GetAdventurerStat(string adventurerUid, StatId statId)
+    {
+        EnsureServices();
+        return statService.GetStat(CurrentRunState, adventurerUid, statId);
+    }
+
+    public void MarkAdventurerStatDirty(string adventurerUid)
+    {
+        EnsureServices();
+        statService.MarkDirty(adventurerUid);
+    }
+
+    public void AddOrMergeModifier(ModifierInstance modifier)
+    {
+        EnsureServices();
+        modifierService.AddOrMergeModifier(CurrentRunState, modifier);
+    }
+
+    public int RemoveMissionLayerModifiers(string missionUid)
+    {
+        EnsureServices();
+        return modifierService.RemoveMissionLayerModifiers(CurrentRunState, missionUid);
     }
 }
