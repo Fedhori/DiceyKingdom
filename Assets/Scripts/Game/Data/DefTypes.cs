@@ -93,7 +93,6 @@ public sealed class ConditionDef
 public sealed class EffectDef
 {
     public string effectId = string.Empty;
-    public string targetType = string.Empty;
     public string targetId = string.Empty;
     public List<float> @params = new();
     public int priority;

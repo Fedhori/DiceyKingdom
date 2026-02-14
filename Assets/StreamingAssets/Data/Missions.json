@@ -26,7 +26,6 @@
           "effects": [
             {
               "effectId": "addGold",
-              "targetType": "kingdom",
               "targetId": "",
               "params": [ 2 ],
               "priority": 0,
@@ -43,8 +42,7 @@
           },
           "effects": [
             {
-              "effectId": "addHp",
-              "targetType": "assignedParty",
+              "effectId": "addHpAssignedParty",
               "targetId": "",
               "params": [ -1 ],
               "priority": 0,
@@ -62,7 +60,6 @@
           "effects": [
             {
               "effectId": "addStability",
-              "targetType": "kingdom",
               "targetId": "",
               "params": [ -2 ],
               "priority": 0,

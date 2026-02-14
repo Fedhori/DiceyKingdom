@@ -40,15 +40,6 @@ public static class StaticDataLoader
         "expeditionFailed"
     };
 
-    static readonly HashSet<string> ValidTargetType = new(StringComparer.Ordinal)
-    {
-        "self",
-        "kingdom",
-        "adventurer",
-        "assignedParty",
-        "allAdventurers"
-    };
-
     static readonly HashSet<string> ValidLayer = new(StringComparer.Ordinal)
     {
         "normal",
@@ -64,12 +55,19 @@ public static class StaticDataLoader
 
     static readonly Dictionary<string, int> EffectParamCountById = new(StringComparer.Ordinal)
     {
-        { "addAbility", 3 },
         { "addStability", 1 },
         { "addGold", 1 },
-        { "addHp", 1 },
-        { "addStamina", 1 },
-        { "addXp", 1 }
+        { "addHpSelf", 1 },
+        { "addHpAssignedParty", 1 },
+        { "addHpAllAdventurers", 1 },
+        { "addStaminaSelf", 1 },
+        { "addStaminaAssignedParty", 1 },
+        { "addStaminaAllAdventurers", 1 },
+        { "addXpSelf", 1 },
+        { "addXpAssignedParty", 1 },
+        { "addAbilitySelf", 3 },
+        { "addAbilityAssignedParty", 3 },
+        { "addAbilityAllAdventurers", 3 }
     };
 
     public static StaticDataSet Current { get; private set; }
@@ -316,8 +314,6 @@ public static class StaticDataLoader
                 else if (effect.@params == null || effect.@params.Count != paramCount)
                     errors.Add($"{path}[{i}].effects[{effectIndex}].params count must be {paramCount}");
 
-                if (!ValidTargetType.Contains(effect.targetType ?? string.Empty))
-                    errors.Add($"{path}[{i}].effects[{effectIndex}].targetType is invalid: {effect.targetType}");
                 if (!ValidLayer.Contains(effect.layer ?? string.Empty))
                     errors.Add($"{path}[{i}].effects[{effectIndex}].layer is invalid: {effect.layer}");
                 if (!ValidStackPolicy.Contains(effect.stackPolicy ?? string.Empty))

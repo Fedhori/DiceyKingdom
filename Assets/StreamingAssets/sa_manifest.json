@@ -14,13 +14,13 @@
     },
     {
       "path": "Data/Missions.json",
-      "size": 1862,
-      "md5": "5e808ac32ef00c249bf8725a81a38d31"
+      "size": 1752,
+      "md5": "55ccc6fd6eedfbfa43cfb19a824f0831"
     },
     {
       "path": "Data/Traits.json",
-      "size": 1227,
-      "md5": "8e2ac820371bfe1b970ddba5d5be2979"
+      "size": 1163,
+      "md5": "438590faea5aa6b676802638a95c2d20"
     }
   ]
 }

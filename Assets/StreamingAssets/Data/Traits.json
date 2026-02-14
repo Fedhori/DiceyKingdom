@@ -13,8 +13,7 @@
           },
           "effects": [
             {
-              "effectId": "addAbility",
-              "targetType": "self",
+              "effectId": "addAbilitySelf",
               "targetId": "",
               "params": [ 1, 1, 1 ],
               "priority": 0,
@@ -38,8 +37,7 @@
           },
           "effects": [
             {
-              "effectId": "addAbility",
-              "targetType": "self",
+              "effectId": "addAbilitySelf",
               "targetId": "",
               "params": [ 1, 0, 0 ],
               "priority": 0,

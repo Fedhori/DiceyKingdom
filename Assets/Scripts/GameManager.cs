@@ -4,6 +4,7 @@ public sealed class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     public RunState CurrentRunState { get; private set; } = new();
+    readonly IRuleEffectApplier ruleEffectApplier = new EffectApplier();
 
     void Awake()
     {
@@ -56,7 +57,7 @@ public sealed class GameManager : MonoBehaviour
         RuleContext effectiveContext = context?.Clone() ?? new RuleContext();
         effectiveContext.runState = CurrentRunState;
         effectiveContext.missionUid = missionUid ?? string.Empty;
-        return RuleRunner.RunTraitsThenMission(CurrentRunState, missionUid, trigger, effectiveContext, effectApplier);
+        return RuleRunner.RunTraitsThenMission(CurrentRunState, missionUid, trigger, effectiveContext, effectApplier ?? ruleEffectApplier);
     }
 
     public RuleExecutionSummary RunAdventurerTrigger(string adventurerUid, string trigger, RuleContext context = null, IRuleEffectApplier effectApplier = null)
@@ -64,6 +65,6 @@ public sealed class GameManager : MonoBehaviour
         RuleContext effectiveContext = context?.Clone() ?? new RuleContext();
         effectiveContext.runState = CurrentRunState;
         effectiveContext.adventurerUid = adventurerUid ?? string.Empty;
-        return RuleRunner.RunTraitRulesByAdventurer(CurrentRunState, adventurerUid, trigger, effectiveContext, effectApplier);
+        return RuleRunner.RunTraitRulesByAdventurer(CurrentRunState, adventurerUid, trigger, effectiveContext, effectApplier ?? ruleEffectApplier);
     }
 }
