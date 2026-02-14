@@ -25,6 +25,7 @@
 
 ## Done
 
+- 2026-02-14: 2단계 부분 진행(요청 범위 1/2/4) — `Assets/Scripts/Game/*` 레거시 로직 삭제, `Assets/Scripts/GameManager.cs` 최소 셸화, 레거시 데이터 JSON(`Agents/Situations/Skills/Enemies/EnemyStagePresets`) 완전 삭제
 - 2026-02-14: 신규 기획 기준 문서 체계 전면 교체(`GAME_STRUCTURE`, `PROJECT_MAP`, `GAME_IDEA`, 신규 세부 문서 8종) + 레거시 문서 삭제(`AGENT`, `SITUATION`, `SKILL`, `DECREE`, `ENEMY_ROSTER`, `REFACTORING_PLAN_MANAGER_SPLIT`, `GAME_IDEA_TEMP`)
 - 2026-02-13: `Docs/temp/GAME_IDEA_TEMP.md`에 신규 기획 아이디어 초안 기록(인력 관리 로그라이크 컨셉/구성요소/특성·시설 아이디어 반영)
 - 2026-02-13: `Docs/temp/GAME_IDEA_TEMP.md` 생성(게임 아이디어 임시 정리 템플릿)
