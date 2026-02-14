@@ -1,0 +1,54 @@
+{
+  "traitDefs": [
+    {
+      "id": "trait.injured_focus",
+      "polarity": "positive",
+      "acquireWeight": 1,
+      "rules": [
+        {
+          "trigger": "onHpChanged",
+          "condition": {
+            "conditionId": "hpBelowMax",
+            "params": []
+          },
+          "effects": [
+            {
+              "effectId": "addAbility",
+              "targetType": "self",
+              "targetId": "",
+              "params": [ 1, 1, 1 ],
+              "priority": 0,
+              "layer": "normal",
+              "stackPolicy": "replace"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trait.solid_strength",
+      "polarity": "positive",
+      "acquireWeight": 1,
+      "rules": [
+        {
+          "trigger": "onAbilityValueCalculation",
+          "condition": {
+            "conditionId": "always",
+            "params": []
+          },
+          "effects": [
+            {
+              "effectId": "addAbility",
+              "targetType": "self",
+              "targetId": "",
+              "params": [ 1, 0, 0 ],
+              "priority": 0,
+              "layer": "normal",
+              "stackPolicy": "replace"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

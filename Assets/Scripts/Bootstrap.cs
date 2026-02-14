@@ -27,6 +27,16 @@ public class Bootstrap : MonoBehaviour
             return;
         }
 
+        try
+        {
+            StaticDataLoader.LoadAll();
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[Bootstrap] Static data loading failed.\n{ex}");
+            return;
+        }
+
         // 2) 매니저들 활성 + DDoL
         if (managersRoot)
         {

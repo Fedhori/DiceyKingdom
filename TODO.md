@@ -11,7 +11,6 @@
 
 ## Planned
 
-- [P0] 정적 Def 스키마/로더 구현 (`DefTypes.cs`, `StaticDataLoader.cs`, `StaticDataSet.cs` + `AdventurerDefList`, `MissionDefList`, `TraitDefList`, `EffectDef`)
 - [P0] 런타임 Instance 스키마 구현 (`AdventurerInstance`, `MissionInstance`, `TraitInstance`, `ModifierInstance`, `RunState`) 및 uid-only reference 규칙 적용
 - [P0] Rule 시스템 구현 (`RuleDef = trigger + condition + effects`) 및 Mission/Trait 공통 rules 파이프라인 구축
 - [P0] Effect 처리기 구현 (`EffectDef` + `params: List<float>` + `targetType/targetId` + `paramCount` 검증 + `Floor` 반올림 규칙)
@@ -34,4 +33,5 @@
 
 ## Done
 
+- 2026-02-14: [P0] 정적 Def 스키마/로더 구현 완료 (`DefTypes.cs`, `StaticDataLoader.cs`, `StaticDataSet.cs` + `Adventurers/Missions/Traits` JSON 추가, Bootstrap 로드 검증 연동)
 - 2026-02-14: `GameConfig.json` 로딩 파이프라인 구현 (`Bootstrap` 로드 -> `GameConfigProvider` -> `GameConfigData` 전역 접근) + `TooltipManager` 연동
