@@ -11,7 +11,6 @@
 
 ## Planned
 
-- [P0] Rule 시스템 구현 (`RuleDef = trigger + condition + effects`) 및 Mission/Trait 공통 rules 파이프라인 구축
 - [P0] Effect 처리기 구현 (`EffectDef` + `params: List<float>` + `targetType/targetId` + `paramCount` 검증 + `Floor` 반올림 규칙)
 - [P0] Stat Modifier 시스템 구현 (`StatId enum`, `add -> mul -> set -> floor`, `layer: normal|mission`, `stackPolicy`, `owner dirty + on-demand recalc`)
 - [P0] 핵심 원정/임무 규칙 구현 (영웅심 임무당 1회, 첫 테스트 시작 시 참여 잠금, 전원 사망 자동 포기, 원정 실패 시 임무 유지/진행도 유지, 임무 실패 시 제거)
@@ -32,6 +31,7 @@
 
 ## Done
 
+- 2026-02-14: [P0] Rule 시스템 구현 완료 (`RuleContext/RuleConditionEvaluator/RulePipeline/RuleRunner` 추가, `RuleDef = trigger + condition + effects` 공통 실행, Mission/Trait 파이프라인 통합, 전역 순서 `Trait -> Mission` 고정)
 - 2026-02-14: [P0] 런타임 Instance 스키마 구현 완료 (`InstanceTypes.cs`에 `RunState/AdventurerInstance/MissionInstance/TraitInstance/ModifierInstance` 추가, uid-only reference 구조 반영, `GameManager.CurrentRunState` 단일 진입점/API 연결)
 - 2026-02-14: [P0] 정적 Def 로더 안정화 (`StaticDataSet` 읽기 전용화/조회 API 보강 + `sa_manifest.json`을 `GameConfig/Adventurers/Missions/Traits` 기준으로 동기화)
 - 2026-02-14: [P0] 정적 Def 스키마/로더 구현 완료 (`DefTypes.cs`, `StaticDataLoader.cs`, `StaticDataSet.cs` + `Adventurers/Missions/Traits` JSON 추가, Bootstrap 로드 검증 연동)

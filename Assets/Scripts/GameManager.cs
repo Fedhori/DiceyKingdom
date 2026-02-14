@@ -50,4 +50,20 @@ public sealed class GameManager : MonoBehaviour
         CurrentRunState = parsed;
         return true;
     }
+
+    public RuleExecutionSummary RunMissionTrigger(string missionUid, string trigger, RuleContext context = null, IRuleEffectApplier effectApplier = null)
+    {
+        RuleContext effectiveContext = context?.Clone() ?? new RuleContext();
+        effectiveContext.runState = CurrentRunState;
+        effectiveContext.missionUid = missionUid ?? string.Empty;
+        return RuleRunner.RunTraitsThenMission(CurrentRunState, missionUid, trigger, effectiveContext, effectApplier);
+    }
+
+    public RuleExecutionSummary RunAdventurerTrigger(string adventurerUid, string trigger, RuleContext context = null, IRuleEffectApplier effectApplier = null)
+    {
+        RuleContext effectiveContext = context?.Clone() ?? new RuleContext();
+        effectiveContext.runState = CurrentRunState;
+        effectiveContext.adventurerUid = adventurerUid ?? string.Empty;
+        return RuleRunner.RunTraitRulesByAdventurer(CurrentRunState, adventurerUid, trigger, effectiveContext, effectApplier);
+    }
 }
