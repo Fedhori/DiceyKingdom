@@ -427,10 +427,8 @@ public sealed class MissionExpeditionService
         if (string.IsNullOrWhiteSpace(adventurerUid))
             return;
 
-        if (!ContainsUid(runState.graveyardAdventurerUids, adventurerUid))
-            runState.graveyardAdventurerUids.Add(adventurerUid);
-
-        RemoveUid(runState.candidateAdventurerUids, adventurerUid);
+        runState.graveyard ??= new List<AdventurerInstance>();
+        AdventurerInstance deadAdventurer = null;
 
         for (int i = runState.adventurers.Count - 1; i >= 0; i--)
         {
@@ -441,9 +439,13 @@ public sealed class MissionExpeditionService
             if (!string.Equals(adventurer.uid, adventurerUid, StringComparison.Ordinal))
                 continue;
 
+            deadAdventurer = adventurer;
             runState.adventurers.RemoveAt(i);
             break;
         }
+
+        if (deadAdventurer != null)
+            runState.graveyard.Add(deadAdventurer);
 
         for (int i = 0; i < runState.missions.Count; i++)
             RemoveUid(runState.missions[i]?.assignedAdventurerUids, adventurerUid);

@@ -11,14 +11,14 @@ public sealed class RunState
     public int stability;
     public int stabilityMax;
 
-    // uid-only reference rule: runtime links must use uid string only.
+    // uid-only reference rule: runtime links between instances must use uid string only.
+    public List<AdventurerInstance> candidates = new();
     public List<AdventurerInstance> adventurers = new();
+    public List<AdventurerInstance> graveyard = new();
     public List<MissionInstance> missions = new();
     public List<TraitInstance> traits = new();
     public List<ModifierInstance> modifiers = new();
 
-    public List<string> candidateAdventurerUids = new();
-    public List<string> graveyardAdventurerUids = new();
     public string activeMissionUid = string.Empty;
 }
 

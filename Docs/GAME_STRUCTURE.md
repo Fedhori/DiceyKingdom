@@ -70,6 +70,8 @@
 
 - 모험가
 - 능력치(힘/민첩/지능), 성장치, 레벨, 체력/기력/영웅심, 특성, 장비 귀속
+- 런타임 인력 풀 분리
+  - 후보(`RunState.candidates`) / 고용(`RunState.adventurers`) / 공동묘지(`RunState.graveyard`)
 - 왕국
 - 안정도 기반 생존 관리
 - 임무

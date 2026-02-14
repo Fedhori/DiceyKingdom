@@ -56,18 +56,17 @@ public sealed class TurnLoopService
         if (runState == null || string.IsNullOrWhiteSpace(candidateUid))
             return false;
 
-        if (!ContainsUid(runState.candidateAdventurerUids, candidateUid))
-            return false;
-
-        if (!ContainsAdventurer(runState.adventurers, candidateUid))
-            return false;
-
         int recruitedCount = GetRecruitedCount(runState);
         int capacity = Mathf.Max(1, runState.barracksCapacity);
         if (recruitedCount >= capacity)
             return false;
 
-        RemoveUid(runState.candidateAdventurerUids, candidateUid);
+        runState.candidates ??= new List<AdventurerInstance>();
+        if (!TryTakeAdventurer(runState.candidates, candidateUid, out AdventurerInstance candidate))
+            return false;
+
+        runState.adventurers ??= new List<AdventurerInstance>();
+        runState.adventurers.Add(candidate);
         return true;
     }
 
@@ -99,32 +98,25 @@ public sealed class TurnLoopService
 
     void RemoveUnrecruitedCandidates(RunState runState)
     {
-        if (runState.candidateAdventurerUids == null || runState.candidateAdventurerUids.Count == 0)
+        if (runState.candidates == null || runState.candidates.Count == 0)
             return;
 
-        var candidateSet = new HashSet<string>(runState.candidateAdventurerUids, StringComparer.Ordinal);
-        runState.candidateAdventurerUids.Clear();
-
-        if (runState.adventurers != null)
+        for (int i = runState.candidates.Count - 1; i >= 0; i--)
         {
-            for (int i = runState.adventurers.Count - 1; i >= 0; i--)
-            {
-                AdventurerInstance adventurer = runState.adventurers[i];
-                if (adventurer == null)
-                    continue;
+            AdventurerInstance candidate = runState.candidates[i];
+            if (candidate == null)
+                continue;
 
-                if (!candidateSet.Contains(adventurer.uid))
-                    continue;
-
-                modifierService.RemoveModifiersByOwnerUid(runState, adventurer.uid);
-                traitService?.RemoveTraitsByOwner(runState, adventurer.uid);
-                runState.adventurers.RemoveAt(i);
-            }
+            modifierService.RemoveModifiersByOwnerUid(runState, candidate.uid);
+            traitService?.RemoveTraitsByOwner(runState, candidate.uid);
+            runState.candidates.RemoveAt(i);
         }
     }
 
     void SpawnCandidates(RunState runState, int count)
     {
+        runState.candidates ??= new List<AdventurerInstance>();
+
         for (int i = 0; i < count; i++)
         {
             AdventurerDef def = PickWeightedAdventurerDef();
@@ -132,8 +124,7 @@ public sealed class TurnLoopService
                 return;
 
             AdventurerInstance candidate = CreateAdventurerInstance(def);
-            runState.adventurers.Add(candidate);
-            runState.candidateAdventurerUids.Add(candidate.uid);
+            runState.candidates.Add(candidate);
             statService.MarkDirty(candidate.uid);
         }
     }
@@ -268,68 +259,30 @@ public sealed class TurnLoopService
         if (runState.adventurers == null || runState.adventurers.Count == 0)
             return 0;
 
-        var candidateSet = runState.candidateAdventurerUids == null
-            ? new HashSet<string>(StringComparer.Ordinal)
-            : new HashSet<string>(runState.candidateAdventurerUids, StringComparer.Ordinal);
-
-        int recruited = 0;
-        for (int i = 0; i < runState.adventurers.Count; i++)
-        {
-            AdventurerInstance adventurer = runState.adventurers[i];
-            if (adventurer == null)
-                continue;
-
-            if (candidateSet.Contains(adventurer.uid))
-                continue;
-
-            recruited++;
-        }
-
-        return recruited;
+        return runState.adventurers.Count;
     }
 
-    static bool ContainsAdventurer(IReadOnlyList<AdventurerInstance> adventurers, string uid)
+    static bool TryTakeAdventurer(List<AdventurerInstance> adventurers, string uid, out AdventurerInstance adventurer)
     {
+        adventurer = null;
         if (adventurers == null || string.IsNullOrWhiteSpace(uid))
             return false;
 
-        for (int i = 0; i < adventurers.Count; i++)
+        for (int i = adventurers.Count - 1; i >= 0; i--)
         {
-            AdventurerInstance adventurer = adventurers[i];
-            if (adventurer == null)
+            AdventurerInstance entry = adventurers[i];
+            if (entry == null)
                 continue;
 
-            if (string.Equals(adventurer.uid, uid, StringComparison.Ordinal))
+            if (string.Equals(entry.uid, uid, StringComparison.Ordinal))
+            {
+                adventurer = entry;
+                adventurers.RemoveAt(i);
                 return true;
+            }
         }
 
         return false;
-    }
-
-    static bool ContainsUid(IReadOnlyList<string> list, string uid)
-    {
-        if (list == null || string.IsNullOrWhiteSpace(uid))
-            return false;
-
-        for (int i = 0; i < list.Count; i++)
-        {
-            if (string.Equals(list[i], uid, StringComparison.Ordinal))
-                return true;
-        }
-
-        return false;
-    }
-
-    static void RemoveUid(List<string> list, string uid)
-    {
-        if (list == null || string.IsNullOrWhiteSpace(uid))
-            return;
-
-        for (int i = list.Count - 1; i >= 0; i--)
-        {
-            if (string.Equals(list[i], uid, StringComparison.Ordinal))
-                list.RemoveAt(i);
-        }
     }
 
     static int RandomRangeInclusive(int min, int max)
