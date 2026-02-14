@@ -8,6 +8,7 @@ public sealed class GameManager : MonoBehaviour
     ModifierService modifierService;
     IRuleEffectApplier ruleEffectApplier;
     MissionExpeditionService missionExpeditionService;
+    TurnLoopService turnLoopService;
 
     void Awake()
     {
@@ -31,6 +32,7 @@ public sealed class GameManager : MonoBehaviour
             modifierService,
             (missionUid, trigger, context) => ExecuteMissionTriggerInternal(missionUid, trigger, context, null),
             (adventurerUid, trigger, context) => ExecuteAdventurerTriggerInternal(adventurerUid, trigger, context, null));
+        turnLoopService ??= new TurnLoopService(statService, modifierService, missionExpeditionService);
     }
 
     public RunState CreateNewRunState()
@@ -137,6 +139,27 @@ public sealed class GameManager : MonoBehaviour
     {
         EnsureServices();
         return missionExpeditionService.AdvanceMissionDeadlines(CurrentRunState);
+    }
+
+    public bool InitializeRunLoop()
+    {
+        EnsureServices();
+        if (CurrentRunState == null || string.IsNullOrWhiteSpace(CurrentRunState.uid))
+            CreateNewRunState();
+
+        return turnLoopService.InitializeRunLoop(CurrentRunState, GameConfigProvider.Current);
+    }
+
+    public bool AdvanceTurn()
+    {
+        EnsureServices();
+        return turnLoopService.AdvanceTurn(CurrentRunState, GameConfigProvider.Current);
+    }
+
+    public bool TryRecruitCandidate(string candidateUid)
+    {
+        EnsureServices();
+        return turnLoopService.TryRecruitCandidate(CurrentRunState, candidateUid);
     }
 
     RuleExecutionSummary ExecuteMissionTriggerInternal(string missionUid, string trigger, RuleContext context, IRuleEffectApplier effectApplier = null)
