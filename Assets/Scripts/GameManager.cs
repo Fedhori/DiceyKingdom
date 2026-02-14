@@ -7,6 +7,7 @@ public sealed class GameManager : MonoBehaviour
     StatService statService;
     ModifierService modifierService;
     IRuleEffectApplier ruleEffectApplier;
+    MissionExpeditionService missionExpeditionService;
 
     void Awake()
     {
@@ -25,6 +26,11 @@ public sealed class GameManager : MonoBehaviour
         statService ??= new StatService();
         modifierService ??= new ModifierService(statService);
         ruleEffectApplier ??= new EffectApplier(modifierService, statService);
+        missionExpeditionService ??= new MissionExpeditionService(
+            statService,
+            modifierService,
+            (missionUid, trigger, context) => ExecuteMissionTriggerInternal(missionUid, trigger, context, null),
+            (adventurerUid, trigger, context) => ExecuteAdventurerTriggerInternal(adventurerUid, trigger, context, null));
     }
 
     public RunState CreateNewRunState()
@@ -71,20 +77,12 @@ public sealed class GameManager : MonoBehaviour
 
     public RuleExecutionSummary RunMissionTrigger(string missionUid, string trigger, RuleContext context = null, IRuleEffectApplier effectApplier = null)
     {
-        EnsureServices();
-        RuleContext effectiveContext = context?.Clone() ?? new RuleContext();
-        effectiveContext.runState = CurrentRunState;
-        effectiveContext.missionUid = missionUid ?? string.Empty;
-        return RuleRunner.RunTraitsThenMission(CurrentRunState, missionUid, trigger, effectiveContext, effectApplier ?? ruleEffectApplier);
+        return ExecuteMissionTriggerInternal(missionUid, trigger, context, effectApplier);
     }
 
     public RuleExecutionSummary RunAdventurerTrigger(string adventurerUid, string trigger, RuleContext context = null, IRuleEffectApplier effectApplier = null)
     {
-        EnsureServices();
-        RuleContext effectiveContext = context?.Clone() ?? new RuleContext();
-        effectiveContext.runState = CurrentRunState;
-        effectiveContext.adventurerUid = adventurerUid ?? string.Empty;
-        return RuleRunner.RunTraitRulesByAdventurer(CurrentRunState, adventurerUid, trigger, effectiveContext, effectApplier ?? ruleEffectApplier);
+        return ExecuteAdventurerTriggerInternal(adventurerUid, trigger, context, effectApplier);
     }
 
     public int GetAdventurerStat(string adventurerUid, StatId statId)
@@ -109,5 +107,53 @@ public sealed class GameManager : MonoBehaviour
     {
         EnsureServices();
         return modifierService.RemoveMissionLayerModifiers(CurrentRunState, missionUid);
+    }
+
+    public bool TryAssignAdventurerToMission(string adventurerUid, string missionUid)
+    {
+        EnsureServices();
+        return missionExpeditionService.TryAssignAdventurerToMission(CurrentRunState, adventurerUid, missionUid);
+    }
+
+    public bool TryUnassignAdventurer(string adventurerUid)
+    {
+        EnsureServices();
+        return missionExpeditionService.TryUnassignAdventurer(CurrentRunState, adventurerUid);
+    }
+
+    public AbilityTestResolveResult ResolveMissionAbilityTestOnce(string missionUid)
+    {
+        EnsureServices();
+        return missionExpeditionService.ResolveAbilityTestOnce(CurrentRunState, missionUid);
+    }
+
+    public bool FailMissionExpedition(string missionUid)
+    {
+        EnsureServices();
+        return missionExpeditionService.FailExpedition(CurrentRunState, missionUid);
+    }
+
+    public int AdvanceMissionDeadlinesAndRemoveFailedMissions()
+    {
+        EnsureServices();
+        return missionExpeditionService.AdvanceMissionDeadlines(CurrentRunState);
+    }
+
+    RuleExecutionSummary ExecuteMissionTriggerInternal(string missionUid, string trigger, RuleContext context, IRuleEffectApplier effectApplier = null)
+    {
+        EnsureServices();
+        RuleContext effectiveContext = context?.Clone() ?? new RuleContext();
+        effectiveContext.runState = CurrentRunState;
+        effectiveContext.missionUid = missionUid ?? string.Empty;
+        return RuleRunner.RunTraitsThenMission(CurrentRunState, missionUid, trigger, effectiveContext, effectApplier ?? ruleEffectApplier);
+    }
+
+    RuleExecutionSummary ExecuteAdventurerTriggerInternal(string adventurerUid, string trigger, RuleContext context, IRuleEffectApplier effectApplier = null)
+    {
+        EnsureServices();
+        RuleContext effectiveContext = context?.Clone() ?? new RuleContext();
+        effectiveContext.runState = CurrentRunState;
+        effectiveContext.adventurerUid = adventurerUid ?? string.Empty;
+        return RuleRunner.RunTraitRulesByAdventurer(CurrentRunState, adventurerUid, trigger, effectiveContext, effectApplier ?? ruleEffectApplier);
     }
 }

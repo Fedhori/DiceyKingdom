@@ -105,6 +105,31 @@ public sealed class ModifierService
         return removed;
     }
 
+    public int RemoveModifiersByOwnerUid(RunState runState, string ownerUid)
+    {
+        if (runState?.modifiers == null || runState.modifiers.Count == 0 || string.IsNullOrWhiteSpace(ownerUid))
+            return 0;
+
+        int removed = 0;
+        for (int i = runState.modifiers.Count - 1; i >= 0; i--)
+        {
+            ModifierInstance modifier = runState.modifiers[i];
+            if (modifier == null)
+                continue;
+
+            if (!string.Equals(modifier.ownerUid, ownerUid, StringComparison.Ordinal))
+                continue;
+
+            runState.modifiers.RemoveAt(i);
+            removed++;
+        }
+
+        if (removed > 0)
+            MarkDirty(ownerUid);
+
+        return removed;
+    }
+
     static int FindExistingModifierIndex(IReadOnlyList<ModifierInstance> modifiers, ModifierInstance probe)
     {
         for (int i = 0; i < modifiers.Count; i++)
