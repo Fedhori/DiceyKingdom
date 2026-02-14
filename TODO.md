@@ -25,6 +25,7 @@
 
 ## Done
 
+- 2026-02-13: `Docs/temp/GAME_IDEA_TEMP.md`에 신규 기획 아이디어 초안 기록(인력 관리 로그라이크 컨셉/구성요소/특성·시설 아이디어 반영)
 - 2026-02-13: `Docs/temp/GAME_IDEA_TEMP.md` 생성(게임 아이디어 임시 정리 템플릿)
 - 2026-02-13: 규칙 위반 리팩토링 2단계 완료 — `TopHudController`/`BottomActionBarController`/`AssignmentDragArrowPresenter` 런타임 탐색 제거 및 인스펙터 참조 고정, `AgentManager`/`SituationManager`의 카드 주사위 프리팹 런타임 주입 제거(카드 프리팹 직렬화 참조로 전환)
 - 2026-02-13: 규칙 위반 리팩토링 1단계 완료 — 런타임 `new GameObject`/`AddComponent` 제거, UI 바인딩을 씬/프리팹 참조 기반으로 전환, `BottomActionBarController`/`SituationController`의 레이아웃 강제 코드 제거
