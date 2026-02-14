@@ -7,15 +7,18 @@ public sealed class TurnLoopService
     readonly StatService statService;
     readonly ModifierService modifierService;
     readonly MissionExpeditionService missionExpeditionService;
+    readonly TraitService traitService;
 
     public TurnLoopService(
         StatService statService,
         ModifierService modifierService,
-        MissionExpeditionService missionExpeditionService)
+        MissionExpeditionService missionExpeditionService,
+        TraitService traitService)
     {
         this.statService = statService;
         this.modifierService = modifierService;
         this.missionExpeditionService = missionExpeditionService;
+        this.traitService = traitService;
     }
 
     public bool InitializeRunLoop(RunState runState, GameConfigData config)
@@ -114,28 +117,9 @@ public sealed class TurnLoopService
                     continue;
 
                 modifierService.RemoveModifiersByOwnerUid(runState, adventurer.uid);
-                RemoveTraitInstancesByOwner(runState, adventurer.uid);
+                traitService?.RemoveTraitsByOwner(runState, adventurer.uid);
                 runState.adventurers.RemoveAt(i);
             }
-        }
-    }
-
-    void RemoveTraitInstancesByOwner(RunState runState, string ownerUid)
-    {
-        if (runState.traits == null || runState.traits.Count == 0)
-            return;
-
-        for (int i = runState.traits.Count - 1; i >= 0; i--)
-        {
-            TraitInstance trait = runState.traits[i];
-            if (trait == null)
-                continue;
-
-            if (!string.Equals(trait.ownerAdventurerUid, ownerUid, StringComparison.Ordinal))
-                continue;
-
-            modifierService.RemoveModifiersBySourceUid(runState, trait.uid);
-            runState.traits.RemoveAt(i);
         }
     }
 

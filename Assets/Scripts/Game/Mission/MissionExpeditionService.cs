@@ -24,23 +24,30 @@ public sealed class AbilityTestResolveResult
     public string heroismAdventurerUid = string.Empty;
     public int damagedCount;
     public int deadCount;
+    public List<TraitRollResultEntry> traitResults = new();
 }
 
 public sealed class MissionExpeditionService
 {
     readonly StatService statService;
     readonly ModifierService modifierService;
+    readonly TraitService traitService;
+    readonly Func<GameConfigData> getConfig;
     readonly Func<string, string, RuleContext, RuleExecutionSummary> runMissionTrigger;
     readonly Func<string, string, RuleContext, RuleExecutionSummary> runAdventurerTrigger;
 
     public MissionExpeditionService(
         StatService statService,
         ModifierService modifierService,
+        TraitService traitService,
+        Func<GameConfigData> getConfig,
         Func<string, string, RuleContext, RuleExecutionSummary> runMissionTrigger,
         Func<string, string, RuleContext, RuleExecutionSummary> runAdventurerTrigger)
     {
         this.statService = statService;
         this.modifierService = modifierService;
+        this.traitService = traitService;
+        this.getConfig = getConfig;
         this.runMissionTrigger = runMissionTrigger;
         this.runAdventurerTrigger = runAdventurerTrigger;
     }
@@ -161,7 +168,7 @@ public sealed class MissionExpeditionService
 
             if (mission.currentAbilityTestIndex >= missionDef.abilityTests.Count)
             {
-                CompleteExpeditionSuccess(runState, mission);
+                CompleteExpeditionSuccess(runState, mission, result.traitResults);
                 result.outcome = AbilityTestResolveOutcome.MissionSucceeded;
             }
             else
@@ -187,7 +194,7 @@ public sealed class MissionExpeditionService
 
         if (!HasAssignedLivingAdventurer(runState, mission))
         {
-            FailExpedition(runState, mission.uid);
+            FailExpeditionInternal(runState, mission.uid, result.traitResults);
             result.outcome = AbilityTestResolveOutcome.ExpeditionFailedAllDead;
             return result;
         }
@@ -198,22 +205,7 @@ public sealed class MissionExpeditionService
 
     public bool FailExpedition(RunState runState, string missionUid)
     {
-        if (!TryGetMission(runState, missionUid, out MissionInstance mission))
-            return false;
-
-        var context = new RuleContext
-        {
-            runState = runState,
-            missionUid = mission.uid,
-            expeditionSucceeded = false
-        };
-        runMissionTrigger?.Invoke(mission.uid, RuleTriggerIds.OnExpeditionResolved, context);
-
-        modifierService.RemoveMissionLayerModifiers(runState, mission.uid);
-        ClearMissionAssignments(runState, mission);
-        mission.isExpeditionInProgress = false;
-        mission.isPartyLocked = false;
-        return true;
+        return FailExpeditionInternal(runState, missionUid, null);
     }
 
     public int AdvanceMissionDeadlines(RunState runState)
@@ -256,7 +248,7 @@ public sealed class MissionExpeditionService
         return removed;
     }
 
-    void CompleteExpeditionSuccess(RunState runState, MissionInstance mission)
+    void CompleteExpeditionSuccess(RunState runState, MissionInstance mission, List<TraitRollResultEntry> traitResults)
     {
         var context = new RuleContext
         {
@@ -265,10 +257,49 @@ public sealed class MissionExpeditionService
             expeditionSucceeded = true
         };
         runMissionTrigger?.Invoke(mission.uid, RuleTriggerIds.OnExpeditionResolved, context);
+        ApplyTraitResult(runState, mission, true, traitResults);
 
         modifierService.RemoveMissionLayerModifiers(runState, mission.uid);
         ClearMissionAssignments(runState, mission);
         RemoveMissionByUid(runState, mission.uid);
+    }
+
+    bool FailExpeditionInternal(RunState runState, string missionUid, List<TraitRollResultEntry> traitResults)
+    {
+        if (!TryGetMission(runState, missionUid, out MissionInstance mission))
+            return false;
+
+        var context = new RuleContext
+        {
+            runState = runState,
+            missionUid = mission.uid,
+            expeditionSucceeded = false
+        };
+        runMissionTrigger?.Invoke(mission.uid, RuleTriggerIds.OnExpeditionResolved, context);
+        ApplyTraitResult(runState, mission, false, traitResults);
+
+        modifierService.RemoveMissionLayerModifiers(runState, mission.uid);
+        ClearMissionAssignments(runState, mission);
+        mission.isExpeditionInProgress = false;
+        mission.isPartyLocked = false;
+        return true;
+    }
+
+    void ApplyTraitResult(RunState runState, MissionInstance mission, bool expeditionSucceeded, List<TraitRollResultEntry> traitResults)
+    {
+        if (traitService == null || mission == null)
+            return;
+
+        GameConfigData config = getConfig?.Invoke();
+        if (config == null)
+            return;
+
+        traitService.ApplyExpeditionResultToParty(
+            runState,
+            mission.assignedAdventurerUids,
+            expeditionSucceeded,
+            config,
+            traitResults);
     }
 
     void MarkPartyAsCommitted(RunState runState, MissionInstance mission)
@@ -418,26 +449,7 @@ public sealed class MissionExpeditionService
             RemoveUid(runState.missions[i]?.assignedAdventurerUids, adventurerUid);
 
         modifierService.RemoveModifiersByOwnerUid(runState, adventurerUid);
-        RemoveTraitInstancesByOwner(runState, adventurerUid);
-    }
-
-    void RemoveTraitInstancesByOwner(RunState runState, string ownerUid)
-    {
-        if (runState.traits == null || runState.traits.Count == 0)
-            return;
-
-        for (int i = runState.traits.Count - 1; i >= 0; i--)
-        {
-            TraitInstance trait = runState.traits[i];
-            if (trait == null)
-                continue;
-
-            if (!string.Equals(trait.ownerAdventurerUid, ownerUid, StringComparison.Ordinal))
-                continue;
-
-            modifierService.RemoveModifiersBySourceUid(runState, trait.uid);
-            runState.traits.RemoveAt(i);
-        }
+        traitService?.RemoveTraitsByOwner(runState, adventurerUid);
     }
 
     void ClearMissionAssignments(RunState runState, MissionInstance mission)

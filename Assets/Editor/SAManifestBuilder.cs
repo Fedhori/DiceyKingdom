@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
@@ -48,7 +49,7 @@ public static class SAManifestBuilder
             files = files
         };
 
-        var json = JsonUtility.ToJson(manifest, true);
+        var json = JsonConvert.SerializeObject(manifest, Formatting.Indented);
         File.WriteAllText(Path.Combine(saRoot, "sa_manifest.json"), json);
         AssetDatabase.Refresh();
         Debug.Log($"[SAManifestBuilder] {files.Length} files listed.");

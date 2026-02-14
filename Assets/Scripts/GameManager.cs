@@ -1,4 +1,5 @@
 using UnityEngine;
+using Newtonsoft.Json;
 
 public sealed class GameManager : MonoBehaviour
 {
@@ -6,6 +7,7 @@ public sealed class GameManager : MonoBehaviour
     public RunState CurrentRunState { get; private set; } = new();
     StatService statService;
     ModifierService modifierService;
+    TraitService traitService;
     IRuleEffectApplier ruleEffectApplier;
     MissionExpeditionService missionExpeditionService;
     TurnLoopService turnLoopService;
@@ -26,13 +28,16 @@ public sealed class GameManager : MonoBehaviour
     {
         statService ??= new StatService();
         modifierService ??= new ModifierService(statService);
+        traitService ??= new TraitService(modifierService);
         ruleEffectApplier ??= new EffectApplier(modifierService, statService);
         missionExpeditionService ??= new MissionExpeditionService(
             statService,
             modifierService,
+            traitService,
+            () => GameConfigProvider.Current,
             (missionUid, trigger, context) => ExecuteMissionTriggerInternal(missionUid, trigger, context, null),
             (adventurerUid, trigger, context) => ExecuteAdventurerTriggerInternal(adventurerUid, trigger, context, null));
-        turnLoopService ??= new TurnLoopService(statService, modifierService, missionExpeditionService);
+        turnLoopService ??= new TurnLoopService(statService, modifierService, missionExpeditionService, traitService);
     }
 
     public RunState CreateNewRunState()
@@ -59,7 +64,9 @@ public sealed class GameManager : MonoBehaviour
     public string ExportRunStateJson(bool prettyPrint = false)
     {
         EnsureServices();
-        return JsonUtility.ToJson(CurrentRunState ?? new RunState(), prettyPrint);
+        return JsonConvert.SerializeObject(
+            CurrentRunState ?? new RunState(),
+            prettyPrint ? Formatting.Indented : Formatting.None);
     }
 
     public bool TryImportRunStateJson(string json)
@@ -68,7 +75,7 @@ public sealed class GameManager : MonoBehaviour
         if (string.IsNullOrWhiteSpace(json))
             return false;
 
-        RunState parsed = JsonUtility.FromJson<RunState>(json);
+        RunState parsed = JsonConvert.DeserializeObject<RunState>(json);
         if (parsed == null)
             return false;
 
@@ -160,6 +167,12 @@ public sealed class GameManager : MonoBehaviour
     {
         EnsureServices();
         return turnLoopService.TryRecruitCandidate(CurrentRunState, candidateUid);
+    }
+
+    public bool SetTraitLocked(string traitUid, bool isLocked)
+    {
+        EnsureServices();
+        return traitService.SetTraitLocked(CurrentRunState, traitUid, isLocked);
     }
 
     RuleExecutionSummary ExecuteMissionTriggerInternal(string missionUid, string trigger, RuleContext context, IRuleEffectApplier effectApplier = null)

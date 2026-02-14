@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Security.Cryptography;
@@ -106,7 +107,7 @@ public static class SaCache
 
             // 1) 매니페스트 읽기
             var manifestJson = await LoadSaAsync("sa_manifest.json");
-            manifest = JsonUtility.FromJson<Manifest>(manifestJson);
+            manifest = JsonConvert.DeserializeObject<Manifest>(manifestJson);
             if (manifest?.files == null || manifest.files.Length == 0)
             {
                 inited = true;
@@ -199,10 +200,10 @@ public static class SaCache
     static SaState LoadState()
     {
         var p = Path("sa_state.json");
-        return File.Exists(p) ? JsonUtility.FromJson<SaState>(File.ReadAllText(p)) : null;
+        return File.Exists(p) ? JsonConvert.DeserializeObject<SaState>(File.ReadAllText(p)) : null;
     }
 
-    static void SaveState(SaState s) => File.WriteAllText(Path("sa_state.json"), JsonUtility.ToJson(s));
+    static void SaveState(SaState s) => File.WriteAllText(Path("sa_state.json"), JsonConvert.SerializeObject(s));
 
     static async Task<string> LoadSaAsync(string relativePath)
     {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Newtonsoft.Json;
 using UnityEngine;
 
 public static class StaticDataLoader
@@ -111,7 +112,7 @@ public static class StaticDataLoader
         if (string.IsNullOrWhiteSpace(json))
             throw new InvalidDataException($"[StaticDataLoader] Empty json: {relativePath}");
 
-        T parsed = JsonUtility.FromJson<T>(json);
+        T parsed = JsonConvert.DeserializeObject<T>(json);
         if (parsed == null)
             throw new InvalidDataException($"[StaticDataLoader] Invalid json shape: {relativePath}");
 

@@ -2,10 +2,17 @@
   "candidateCountPerTurn": 2,
   "barracksCapacity": 6,
   "missionSpawnCountPerTurn": 2,
+
   "globalHpRegenPerTurn": 1,
   "restStaminaRegenPerTurn": 1,
+
+  "traitSlotCount": 3,
+
+  "traitNoChangeOnSuccess": 0.6,
   "traitPositiveOnSuccess": 0.3,
   "traitNegativeOnSuccess": 0.1,
+
+  "traitNoChangeOnFailure": 0.6,
   "traitPositiveOnFailure": 0.1,
   "traitNegativeOnFailure": 0.3
 }

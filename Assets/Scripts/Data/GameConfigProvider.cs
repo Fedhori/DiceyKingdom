@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -37,7 +38,7 @@ public static class GameConfigProvider
                 return false;
             }
 
-            var parsed = JsonUtility.FromJson<GameConfigData>(json);
+            var parsed = JsonConvert.DeserializeObject<GameConfigData>(json);
             if (parsed == null)
             {
                 Debug.LogError($"[GameConfigProvider] Failed to parse config json: {RelativePath}");

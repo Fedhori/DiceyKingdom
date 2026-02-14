@@ -23,6 +23,11 @@
 - JSON 키는 camelCase를 사용한다.
 - JSON 효과 타입/파라미터 문자열도 camelCase를 사용한다.
 
+## JSON 직렬화/역직렬화 규칙(확정)
+
+- `JsonUtility` 사용을 금지한다.
+- JSON 직렬화/역직렬화는 `Newtonsoft.Json`으로 통일한다.
+
 ## 공용 값 관리 파일(확정)
 
 - 색상 상수는 `Assets/Scripts/Data/Colors.cs`에서 중앙 관리한다.
