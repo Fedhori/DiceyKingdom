@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class GameSpeedManager : MonoBehaviour
 {
-    public static GameSpeedManager Instance { get; private set; }
-
     [Header("UI")]
     [SerializeField] private Button pauseToggleButton;    // 클릭하는 버튼
     [SerializeField] private Image pauseToggleIcon;       // 아이콘을 바꿀 Image
@@ -64,13 +62,7 @@ public class GameSpeedManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
+        ResetTime();
     }
 
     private void Start()

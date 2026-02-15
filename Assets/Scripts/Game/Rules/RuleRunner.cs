@@ -18,7 +18,7 @@ public static class RuleRunner
             return summary;
 
         RuleContext baseContext = EnsureContext(context, runState, missionUid, string.Empty);
-        effectApplier ??= NoopRuleEffectApplier.Instance;
+        effectApplier ??= NoopRuleEffectApplier.Shared;
 
         // Global order (confirmed): Trait rules first, then Mission rules.
         summary.Add(RunTraitRulesForMissionParty(runState, missionInstance, trigger, baseContext, effectApplier));
@@ -40,7 +40,7 @@ public static class RuleRunner
         if (runState.traits == null || runState.traits.Count == 0)
             return summary;
 
-        effectApplier ??= NoopRuleEffectApplier.Instance;
+        effectApplier ??= NoopRuleEffectApplier.Shared;
         for (int i = 0; i < runState.traits.Count; i++)
         {
             TraitInstance traitInstance = runState.traits[i];

@@ -4,8 +4,6 @@ using System.Collections.Generic;
 
 public class ModalManager : MonoBehaviour
 {
-    public static ModalManager Instance { get; private set; }
-
     [SerializeField] private ConfirmationModal confirmationModalPrefab;
     [SerializeField] private InfoModal infoModalPrefab;
     [SerializeField] private Canvas modalCanvas;
@@ -15,13 +13,6 @@ public class ModalManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-
         if (confirmationModalPrefab != null)
         {
             confirmationModalInstance = Instantiate(confirmationModalPrefab, modalCanvas.transform);

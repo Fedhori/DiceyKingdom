@@ -6,20 +6,8 @@ namespace UI
 {
     public class ToastManager : MonoBehaviour
     {
-        public static ToastManager Instance { get; private set; }
-
         [SerializeField] private Canvas canvas;
         [SerializeField] private GameObject toastPrefab; // Assign this in the Inspector
-
-        private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-        }
 
         public void ShowToastMessage(string tableKey, string entryKey, float waitSecond = 2.0f, float fadeDuration = 0.5f)
         {

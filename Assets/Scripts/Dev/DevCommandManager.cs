@@ -11,19 +11,11 @@ public sealed class DevCommandManager : MonoBehaviour
     void Awake() => Destroy(gameObject);
 #else
     const string DevInputCtrl = "devconsole_input";
-    public static DevCommandManager Instance { get; private set; }
 
     public bool IsOpen => open;
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
         open = !startClosed;
     }
 
@@ -36,13 +28,14 @@ public sealed class DevCommandManager : MonoBehaviour
 
     public static void Register(string command, Action<string[]> handler)
     {
-        if (Instance == null)
+        var manager = GameApp.I?.App?.DevCommand;
+        if (manager == null)
             return;
 
         if (string.IsNullOrWhiteSpace(command) || handler == null)
             return;
 
-        Instance.handlers[command] = handler;
+        manager.handlers[command] = handler;
     }
 
     bool pendingClear;

@@ -2,8 +2,6 @@ using UnityEngine;
 
 public sealed class BgmManager : MonoBehaviour
 {
-    public static BgmManager Instance { get; private set; }
-
     const string PrefsKeyBaseVolume = "bgm.baseVolume";
 
     [SerializeField] private AudioSource audioSource;
@@ -21,14 +19,6 @@ public sealed class BgmManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
         if (audioSource == null)

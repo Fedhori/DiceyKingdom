@@ -22,7 +22,7 @@ public sealed class SimpleTooltipTarget : MonoBehaviour, IPointerEnterHandler, I
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        var manager = TooltipManager.Instance;
+        var manager = GameApp.I?.UI?.Tooltip;
         if (manager == null)
             return;
 
@@ -50,7 +50,16 @@ public sealed class SimpleTooltipTarget : MonoBehaviour, IPointerEnterHandler, I
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        var manager = TooltipManager.Instance;
+        var manager = GameApp.I?.UI?.Tooltip;
+        if (manager == null)
+            return;
+
+        manager.EndHover(this);
+    }
+
+    void OnDisable()
+    {
+        var manager = GameApp.I?.UI?.Tooltip;
         if (manager == null)
             return;
 
@@ -59,7 +68,7 @@ public sealed class SimpleTooltipTarget : MonoBehaviour, IPointerEnterHandler, I
 
     void OnDestroy()
     {
-        var manager = TooltipManager.Instance;
+        var manager = GameApp.I?.UI?.Tooltip;
         if (manager == null)
             return;
 

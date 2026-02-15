@@ -1,195 +1,149 @@
 using UnityEngine;
-using Newtonsoft.Json;
 
 public sealed class GameManager : MonoBehaviour
 {
-    public static GameManager Instance { get; private set; }
-    public RunState CurrentRunState { get; private set; } = new();
-    StatService statService;
-    ModifierService modifierService;
-    TraitService traitService;
-    IRuleEffectApplier ruleEffectApplier;
-    MissionExpeditionService missionExpeditionService;
-    TurnLoopService turnLoopService;
+    [SerializeField] bool autoStartOnAwake = true;
+    [SerializeField] bool useFixedSeed;
+    [SerializeField] int fixedSeed = 1001;
+    [SerializeField] GameSceneRefs sceneRefs = new();
+    bool ownsRun;
+
+    public RunState CurrentRunState => GetRunServices()?.CurrentRunState;
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
+        if (!autoStartOnAwake)
             return;
-        }
+        if (useFixedSeed)
+            Random.InitState(fixedSeed);
 
-        Instance = this;
-        EnsureServices();
+        var app = GameApp.I;
+        if (app == null)
+            return;
+
+        app.BeginRun(sceneRefs);
+        ownsRun = true;
     }
 
-    void EnsureServices()
+    void OnDestroy()
     {
-        statService ??= new StatService();
-        modifierService ??= new ModifierService(statService);
-        traitService ??= new TraitService(modifierService);
-        ruleEffectApplier ??= new EffectApplier(modifierService, statService);
-        missionExpeditionService ??= new MissionExpeditionService(
-            statService,
-            modifierService,
-            traitService,
-            () => GameConfigProvider.Current,
-            (missionUid, trigger, context) => ExecuteMissionTriggerInternal(missionUid, trigger, context, null),
-            (adventurerUid, trigger, context) => ExecuteAdventurerTriggerInternal(adventurerUid, trigger, context, null));
-        turnLoopService ??= new TurnLoopService(statService, modifierService, missionExpeditionService, traitService);
+        if (!ownsRun)
+            return;
+
+        var app = GameApp.I;
+        if (app == null)
+            return;
+
+        app.EndRun();
     }
 
     public RunState CreateNewRunState()
     {
-        EnsureServices();
-        var runState = new RunState
-        {
-            uid = System.Guid.NewGuid().ToString("N"),
-            barracksCapacity = GameConfigProvider.Current.barracksCapacity
-        };
-
-        CurrentRunState = runState;
-        statService.ClearCache();
-        return CurrentRunState;
+        return GetRunServices()?.CreateNewRunState();
     }
 
     public void SetRunState(RunState runState)
     {
-        EnsureServices();
-        CurrentRunState = runState ?? new RunState();
-        statService.ClearCache();
+        GetRunServices()?.SetRunState(runState);
     }
 
     public string ExportRunStateJson(bool prettyPrint = false)
     {
-        EnsureServices();
-        return JsonConvert.SerializeObject(
-            CurrentRunState ?? new RunState(),
-            prettyPrint ? Formatting.Indented : Formatting.None);
+        return GetRunServices()?.ExportRunStateJson(prettyPrint) ?? "{}";
     }
 
     public bool TryImportRunStateJson(string json)
     {
-        EnsureServices();
-        if (string.IsNullOrWhiteSpace(json))
-            return false;
-
-        RunState parsed = JsonConvert.DeserializeObject<RunState>(json);
-        if (parsed == null)
-            return false;
-
-        CurrentRunState = parsed;
-        statService.ClearCache();
-        return true;
+        return GetRunServices()?.TryImportRunStateJson(json) ?? false;
     }
 
     public RuleExecutionSummary RunMissionTrigger(string missionUid, string trigger, RuleContext context = null, IRuleEffectApplier effectApplier = null)
     {
-        return ExecuteMissionTriggerInternal(missionUid, trigger, context, effectApplier);
+        return GetRunServices()?.RunMissionTrigger(missionUid, trigger, context, effectApplier) ?? new RuleExecutionSummary();
     }
 
     public RuleExecutionSummary RunAdventurerTrigger(string adventurerUid, string trigger, RuleContext context = null, IRuleEffectApplier effectApplier = null)
     {
-        return ExecuteAdventurerTriggerInternal(adventurerUid, trigger, context, effectApplier);
+        return GetRunServices()?.RunAdventurerTrigger(adventurerUid, trigger, context, effectApplier) ?? new RuleExecutionSummary();
     }
 
     public int GetAdventurerStat(string adventurerUid, StatId statId)
     {
-        EnsureServices();
-        return statService.GetStat(CurrentRunState, adventurerUid, statId);
+        return GetRunServices()?.GetAdventurerStat(adventurerUid, statId) ?? 0;
     }
 
     public void MarkAdventurerStatDirty(string adventurerUid)
     {
-        EnsureServices();
-        statService.MarkDirty(adventurerUid);
+        GetRunServices()?.MarkAdventurerStatDirty(adventurerUid);
     }
 
     public void AddOrMergeModifier(ModifierInstance modifier)
     {
-        EnsureServices();
-        modifierService.AddOrMergeModifier(CurrentRunState, modifier);
+        GetRunServices()?.AddOrMergeModifier(modifier);
     }
 
     public int RemoveMissionLayerModifiers(string missionUid)
     {
-        EnsureServices();
-        return modifierService.RemoveMissionLayerModifiers(CurrentRunState, missionUid);
+        return GetRunServices()?.RemoveMissionLayerModifiers(missionUid) ?? 0;
     }
 
     public bool TryAssignAdventurerToMission(string adventurerUid, string missionUid)
     {
-        EnsureServices();
-        return missionExpeditionService.TryAssignAdventurerToMission(CurrentRunState, adventurerUid, missionUid);
+        return GetRunServices()?.TryAssignAdventurerToMission(adventurerUid, missionUid) ?? false;
     }
 
     public bool TryUnassignAdventurer(string adventurerUid)
     {
-        EnsureServices();
-        return missionExpeditionService.TryUnassignAdventurer(CurrentRunState, adventurerUid);
+        return GetRunServices()?.TryUnassignAdventurer(adventurerUid) ?? false;
     }
 
     public AbilityTestResolveResult ResolveMissionAbilityTestOnce(string missionUid)
     {
-        EnsureServices();
-        return missionExpeditionService.ResolveAbilityTestOnce(CurrentRunState, missionUid);
+        return GetRunServices()?.ResolveMissionAbilityTestOnce(missionUid) ?? new AbilityTestResolveResult();
     }
 
     public bool FailMissionExpedition(string missionUid)
     {
-        EnsureServices();
-        return missionExpeditionService.FailExpedition(CurrentRunState, missionUid);
+        return GetRunServices()?.FailMissionExpedition(missionUid) ?? false;
     }
 
     public int AdvanceMissionDeadlinesAndRemoveFailedMissions()
     {
-        EnsureServices();
-        return missionExpeditionService.AdvanceMissionDeadlines(CurrentRunState);
+        return GetRunServices()?.AdvanceMissionDeadlinesAndRemoveFailedMissions() ?? 0;
     }
 
     public bool InitializeRunLoop()
     {
-        EnsureServices();
-        if (CurrentRunState == null || string.IsNullOrWhiteSpace(CurrentRunState.uid))
-            CreateNewRunState();
-
-        return turnLoopService.InitializeRunLoop(CurrentRunState, GameConfigProvider.Current);
+        return GetRunServices()?.InitializeRunLoop() ?? false;
     }
 
     public bool AdvanceTurn()
     {
-        EnsureServices();
-        return turnLoopService.AdvanceTurn(CurrentRunState, GameConfigProvider.Current);
+        return GetRunServices()?.AdvanceTurn() ?? false;
     }
 
     public bool TryRecruitCandidate(string candidateUid)
     {
-        EnsureServices();
-        return turnLoopService.TryRecruitCandidate(CurrentRunState, candidateUid);
+        return GetRunServices()?.TryRecruitCandidate(candidateUid) ?? false;
     }
 
     public bool SetTraitLocked(string traitUid, bool isLocked)
     {
-        EnsureServices();
-        return traitService.SetTraitLocked(CurrentRunState, traitUid, isLocked);
+        return GetRunServices()?.SetTraitLocked(traitUid, isLocked) ?? false;
     }
 
-    RuleExecutionSummary ExecuteMissionTriggerInternal(string missionUid, string trigger, RuleContext context, IRuleEffectApplier effectApplier = null)
+    RunServices GetRunServices()
     {
-        EnsureServices();
-        RuleContext effectiveContext = context?.Clone() ?? new RuleContext();
-        effectiveContext.runState = CurrentRunState;
-        effectiveContext.missionUid = missionUid ?? string.Empty;
-        return RuleRunner.RunTraitsThenMission(CurrentRunState, missionUid, trigger, effectiveContext, effectApplier ?? ruleEffectApplier);
-    }
+        var app = GameApp.I;
+        if (app == null)
+        {
+            Debug.LogError("[GameManager] GameApp is missing.");
+            return null;
+        }
 
-    RuleExecutionSummary ExecuteAdventurerTriggerInternal(string adventurerUid, string trigger, RuleContext context, IRuleEffectApplier effectApplier = null)
-    {
-        EnsureServices();
-        RuleContext effectiveContext = context?.Clone() ?? new RuleContext();
-        effectiveContext.runState = CurrentRunState;
-        effectiveContext.adventurerUid = adventurerUid ?? string.Empty;
-        return RuleRunner.RunTraitRulesByAdventurer(CurrentRunState, adventurerUid, trigger, effectiveContext, effectApplier ?? ruleEffectApplier);
+        if (app.Run == null)
+            app.BeginRun(sceneRefs);
+
+        return app.Run;
     }
 }

@@ -13,11 +13,21 @@ public class InfoModal : MonoBehaviour
     [SerializeField] private Button confirmButton;
 
     private Action onConfirmAction;
+    readonly DisposableBag subscriptions = new();
 
     public void Initialize()
     {
-        confirmButton.onClick.RemoveAllListeners();
-        confirmButton.onClick.AddListener(OnConfirmClicked);
+    }
+
+    void OnEnable()
+    {
+        subscriptions.Clear();
+        subscriptions.Add(EventSubscription.Subscribe(confirmButton, OnConfirmClicked));
+    }
+
+    void OnDisable()
+    {
+        subscriptions.Clear();
     }
     
     public void Show(Action onConfirm)

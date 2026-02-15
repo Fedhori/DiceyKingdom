@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public sealed class TooltipManager : MonoBehaviour
 {
-    public static TooltipManager Instance { get; private set; }
-
     [SerializeField] Canvas tooltipCanvas;      // Screen Space - Overlay
     [SerializeField] TooltipView tooltipView;
     [SerializeField] Camera worldCamera;
@@ -24,6 +22,7 @@ public sealed class TooltipManager : MonoBehaviour
     bool dragHidden;
 
     Coroutine showRoutine;
+    readonly DisposableBag subscriptions = new();
 
     RectTransform CanvasRect
     {
@@ -37,42 +36,39 @@ public sealed class TooltipManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-
         if (tooltipCanvas == null)
             tooltipCanvas = GetComponentInParent<Canvas>();
 
         UpdateWorldCamera();
     }
 
-    void Start()
+    void OnEnable()
     {
-        SceneManager.activeSceneChanged -= OnActiveSceneChanged;
-        SceneManager.activeSceneChanged += OnActiveSceneChanged;
-        UiSelectionEvents.OnSelectionCleared -= HandleSelectionCleared;
-        UiSelectionEvents.OnSelectionCleared += HandleSelectionCleared;
+        subscriptions.Clear();
+        subscriptions.Add(EventSubscription.Create(
+            () => SceneManager.activeSceneChanged += OnActiveSceneChanged,
+            () => SceneManager.activeSceneChanged -= OnActiveSceneChanged));
+        subscriptions.Add(EventSubscription.Create(
+            () => UiSelectionEvents.OnSelectionCleared += HandleSelectionCleared,
+            () => UiSelectionEvents.OnSelectionCleared -= HandleSelectionCleared));
         UpdateWorldCamera();
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
-        SceneManager.activeSceneChanged -= OnActiveSceneChanged;
-        UiSelectionEvents.OnSelectionCleared -= HandleSelectionCleared;
+        subscriptions.Clear();
 
         if (showRoutine != null)
         {
             StopCoroutine(showRoutine);
             showRoutine = null;
         }
+        HideImmediate();
+    }
 
-        if (Instance == this)
-            Instance = null;
+    void OnDestroy()
+    {
+        subscriptions.Clear();
     }
 
     void OnActiveSceneChanged(Scene oldScene, Scene newScene)

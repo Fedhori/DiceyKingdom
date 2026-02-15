@@ -5,8 +5,6 @@ using System.Collections.Generic;
 
 public class AudioManager : MonoBehaviour
 {
-    public static AudioManager Instance { get; private set; }
-
     [Serializable] public struct SfxEntry {
         public string key;
         [Range(0f,1f)] public float volume;
@@ -37,9 +35,6 @@ public class AudioManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-        Instance = this;
-
         table = new Dictionary<string, SfxEntry>(StringComparer.OrdinalIgnoreCase);
         foreach (var e in entries) if (!string.IsNullOrEmpty(e.key)) table[e.key] = e;
 

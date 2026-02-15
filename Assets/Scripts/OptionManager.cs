@@ -1,31 +1,26 @@
 using UnityEngine;
-using UnityEngine.Localization.Components;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class OptionManager : MonoBehaviour
 {
-    public static OptionManager Instance { get; private set; }
-
     public GameObject optionOverlay;
 
     public Button quitGameButton;
     public Button gameRestartButton;
     public Button returnToMainMenuButton;
     [SerializeField] private Slider bgmSlider;
+    [SerializeField] private BgmManager bgmManager;
+    [SerializeField] private GameSpeedManager gameSpeedManager;
+    [SerializeField] private ModalManager modalManager;
     [SerializeField] private SlidePanelLean optionPanelSlide;
     [SerializeField] private OverlayFader optionOverlayFader;
+    readonly DisposableBag subscriptions = new();
     bool previousForcePaused;
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
+        ResolveDependencies();
         if (optionOverlayFader == null && optionOverlay != null)
             optionOverlayFader = optionOverlay.GetComponent<OverlayFader>();
         ToggleOption(false);
@@ -37,20 +32,22 @@ public class OptionManager : MonoBehaviour
         SyncBgmSliderValue();
     }
 
-    void Start()
+    void OnEnable()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        ResolveDependencies();
+        subscriptions.Clear();
+        subscriptions.Add(EventSubscription.Create(
+            () => SceneManager.sceneLoaded += OnSceneLoaded,
+            () => SceneManager.sceneLoaded -= OnSceneLoaded));
+        subscriptions.Add(EventSubscription.Subscribe(bgmSlider, HandleBgmSliderChanged));
         InitializeBgmControls();
         UpdateOptionButtons();
         SyncBgmSliderValue();
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-        if (bgmSlider != null)
-            bgmSlider.onValueChanged.RemoveListener(HandleBgmSliderChanged);
+        subscriptions.Clear();
     }
 
     void HideAllOptionButtons()
@@ -135,8 +132,6 @@ public class OptionManager : MonoBehaviour
         bgmSlider.minValue = 0f;
         bgmSlider.maxValue = 1f;
         bgmSlider.wholeNumbers = false;
-        bgmSlider.onValueChanged.RemoveListener(HandleBgmSliderChanged);
-        bgmSlider.onValueChanged.AddListener(HandleBgmSliderChanged);
         SyncBgmSliderValue();
     }
 
@@ -145,25 +140,26 @@ public class OptionManager : MonoBehaviour
         if (bgmSlider == null)
             return;
 
-        var bgm = BgmManager.Instance;
-        if (bgm == null)
+        if (bgmManager == null)
             return;
 
-        bgmSlider.SetValueWithoutNotify(bgm.BaseVolume);
+        bgmSlider.SetValueWithoutNotify(bgmManager.BaseVolume);
     }
 
     void HandleBgmSliderChanged(float value)
     {
-        var bgm = BgmManager.Instance;
-        if (bgm == null)
+        if (bgmManager == null)
             return;
 
-        bgm.SetBaseVolume(value);
+        bgmManager.SetBaseVolume(value);
     }
     
     public void RequestReturnToMainMenu()
     {
-        ModalManager.Instance.ShowConfirmation(
+        if (modalManager == null)
+            return;
+
+        modalManager.ShowConfirmation(
             titleTable: "modal", titleKey: "modal.mainmenu.title",
             messageTable: "modal", messageKey: "modal.mainmenu.desc",
             onConfirm: ReturnToMainMenu,
@@ -179,7 +175,10 @@ public class OptionManager : MonoBehaviour
 
     public void RequestQuitGame()
     {
-        ModalManager.Instance.ShowConfirmation(
+        if (modalManager == null)
+            return;
+
+        modalManager.ShowConfirmation(
             titleTable: "modal", titleKey: "modal.quitgame.title",
             messageTable: "modal", messageKey: "modal.quitgame.message",
             onConfirm: QuitGame,
@@ -195,21 +194,31 @@ public class OptionManager : MonoBehaviour
 
     void UpdatePauseState(bool isOptionOpen)
     {
-        var speedManager = GameSpeedManager.Instance;
-        if (speedManager == null)
+        if (gameSpeedManager == null)
             return;
 
         if (isOptionOpen)
         {
-            previousForcePaused = speedManager.ForcePaused;
-            speedManager.ForcePaused = true;
+            previousForcePaused = gameSpeedManager.ForcePaused;
+            gameSpeedManager.ForcePaused = true;
             return;
         }
-        speedManager.ForcePaused = previousForcePaused;
+        gameSpeedManager.ForcePaused = previousForcePaused;
     }
 
     void UpdatePauseStateFalse()
     {
         UpdatePauseState(false);
+    }
+
+    void ResolveDependencies()
+    {
+        var appServices = GameApp.I?.App;
+        if (bgmManager == null)
+            bgmManager = appServices?.Bgm;
+        if (gameSpeedManager == null)
+            gameSpeedManager = appServices?.GameSpeed;
+        if (modalManager == null)
+            modalManager = appServices?.UI?.Modal;
     }
 }

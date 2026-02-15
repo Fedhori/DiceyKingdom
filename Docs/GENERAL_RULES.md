@@ -62,16 +62,20 @@
 
 - 이벤트는 UI 갱신 용도로만 사용한다.
 - 로직 진행/판정/턴 전환을 이벤트 체인으로 구성하지 않는다.
-- 게임 로직은 매니저 간 직접 메서드 호출(`xxxManager.Instance`)로 처리한다.
+- 게임 로직은 서비스 간 직접 메서드 호출로 처리한다.
+- 전역 진입점은 `GameApp.I` 하나만 사용한다.
 - 상태값/수치값은 Getter/Setter로 관리한다.
 - UI 갱신이 필요한 값은 Setter 내부에서 해당 이벤트를 발행한다.
 - 범용 이벤트(`StateChanged`) 대신 값 단위 명시 이벤트를 사용한다.
+- UI 구독은 `OnEnable`에서 등록하고 `OnDisable`에서 해제한다.
+- 구독/해제는 `IDisposable` 토큰 기반으로 관리한다.
 
-## Unity 라이프사이클 원칙(확정)
+## 앱 스코프 원칙(확정)
 
-- `OnEnable`을 사용하지 않는다.
-- 기존 `OnEnable` 로직은 `Start`로 옮긴다.
-- 기존 `OnDisable` 로직은 `OnDestroy`로 옮긴다.
+- 영속 싱글톤은 `GameApp` 하나만 허용한다.
+- `DontDestroyOnLoad` 호출은 `GameApp` 외 금지한다.
+- `static Instance` 패턴은 `GameApp` 외 금지한다.
+- 앱 전역 서비스는 `AppServices`, 런 단위 상태/로직은 `RunServices`로 분리한다.
 
 ## 문서 갱신 규칙
 

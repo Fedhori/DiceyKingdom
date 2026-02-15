@@ -3,19 +3,6 @@ using UnityEngine;
 
 public sealed class SaveManager : MonoBehaviour
 {
-    public static SaveManager Instance { get; private set; }
-
-    void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-    }
-
     public bool Save(string payloadJson)
     {
         var data = new SaveData

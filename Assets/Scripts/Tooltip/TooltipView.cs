@@ -27,6 +27,7 @@ public sealed class TooltipView : MonoBehaviour
 
     public RectTransform rectTransform;
     readonly List<TooltipKeywordRow> keywordRows = new();
+    readonly DisposableBag subscriptions = new();
     Color nameImageDefaultColor;
     bool hasNameImageDefaultColor;
     Action toggleButtonAction;
@@ -39,9 +40,6 @@ public sealed class TooltipView : MonoBehaviour
         if (rectTransform != null)
             rectTransform.pivot = new Vector2(0f, 1f);
 
-        if (toggleButton != null)
-            toggleButton.onClick.AddListener(HandleToggleButtonClicked);
-
         if (nameImage != null)
         {
             nameImageDefaultColor = nameImage.color;
@@ -49,6 +47,17 @@ public sealed class TooltipView : MonoBehaviour
         }
 
         gameObject.SetActive(false);
+    }
+
+    void OnEnable()
+    {
+        subscriptions.Clear();
+        subscriptions.Add(EventSubscription.Subscribe(toggleButton, HandleToggleButtonClicked));
+    }
+
+    void OnDisable()
+    {
+        subscriptions.Clear();
     }
 
     public void Show(TooltipModel model)
@@ -130,8 +139,7 @@ public sealed class TooltipView : MonoBehaviour
 
     void OnDestroy()
     {
-        if (toggleButton != null)
-            toggleButton.onClick.RemoveListener(HandleToggleButtonClicked);
+        subscriptions.Clear();
     }
 
     void ApplyTypeHidden()

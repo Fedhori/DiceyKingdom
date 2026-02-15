@@ -5,8 +5,6 @@ using UnityEngine;
 
 public sealed class StaticDataManager : MonoBehaviour
 {
-    public static StaticDataManager Instance { get; private set; }
-
     [Serializable]
     public sealed class JsonEntry
     {
@@ -22,13 +20,6 @@ public sealed class StaticDataManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
         LoadAll();
     }
 

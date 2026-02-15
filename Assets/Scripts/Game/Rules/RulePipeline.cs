@@ -8,7 +8,7 @@ public interface IRuleEffectApplier
 
 public sealed class NoopRuleEffectApplier : IRuleEffectApplier
 {
-    public static readonly NoopRuleEffectApplier Instance = new();
+    public static readonly NoopRuleEffectApplier Shared = new();
 
     NoopRuleEffectApplier()
     {
@@ -35,7 +35,7 @@ public static class RulePipeline
         if (rules == null || rules.Count == 0 || string.IsNullOrWhiteSpace(trigger))
             return summary;
 
-        effectApplier ??= NoopRuleEffectApplier.Instance;
+        effectApplier ??= NoopRuleEffectApplier.Shared;
 
         for (int ruleIndex = 0; ruleIndex < rules.Count; ruleIndex++)
         {

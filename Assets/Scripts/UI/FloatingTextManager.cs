@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class FloatingTextManager : MonoBehaviour
 {
-    public static FloatingTextManager Instance { get; private set; }
-
     [Header("Prefab & Parents")]
     [SerializeField] private GameObject textPrefab;
     [SerializeField] private Canvas parentCanvas;
@@ -16,16 +14,6 @@ public class FloatingTextManager : MonoBehaviour
 
     readonly Queue<FloatingText> pool = new Queue<FloatingText>();
 
-    void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-    }
     public void ShowText(
         string message,
         Color color,

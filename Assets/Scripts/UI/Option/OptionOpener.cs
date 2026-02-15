@@ -5,33 +5,38 @@ using UnityEngine.UI;
 public class OptionOpener : MonoBehaviour
 {
     [SerializeField] private Button button;
+    [SerializeField] private OptionManager optionManager;
+    readonly DisposableBag subscriptions = new();
 
     void Reset()
     {
         button = GetComponent<Button>();
     }
 
-    void Start()
+    void OnEnable()
     {
+        subscriptions.Clear();
+
         if (button == null)
             button = GetComponent<Button>();
         if (button == null)
             return;
 
-        button.onClick.RemoveListener(OnClickOpenOptions);
-        button.onClick.AddListener(OnClickOpenOptions);
+        if (optionManager == null)
+            optionManager = GameApp.I?.UI?.Option;
+
+        subscriptions.Add(EventSubscription.Subscribe(button, OnClickOpenOptions));
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
-        if (button != null)
-            button.onClick.RemoveListener(OnClickOpenOptions);
+        subscriptions.Clear();
     }
 
     private void OnClickOpenOptions()
     {
-        if (OptionManager.Instance != null)
-            OptionManager.Instance.ToggleOption();
+        if (optionManager != null)
+            optionManager.ToggleOption();
         else
             Debug.LogWarning("[OptionOpener] OptionManager 인스턴스가 없습니다!");
     }

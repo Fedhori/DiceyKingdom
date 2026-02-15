@@ -4,8 +4,6 @@ using UnityEngine;
 
 public sealed class ParticleManager : MonoBehaviour
 {
-    public static ParticleManager Instance { get; private set; }
-
     [Serializable]
     public sealed class Entry
     {
@@ -24,13 +22,6 @@ public sealed class ParticleManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
         Rebuild();
     }
 

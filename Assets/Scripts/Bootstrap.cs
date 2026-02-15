@@ -37,12 +37,36 @@ public class Bootstrap : MonoBehaviour
             return;
         }
 
-        // 2) 매니저들 활성 + DDoL
+        // 2) 매니저들 활성
         if (managersRoot)
         {
-            managersRoot.SetActive(true);              // => 자식 매니저들 Awake() 즉시 호출
-            DontDestroyOnLoad(managersRoot);           // 전 씬 공통 상주
-            await Task.Yield();                        // 한 프레임 양보 → Start()까지 보장하려면 추가로 한 번 더
+            managersRoot.SetActive(true);
+            await Task.Yield();
+        }
+
+        var gameApp = GameApp.I;
+        if (gameApp == null)
+        {
+            if (managersRoot != null)
+            {
+                gameApp = managersRoot.GetComponent<GameApp>();
+                if (gameApp == null)
+                    gameApp = managersRoot.AddComponent<GameApp>();
+            }
+            else
+            {
+                gameApp = FindFirstObjectByType<GameApp>(FindObjectsInactive.Include);
+                if (gameApp == null)
+                {
+                    var appObject = new GameObject(nameof(GameApp));
+                    gameApp = appObject.AddComponent<GameApp>();
+                }
+            }
+        }
+
+        if (gameApp != null)
+        {
+            gameApp.RebuildServices();
         }
 
         await SaveWebGlSync.SyncFromPersistentAsync();

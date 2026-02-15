@@ -381,6 +381,7 @@ MonoBehaviour:
   worldCamera: {fileID: 1362406954}
   screenOffset: {x: 16, y: 0}
   edgePadding: 8
+  showDelaySeconds: 0.2
 --- !u!1 &138075226
 GameObject:
   m_ObjectHideFlags: 0
@@ -1471,8 +1472,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad7c3455b986e334582c0e08be4051ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PersistentCanvasOnLoad
-  persistentId: 
-  destroyDuplicate: 1
 --- !u!1 &711700143
 GameObject:
   m_ObjectHideFlags: 0
@@ -1863,8 +1862,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad7c3455b986e334582c0e08be4051ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PersistentCanvasOnLoad
-  persistentId: 
-  destroyDuplicate: 1
 --- !u!1 &816402691
 GameObject:
   m_ObjectHideFlags: 0
@@ -2276,8 +2273,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad7c3455b986e334582c0e08be4051ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PersistentCanvasOnLoad
-  persistentId: 
-  destroyDuplicate: 1
 --- !u!1 &1228544521
 GameObject:
   m_ObjectHideFlags: 0
@@ -3247,6 +3242,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1798569841}
+  - component: {fileID: 1798569842}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -3280,6 +3276,31 @@ Transform:
   - {fileID: 1343649118}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1798569842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1798569840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a3654d03a510c94ea70aab5ada9682a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameApp
+  tooltip: {fileID: 0}
+  modal: {fileID: 0}
+  option: {fileID: 0}
+  floatingText: {fileID: 0}
+  toast: {fileID: 0}
+  audioManager: {fileID: 0}
+  bgm: {fileID: 0}
+  input: {fileID: 0}
+  gameSpeed: {fileID: 0}
+  particle: {fileID: 0}
+  save: {fileID: 0}
+  staticData: {fileID: 0}
+  devCommand: {fileID: 0}
 --- !u!1 &1800521311
 GameObject:
   m_ObjectHideFlags: 0
