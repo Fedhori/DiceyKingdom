@@ -61,7 +61,7 @@ public class Bootstrap : MonoBehaviour
             
             await SaveWebGlSync.SyncFromPersistentAsync();
 
-            
+            await SceneManager.LoadSceneAsync(SceneIds.GameScene).AsTask();
         }
         catch (System.Exception ex)
         {

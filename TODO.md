@@ -28,6 +28,7 @@
 
 ## Done
 
+- 2026-02-15: [P1-WORLD] 월드 임무 카드 UI 프리팹 분리 완료 (`MissionWorldCard/MissionWorldTestRow/MissionAbilityIcon` 프리팹 생성, `MissionWorldListPresenter.cardPrefab`을 프리팹 에셋 참조로 전환, `GameScene`에서 카드 템플릿 제거 후 `Presenter + Container`만 유지)
 - 2026-02-15: [P1-WORLD] 월드 임무 카드 표시 1차 구현 완료 (`MissionWorldListPresenter/CardView/TestRowView` 추가, `RunServices` 활성 임무 선택 API 추가, `GameScene`에 월드 카드 템플릿/컨테이너 배치 및 직렬화 레퍼런스 연결, 템플릿 비활성화)
 - 2026-02-14: 런타임 인력 저장구조 분리 완료 (`RunState`를 `candidates/adventurers/graveyard` 3리스트로 전환, 후보/공동묘지 uid 리스트 제거, 턴/임무 서비스 로직을 분리 구조 기준으로 수정)
 - 2026-02-14: [P0] 특성 시스템 구현 완료 (`TraitService` 추가, 성공/실패 확률 `60/30/10`·`60/10/30` 적용, 임무당 단일 결과, 슬롯 초과 시 잠금 제외 랜덤 교체, mission 종료 시 mission layer modifier 제거 흐름 유지)
