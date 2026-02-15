@@ -1,14 +1,16 @@
 # 게임 구조
 
-이 문서는 **인력 관리 중심 로그라이크** 프로젝트의 단일 메인 스펙이다.  
-(기획 스펙 + 구현 구조 요약을 포함한다.)
+이 문서는 **인력 관리 중심 로그라이크** 프로젝트의 단일 메인 스펙이다.
 
 - 마지막 갱신: **2026-02-15**
 - Unity 버전: **Unity 6.2 (6000.2.x)**
 
+> 주의: 현재 제공된 자료는 **스크립트(zip)만**이다. 씬/프리팹/YAML 구성은 이 문서에 “요구사항”으로만 명시하며,
+> 실제 배치는 프로젝트에서 직접 확인/반영해야 한다.
+
 ## 문서 범위/분리
 
-- 이 문서: 게임 전체 구조, 핵심 루프, 승패 조건, 시스템 간 연결, 구현 구조(씬/스코프/상태) 요약
+- 이 문서: 게임 전체 구조 + **구현 구조(씬/스코프/런 생명주기/데이터 로딩)**
 - 세부 규칙:
   - 모험가: `Docs/ADVENTURER.md`
   - 왕국: `Docs/KINGDOM.md`
@@ -19,7 +21,7 @@
   - 시설: `Docs/FACILITY.md`
   - 스킬/소모품: `Docs/SKILL_CONSUMABLE.md`
 - 아이디어 백로그: `Docs/GAME_IDEA.md`
-- 프로젝트 구조(폴더/씬/에셋 맵): `Docs/PROJECT_MAP.md`
+- 프로젝트 구조: `Docs/PROJECT_MAP.md`
 
 ## 게임 한 줄 정의
 
@@ -88,68 +90,103 @@
 - 능력 테스트
   - 양측 롤 비교로 성공/실패 판정, 실패 리스크 누적
 - 시설
-  - 턴 간 영구적 보정을 주는 운영 자산
+  - 장기 운영 보정
 - 스킬/소모품
   - 전술 보정 수단(세부 미확정)
 
 ---
 
-## 구현 구조 요약(씬/스코프/상태)
+# 구현 구조
 
-> 이 섹션은 **CODEX CLI 리팩터링/구현 지침을 위한 “현재 합의된 구현 구조” 요약**이다.  
-> 공통 규칙은 `GENERAL_RULES.md`를 따른다.
+## 목표(1인 인디 기준)
 
-### 씬 구성
+- **전역은 1개(GameApp)만 유지**한다.
+- 런 상태/로직은 **순수 C# 서비스(RunServices)**로 묶고, MonoBehaviour 의존을 최소화한다.
+- 씬 전환/오브젝트 파괴 순서에서도 **런 시작/종료가 예측 가능**해야 한다.
 
-- `Bootstrap.scene`
-  - **GameApp 1개만** `DontDestroyOnLoad`
-  - App 스코프 서비스(AppServices) 생성
-  - Persistent UI 루트(예: Overlay Canvas) 및 UI 시스템(툴팁/모달 등) 배치
-- `GameScene.scene`
-  - 런(이번 플레이) 관련 씬 오브젝트/컴포넌트 배치
-  - **Run EntryPoint 1개**(예: `GameManager` 또는 `GameSceneInstaller`)가 `BeginRun/EndRun` 호출
-  - `DontDestroyOnLoad` 금지(씬 전용)
+## 씬 구성(요구사항)
 
-### 스코프(수명) 분리
+### Bootstrap.scene
 
-- **App Scope (Persistent)**
-  - 게임 실행 동안 유지되는 기능
-  - 예: UI 시스템(툴팁/모달), 설정/세이브, 오디오, 로컬라이징 등
-- **Run Scope (Per-run)**
-  - “이번 런” 동안만 유지되는 상태/로직
-  - 예: `RunState`, 턴 진행, 룰/판정, 임무/모험가 트리거 실행, 수정자/효과 적용
+- 목적: 앱 초기화(데이터 준비) + AppScope 생성
+- 포함 오브젝트
+  - `Bootstrap` (초기화/로딩/다음 씬 로드)
+  - `managersRoot` (비활성 상태로 시작 권장)
+    - `GameApp` (**유일한 DontDestroyOnLoad**) + AppScope 매니저들
 
-### 상태 컨테이너
+### GameScene.scene
 
-- `RunState`
-  - 런의 “스냅샷”이며 JSON 직렬화/역직렬화 대상(세이브/로드 단위)
-  - 후보/고용/공동묘지 풀을 포함한다(위 시스템 구성 참고)
+- 목적: 이번 런(Per-run) 시작/종료 + 게임 플레이
+- 포함 오브젝트
+  - 런 진입점 **1개만** (권장: `GameSceneInstaller`)
+  - 게임 플레이 UI/컨트롤러
+- 금지
+  - `DontDestroyOnLoad` 호출
+  - static Instance 싱글톤
 
-### 런 시작/종료(명시적)
+## 부트스트랩(데이터 로딩) 순서(현재 코드 기준)
 
-- 런 시작: `GameApp.BeginRun(GameSceneRefs sceneRefs, ...)`
-- 런 종료: `GameApp.EndRun()`
-- 런 시작은 **EntryPoint 1곳에서만** 수행한다. (getter/유틸 함수가 런을 “몰래” 생성하면 금지)
+`Bootstrap.Awake()` 기준으로 아래 순서를 지킨다.
 
-### 턴 진행(런 루프) 책임
+1. `SaCache.InitAsync(...)`
 
-- `RunServices.InitializeRunLoop()` : 런 시작 직후 1회 초기화
-- `RunServices.AdvanceTurn()` : 1턴 진행
-- “핵심 루프”의 단계별 처리는 RunServices 내부에서 직접 메서드 호출로 수행(이벤트 체인 금지)
+- StreamingAssets → Persistent(플랫폼별) 준비
 
-### UI 갱신(이벤트 사용 범위)
+2. `GameConfigProvider.LoadFromStreamingAssetsAsync()`
 
-- 이벤트/Observable은 **UI 갱신 전용**으로만 사용한다.
-- UI 구독/해제는 `OnEnable/OnDisable` + `IDisposable` 토큰 기반으로 관리한다.
-- UI는 런 상태를 “표시”만 하며, 로직 진행은 서비스 메서드 호출로 처리한다.
+- `GameConfigProvider.Current`가 유효해야 런 로직이 정상 동작한다.
 
-### 시드/결정론(필요 시)
+3. `StaticDataLoader.LoadAll()`
 
-- 런 시드는 RunScope에서 관리한다(런 시드 = 세이브/리플레이에 포함되는 값).
-- 시뮬레이션/룰 판정용 RNG는 RunServices가 소유하는 RNG(예: `System.Random`)로 분리한다.
-- `UnityEngine.Random`(전역)은 연출/VFX 등 결정론이 필요 없는 영역으로 제한한다.
+- `StaticDataLoader.Current`가 유효해야 룰/턴/임무 로직이 정상 동작한다.
 
----
+4. `managersRoot.SetActive(true)`
+
+- 이 시점에 `GameApp.Awake()`가 실행되며 `DontDestroyOnLoad` + `AppServices` 구축
+
+5. `SaveWebGlSync.SyncFromPersistentAsync()`
+
+- WebGL일 때 저장 동기화
+
+6. `SceneManager.LoadSceneAsync("GameScene")`
+
+## 스코프(수명) 분리
+
+### App Scope (Persistent)
+
+- 수명: 게임 실행 동안 유지
+- 소유자: `GameApp` (유일한 싱글톤)
+- 예: Tooltip/Modal/Option/Toast/FloatingText, Audio/BGM, Input, GameSpeed, Particles, Save, DevConsole
+
+### Run Scope (Per-run)
+
+- 수명: “이번 런” 동안만 유지
+- 소유자: `GameApp.Run` (`RunServices` 인스턴스)
+- 예: `RunState`, 턴 진행, 임무/룰/판정, 수정자/특성 처리
+
+### Scene Scope
+
+- 수명: 씬 오브젝트와 동일
+- 예: 씬 UI, 연출, 씬 전용 컨트롤러
+
+## Run 시작/종료 규칙(중요)
+
+- `BeginRun()` / `EndRun()`은 **명시적으로만** 호출한다.
+- **Getter/프로퍼티/유틸 함수가 BeginRun을 호출하면 금지** (부작용으로 디버깅 난이도 폭증, 종료 누락/재시작 버그 발생)
+- 런 진입점은 **씬에 1개만** 둔다.
+  - 권장: `GameSceneInstaller`
+  - `GameManager`는 “런 API 래퍼(퍼사드)”로만 두고 런 시작 책임을 지지 않는다.
+
+## 저장/로드 기준
+
+- 런 저장 데이터 단위는 `RunState` JSON이다.
+- 직렬화는 `Newtonsoft.Json`으로 통일한다.
+
+## UI 갱신(이벤트 사용 범위)
+
+- 이벤트/Observable은 **UI 갱신용**으로 제한한다.
+- 로직 진행(턴 전환/룰 체인)은 이벤트로 연결하지 않는다.
+- UI 구독은 `OnEnable` 등록 / `OnDisable` 해제 + `IDisposable` 토큰으로 통일한다.
 
 ## 용어 사전(확정)
 
@@ -162,9 +199,3 @@
 - 보상: 임무 성공 시 획득 효과
 - 특성: 모험가에 부여되는 긍정/부정 패시브
 - 시설: 턴 간 영구적 보정을 주는 운영 자산
-
-## 현재 상태 주의
-
-- 이 문서는 신규 기획 기준 스펙이다.
-- 코드 전환(레거시 로직 제거/신규 구현)은 별도 단계에서 진행한다.
-- 코드/설계 변경 시, 관련 문서(이 문서 및 세부 시스템 문서)를 함께 갱신한다.
