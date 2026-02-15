@@ -11,7 +11,16 @@
 
 ## Planned
 
-- [P1-SPEC] Overlay `임무 카드/리스트` 스펙 확정 (표시: 임무명/기한/진행도/배치 인원, 선택/강조 규칙)
+- [P1-IMPL-MISSION-01] 데이터 모델 확장: 월드 카드/오버레이 공용 모델 추가 (`missionName/deadline/tests/partyLimit/tags/successSummary/deadlineFailSummary/selected` + 오버레이용 `draftAssignedUids/partyAbilityTotals`)
+- [P1-IMPL-MISSION-02] 월드 카드 선택 -> 오버레이 진입 라우팅 추가 (`MissionWorldListPresenter` 클릭 콜백에서 activeMissionUid 설정 + 오버레이 열기 요청)
+- [P1-IMPL-MISSION-03] 임무 상세 오버레이 Presenter 구현 (활성 임무 구독, 상세 텍스트/태그/테스트/파티합 렌더링, 닫기 시 드래프트 초기화)
+- [P1-IMPL-MISSION-04] 드래프트 배치 상태 구현 (런타임 임시 상태로만 유지, 확정 전까지만 유효, 정원 고정 2)
+- [P1-IMPL-MISSION-05] 모험가 리스트 Presenter 구현 (정렬, 배치 가능/불가 시각화, 드래그/클릭 배치 입력 처리)
+- [P1-IMPL-MISSION-06] 배치 확정 처리 구현 (`RunServices.TryAssignAdventurerToMission` 사용, 확정 실패 시 에러 로그, 성공 시 원정 시작 상태 전환)
+- [P1-IMPL-MISSION-07] 원정 시작 상태 잠금 규칙 반영 (원정 시작 후 오버레이 닫기 금지, 종료 전까지 패널 유지; 원정 진행 UI는 이번 범위 제외)
+- [P1-IMPL-MISSION-08] 효과 요약 문자열 빌더 추가 (`성공:` / `기한 실패:` 포맷, `EffectIds` 기반 요약, 미지원 effectId는 에러 로그)
+- [P1-IMPL-MISSION-09] 프리팹/씬 직렬화 연결 (코드 fallback 없이 인스펙터 참조 고정, 누락 시 즉시 `Debug.LogError` 후 중단)
+- [P1-IMPL-MISSION-10] 검증: 컴파일 0 + 게임 플로우 점검 (GameScene 진입 -> 월드 카드 표시 -> 선택 -> 오버레이 상세/배치 -> 확정 규칙 동작)
 - [P1-SPEC] Overlay `원정 창` 스펙 확정 (원정에 참여한 모험가들 상태 표시, 원정 상태 표기, 테스트버튼, 포기버튼)
 - [P1-SPEC] Overlay `턴 종료/정산 패널` 스펙 확정 (정산 결과 요약, 임무 실패 반영 방식)
 - [P1] 검증/스모크 테스트 (런 시작, 1턴 루프, 원정 실패 즉시 효과, 임무 실패 제거, 조건부 규칙 onHpChanged 재계산 반영)
@@ -28,6 +37,7 @@
 
 ## Done
 
+- 2026-02-15: [P1-SPEC] `임무 카드/리스트` 스펙 확정 (`Docs/MISSION.md`에 월드 카드/오버레이 표시 항목, 배치/확정 규칙, 선택/강조 규칙 고정 / `Docs/GAME_STRUCTURE.md`에 월드+오버레이 분리 원칙 반영)
 - 2026-02-15: [P1-WORLD] GameScene 진입 시 월드 임무 카드 렌더링 복구 (`GameSceneInstaller`에서 신규/미초기화 Run에 한해 `InitializeRunLoop()`를 명시 호출, 초기화 실패 시 즉시 에러 로그 출력)
 - 2026-02-15: [P1-WORLD] 월드 임무 카드 UI 프리팹 분리 완료 (`MissionWorldCard/MissionWorldTestRow/MissionAbilityIcon` 프리팹 생성, `MissionWorldListPresenter.cardPrefab`을 프리팹 에셋 참조로 전환, `GameScene`에서 카드 템플릿 제거 후 `Presenter + Container`만 유지)
 - 2026-02-15: [P1-WORLD] 월드 임무 카드 표시 1차 구현 완료 (`MissionWorldListPresenter/CardView/TestRowView` 추가, `RunServices` 활성 임무 선택 API 추가, `GameScene`에 월드 카드 템플릿/컨테이너 배치 및 직렬화 레퍼런스 연결, 템플릿 비활성화)

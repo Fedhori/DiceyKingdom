@@ -254,7 +254,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MissionWorldTestRowView
   abilityIconRoot: {fileID: 1840807641602776651}
-  abilityIconPrefab: {fileID: 0}
+  abilityIconPrefab: {fileID: 8832918394331681365, guid: 7d0142e3389bb0644b2eb3668ef915ca, type: 3}
   difficultyText: {fileID: 365936363873798356}
   clearedStateText: {fileID: 5673904297637306354}
 --- !u!222 &6413620830795480105
