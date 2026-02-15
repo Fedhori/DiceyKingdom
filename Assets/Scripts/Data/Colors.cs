@@ -27,6 +27,7 @@ public static class Colors
         public static readonly Color32 Gold500 = new Color32(0xC9, 0xA2, 0x4D, 0xFF);  
         public static readonly Color32 Blood600 = new Color32(0x8D, 0x2D, 0x2D, 0xFF); 
         public static readonly Color32 Blood500 = new Color32(0xB7, 0x42, 0x42, 0xFF); 
+        public static readonly Color32 Cobalt500 = new Color32(0x4A, 0x6E, 0xC2, 0xFF); 
     }
 
     
@@ -54,6 +55,13 @@ public static class Colors
         public static readonly Color32 StabilityNormal = Primitive.Moss500;
         public static readonly Color32 StabilityWarning = Primitive.Amber500;
         public static readonly Color32 StabilityDanger = Primitive.Blood500;
+
+        public static readonly Color32 AbilityStrength = Primitive.Blood500;
+        public static readonly Color32 AbilityAgility = Primitive.Moss500;
+        public static readonly Color32 AbilityIntelligence = Primitive.Cobalt500;
+
+        public static readonly Color32 MissionTestCleared = StatePositive;
+        public static readonly Color32 MissionTestPending = TextDisabled;
 
         public static readonly Color32 DiceFaceDefault = Primitive.Abyss900;
         public static readonly Color32 DiceFaceDisabled = Primitive.Mist300;

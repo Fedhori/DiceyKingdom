@@ -146,6 +146,16 @@ public sealed class GameService : MonoBehaviour
         return GetRunServices()?.SetTraitLocked(traitUid, isLocked) ?? false;
     }
 
+    public bool SetActiveMission(string missionUid)
+    {
+        return GetRunServices()?.SetActiveMission(missionUid) ?? false;
+    }
+
+    public void ClearActiveMission()
+    {
+        GetRunServices()?.ClearActiveMission();
+    }
+
     RunServices GetRunServices()
     {
         var app = GameApp.I;

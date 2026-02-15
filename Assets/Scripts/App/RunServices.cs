@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 
 
@@ -213,6 +214,52 @@ public sealed class RunServices : System.IDisposable
         if (locked)
             SyncUiBindingsFromRunState(forceRevision: true);
         return locked;
+    }
+
+    public bool SetActiveMission(string missionUid)
+    {
+        if (string.IsNullOrWhiteSpace(missionUid))
+            return false;
+
+        RunState state = CurrentRunState;
+        if (state?.missions == null)
+            return false;
+
+        bool exists = false;
+        for (int i = 0; i < state.missions.Count; i++)
+        {
+            MissionInstance mission = state.missions[i];
+            if (mission == null)
+                continue;
+
+            if (string.Equals(mission.uid, missionUid, StringComparison.Ordinal))
+            {
+                exists = true;
+                break;
+            }
+        }
+
+        if (!exists)
+            return false;
+
+        if (string.Equals(state.activeMissionUid, missionUid, StringComparison.Ordinal))
+            return true;
+
+        state.activeMissionUid = missionUid;
+        SyncUiBindingsFromRunState(forceRevision: true);
+        return true;
+    }
+
+    public void ClearActiveMission()
+    {
+        if (CurrentRunState == null)
+            return;
+
+        if (string.IsNullOrWhiteSpace(CurrentRunState.activeMissionUid))
+            return;
+
+        CurrentRunState.activeMissionUid = string.Empty;
+        SyncUiBindingsFromRunState(forceRevision: true);
     }
 
     void InitializeServices()
