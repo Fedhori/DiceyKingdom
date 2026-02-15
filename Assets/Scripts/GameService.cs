@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 
 
@@ -109,6 +110,18 @@ public sealed class GameService : MonoBehaviour
     public bool TryUnassignAdventurer(string adventurerUid)
     {
         return GetRunServices()?.TryUnassignAdventurer(adventurerUid) ?? false;
+    }
+
+    public bool TryCommitMissionDraft(string missionUid, IReadOnlyList<string> adventurerUids, out string failureReason)
+    {
+        RunServices run = GetRunServices();
+        if (run == null)
+        {
+            failureReason = "RunServices is null.";
+            return false;
+        }
+
+        return run.TryCommitMissionDraft(missionUid, adventurerUids, out failureReason);
     }
 
     public AbilityTestResolveResult ResolveMissionAbilityTestOnce(string missionUid)

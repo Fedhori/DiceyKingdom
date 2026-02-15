@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,7 +9,7 @@ public sealed class MissionWorldTestRowView : MonoBehaviour
     [SerializeField] Transform abilityIconRoot;
     [SerializeField] Image abilityIconPrefab;
     [SerializeField] TMP_Text difficultyText;
-    [SerializeField] TMP_Text clearedStateText;
+    [SerializeField] Image clearedStateIcon;
     readonly List<Image> iconPool = new();
     bool setupValid;
 
@@ -24,9 +25,12 @@ public sealed class MissionWorldTestRowView : MonoBehaviour
         if (!setupValid || data == null || iconRegistry == null)
             return;
 
-        difficultyText.text = $"D{Mathf.Max(0, data.difficulty)}";
-        clearedStateText.text = data.isCleared ? "Y" : "N";
-        clearedStateText.color = data.isCleared ? Colors.Semantic.MissionTestCleared : Colors.Semantic.MissionTestPending;
+        difficultyText.text = Mathf.Max(0, data.difficulty).ToString(CultureInfo.InvariantCulture);
+        if (clearedStateIcon != null)
+        {
+            clearedStateIcon.enabled = true;
+            clearedStateIcon.color = data.isCleared ? Colors.Semantic.MissionTestCleared : Colors.Semantic.MissionTestPending;
+        }
 
         int iconCount = data.requiredAbilities?.Count ?? 0;
         GrowIconPool(iconCount);
@@ -58,26 +62,25 @@ public sealed class MissionWorldTestRowView : MonoBehaviour
         bool valid = true;
         if (abilityIconRoot == null)
         {
-            Debug.LogError("[MissionWorldTestRowView] abilityIconRoot is not assigned.", this);
+            Debug.LogError("[MissionWorld] abilityIconRoot is not assigned.", this);
             valid = false;
         }
 
         if (abilityIconPrefab == null)
         {
-            Debug.LogError("[MissionWorldTestRowView] abilityIconPrefab is not assigned.", this);
+            Debug.LogError("[MissionWorld] abilityIconPrefab is not assigned.", this);
             valid = false;
         }
 
         if (difficultyText == null)
         {
-            Debug.LogError("[MissionWorldTestRowView] difficultyText is not assigned.", this);
+            Debug.LogError("[MissionWorld] difficultyText is not assigned.", this);
             valid = false;
         }
 
-        if (clearedStateText == null)
+        if (clearedStateIcon == null)
         {
-            Debug.LogError("[MissionWorldTestRowView] clearedStateText is not assigned.", this);
-            valid = false;
+            Debug.LogError("[MissionWorld] clearedStateIcon is not assigned.", this);
         }
 
         return valid;

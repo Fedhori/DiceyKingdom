@@ -38,6 +38,7 @@ public sealed class MissionWorldCardView : MonoBehaviour
         onCardClicked = clickHandler;
         missionUid = data.missionUid ?? string.Empty;
 
+        missionNameText.overflowMode = TextOverflowModes.Ellipsis;
         missionNameText.text = string.IsNullOrWhiteSpace(data.missionName) ? "Mission" : data.missionName;
         deadlineText.text = $"기한: {Mathf.Max(0, data.remainingDeadlineTurns)}T";
         partyLimitText.text = $"배치 인원: {Mathf.Max(0, data.displayedPartyLimit)}";
@@ -63,37 +64,37 @@ public sealed class MissionWorldCardView : MonoBehaviour
         bool valid = true;
         if (cardButton == null)
         {
-            Debug.LogError("[MissionWorldCardView] cardButton is not assigned.", this);
+            Debug.LogError("[MissionWorld] cardButton is not assigned.", this);
             valid = false;
         }
 
         if (missionNameText == null)
         {
-            Debug.LogError("[MissionWorldCardView] missionNameText is not assigned.", this);
+            Debug.LogError("[MissionWorld] missionNameText is not assigned.", this);
             valid = false;
         }
 
         if (deadlineText == null)
         {
-            Debug.LogError("[MissionWorldCardView] deadlineText is not assigned.", this);
+            Debug.LogError("[MissionWorld] deadlineText is not assigned.", this);
             valid = false;
         }
 
         if (partyLimitText == null)
         {
-            Debug.LogError("[MissionWorldCardView] partyLimitText is not assigned.", this);
+            Debug.LogError("[MissionWorld] partyLimitText is not assigned.", this);
             valid = false;
         }
 
         if (testRowRoot == null)
         {
-            Debug.LogError("[MissionWorldCardView] testRowRoot is not assigned.", this);
+            Debug.LogError("[MissionWorld] testRowRoot is not assigned.", this);
             valid = false;
         }
 
         if (testRowPrefab == null)
         {
-            Debug.LogError("[MissionWorldCardView] testRowPrefab is not assigned.", this);
+            Debug.LogError("[MissionWorld] testRowPrefab is not assigned.", this);
             valid = false;
         }
 

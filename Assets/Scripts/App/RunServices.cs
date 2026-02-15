@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 
@@ -146,6 +147,140 @@ public sealed class RunServices : System.IDisposable
         if (assigned)
             SyncUiBindingsFromRunState(forceRevision: true);
         return assigned;
+    }
+
+    public bool TryCommitMissionDraft(string missionUid, IReadOnlyList<string> adventurerUids, out string failureReason)
+    {
+        failureReason = string.Empty;
+        RunState state = CurrentRunState;
+        if (state == null)
+        {
+            failureReason = "RunState is null.";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(missionUid))
+        {
+            failureReason = "missionUid is empty.";
+            return false;
+        }
+
+        if (!TryGetMission(state, missionUid, out MissionInstance mission))
+        {
+            failureReason = $"Mission not found: {missionUid}";
+            return false;
+        }
+
+        if (mission.isPartyLocked || mission.isExpeditionInProgress)
+        {
+            failureReason = "Mission is already locked or in progress.";
+            return false;
+        }
+
+        if (StaticDataLoader.Current == null || !StaticDataLoader.Current.TryGetMissionDef(mission.missionId, out MissionDef missionDef))
+        {
+            failureReason = $"MissionDef not found: {mission.missionId}";
+            return false;
+        }
+
+        int partyLimit = Math.Max(1, missionDef.partyLimit);
+        if (adventurerUids == null)
+        {
+            failureReason = "Draft adventurer list is null.";
+            return false;
+        }
+
+        var normalized = new List<string>(adventurerUids.Count);
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        for (int i = 0; i < adventurerUids.Count; i++)
+        {
+            string uid = adventurerUids[i];
+            if (string.IsNullOrWhiteSpace(uid))
+            {
+                failureReason = "Draft contains empty adventurer uid.";
+                return false;
+            }
+
+            if (!seen.Add(uid))
+            {
+                failureReason = $"Duplicate adventurer uid in draft: {uid}";
+                return false;
+            }
+
+            if (!TryGetAdventurer(state, uid, out AdventurerInstance adventurer))
+            {
+                failureReason = $"Adventurer not found: {uid}";
+                return false;
+            }
+
+            if (adventurer.hp <= 0)
+            {
+                failureReason = $"Adventurer is dead: {uid}";
+                return false;
+            }
+
+            if (adventurer.assignedThisTurn)
+            {
+                failureReason = $"Adventurer is unavailable this turn: {uid}";
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(adventurer.assignedMissionUid) &&
+                !string.Equals(adventurer.assignedMissionUid, missionUid, StringComparison.Ordinal))
+            {
+                if (!TryGetMission(state, adventurer.assignedMissionUid, out MissionInstance previousMission))
+                {
+                    failureReason = $"Previous mission not found for adventurer: {uid}";
+                    return false;
+                }
+
+                if (previousMission.isPartyLocked || previousMission.isExpeditionInProgress)
+                {
+                    failureReason = $"Adventurer is locked by another mission: {uid}";
+                    return false;
+                }
+            }
+
+            normalized.Add(uid);
+        }
+
+        if (normalized.Count == 0)
+        {
+            failureReason = "At least one adventurer is required.";
+            return false;
+        }
+
+        if (normalized.Count > partyLimit)
+        {
+            failureReason = $"Draft exceeds party limit ({normalized.Count}/{partyLimit}).";
+            return false;
+        }
+
+        AssignmentSnapshot snapshot = CaptureAssignmentSnapshot(state);
+        ClearMissionAssignments(state, mission);
+
+        for (int i = 0; i < normalized.Count; i++)
+        {
+            if (missionExpeditionService.TryAssignAdventurerToMission(state, normalized[i], missionUid))
+                continue;
+
+            RestoreAssignmentSnapshot(state, snapshot);
+            failureReason = $"Failed to assign adventurer: {normalized[i]}";
+            return false;
+        }
+
+        if (!missionExpeditionService.TryStartExpedition(state, missionUid))
+        {
+            RestoreAssignmentSnapshot(state, snapshot);
+            failureReason = "Failed to start expedition after assignment.";
+            return false;
+        }
+
+        if (!string.Equals(state.activeMissionUid, missionUid, StringComparison.Ordinal))
+            state.activeMissionUid = missionUid;
+
+        SyncUiBindingsFromRunState(forceRevision: true);
+        return true;
     }
 
     public bool TryUnassignAdventurer(string adventurerUid)
@@ -334,6 +469,173 @@ public sealed class RunServices : System.IDisposable
         adventurersCount.ClearListeners();
         missionsCount.ClearListeners();
         uiRevision.ClearListeners();
+    }
+
+    static bool TryGetMission(RunState state, string missionUid, out MissionInstance mission)
+    {
+        mission = null;
+        if (state?.missions == null || string.IsNullOrWhiteSpace(missionUid))
+            return false;
+
+        for (int i = 0; i < state.missions.Count; i++)
+        {
+            MissionInstance entry = state.missions[i];
+            if (entry == null)
+                continue;
+
+            if (string.Equals(entry.uid, missionUid, StringComparison.Ordinal))
+            {
+                mission = entry;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static bool TryGetAdventurer(RunState state, string adventurerUid, out AdventurerInstance adventurer)
+    {
+        adventurer = null;
+        if (state?.adventurers == null || string.IsNullOrWhiteSpace(adventurerUid))
+            return false;
+
+        for (int i = 0; i < state.adventurers.Count; i++)
+        {
+            AdventurerInstance entry = state.adventurers[i];
+            if (entry == null)
+                continue;
+
+            if (string.Equals(entry.uid, adventurerUid, StringComparison.Ordinal))
+            {
+                adventurer = entry;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static AssignmentSnapshot CaptureAssignmentSnapshot(RunState state)
+    {
+        var snapshot = new AssignmentSnapshot
+        {
+            activeMissionUid = state?.activeMissionUid ?? string.Empty
+        };
+
+        if (state?.missions != null)
+        {
+            for (int i = 0; i < state.missions.Count; i++)
+            {
+                MissionInstance mission = state.missions[i];
+                if (mission == null || string.IsNullOrWhiteSpace(mission.uid))
+                    continue;
+
+                var assignment = new MissionAssignmentSnapshot
+                {
+                    missionUid = mission.uid,
+                    isPartyLocked = mission.isPartyLocked,
+                    isExpeditionInProgress = mission.isExpeditionInProgress,
+                    assignedAdventurerUids = mission.assignedAdventurerUids != null
+                        ? new List<string>(mission.assignedAdventurerUids)
+                        : new List<string>()
+                };
+                snapshot.missionAssignments.Add(assignment);
+            }
+        }
+
+        if (state?.adventurers != null)
+        {
+            for (int i = 0; i < state.adventurers.Count; i++)
+            {
+                AdventurerInstance adventurer = state.adventurers[i];
+                if (adventurer == null || string.IsNullOrWhiteSpace(adventurer.uid))
+                    continue;
+
+                snapshot.adventurerAssignments.Add(new AdventurerAssignmentSnapshot
+                {
+                    adventurerUid = adventurer.uid,
+                    assignedMissionUid = adventurer.assignedMissionUid ?? string.Empty
+                });
+            }
+        }
+
+        return snapshot;
+    }
+
+    static void RestoreAssignmentSnapshot(RunState state, AssignmentSnapshot snapshot)
+    {
+        if (state == null || snapshot == null)
+            return;
+
+        if (state.missions != null)
+        {
+            for (int i = 0; i < snapshot.missionAssignments.Count; i++)
+            {
+                MissionAssignmentSnapshot missionSnapshot = snapshot.missionAssignments[i];
+                if (!TryGetMission(state, missionSnapshot.missionUid, out MissionInstance mission))
+                    continue;
+
+                mission.isPartyLocked = missionSnapshot.isPartyLocked;
+                mission.isExpeditionInProgress = missionSnapshot.isExpeditionInProgress;
+                mission.assignedAdventurerUids = missionSnapshot.assignedAdventurerUids != null
+                    ? new List<string>(missionSnapshot.assignedAdventurerUids)
+                    : new List<string>();
+            }
+        }
+
+        if (state.adventurers != null)
+        {
+            for (int i = 0; i < snapshot.adventurerAssignments.Count; i++)
+            {
+                AdventurerAssignmentSnapshot adventurerSnapshot = snapshot.adventurerAssignments[i];
+                if (!TryGetAdventurer(state, adventurerSnapshot.adventurerUid, out AdventurerInstance adventurer))
+                    continue;
+
+                adventurer.assignedMissionUid = adventurerSnapshot.assignedMissionUid ?? string.Empty;
+            }
+        }
+
+        state.activeMissionUid = snapshot.activeMissionUid ?? string.Empty;
+    }
+
+    static void ClearMissionAssignments(RunState state, MissionInstance mission)
+    {
+        if (state == null || mission == null)
+            return;
+
+        mission.assignedAdventurerUids ??= new List<string>();
+        for (int i = 0; i < mission.assignedAdventurerUids.Count; i++)
+        {
+            string uid = mission.assignedAdventurerUids[i];
+            if (!TryGetAdventurer(state, uid, out AdventurerInstance adventurer))
+                continue;
+
+            if (string.Equals(adventurer.assignedMissionUid, mission.uid, StringComparison.Ordinal))
+                adventurer.assignedMissionUid = string.Empty;
+        }
+
+        mission.assignedAdventurerUids.Clear();
+    }
+
+    sealed class AssignmentSnapshot
+    {
+        public string activeMissionUid = string.Empty;
+        public readonly List<MissionAssignmentSnapshot> missionAssignments = new();
+        public readonly List<AdventurerAssignmentSnapshot> adventurerAssignments = new();
+    }
+
+    sealed class MissionAssignmentSnapshot
+    {
+        public string missionUid = string.Empty;
+        public bool isPartyLocked;
+        public bool isExpeditionInProgress;
+        public List<string> assignedAdventurerUids = new();
+    }
+
+    sealed class AdventurerAssignmentSnapshot
+    {
+        public string adventurerUid = string.Empty;
+        public string assignedMissionUid = string.Empty;
     }
 }
 

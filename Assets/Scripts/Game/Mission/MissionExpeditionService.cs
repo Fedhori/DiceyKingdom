@@ -121,6 +121,26 @@ public sealed class MissionExpeditionService
         return true;
     }
 
+    public bool TryStartExpedition(RunState runState, string missionUid)
+    {
+        if (!TryGetMissionAndDef(runState, missionUid, out MissionInstance mission, out _))
+            return false;
+
+        if (mission.isExpeditionInProgress)
+            return true;
+
+        if (mission.isPartyLocked)
+            return false;
+
+        if (mission.assignedAdventurerUids == null || mission.assignedAdventurerUids.Count == 0)
+            return false;
+
+        mission.isExpeditionInProgress = true;
+        mission.isPartyLocked = true;
+        MarkPartyAsCommitted(runState, mission);
+        return true;
+    }
+
     public AbilityTestResolveResult ResolveAbilityTestOnce(RunState runState, string missionUid)
     {
         var result = new AbilityTestResolveResult { missionUid = missionUid ?? string.Empty };

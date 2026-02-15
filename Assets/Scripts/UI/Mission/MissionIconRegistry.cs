@@ -32,14 +32,14 @@ public sealed class MissionIconRegistry : MonoBehaviour
         else
         {
             if (!string.IsNullOrWhiteSpace(abilityId) && missingAbilityLogged.Add(abilityId))
-                Debug.LogError($"[MissionIconRegistry] Unknown ability id: {abilityId}", this);
+                Debug.LogError($"[MissionWorld] Unknown ability id: {abilityId}", this);
             return false;
         }
 
         if (sprite == null)
         {
             if (!string.IsNullOrWhiteSpace(abilityId) && missingAbilityLogged.Add($"sprite:{abilityId}"))
-                Debug.LogError($"[MissionIconRegistry] Missing sprite for ability id: {abilityId}", this);
+                Debug.LogError($"[MissionWorld] Missing sprite for ability id: {abilityId}", this);
             return false;
         }
 

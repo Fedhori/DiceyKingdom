@@ -8,6 +8,7 @@ public sealed class MissionWorldListPresenter : MonoBehaviour
     [SerializeField] MissionWorldCardView cardPrefab;
     [SerializeField] Transform cardRoot;
     [SerializeField] MissionIconRegistry iconRegistry;
+    public event Action<string> MissionCardSelected;
     readonly List<MissionWorldCardView> cardPool = new();
     readonly DisposableBag subscriptions = new();
     RunServices boundRun;
@@ -29,7 +30,7 @@ public sealed class MissionWorldListPresenter : MonoBehaviour
         boundRun = GameApp.I?.Run;
         if (boundRun == null)
         {
-            Debug.LogError("[MissionWorldListPresenter] RunServices is null. Enable this UI after BeginRun.", this);
+            Debug.LogError("[MissionWorld] RunServices is null. Enable this UI after BeginRun.", this);
             HideAllCards();
             return;
         }
@@ -48,19 +49,19 @@ public sealed class MissionWorldListPresenter : MonoBehaviour
         bool valid = true;
         if (cardPrefab == null)
         {
-            Debug.LogError("[MissionWorldListPresenter] cardPrefab is not assigned.", this);
+            Debug.LogError("[MissionWorld] cardPrefab is not assigned.", this);
             valid = false;
         }
 
         if (cardRoot == null)
         {
-            Debug.LogError("[MissionWorldListPresenter] cardRoot is not assigned.", this);
+            Debug.LogError("[MissionWorld] cardRoot is not assigned.", this);
             valid = false;
         }
 
         if (iconRegistry == null)
         {
-            Debug.LogError("[MissionWorldListPresenter] iconRegistry is not assigned.", this);
+            Debug.LogError("[MissionWorld] iconRegistry is not assigned.", this);
             valid = false;
         }
 
@@ -76,17 +77,36 @@ public sealed class MissionWorldListPresenter : MonoBehaviour
             return;
         }
 
-        int visibleIndex = 0;
+        var sortedMissions = new List<MissionSortEntry>(state.missions.Count);
         for (int i = 0; i < state.missions.Count; i++)
         {
             MissionInstance mission = state.missions[i];
             if (mission == null)
                 continue;
 
+            sortedMissions.Add(new MissionSortEntry
+            {
+                mission = mission,
+                originalIndex = i
+            });
+        }
+
+        sortedMissions.Sort((left, right) =>
+        {
+            int deadline = left.mission.remainingDeadlineTurns.CompareTo(right.mission.remainingDeadlineTurns);
+            if (deadline != 0)
+                return deadline;
+
+            return left.originalIndex.CompareTo(right.originalIndex);
+        });
+
+        int visibleIndex = 0;
+        for (int i = 0; i < sortedMissions.Count; i++)
+        {
             GrowCardPool(visibleIndex + 1);
             MissionWorldCardView view = cardPool[visibleIndex];
             view.gameObject.SetActive(true);
-            MissionWorldCardData data = BuildCardData(state, mission);
+            MissionWorldCardData data = BuildCardData(state, sortedMissions[i].mission);
             view.SetData(data, iconRegistry, HandleCardClicked);
             visibleIndex++;
         }
@@ -102,7 +122,7 @@ public sealed class MissionWorldListPresenter : MonoBehaviour
             missionUid = mission.uid,
             missionName = BuildDisplayName(mission.missionId),
             remainingDeadlineTurns = mission.remainingDeadlineTurns,
-            displayedPartyLimit = 2,
+            displayedPartyLimit = 1,
             isSelected = string.Equals(state.activeMissionUid, mission.uid, StringComparison.Ordinal),
             tests = new List<MissionWorldTestData>()
         };
@@ -114,6 +134,7 @@ public sealed class MissionWorldListPresenter : MonoBehaviour
             return data;
 
         data.missionName = BuildDisplayName(missionDef.id);
+        data.displayedPartyLimit = Math.Max(1, missionDef.partyLimit);
         IReadOnlyList<AbilityTestDef> tests = missionDef.abilityTests;
         if (tests == null)
             return data;
@@ -199,6 +220,18 @@ public sealed class MissionWorldListPresenter : MonoBehaviour
         if (boundRun == null)
             return;
 
-        boundRun.SetActiveMission(missionUid);
+        if (!boundRun.SetActiveMission(missionUid))
+        {
+            Debug.LogError($"[MissionWorld] Failed to select mission: {missionUid}", this);
+            return;
+        }
+
+        MissionCardSelected?.Invoke(missionUid);
+    }
+
+    struct MissionSortEntry
+    {
+        public MissionInstance mission;
+        public int originalIndex;
     }
 }

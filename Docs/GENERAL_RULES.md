@@ -151,6 +151,9 @@
 - UI는 Observable에 값을 쓰지 않는다.
   - UI는 `Value` 읽기/`Subscribe`만 사용한다.
 - `EndRun`/`RunServices.Dispose` 시에는 Observable 리스너를 정리해 과거 런 인스턴스 참조가 남지 않게 방어한다.
+- 임무 배치 드래프트 같은 임시 편집 상태는 UI 로컬 상태로 관리한다.
+  - 확정 전에는 `RunState`를 직접 수정하지 않는다.
+  - 확정 반영은 `RunServices` public API 경계에서 원자적으로 처리한다.
 
 ---
 
