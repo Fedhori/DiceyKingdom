@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public sealed class SaveManager : MonoBehaviour
+public sealed class SaveRuntimeService : MonoBehaviour
 {
     public bool Save(string payloadJson)
     {
@@ -33,3 +33,4 @@ public sealed class SaveManager : MonoBehaviour
         return true;
     }
 }
+

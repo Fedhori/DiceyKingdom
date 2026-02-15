@@ -1,25 +1,25 @@
 public sealed class AppServices
 {
     public UIService UI { get; }
-    public AudioManager Audio { get; }
-    public BgmManager Bgm { get; }
-    public InputManager Input { get; }
-    public GameSpeedManager GameSpeed { get; }
-    public ParticleManager Particle { get; }
-    public SaveManager Save { get; }
-    public StaticDataManager StaticData { get; }
-    public DevCommandManager DevCommand { get; }
+    public AudioService Audio { get; }
+    public BgmService Bgm { get; }
+    public InputService Input { get; }
+    public GameSpeedService GameSpeed { get; }
+    public ParticleService Particle { get; }
+    public SaveRuntimeService Save { get; }
+    public StaticDataService StaticData { get; }
+    public DevCommandService DevCommand { get; }
 
     public AppServices(
         UIService ui,
-        AudioManager audio,
-        BgmManager bgm,
-        InputManager input,
-        GameSpeedManager gameSpeed,
-        ParticleManager particle,
-        SaveManager save,
-        StaticDataManager staticData,
-        DevCommandManager devCommand)
+        AudioService audio,
+        BgmService bgm,
+        InputService input,
+        GameSpeedService gameSpeed,
+        ParticleService particle,
+        SaveRuntimeService save,
+        StaticDataService staticData,
+        DevCommandService devCommand)
     {
         UI = ui;
         Audio = audio;
@@ -32,3 +32,4 @@ public sealed class AppServices
         DevCommand = devCommand;
     }
 }
+

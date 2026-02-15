@@ -1,9 +1,9 @@
-// Assets/Scripts/Systems/GameSpeedManager.cs
+// Assets/Scripts/Systems/GameSpeedService.cs
 
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameSpeedManager : MonoBehaviour
+public class GameSpeedService : MonoBehaviour
 {
     [Header("UI")]
     [SerializeField] private Button pauseToggleButton;    // 클릭하는 버튼
@@ -140,3 +140,4 @@ public class GameSpeedManager : MonoBehaviour
         Time.fixedDeltaTime = BaseFixedDeltaTime;
     }
 }
+

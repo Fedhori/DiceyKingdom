@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-public class ModalManager : MonoBehaviour
+public class ModalService : MonoBehaviour
 {
     [SerializeField] private ConfirmationModal confirmationModalPrefab;
     [SerializeField] private InfoModal infoModalPrefab;
@@ -20,7 +20,7 @@ public class ModalManager : MonoBehaviour
             confirmationModalInstance.SetModalActive(false);
         }
         else
-            Debug.LogError("Confirmation Modal Prefab is not assigned in ModalManager.");
+            Debug.LogError("Confirmation Modal Prefab is not assigned in ModalService.");
 
         if (infoModalPrefab != null)
         {
@@ -29,7 +29,7 @@ public class ModalManager : MonoBehaviour
             infoModalInstance.SetModalActive(false);
         }
         else
-            Debug.LogError("Info Modal Prefab is not assigned in ModalManager.");
+            Debug.LogError("Info Modal Prefab is not assigned in ModalService.");
     }
 
     public void ShowInfo(string titleTable, string titleKey, string messageTable, string messageKey, Action onConfirm, Dictionary<string, object> messageArgs = null)
@@ -97,27 +97,28 @@ public class ModalManager : MonoBehaviour
 
         if (confirmationModalPrefab == null)
         {
-            Debug.LogError("[ModalManager] confirmationModalPrefab is not assigned.");
+            Debug.LogError("[ModalService] confirmationModalPrefab is not assigned.");
             valid = false;
         }
 
         if (infoModalPrefab == null)
         {
-            Debug.LogError("[ModalManager] infoModalPrefab is not assigned.");
+            Debug.LogError("[ModalService] infoModalPrefab is not assigned.");
             valid = false;
         }
 
         if (modalCanvas == null)
         {
-            Debug.LogError("[ModalManager] modalCanvas is not assigned.");
+            Debug.LogError("[ModalService] modalCanvas is not assigned.");
             valid = false;
         }
         else if (appRoot != null && !modalCanvas.transform.IsChildOf(appRoot))
         {
-            Debug.LogError("[ModalManager] modalCanvas must be placed under GameApp in editor.");
+            Debug.LogError("[ModalService] modalCanvas must be placed under GameApp in editor.");
             valid = false;
         }
 
         return valid;
     }
 }
+

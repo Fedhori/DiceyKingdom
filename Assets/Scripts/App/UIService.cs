@@ -2,18 +2,18 @@ using UI;
 
 public sealed class UIService
 {
-    public TooltipManager Tooltip { get; }
-    public ModalManager Modal { get; }
-    public OptionManager Option { get; }
-    public FloatingTextManager FloatingText { get; }
-    public ToastManager Toast { get; }
+    public TooltipService Tooltip { get; }
+    public ModalService Modal { get; }
+    public OptionService Option { get; }
+    public FloatingTextService FloatingText { get; }
+    public ToastService Toast { get; }
 
     public UIService(
-        TooltipManager tooltip,
-        ModalManager modal,
-        OptionManager option,
-        FloatingTextManager floatingText,
-        ToastManager toast)
+        TooltipService tooltip,
+        ModalService modal,
+        OptionService option,
+        FloatingTextService floatingText,
+        ToastService toast)
     {
         Tooltip = tooltip;
         Modal = modal;
@@ -22,3 +22,4 @@ public sealed class UIService
         Toast = toast;
     }
 }
+

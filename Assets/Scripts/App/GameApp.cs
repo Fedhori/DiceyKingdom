@@ -1,5 +1,6 @@
 using UI;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [DefaultExecutionOrder(-10000)]
 public sealed class GameApp : MonoBehaviour
@@ -7,21 +8,21 @@ public sealed class GameApp : MonoBehaviour
     public static GameApp I { get; private set; }
 
     [Header("UI")]
-    [SerializeField] TooltipManager tooltip;
-    [SerializeField] ModalManager modal;
-    [SerializeField] OptionManager option;
-    [SerializeField] FloatingTextManager floatingText;
-    [SerializeField] ToastManager toast;
+    [SerializeField] TooltipService tooltip;
+    [SerializeField] ModalService modal;
+    [SerializeField] OptionService option;
+    [SerializeField] FloatingTextService floatingText;
+    [SerializeField] ToastService toast;
 
     [Header("App Services")]
-    [SerializeField] AudioManager audioManager;
-    [SerializeField] BgmManager bgm;
-    [SerializeField] InputManager input;
-    [SerializeField] GameSpeedManager gameSpeed;
-    [SerializeField] ParticleManager particle;
-    [SerializeField] SaveManager save;
-    [SerializeField] StaticDataManager staticData;
-    [SerializeField] DevCommandManager devCommand;
+    [SerializeField] AudioService audioService;
+    [SerializeField] BgmService bgm;
+    [SerializeField] InputService input;
+    [SerializeField] GameSpeedService gameSpeed;
+    [SerializeField] ParticleService particle;
+    [SerializeField] SaveRuntimeService save;
+    [SerializeField] StaticDataService staticData;
+    [SerializeField] DevCommandService devCommand;
 
     public AppServices App { get; private set; }
     public RunServices Run { get; private set; }
@@ -85,7 +86,7 @@ public sealed class GameApp : MonoBehaviour
     void BuildServices()
     {
         var ui = new UIService(tooltip, modal, option, floatingText, toast);
-        App = new AppServices(ui, audioManager, bgm, input, gameSpeed, particle, save, staticData, devCommand);
+        App = new AppServices(ui, audioService, bgm, input, gameSpeed, particle, save, staticData, devCommand);
     }
 
     bool ValidateAppWiring()
@@ -145,3 +146,4 @@ public sealed class GameApp : MonoBehaviour
         return valid;
     }
 }
+

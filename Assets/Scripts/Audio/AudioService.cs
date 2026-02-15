@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class AudioManager : MonoBehaviour
+public class AudioService : MonoBehaviour
 {
     [Serializable] public struct SfxEntry {
         public string key;
@@ -109,3 +109,4 @@ public class AudioManager : MonoBehaviour
             _voices[key] = Mathf.Max(0, v - 1);
     }
 }
+

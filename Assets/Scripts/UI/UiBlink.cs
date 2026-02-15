@@ -8,11 +8,9 @@ public sealed class UiBlink : MonoBehaviour
     [SerializeField] float periodSeconds = 0.5f;
 
     [Tooltip("baseColor alpha에 곱해지는 최소 배수")]
-    [FormerlySerializedAs("minBrightness")]
     [SerializeField] float minAlphaMultiplier = 0.6f;
 
     [Tooltip("baseColor alpha에 곱해지는 최대 배수")]
-    [FormerlySerializedAs("maxBrightness")]
     [SerializeField] float maxAlphaMultiplier = 1.0f;
 
     Graphic graphic;

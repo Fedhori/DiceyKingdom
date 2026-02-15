@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FloatingTextManager : MonoBehaviour
+public class FloatingTextService : MonoBehaviour
 {
     [Header("Prefab & Parents")]
     [SerializeField] private GameObject textPrefab;
@@ -23,7 +23,7 @@ public class FloatingTextManager : MonoBehaviour
     {
         if (textPrefab == null)
         {
-            Debug.LogWarning("[FloatingTextManager] textPrefab is not assigned.");
+            Debug.LogWarning("[FloatingTextService] textPrefab is not assigned.");
             return;
         }
 
@@ -62,7 +62,7 @@ public class FloatingTextManager : MonoBehaviour
 
             if (floatingText == null)
             {
-                Debug.LogError("[FloatingTextManager] textPrefab has no FloatingText component.");
+                Debug.LogError("[FloatingTextService] textPrefab has no FloatingText component.");
                 Destroy(instance);
                 return null;
             }
@@ -121,32 +121,33 @@ public class FloatingTextManager : MonoBehaviour
 
         if (textPrefab == null)
         {
-            Debug.LogError("[FloatingTextManager] textPrefab is not assigned.");
+            Debug.LogError("[FloatingTextService] textPrefab is not assigned.");
             valid = false;
         }
 
         if (parentCanvas == null)
         {
-            Debug.LogError("[FloatingTextManager] parentCanvas is not assigned.");
+            Debug.LogError("[FloatingTextService] parentCanvas is not assigned.");
             valid = false;
         }
         else if (appRoot != null && !parentCanvas.transform.IsChildOf(appRoot))
         {
-            Debug.LogError("[FloatingTextManager] parentCanvas must be placed under GameApp in editor.");
+            Debug.LogError("[FloatingTextService] parentCanvas must be placed under GameApp in editor.");
             valid = false;
         }
 
         if (container == null)
         {
-            Debug.LogError("[FloatingTextManager] container is not assigned.");
+            Debug.LogError("[FloatingTextService] container is not assigned.");
             valid = false;
         }
         else if (appRoot != null && !container.transform.IsChildOf(appRoot))
         {
-            Debug.LogError("[FloatingTextManager] container must be placed under GameApp in editor.");
+            Debug.LogError("[FloatingTextService] container must be placed under GameApp in editor.");
             valid = false;
         }
 
         return valid;
     }
 }
+

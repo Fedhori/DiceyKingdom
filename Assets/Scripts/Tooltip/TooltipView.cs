@@ -8,7 +8,6 @@ using UnityEngine.UI;
 
 public sealed class TooltipView : MonoBehaviour
 {
-    [FormerlySerializedAs("rarityText")]
     [SerializeField] TMP_Text typeText;
     
     [SerializeField] Transform keywordRoot;

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public sealed class GameManager : MonoBehaviour
+public sealed class GameService : MonoBehaviour
 {
     [SerializeField] bool autoStartOnAwake = true;
     [SerializeField] bool useFixedSeed;
@@ -20,7 +20,7 @@ public sealed class GameManager : MonoBehaviour
         var app = GameApp.I;
         if (app == null)
         {
-            Debug.LogError("[GameManager] GameApp is missing.");
+            Debug.LogError("[GameService] GameApp is missing.");
             return;
         }
 
@@ -150,7 +150,7 @@ public sealed class GameManager : MonoBehaviour
         {
             if (!missingRunLogged)
             {
-                Debug.LogError("[GameManager] GameApp is missing.");
+                Debug.LogError("[GameService] GameApp is missing.");
                 missingRunLogged = true;
             }
             return null;
@@ -160,7 +160,7 @@ public sealed class GameManager : MonoBehaviour
         {
             if (!missingRunLogged)
             {
-                Debug.LogError("[GameManager] RunServices is null. BeginRun must be called by scene entrypoint.");
+                Debug.LogError("[GameService] RunServices is null. BeginRun must be called by scene entrypoint.");
                 missingRunLogged = true;
             }
             return null;
@@ -170,3 +170,4 @@ public sealed class GameManager : MonoBehaviour
         return app.Run;
     }
 }
+

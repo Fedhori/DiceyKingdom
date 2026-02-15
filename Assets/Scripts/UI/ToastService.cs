@@ -4,7 +4,7 @@ using UnityEngine.Localization.Components;
 
 namespace UI
 {
-    public class ToastManager : MonoBehaviour
+    public class ToastService : MonoBehaviour
     {
         [SerializeField] private Canvas canvas;
         [SerializeField] private GameObject toastPrefab; // Assign this in the Inspector
@@ -15,18 +15,18 @@ namespace UI
 
             if (canvas == null)
             {
-                Debug.LogError("[ToastManager] canvas is not assigned.");
+                Debug.LogError("[ToastService] canvas is not assigned.");
                 valid = false;
             }
             else if (appRoot != null && !canvas.transform.IsChildOf(appRoot))
             {
-                Debug.LogError("[ToastManager] canvas must be placed under GameApp in editor.");
+                Debug.LogError("[ToastService] canvas must be placed under GameApp in editor.");
                 valid = false;
             }
 
             if (toastPrefab == null)
             {
-                Debug.LogError("[ToastManager] toastPrefab is not assigned.");
+                Debug.LogError("[ToastService] toastPrefab is not assigned.");
                 valid = false;
             }
 
@@ -71,3 +71,4 @@ namespace UI
         }
     }
 }
+

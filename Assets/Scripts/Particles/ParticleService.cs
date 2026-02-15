@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public sealed class ParticleManager : MonoBehaviour
+public sealed class ParticleService : MonoBehaviour
 {
     [Serializable]
     public sealed class Entry
@@ -73,7 +73,7 @@ public sealed class ParticleManager : MonoBehaviour
 
         if (!map.TryGetValue(key, out var prefab) || prefab == null)
         {
-            Debug.LogWarning($"[ParticleManager] Missing particle prefab: {key}");
+            Debug.LogWarning($"[ParticleService] Missing particle prefab: {key}");
             return;
         }
 
@@ -170,3 +170,4 @@ public sealed class ParticleManager : MonoBehaviour
         }
     }
 }
+

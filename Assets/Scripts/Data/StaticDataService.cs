@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-public sealed class StaticDataManager : MonoBehaviour
+public sealed class StaticDataService : MonoBehaviour
 {
     [Serializable]
     public sealed class JsonEntry
@@ -55,7 +55,7 @@ public sealed class StaticDataManager : MonoBehaviour
             string json = SaCache.ReadText(relativePath);
             if (string.IsNullOrEmpty(json))
             {
-                Debug.LogWarning($"[StaticDataManager] Empty json: {relativePath}");
+                Debug.LogWarning($"[StaticDataService] Empty json: {relativePath}");
                 return false;
             }
 
@@ -64,8 +64,9 @@ public sealed class StaticDataManager : MonoBehaviour
         }
         catch (IOException e)
         {
-            Debug.LogWarning($"[StaticDataManager] Read failed: {relativePath} ({e.Message})");
+            Debug.LogWarning($"[StaticDataService] Read failed: {relativePath} ({e.Message})");
             return false;
         }
     }
 }
+

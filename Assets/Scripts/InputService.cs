@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
 
-public class InputManager : MonoBehaviour
+public class InputService : MonoBehaviour
 {
     [SerializeField] private PlayerInput playerInput;
     public event Action OnMenuRequested;
@@ -20,3 +20,4 @@ public class InputManager : MonoBehaviour
         OnMenuRequested?.Invoke();
     }
 }
+

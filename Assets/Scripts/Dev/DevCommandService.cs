@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 [DefaultExecutionOrder(-10000)]
-public sealed class DevCommandManager : MonoBehaviour
+public sealed class DevCommandService : MonoBehaviour
 {
 #if DEVCONSOLE_OFF
     void Awake() => Destroy(gameObject);
@@ -227,3 +227,4 @@ public sealed class DevCommandManager : MonoBehaviour
     }
 #endif
 }
+

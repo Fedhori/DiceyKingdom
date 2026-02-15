@@ -1,17 +1,18 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class OptionManager : MonoBehaviour
+public class OptionService : MonoBehaviour
 {
     public GameObject optionOverlay;
 
     public Button quitGameButton;
     public Button returnToMainMenuButton;
     [SerializeField] private Slider bgmSlider;
-    [SerializeField] private BgmManager bgmManager;
-    [SerializeField] private GameSpeedManager gameSpeedManager;
-    [SerializeField] private ModalManager modalManager;
+    [SerializeField] private BgmService bgmService;
+    [SerializeField] private GameSpeedService gameSpeedService;
+    [SerializeField] private ModalService modalService;
     [SerializeField] private SlidePanelLean optionPanelSlide;
     [SerializeField] private OverlayFader optionOverlayFader;
     readonly DisposableBag subscriptions = new();
@@ -137,26 +138,26 @@ public class OptionManager : MonoBehaviour
         if (bgmSlider == null)
             return;
 
-        if (bgmManager == null)
+        if (bgmService == null)
             return;
 
-        bgmSlider.SetValueWithoutNotify(bgmManager.BaseVolume);
+        bgmSlider.SetValueWithoutNotify(bgmService.BaseVolume);
     }
 
     void HandleBgmSliderChanged(float value)
     {
-        if (bgmManager == null)
+        if (bgmService == null)
             return;
 
-        bgmManager.SetBaseVolume(value);
+        bgmService.SetBaseVolume(value);
     }
     
     public void RequestReturnToMainMenu()
     {
-        if (modalManager == null)
+        if (modalService == null)
             return;
 
-        modalManager.ShowConfirmation(
+        modalService.ShowConfirmation(
             titleTable: "modal", titleKey: "modal.mainmenu.title",
             messageTable: "modal", messageKey: "modal.mainmenu.desc",
             onConfirm: ReturnToMainMenu,
@@ -172,10 +173,10 @@ public class OptionManager : MonoBehaviour
 
     public void RequestQuitGame()
     {
-        if (modalManager == null)
+        if (modalService == null)
             return;
 
-        modalManager.ShowConfirmation(
+        modalService.ShowConfirmation(
             titleTable: "modal", titleKey: "modal.quitgame.title",
             messageTable: "modal", messageKey: "modal.quitgame.message",
             onConfirm: QuitGame,
@@ -191,16 +192,16 @@ public class OptionManager : MonoBehaviour
 
     void UpdatePauseState(bool isOptionOpen)
     {
-        if (gameSpeedManager == null)
+        if (gameSpeedService == null)
             return;
 
         if (isOptionOpen)
         {
-            previousForcePaused = gameSpeedManager.ForcePaused;
-            gameSpeedManager.ForcePaused = true;
+            previousForcePaused = gameSpeedService.ForcePaused;
+            gameSpeedService.ForcePaused = true;
             return;
         }
-        gameSpeedManager.ForcePaused = previousForcePaused;
+        gameSpeedService.ForcePaused = previousForcePaused;
     }
 
     void UpdatePauseStateFalse()
@@ -211,12 +212,12 @@ public class OptionManager : MonoBehaviour
     void ResolveDependencies()
     {
         var appServices = GameApp.I?.App;
-        if (bgmManager == null)
-            bgmManager = appServices?.Bgm;
-        if (gameSpeedManager == null)
-            gameSpeedManager = appServices?.GameSpeed;
-        if (modalManager == null)
-            modalManager = appServices?.UI?.Modal;
+        if (bgmService == null)
+            bgmService = appServices?.Bgm;
+        if (gameSpeedService == null)
+            gameSpeedService = appServices?.GameSpeed;
+        if (modalService == null)
+            modalService = appServices?.UI?.Modal;
     }
 
     public bool ValidateConfiguration(Transform appRoot)
@@ -225,21 +226,22 @@ public class OptionManager : MonoBehaviour
 
         if (optionOverlay == null)
         {
-            Debug.LogError("[OptionManager] optionOverlay is not assigned.");
+            Debug.LogError("[OptionService] optionOverlay is not assigned.");
             valid = false;
         }
         else if (appRoot != null && !optionOverlay.transform.IsChildOf(appRoot))
         {
-            Debug.LogError("[OptionManager] optionOverlay must be placed under GameApp in editor.");
+            Debug.LogError("[OptionService] optionOverlay must be placed under GameApp in editor.");
             valid = false;
         }
 
         if (quitGameButton == null)
         {
-            Debug.LogError("[OptionManager] quitGameButton is not assigned.");
+            Debug.LogError("[OptionService] quitGameButton is not assigned.");
             valid = false;
         }
 
         return valid;
     }
 }
+

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public sealed class TooltipManager : MonoBehaviour
+public sealed class TooltipService : MonoBehaviour
 {
     [SerializeField] Canvas tooltipCanvas;      // Screen Space - Overlay
     [SerializeField] TooltipView tooltipView;
@@ -98,7 +98,7 @@ public sealed class TooltipManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[TooltipManager] No world camera found. Tooltips will not be positioned.");
+            Debug.LogWarning("[TooltipService] No world camera found. Tooltips will not be positioned.");
         }
     }
 
@@ -312,7 +312,7 @@ public sealed class TooltipManager : MonoBehaviour
             {
                 if (worldCamera == null)
                 {
-                    Debug.LogWarning("[TooltipManager] World camera is null. Cannot place world tooltip.");
+                    Debug.LogWarning("[TooltipService] World camera is null. Cannot place world tooltip.");
                     return;
                 }
 
@@ -441,13 +441,13 @@ public sealed class TooltipManager : MonoBehaviour
 
         if (tooltipCanvas == null)
         {
-            Debug.LogError("[TooltipManager] tooltipCanvas is not assigned.");
+            Debug.LogError("[TooltipService] tooltipCanvas is not assigned.");
             valid = false;
         }
 
         if (tooltipView == null)
         {
-            Debug.LogError("[TooltipManager] tooltipView is not assigned.");
+            Debug.LogError("[TooltipService] tooltipView is not assigned.");
             valid = false;
         }
 
@@ -455,13 +455,13 @@ public sealed class TooltipManager : MonoBehaviour
         {
             if (tooltipCanvas != null && !tooltipCanvas.transform.IsChildOf(appRoot))
             {
-                Debug.LogError("[TooltipManager] tooltipCanvas must be placed under GameApp in editor.");
+                Debug.LogError("[TooltipService] tooltipCanvas must be placed under GameApp in editor.");
                 valid = false;
             }
 
             if (tooltipView != null && !tooltipView.transform.IsChildOf(appRoot))
             {
-                Debug.LogError("[TooltipManager] tooltipView must be placed under GameApp in editor.");
+                Debug.LogError("[TooltipService] tooltipView must be placed under GameApp in editor.");
                 valid = false;
             }
         }
@@ -469,3 +469,4 @@ public sealed class TooltipManager : MonoBehaviour
         return valid;
     }
 }
+

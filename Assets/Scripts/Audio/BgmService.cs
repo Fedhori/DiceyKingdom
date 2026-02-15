@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public sealed class BgmManager : MonoBehaviour
+public sealed class BgmService : MonoBehaviour
 {
     const string PrefsKeyBaseVolume = "bgm.baseVolume";
 
@@ -23,7 +23,7 @@ public sealed class BgmManager : MonoBehaviour
             audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
-            Debug.LogWarning("[BgmManager] AudioSource is not assigned.", this);
+            Debug.LogWarning("[BgmService] AudioSource is not assigned.", this);
             return;
         }
 
@@ -36,7 +36,7 @@ public sealed class BgmManager : MonoBehaviour
             lowPassFilter = GetComponent<AudioLowPassFilter>();
         if (lowPassFilter == null)
         {
-            Debug.LogWarning("[BgmManager] AudioLowPassFilter is not assigned.", this);
+            Debug.LogWarning("[BgmService] AudioLowPassFilter is not assigned.", this);
             return;
         }
 
@@ -106,3 +106,4 @@ public sealed class BgmManager : MonoBehaviour
         audioSource.volume = Mathf.Clamp01(baseVolume);
     }
 }
+

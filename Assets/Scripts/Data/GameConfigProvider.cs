@@ -53,7 +53,6 @@ public static class GameConfigProvider
             }
 
             current = parsed;
-            Debug.Log("[GameConfigProvider] Loaded GameConfig.json");
             return true;
         }
         catch (Exception ex)
