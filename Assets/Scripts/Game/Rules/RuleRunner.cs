@@ -17,7 +17,7 @@ public static class RuleRunner
         if (!TryGetMissionInstance(runState.missions, missionUid, out MissionInstance missionInstance))
             return summary;
 
-        RuleContext baseContext = EnsureContext(context, runState, missionUid, string.Empty);
+        RuleContext baseContext = CreateContext(context, runState, missionUid, string.Empty);
         effectApplier ??= NoopRuleEffectApplier.Shared;
 
         // Global order (confirmed): Trait rules first, then Mission rules.
@@ -53,7 +53,7 @@ public static class RuleRunner
             if (!StaticDataLoader.Current.TryGetTraitDef(traitInstance.traitId, out TraitDef traitDef))
                 continue;
 
-            RuleContext perTraitContext = EnsureContext(context, runState, context?.missionUid ?? string.Empty, adventurerUid);
+            RuleContext perTraitContext = CreateContext(context, runState, context?.missionUid ?? string.Empty, adventurerUid);
             summary.Add(RulePipeline.Execute(
                 traitDef.rules,
                 trigger,
@@ -82,7 +82,7 @@ public static class RuleRunner
         if (!TryGetMissionInstance(runState.missions, missionUid, out MissionInstance missionInstance))
             return summary;
 
-        RuleContext normalizedContext = EnsureContext(context, runState, missionUid, context?.adventurerUid ?? string.Empty);
+        RuleContext normalizedContext = CreateContext(context, runState, missionUid, context?.adventurerUid ?? string.Empty);
         return RunMissionRules(runState, missionInstance, trigger, normalizedContext, effectApplier);
     }
 
@@ -113,7 +113,7 @@ public static class RuleRunner
             if (!StaticDataLoader.Current.TryGetTraitDef(traitInstance.traitId, out TraitDef traitDef))
                 continue;
 
-            RuleContext perTraitContext = EnsureContext(baseContext, runState, missionInstance.uid, traitInstance.ownerAdventurerUid);
+            RuleContext perTraitContext = CreateContext(baseContext, runState, missionInstance.uid, traitInstance.ownerAdventurerUid);
             summary.Add(RulePipeline.Execute(
                 traitDef.rules,
                 trigger,
@@ -138,7 +138,7 @@ public static class RuleRunner
         if (!StaticDataLoader.Current.TryGetMissionDef(missionInstance.missionId, out MissionDef missionDef))
             return new RuleExecutionSummary();
 
-        RuleContext missionContext = EnsureContext(baseContext, runState, missionInstance.uid, baseContext?.adventurerUid ?? string.Empty);
+        RuleContext missionContext = CreateContext(baseContext, runState, missionInstance.uid, baseContext?.adventurerUid ?? string.Empty);
         return RulePipeline.Execute(
             missionDef.rules,
             trigger,
@@ -150,7 +150,7 @@ public static class RuleRunner
             effectApplier);
     }
 
-    static RuleContext EnsureContext(RuleContext source, RunState runState, string missionUid, string adventurerUid)
+    static RuleContext CreateContext(RuleContext source, RunState runState, string missionUid, string adventurerUid)
     {
         RuleContext context = source?.Clone() ?? new RuleContext();
         context.runState = runState;

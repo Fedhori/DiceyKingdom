@@ -91,8 +91,33 @@ public class ModalManager : MonoBehaviour
         confirmationModalInstance.SetModalActive(false);
     }
 
-    public void EnsurePersistentHierarchy(Transform appRoot)
+    public bool ValidateConfiguration(Transform appRoot)
     {
-        AppScopeTransformUtility.ReparentRootToAppScope(modalCanvas, appRoot, nameof(ModalManager), nameof(modalCanvas));
+        bool valid = true;
+
+        if (confirmationModalPrefab == null)
+        {
+            Debug.LogError("[ModalManager] confirmationModalPrefab is not assigned.");
+            valid = false;
+        }
+
+        if (infoModalPrefab == null)
+        {
+            Debug.LogError("[ModalManager] infoModalPrefab is not assigned.");
+            valid = false;
+        }
+
+        if (modalCanvas == null)
+        {
+            Debug.LogError("[ModalManager] modalCanvas is not assigned.");
+            valid = false;
+        }
+        else if (appRoot != null && !modalCanvas.transform.IsChildOf(appRoot))
+        {
+            Debug.LogError("[ModalManager] modalCanvas must be placed under GameApp in editor.");
+            valid = false;
+        }
+
+        return valid;
     }
 }

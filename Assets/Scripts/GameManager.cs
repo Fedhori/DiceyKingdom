@@ -8,6 +8,7 @@ public sealed class GameManager : MonoBehaviour
     [SerializeField] GameSceneRefs sceneRefs = new();
     bool ownsRun;
     RunServices startedRun;
+    bool missingRunLogged;
 
     public RunState CurrentRunState => GameApp.I?.Run?.CurrentRunState;
 
@@ -144,6 +145,28 @@ public sealed class GameManager : MonoBehaviour
 
     RunServices GetRunServices()
     {
-        return GameApp.I?.Run;
+        var app = GameApp.I;
+        if (app == null)
+        {
+            if (!missingRunLogged)
+            {
+                Debug.LogError("[GameManager] GameApp is missing.");
+                missingRunLogged = true;
+            }
+            return null;
+        }
+
+        if (app.Run == null)
+        {
+            if (!missingRunLogged)
+            {
+                Debug.LogError("[GameManager] RunServices is null. BeginRun must be called by scene entrypoint.");
+                missingRunLogged = true;
+            }
+            return null;
+        }
+
+        missingRunLogged = false;
+        return app.Run;
     }
 }

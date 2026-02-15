@@ -9,9 +9,28 @@ namespace UI
         [SerializeField] private Canvas canvas;
         [SerializeField] private GameObject toastPrefab; // Assign this in the Inspector
 
-        public void EnsurePersistentHierarchy(Transform appRoot)
+        public bool ValidateConfiguration(Transform appRoot)
         {
-            AppScopeTransformUtility.ReparentRootToAppScope(canvas, appRoot, nameof(ToastManager), nameof(canvas));
+            bool valid = true;
+
+            if (canvas == null)
+            {
+                Debug.LogError("[ToastManager] canvas is not assigned.");
+                valid = false;
+            }
+            else if (appRoot != null && !canvas.transform.IsChildOf(appRoot))
+            {
+                Debug.LogError("[ToastManager] canvas must be placed under GameApp in editor.");
+                valid = false;
+            }
+
+            if (toastPrefab == null)
+            {
+                Debug.LogError("[ToastManager] toastPrefab is not assigned.");
+                valid = false;
+            }
+
+            return valid;
         }
 
         public void ShowToastMessage(string tableKey, string entryKey, float waitSecond = 2.0f, float fadeDuration = 0.5f)

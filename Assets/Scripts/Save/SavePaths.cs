@@ -17,7 +17,7 @@ public static class SavePaths
     public static string InvalidFilePath => Path.Combine(SaveDirectoryPath, InvalidFileName);
     public static string TempFilePath => Path.Combine(SaveDirectoryPath, TempFileName);
 
-    public static void EnsureDirectory()
+    public static void CreateDirectoryIfMissing()
     {
         if (!Directory.Exists(SaveDirectoryPath))
             Directory.CreateDirectory(SaveDirectoryPath);

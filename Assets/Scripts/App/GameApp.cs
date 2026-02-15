@@ -42,7 +42,13 @@ public sealed class GameApp : MonoBehaviour
         }
 
         I = this;
-        EnsurePersistentUiHierarchy();
+        if (!ValidateAppWiring())
+        {
+            Debug.LogError("[GameApp] App wiring is invalid. Fix inspector references/hierarchy in Bootstrap scene.");
+            enabled = false;
+            return;
+        }
+
         DontDestroyOnLoad(gameObject);
         BuildServices();
     }
@@ -82,12 +88,60 @@ public sealed class GameApp : MonoBehaviour
         App = new AppServices(ui, audioManager, bgm, input, gameSpeed, particle, save, staticData, devCommand);
     }
 
-    void EnsurePersistentUiHierarchy()
+    bool ValidateAppWiring()
     {
-        tooltip?.EnsurePersistentHierarchy(transform);
-        modal?.EnsurePersistentHierarchy(transform);
-        option?.EnsurePersistentHierarchy(transform);
-        floatingText?.EnsurePersistentHierarchy(transform);
-        toast?.EnsurePersistentHierarchy(transform);
+        bool valid = true;
+
+        if (tooltip == null)
+        {
+            Debug.LogError("[GameApp] tooltip is not assigned.");
+            valid = false;
+        }
+        else
+        {
+            valid &= tooltip.ValidateConfiguration(transform);
+        }
+
+        if (modal == null)
+        {
+            Debug.LogError("[GameApp] modal is not assigned.");
+            valid = false;
+        }
+        else
+        {
+            valid &= modal.ValidateConfiguration(transform);
+        }
+
+        if (option == null)
+        {
+            Debug.LogError("[GameApp] option is not assigned.");
+            valid = false;
+        }
+        else
+        {
+            valid &= option.ValidateConfiguration(transform);
+        }
+
+        if (floatingText == null)
+        {
+            Debug.LogError("[GameApp] floatingText is not assigned.");
+            valid = false;
+        }
+        else
+        {
+            valid &= floatingText.ValidateConfiguration(transform);
+        }
+
+        if (toast == null)
+        {
+            Debug.LogError("[GameApp] toast is not assigned.");
+            valid = false;
+        }
+        else
+        {
+            valid &= toast.ValidateConfiguration(transform);
+        }
+
+        return valid;
     }
 }

@@ -113,7 +113,7 @@
   - `Bootstrap` (초기화/로딩/다음 씬 로드)
   - `managersRoot` (비활성 상태로 시작 권장)
     - `GameApp` (**유일한 DontDestroyOnLoad**) + AppScope 매니저들
-  - AppScope UI Canvas(`TooltipCanvas`, `ModalCanvas`, `OptionCanvas`, `FloatingTextCanvas`)는 런타임에 `GameApp` 하위로 편입되어 유지된다.
+  - AppScope UI Canvas(`TooltipCanvas`, `ModalCanvas`, `OptionCanvas`, `FloatingTextCanvas`)는 에디터에서 `GameApp` 하위로 배치해 유지한다.
 
 ### GameScene.scene
 
@@ -158,7 +158,8 @@
 - 수명: 게임 실행 동안 유지
 - 소유자: `GameApp` (유일한 싱글톤)
 - 예: Tooltip/Modal/Option/Toast/FloatingText, Audio/BGM, Input, GameSpeed, Particles, Save, DevConsole
-- `GameApp.Awake()`에서 App UI 뷰 루트들을 `GameApp` 하위로 강제 편입해 씬 전환 시 파괴되지 않게 유지한다.
+- App UI 뷰 루트는 런타임 보정 없이 에디터 배치로 고정한다.
+- 참조 누락/계층 불일치는 에러 로그로 노출하고 초기화를 중단한다.
 
 ### Run Scope (Per-run)
 

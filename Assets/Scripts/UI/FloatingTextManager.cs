@@ -115,9 +115,38 @@ public class FloatingTextManager : MonoBehaviour
         return localPoint;
     }
 
-    public void EnsurePersistentHierarchy(Transform appRoot)
+    public bool ValidateConfiguration(Transform appRoot)
     {
-        AppScopeTransformUtility.ReparentRootToAppScope(parentCanvas, appRoot, nameof(FloatingTextManager), nameof(parentCanvas));
-        AppScopeTransformUtility.ReparentRootToAppScope(container, appRoot, nameof(FloatingTextManager), nameof(container));
+        bool valid = true;
+
+        if (textPrefab == null)
+        {
+            Debug.LogError("[FloatingTextManager] textPrefab is not assigned.");
+            valid = false;
+        }
+
+        if (parentCanvas == null)
+        {
+            Debug.LogError("[FloatingTextManager] parentCanvas is not assigned.");
+            valid = false;
+        }
+        else if (appRoot != null && !parentCanvas.transform.IsChildOf(appRoot))
+        {
+            Debug.LogError("[FloatingTextManager] parentCanvas must be placed under GameApp in editor.");
+            valid = false;
+        }
+
+        if (container == null)
+        {
+            Debug.LogError("[FloatingTextManager] container is not assigned.");
+            valid = false;
+        }
+        else if (appRoot != null && !container.transform.IsChildOf(appRoot))
+        {
+            Debug.LogError("[FloatingTextManager] container must be placed under GameApp in editor.");
+            valid = false;
+        }
+
+        return valid;
     }
 }

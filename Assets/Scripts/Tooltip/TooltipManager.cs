@@ -435,9 +435,37 @@ public sealed class TooltipManager : MonoBehaviour
             tooltipView.Hide();
     }
 
-    public void EnsurePersistentHierarchy(Transform appRoot)
+    public bool ValidateConfiguration(Transform appRoot)
     {
-        AppScopeTransformUtility.ReparentRootToAppScope(tooltipCanvas, appRoot, nameof(TooltipManager), nameof(tooltipCanvas));
-        AppScopeTransformUtility.ReparentRootToAppScope(tooltipView, appRoot, nameof(TooltipManager), nameof(tooltipView));
+        bool valid = true;
+
+        if (tooltipCanvas == null)
+        {
+            Debug.LogError("[TooltipManager] tooltipCanvas is not assigned.");
+            valid = false;
+        }
+
+        if (tooltipView == null)
+        {
+            Debug.LogError("[TooltipManager] tooltipView is not assigned.");
+            valid = false;
+        }
+
+        if (appRoot != null)
+        {
+            if (tooltipCanvas != null && !tooltipCanvas.transform.IsChildOf(appRoot))
+            {
+                Debug.LogError("[TooltipManager] tooltipCanvas must be placed under GameApp in editor.");
+                valid = false;
+            }
+
+            if (tooltipView != null && !tooltipView.transform.IsChildOf(appRoot))
+            {
+                Debug.LogError("[TooltipManager] tooltipView must be placed under GameApp in editor.");
+                valid = false;
+            }
+        }
+
+        return valid;
     }
 }

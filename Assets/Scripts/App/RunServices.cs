@@ -15,7 +15,7 @@ public sealed class RunServices : System.IDisposable
     public RunServices(GameSceneRefs sceneRefs = null)
     {
         SceneRefs = sceneRefs;
-        EnsureServices();
+        InitializeServices();
     }
 
     public void Dispose()
@@ -26,7 +26,6 @@ public sealed class RunServices : System.IDisposable
 
     public RunState CreateNewRunState()
     {
-        EnsureServices();
         var runState = new RunState
         {
             uid = System.Guid.NewGuid().ToString("N"),
@@ -40,14 +39,12 @@ public sealed class RunServices : System.IDisposable
 
     public void SetRunState(RunState runState)
     {
-        EnsureServices();
         CurrentRunState = runState ?? new RunState();
         statService.ClearCache();
     }
 
     public string ExportRunStateJson(bool prettyPrint = false)
     {
-        EnsureServices();
         return JsonConvert.SerializeObject(
             CurrentRunState ?? new RunState(),
             prettyPrint ? Formatting.Indented : Formatting.None);
@@ -55,7 +52,6 @@ public sealed class RunServices : System.IDisposable
 
     public bool TryImportRunStateJson(string json)
     {
-        EnsureServices();
         if (string.IsNullOrWhiteSpace(json))
             return false;
 
@@ -80,61 +76,51 @@ public sealed class RunServices : System.IDisposable
 
     public int GetAdventurerStat(string adventurerUid, StatId statId)
     {
-        EnsureServices();
         return statService.GetStat(CurrentRunState, adventurerUid, statId);
     }
 
     public void MarkAdventurerStatDirty(string adventurerUid)
     {
-        EnsureServices();
         statService.MarkDirty(adventurerUid);
     }
 
     public void AddOrMergeModifier(ModifierInstance modifier)
     {
-        EnsureServices();
         modifierService.AddOrMergeModifier(CurrentRunState, modifier);
     }
 
     public int RemoveMissionLayerModifiers(string missionUid)
     {
-        EnsureServices();
         return modifierService.RemoveMissionLayerModifiers(CurrentRunState, missionUid);
     }
 
     public bool TryAssignAdventurerToMission(string adventurerUid, string missionUid)
     {
-        EnsureServices();
         return missionExpeditionService.TryAssignAdventurerToMission(CurrentRunState, adventurerUid, missionUid);
     }
 
     public bool TryUnassignAdventurer(string adventurerUid)
     {
-        EnsureServices();
         return missionExpeditionService.TryUnassignAdventurer(CurrentRunState, adventurerUid);
     }
 
     public AbilityTestResolveResult ResolveMissionAbilityTestOnce(string missionUid)
     {
-        EnsureServices();
         return missionExpeditionService.ResolveAbilityTestOnce(CurrentRunState, missionUid);
     }
 
     public bool FailMissionExpedition(string missionUid)
     {
-        EnsureServices();
         return missionExpeditionService.FailExpedition(CurrentRunState, missionUid);
     }
 
     public int AdvanceMissionDeadlinesAndRemoveFailedMissions()
     {
-        EnsureServices();
         return missionExpeditionService.AdvanceMissionDeadlines(CurrentRunState);
     }
 
     public bool InitializeRunLoop()
     {
-        EnsureServices();
         if (CurrentRunState == null || string.IsNullOrWhiteSpace(CurrentRunState.uid))
             CreateNewRunState();
 
@@ -143,41 +129,37 @@ public sealed class RunServices : System.IDisposable
 
     public bool AdvanceTurn()
     {
-        EnsureServices();
         return turnLoopService.AdvanceTurn(CurrentRunState, GameConfigProvider.Current);
     }
 
     public bool TryRecruitCandidate(string candidateUid)
     {
-        EnsureServices();
         return turnLoopService.TryRecruitCandidate(CurrentRunState, candidateUid);
     }
 
     public bool SetTraitLocked(string traitUid, bool isLocked)
     {
-        EnsureServices();
         return traitService.SetTraitLocked(CurrentRunState, traitUid, isLocked);
     }
 
-    void EnsureServices()
+    void InitializeServices()
     {
-        statService ??= new StatService();
-        modifierService ??= new ModifierService(statService);
-        traitService ??= new TraitService(modifierService);
-        ruleEffectApplier ??= new EffectApplier(modifierService, statService);
-        missionExpeditionService ??= new MissionExpeditionService(
+        statService = new StatService();
+        modifierService = new ModifierService(statService);
+        traitService = new TraitService(modifierService);
+        ruleEffectApplier = new EffectApplier(modifierService, statService);
+        missionExpeditionService = new MissionExpeditionService(
             statService,
             modifierService,
             traitService,
             () => GameConfigProvider.Current,
             (missionUid, trigger, context) => ExecuteMissionTriggerInternal(missionUid, trigger, context, null),
             (adventurerUid, trigger, context) => ExecuteAdventurerTriggerInternal(adventurerUid, trigger, context, null));
-        turnLoopService ??= new TurnLoopService(statService, modifierService, missionExpeditionService, traitService);
+        turnLoopService = new TurnLoopService(statService, modifierService, missionExpeditionService, traitService);
     }
 
     RuleExecutionSummary ExecuteMissionTriggerInternal(string missionUid, string trigger, RuleContext context, IRuleEffectApplier effectApplier = null)
     {
-        EnsureServices();
         RuleContext effectiveContext = context?.Clone() ?? new RuleContext();
         effectiveContext.runState = CurrentRunState;
         effectiveContext.missionUid = missionUid ?? string.Empty;
@@ -186,7 +168,6 @@ public sealed class RunServices : System.IDisposable
 
     RuleExecutionSummary ExecuteAdventurerTriggerInternal(string adventurerUid, string trigger, RuleContext context, IRuleEffectApplier effectApplier = null)
     {
-        EnsureServices();
         RuleContext effectiveContext = context?.Clone() ?? new RuleContext();
         effectiveContext.runState = CurrentRunState;
         effectiveContext.adventurerUid = adventurerUid ?? string.Empty;

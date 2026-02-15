@@ -44,8 +44,11 @@ public static class SaCache
     }
 
     // 앱 시작 시 1회 호출(중복 안전)
-    public static Task InitAsync(SaOptions opt = null, Action<float> onProgress = null)
+    public static Task InitAsync(SaOptions opt, Action<float> onProgress = null)
     {
+        if (opt == null)
+            throw new ArgumentNullException(nameof(opt), "[SACache] InitAsync requires explicit SaOptions.");
+
         if (Volatile.Read(ref initStarted) == 0)
             if (Interlocked.Exchange(ref initStarted, 1) == 0)
                 initTask = InitImplAsync(opt, onProgress);
@@ -112,8 +115,6 @@ public static class SaCache
     {
         try
         {
-            opt ??= new SaOptions();
-
             // 1) 매니페스트 읽기
             var manifestJson = await LoadSaAsync("sa_manifest.json");
             manifest = JsonConvert.DeserializeObject<Manifest>(manifestJson);

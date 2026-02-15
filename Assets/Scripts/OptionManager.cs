@@ -7,7 +7,6 @@ public class OptionManager : MonoBehaviour
     public GameObject optionOverlay;
 
     public Button quitGameButton;
-    public Button gameRestartButton;
     public Button returnToMainMenuButton;
     [SerializeField] private Slider bgmSlider;
     [SerializeField] private BgmManager bgmManager;
@@ -52,7 +51,6 @@ public class OptionManager : MonoBehaviour
 
     void HideAllOptionButtons()
     {
-        gameRestartButton.gameObject.SetActive(false);
         returnToMainMenuButton.gameObject.SetActive(false);
     }
 
@@ -66,7 +64,6 @@ public class OptionManager : MonoBehaviour
         {
             case SceneIds.GameScene:
             {
-                gameRestartButton.gameObject.SetActive(true);
                 returnToMainMenuButton.gameObject.SetActive(true);
                 break;
             }
@@ -222,8 +219,27 @@ public class OptionManager : MonoBehaviour
             modalManager = appServices?.UI?.Modal;
     }
 
-    public void EnsurePersistentHierarchy(Transform appRoot)
+    public bool ValidateConfiguration(Transform appRoot)
     {
-        AppScopeTransformUtility.ReparentRootToAppScope(optionOverlay, appRoot, nameof(OptionManager), nameof(optionOverlay));
+        bool valid = true;
+
+        if (optionOverlay == null)
+        {
+            Debug.LogError("[OptionManager] optionOverlay is not assigned.");
+            valid = false;
+        }
+        else if (appRoot != null && !optionOverlay.transform.IsChildOf(appRoot))
+        {
+            Debug.LogError("[OptionManager] optionOverlay must be placed under GameApp in editor.");
+            valid = false;
+        }
+
+        if (quitGameButton == null)
+        {
+            Debug.LogError("[OptionManager] quitGameButton is not assigned.");
+            valid = false;
+        }
+
+        return valid;
     }
 }

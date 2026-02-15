@@ -19,7 +19,7 @@ public static class SaveService
         if (data == null)
             return SaveServiceResult.Fail("SaveData is null.");
 
-        SavePaths.EnsureDirectory();
+        SavePaths.CreateDirectoryIfMissing();
 
         data.meta ??= new SaveMeta();
         data.meta.schemaVersion = SaveMeta.CurrentSchemaVersion;
@@ -133,7 +133,7 @@ public static class SaveService
 
     public static bool HasValidSave()
     {
-        SavePaths.EnsureDirectory();
+        SavePaths.CreateDirectoryIfMissing();
 
         if (TryValidateFile(SavePaths.SaveFilePath, "has_valid_save") != null)
             return true;
@@ -235,7 +235,7 @@ public static class SaveService
             if (!File.Exists(SavePaths.SaveFilePath))
                 return;
 
-            SavePaths.EnsureDirectory();
+            SavePaths.CreateDirectoryIfMissing();
             File.Copy(SavePaths.SaveFilePath, SavePaths.InvalidFilePath, overwrite: true);
             File.Delete(SavePaths.SaveFilePath);
         }

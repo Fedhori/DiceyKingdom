@@ -124,7 +124,7 @@ public sealed class MissionExpeditionService
         if (mission.assignedAdventurerUids == null || mission.assignedAdventurerUids.Count == 0)
             return result;
 
-        EnsureAbilityTestProgresses(mission, missionDef);
+        SyncAbilityTestProgresses(mission, missionDef);
         if (mission.currentAbilityTestIndex < 0)
             mission.currentAbilityTestIndex = 0;
 
@@ -472,7 +472,7 @@ public sealed class MissionExpeditionService
         mission.assignedAdventurerUids.Clear();
     }
 
-    void EnsureAbilityTestProgresses(MissionInstance mission, MissionDef missionDef)
+    void SyncAbilityTestProgresses(MissionInstance mission, MissionDef missionDef)
     {
         mission.abilityTestProgresses ??= new List<AbilityTestProgressInstance>();
         if (missionDef?.abilityTests == null)

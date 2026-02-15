@@ -510,7 +510,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1831022632}
   m_Layer: 0
-  m_Name: Managers
+  m_Name: Services
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -545,7 +545,7 @@ GameObject:
   - component: {fileID: 2114596188}
   - component: {fileID: 2114596192}
   m_Layer: 5
-  m_Name: MainUiCanvas
+  m_Name: MainCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

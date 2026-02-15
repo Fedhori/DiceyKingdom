@@ -25,8 +25,9 @@ public static class GameConfigProvider
         {
             if (current == null)
             {
-                Debug.LogError("[GameConfigProvider] Game config not loaded. Returning empty config.");
-                current = new GameConfigData();
+                const string message = "[GameConfigProvider] Game config not loaded. Bootstrap must load config before access.";
+                Debug.LogError(message);
+                throw new InvalidOperationException(message);
             }
 
             return current;
