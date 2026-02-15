@@ -383,6 +383,7 @@ public sealed class MissionExpeditionService
         if (mission.assignedAdventurerUids == null)
             return deadUids;
 
+        var damageTargets = new List<AdventurerInstance>();
         for (int i = 0; i < mission.assignedAdventurerUids.Count; i++)
         {
             string uid = mission.assignedAdventurerUids[i];
@@ -391,22 +392,28 @@ public sealed class MissionExpeditionService
             if (adventurer.hp <= 0)
                 continue;
 
-            adventurer.hp = Mathf.Max(0, adventurer.hp - 1);
-            statService.MarkDirty(adventurer.uid);
-            result.damagedCount++;
-
-            var hpContext = new RuleContext
-            {
-                runState = runState,
-                missionUid = mission.uid,
-                adventurerUid = adventurer.uid,
-                hpDelta = -1
-            };
-            runAdventurerTrigger?.Invoke(adventurer.uid, RuleTriggerIds.OnHpChanged, hpContext);
-
-            if (adventurer.hp <= 0)
-                deadUids.Add(adventurer.uid);
+            damageTargets.Add(adventurer);
         }
+
+        if (damageTargets.Count == 0)
+            return deadUids;
+
+        AdventurerInstance damaged = damageTargets[UnityEngine.Random.Range(0, damageTargets.Count)];
+        damaged.hp = Mathf.Max(0, damaged.hp - 1);
+        statService.MarkDirty(damaged.uid);
+        result.damagedCount = 1;
+
+        var hpContext = new RuleContext
+        {
+            runState = runState,
+            missionUid = mission.uid,
+            adventurerUid = damaged.uid,
+            hpDelta = -1
+        };
+        runAdventurerTrigger?.Invoke(damaged.uid, RuleTriggerIds.OnHpChanged, hpContext);
+
+        if (damaged.hp <= 0)
+            deadUids.Add(damaged.uid);
 
         return deadUids;
     }
