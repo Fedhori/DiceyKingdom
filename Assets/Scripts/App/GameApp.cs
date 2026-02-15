@@ -77,39 +77,7 @@ public sealed class GameApp : MonoBehaviour
 
     void BuildServices()
     {
-        ResolveReferencesIfNeeded();
         var ui = new UIService(tooltip, modal, option, floatingText, toast);
         App = new AppServices(ui, audioManager, bgm, input, gameSpeed, particle, save, staticData, devCommand);
-    }
-
-    void ResolveReferencesIfNeeded()
-    {
-        if (tooltip == null)
-            tooltip = GetComponentInChildren<TooltipManager>(true);
-        if (modal == null)
-            modal = GetComponentInChildren<ModalManager>(true);
-        if (option == null)
-            option = GetComponentInChildren<OptionManager>(true);
-        if (floatingText == null)
-            floatingText = GetComponentInChildren<FloatingTextManager>(true);
-        if (toast == null)
-            toast = GetComponentInChildren<ToastManager>(true);
-
-        if (audioManager == null)
-            audioManager = GetComponentInChildren<AudioManager>(true);
-        if (bgm == null)
-            bgm = GetComponentInChildren<BgmManager>(true);
-        if (input == null)
-            input = GetComponentInChildren<InputManager>(true);
-        if (gameSpeed == null)
-            gameSpeed = GetComponentInChildren<GameSpeedManager>(true);
-        if (particle == null)
-            particle = GetComponentInChildren<ParticleManager>(true);
-        if (save == null)
-            save = GetComponentInChildren<SaveManager>(true);
-        if (staticData == null)
-            staticData = GetComponentInChildren<StaticDataManager>(true);
-        if (devCommand == null)
-            devCommand = GetComponentInChildren<DevCommandManager>(true);
     }
 }

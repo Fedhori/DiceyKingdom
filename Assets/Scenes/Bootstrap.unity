@@ -1362,7 +1362,6 @@ GameObject:
   - component: {fileID: 691435296}
   - component: {fileID: 691435295}
   - component: {fileID: 691435294}
-  - component: {fileID: 691435299}
   m_Layer: 5
   m_Name: ModalCanvas
   m_TagString: Untagged
@@ -1460,18 +1459,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &691435299
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 691435293}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad7c3455b986e334582c0e08be4051ec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PersistentCanvasOnLoad
 --- !u!1 &711700143
 GameObject:
   m_ObjectHideFlags: 0
@@ -1751,7 +1738,6 @@ GameObject:
   - component: {fileID: 798601533}
   - component: {fileID: 798601532}
   - component: {fileID: 798601531}
-  - component: {fileID: 798601536}
   m_Layer: 5
   m_Name: TooltipCanvas
   m_TagString: Untagged
@@ -1850,18 +1836,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &798601536
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 798601529}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad7c3455b986e334582c0e08be4051ec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PersistentCanvasOnLoad
 --- !u!1 &816402691
 GameObject:
   m_ObjectHideFlags: 0
@@ -2162,7 +2136,6 @@ GameObject:
   - component: {fileID: 1216740162}
   - component: {fileID: 1216740161}
   - component: {fileID: 1216740160}
-  - component: {fileID: 1216740165}
   m_Layer: 5
   m_Name: OptionCanavs
   m_TagString: Untagged
@@ -2261,18 +2234,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1216740165
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1216740158}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad7c3455b986e334582c0e08be4051ec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PersistentCanvasOnLoad
 --- !u!1 &1228544521
 GameObject:
   m_ObjectHideFlags: 0
@@ -3288,19 +3249,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a3654d03a510c94ea70aab5ada9682a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameApp
-  tooltip: {fileID: 0}
-  modal: {fileID: 0}
+  tooltip: {fileID: 107094521}
+  modal: {fileID: 1419448663}
   option: {fileID: 0}
-  floatingText: {fileID: 0}
-  toast: {fileID: 0}
-  audioManager: {fileID: 0}
-  bgm: {fileID: 0}
-  input: {fileID: 0}
+  floatingText: {fileID: 2000097298}
+  toast: {fileID: 1017751264}
+  audioManager: {fileID: 784719081}
+  bgm: {fileID: 296615733}
+  input: {fileID: 169657405}
   gameSpeed: {fileID: 0}
   particle: {fileID: 0}
-  save: {fileID: 0}
-  staticData: {fileID: 0}
-  devCommand: {fileID: 0}
+  save: {fileID: 1343649119}
+  staticData: {fileID: 172167393}
+  devCommand: {fileID: 1210692429}
 --- !u!1 &1800521311
 GameObject:
   m_ObjectHideFlags: 0
