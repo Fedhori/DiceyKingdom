@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 
+/// <summary>
+/// Core class that defines save validation error responsibilities.
+/// </summary>
 public sealed class SaveValidationError
 {
     public string FieldPath { get; }
@@ -18,6 +21,9 @@ public sealed class SaveValidationError
     }
 }
 
+/// <summary>
+/// Carries save validation operation result data.
+/// </summary>
 public sealed class SaveValidationResult
 {
     readonly List<SaveValidationError> errors = new();
@@ -30,6 +36,9 @@ public sealed class SaveValidationResult
     }
 }
 
+/// <summary>
+/// Static helper class for save validator related operations.
+/// </summary>
 public static class SaveValidator
 {
     public static SaveValidationResult Validate(SaveData data)
@@ -85,3 +94,4 @@ public static class SaveValidator
         return value.ToString();
     }
 }
+

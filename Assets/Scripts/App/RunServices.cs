@@ -1,9 +1,21 @@
 using Newtonsoft.Json;
 
+/// <summary>
+/// Owns per-run domain services, mutates RunState through public APIs, and syncs UI observables.
+/// </summary>
 public sealed class RunServices : System.IDisposable
 {
     public RunState CurrentRunState { get; private set; } = new();
     public GameSceneRefs SceneRefs { get; }
+    public IReadOnlyObservableValue<int> Gold => gold;
+    public IReadOnlyObservableValue<int> Stability => stability;
+    public IReadOnlyObservableValue<int> StabilityMax => stabilityMax;
+    public IReadOnlyObservableValue<int> Turn => turn;
+    public IReadOnlyObservableValue<int> BarracksCapacity => barracksCapacity;
+    public IReadOnlyObservableValue<int> CandidatesCount => candidatesCount;
+    public IReadOnlyObservableValue<int> AdventurersCount => adventurersCount;
+    public IReadOnlyObservableValue<int> MissionsCount => missionsCount;
+    public IReadOnlyObservableValue<int> UiRevision => uiRevision;
 
     StatService statService;
     ModifierService modifierService;
@@ -11,17 +23,34 @@ public sealed class RunServices : System.IDisposable
     IRuleEffectApplier ruleEffectApplier;
     MissionExpeditionService missionExpeditionService;
     TurnLoopService turnLoopService;
+    readonly ObservableValue<int> gold = new();
+    readonly ObservableValue<int> stability = new();
+    readonly ObservableValue<int> stabilityMax = new();
+    readonly ObservableValue<int> turn = new();
+    readonly ObservableValue<int> barracksCapacity = new();
+    readonly ObservableValue<int> candidatesCount = new();
+    readonly ObservableValue<int> adventurersCount = new();
+    readonly ObservableValue<int> missionsCount = new();
+    readonly ObservableValue<int> uiRevision = new();
 
     public RunServices(GameSceneRefs sceneRefs = null)
     {
         SceneRefs = sceneRefs;
         InitializeServices();
+        SyncUiBindingsFromRunState();
     }
 
     public void Dispose()
     {
         statService?.ClearCache();
+        ClearUiBindingListeners();
         CurrentRunState = new RunState();
+        SyncUiBindingsFromRunState();
+    }
+
+    public void NotifyStatePossiblyChanged()
+    {
+        SyncUiBindingsFromRunState(forceRevision: true);
     }
 
     public RunState CreateNewRunState()
@@ -34,6 +63,7 @@ public sealed class RunServices : System.IDisposable
 
         CurrentRunState = runState;
         statService.ClearCache();
+        SyncUiBindingsFromRunState(forceRevision: true);
         return CurrentRunState;
     }
 
@@ -41,6 +71,7 @@ public sealed class RunServices : System.IDisposable
     {
         CurrentRunState = runState ?? new RunState();
         statService.ClearCache();
+        SyncUiBindingsFromRunState(forceRevision: true);
     }
 
     public string ExportRunStateJson(bool prettyPrint = false)
@@ -61,17 +92,24 @@ public sealed class RunServices : System.IDisposable
 
         CurrentRunState = parsed;
         statService.ClearCache();
+        SyncUiBindingsFromRunState(forceRevision: true);
         return true;
     }
 
     public RuleExecutionSummary RunMissionTrigger(string missionUid, string trigger, RuleContext context = null, IRuleEffectApplier effectApplier = null)
     {
-        return ExecuteMissionTriggerInternal(missionUid, trigger, context, effectApplier);
+        RuleExecutionSummary summary = ExecuteMissionTriggerInternal(missionUid, trigger, context, effectApplier);
+        bool changed = summary != null && (summary.appliedEffectCount > 0 || summary.executedRuleCount > 0);
+        SyncUiBindingsFromRunState(forceRevision: changed);
+        return summary;
     }
 
     public RuleExecutionSummary RunAdventurerTrigger(string adventurerUid, string trigger, RuleContext context = null, IRuleEffectApplier effectApplier = null)
     {
-        return ExecuteAdventurerTriggerInternal(adventurerUid, trigger, context, effectApplier);
+        RuleExecutionSummary summary = ExecuteAdventurerTriggerInternal(adventurerUid, trigger, context, effectApplier);
+        bool changed = summary != null && (summary.appliedEffectCount > 0 || summary.executedRuleCount > 0);
+        SyncUiBindingsFromRunState(forceRevision: changed);
+        return summary;
     }
 
     public int GetAdventurerStat(string adventurerUid, StatId statId)
@@ -86,37 +124,60 @@ public sealed class RunServices : System.IDisposable
 
     public void AddOrMergeModifier(ModifierInstance modifier)
     {
+        if (modifier == null)
+            return;
+
         modifierService.AddOrMergeModifier(CurrentRunState, modifier);
+        SyncUiBindingsFromRunState(forceRevision: true);
     }
 
     public int RemoveMissionLayerModifiers(string missionUid)
     {
-        return modifierService.RemoveMissionLayerModifiers(CurrentRunState, missionUid);
+        int removed = modifierService.RemoveMissionLayerModifiers(CurrentRunState, missionUid);
+        if (removed > 0)
+            SyncUiBindingsFromRunState(forceRevision: true);
+        return removed;
     }
 
     public bool TryAssignAdventurerToMission(string adventurerUid, string missionUid)
     {
-        return missionExpeditionService.TryAssignAdventurerToMission(CurrentRunState, adventurerUid, missionUid);
+        bool assigned = missionExpeditionService.TryAssignAdventurerToMission(CurrentRunState, adventurerUid, missionUid);
+        if (assigned)
+            SyncUiBindingsFromRunState(forceRevision: true);
+        return assigned;
     }
 
     public bool TryUnassignAdventurer(string adventurerUid)
     {
-        return missionExpeditionService.TryUnassignAdventurer(CurrentRunState, adventurerUid);
+        bool unassigned = missionExpeditionService.TryUnassignAdventurer(CurrentRunState, adventurerUid);
+        if (unassigned)
+            SyncUiBindingsFromRunState(forceRevision: true);
+        return unassigned;
     }
 
     public AbilityTestResolveResult ResolveMissionAbilityTestOnce(string missionUid)
     {
-        return missionExpeditionService.ResolveAbilityTestOnce(CurrentRunState, missionUid);
+        AbilityTestResolveResult result = missionExpeditionService.ResolveAbilityTestOnce(CurrentRunState, missionUid);
+        if (result != null && result.outcome != AbilityTestResolveOutcome.Invalid)
+            SyncUiBindingsFromRunState(forceRevision: true);
+        return result;
     }
 
     public bool FailMissionExpedition(string missionUid)
     {
-        return missionExpeditionService.FailExpedition(CurrentRunState, missionUid);
+        bool failed = missionExpeditionService.FailExpedition(CurrentRunState, missionUid);
+        if (failed)
+            SyncUiBindingsFromRunState(forceRevision: true);
+        return failed;
     }
 
     public int AdvanceMissionDeadlinesAndRemoveFailedMissions()
     {
-        return missionExpeditionService.AdvanceMissionDeadlines(CurrentRunState);
+        bool hadMissions = CurrentRunState?.missions != null && CurrentRunState.missions.Count > 0;
+        int removed = missionExpeditionService.AdvanceMissionDeadlines(CurrentRunState);
+        if (hadMissions)
+            SyncUiBindingsFromRunState(forceRevision: true);
+        return removed;
     }
 
     public bool InitializeRunLoop()
@@ -124,22 +185,34 @@ public sealed class RunServices : System.IDisposable
         if (CurrentRunState == null || string.IsNullOrWhiteSpace(CurrentRunState.uid))
             CreateNewRunState();
 
-        return turnLoopService.InitializeRunLoop(CurrentRunState, GameConfigProvider.Current);
+        bool initialized = turnLoopService.InitializeRunLoop(CurrentRunState, GameConfigProvider.Current);
+        if (initialized)
+            SyncUiBindingsFromRunState(forceRevision: true);
+        return initialized;
     }
 
     public bool AdvanceTurn()
     {
-        return turnLoopService.AdvanceTurn(CurrentRunState, GameConfigProvider.Current);
+        bool advanced = turnLoopService.AdvanceTurn(CurrentRunState, GameConfigProvider.Current);
+        if (advanced)
+            SyncUiBindingsFromRunState(forceRevision: true);
+        return advanced;
     }
 
     public bool TryRecruitCandidate(string candidateUid)
     {
-        return turnLoopService.TryRecruitCandidate(CurrentRunState, candidateUid);
+        bool recruited = turnLoopService.TryRecruitCandidate(CurrentRunState, candidateUid);
+        if (recruited)
+            SyncUiBindingsFromRunState(forceRevision: true);
+        return recruited;
     }
 
     public bool SetTraitLocked(string traitUid, bool isLocked)
     {
-        return traitService.SetTraitLocked(CurrentRunState, traitUid, isLocked);
+        bool locked = traitService.SetTraitLocked(CurrentRunState, traitUid, isLocked);
+        if (locked)
+            SyncUiBindingsFromRunState(forceRevision: true);
+        return locked;
     }
 
     void InitializeServices()
@@ -173,4 +246,47 @@ public sealed class RunServices : System.IDisposable
         effectiveContext.adventurerUid = adventurerUid ?? string.Empty;
         return RuleRunner.RunTraitRulesByAdventurer(CurrentRunState, adventurerUid, trigger, effectiveContext, effectApplier ?? ruleEffectApplier);
     }
+
+    void SyncUiBindingsFromRunState(bool forceRevision = false)
+    {
+        RunState state = CurrentRunState ?? new RunState();
+        bool changed =
+            SetObservableValue(gold, state.gold) |
+            SetObservableValue(stability, state.stability) |
+            SetObservableValue(stabilityMax, state.stabilityMax) |
+            SetObservableValue(turn, state.turn) |
+            SetObservableValue(barracksCapacity, state.barracksCapacity) |
+            SetObservableValue(candidatesCount, state.candidates?.Count ?? 0) |
+            SetObservableValue(adventurersCount, state.adventurers?.Count ?? 0) |
+            SetObservableValue(missionsCount, state.missions?.Count ?? 0);
+
+        if (forceRevision || changed)
+            uiRevision.Value = uiRevision.Value + 1;
+    }
+
+    static bool SetObservableValue(ObservableValue<int> observable, int nextValue)
+    {
+        if (observable == null)
+            return false;
+
+        if (observable.Value == nextValue)
+            return false;
+
+        observable.Value = nextValue;
+        return true;
+    }
+
+    void ClearUiBindingListeners()
+    {
+        gold.ClearListeners();
+        stability.ClearListeners();
+        stabilityMax.ClearListeners();
+        turn.ClearListeners();
+        barracksCapacity.ClearListeners();
+        candidatesCount.ClearListeners();
+        adventurersCount.ClearListeners();
+        missionsCount.ClearListeners();
+        uiRevision.ClearListeners();
+    }
 }
+

@@ -3,6 +3,9 @@ using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
 
 [DefaultExecutionOrder(-20000)]
+/// <summary>
+/// Bootstraps startup by loading core data, activating app scope, and entering the game scene.
+/// </summary>
 public class Bootstrap : MonoBehaviour
 {
     [SerializeField] GameObject managersRoot;
@@ -13,7 +16,7 @@ public class Bootstrap : MonoBehaviour
         {
             Application.targetFrameRate = 60;
 
-            // 0) 혹시 이미 켜져 있으면 꺼두기(중복 대비)
+            // 0) ?뱀떆 ?대? 耳쒖졇 ?덉쑝硫?爰쇰몢湲?以묐났 ?鍮?
             if (managersRoot && managersRoot.activeSelf)
                 managersRoot.SetActive(false);
 
@@ -36,8 +39,7 @@ public class Bootstrap : MonoBehaviour
             // 3) StaticDataLoader
             StaticDataLoader.LoadAll();
 
-            // 4) managersRoot 활성화
-            if (managersRoot == null)
+            // 4) managersRoot ?쒖꽦??            if (managersRoot == null)
             {
                 Debug.LogError("[Bootstrap] managersRoot is missing. Bootstrap halted.");
                 return;
@@ -58,8 +60,7 @@ public class Bootstrap : MonoBehaviour
             // 5) SaveWebGlSync
             await SaveWebGlSync.SyncFromPersistentAsync();
 
-            // 6) 다음 씬으로
-            await SceneManager.LoadSceneAsync(SceneIds.GameScene).AsTask();
+            // 6) ?ㅼ쓬 ?ъ쑝濡?            await SceneManager.LoadSceneAsync(SceneIds.GameScene).AsTask();
         }
         catch (System.Exception ex)
         {
@@ -68,6 +69,9 @@ public class Bootstrap : MonoBehaviour
     }
 }
 
+/// <summary>
+/// Provides async helpers for awaiting Unity AsyncOperation instances.
+/// </summary>
 public static class AsyncOperationExt
 {
     public static async Task AsTask(this AsyncOperation op)
@@ -75,3 +79,4 @@ public static class AsyncOperationExt
         while (!op.isDone) await Task.Yield();
     }
 }
+

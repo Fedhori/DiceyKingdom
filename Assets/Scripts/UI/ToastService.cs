@@ -4,6 +4,9 @@ using UnityEngine.Localization.Components;
 
 namespace UI
 {
+    /// <summary>
+    /// Unity component that provides toast runtime behavior.
+    /// </summary>
     public class ToastService : MonoBehaviour
     {
         [SerializeField] private Canvas canvas;
@@ -71,4 +74,5 @@ namespace UI
         }
     }
 }
+
 

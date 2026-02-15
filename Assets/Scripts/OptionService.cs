@@ -3,6 +3,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
+/// <summary>
+/// Unity component that provides option runtime behavior.
+/// </summary>
 public class OptionService : MonoBehaviour
 {
     public GameObject optionOverlay;
@@ -244,4 +247,5 @@ public class OptionService : MonoBehaviour
         return valid;
     }
 }
+
 

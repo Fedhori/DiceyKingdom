@@ -5,6 +5,9 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 
+/// <summary>
+/// Static helper class for save logger related operations.
+/// </summary>
 public static class SaveLogger
 {
     public static string LogFilePath =>
@@ -78,3 +81,4 @@ public static class SaveLogger
         return DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
     }
 }
+

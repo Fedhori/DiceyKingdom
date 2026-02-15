@@ -3,14 +3,17 @@ using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Graphic))]
+/// <summary>
+/// Unity component that manages ui blink runtime behavior.
+/// </summary>
 public sealed class UiBlink : MonoBehaviour
 {
     [SerializeField] float periodSeconds = 0.5f;
 
-    [Tooltip("baseColor alpha에 곱해지는 최소 배수")]
+    [Tooltip("baseColor alpha??怨깊빐吏??理쒖냼 諛곗닔")]
     [SerializeField] float minAlphaMultiplier = 0.6f;
 
-    [Tooltip("baseColor alpha에 곱해지는 최대 배수")]
+    [Tooltip("baseColor alpha??怨깊빐吏??理쒕? 諛곗닔")]
     [SerializeField] float maxAlphaMultiplier = 1.0f;
 
     Graphic graphic;
@@ -66,3 +69,4 @@ public sealed class UiBlink : MonoBehaviour
         graphic.color = c;
     }
 }
+

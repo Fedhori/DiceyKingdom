@@ -1,6 +1,9 @@
 using UnityEngine;
 
 [DefaultExecutionOrder(-9000)]
+/// <summary>
+/// Scene run entrypoint that starts a run once and ends only the run instance it started.
+/// </summary>
 public sealed class GameSceneInstaller : MonoBehaviour
 {
     [SerializeField] GameSceneRefs sceneRefs = new();
@@ -37,3 +40,4 @@ public sealed class GameSceneInstaller : MonoBehaviour
             app.EndRun();
     }
 }
+

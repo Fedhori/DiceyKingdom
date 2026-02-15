@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Unity component that provides floating text runtime behavior.
+/// </summary>
 public class FloatingTextService : MonoBehaviour
 {
     [Header("Prefab & Parents")]
@@ -150,4 +153,5 @@ public class FloatingTextService : MonoBehaviour
         return valid;
     }
 }
+
 

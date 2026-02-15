@@ -1,6 +1,9 @@
 using System;
 
 [Serializable]
+/// <summary>
+/// Carries rule execution context data.
+/// </summary>
 public sealed class RuleContext
 {
     public RunState runState;
@@ -22,6 +25,9 @@ public sealed class RuleContext
     }
 }
 
+/// <summary>
+/// Carries rule effect apply execution context data.
+/// </summary>
 public sealed class RuleEffectApplyContext
 {
     public RunState runState;
@@ -34,6 +40,9 @@ public sealed class RuleEffectApplyContext
     public int effectIndex;
 }
 
+/// <summary>
+/// Core class that defines rule execution summary responsibilities.
+/// </summary>
 public sealed class RuleExecutionSummary
 {
     public int matchedRuleCount;
@@ -50,3 +59,4 @@ public sealed class RuleExecutionSummary
         appliedEffectCount += other.appliedEffectCount;
     }
 }
+

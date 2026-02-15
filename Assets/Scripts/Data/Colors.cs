@@ -1,8 +1,14 @@
 using UnityEngine;
 
+/// <summary>
+/// Static helper class for colors related operations.
+/// </summary>
 public static class Colors
 {
     // Primitive palette: dark fantasy + serious tone.
+    /// <summary>
+    /// Static helper class for primitive related operations.
+    /// </summary>
     public static class Primitive
     {
         public static readonly Color32 Abyss950 = new Color32(0x0B, 0x0D, 0x12, 0xFF); // #0B0D12
@@ -24,6 +30,9 @@ public static class Colors
     }
 
     // Semantic tokens: always mapped from Primitive.
+    /// <summary>
+    /// Static helper class for semantic related operations.
+    /// </summary>
     public static class Semantic
     {
         public static readonly Color32 TextPrimary = Primitive.Bone050;
@@ -56,3 +65,4 @@ public static class Colors
         public static readonly Color32 DiceBackgroundInactive = new Color32(0xC3, 0xCB, 0xD9, 0xF2);
     }
 }
+

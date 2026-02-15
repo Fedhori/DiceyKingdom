@@ -3,9 +3,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 [DisallowMultipleComponent]
+/// <summary>
+/// Unity component that manages hover scale runtime behavior.
+/// </summary>
 public sealed class HoverScale : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    [SerializeField] private RectTransform target;   // 비워두면 자기 자신
+    [SerializeField] private RectTransform target;   // 鍮꾩썙?먮㈃ ?먭린 ?먯떊
     [SerializeField] private float hoverScale = 1.05f;
     [SerializeField] private float duration = 0.08f;
 
@@ -67,10 +70,10 @@ public sealed class HoverScale : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
         while (elapsed < duration)
         {
-            elapsed += Time.unscaledDeltaTime;  // 일시정지 상태에서도 동작하게(unscaled time)
+            elapsed += Time.unscaledDeltaTime;  // ?쇱떆?뺤? ?곹깭?먯꽌???숈옉?섍쾶(unscaled time)
             float t = Mathf.Clamp01(elapsed / duration);
 
-            // 부드러운 보간(smooth interpolation)
+            // 遺?쒕윭??蹂닿컙(smooth interpolation)
             t = t * t * (3f - 2f * t); // smoothstep
 
             target.localScale = Vector3.Lerp(from, to, t);
@@ -81,3 +84,4 @@ public sealed class HoverScale : MonoBehaviour, IPointerEnterHandler, IPointerEx
         scaleRoutine = null;
     }
 }
+

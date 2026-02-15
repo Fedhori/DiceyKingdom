@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 
+/// <summary>
+/// Computes effective stat values from base data and active modifiers.
+/// </summary>
 public sealed class StatService
 {
     readonly HashSet<string> dirtyOwnerUids = new(StringComparer.Ordinal);
@@ -130,3 +133,4 @@ public sealed class StatService
         return false;
     }
 }
+

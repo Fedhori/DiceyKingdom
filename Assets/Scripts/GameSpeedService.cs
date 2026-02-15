@@ -3,13 +3,16 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Unity component that provides game speed runtime behavior.
+/// </summary>
 public class GameSpeedService : MonoBehaviour
 {
     [Header("UI")]
-    [SerializeField] private Button pauseToggleButton;    // 클릭하는 버튼
-    [SerializeField] private Image pauseToggleIcon;       // 아이콘을 바꿀 Image
-    [SerializeField] private Sprite runningIconSprite;    // "정지 아님" 상태 아이콘
-    [SerializeField] private Sprite pausedIconSprite;     // "정지" 상태 아이콘
+    [SerializeField] private Button pauseToggleButton;    // ?대┃?섎뒗 踰꾪듉
+    [SerializeField] private Image pauseToggleIcon;       // ?꾩씠肄섏쓣 諛붽? Image
+    [SerializeField] private Sprite runningIconSprite;    // "?뺤? ?꾨떂" ?곹깭 ?꾩씠肄?
+    [SerializeField] private Sprite pausedIconSprite;     // "?뺤?" ?곹깭 ?꾩씠肄?
 
     private bool forcePaused;
     public bool ForcePaused
@@ -18,7 +21,7 @@ public class GameSpeedService : MonoBehaviour
         set
         {
             forcePaused = value;
-            IsPaused = forcePaused;   // 강제 정지 시 항상 멈춘 상태 유지
+            IsPaused = forcePaused;   // 媛뺤젣 ?뺤? ????긽 硫덉텣 ?곹깭 ?좎?
         }
     }
 
@@ -45,7 +48,7 @@ public class GameSpeedService : MonoBehaviour
         {
             if (ForcePaused)
             {
-                // 강제 정지 중이면 속도 변경 요청은 무시하고 항상 정지
+                // 媛뺤젣 ?뺤? 以묒씠硫??띾룄 蹂寃??붿껌? 臾댁떆?섍퀬 ??긽 ?뺤?
                 isPaused = true;
             }
             else
@@ -76,8 +79,8 @@ public class GameSpeedService : MonoBehaviour
         UpdatePauseButtonVisual();
     }
 
-    // UI 버튼에서 호출할 메서드
-    // 정지 <-> 1배속 토글 (2배, 4배는 개발자만 별도 경로로 사용)
+    // UI 踰꾪듉?먯꽌 ?몄텧??硫붿꽌??
+    // ?뺤? <-> 1諛곗냽 ?좉? (2諛? 4諛곕뒗 媛쒕컻?먮쭔 蹂꾨룄 寃쎈줈濡??ъ슜)
     public void TogglePauseOrNormalSpeed()
     {
         if (ForcePaused)
@@ -85,22 +88,22 @@ public class GameSpeedService : MonoBehaviour
 
         if (IsPaused)
         {
-            // 정지 상태였다면 1배속으로 재생
+            // ?뺤? ?곹깭??ㅻ㈃ 1諛곗냽?쇰줈 ?ъ깮
             GameSpeed = 1f;
         }
         else
         {
-            // 재생 상태였다면 정지
+            // ?ъ깮 ?곹깭??ㅻ㈃ ?뺤?
             IsPaused = true;
         }
     }
 
-    // 버튼 상태/아이콘 갱신
+    // 踰꾪듉 ?곹깭/?꾩씠肄?媛깆떊
     private void UpdatePauseButtonVisual()
     {
         if (pauseToggleButton != null)
         {
-            // ForcePaused면 버튼은 비활성화(누를 수 없음)만 하고, 숨기지는 않음
+            // ForcePaused硫?踰꾪듉? 鍮꾪솢?깊솕(?꾨? ???놁쓬)留??섍퀬, ?④린吏???딆쓬
             pauseToggleButton.interactable = !ForcePaused;
         }
 
@@ -140,4 +143,5 @@ public class GameSpeedService : MonoBehaviour
         Time.fixedDeltaTime = BaseFixedDeltaTime;
     }
 }
+
 

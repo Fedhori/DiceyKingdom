@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 #endif
 
+/// <summary>
+/// Synchronizes save data between persistent storage and browser storage on WebGL.
+/// </summary>
 public static class SaveWebGlSync
 {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -45,3 +48,4 @@ public static class SaveWebGlSync
 #endif
     }
 }
+

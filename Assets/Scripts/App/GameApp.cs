@@ -3,6 +3,9 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 [DefaultExecutionOrder(-10000)]
+/// <summary>
+/// App-scope singleton that owns AppServices and the run lifecycle (BeginRun/EndRun).
+/// </summary>
 public sealed class GameApp : MonoBehaviour
 {
     public static GameApp I { get; private set; }
@@ -146,4 +149,5 @@ public sealed class GameApp : MonoBehaviour
         return valid;
     }
 }
+
 

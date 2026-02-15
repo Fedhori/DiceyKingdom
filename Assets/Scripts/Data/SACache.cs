@@ -8,16 +8,22 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Security.Cryptography;
 
+/// <summary>
+/// Core class that defines sa responsibilities.
+/// </summary>
 public class SaOptions
 {
-    public bool forceRefresh = false;            // 강제 덮어쓰기
+    public bool forceRefresh = false;            // 媛뺤젣 ??뼱?곌린
     public bool refreshIfAppVersionChanged = true;
-    public bool verifyHash = true;               // 해시 검증 후 불일치시 갱신
-    public bool cleanStale = false;              // persistent에 불필요 파일 삭제
+    public bool verifyHash = true;               // ?댁떆 寃利???遺덉씪移섏떆 媛깆떊
+    public bool cleanStale = false;              // persistent??遺덊븘???뚯씪 ??젣
 }
 
 [Serializable] class SaState { public string appVersion; public string manifestHash; }
 
+/// <summary>
+/// Caches StreamingAssets payloads into persistent storage for cross-platform runtime access.
+/// </summary>
 public static class SaCache
 {
     [Serializable] class Manifest { public string appVersion; public Entry[] files; }
@@ -26,13 +32,12 @@ public static class SaCache
     static bool inited;
     static Manifest manifest;
 
-    // --- Ready 게이트 ---
+    // --- Ready 寃뚯씠??---
     static Task initTask;
     static int initStarted;
     static TaskCompletionSource<bool> readyTcs = CreateReadyTcs();
 
-    public static Task Ready => readyTcs.Task; // 외부에서 기다릴 포인트
-
+    public static Task Ready => readyTcs.Task; // ?몃??먯꽌 湲곕떎由??ъ씤??
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStatic()
     {
@@ -43,7 +48,7 @@ public static class SaCache
         readyTcs = CreateReadyTcs();
     }
 
-    // 앱 시작 시 1회 호출(중복 안전)
+    // ???쒖옉 ??1???몄텧(以묐났 ?덉쟾)
     public static Task InitAsync(SaOptions opt, Action<float> onProgress = null)
     {
         if (opt == null)
@@ -53,12 +58,12 @@ public static class SaCache
             if (Interlocked.Exchange(ref initStarted, 1) == 0)
                 initTask = InitImplAsync(opt, onProgress);
 
-        // 이미 시작된 경우: 완료되면 onProgress=1.0 한 번 호출(선택)
+        // ?대? ?쒖옉??寃쎌슦: ?꾨즺?섎㈃ onProgress=1.0 ??踰??몄텧(?좏깮)
         if (inited) onProgress?.Invoke(1f);
         return initTask ?? Task.CompletedTask;
     }
 
-    // 항상 persistent 경로 반환 (부모 폴더는 여기서 생성)
+    // ??긽 persistent 寃쎈줈 諛섑솚 (遺紐??대뜑???ш린???앹꽦)
     public static string Path(string relativePath)
     {
         string path = "";
@@ -86,7 +91,7 @@ public static class SaCache
         return File.Exists(Path(relativePath));
     }
 
-    // ---- 비동기 API: Ready 대기 + 없으면 즉시 복사 ----
+    // ---- 鍮꾨룞湲?API: Ready ?湲?+ ?놁쑝硫?利됱떆 蹂듭궗 ----
     public static async Task<string> ReadTextAsync(string relativePath)
     {
         await Ready;
@@ -109,13 +114,13 @@ public static class SaCache
         return File.ReadAllBytes(dst);
     }
 
-    // ---------- 내부 구현 ----------
+    // ---------- ?대? 援ы쁽 ----------
 
     static async Task InitImplAsync(SaOptions opt, Action<float> onProgress)
     {
         try
         {
-            // 1) 매니페스트 읽기
+            // 1) 留ㅻ땲?섏뒪???쎄린
             var manifestJson = await LoadSaAsync("sa_manifest.json");
             manifest = JsonConvert.DeserializeObject<Manifest>(manifestJson);
             if (manifest?.files == null || manifest.files.Length == 0)
@@ -126,14 +131,14 @@ public static class SaCache
                 return;
             }
 
-            // 2) state 비교 (버전/매니페스트 해시)
+            // 2) state 鍮꾧탳 (踰꾩쟾/留ㅻ땲?섏뒪???댁떆)
             var state = LoadState();
             var manifestHash = MD5String(manifestJson);
             bool needRefresh = opt.forceRefresh
                 || (opt.refreshIfAppVersionChanged && state?.appVersion != Application.version)
                 || (state?.manifestHash != manifestHash);
 
-            // 3) 복사
+            // 3) 蹂듭궗
             float total = Math.Max(1, manifest.files.Length);
             for (int i = 0; i < manifest.files.Length; i++)
             {
@@ -155,20 +160,20 @@ public static class SaCache
                 onProgress?.Invoke((i + 1) / total);
             }
 
-            // 4) 필요없어진 파일 정리(옵션)
+            // 4) ?꾩슂?놁뼱吏??뚯씪 ?뺣━(?듭뀡)
             if (opt.cleanStale) CleanStaleFiles();
 
-            // 5) state 저장
+            // 5) state ???
             SaveState(new SaState { appVersion = Application.version, manifestHash = manifestHash });
 
             inited = true;
             onProgress?.Invoke(1f);
 
-            readyTcs.TrySetResult(true); // Ready 통지
+            readyTcs.TrySetResult(true); // Ready ?듭?
         }
         catch (Exception ex)
         {
-            readyTcs.TrySetException(ex); // 실패 전파
+            readyTcs.TrySetException(ex); // ?ㅽ뙣 ?꾪뙆
             throw;
         }
     }
@@ -180,7 +185,7 @@ public static class SaCache
 
     static async Task CopyOneAsync(Entry e)
     {
-        // 에디터/시스템 파일 스킵(안전장치)
+        // ?먮뵒???쒖뒪???뚯씪 ?ㅽ궢(?덉쟾?μ튂)
         var lower = e.path.ToLowerInvariant();
         if (lower.EndsWith(".meta") || lower.EndsWith(".ds_store") || lower.EndsWith("thumbs.db"))
         {
@@ -193,7 +198,7 @@ public static class SaCache
         File.WriteAllBytes(dst, bytes);
     }
 
-    // string 오버로드(즉시 복사용)
+    // string ?ㅻ쾭濡쒕뱶(利됱떆 蹂듭궗??
     static async Task CopyOneAsync(string relativePath)
     {
         var e = new Entry { path = relativePath };
@@ -207,7 +212,7 @@ public static class SaCache
         foreach (var f in Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
         {
             var norm = f.Replace("\\", "/");
-            if (norm.EndsWith("/sa_state.json")) continue; // 상태 파일 제외
+            if (norm.EndsWith("/sa_state.json")) continue; // ?곹깭 ?뚯씪 ?쒖쇅
             if (!white.Contains(norm)) try { File.Delete(f); } catch { }
         }
     }
@@ -266,3 +271,4 @@ public static class SaCache
         return string.Concat(hash.Select(b => b.ToString("x2")));
     }
 }
+

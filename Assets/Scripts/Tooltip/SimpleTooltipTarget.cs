@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+/// <summary>
+/// Unity component that manages simple tooltip target runtime behavior.
+/// </summary>
 public sealed class SimpleTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("Tooltip Text (Localization)")]
@@ -75,3 +78,4 @@ public sealed class SimpleTooltipTarget : MonoBehaviour, IPointerEnterHandler, I
         manager.EndHover(this);
     }
 }
+

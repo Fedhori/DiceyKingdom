@@ -1,6 +1,9 @@
 using System;
 using UnityEngine;
 
+/// <summary>
+/// Runtime bridge that saves and loads RunState payload json through SaveService.
+/// </summary>
 public sealed class SaveRuntimeService : MonoBehaviour
 {
     public bool Save(string payloadJson)
@@ -33,4 +36,5 @@ public sealed class SaveRuntimeService : MonoBehaviour
         return true;
     }
 }
+
 

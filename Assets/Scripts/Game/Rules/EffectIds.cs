@@ -1,3 +1,6 @@
+/// <summary>
+/// Static helper class for effect related operations.
+/// </summary>
 public static class EffectIds
 {
     public const string AddGold = "addGold";
@@ -18,3 +21,4 @@ public static class EffectIds
     public const string AddAbilityAssignedParty = "addAbilityAssignedParty";
     public const string AddAbilityAllAdventurers = "addAbilityAllAdventurers";
 }
+

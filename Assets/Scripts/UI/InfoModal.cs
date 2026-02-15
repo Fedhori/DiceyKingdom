@@ -5,6 +5,9 @@ using UnityEngine.Localization.Components;
 
 // InfoModal.cs - This is a View component.
 // The ModalService will be responsible for controlling its content.
+/// <summary>
+/// Unity component that manages info modal runtime behavior.
+/// </summary>
 public class InfoModal : MonoBehaviour
 {
     // Expose these so the Instance (ModalService) can access them
@@ -46,4 +49,5 @@ public class InfoModal : MonoBehaviour
         onConfirmAction?.Invoke();
     }
 }
+
 

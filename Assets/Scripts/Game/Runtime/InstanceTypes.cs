@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 
 [Serializable]
+/// <summary>
+/// Serializable run snapshot that stores gameplay state for save/load and runtime progression.
+/// </summary>
 public sealed class RunState
 {
     public string uid = string.Empty;
@@ -23,6 +26,9 @@ public sealed class RunState
 }
 
 [Serializable]
+/// <summary>
+/// Runtime instance model for adventurer state.
+/// </summary>
 public sealed class AdventurerInstance
 {
     public string uid = string.Empty;
@@ -55,6 +61,9 @@ public sealed class AdventurerInstance
 }
 
 [Serializable]
+/// <summary>
+/// Runtime instance model for mission state.
+/// </summary>
 public sealed class MissionInstance
 {
     public string uid = string.Empty;
@@ -70,6 +79,9 @@ public sealed class MissionInstance
 }
 
 [Serializable]
+/// <summary>
+/// Runtime instance model for ability test progress state.
+/// </summary>
 public sealed class AbilityTestProgressInstance
 {
     public int testIndex;
@@ -78,6 +90,9 @@ public sealed class AbilityTestProgressInstance
 }
 
 [Serializable]
+/// <summary>
+/// Runtime instance model for trait state.
+/// </summary>
 public sealed class TraitInstance
 {
     public string uid = string.Empty;
@@ -87,6 +102,9 @@ public sealed class TraitInstance
 }
 
 [Serializable]
+/// <summary>
+/// Runtime instance model for modifier state.
+/// </summary>
 public sealed class ModifierInstance
 {
     public string uid = string.Empty;
@@ -136,3 +154,4 @@ public enum ModifierStackPolicy
     Replace = 1,
     IgnoreIfExists = 2
 }
+

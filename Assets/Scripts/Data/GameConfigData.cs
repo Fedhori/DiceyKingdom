@@ -1,6 +1,9 @@
 using System;
 
 [Serializable]
+/// <summary>
+/// Data model for game config values.
+/// </summary>
 public sealed class GameConfigData
 {
     // Recruitment & capacity
@@ -25,3 +28,4 @@ public sealed class GameConfigData
     public float traitPositiveOnFailure;
     public float traitNegativeOnFailure;
 }
+

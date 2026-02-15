@@ -12,6 +12,9 @@ public enum AbilityTestResolveOutcome
     ExpeditionFailedAllDead = 5
 }
 
+/// <summary>
+/// Carries ability test resolve operation result data.
+/// </summary>
 public sealed class AbilityTestResolveResult
 {
     public AbilityTestResolveOutcome outcome = AbilityTestResolveOutcome.Invalid;
@@ -27,6 +30,9 @@ public sealed class AbilityTestResolveResult
     public List<TraitRollResultEntry> traitResults = new();
 }
 
+/// <summary>
+/// Handles mission party assignment, ability test resolution, and expedition outcomes.
+/// </summary>
 public sealed class MissionExpeditionService
 {
     readonly StatService statService;
@@ -600,3 +606,4 @@ public sealed class MissionExpeditionService
         return StaticDataLoader.Current.TryGetMissionDef(mission.missionId, out missionDef);
     }
 }
+

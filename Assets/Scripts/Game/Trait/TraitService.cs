@@ -10,6 +10,9 @@ public enum TraitRollOutcome
 }
 
 [Serializable]
+/// <summary>
+/// Core class that defines trait roll result entry responsibilities.
+/// </summary>
 public sealed class TraitRollResultEntry
 {
     public string adventurerUid = string.Empty;
@@ -18,6 +21,9 @@ public sealed class TraitRollResultEntry
     public string removedTraitId = string.Empty;
 }
 
+/// <summary>
+/// Applies trait lifecycle logic including roll, lock, and owner cleanup operations.
+/// </summary>
 public sealed class TraitService
 {
     readonly ModifierService modifierService;
@@ -307,3 +313,4 @@ public sealed class TraitService
         return false;
     }
 }
+

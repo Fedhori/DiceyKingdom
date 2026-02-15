@@ -4,6 +4,9 @@ using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
 
+/// <summary>
+/// Loads static definitions from JSON sources and exposes indexed lookups.
+/// </summary>
 public static class StaticDataLoader
 {
     public const string AdventurersPath = "Data/Adventurers.json";
@@ -373,3 +376,4 @@ public static class StaticDataLoader
         throw new InvalidDataException(message);
     }
 }
+

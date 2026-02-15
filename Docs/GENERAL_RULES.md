@@ -139,6 +139,19 @@
 - **static event 버스는 금지**한다.
   - (예외가 필요하면) SubsystemRegistration에서 이벤트를 강제로 null로 Reset해야 하며, 사용처도 최소화한다.
 
+## RunState-UI 바인딩 규칙
+
+- `RunState`는 저장/로드 스냅샷 역할의 **순수 데이터 타입**으로 유지한다.
+  - `RunState` 내부에 이벤트/Observable/델리게이트/Unity 오브젝트 참조를 넣지 않는다.
+- UI 표시용 값은 `RunServices`가 `ObservableValue`로 노출한다.
+  - 최소 노출: `gold`, `stability`, `stabilityMax`, `turn`, `barracksCapacity`, `candidatesCount`, `adventurersCount`, `missionsCount`, `uiRevision`
+- `RunServices`의 public 상태 변경 API는 호출 경계에서 `SyncUiBindingsFromRunState`를 통해 Observable 값을 동기화한다.
+- UI는 Observable을 `OnEnable`에서 구독하고 `OnDisable`에서 해지한다.
+  - `IDisposable` 토큰은 `DisposableBag`로 관리한다.
+- UI는 Observable에 값을 쓰지 않는다.
+  - UI는 `Value` 읽기/`Subscribe`만 사용한다.
+- `EndRun`/`RunServices.Dispose` 시에는 Observable 리스너를 정리해 과거 런 인스턴스 참조가 남지 않게 방어한다.
+
 ---
 
 # 문서 갱신 규칙

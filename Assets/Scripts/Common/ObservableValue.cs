@@ -1,7 +1,17 @@
 using System;
 using System.Collections.Generic;
 
-public sealed class ObservableValue<T>
+public interface IReadOnlyObservableValue<T>
+{
+    T Value { get; }
+    IDisposable Subscribe(Action<T> handler, bool pushCurrent = true);
+    void PublishCurrent();
+}
+
+/// <summary>
+/// Mutable observable value for UI updates with safe subscribe/dispose semantics.
+/// </summary>
+public sealed class ObservableValue<T> : IReadOnlyObservableValue<T>
 {
     readonly List<Action<T>> handlers = new();
     T value;
@@ -43,6 +53,11 @@ public sealed class ObservableValue<T>
         return DisposableToken.Create(() => handlers.Remove(handler));
     }
 
+    public void ClearListeners()
+    {
+        handlers.Clear();
+    }
+
     public void PublishCurrent()
     {
         Publish(value);
@@ -50,9 +65,14 @@ public sealed class ObservableValue<T>
 
     void Publish(T current)
     {
-        for (int i = 0; i < handlers.Count; i++)
+        if (handlers.Count == 0)
+            return;
+
+        Action<T>[] snapshot = handlers.ToArray();
+        for (int i = 0; i < snapshot.Length; i++)
         {
-            handlers[i]?.Invoke(current);
+            snapshot[i]?.Invoke(current);
         }
     }
 }
+

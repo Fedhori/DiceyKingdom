@@ -6,6 +6,9 @@ public interface IRuleEffectApplier
     void ApplyEffect(EffectDef effect, RuleEffectApplyContext context);
 }
 
+/// <summary>
+/// Core class that defines noop rule effect applier responsibilities.
+/// </summary>
 public sealed class NoopRuleEffectApplier : IRuleEffectApplier
 {
     public static readonly NoopRuleEffectApplier Shared = new();
@@ -19,6 +22,9 @@ public sealed class NoopRuleEffectApplier : IRuleEffectApplier
     }
 }
 
+/// <summary>
+/// Evaluates rule conditions and applies matching effects in execution order.
+/// </summary>
 public static class RulePipeline
 {
     public static RuleExecutionSummary Execute(
@@ -82,3 +88,4 @@ public static class RulePipeline
         return summary;
     }
 }
+

@@ -1,3 +1,6 @@
+/// <summary>
+/// Aggregates app-scope services so features can access shared runtime systems through one container.
+/// </summary>
 public sealed class AppServices
 {
     public UIService UI { get; }
@@ -32,4 +35,5 @@ public sealed class AppServices
         DevCommand = devCommand;
     }
 }
+
 

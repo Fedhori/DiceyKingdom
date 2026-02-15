@@ -3,6 +3,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/// <summary>
+/// Unity component that provides tooltip runtime behavior.
+/// </summary>
 public sealed class TooltipService : MonoBehaviour
 {
     [SerializeField] Canvas tooltipCanvas;      // Screen Space - Overlay
@@ -10,7 +13,7 @@ public sealed class TooltipService : MonoBehaviour
     [SerializeField] Camera worldCamera;
     [SerializeField] Vector2 screenOffset = new Vector2(16f, -16f);
 
-    // 화면 가장자리와의 최소 여백
+    // ?붾㈃ 媛?μ옄由ъ???理쒖냼 ?щ갚
     [SerializeField] float edgePadding = 8f;
     [SerializeField] float showDelaySeconds = 0.2f;
 
@@ -282,7 +285,7 @@ public sealed class TooltipService : MonoBehaviour
         if (!hasCurrentModel)
             return;
 
-        // 1) 내용 먼저 세팅해서 rect 크기를 최신 상태로 만든다.
+        // 1) ?댁슜 癒쇱? ?명똿?댁꽌 rect ?ш린瑜?理쒖떊 ?곹깭濡?留뚮뱺??
         tooltipView.Show(currentModel);
         UpdateToggleState();
 
@@ -290,13 +293,13 @@ public sealed class TooltipService : MonoBehaviour
         if (tooltipRect == null)
             return;
 
-        // 레이아웃 그룹/콘텐츠 사이즈 피터가 있을 수 있으니 즉시 갱신
+        // ?덉씠?꾩썐 洹몃９/肄섑뀗痢??ъ씠利??쇳꽣媛 ?덉쓣 ???덉쑝??利됱떆 媛깆떊
         LayoutRebuilder.ForceRebuildLayoutImmediate(tooltipRect);
 
-        // Canvas → Pixel 스케일
+        // Canvas ??Pixel ?ㅼ???
         float scaleFactor = tooltipCanvas.scaleFactor <= 0f ? 1f : tooltipCanvas.scaleFactor;
 
-        // 툴팁 픽셀 크기
+        // ?댄똻 ?쎌? ?ш린
         float tooltipWidth = tooltipRect.rect.width * scaleFactor;
         float tooltipHeight = tooltipRect.rect.height * scaleFactor;
 
@@ -318,23 +321,23 @@ public sealed class TooltipService : MonoBehaviour
 
                 Vector2 basePos = worldCamera.WorldToScreenPoint(currentAnchor.WorldPosition);
 
-                // 기본: 우측 배치 시도 (basePos: 대상의 우상단이라고 가정)
+                // 湲곕낯: ?곗륫 諛곗튂 ?쒕룄 (basePos: ??곸쓽 ?곗긽?⑥씠?쇨퀬 媛??
                 float x = basePos.x + screenOffset.x;
                 float right = x + tooltipWidth;
 
                 bool fitsRight = right <= (screenW - padding);
                 if (!fitsRight)
                 {
-                    // 우측에 두면 잘리므로, 같은 앵커에서 좌측으로 플립
+                    // ?곗륫???먮㈃ ?섎━誘濡? 媛숈? ?듭빱?먯꽌 醫뚯륫?쇰줈 ?뚮┰
                     x = basePos.x - screenOffset.x - tooltipWidth;
                 }
 
-                // 좌우 clamp
+                // 醫뚯슦 clamp
                 float minX = padding;
                 float maxX = screenW - padding - tooltipWidth;
                 x = Mathf.Clamp(x, minX, maxX);
 
-                // 수직 방향: offset 적용 후 clamp
+                // ?섏쭅 諛⑺뼢: offset ?곸슜 ??clamp
                 float y = basePos.y + screenOffset.y;
                 float top = y;
                 float bottom = y - tooltipHeight;
@@ -351,17 +354,17 @@ public sealed class TooltipService : MonoBehaviour
 
             case TooltipAnchorType.Screen:
             {
-                // Screen 기준: 우상단 / 좌상단 둘 다 알고 있으므로
-                // 오른쪽/왼쪽 후보를 각각 계산해서 선택.
+                // Screen 湲곗?: ?곗긽??/ 醫뚯긽???????뚭퀬 ?덉쑝誘濡?
+                // ?ㅻⅨ履??쇱そ ?꾨낫瑜?媛곴컖 怨꾩궛?댁꽌 ?좏깮.
                 Vector2 rightTop = currentAnchor.ScreenRightTop;
                 Vector2 leftTop = currentAnchor.ScreenLeftTop;
 
-                // 오른쪽 배치 후보
+                // ?ㅻⅨ履?諛곗튂 ?꾨낫
                 float xRightLeft = rightTop.x + screenOffset.x;
                 float xRightRight = xRightLeft + tooltipWidth;
 
-                // 왼쪽 배치 후보
-                // 왼쪽일 때: tooltipRight = leftTop.x - offset.x
+                // ?쇱そ 諛곗튂 ?꾨낫
+                // ?쇱そ???? tooltipRight = leftTop.x - offset.x
                 //          tooltipLeft  = tooltipRight - tooltipWidth
                 float xLeftLeft = leftTop.x - screenOffset.x - tooltipWidth;
                 float xLeftRight = xLeftLeft + tooltipWidth;
@@ -370,13 +373,13 @@ public sealed class TooltipService : MonoBehaviour
 
                 float xCandidate = canPlaceRight ? xRightLeft : xLeftLeft;
 
-                // 좌우 clamp
+                // 醫뚯슦 clamp
                 float minX = padding;
                 float maxX = screenW - padding - tooltipWidth;
                 float x = Mathf.Clamp(xCandidate, minX, maxX);
 
-                // 수직 방향: top 기준은 양쪽 다 동일한 y 를 사용
-                float baseY = rightTop.y; // leftTop.y 와 동일해야 함
+                // ?섏쭅 諛⑺뼢: top 湲곗?? ?묒そ ???숈씪??y 瑜??ъ슜
+                float baseY = rightTop.y; // leftTop.y ? ?숈씪?댁빞 ??
                 float y = baseY + screenOffset.y;
 
                 float top = y;
@@ -396,7 +399,7 @@ public sealed class TooltipService : MonoBehaviour
                 return;
         }
 
-        // 3) 최종 Screen → Canvas local 변환 후 배치
+        // 3) 理쒖쥌 Screen ??Canvas local 蹂????諛곗튂
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             canvasRect,
             screenPos,
@@ -404,7 +407,7 @@ public sealed class TooltipService : MonoBehaviour
             out var localPos
         );
 
-        // pivot = (0,1) 이므로 localPos는 "툴팁 좌상단" 위치
+        // pivot = (0,1) ?대?濡?localPos??"?댄똻 醫뚯긽?? ?꾩튂
         tooltipRect.anchoredPosition = localPos;
     }
 
@@ -469,4 +472,5 @@ public sealed class TooltipService : MonoBehaviour
         return valid;
     }
 }
+
 

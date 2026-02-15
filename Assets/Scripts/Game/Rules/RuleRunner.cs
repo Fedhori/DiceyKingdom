@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 
+/// <summary>
+/// Executes mission and trait rule flows against the current run state.
+/// </summary>
 public static class RuleRunner
 {
     public static RuleExecutionSummary RunTraitsThenMission(
@@ -181,3 +184,4 @@ public static class RuleRunner
         return false;
     }
 }
+

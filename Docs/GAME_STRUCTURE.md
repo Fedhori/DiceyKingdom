@@ -166,6 +166,10 @@
 - 수명: “이번 런” 동안만 유지
 - 소유자: `GameApp.Run` (`RunServices` 인스턴스)
 - 예: `RunState`, 턴 진행, 임무/룰/판정, 수정자/특성 처리
+- UI 표시 스칼라 값은 `RunServices` Observable로 노출한다.
+  - `gold`, `stability`, `stabilityMax`, `turn`, `barracksCapacity`
+  - `candidatesCount`, `adventurersCount`, `missionsCount`
+  - `uiRevision`(리스트/복합 UI 리빌드 트리거)
 
 ### Scene Scope
 
@@ -193,6 +197,8 @@
 - 이벤트/Observable은 **UI 갱신용**으로 제한한다.
 - 로직 진행(턴 전환/룰 체인)은 이벤트로 연결하지 않는다(로직 체인 금지).
 - UI 구독은 `OnEnable` 등록 / `OnDisable` 해제 + `IDisposable` 토큰으로 통일한다.
+- `RunState`는 순수 데이터로 유지하고, UI 갱신은 `RunServices` Observable 구독으로만 처리한다.
+- `RunServices`의 public 상태 변경 API 호출 후 `SyncUiBindingsFromRunState`로 Observable 값을 동기화한다.
 
 ## 용어 사전(확정)
 
