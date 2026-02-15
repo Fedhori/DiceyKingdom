@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public sealed class MissionOverlayPresenter : MonoBehaviour
@@ -91,7 +92,8 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
         if (!isOpen)
             return;
 
-        if (!Input.GetKeyDown(KeyCode.Escape))
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard == null || !keyboard.escapeKey.wasPressedThisFrame)
             return;
 
         TryCloseOverlay();

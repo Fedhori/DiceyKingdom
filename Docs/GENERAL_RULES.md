@@ -13,6 +13,12 @@
 
 - Unity 6.2 (6000.2.x)
 
+## 입력 시스템 규칙
+
+- 입력 처리는 `Input System` 패키지(`UnityEngine.InputSystem`)만 사용한다.
+- `UnityEngine.Input` API(`Input.GetKeyDown`, `Input.GetAxis`, `Input.GetButton` 등)는 사용 금지한다.
+- 키/포인터 입력은 Input Actions 또는 Input System 디바이스 API로 처리한다.
+
 ## 코드 컨벤션
 
 - C# 4-스페이스 들여쓰기
