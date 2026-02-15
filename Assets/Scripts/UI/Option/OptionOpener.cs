@@ -3,9 +3,9 @@ using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Button))]
-/// <summary>
-/// Unity component that manages option opener runtime behavior.
-/// </summary>
+
+
+
 public class OptionOpener : MonoBehaviour
 {
     [SerializeField] private Button button;

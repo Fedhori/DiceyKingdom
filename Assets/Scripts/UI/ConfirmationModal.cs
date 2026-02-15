@@ -3,9 +3,9 @@ using UnityEngine.UI;
 using System;
 using UnityEngine.Localization.Components;
 
-/// <summary>
-/// Unity component that manages confirmation modal runtime behavior.
-/// </summary>
+
+
+
 public class ConfirmationModal : MonoBehaviour
 {
     [SerializeField] public LocalizeStringEvent titleTextEvent;

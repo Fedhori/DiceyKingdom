@@ -3,9 +3,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 
-/// <summary>
-/// Unity component that manages tooltip keyword row runtime behavior.
-/// </summary>
+
+
+
 public sealed class TooltipKeywordRow : MonoBehaviour
 {
     [SerializeField] private TMP_Text titleText;

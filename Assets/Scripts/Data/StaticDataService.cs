@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-/// <summary>
-/// MonoBehaviour bridge that provides static data json access within app scope.
-/// </summary>
+
+
+
 public sealed class StaticDataService : MonoBehaviour
 {
     [Serializable]
-    /// <summary>
-    /// Core class that defines json entry responsibilities.
-    /// </summary>
+    
+    
+    
     public sealed class JsonEntry
     {
         public string key;

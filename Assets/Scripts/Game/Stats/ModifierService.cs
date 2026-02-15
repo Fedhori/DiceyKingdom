@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-/// <summary>
-/// Adds, merges, and removes stat modifiers scoped to run entities.
-/// </summary>
+
+
+
 public sealed class ModifierService
 {
     readonly StatService statService;

@@ -3,9 +3,9 @@ using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Graphic))]
-/// <summary>
-/// Unity component that manages ui blink runtime behavior.
-/// </summary>
+
+
+
 public sealed class UiBlink : MonoBehaviour
 {
     [SerializeField] float periodSeconds = 0.5f;

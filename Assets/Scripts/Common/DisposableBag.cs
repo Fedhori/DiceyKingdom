@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-/// <summary>
-/// Collects IDisposable tokens and clears all registered subscriptions in one call.
-/// </summary>
+
+
+
 public sealed class DisposableBag : IDisposable
 {
     readonly List<IDisposable> tokens = new();

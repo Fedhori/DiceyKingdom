@@ -4,13 +4,13 @@ using UnityEngine.Localization.Components;
 
 namespace UI
 {
-    /// <summary>
-    /// Unity component that provides toast runtime behavior.
-    /// </summary>
+    
+    
+    
     public class ToastService : MonoBehaviour
     {
         [SerializeField] private Canvas canvas;
-        [SerializeField] private GameObject toastPrefab; // Assign this in the Inspector
+        [SerializeField] private GameObject toastPrefab; 
 
         public bool ValidateConfiguration(Transform appRoot)
         {
@@ -58,10 +58,10 @@ namespace UI
                 yield break;
             }
 
-            // Wait
+            
             yield return new WaitForSecondsRealtime(waitSecond);
 
-            // Fade Out
+            
             float timer = 0f;
             while (timer < fadeDuration)
             {

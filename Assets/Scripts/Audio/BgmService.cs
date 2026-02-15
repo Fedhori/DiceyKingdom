@@ -1,8 +1,8 @@
 using UnityEngine;
 
-/// <summary>
-/// Unity component that provides bgm runtime behavior.
-/// </summary>
+
+
+
 public sealed class BgmService : MonoBehaviour
 {
     const string PrefsKeyBaseVolume = "bgm.baseVolume";

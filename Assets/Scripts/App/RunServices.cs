@@ -1,8 +1,8 @@
 using Newtonsoft.Json;
 
-/// <summary>
-/// Owns per-run domain services, mutates RunState through public APIs, and syncs UI observables.
-/// </summary>
+
+
+
 public sealed class RunServices : System.IDisposable
 {
     public RunState CurrentRunState { get; private set; } = new();

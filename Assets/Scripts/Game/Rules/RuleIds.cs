@@ -1,6 +1,6 @@
-/// <summary>
-/// Static helper class for rule trigger related operations.
-/// </summary>
+
+
+
 public static class RuleTriggerIds
 {
     public const string OnAbilityValueCalculation = "onAbilityValueCalculation";
@@ -10,9 +10,9 @@ public static class RuleTriggerIds
     public const string OnHpChanged = "onHpChanged";
 }
 
-/// <summary>
-/// Static helper class for rule condition related operations.
-/// </summary>
+
+
+
 public static class RuleConditionIds
 {
     public const string Always = "always";

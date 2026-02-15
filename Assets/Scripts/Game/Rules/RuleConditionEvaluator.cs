@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-/// <summary>
-/// Evaluates rule condition identifiers against the provided rule context.
-/// </summary>
+
+
+
 public static class RuleConditionEvaluator
 {
     public static bool Evaluate(ConditionDef condition, RuleContext context)

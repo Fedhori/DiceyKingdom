@@ -1,6 +1,6 @@
-/// <summary>
-/// Centralizes scene name constants used for scene loading.
-/// </summary>
+
+
+
 public static class SceneIds
 {
     public const string Bootstrap = "Bootstrap";

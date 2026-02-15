@@ -5,9 +5,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 [DefaultExecutionOrder(-10000)]
-/// <summary>
-/// Unity component that provides dev command runtime behavior.
-/// </summary>
+
+
+
 public sealed class DevCommandService : MonoBehaviour
 {
 #if DEVCONSOLE_OFF

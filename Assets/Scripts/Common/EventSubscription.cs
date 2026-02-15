@@ -2,9 +2,9 @@ using System;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-/// <summary>
-/// Wraps Unity event registration into IDisposable tokens for deterministic unsubscription.
-/// </summary>
+
+
+
 public static class EventSubscription
 {
     public static IDisposable Create(Action subscribe, Action unsubscribe)

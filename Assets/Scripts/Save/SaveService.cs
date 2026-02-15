@@ -3,9 +3,9 @@ using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
 
-/// <summary>
-/// Carries save service operation result data.
-/// </summary>
+
+
+
 public sealed class SaveServiceResult
 {
     public bool IsSuccess { get; private set; }
@@ -15,9 +15,9 @@ public sealed class SaveServiceResult
     public static SaveServiceResult Fail(string message) => new SaveServiceResult { IsSuccess = false, Message = message ?? string.Empty };
 }
 
-/// <summary>
-/// Reads and writes save files with validation, backup fallback, and integrity checks.
-/// </summary>
+
+
+
 public static class SaveService
 {
     public static SaveServiceResult WriteSave(SaveData data)

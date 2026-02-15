@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-/// <summary>
-/// Applies rule effects to RunState and related runtime entities.
-/// </summary>
+
+
+
 public sealed class EffectApplier : IRuleEffectApplier
 {
     readonly ModifierService modifierService;

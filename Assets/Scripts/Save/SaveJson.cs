@@ -5,9 +5,9 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-/// <summary>
-/// Static helper class for save json related operations.
-/// </summary>
+
+
+
 public static class SaveJson
 {
     static readonly JsonSerializerSettings Settings = new JsonSerializerSettings

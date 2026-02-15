@@ -1,8 +1,8 @@
 using UnityEngine;
 
-/// <summary>
-/// Scene-facing facade that forwards gameplay commands to the current RunServices instance.
-/// </summary>
+
+
+
 public sealed class GameService : MonoBehaviour
 {
     [SerializeField] bool autoStartOnAwake = true;

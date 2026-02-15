@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-/// <summary>
-/// Core class that defines static data set responsibilities.
-/// </summary>
+
+
+
 public sealed class StaticDataSet
 {
     readonly List<AdventurerDef> adventurerDefs = new();

@@ -6,9 +6,9 @@ using UnityEngine.Localization;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-/// <summary>
-/// Unity component that manages tooltip view runtime behavior.
-/// </summary>
+
+
+
 public sealed class TooltipView : MonoBehaviour
 {
     [SerializeField] TMP_Text typeText;
@@ -79,19 +79,19 @@ public sealed class TooltipView : MonoBehaviour
         ApplyTypeHidden();
         ResetNameBackground();
 
-        // if (iconImage != null)
-        // {
-        //     if (model.Icon != null)
-        //     {
-        //         iconImage.sprite = model.Icon;
-        //         iconImage.enabled = true;
-        //     }
-        //     else
-        //     {
-        //         iconImage.sprite = null;
-        //         iconImage.enabled = false;
-        //     }
-        // }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     }
 
     public void Hide()

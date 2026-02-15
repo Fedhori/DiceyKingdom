@@ -1,9 +1,9 @@
 using TMPro;
 using UnityEngine;
 
-/// <summary>
-/// Subscribes to RunServices observables and writes core run metrics to TMP text fields.
-/// </summary>
+
+
+
 public sealed class RunCoreStatsBinder : MonoBehaviour
 {
     [Header("Texts")]
@@ -11,9 +11,6 @@ public sealed class RunCoreStatsBinder : MonoBehaviour
     [SerializeField] TMP_Text stabilityText;
     [SerializeField] TMP_Text turnText;
     [SerializeField] TMP_Text barracksCapacityText;
-    [SerializeField] TMP_Text candidatesCountText;
-    [SerializeField] TMP_Text adventurersCountText;
-    [SerializeField] TMP_Text missionsCountText;
 
     readonly DisposableBag subscriptions = new();
     RunServices boundRun;
@@ -35,9 +32,6 @@ public sealed class RunCoreStatsBinder : MonoBehaviour
         subscriptions.Add(boundRun.StabilityMax.Subscribe(UpdateStability));
         subscriptions.Add(boundRun.Turn.Subscribe(UpdateTurn));
         subscriptions.Add(boundRun.BarracksCapacity.Subscribe(UpdateBarracksCapacity));
-        subscriptions.Add(boundRun.CandidatesCount.Subscribe(UpdateCandidatesCount));
-        subscriptions.Add(boundRun.AdventurersCount.Subscribe(UpdateAdventurersCount));
-        subscriptions.Add(boundRun.MissionsCount.Subscribe(UpdateMissionsCount));
     }
 
     void OnDisable()
@@ -48,54 +42,36 @@ public sealed class RunCoreStatsBinder : MonoBehaviour
 
     void ApplyDefaults()
     {
-        SetText(goldText, "0");
-        SetText(stabilityText, "0/0");
-        SetText(turnText, "0");
-        SetText(barracksCapacityText, "0");
-        SetText(candidatesCountText, "0");
-        SetText(adventurersCountText, "0");
-        SetText(missionsCountText, "0");
+        SetText(goldText, "Gold: 0");
+        SetText(stabilityText, "Stability: 0/0");
+        SetText(turnText, "Turn: 0");
+        SetText(barracksCapacityText, "Capacity: 0");
     }
 
     void UpdateGold(int value)
     {
-        SetText(goldText, value.ToString());
+        SetText(goldText, $"Gold: {value}");
     }
 
     void UpdateStability(int _)
     {
         if (boundRun == null)
         {
-            SetText(stabilityText, "0/0");
+            SetText(stabilityText, "Stability: 0/0");
             return;
         }
 
-        SetText(stabilityText, $"{boundRun.Stability.Value}/{boundRun.StabilityMax.Value}");
+        SetText(stabilityText, $"Stability: {boundRun.Stability.Value}/{boundRun.StabilityMax.Value}");
     }
 
     void UpdateTurn(int value)
     {
-        SetText(turnText, value.ToString());
+        SetText(turnText, $"Turn: {value}");
     }
 
     void UpdateBarracksCapacity(int value)
     {
-        SetText(barracksCapacityText, value.ToString());
-    }
-
-    void UpdateCandidatesCount(int value)
-    {
-        SetText(candidatesCountText, value.ToString());
-    }
-
-    void UpdateAdventurersCount(int value)
-    {
-        SetText(adventurersCountText, value.ToString());
-    }
-
-    void UpdateMissionsCount(int value)
-    {
-        SetText(missionsCountText, value.ToString());
+        SetText(barracksCapacityText, $"Capacity: {value}");
     }
 
     static void SetText(TMP_Text target, string value)

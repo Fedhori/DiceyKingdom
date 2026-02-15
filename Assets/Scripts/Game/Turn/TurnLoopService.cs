@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Advances turn flow, performs settlement, and spawns candidates and missions.
-/// </summary>
+
+
+
 public sealed class TurnLoopService
 {
     readonly StatService statService;

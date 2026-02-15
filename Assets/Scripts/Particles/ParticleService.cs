@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Unity component that provides particle runtime behavior.
-/// </summary>
+
+
+
 public sealed class ParticleService : MonoBehaviour
 {
     [Serializable]
-    /// <summary>
-    /// Core class that defines entry responsibilities.
-    /// </summary>
+    
+    
+    
     public sealed class Entry
     {
         public string key;

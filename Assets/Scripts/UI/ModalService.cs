@@ -2,9 +2,9 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-/// <summary>
-/// Unity component that provides modal runtime behavior.
-/// </summary>
+
+
+
 public class ModalService : MonoBehaviour
 {
     [SerializeField] private ConfirmationModal confirmationModalPrefab;

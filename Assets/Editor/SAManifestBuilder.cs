@@ -18,10 +18,10 @@ public static class SAManifestBuilder
         bool Exclude(string p)
         {
             var f = p.Replace("\\","/").ToLowerInvariant();
-            if (f.EndsWith("/sa_manifest.json")) return true; // 자기 자신 제외
-            if (f.EndsWith(".meta")) return true;             // ★ 폴더/파일 메타 제외
-            if (f.EndsWith(".ds_store")) return true;         // mac
-            if (f.EndsWith("thumbs.db")) return true;         // win
+            if (f.EndsWith("/sa_manifest.json")) return true; 
+            if (f.EndsWith(".meta")) return true;             
+            if (f.EndsWith(".ds_store")) return true;         
+            if (f.EndsWith("thumbs.db")) return true;         
             return false;
         }
         
@@ -67,7 +67,7 @@ public static class SAManifestBuilder
     [System.Serializable] public class Entry { public string path; public long size; public string md5; }
 }
 
-// 빌드 직전에 자동 생성되게
+
 public class SAManifestPreprocess : IPreprocessBuildWithReport
 {
     public int callbackOrder => 0;

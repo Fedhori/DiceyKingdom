@@ -21,9 +21,9 @@ public readonly struct TooltipKeywordEntry
     }
 }
 
-/// <summary>
-/// Core class that defines tooltip button config responsibilities.
-/// </summary>
+
+
+
 public sealed class TooltipButtonConfig
 {
     public string LabelKey { get; }

@@ -8,22 +8,22 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Security.Cryptography;
 
-/// <summary>
-/// Core class that defines sa responsibilities.
-/// </summary>
+
+
+
 public class SaOptions
 {
-    public bool forceRefresh = false;            // 媛뺤젣 ??뼱?곌린
+    public bool forceRefresh = false;            
     public bool refreshIfAppVersionChanged = true;
-    public bool verifyHash = true;               // ?댁떆 寃利???遺덉씪移섏떆 媛깆떊
-    public bool cleanStale = false;              // persistent??遺덊븘???뚯씪 ??젣
+    public bool verifyHash = true;               
+    public bool cleanStale = false;              
 }
 
 [Serializable] class SaState { public string appVersion; public string manifestHash; }
 
-/// <summary>
-/// Caches StreamingAssets payloads into persistent storage for cross-platform runtime access.
-/// </summary>
+
+
+
 public static class SaCache
 {
     [Serializable] class Manifest { public string appVersion; public Entry[] files; }
@@ -32,12 +32,12 @@ public static class SaCache
     static bool inited;
     static Manifest manifest;
 
-    // --- Ready 寃뚯씠??---
+    
     static Task initTask;
     static int initStarted;
     static TaskCompletionSource<bool> readyTcs = CreateReadyTcs();
 
-    public static Task Ready => readyTcs.Task; // ?몃??먯꽌 湲곕떎由??ъ씤??
+    public static Task Ready => readyTcs.Task; 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStatic()
     {
@@ -48,7 +48,7 @@ public static class SaCache
         readyTcs = CreateReadyTcs();
     }
 
-    // ???쒖옉 ??1???몄텧(以묐났 ?덉쟾)
+    
     public static Task InitAsync(SaOptions opt, Action<float> onProgress = null)
     {
         if (opt == null)
@@ -58,12 +58,12 @@ public static class SaCache
             if (Interlocked.Exchange(ref initStarted, 1) == 0)
                 initTask = InitImplAsync(opt, onProgress);
 
-        // ?대? ?쒖옉??寃쎌슦: ?꾨즺?섎㈃ onProgress=1.0 ??踰??몄텧(?좏깮)
+        
         if (inited) onProgress?.Invoke(1f);
         return initTask ?? Task.CompletedTask;
     }
 
-    // ??긽 persistent 寃쎈줈 諛섑솚 (遺紐??대뜑???ш린???앹꽦)
+    
     public static string Path(string relativePath)
     {
         string path = "";
@@ -91,13 +91,13 @@ public static class SaCache
         return File.Exists(Path(relativePath));
     }
 
-    // ---- 鍮꾨룞湲?API: Ready ?湲?+ ?놁쑝硫?利됱떆 蹂듭궗 ----
+    
     public static async Task<string> ReadTextAsync(string relativePath)
     {
         await Ready;
         var dst = Path(relativePath);
         if (!File.Exists(dst))
-            await CopyOneAsync(relativePath); // copy-on-demand
+            await CopyOneAsync(relativePath); 
         if (!File.Exists(dst))
             throw new FileNotFoundException($"[SACache] missing: {dst}");
         return File.ReadAllText(dst);
@@ -114,13 +114,13 @@ public static class SaCache
         return File.ReadAllBytes(dst);
     }
 
-    // ---------- ?대? 援ы쁽 ----------
+    
 
     static async Task InitImplAsync(SaOptions opt, Action<float> onProgress)
     {
         try
         {
-            // 1) 留ㅻ땲?섏뒪???쎄린
+            
             var manifestJson = await LoadSaAsync("sa_manifest.json");
             manifest = JsonConvert.DeserializeObject<Manifest>(manifestJson);
             if (manifest?.files == null || manifest.files.Length == 0)
@@ -131,14 +131,14 @@ public static class SaCache
                 return;
             }
 
-            // 2) state 鍮꾧탳 (踰꾩쟾/留ㅻ땲?섏뒪???댁떆)
+            
             var state = LoadState();
             var manifestHash = MD5String(manifestJson);
             bool needRefresh = opt.forceRefresh
                 || (opt.refreshIfAppVersionChanged && state?.appVersion != Application.version)
                 || (state?.manifestHash != manifestHash);
 
-            // 3) 蹂듭궗
+            
             float total = Math.Max(1, manifest.files.Length);
             for (int i = 0; i < manifest.files.Length; i++)
             {
@@ -160,20 +160,20 @@ public static class SaCache
                 onProgress?.Invoke((i + 1) / total);
             }
 
-            // 4) ?꾩슂?놁뼱吏??뚯씪 ?뺣━(?듭뀡)
+            
             if (opt.cleanStale) CleanStaleFiles();
 
-            // 5) state ???
+            
             SaveState(new SaState { appVersion = Application.version, manifestHash = manifestHash });
 
             inited = true;
             onProgress?.Invoke(1f);
 
-            readyTcs.TrySetResult(true); // Ready ?듭?
+            readyTcs.TrySetResult(true); 
         }
         catch (Exception ex)
         {
-            readyTcs.TrySetException(ex); // ?ㅽ뙣 ?꾪뙆
+            readyTcs.TrySetException(ex); 
             throw;
         }
     }
@@ -185,7 +185,7 @@ public static class SaCache
 
     static async Task CopyOneAsync(Entry e)
     {
-        // ?먮뵒???쒖뒪???뚯씪 ?ㅽ궢(?덉쟾?μ튂)
+        
         var lower = e.path.ToLowerInvariant();
         if (lower.EndsWith(".meta") || lower.EndsWith(".ds_store") || lower.EndsWith("thumbs.db"))
         {
@@ -198,7 +198,7 @@ public static class SaCache
         File.WriteAllBytes(dst, bytes);
     }
 
-    // string ?ㅻ쾭濡쒕뱶(利됱떆 蹂듭궗??
+    
     static async Task CopyOneAsync(string relativePath)
     {
         var e = new Entry { path = relativePath };
@@ -212,7 +212,7 @@ public static class SaCache
         foreach (var f in Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
         {
             var norm = f.Replace("\\", "/");
-            if (norm.EndsWith("/sa_state.json")) continue; // ?곹깭 ?뚯씪 ?쒖쇅
+            if (norm.EndsWith("/sa_state.json")) continue; 
             if (!white.Contains(norm)) try { File.Delete(f); } catch { }
         }
     }

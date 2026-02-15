@@ -3,9 +3,9 @@ using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
 
 [DefaultExecutionOrder(-20000)]
-/// <summary>
-/// Bootstraps startup by loading core data, activating app scope, and entering the game scene.
-/// </summary>
+
+
+
 public class Bootstrap : MonoBehaviour
 {
     [SerializeField] GameObject managersRoot;
@@ -16,11 +16,11 @@ public class Bootstrap : MonoBehaviour
         {
             Application.targetFrameRate = 60;
 
-            // 0) ?뱀떆 ?대? 耳쒖졇 ?덉쑝硫?爰쇰몢湲?以묐났 ?鍮?
+            
             if (managersRoot && managersRoot.activeSelf)
                 managersRoot.SetActive(false);
 
-            // 1) SaCache
+            
             await SaCache.InitAsync(new SaOptions
             {
                 forceRefresh = Debug.isDebugBuild,
@@ -28,7 +28,7 @@ public class Bootstrap : MonoBehaviour
                 verifyHash = true
             });
 
-            // 2) GameConfigProvider
+            
             bool loadedConfig = await GameConfigProvider.LoadFromStreamingAssetsAsync();
             if (!loadedConfig)
             {
@@ -36,10 +36,11 @@ public class Bootstrap : MonoBehaviour
                 return;
             }
 
-            // 3) StaticDataLoader
+            
             StaticDataLoader.LoadAll();
 
-            // 4) managersRoot ?쒖꽦??            if (managersRoot == null)
+            
+            if (managersRoot == null)
             {
                 Debug.LogError("[Bootstrap] managersRoot is missing. Bootstrap halted.");
                 return;
@@ -57,10 +58,10 @@ public class Bootstrap : MonoBehaviour
 
             gameApp.RebuildServices();
 
-            // 5) SaveWebGlSync
+            
             await SaveWebGlSync.SyncFromPersistentAsync();
 
-            // 6) ?ㅼ쓬 ?ъ쑝濡?            await SceneManager.LoadSceneAsync(SceneIds.GameScene).AsTask();
+            
         }
         catch (System.Exception ex)
         {
@@ -69,9 +70,9 @@ public class Bootstrap : MonoBehaviour
     }
 }
 
-/// <summary>
-/// Provides async helpers for awaiting Unity AsyncOperation instances.
-/// </summary>
+
+
+
 public static class AsyncOperationExt
 {
     public static async Task AsTask(this AsyncOperation op)

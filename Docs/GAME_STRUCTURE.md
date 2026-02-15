@@ -170,11 +170,14 @@
   - `gold`, `stability`, `stabilityMax`, `turn`, `barracksCapacity`
   - `candidatesCount`, `adventurersCount`, `missionsCount`
   - `uiRevision`(리스트/복합 UI 리빌드 트리거)
+- 현재 `GameScene` 상단 HUD(`TopHud`)는 위 Observable 중 아래 4개만 표시한다.
+  - `gold`, `stability/stabilityMax`, `turn`, `barracksCapacity`
 
 ### Scene Scope
 
 - 수명: 씬 오브젝트와 동일
 - 예: 씬 UI, 연출, 씬 전용 컨트롤러
+- `TopHud`는 `GameScene` 전용 Overlay UI이며 `RunCoreStatsBinder`가 Run Observable을 구독해 텍스트를 갱신한다.
 
 ## Run 시작/종료 규칙(중요)
 

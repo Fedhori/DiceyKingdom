@@ -3,9 +3,9 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Unity component that manages overlay fader runtime behavior.
-/// </summary>
+
+
+
 public sealed class OverlayFader : MonoBehaviour
 {
     [SerializeField] private float fadeSeconds = 0.5f;

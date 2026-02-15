@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine.Localization;
 
-/// <summary>
-/// Static helper class for localization util related operations.
-/// </summary>
+
+
+
 public static class LocalizationUtil
 {
     public static string Get(string table, string key, Dictionary<string, object> args = null)

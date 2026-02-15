@@ -1,9 +1,9 @@
 using System.IO;
 using UnityEngine;
 
-/// <summary>
-/// Static helper class for save paths related operations.
-/// </summary>
+
+
+
 public static class SavePaths
 {
     public const string SaveDirectoryName = "saves";

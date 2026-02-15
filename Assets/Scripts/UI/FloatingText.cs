@@ -2,9 +2,9 @@ using System;
 using UnityEngine;
 using TMPro;
 
-/// <summary>
-/// Unity component that manages floating text runtime behavior.
-/// </summary>
+
+
+
 public class FloatingText : MonoBehaviour
 {
     [SerializeField] float moveHeight = 50f;
@@ -37,7 +37,7 @@ public class FloatingText : MonoBehaviour
         Color color,
         float fontSize,
         float lifetime,
-        Vector3 startPosition,      // 罹붾쾭??濡쒖뺄 醫뚰몴 (anchoredPosition ??
+        Vector3 startPosition,      
         Action onComplete)
     {
         if (textMesh == null)

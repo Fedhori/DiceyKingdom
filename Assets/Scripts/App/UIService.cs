@@ -1,8 +1,8 @@
 using UI;
 
-/// <summary>
-/// Aggregates app-scope UI services such as tooltip, modal, option, toast, and floating text.
-/// </summary>
+
+
+
 public sealed class UIService
 {
     public TooltipService Tooltip { get; }

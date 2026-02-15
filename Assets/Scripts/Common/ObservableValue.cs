@@ -8,9 +8,9 @@ public interface IReadOnlyObservableValue<T>
     void PublishCurrent();
 }
 
-/// <summary>
-/// Mutable observable value for UI updates with safe subscribe/dispose semantics.
-/// </summary>
+
+
+
 public sealed class ObservableValue<T> : IReadOnlyObservableValue<T>
 {
     readonly List<Action<T>> handlers = new();

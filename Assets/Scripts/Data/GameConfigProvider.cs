@@ -5,9 +5,9 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
-/// <summary>
-/// Loads GameConfig and exposes the current configuration snapshot.
-/// </summary>
+
+
+
 public static class GameConfigProvider
 {
     public const string RelativePath = "Data/GameConfig.json";

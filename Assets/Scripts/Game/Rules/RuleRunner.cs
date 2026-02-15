@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-/// <summary>
-/// Executes mission and trait rule flows against the current run state.
-/// </summary>
+
+
+
 public static class RuleRunner
 {
     public static RuleExecutionSummary RunTraitsThenMission(
@@ -23,7 +23,7 @@ public static class RuleRunner
         RuleContext baseContext = CreateContext(context, runState, missionUid, string.Empty);
         effectApplier ??= NoopRuleEffectApplier.Shared;
 
-        // Global order (confirmed): Trait rules first, then Mission rules.
+        
         summary.Add(RunTraitRulesForMissionParty(runState, missionInstance, trigger, baseContext, effectApplier));
         summary.Add(RunMissionRules(runState, missionInstance, trigger, baseContext, effectApplier));
         return summary;

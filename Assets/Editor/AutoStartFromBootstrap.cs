@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 [InitializeOnLoad]
 public class AutoStartFromBootstrap
 {
-    // 여기 경로를 실제 시작 씬 경로로 바꿔주세요!
+    
     private const string mainScenePath = "Assets/Scenes/Bootstrap.unity";
 
     static AutoStartFromBootstrap()
@@ -28,7 +28,7 @@ public class AutoStartFromBootstrap
         }
         else if (state == PlayModeStateChange.EnteredEditMode)
         {
-            // Play 모드 종료 후 복구
+            
             EditorSceneManager.playModeStartScene = null;
         }
     }
