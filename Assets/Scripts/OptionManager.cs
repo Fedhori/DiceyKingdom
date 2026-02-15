@@ -64,7 +64,7 @@ public class OptionManager : MonoBehaviour
 
         switch (SceneManager.GetActiveScene().name)
         {
-            case "GameScene":
+            case SceneIds.GameScene:
             {
                 gameRestartButton.gameObject.SetActive(true);
                 returnToMainMenuButton.gameObject.SetActive(true);
@@ -170,7 +170,7 @@ public class OptionManager : MonoBehaviour
     public void ReturnToMainMenu()
     {
         ToggleOption(false);
-        SceneManager.LoadScene("MainMenuScene");
+        SceneManager.LoadScene(SceneIds.MainMenuScene);
     }
 
     public void RequestQuitGame()
@@ -220,5 +220,10 @@ public class OptionManager : MonoBehaviour
             gameSpeedManager = appServices?.GameSpeed;
         if (modalManager == null)
             modalManager = appServices?.UI?.Modal;
+    }
+
+    public void EnsurePersistentHierarchy(Transform appRoot)
+    {
+        AppScopeTransformUtility.ReparentRootToAppScope(optionOverlay, appRoot, nameof(OptionManager), nameof(optionOverlay));
     }
 }

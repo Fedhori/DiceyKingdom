@@ -48,9 +48,6 @@ public sealed class TooltipManager : MonoBehaviour
         subscriptions.Add(EventSubscription.Create(
             () => SceneManager.activeSceneChanged += OnActiveSceneChanged,
             () => SceneManager.activeSceneChanged -= OnActiveSceneChanged));
-        subscriptions.Add(EventSubscription.Create(
-            () => UiSelectionEvents.OnSelectionCleared += HandleSelectionCleared,
-            () => UiSelectionEvents.OnSelectionCleared -= HandleSelectionCleared));
         UpdateWorldCamera();
     }
 
@@ -257,12 +254,6 @@ public sealed class TooltipManager : MonoBehaviour
         ShowNow();
     }
 
-    void HandleSelectionCleared()
-    {
-        ClearPin();
-    }
-
-
     IEnumerator ShowDelayed()
     {
         float delay = Mathf.Max(0f, showDelaySeconds);
@@ -442,5 +433,11 @@ public sealed class TooltipManager : MonoBehaviour
     {
         if (tooltipView != null)
             tooltipView.Hide();
+    }
+
+    public void EnsurePersistentHierarchy(Transform appRoot)
+    {
+        AppScopeTransformUtility.ReparentRootToAppScope(tooltipCanvas, appRoot, nameof(TooltipManager), nameof(tooltipCanvas));
+        AppScopeTransformUtility.ReparentRootToAppScope(tooltipView, appRoot, nameof(TooltipManager), nameof(tooltipView));
     }
 }

@@ -9,6 +9,11 @@ namespace UI
         [SerializeField] private Canvas canvas;
         [SerializeField] private GameObject toastPrefab; // Assign this in the Inspector
 
+        public void EnsurePersistentHierarchy(Transform appRoot)
+        {
+            AppScopeTransformUtility.ReparentRootToAppScope(canvas, appRoot, nameof(ToastManager), nameof(canvas));
+        }
+
         public void ShowToastMessage(string tableKey, string entryKey, float waitSecond = 2.0f, float fadeDuration = 0.5f)
         {
             if (toastPrefab == null) return;

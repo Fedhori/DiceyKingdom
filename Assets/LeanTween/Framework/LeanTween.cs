@@ -331,12 +331,6 @@ public class LeanTween : MonoBehaviour {
             #if !UNITY_EDITOR
             _tweenEmpty.hideFlags = HideFlags.HideAndDontSave;
             #endif
-            #if UNITY_EDITOR
-            if(Application.isPlaying)
-                DontDestroyOnLoad( _tweenEmpty );
-            #else
-            DontDestroyOnLoad( _tweenEmpty );
-            #endif
             for(int i = 0; i < maxTweens; i++){
                 tweens[i] = new LTDescr();
                 tweens[i].reset();

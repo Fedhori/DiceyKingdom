@@ -91,6 +91,9 @@
   - “읽기”가 “상태 변경”을 일으키면 디버깅이 불가능해진다.
 - 런 진입점은 씬에 1개만 둔다.
   - (권장) `GameSceneInstaller` 같은 Installer 계열 컴포넌트
+- 런 진입점 코드는 idempotent 해야 한다.
+  - `GameApp.Run != null`이면 `BeginRun(...)`을 다시 호출하지 않는다.
+  - `EndRun()`은 “내가 시작한 Run 인스턴스”인지 `ReferenceEquals`로 확인 후 호출한다.
 
 ## Domain Reload Off(에디터 빠른 플레이) 안전 규칙
 
@@ -99,6 +102,12 @@
   2. Reset이 불가능하면 static 상태를 제거한다.
 
 (예: `GameApp`가 I를 Reset하는 것처럼, `SaCache`, `GameConfigProvider`, `StaticDataLoader` 같은 정적 캐시도 Reset 필요)
+
+## App UI 영속 규칙
+
+- AppScope UI 매니저가 참조하는 뷰/캔버스 루트는 반드시 `GameApp` 하위여야 한다.
+- Bootstrap에서 루트에 배치된 캔버스는 `GameApp.Awake()`에서 `GameApp` 하위로 편입해 씬 전환 파괴를 방지한다.
+- 영속 매니저가 SceneScope 뷰를 직접 참조한 채로 유지되는 구조를 금지한다.
 
 ---
 
@@ -113,6 +122,7 @@
 - UI 구독은 `OnEnable`에서 등록하고 `OnDisable`에서 해제한다.
 - 구독/해제는 `IDisposable` 토큰 기반으로 관리한다.
   - 예: `DisposableBag`, `DisposableToken`, `EventSubscription`
+  - 기본 패턴은 `DisposableBag`에 등록하고 `OnDisable`에서 `Clear()` 호출이다.
 
 ## 이벤트 설계 규칙
 

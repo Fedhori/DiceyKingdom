@@ -7,22 +7,31 @@ public sealed class GameManager : MonoBehaviour
     [SerializeField] int fixedSeed = 1001;
     [SerializeField] GameSceneRefs sceneRefs = new();
     bool ownsRun;
+    RunServices startedRun;
 
-    public RunState CurrentRunState => GetRunServices()?.CurrentRunState;
+    public RunState CurrentRunState => GameApp.I?.Run?.CurrentRunState;
 
     void Awake()
     {
         if (!autoStartOnAwake)
             return;
-        if (useFixedSeed)
-            Random.InitState(fixedSeed);
 
         var app = GameApp.I;
         if (app == null)
+        {
+            Debug.LogError("[GameManager] GameApp is missing.");
             return;
+        }
+
+        if (app.Run != null)
+            return;
+
+        if (useFixedSeed)
+            Random.InitState(fixedSeed);
 
         app.BeginRun(sceneRefs);
         ownsRun = true;
+        startedRun = app.Run;
     }
 
     void OnDestroy()
@@ -34,7 +43,8 @@ public sealed class GameManager : MonoBehaviour
         if (app == null)
             return;
 
-        app.EndRun();
+        if (ReferenceEquals(app.Run, startedRun))
+            app.EndRun();
     }
 
     public RunState CreateNewRunState()
@@ -134,16 +144,6 @@ public sealed class GameManager : MonoBehaviour
 
     RunServices GetRunServices()
     {
-        var app = GameApp.I;
-        if (app == null)
-        {
-            Debug.LogError("[GameManager] GameApp is missing.");
-            return null;
-        }
-
-        if (app.Run == null)
-            app.BeginRun(sceneRefs);
-
-        return app.Run;
+        return GameApp.I?.Run;
     }
 }

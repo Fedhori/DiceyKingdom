@@ -90,4 +90,9 @@ public class ModalManager : MonoBehaviour
         }
         confirmationModalInstance.SetModalActive(false);
     }
+
+    public void EnsurePersistentHierarchy(Transform appRoot)
+    {
+        AppScopeTransformUtility.ReparentRootToAppScope(modalCanvas, appRoot, nameof(ModalManager), nameof(modalCanvas));
+    }
 }

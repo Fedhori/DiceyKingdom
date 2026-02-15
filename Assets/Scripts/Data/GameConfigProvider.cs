@@ -13,6 +13,12 @@ public static class GameConfigProvider
 
     public static bool IsLoaded => current != null;
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatic()
+    {
+        current = null;
+    }
+
     public static GameConfigData Current
     {
         get

@@ -114,4 +114,10 @@ public class FloatingTextManager : MonoBehaviour
 
         return localPoint;
     }
+
+    public void EnsurePersistentHierarchy(Transform appRoot)
+    {
+        AppScopeTransformUtility.ReparentRootToAppScope(parentCanvas, appRoot, nameof(FloatingTextManager), nameof(parentCanvas));
+        AppScopeTransformUtility.ReparentRootToAppScope(container, appRoot, nameof(FloatingTextManager), nameof(container));
+    }
 }

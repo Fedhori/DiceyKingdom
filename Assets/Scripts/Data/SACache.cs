@@ -29,10 +29,19 @@ public static class SaCache
     // --- Ready 게이트 ---
     static Task initTask;
     static int initStarted;
-    static readonly TaskCompletionSource<bool> ReadyTcs =
-        new(TaskCreationOptions.RunContinuationsAsynchronously);
+    static TaskCompletionSource<bool> readyTcs = CreateReadyTcs();
 
-    public static Task Ready => ReadyTcs.Task; // 외부에서 기다릴 포인트
+    public static Task Ready => readyTcs.Task; // 외부에서 기다릴 포인트
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatic()
+    {
+        inited = false;
+        manifest = null;
+        initTask = null;
+        initStarted = 0;
+        readyTcs = CreateReadyTcs();
+    }
 
     // 앱 시작 시 1회 호출(중복 안전)
     public static Task InitAsync(SaOptions opt = null, Action<float> onProgress = null)
@@ -112,7 +121,7 @@ public static class SaCache
             {
                 inited = true;
                 onProgress?.Invoke(1f);
-                ReadyTcs.TrySetResult(true);
+                readyTcs.TrySetResult(true);
                 return;
             }
 
@@ -154,13 +163,18 @@ public static class SaCache
             inited = true;
             onProgress?.Invoke(1f);
 
-            ReadyTcs.TrySetResult(true); // Ready 통지
+            readyTcs.TrySetResult(true); // Ready 통지
         }
         catch (Exception ex)
         {
-            ReadyTcs.TrySetException(ex); // 실패 전파
+            readyTcs.TrySetException(ex); // 실패 전파
             throw;
         }
+    }
+
+    static TaskCompletionSource<bool> CreateReadyTcs()
+    {
+        return new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
     }
 
     static async Task CopyOneAsync(Entry e)

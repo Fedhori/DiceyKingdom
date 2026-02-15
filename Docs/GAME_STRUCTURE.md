@@ -113,6 +113,7 @@
   - `Bootstrap` (초기화/로딩/다음 씬 로드)
   - `managersRoot` (비활성 상태로 시작 권장)
     - `GameApp` (**유일한 DontDestroyOnLoad**) + AppScope 매니저들
+  - AppScope UI Canvas(`TooltipCanvas`, `ModalCanvas`, `OptionCanvas`, `FloatingTextCanvas`)는 런타임에 `GameApp` 하위로 편입되어 유지된다.
 
 ### GameScene.scene
 
@@ -124,7 +125,7 @@
   - `DontDestroyOnLoad` 호출
   - static Instance 싱글톤
 
-## 부트스트랩(데이터 로딩) 순서(현재 코드 기준)
+## 부트스트랩(데이터 로딩) 순서(확정)
 
 `Bootstrap.Awake()` 기준으로 아래 순서를 지킨다.
 
@@ -148,7 +149,7 @@
 
 - WebGL일 때 저장 동기화
 
-6. `SceneManager.LoadSceneAsync("GameScene")`
+6. `SceneManager.LoadSceneAsync(SceneIds.GameScene)`
 
 ## 스코프(수명) 분리
 
@@ -157,6 +158,7 @@
 - 수명: 게임 실행 동안 유지
 - 소유자: `GameApp` (유일한 싱글톤)
 - 예: Tooltip/Modal/Option/Toast/FloatingText, Audio/BGM, Input, GameSpeed, Particles, Save, DevConsole
+- `GameApp.Awake()`에서 App UI 뷰 루트들을 `GameApp` 하위로 강제 편입해 씬 전환 시 파괴되지 않게 유지한다.
 
 ### Run Scope (Per-run)
 
@@ -176,6 +178,9 @@
 - 런 진입점은 **씬에 1개만** 둔다.
   - 권장: `GameSceneInstaller`
   - `GameManager`는 “런 API 래퍼(퍼사드)”로만 두고 런 시작 책임을 지지 않는다.
+- 런 진입점 컴포넌트가 복수로 배치되어도 안전해야 한다.
+  - `GameApp.Run != null`이면 `BeginRun()`을 다시 호출하지 않는다.
+  - `EndRun()`은 “내가 시작한 Run 인스턴스”(`ReferenceEquals`)일 때만 호출한다.
 
 ## 저장/로드 기준
 
@@ -185,7 +190,7 @@
 ## UI 갱신(이벤트 사용 범위)
 
 - 이벤트/Observable은 **UI 갱신용**으로 제한한다.
-- 로직 진행(턴 전환/룰 체인)은 이벤트로 연결하지 않는다.
+- 로직 진행(턴 전환/룰 체인)은 이벤트로 연결하지 않는다(로직 체인 금지).
 - UI 구독은 `OnEnable` 등록 / `OnDisable` 해제 + `IDisposable` 토큰으로 통일한다.
 
 ## 용어 사전(확정)

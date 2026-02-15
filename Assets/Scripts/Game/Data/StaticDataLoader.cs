@@ -73,6 +73,12 @@ public static class StaticDataLoader
 
     public static StaticDataSet Current { get; private set; }
 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatic()
+    {
+        Current = null;
+    }
+
     public static StaticDataSet LoadAll()
     {
         List<AdventurerDef> adventurers = LoadAdventurerDefs();

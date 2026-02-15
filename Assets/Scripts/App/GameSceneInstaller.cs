@@ -5,6 +5,7 @@ public sealed class GameSceneInstaller : MonoBehaviour
 {
     [SerializeField] GameSceneRefs sceneRefs = new();
     bool ownsRun;
+    RunServices startedRun;
 
     void Awake()
     {
@@ -15,8 +16,12 @@ public sealed class GameSceneInstaller : MonoBehaviour
             return;
         }
 
+        if (app.Run != null)
+            return;
+
         app.BeginRun(sceneRefs);
         ownsRun = true;
+        startedRun = app.Run;
     }
 
     void OnDestroy()
@@ -28,6 +33,7 @@ public sealed class GameSceneInstaller : MonoBehaviour
         if (app == null)
             return;
 
-        app.EndRun();
+        if (ReferenceEquals(app.Run, startedRun))
+            app.EndRun();
     }
 }

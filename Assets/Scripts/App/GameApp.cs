@@ -42,6 +42,7 @@ public sealed class GameApp : MonoBehaviour
         }
 
         I = this;
+        EnsurePersistentUiHierarchy();
         DontDestroyOnLoad(gameObject);
         BuildServices();
     }
@@ -79,5 +80,14 @@ public sealed class GameApp : MonoBehaviour
     {
         var ui = new UIService(tooltip, modal, option, floatingText, toast);
         App = new AppServices(ui, audioManager, bgm, input, gameSpeed, particle, save, staticData, devCommand);
+    }
+
+    void EnsurePersistentUiHierarchy()
+    {
+        tooltip?.EnsurePersistentHierarchy(transform);
+        modal?.EnsurePersistentHierarchy(transform);
+        option?.EnsurePersistentHierarchy(transform);
+        floatingText?.EnsurePersistentHierarchy(transform);
+        toast?.EnsurePersistentHierarchy(transform);
     }
 }
