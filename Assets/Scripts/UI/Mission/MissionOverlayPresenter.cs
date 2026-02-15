@@ -64,6 +64,10 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
         if (!setupValid)
             return;
 
+        subscriptions.Add(EventSubscription.Subscribe(closeButton, HandleCloseClicked));
+        subscriptions.Add(EventSubscription.Subscribe(confirmButton, HandleConfirmClicked));
+        subscriptions.Add(EventSubscription.Subscribe(backgroundCloseButton, HandleBackgroundClicked));
+
         boundRun = GameApp.I?.Run;
         if (boundRun == null)
         {
@@ -72,9 +76,6 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
         }
 
         subscriptions.Add(boundRun.UiRevision.Subscribe(_ => HandleRunUiRevision(), pushCurrent: false));
-        subscriptions.Add(EventSubscription.Subscribe(closeButton, HandleCloseClicked));
-        subscriptions.Add(EventSubscription.Subscribe(confirmButton, HandleConfirmClicked));
-        subscriptions.Add(EventSubscription.Subscribe(backgroundCloseButton, HandleBackgroundClicked));
     }
 
     void OnDisable()
@@ -98,8 +99,18 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
 
     public void OpenOrFocus(string missionUid)
     {
+        if (!gameObject.activeSelf)
+            gameObject.SetActive(true);
+
         if (!setupValid)
             return;
+
+        if (boundRun == null)
+        {
+            boundRun = GameApp.I?.Run;
+            if (boundRun != null)
+                subscriptions.Add(boundRun.UiRevision.Subscribe(_ => HandleRunUiRevision(), pushCurrent: false));
+        }
 
         if (boundRun == null)
         {

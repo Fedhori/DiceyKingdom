@@ -2,15 +2,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public sealed class MissionWorldTestRowView : MonoBehaviour
 {
     [SerializeField] Transform abilityIconRoot;
-    [SerializeField] Image abilityIconPrefab;
+    [SerializeField] UnityEngine.UI.Image abilityIconPrefab;
     [SerializeField] TMP_Text difficultyText;
-    [SerializeField] Image clearedStateIcon;
-    readonly List<Image> iconPool = new();
+    [SerializeField] TMP_Text clearedStateText;
+    readonly List<UnityEngine.UI.Image> iconPool = new();
     bool setupValid;
 
     void Awake()
@@ -26,11 +25,8 @@ public sealed class MissionWorldTestRowView : MonoBehaviour
             return;
 
         difficultyText.text = Mathf.Max(0, data.difficulty).ToString(CultureInfo.InvariantCulture);
-        if (clearedStateIcon != null)
-        {
-            clearedStateIcon.enabled = true;
-            clearedStateIcon.color = data.isCleared ? Colors.Semantic.MissionTestCleared : Colors.Semantic.MissionTestPending;
-        }
+        clearedStateText.text = "●";
+        clearedStateText.color = data.isCleared ? Colors.Semantic.MissionTestCleared : Colors.Semantic.MissionTestPending;
 
         int iconCount = data.requiredAbilities?.Count ?? 0;
         GrowIconPool(iconCount);
@@ -38,7 +34,7 @@ public sealed class MissionWorldTestRowView : MonoBehaviour
         for (int i = 0; i < iconPool.Count; i++)
         {
             bool active = i < iconCount;
-            Image icon = iconPool[i];
+            UnityEngine.UI.Image icon = iconPool[i];
             icon.gameObject.SetActive(active);
             if (!active)
                 continue;
@@ -78,9 +74,9 @@ public sealed class MissionWorldTestRowView : MonoBehaviour
             valid = false;
         }
 
-        if (clearedStateIcon == null)
+        if (clearedStateText == null)
         {
-            Debug.LogError("[MissionWorld] clearedStateIcon is not assigned.", this);
+            Debug.LogError("[MissionWorld] clearedStateText is not assigned.", this);
         }
 
         return valid;
@@ -90,7 +86,7 @@ public sealed class MissionWorldTestRowView : MonoBehaviour
     {
         while (iconPool.Count < requiredCount)
         {
-            Image created = Instantiate(abilityIconPrefab, abilityIconRoot);
+            UnityEngine.UI.Image created = Instantiate(abilityIconPrefab, abilityIconRoot);
             created.gameObject.SetActive(true);
             iconPool.Add(created);
         }
