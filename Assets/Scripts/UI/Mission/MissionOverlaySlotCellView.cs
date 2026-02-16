@@ -32,16 +32,22 @@ public sealed class MissionOverlaySlotCellView : MonoBehaviour
         if (plusGraphic != null)
         {
             plusGraphic.gameObject.SetActive(!data.hasAssigned && data.isUsable);
-            plusGraphic.color = data.isUsable ? Colors.Semantic.TextDisabled : Colors.Semantic.BorderSubtle;
+            plusGraphic.color = data.isUsable
+                ? Colors.Semantic.MissionOverlaySlotPlus
+                : Colors.Semantic.MissionOverlaySlotFrameLocked;
         }
 
         if (frameImage != null)
-            frameImage.color = data.isUsable ? Colors.Semantic.BorderSubtle : Colors.Semantic.TextDisabled;
+        {
+            frameImage.color = data.isUsable
+                ? Colors.Semantic.MissionOverlaySlotFrameUsable
+                : Colors.Semantic.MissionOverlaySlotFrameLocked;
+        }
 
         if (lockedOverlayGraphic != null)
         {
             lockedOverlayGraphic.gameObject.SetActive(!data.isUsable);
-            lockedOverlayGraphic.color = Colors.Semantic.TextDisabled;
+            lockedOverlayGraphic.color = Colors.Semantic.MissionOverlaySlotLockedOverlay;
         }
     }
 

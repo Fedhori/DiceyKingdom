@@ -51,12 +51,10 @@ public sealed class MissionDraftSlotView : MonoBehaviour, IDropHandler, IPointer
 
         slotButton.interactable = canInteract && hasAssigned;
         if (occupiedHighlight != null)
-        {
             occupiedHighlight.enabled = data.hasAssigned;
-            occupiedHighlight.color = data.hasAssigned
-                ? Colors.Semantic.BorderSubtle
-                : Colors.Semantic.TextDisabled;
-        }
+
+        if (hoverHighlight != null)
+            hoverHighlight.enabled = false;
     }
 
     bool ValidateReferences()

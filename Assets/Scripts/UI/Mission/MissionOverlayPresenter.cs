@@ -402,7 +402,6 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
                 TMP_Text chip = tagPool[renderIndex];
                 chip.gameObject.SetActive(true);
                 chip.text = tag.Trim();
-                chip.color = Colors.Semantic.TextPrimary;
                 renderIndex++;
             }
         }

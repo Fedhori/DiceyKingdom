@@ -11,6 +11,9 @@
 
 ## Planned
 
+- [P1-UI-COLOR-02] Scene/Prefab 잔여 하드코딩 색상 제거 (`Docs/UI_COLOR_WORK_ORDER.md` 3단계)
+- [P1-UI-COLOR-03] Modal/Tooltip 색상 alias 적용 (`Docs/UI_COLOR_WORK_ORDER.md` 4단계)
+- [P1-UI-COLOR-04] 통합 검증 (HUD/월드카드/오버레이 상태색 + 컴파일 0)
 - [P1-IMPL-MISSION-10] 검증: 컴파일 0 + 게임 플로우 점검 (GameScene 진입 -> 월드 카드 표시 -> 선택 -> 오버레이 상세/배치 -> 확정 규칙 동작)
 - [P1-SPEC] Overlay `원정 창` 스펙 확정 (원정에 참여한 모험가들 상태 표시, 원정 상태 표기, 테스트버튼, 포기버튼)
 - [P1-SPEC] Overlay `턴 종료/정산 패널` 스펙 확정 (정산 결과 요약, 임무 실패 반영 방식)
@@ -29,6 +32,8 @@
 
 ## Done
 
+- 2026-02-16: [P1-UI-COLOR-01A] 프로토타입 규칙 반영 (에디터에서 가능한 정적 색상은 코드 적용 제거, 동적 상태색만 코드 유지)
+- 2026-02-16: [P1-UI-COLOR-01] `Colors.Semantic` 화면 alias 추가 + Mission/HUD 1차 적용 + 작업서 작성 (`Docs/UI_COLOR_WORK_ORDER.md`, `RunCoreStatsBinder`, `MissionWorldCardView`, `MissionWorldTestRowView`, `MissionOverlay*`)
 - 2026-02-16: [P1-IMPL-MISSION-09] MissionOverlay 재구축 완료 (`MissionOverlayRoot`/`MissionOverlayPanel` 하위 v13 계층 신설, 테스트/파티/슬롯 템플릿 생성, `MissionOverlayPresenter`/`MissionUiCoordinator` 직렬화 참조 재연결, 루트 기본 비활성)
 - 2026-02-15: [P1-IMPL-MISSION] 코드 구현 1차 완료 (`RunServices.TryCommitMissionDraft` 원자적 확정+원정 시작 전환, `MissionWorldListPresenter` 정렬/선택 이벤트/partyLimit 반영, `MissionUiCoordinator`/`MissionOverlayPresenter`/`MissionAdventurerRowView`/`MissionDraftSlotView`/`MissionEffectSummaryBuilder` 추가, 문서 `MISSION/GAME_STRUCTURE/GENERAL_RULES` 동기화)
 - 2026-02-15: [P1-SPEC] `임무 카드/리스트` 스펙 확정 (`Docs/MISSION.md`에 월드 카드/오버레이 표시 항목, 배치/확정 규칙, 선택/강조 규칙 고정 / `Docs/GAME_STRUCTURE.md`에 월드+오버레이 분리 원칙 반영)

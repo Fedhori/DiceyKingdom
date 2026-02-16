@@ -345,6 +345,30 @@ public static class Colors
     public static readonly Color32 HandleIdle   = Primitive.Slate600;
     public static readonly Color32 HandleHover  = Primitive.Slate500;
     public static readonly Color32 HandleActive = Primitive.Gold600;
+
+    // ----------------------------
+    // Screen Aliases (component mapping)
+    // ----------------------------
+
+    // HUD
+    public static readonly Color32 HudStatText = TextPrimary;
+
+    // Mission Overlay
+    public static readonly Color32 MissionOverlaySlotFrameUsable = BorderNormal;
+    public static readonly Color32 MissionOverlaySlotFrameLocked = TextDisabled;
+    public static readonly Color32 MissionOverlaySlotPlus = TextDisabled;
+    public static readonly Color32 MissionOverlaySlotLockedOverlay = DisabledTint;
+
+    // Modal
+    public static readonly Color32 ModalDimBackground = OverlayDim;
+    public static readonly Color32 ModalPanelBg = SurfacePrimary;
+    public static readonly Color32 ModalPanelBorder = BorderNormal;
+    public static readonly Color32 ModalTitleText = TextPrimary;
+    public static readonly Color32 ModalBodyText = TextSecondary;
+    public static readonly Color32 ModalConfirmButtonBg = ActionPrimaryBg;
+    public static readonly Color32 ModalConfirmButtonFg = ActionPrimaryFg;
+    public static readonly Color32 ModalCancelButtonBg = ActionSecondaryBg;
+    public static readonly Color32 ModalCancelButtonFg = ActionSecondaryFg;
 }
 }
 

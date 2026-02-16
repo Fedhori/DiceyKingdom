@@ -43,6 +43,10 @@
   - `Primitive`: 프로젝트 톤앤매너(팔레트)
   - `Semantic`: 실제 UI/게임 의미 색상(`TextPrimary`, `StateDanger` 등)
 - 코드에서는 의미 표현이 필요한 경우 `Semantic`만 사용하고, `Primitive`를 직접 사용하지 않는다.
+- 화면 단위 구현에서는 `Semantic`의 기능별 alias(`Hud...`, `MissionOverlay...`, `MissionWorld...`, `Modal...`)를 우선 사용한다.
+- 색상 치환 작업은 `Docs/UI_COLOR_WORK_ORDER.md`의 매칭표/적용 순서를 기준으로 수행한다.
+- 프로토타입 단계에서는 **에디터로 설정 가능한 정적 UI 색상**(기본 텍스트/패널/배경/버튼 기본색)은 에디터에서 설정한다.
+- 코드 색상 변경은 **상태 기반 동적 표현**(선택/잠금/활성-비활성 등)으로 한정한다.
 - 인게임 수치/확률은 `Assets/StreamingAssets/Data/GameConfig.json`에서 중앙 관리한다.
   - 로드는 Bootstrap 단계에서 수행한다.
 - Tooltip 표시 지연/배치 같은 UI 표현 수치는 해당 UI 컴포넌트 인스펙터에서 관리한다.
