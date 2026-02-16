@@ -36,7 +36,7 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
     readonly List<MissionOverlayTestDiceView> testDicePool = new();
     readonly List<MissionOverlayStatDiceView> statDicePool = new();
     readonly List<MissionOverlaySlotCellView> slotCellPool = new();
-    readonly List<string> draftSlots = new();
+    readonly List<string> draftSlots = new(MaxVisibleSlots);
 
     RunServices boundRun;
     bool runRevisionSubscribed;
@@ -48,7 +48,12 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
     {
         setupValid = ValidateReferences();
         if (!setupValid)
+        {
             enabled = false;
+            return;
+        }
+
+        InitializeDraftSlots();
     }
 
     void OnEnable()
@@ -58,6 +63,8 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
         if (!setupValid)
             return;
 
+        InitializeDraftSlots();
+        ResetDraftState();
         subscriptions.Add(EventSubscription.Subscribe(closeButton, HandleCloseClicked));
         subscriptions.Add(EventSubscription.Subscribe(startExpeditionButton, HandleStartExpeditionClicked));
 
@@ -188,7 +195,6 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
         if (slotIndex < 0 || slotIndex >= MaxVisibleSlots)
             return false;
 
-        EnsureDraftSlotCapacity();
         if (string.IsNullOrWhiteSpace(draftSlots[slotIndex]))
             return true;
 
@@ -199,7 +205,6 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
 
     public IReadOnlyList<string> GetDraftAssignedUids()
     {
-        EnsureDraftSlotCapacity();
         return BuildCommitList(MaxVisibleSlots);
     }
 
@@ -267,7 +272,7 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
         }
 
         int effectiveLimit = GetEffectivePartyLimit(missionDef);
-        EnsureDraftState(mission, effectiveLimit);
+        SyncDraftStateFromMission(mission, effectiveLimit);
 
         missionNameText.text = BuildDisplayName(missionDef.id);
         deadlineText.text = $"기한 {Math.Max(0, mission.remainingDeadlineTurns)}T";
@@ -308,7 +313,7 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
         }
 
         effectiveLimit = GetEffectivePartyLimit(missionDef);
-        EnsureDraftState(mission, effectiveLimit);
+        SyncDraftStateFromMission(mission, effectiveLimit);
         return true;
     }
 
@@ -320,7 +325,6 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
         out string reason)
     {
         reason = string.Empty;
-        EnsureDraftSlotCapacity();
 
         if (!ValidateDraftAdventurer(state, mission, adventurerUid, out reason))
             return false;
@@ -517,9 +521,8 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
         startExpeditionButton.interactable = canStart;
     }
 
-    void EnsureDraftState(MissionInstance mission, int effectiveLimit)
+    void SyncDraftStateFromMission(MissionInstance mission, int effectiveLimit)
     {
-        EnsureDraftSlotCapacity();
         bool missionChanged = !string.Equals(draftMissionUid, mission.uid, StringComparison.Ordinal);
         if (missionChanged)
         {
@@ -539,11 +542,8 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
             draftSlots[i] = string.Empty;
     }
 
-    void EnsureDraftSlotCapacity()
+    void InitializeDraftSlots()
     {
-        if (draftSlots.Count == MaxVisibleSlots)
-            return;
-
         draftSlots.Clear();
         for (int i = 0; i < MaxVisibleSlots; i++)
             draftSlots.Add(string.Empty);
@@ -552,7 +552,8 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
     void ResetDraftState()
     {
         draftMissionUid = string.Empty;
-        draftSlots.Clear();
+        for (int i = 0; i < draftSlots.Count; i++)
+            draftSlots[i] = string.Empty;
     }
 
     int FindDraftIndex(string adventurerUid)

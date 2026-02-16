@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &687480664044101199
 GameObject:
@@ -76,7 +76,7 @@ MonoBehaviour:
   - {fileID: 0}
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
+    rgba: 4279967264
   m_fontColor: {r: 0.1255, g: 0.1176, b: 0.1059, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -239,7 +239,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 72, y: 84}
+  m_SizeDelta: {x: 72, y: 74}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &3373585508887876700
 MonoBehaviour:
