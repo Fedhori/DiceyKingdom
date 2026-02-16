@@ -8,661 +8,516 @@ using UnityEngine.UI;
 
 public sealed class MissionOverlayPresenter : MonoBehaviour
 {
-    [SerializeField] OverlayFader overlayFader;
-    [SerializeField] Button backgroundCloseButton;
+    const int MaxVisibleSlots = 4;
+    const string StrengthAbilityId = "strength";
+    const string AgilityAbilityId = "agility";
+    const string IntelligenceAbilityId = "intelligence";
+
+    [SerializeField] GameObject panelRoot;
     [SerializeField] Button closeButton;
-    [SerializeField] Button confirmButton;
+    [SerializeField] Button startExpeditionButton;
     [SerializeField] TMP_Text missionNameText;
     [SerializeField] TMP_Text deadlineText;
-    [SerializeField] TMP_Text successSummaryText;
-    [SerializeField] TMP_Text deadlineFailSummaryText;
     [SerializeField] Transform tagRoot;
     [SerializeField] TMP_Text tagChipPrefab;
-    [SerializeField] Transform testRowRoot;
-    [SerializeField] MissionWorldTestRowView testRowPrefab;
-    [SerializeField] Image partyStrengthIcon;
-    [SerializeField] TMP_Text partyStrengthText;
-    [SerializeField] Image partyAgilityIcon;
-    [SerializeField] TMP_Text partyAgilityText;
-    [SerializeField] Image partyIntelligenceIcon;
-    [SerializeField] TMP_Text partyIntelligenceText;
-    [SerializeField] Transform adventurerRowRoot;
-    [SerializeField] MissionAdventurerRowView adventurerRowPrefab;
-    [SerializeField] Transform draftSlotRoot;
-    [SerializeField] MissionDraftSlotView draftSlotPrefab;
+    [SerializeField] Transform testDiceRoot;
+    [SerializeField] MissionOverlayTestDiceView testDicePrefab;
+    [SerializeField] Transform partyStatDiceRoot;
+    [SerializeField] MissionOverlayStatDiceView partyStatDicePrefab;
+    [SerializeField] Transform slotCellRoot;
+    [SerializeField] MissionOverlaySlotCellView slotCellPrefab;
+    [SerializeField] TMP_Text rewardSummaryText;
+    [SerializeField] TMP_Text failureSummaryText;
     [SerializeField] MissionIconRegistry iconRegistry;
-    [SerializeField] GameObject lockStateRoot;
 
     readonly DisposableBag subscriptions = new();
     readonly MissionEffectSummaryBuilder summaryBuilder = new();
     readonly List<TMP_Text> tagPool = new();
-    readonly List<MissionWorldTestRowView> testRowPool = new();
-    readonly List<MissionAdventurerRowView> adventurerRowPool = new();
-    readonly List<MissionDraftSlotView> draftSlotPool = new();
+    readonly List<MissionOverlayTestDiceView> testDicePool = new();
+    readonly List<MissionOverlayStatDiceView> statDicePool = new();
+    readonly List<MissionOverlaySlotCellView> slotCellPool = new();
     readonly List<string> draftSlots = new();
 
     RunServices boundRun;
-    string draftMissionUid = string.Empty;
+    bool runRevisionSubscribed;
     bool setupValid;
-    bool isOpen;
+    string draftMissionUid = string.Empty;
 
     void Awake()
     {
         setupValid = ValidateReferences();
         if (!setupValid)
-        {
             enabled = false;
-            return;
-        }
-
-        overlayFader.SetVisibleInstant(false);
-        isOpen = false;
     }
 
     void OnEnable()
     {
         subscriptions.Clear();
+        runRevisionSubscribed = false;
         if (!setupValid)
             return;
 
         subscriptions.Add(EventSubscription.Subscribe(closeButton, HandleCloseClicked));
-        subscriptions.Add(EventSubscription.Subscribe(confirmButton, HandleConfirmClicked));
-        subscriptions.Add(EventSubscription.Subscribe(backgroundCloseButton, HandleBackgroundClicked));
+        subscriptions.Add(EventSubscription.Subscribe(startExpeditionButton, HandleStartExpeditionClicked));
 
-        boundRun = GameApp.I?.Run;
-        if (boundRun == null)
-        {
-            Debug.LogError("[MissionOverlay] RunServices is null. Enable this UI after BeginRun.", this);
-            return;
-        }
-
-        subscriptions.Add(boundRun.UiRevision.Subscribe(_ => HandleRunUiRevision(), pushCurrent: false));
+        TryBindRun(logError: true);
     }
 
     void OnDisable()
     {
         subscriptions.Clear();
         boundRun = null;
-        isOpen = false;
+        runRevisionSubscribed = false;
         ResetDraftState();
     }
 
     void Update()
     {
-        if (!isOpen)
+        if (!gameObject.activeSelf)
             return;
 
         Keyboard keyboard = Keyboard.current;
         if (keyboard == null || !keyboard.escapeKey.wasPressedThisFrame)
             return;
 
-        TryCloseOverlay();
+        CloseOverlay();
     }
 
     public void OpenOrFocus(string missionUid)
     {
-        if (!gameObject.activeSelf)
-            gameObject.SetActive(true);
-
         if (!setupValid)
             return;
 
-        if (boundRun == null)
-        {
-            boundRun = GameApp.I?.Run;
-            if (boundRun != null)
-                subscriptions.Add(boundRun.UiRevision.Subscribe(_ => HandleRunUiRevision(), pushCurrent: false));
-        }
+        if (!gameObject.activeSelf)
+            gameObject.SetActive(true);
 
-        if (boundRun == null)
-        {
-            Debug.LogError("[MissionOverlay] Cannot open overlay. RunServices is null.", this);
+        if (!TryBindRun(logError: true))
             return;
-        }
 
         if (!boundRun.SetActiveMission(missionUid))
         {
-            Debug.LogError($"[MissionOverlay] Failed to open mission: {missionUid}", this);
+            Debug.LogError($"[MissionOverlay] Failed to select mission: {missionUid}", this);
             return;
         }
 
-        if (!isOpen)
-        {
-            isOpen = true;
-            overlayFader.Show();
-        }
-
-        overlayFader.transform.SetAsLastSibling();
-        Rebuild();
-    }
-
-    bool ValidateReferences()
-    {
-        bool valid = true;
-        if (overlayFader == null)
-        {
-            Debug.LogError("[MissionOverlay] overlayFader is not assigned.", this);
-            valid = false;
-        }
-
-        if (backgroundCloseButton == null)
-        {
-            Debug.LogError("[MissionOverlay] backgroundCloseButton is not assigned.", this);
-            valid = false;
-        }
-
-        if (closeButton == null)
-        {
-            Debug.LogError("[MissionOverlay] closeButton is not assigned.", this);
-            valid = false;
-        }
-
-        if (confirmButton == null)
-        {
-            Debug.LogError("[MissionOverlay] confirmButton is not assigned.", this);
-            valid = false;
-        }
-
-        if (missionNameText == null)
-        {
-            Debug.LogError("[MissionOverlay] missionNameText is not assigned.", this);
-            valid = false;
-        }
-
-        if (deadlineText == null)
-        {
-            Debug.LogError("[MissionOverlay] deadlineText is not assigned.", this);
-            valid = false;
-        }
-
-        if (successSummaryText == null)
-        {
-            Debug.LogError("[MissionOverlay] successSummaryText is not assigned.", this);
-            valid = false;
-        }
-
-        if (deadlineFailSummaryText == null)
-        {
-            Debug.LogError("[MissionOverlay] deadlineFailSummaryText is not assigned.", this);
-            valid = false;
-        }
-
-        if (tagRoot == null)
-        {
-            Debug.LogError("[MissionOverlay] tagRoot is not assigned.", this);
-            valid = false;
-        }
-
-        if (tagChipPrefab == null)
-        {
-            Debug.LogError("[MissionOverlay] tagChipPrefab is not assigned.", this);
-            valid = false;
-        }
-
-        if (testRowRoot == null)
-        {
-            Debug.LogError("[MissionOverlay] testRowRoot is not assigned.", this);
-            valid = false;
-        }
-
-        if (testRowPrefab == null)
-        {
-            Debug.LogError("[MissionOverlay] testRowPrefab is not assigned.", this);
-            valid = false;
-        }
-
-        if (partyStrengthIcon == null || partyStrengthText == null ||
-            partyAgilityIcon == null || partyAgilityText == null ||
-            partyIntelligenceIcon == null || partyIntelligenceText == null)
-        {
-            Debug.LogError("[MissionOverlay] party total icon/text references are not assigned.", this);
-            valid = false;
-        }
-
-        if (adventurerRowRoot == null)
-        {
-            Debug.LogError("[MissionOverlay] adventurerRowRoot is not assigned.", this);
-            valid = false;
-        }
-
-        if (adventurerRowPrefab == null)
-        {
-            Debug.LogError("[MissionOverlay] adventurerRowPrefab is not assigned.", this);
-            valid = false;
-        }
-
-        if (draftSlotRoot == null)
-        {
-            Debug.LogError("[MissionOverlay] draftSlotRoot is not assigned.", this);
-            valid = false;
-        }
-
-        if (draftSlotPrefab == null)
-        {
-            Debug.LogError("[MissionOverlay] draftSlotPrefab is not assigned.", this);
-            valid = false;
-        }
-
-        if (iconRegistry == null)
-        {
-            Debug.LogError("[MissionOverlay] iconRegistry is not assigned.", this);
-            valid = false;
-        }
-
-        if (lockStateRoot == null)
-        {
-            Debug.LogError("[MissionOverlay] lockStateRoot is not assigned.", this);
-            valid = false;
-        }
-
-        return valid;
-    }
-
-    void HandleRunUiRevision()
-    {
-        if (!isOpen)
-            return;
+        if (panelRoot != null && !panelRoot.activeSelf)
+            panelRoot.SetActive(true);
 
         Rebuild();
     }
 
-    void HandleBackgroundClicked()
+    public bool TryAssignAdventurerToFirstAvailableSlot(string adventurerUid, out string reason)
     {
-        TryCloseOverlay();
+        reason = string.Empty;
+        if (!PrepareDraftMutation(out RunState state, out MissionInstance mission, out MissionDef missionDef, out int effectiveLimit, out reason))
+            return false;
+
+        int targetIndex = -1;
+        for (int i = 0; i < effectiveLimit; i++)
+        {
+            if (!string.IsNullOrWhiteSpace(draftSlots[i]))
+                continue;
+
+            targetIndex = i;
+            break;
+        }
+
+        if (targetIndex < 0)
+        {
+            reason = "No empty draft slot is available.";
+            return false;
+        }
+
+        return TryAssignAdventurerToSlotInternal(targetIndex, adventurerUid, state, mission, out reason);
+    }
+
+    public bool TryAssignAdventurerToSlot(int slotIndex, string adventurerUid, out string reason)
+    {
+        reason = string.Empty;
+        if (!PrepareDraftMutation(out RunState state, out MissionInstance mission, out MissionDef missionDef, out int effectiveLimit, out reason))
+            return false;
+
+        if (slotIndex < 0 || slotIndex >= MaxVisibleSlots)
+        {
+            reason = $"slotIndex is out of range: {slotIndex}";
+            return false;
+        }
+
+        if (slotIndex >= effectiveLimit)
+        {
+            reason = $"slotIndex exceeds party limit: {slotIndex}/{effectiveLimit - 1}";
+            return false;
+        }
+
+        return TryAssignAdventurerToSlotInternal(slotIndex, adventurerUid, state, mission, out reason);
+    }
+
+    public bool TryClearSlot(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= MaxVisibleSlots)
+            return false;
+
+        EnsureDraftSlotCapacity();
+        if (string.IsNullOrWhiteSpace(draftSlots[slotIndex]))
+            return true;
+
+        draftSlots[slotIndex] = string.Empty;
+        Rebuild();
+        return true;
+    }
+
+    public IReadOnlyList<string> GetDraftAssignedUids()
+    {
+        EnsureDraftSlotCapacity();
+        return BuildCommitList(MaxVisibleSlots);
     }
 
     void HandleCloseClicked()
     {
-        TryCloseOverlay();
+        CloseOverlay();
     }
 
-    void TryCloseOverlay()
+    void HandleStartExpeditionClicked()
     {
-        if (!isOpen)
+        if (!TryBindRun(logError: true))
             return;
 
-        if (IsExpeditionLocked())
-            return;
-
-        ResetDraftState();
-        overlayFader.Hide(() => { isOpen = false; });
-    }
-
-    void HandleConfirmClicked()
-    {
-        if (boundRun == null)
-            return;
-
-        RunState state = boundRun.CurrentRunState;
-        if (!TryGetActiveMission(state, out MissionInstance mission, out MissionDef missionDef))
+        if (!TryGetActiveMission(boundRun.CurrentRunState, out MissionInstance mission, out MissionDef missionDef))
         {
-            Debug.LogError("[MissionOverlay] Confirm failed. Active mission is invalid.", this);
+            Debug.LogError("[MissionOverlay] Cannot start expedition. Active mission is invalid.", this);
             return;
         }
 
         if (mission.isPartyLocked || mission.isExpeditionInProgress)
+            return;
+
+        int effectiveLimit = GetEffectivePartyLimit(missionDef);
+        List<string> commitList = BuildCommitList(effectiveLimit);
+        if (commitList.Count <= 0)
+            return;
+
+        if (!boundRun.TryCommitMissionDraft(mission.uid, commitList, out string failureReason))
         {
-            Debug.LogError("[MissionOverlay] Confirm ignored. Mission is already locked/in progress.", this);
+            Debug.LogError($"[MissionOverlay] Start expedition failed: {failureReason}", this);
             Rebuild();
             return;
         }
 
-        List<string> commitList = BuildCommitList();
-        if (commitList.Count <= 0)
-        {
-            Debug.LogError("[MissionOverlay] Confirm requires at least one assigned adventurer.", this);
-            return;
-        }
+        CloseOverlay();
+    }
 
-        if (commitList.Count > Math.Max(1, missionDef.partyLimit))
-        {
-            Debug.LogError("[MissionOverlay] Confirm failed. Draft exceeds party limit.", this);
+    void HandleRunUiRevision()
+    {
+        if (!gameObject.activeSelf)
             return;
-        }
-
-        if (!boundRun.TryCommitMissionDraft(mission.uid, commitList, out string failureReason))
-        {
-            Debug.LogError($"[MissionOverlay] Confirm failed: {failureReason}", this);
-            return;
-        }
 
         Rebuild();
     }
 
+    void CloseOverlay()
+    {
+        if (panelRoot != null)
+            panelRoot.SetActive(false);
+
+        gameObject.SetActive(false);
+    }
+
     void Rebuild()
     {
-        if (boundRun == null)
+        if (!TryBindRun(logError: true))
             return;
 
         RunState state = boundRun.CurrentRunState;
         if (!TryGetActiveMission(state, out MissionInstance mission, out MissionDef missionDef))
         {
-            ResetDraftState();
-            overlayFader.Hide(() => { isOpen = false; });
+            Debug.LogError("[MissionOverlay] Active mission is missing or invalid.", this);
+            CloseOverlay();
             return;
         }
 
-        int partyLimit = Math.Max(1, missionDef.partyLimit);
-        PrepareDraftState(mission, partyLimit);
+        int effectiveLimit = GetEffectivePartyLimit(missionDef);
+        EnsureDraftState(mission, effectiveLimit);
 
-        MissionOverlayData data = BuildOverlayData(state, mission, missionDef, partyLimit);
-        RenderCore(data);
-        RenderTags(data.tags);
-        RenderTests(data.tests);
-        RenderDraftSlots(state, partyLimit, data.isLocked);
-        RenderAdventurerRows(state, mission, data.isLocked);
-        RenderPartyTotals(state);
-        RenderControls(data.isLocked);
-        ApplyPartyIcons();
+        missionNameText.text = BuildDisplayName(missionDef.id);
+        deadlineText.text = $"기한 {Math.Max(0, mission.remainingDeadlineTurns)}T";
+        rewardSummaryText.text = summaryBuilder.BuildSuccessSummary(missionDef);
+        failureSummaryText.text = summaryBuilder.BuildDeadlineFailSummary(missionDef);
+
+        RenderTags(missionDef.tags);
+        RenderTestDice(mission, missionDef);
+        RenderPartyStats(state, effectiveLimit);
+        RenderSlotCells(state, effectiveLimit);
+        RenderStartButton(mission, effectiveLimit);
     }
 
-    MissionOverlayData BuildOverlayData(RunState state, MissionInstance mission, MissionDef missionDef, int partyLimit)
+    bool PrepareDraftMutation(
+        out RunState state,
+        out MissionInstance mission,
+        out MissionDef missionDef,
+        out int effectiveLimit,
+        out string reason)
     {
-        var data = new MissionOverlayData
-        {
-            missionUid = mission.uid,
-            missionName = BuildDisplayName(missionDef.id),
-            remainingDeadlineTurns = mission.remainingDeadlineTurns,
-            partyLimit = partyLimit,
-            isSelected = string.Equals(state.activeMissionUid, mission.uid, StringComparison.Ordinal),
-            isLocked = mission.isPartyLocked || mission.isExpeditionInProgress,
-            successSummary = summaryBuilder.BuildSuccessSummary(missionDef),
-            deadlineFailSummary = summaryBuilder.BuildDeadlineFailSummary(missionDef),
-            tags = new List<string>(),
-            tests = new List<MissionOverlayTestData>()
-        };
+        state = null;
+        mission = null;
+        missionDef = null;
+        effectiveLimit = 0;
+        reason = string.Empty;
 
-        if (missionDef.tags != null)
+        if (!TryBindRun(logError: true))
         {
-            for (int i = 0; i < missionDef.tags.Count; i++)
-            {
-                string tag = missionDef.tags[i];
-                if (string.IsNullOrWhiteSpace(tag))
-                    continue;
-
-                data.tags.Add(tag.Trim());
-            }
+            reason = "RunServices is null.";
+            return false;
         }
 
-        if (missionDef.abilityTests != null)
+        state = boundRun.CurrentRunState;
+        if (!TryGetActiveMission(state, out mission, out missionDef))
         {
-            for (int i = 0; i < missionDef.abilityTests.Count; i++)
-            {
-                AbilityTestDef test = missionDef.abilityTests[i];
-                if (test == null)
-                    continue;
-
-                var testData = new MissionOverlayTestData
-                {
-                    difficulty = Math.Max(0, test.difficulty),
-                    isCleared = IsTestCleared(mission, i),
-                    requiredAbilities = new List<string>()
-                };
-
-                if (test.requiredAbilities != null)
-                {
-                    for (int abilityIndex = 0; abilityIndex < test.requiredAbilities.Count; abilityIndex++)
-                    {
-                        string abilityId = test.requiredAbilities[abilityIndex];
-                        if (string.IsNullOrWhiteSpace(abilityId))
-                            continue;
-
-                        testData.requiredAbilities.Add(abilityId);
-                    }
-                }
-
-                data.tests.Add(testData);
-            }
+            reason = "Active mission is invalid.";
+            return false;
         }
 
-        return data;
+        effectiveLimit = GetEffectivePartyLimit(missionDef);
+        EnsureDraftState(mission, effectiveLimit);
+        return true;
     }
 
-    void RenderCore(MissionOverlayData data)
+    bool TryAssignAdventurerToSlotInternal(
+        int slotIndex,
+        string adventurerUid,
+        RunState state,
+        MissionInstance mission,
+        out string reason)
     {
-        missionNameText.text = data.missionName;
-        deadlineText.text = $"기한: {Math.Max(0, data.remainingDeadlineTurns)}T";
-        successSummaryText.text = data.successSummary;
-        deadlineFailSummaryText.text = data.deadlineFailSummary;
-    }
+        reason = string.Empty;
+        EnsureDraftSlotCapacity();
 
-    void RenderTags(List<string> tags)
-    {
-        int count = tags?.Count ?? 0;
-        GrowTagPool(count);
-        for (int i = 0; i < tagPool.Count; i++)
-        {
-            bool active = i < count;
-            TMP_Text chip = tagPool[i];
-            chip.gameObject.SetActive(active);
-            if (!active)
-                continue;
+        if (!ValidateDraftAdventurer(state, mission, adventurerUid, out reason))
+            return false;
 
-            chip.text = tags[i];
-            chip.color = Colors.Semantic.TextPrimary;
-        }
-
-        tagRoot.gameObject.SetActive(count > 0);
-    }
-
-    void RenderTests(List<MissionOverlayTestData> tests)
-    {
-        int count = tests?.Count ?? 0;
-        GrowTestRowPool(count);
-        for (int i = 0; i < testRowPool.Count; i++)
-        {
-            bool active = i < count;
-            MissionWorldTestRowView row = testRowPool[i];
-            row.gameObject.SetActive(active);
-            if (!active)
-                continue;
-
-            MissionOverlayTestData source = tests[i];
-            var viewData = new MissionWorldTestData
-            {
-                difficulty = source.difficulty,
-                isCleared = source.isCleared,
-                requiredAbilities = source.requiredAbilities ?? new List<string>()
-            };
-            row.SetData(viewData, iconRegistry);
-        }
-    }
-
-    void RenderDraftSlots(RunState state, int partyLimit, bool locked)
-    {
-        GrowDraftSlotPool(partyLimit);
-        for (int i = 0; i < draftSlotPool.Count; i++)
-        {
-            bool active = i < partyLimit;
-            MissionDraftSlotView slot = draftSlotPool[i];
-            slot.gameObject.SetActive(active);
-            if (!active)
-                continue;
-
-            string assignedUid = draftSlots[i];
-            string assignedName = ResolveAdventurerDisplayName(state, assignedUid);
-            var data = new MissionDraftSlotData
-            {
-                slotIndex = i,
-                assignedAdventurerUid = assignedUid,
-                assignedDisplayName = assignedName,
-                canInteract = !locked,
-                hasAssigned = !string.IsNullOrWhiteSpace(assignedUid)
-            };
-            slot.SetData(data, HandleSlotClear, HandleSlotDropAdventurer);
-        }
-    }
-
-    void RenderAdventurerRows(RunState state, MissionInstance mission, bool locked)
-    {
-        var list = new List<MissionAdventurerRowData>();
-        if (state?.adventurers != null)
-        {
-            for (int i = 0; i < state.adventurers.Count; i++)
-            {
-                AdventurerInstance adventurer = state.adventurers[i];
-                if (adventurer == null || string.IsNullOrWhiteSpace(adventurer.uid))
-                    continue;
-
-                bool selected = IsDraftAssigned(adventurer.uid);
-                bool assignable = !locked && CanAssignToCurrentMission(adventurer, mission);
-                list.Add(new MissionAdventurerRowData
-                {
-                    adventurerUid = adventurer.uid,
-                    displayName = BuildDisplayName(adventurer.adventurerId),
-                    strength = boundRun.GetAdventurerStat(adventurer.uid, StatId.Strength),
-                    agility = boundRun.GetAdventurerStat(adventurer.uid, StatId.Agility),
-                    intelligence = boundRun.GetAdventurerStat(adventurer.uid, StatId.Intelligence),
-                    isAssignable = assignable,
-                    isSelected = selected
-                });
-            }
-        }
-
-        list.Sort((left, right) =>
-        {
-            int assignableCompare = right.isAssignable.CompareTo(left.isAssignable);
-            if (assignableCompare != 0)
-                return assignableCompare;
-
-            return string.CompareOrdinal(left.adventurerUid, right.adventurerUid);
-        });
-
-        GrowAdventurerRowPool(list.Count);
-        for (int i = 0; i < adventurerRowPool.Count; i++)
-        {
-            bool active = i < list.Count;
-            MissionAdventurerRowView row = adventurerRowPool[i];
-            row.gameObject.SetActive(active);
-            if (!active)
-                continue;
-
-            row.SetData(list[i], HandleAdventurerRowClicked);
-        }
-    }
-
-    void RenderPartyTotals(RunState state)
-    {
-        MissionPartyTotalsData totals = BuildPartyTotals(state);
-        partyStrengthText.text = totals.strength.ToString();
-        partyAgilityText.text = totals.agility.ToString();
-        partyIntelligenceText.text = totals.intelligence.ToString();
-    }
-
-    void RenderControls(bool locked)
-    {
-        int assignedCount = CountAssignedInDraft();
-        bool canConfirm = !locked && assignedCount > 0;
-        confirmButton.interactable = canConfirm;
-        closeButton.interactable = !locked;
-        backgroundCloseButton.interactable = !locked;
-        lockStateRoot.SetActive(locked);
-    }
-
-    void ApplyPartyIcons()
-    {
-        SetAbilityIcon(partyStrengthIcon, "strength");
-        SetAbilityIcon(partyAgilityIcon, "agility");
-        SetAbilityIcon(partyIntelligenceIcon, "intelligence");
-    }
-
-    void SetAbilityIcon(Image target, string abilityId)
-    {
-        if (target == null)
-            return;
-
-        if (!iconRegistry.TryResolveAbilityIcon(abilityId, out Sprite sprite, out Color color))
-        {
-            target.enabled = false;
-            return;
-        }
-
-        target.enabled = true;
-        target.sprite = sprite;
-        target.color = color;
-    }
-
-    void HandleAdventurerRowClicked(string adventurerUid)
-    {
-        if (string.IsNullOrWhiteSpace(adventurerUid))
-            return;
-
-        if (IsExpeditionLocked())
-            return;
-
-        if (RemoveFromDraft(adventurerUid))
-        {
-            Rebuild();
-            return;
-        }
-
-        int emptyIndex = FindFirstEmptyDraftSlot();
-        if (emptyIndex < 0)
-            return;
-
-        draftSlots[emptyIndex] = adventurerUid;
-        Rebuild();
-    }
-
-    void HandleSlotClear(int slotIndex)
-    {
-        if (IsExpeditionLocked())
-            return;
-
-        if (slotIndex < 0 || slotIndex >= draftSlots.Count)
-            return;
-
-        draftSlots[slotIndex] = string.Empty;
-        Rebuild();
-    }
-
-    void HandleSlotDropAdventurer(int slotIndex, string adventurerUid)
-    {
-        if (IsExpeditionLocked())
-            return;
-
-        if (slotIndex < 0 || slotIndex >= draftSlots.Count || string.IsNullOrWhiteSpace(adventurerUid))
-            return;
-
-        int existing = FindDraftIndex(adventurerUid);
-        if (existing >= 0)
-            draftSlots[existing] = string.Empty;
+        int existingIndex = FindDraftIndex(adventurerUid);
+        if (existingIndex >= 0)
+            draftSlots[existingIndex] = string.Empty;
 
         draftSlots[slotIndex] = adventurerUid;
         Rebuild();
+        return true;
     }
 
-    void PrepareDraftState(MissionInstance mission, int partyLimit)
+    bool ValidateDraftAdventurer(RunState state, MissionInstance mission, string adventurerUid, out string reason)
     {
+        reason = string.Empty;
+        if (string.IsNullOrWhiteSpace(adventurerUid))
+        {
+            reason = "adventurerUid is empty.";
+            return false;
+        }
+
+        if (!TryGetAdventurer(state, adventurerUid, out AdventurerInstance adventurer))
+        {
+            reason = $"Adventurer not found: {adventurerUid}";
+            return false;
+        }
+
+        if (adventurer.hp <= 0)
+        {
+            reason = $"Adventurer is dead: {adventurerUid}";
+            return false;
+        }
+
+        if (adventurer.assignedThisTurn)
+        {
+            reason = $"Adventurer is unavailable this turn: {adventurerUid}";
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(adventurer.assignedMissionUid) &&
+            !string.Equals(adventurer.assignedMissionUid, mission.uid, StringComparison.Ordinal))
+        {
+            if (!TryGetMission(state, adventurer.assignedMissionUid, out MissionInstance previousMission))
+            {
+                reason = $"Previous mission not found for adventurer: {adventurerUid}";
+                return false;
+            }
+
+            if (previousMission.isPartyLocked || previousMission.isExpeditionInProgress)
+            {
+                reason = $"Adventurer is locked by another mission: {adventurerUid}";
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool TryBindRun(bool logError)
+    {
+        if (boundRun == null)
+            boundRun = GameApp.I?.Run;
+
+        if (boundRun == null)
+        {
+            if (logError)
+                Debug.LogError("[MissionOverlay] RunServices is null.", this);
+            return false;
+        }
+
+        if (!runRevisionSubscribed)
+        {
+            subscriptions.Add(boundRun.UiRevision.Subscribe(_ => HandleRunUiRevision(), pushCurrent: false));
+            runRevisionSubscribed = true;
+        }
+
+        return true;
+    }
+
+    void RenderTags(IReadOnlyList<string> tags)
+    {
+        int validCount = 0;
+        if (tags != null)
+        {
+            for (int i = 0; i < tags.Count; i++)
+            {
+                if (string.IsNullOrWhiteSpace(tags[i]))
+                    continue;
+                validCount++;
+            }
+        }
+
+        GrowTagPool(validCount);
+        int renderIndex = 0;
+        if (tags != null)
+        {
+            for (int i = 0; i < tags.Count; i++)
+            {
+                string tag = tags[i];
+                if (string.IsNullOrWhiteSpace(tag))
+                    continue;
+
+                TMP_Text chip = tagPool[renderIndex];
+                chip.gameObject.SetActive(true);
+                chip.text = tag.Trim();
+                chip.color = Colors.Semantic.TextPrimary;
+                renderIndex++;
+            }
+        }
+
+        for (int i = renderIndex; i < tagPool.Count; i++)
+            tagPool[i].gameObject.SetActive(false);
+
+        if (tagRoot != null)
+            tagRoot.gameObject.SetActive(validCount > 0);
+    }
+
+    void RenderTestDice(MissionInstance mission, MissionDef missionDef)
+    {
+        int count = missionDef?.abilityTests?.Count ?? 0;
+        GrowTestDicePool(count);
+
+        for (int i = 0; i < testDicePool.Count; i++)
+        {
+            bool active = i < count;
+            MissionOverlayTestDiceView view = testDicePool[i];
+            view.gameObject.SetActive(active);
+            if (!active)
+                continue;
+
+            AbilityTestDef test = missionDef.abilityTests[i];
+            var data = new MissionOverlayTestDiceData
+            {
+                value = Math.Max(0, test?.difficulty ?? 0),
+                isCleared = IsTestCleared(mission, i),
+                showRightArrow = i < count - 1,
+                requiredAbilities = new List<string>()
+            };
+
+            if (test?.requiredAbilities != null)
+            {
+                for (int abilityIndex = 0; abilityIndex < test.requiredAbilities.Count; abilityIndex++)
+                {
+                    string abilityId = test.requiredAbilities[abilityIndex];
+                    if (string.IsNullOrWhiteSpace(abilityId))
+                        continue;
+                    data.requiredAbilities.Add(abilityId);
+                }
+            }
+
+            view.SetData(data, iconRegistry);
+        }
+    }
+
+    void RenderPartyStats(RunState state, int effectiveLimit)
+    {
+        MissionPartyTotalsData totals = BuildPartyTotals(state, effectiveLimit);
+
+        GrowStatDicePool(3);
+        for (int i = 0; i < statDicePool.Count; i++)
+            statDicePool[i].gameObject.SetActive(i < 3);
+
+        statDicePool[0].SetData(new MissionOverlayStatDiceData { abilityId = StrengthAbilityId, value = totals.strength }, iconRegistry);
+        statDicePool[1].SetData(new MissionOverlayStatDiceData { abilityId = AgilityAbilityId, value = totals.agility }, iconRegistry);
+        statDicePool[2].SetData(new MissionOverlayStatDiceData { abilityId = IntelligenceAbilityId, value = totals.intelligence }, iconRegistry);
+    }
+
+    void RenderSlotCells(RunState state, int effectiveLimit)
+    {
+        GrowSlotCellPool(MaxVisibleSlots);
+        for (int i = 0; i < slotCellPool.Count; i++)
+        {
+            bool usable = i < effectiveLimit;
+            string adventurerUid = usable ? draftSlots[i] : string.Empty;
+            bool hasAssigned = usable && !string.IsNullOrWhiteSpace(adventurerUid);
+            Sprite portrait = ResolvePortraitSprite(state, adventurerUid);
+
+            var data = new MissionOverlaySlotCellData
+            {
+                slotIndex = i,
+                isUsable = usable,
+                hasAssigned = hasAssigned,
+                assignedAdventurerUid = adventurerUid,
+                portraitSprite = portrait
+            };
+
+            slotCellPool[i].gameObject.SetActive(true);
+            slotCellPool[i].SetData(data);
+        }
+    }
+
+    void RenderStartButton(MissionInstance mission, int effectiveLimit)
+    {
+        bool canStart = !mission.isPartyLocked && !mission.isExpeditionInProgress && CountAssignedInDraft(effectiveLimit) > 0;
+        startExpeditionButton.interactable = canStart;
+    }
+
+    void EnsureDraftState(MissionInstance mission, int effectiveLimit)
+    {
+        EnsureDraftSlotCapacity();
         bool missionChanged = !string.Equals(draftMissionUid, mission.uid, StringComparison.Ordinal);
         if (missionChanged)
         {
             draftMissionUid = mission.uid;
-            draftSlots.Clear();
-            for (int i = 0; i < partyLimit; i++)
-                draftSlots.Add(string.Empty);
+            for (int i = 0; i < draftSlots.Count; i++)
+                draftSlots[i] = string.Empty;
 
             if (mission.assignedAdventurerUids != null)
             {
-                for (int i = 0; i < mission.assignedAdventurerUids.Count && i < draftSlots.Count; i++)
+                int copyCount = Math.Min(Math.Min(effectiveLimit, MaxVisibleSlots), mission.assignedAdventurerUids.Count);
+                for (int i = 0; i < copyCount; i++)
                     draftSlots[i] = mission.assignedAdventurerUids[i];
             }
-
-            return;
         }
 
-        if (draftSlots.Count == partyLimit)
+        for (int i = effectiveLimit; i < draftSlots.Count; i++)
+            draftSlots[i] = string.Empty;
+    }
+
+    void EnsureDraftSlotCapacity()
+    {
+        if (draftSlots.Count == MaxVisibleSlots)
             return;
 
-        if (draftSlots.Count < partyLimit)
-        {
-            while (draftSlots.Count < partyLimit)
-                draftSlots.Add(string.Empty);
-            return;
-        }
-
-        while (draftSlots.Count > partyLimit)
-            draftSlots.RemoveAt(draftSlots.Count - 1);
+        draftSlots.Clear();
+        for (int i = 0; i < MaxVisibleSlots; i++)
+            draftSlots.Add(string.Empty);
     }
 
     void ResetDraftState()
@@ -671,48 +526,36 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
         draftSlots.Clear();
     }
 
-    bool CanAssignToCurrentMission(AdventurerInstance adventurer, MissionInstance mission)
+    int FindDraftIndex(string adventurerUid)
     {
-        if (adventurer == null || mission == null)
-            return false;
-
-        if (adventurer.hp <= 0)
-            return false;
-
-        if (adventurer.assignedThisTurn && !IsDraftAssigned(adventurer.uid))
-            return false;
-
-        if (string.IsNullOrWhiteSpace(adventurer.assignedMissionUid))
-            return true;
-
-        return string.Equals(adventurer.assignedMissionUid, mission.uid, StringComparison.Ordinal);
-    }
-
-    MissionPartyTotalsData BuildPartyTotals(RunState state)
-    {
-        var totals = new MissionPartyTotalsData();
-        if (state == null)
-            return totals;
-
         for (int i = 0; i < draftSlots.Count; i++)
         {
-            string uid = draftSlots[i];
-            if (string.IsNullOrWhiteSpace(uid))
-                continue;
-
-            totals.strength += Math.Max(0, boundRun.GetAdventurerStat(uid, StatId.Strength));
-            totals.agility += Math.Max(0, boundRun.GetAdventurerStat(uid, StatId.Agility));
-            totals.intelligence += Math.Max(0, boundRun.GetAdventurerStat(uid, StatId.Intelligence));
+            if (string.Equals(draftSlots[i], adventurerUid, StringComparison.Ordinal))
+                return i;
         }
 
-        return totals;
+        return -1;
     }
 
-    List<string> BuildCommitList()
+    int CountAssignedInDraft(int effectiveLimit)
+    {
+        int count = 0;
+        int max = Mathf.Clamp(effectiveLimit, 0, Math.Min(MaxVisibleSlots, draftSlots.Count));
+        for (int i = 0; i < max; i++)
+        {
+            if (!string.IsNullOrWhiteSpace(draftSlots[i]))
+                count++;
+        }
+
+        return count;
+    }
+
+    List<string> BuildCommitList(int effectiveLimit)
     {
         var list = new List<string>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
-        for (int i = 0; i < draftSlots.Count; i++)
+        int max = Mathf.Clamp(effectiveLimit, 0, Math.Min(MaxVisibleSlots, draftSlots.Count));
+        for (int i = 0; i < max; i++)
         {
             string uid = draftSlots[i];
             if (string.IsNullOrWhiteSpace(uid))
@@ -727,85 +570,36 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
         return list;
     }
 
-    int CountAssignedInDraft()
+    MissionPartyTotalsData BuildPartyTotals(RunState state, int effectiveLimit)
     {
-        int count = 0;
-        for (int i = 0; i < draftSlots.Count; i++)
+        var totals = new MissionPartyTotalsData();
+        if (state == null)
+            return totals;
+
+        int max = Mathf.Clamp(effectiveLimit, 0, Math.Min(MaxVisibleSlots, draftSlots.Count));
+        for (int i = 0; i < max; i++)
         {
-            if (!string.IsNullOrWhiteSpace(draftSlots[i]))
-                count++;
-        }
-
-        return count;
-    }
-
-    int FindFirstEmptyDraftSlot()
-    {
-        for (int i = 0; i < draftSlots.Count; i++)
-        {
-            if (string.IsNullOrWhiteSpace(draftSlots[i]))
-                return i;
-        }
-
-        return -1;
-    }
-
-    int FindDraftIndex(string adventurerUid)
-    {
-        for (int i = 0; i < draftSlots.Count; i++)
-        {
-            if (string.Equals(draftSlots[i], adventurerUid, StringComparison.Ordinal))
-                return i;
-        }
-
-        return -1;
-    }
-
-    bool RemoveFromDraft(string adventurerUid)
-    {
-        int index = FindDraftIndex(adventurerUid);
-        if (index < 0)
-            return false;
-
-        draftSlots[index] = string.Empty;
-        return true;
-    }
-
-    bool IsDraftAssigned(string adventurerUid)
-    {
-        return FindDraftIndex(adventurerUid) >= 0;
-    }
-
-    bool IsExpeditionLocked()
-    {
-        if (!isOpen || boundRun == null)
-            return false;
-
-        RunState state = boundRun.CurrentRunState;
-        if (!TryGetActiveMission(state, out MissionInstance mission, out _))
-            return false;
-
-        return mission.isPartyLocked || mission.isExpeditionInProgress;
-    }
-
-    string ResolveAdventurerDisplayName(RunState state, string adventurerUid)
-    {
-        if (state?.adventurers == null || string.IsNullOrWhiteSpace(adventurerUid))
-            return "비어 있음";
-
-        for (int i = 0; i < state.adventurers.Count; i++)
-        {
-            AdventurerInstance adventurer = state.adventurers[i];
-            if (adventurer == null)
+            string uid = draftSlots[i];
+            if (string.IsNullOrWhiteSpace(uid))
                 continue;
 
-            if (!string.Equals(adventurer.uid, adventurerUid, StringComparison.Ordinal))
-                continue;
-
-            return BuildDisplayName(adventurer.adventurerId);
+            totals.strength += Math.Max(0, boundRun.GetAdventurerStat(uid, StatId.Strength));
+            totals.agility += Math.Max(0, boundRun.GetAdventurerStat(uid, StatId.Agility));
+            totals.intelligence += Math.Max(0, boundRun.GetAdventurerStat(uid, StatId.Intelligence));
         }
 
-        return "비어 있음";
+        return totals;
+    }
+
+    static int GetEffectivePartyLimit(MissionDef missionDef)
+    {
+        int configured = missionDef == null ? 1 : missionDef.partyLimit;
+        return Mathf.Clamp(Math.Max(1, configured), 1, MaxVisibleSlots);
+    }
+
+    Sprite ResolvePortraitSprite(RunState state, string adventurerUid)
+    {
+        return null;
     }
 
     bool TryGetActiveMission(RunState state, out MissionInstance mission, out MissionDef missionDef)
@@ -818,23 +612,57 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
         if (string.IsNullOrWhiteSpace(state.activeMissionUid))
             return false;
 
-        for (int i = 0; i < state.missions.Count; i++)
-        {
-            MissionInstance entry = state.missions[i];
-            if (entry == null)
-                continue;
+        if (!TryGetMission(state, state.activeMissionUid, out mission))
+            return false;
 
-            if (!string.Equals(entry.uid, state.activeMissionUid, StringComparison.Ordinal))
-                continue;
-
-            mission = entry;
-            break;
-        }
-
-        if (mission == null || StaticDataLoader.Current == null)
+        if (StaticDataLoader.Current == null)
             return false;
 
         return StaticDataLoader.Current.TryGetMissionDef(mission.missionId, out missionDef);
+    }
+
+    static bool TryGetMission(RunState state, string missionUid, out MissionInstance mission)
+    {
+        mission = null;
+        if (state?.missions == null || string.IsNullOrWhiteSpace(missionUid))
+            return false;
+
+        for (int i = 0; i < state.missions.Count; i++)
+        {
+            MissionInstance candidate = state.missions[i];
+            if (candidate == null)
+                continue;
+
+            if (!string.Equals(candidate.uid, missionUid, StringComparison.Ordinal))
+                continue;
+
+            mission = candidate;
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool TryGetAdventurer(RunState state, string adventurerUid, out AdventurerInstance adventurer)
+    {
+        adventurer = null;
+        if (state?.adventurers == null || string.IsNullOrWhiteSpace(adventurerUid))
+            return false;
+
+        for (int i = 0; i < state.adventurers.Count; i++)
+        {
+            AdventurerInstance candidate = state.adventurers[i];
+            if (candidate == null)
+                continue;
+
+            if (!string.Equals(candidate.uid, adventurerUid, StringComparison.Ordinal))
+                continue;
+
+            adventurer = candidate;
+            return true;
+        }
+
+        return false;
     }
 
     static bool IsTestCleared(MissionInstance mission, int testIndex)
@@ -876,33 +704,136 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
         }
     }
 
-    void GrowTestRowPool(int requiredCount)
+    void GrowTestDicePool(int requiredCount)
     {
-        while (testRowPool.Count < requiredCount)
+        while (testDicePool.Count < requiredCount)
         {
-            MissionWorldTestRowView created = Instantiate(testRowPrefab, testRowRoot);
+            MissionOverlayTestDiceView created = Instantiate(testDicePrefab, testDiceRoot);
             created.gameObject.SetActive(true);
-            testRowPool.Add(created);
+            testDicePool.Add(created);
         }
     }
 
-    void GrowAdventurerRowPool(int requiredCount)
+    void GrowStatDicePool(int requiredCount)
     {
-        while (adventurerRowPool.Count < requiredCount)
+        while (statDicePool.Count < requiredCount)
         {
-            MissionAdventurerRowView created = Instantiate(adventurerRowPrefab, adventurerRowRoot);
+            MissionOverlayStatDiceView created = Instantiate(partyStatDicePrefab, partyStatDiceRoot);
             created.gameObject.SetActive(true);
-            adventurerRowPool.Add(created);
+            statDicePool.Add(created);
         }
     }
 
-    void GrowDraftSlotPool(int requiredCount)
+    void GrowSlotCellPool(int requiredCount)
     {
-        while (draftSlotPool.Count < requiredCount)
+        while (slotCellPool.Count < requiredCount)
         {
-            MissionDraftSlotView created = Instantiate(draftSlotPrefab, draftSlotRoot);
+            MissionOverlaySlotCellView created = Instantiate(slotCellPrefab, slotCellRoot);
             created.gameObject.SetActive(true);
-            draftSlotPool.Add(created);
+            slotCellPool.Add(created);
         }
+    }
+
+    bool ValidateReferences()
+    {
+        bool valid = true;
+
+        if (panelRoot == null)
+        {
+            Debug.LogError("[MissionOverlay] panelRoot is not assigned.", this);
+            valid = false;
+        }
+
+        if (closeButton == null)
+        {
+            Debug.LogError("[MissionOverlay] closeButton is not assigned.", this);
+            valid = false;
+        }
+
+        if (startExpeditionButton == null)
+        {
+            Debug.LogError("[MissionOverlay] startExpeditionButton is not assigned.", this);
+            valid = false;
+        }
+
+        if (missionNameText == null)
+        {
+            Debug.LogError("[MissionOverlay] missionNameText is not assigned.", this);
+            valid = false;
+        }
+
+        if (deadlineText == null)
+        {
+            Debug.LogError("[MissionOverlay] deadlineText is not assigned.", this);
+            valid = false;
+        }
+
+        if (tagRoot == null)
+        {
+            Debug.LogError("[MissionOverlay] tagRoot is not assigned.", this);
+            valid = false;
+        }
+
+        if (tagChipPrefab == null)
+        {
+            Debug.LogError("[MissionOverlay] tagChipPrefab is not assigned.", this);
+            valid = false;
+        }
+
+        if (testDiceRoot == null)
+        {
+            Debug.LogError("[MissionOverlay] testDiceRoot is not assigned.", this);
+            valid = false;
+        }
+
+        if (testDicePrefab == null)
+        {
+            Debug.LogError("[MissionOverlay] testDicePrefab is not assigned.", this);
+            valid = false;
+        }
+
+        if (partyStatDiceRoot == null)
+        {
+            Debug.LogError("[MissionOverlay] partyStatDiceRoot is not assigned.", this);
+            valid = false;
+        }
+
+        if (partyStatDicePrefab == null)
+        {
+            Debug.LogError("[MissionOverlay] partyStatDicePrefab is not assigned.", this);
+            valid = false;
+        }
+
+        if (slotCellRoot == null)
+        {
+            Debug.LogError("[MissionOverlay] slotCellRoot is not assigned.", this);
+            valid = false;
+        }
+
+        if (slotCellPrefab == null)
+        {
+            Debug.LogError("[MissionOverlay] slotCellPrefab is not assigned.", this);
+            valid = false;
+        }
+
+        if (rewardSummaryText == null)
+        {
+            Debug.LogError("[MissionOverlay] rewardSummaryText is not assigned.", this);
+            valid = false;
+        }
+
+        if (failureSummaryText == null)
+        {
+            Debug.LogError("[MissionOverlay] failureSummaryText is not assigned.", this);
+            valid = false;
+        }
+
+        if (iconRegistry == null)
+        {
+            Debug.LogError("[MissionOverlay] iconRegistry is not assigned.", this);
+            valid = false;
+        }
+
+        return valid;
     }
 }

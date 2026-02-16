@@ -3,7 +3,7 @@
     {
       "id": "mission.civil_unrest",
       "spawnWeight": 1,
-      "partyLimit": 2,
+      "partyLimit": 4,
       "baseDeadlineTurns": 3,
       "tags": [ "civil" ],
       "abilityTests": [

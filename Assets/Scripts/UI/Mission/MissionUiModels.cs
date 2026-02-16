@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public sealed class MissionWorldCardData
 {
@@ -63,4 +64,27 @@ public sealed class MissionDraftSlotData
     public string assignedDisplayName = string.Empty;
     public bool canInteract;
     public bool hasAssigned;
+}
+
+public sealed class MissionOverlayTestDiceData
+{
+    public int value;
+    public bool isCleared;
+    public bool showRightArrow;
+    public List<string> requiredAbilities = new();
+}
+
+public sealed class MissionOverlayStatDiceData
+{
+    public string abilityId = string.Empty;
+    public int value;
+}
+
+public sealed class MissionOverlaySlotCellData
+{
+    public int slotIndex;
+    public bool isUsable;
+    public bool hasAssigned;
+    public string assignedAdventurerUid = string.Empty;
+    public Sprite portraitSprite;
 }

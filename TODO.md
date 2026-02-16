@@ -11,7 +11,6 @@
 
 ## Planned
 
-- [P1-IMPL-MISSION-09] 프리팹/씬 직렬화 연결 (코드 fallback 없이 인스펙터 참조 고정, 누락 시 즉시 `Debug.LogError` 후 중단)
 - [P1-IMPL-MISSION-10] 검증: 컴파일 0 + 게임 플로우 점검 (GameScene 진입 -> 월드 카드 표시 -> 선택 -> 오버레이 상세/배치 -> 확정 규칙 동작)
 - [P1-SPEC] Overlay `원정 창` 스펙 확정 (원정에 참여한 모험가들 상태 표시, 원정 상태 표기, 테스트버튼, 포기버튼)
 - [P1-SPEC] Overlay `턴 종료/정산 패널` 스펙 확정 (정산 결과 요약, 임무 실패 반영 방식)
@@ -30,6 +29,7 @@
 
 ## Done
 
+- 2026-02-16: [P1-IMPL-MISSION-09] MissionOverlay 재구축 완료 (`MissionOverlayRoot`/`MissionOverlayPanel` 하위 v13 계층 신설, 테스트/파티/슬롯 템플릿 생성, `MissionOverlayPresenter`/`MissionUiCoordinator` 직렬화 참조 재연결, 루트 기본 비활성)
 - 2026-02-15: [P1-IMPL-MISSION] 코드 구현 1차 완료 (`RunServices.TryCommitMissionDraft` 원자적 확정+원정 시작 전환, `MissionWorldListPresenter` 정렬/선택 이벤트/partyLimit 반영, `MissionUiCoordinator`/`MissionOverlayPresenter`/`MissionAdventurerRowView`/`MissionDraftSlotView`/`MissionEffectSummaryBuilder` 추가, 문서 `MISSION/GAME_STRUCTURE/GENERAL_RULES` 동기화)
 - 2026-02-15: [P1-SPEC] `임무 카드/리스트` 스펙 확정 (`Docs/MISSION.md`에 월드 카드/오버레이 표시 항목, 배치/확정 규칙, 선택/강조 규칙 고정 / `Docs/GAME_STRUCTURE.md`에 월드+오버레이 분리 원칙 반영)
 - 2026-02-15: [P1-WORLD] GameScene 진입 시 월드 임무 카드 렌더링 복구 (`GameSceneInstaller`에서 신규/미초기화 Run에 한해 `InitializeRunLoop()`를 명시 호출, 초기화 실패 시 즉시 에러 로그 출력)
