@@ -70,7 +70,6 @@ public sealed class MissionOverlayTestDiceData
 {
     public int value;
     public bool isCleared;
-    public bool showRightArrow;
     public List<string> requiredAbilities = new();
 }
 

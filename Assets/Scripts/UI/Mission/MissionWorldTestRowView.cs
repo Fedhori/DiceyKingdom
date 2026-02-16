@@ -25,8 +25,8 @@ public sealed class MissionWorldTestRowView : MonoBehaviour
             return;
 
         difficultyText.text = Mathf.Max(0, data.difficulty).ToString(CultureInfo.InvariantCulture);
-        clearedStateText.text = "●";
-        clearedStateText.color = data.isCleared ? Colors.Semantic.MissionTestCleared : Colors.Semantic.MissionTestPending;
+        clearedStateText.text = "✓";
+        clearedStateText.gameObject.SetActive(data.isCleared);
 
         int iconCount = data.requiredAbilities?.Count ?? 0;
         GrowIconPool(iconCount);

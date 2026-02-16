@@ -432,7 +432,6 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
             {
                 value = Math.Max(0, test?.difficulty ?? 0),
                 isCleared = IsTestCleared(mission, i),
-                showRightArrow = i < count - 1,
                 requiredAbilities = new List<string>()
             };
 

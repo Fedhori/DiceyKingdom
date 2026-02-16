@@ -456,9 +456,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0898d41ce8f6d2f40b3458b1c3b33d1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MissionIconRegistry
-  strengthIcon: {fileID: 21300000, guid: 864eb832237470f46a5ee56bdb5a3756, type: 3}
-  agilityIcon: {fileID: 21300000, guid: 864eb832237470f46a5ee56bdb5a3756, type: 3}
-  intelligenceIcon: {fileID: 21300000, guid: 864eb832237470f46a5ee56bdb5a3756, type: 3}
+  strengthIcon: {fileID: 21300000, guid: e1b7d4054d8d4d3e8cdb7935ad77f8a1, type: 3}
+  agilityIcon: {fileID: 21300000, guid: 3f9de9cb9f7d4b7f80cae3ef01ac2f29, type: 3}
+  intelligenceIcon: {fileID: 21300000, guid: b7a0a7da6c904ecb8f216f9d36a8dd42, type: 3}
 --- !u!1 &116804718
 GameObject:
   m_ObjectHideFlags: 0
@@ -1032,7 +1032,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MissionOverlayTestDiceView
   valueText: {fileID: 218424253}
   clearedCheckText: {fileID: 1032825475}
-  rightArrowText: {fileID: 1359369163}
   abilityIconRoot: {fileID: 1974291691}
   abilityIconPrefab: {fileID: 336889344}
 --- !u!114 &307307760
@@ -1187,7 +1186,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -910, y: -327}
-  m_SizeDelta: {x: 18, y: 18}
+  m_SizeDelta: {x: 22, y: 22}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &336889344
 MonoBehaviour:
@@ -1498,7 +1497,7 @@ MonoBehaviour:
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
-  m_ChildControlHeight: 1
+  m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
@@ -1544,7 +1543,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 509, y: -20}
+  m_AnchoredPosition: {x: 517, y: -20}
   m_SizeDelta: {x: 110, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &467087299
@@ -2105,8 +2104,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 596, y: -20}
-  m_SizeDelta: {x: 48, y: 10}
+  m_AnchoredPosition: {x: 600, y: -20}
+  m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &608883555
 MonoBehaviour:
@@ -3056,7 +3055,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.95}
+  m_Color: {r: 0.1792453, g: 0.1792453, b: 0.1792453, a: 0.95}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3834,7 +3833,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1359369162
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4687,7 +4686,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 446, y: -20}
+  m_AnchoredPosition: {x: 454, y: -20}
   m_SizeDelta: {x: 260, y: 0}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1762016424

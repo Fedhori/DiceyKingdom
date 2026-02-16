@@ -7,7 +7,6 @@ public sealed class MissionOverlayTestDiceView : MonoBehaviour
 {
     [SerializeField] TMP_Text valueText;
     [SerializeField] TMP_Text clearedCheckText;
-    [SerializeField] TMP_Text rightArrowText;
     [SerializeField] Transform abilityIconRoot;
     [SerializeField] Image abilityIconPrefab;
 
@@ -29,8 +28,6 @@ public sealed class MissionOverlayTestDiceView : MonoBehaviour
         valueText.text = Mathf.Max(0, data.value).ToString();
         if (clearedCheckText != null)
             clearedCheckText.gameObject.SetActive(data.isCleared);
-        if (rightArrowText != null)
-            rightArrowText.gameObject.SetActive(data.showRightArrow);
 
         int iconCount = data.requiredAbilities?.Count ?? 0;
         GrowIconPool(iconCount);
@@ -67,12 +64,6 @@ public sealed class MissionOverlayTestDiceView : MonoBehaviour
         if (clearedCheckText == null)
         {
             Debug.LogError("[MissionOverlay] clearedCheckText is not assigned.", this);
-            valid = false;
-        }
-
-        if (rightArrowText == null)
-        {
-            Debug.LogError("[MissionOverlay] rightArrowText is not assigned.", this);
             valid = false;
         }
 

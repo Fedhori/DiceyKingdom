@@ -17,17 +17,14 @@ public sealed class MissionIconRegistry : MonoBehaviour
         if (string.Equals(abilityId, "strength", StringComparison.Ordinal))
         {
             sprite = strengthIcon;
-            color = Colors.Semantic.AbilityStrength;
         }
         else if (string.Equals(abilityId, "agility", StringComparison.Ordinal))
         {
             sprite = agilityIcon;
-            color = Colors.Semantic.AbilityAgility;
         }
         else if (string.Equals(abilityId, "intelligence", StringComparison.Ordinal))
         {
             sprite = intelligenceIcon;
-            color = Colors.Semantic.AbilityIntelligence;
         }
         else
         {
