@@ -11,10 +11,7 @@
 
 ## Planned
 
-- [P1-UI-COLOR-02] Scene/Prefab 잔여 하드코딩 색상 제거 (`Docs/UI_COLOR_WORK_ORDER.md` 3단계)
-- [P1-UI-COLOR-03] Modal/Tooltip 색상 alias 적용 (`Docs/UI_COLOR_WORK_ORDER.md` 4단계)
-- [P1-UI-COLOR-04] 통합 검증 (HUD/월드카드/오버레이 상태색 + 컴파일 0)
-- [P1-IMPL-MISSION-10] 검증: 컴파일 0 + 게임 플로우 점검 (GameScene 진입 -> 월드 카드 표시 -> 선택 -> 오버레이 상세/배치 -> 확정 규칙 동작)
+- [P1-ADVENTURER-DETAIL] 모험가 상세 정보 오버레이 구현 (이름/초상화/스탯/레벨/체력/피로도/긍정·부정 특성/장비 표시, MissionOverlay보다 상위 정렬)
 - [P1-SPEC] Overlay `원정 창` 스펙 확정 (원정에 참여한 모험가들 상태 표시, 원정 상태 표기, 테스트버튼, 포기버튼)
 - [P1-SPEC] Overlay `턴 종료/정산 패널` 스펙 확정 (정산 결과 요약, 임무 실패 반영 방식)
 - [P1] 검증/스모크 테스트 (런 시작, 1턴 루프, 원정 실패 즉시 효과, 임무 실패 제거, 조건부 규칙 onHpChanged 재계산 반영)
@@ -24,7 +21,7 @@
 
 ## In Progress
 
-- (비어 있음)
+- [P1-ADVENTURER-LIST] 모험가 리스트 구현 (화면 우측 수직 스크롤, 이름/초상화/스탯/레벨/체력/피로도 요약, 좌클릭 상세 오버레이 진입, MissionOverlay 오픈 중 우클릭 시 임무 자동 할당)
 
 ## Blocked
 
