@@ -30,12 +30,11 @@ public sealed class MissionWorldCardView : MonoBehaviour
         cardButton.onClick.AddListener(HandleClick);
     }
 
-    public void SetData(MissionWorldCardData data, MissionIconRegistry iconRegistry, Action<string> clickHandler)
+    public void SetData(MissionWorldCardData data, MissionIconRegistry iconRegistry)
     {
         if (!setupValid || data == null || iconRegistry == null)
             return;
 
-        onCardClicked = clickHandler;
         missionUid = data.missionUid ?? string.Empty;
 
         missionNameText.overflowMode = TextOverflowModes.Ellipsis;
@@ -57,6 +56,11 @@ public sealed class MissionWorldCardView : MonoBehaviour
             if (active)
                 row.SetData(data.tests[i], iconRegistry);
         }
+    }
+
+    public void SetClickHandler(Action<string> clickHandler)
+    {
+        onCardClicked = clickHandler;
     }
 
     bool ValidateReferences()
@@ -115,6 +119,12 @@ public sealed class MissionWorldCardView : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(missionUid))
             return;
+
+        if (onCardClicked == null)
+        {
+            Debug.LogError("[MissionWorld] Card click handler is not assigned.", this);
+            return;
+        }
 
         onCardClicked?.Invoke(missionUid);
     }

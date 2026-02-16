@@ -85,14 +85,20 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
 
     public void OpenOrFocus(string missionUid)
     {
-        if (!setupValid)
-            return;
-
         if (!gameObject.activeSelf)
             gameObject.SetActive(true);
 
-        if (!TryBindRun(logError: true))
+        if (!setupValid)
+        {
+            Debug.LogError("[MissionOverlay] OpenOrFocus aborted: setup validation failed.", this);
             return;
+        }
+
+        if (!TryBindRun(logError: true))
+        {
+            Debug.LogError("[MissionOverlay] OpenOrFocus aborted: RunServices binding failed.", this);
+            return;
+        }
 
         if (!boundRun.SetActiveMission(missionUid))
         {

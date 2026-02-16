@@ -205,10 +205,13 @@
 ## UI 갱신(이벤트 사용 범위)
 
 - 이벤트/Observable은 **UI 갱신용**으로 제한한다.
+- 이벤트는 상태 -> UI 단방향 통보(예: hp/gold/stability/turn)에서만 사용한다.
 - 로직 진행(턴 전환/룰 체인)은 이벤트로 연결하지 않는다(로직 체인 금지).
 - UI 구독은 `OnEnable` 등록 / `OnDisable` 해제 + `IDisposable` 토큰으로 통일한다.
 - `RunState`는 순수 데이터로 유지하고, UI 갱신은 `RunServices` Observable 구독으로만 처리한다.
 - `RunServices`의 public 상태 변경 API 호출 후 `SyncUiBindingsFromRunState`로 Observable 값을 동기화한다.
+- 필수 제어 흐름은 이벤트 중계 없이 직접 메서드 호출로 연결한다.
+  - 현재 임무 UI 진입: `MissionWorldListPresenter.HandleCardClicked` -> `MissionOverlayPresenter.OpenOrFocus`
 
 ## 용어 사전(확정)
 

@@ -8,10 +8,10 @@ public sealed class MissionWorldListPresenter : MonoBehaviour
     [SerializeField] MissionWorldCardView cardPrefab;
     [SerializeField] Transform cardRoot;
     [SerializeField] MissionIconRegistry iconRegistry;
-    public event Action<string> MissionCardSelected;
     readonly List<MissionWorldCardView> cardPool = new();
     readonly DisposableBag subscriptions = new();
     RunServices boundRun;
+    MissionOverlayPresenter overlayPresenter;
     bool setupValid;
 
     void Awake()
@@ -107,7 +107,7 @@ public sealed class MissionWorldListPresenter : MonoBehaviour
             MissionWorldCardView view = cardPool[visibleIndex];
             view.gameObject.SetActive(true);
             MissionWorldCardData data = BuildCardData(state, sortedMissions[i].mission);
-            view.SetData(data, iconRegistry, HandleCardClicked);
+            view.SetData(data, iconRegistry);
             visibleIndex++;
         }
 
@@ -204,6 +204,7 @@ public sealed class MissionWorldListPresenter : MonoBehaviour
         while (cardPool.Count < requiredCount)
         {
             MissionWorldCardView created = Instantiate(cardPrefab, cardRoot);
+            created.SetClickHandler(HandleCardClicked);
             created.gameObject.SetActive(true);
             cardPool.Add(created);
         }
@@ -218,7 +219,10 @@ public sealed class MissionWorldListPresenter : MonoBehaviour
     void HandleCardClicked(string missionUid)
     {
         if (boundRun == null)
+        {
+            Debug.LogError("[MissionWorld] Card click ignored: RunServices is null.", this);
             return;
+        }
 
         if (!boundRun.SetActiveMission(missionUid))
         {
@@ -226,7 +230,18 @@ public sealed class MissionWorldListPresenter : MonoBehaviour
             return;
         }
 
-        MissionCardSelected?.Invoke(missionUid);
+        if (overlayPresenter == null)
+        {
+            Debug.LogError("[MissionWorld] overlayPresenter is not bound.", this);
+            return;
+        }
+
+        overlayPresenter.OpenOrFocus(missionUid);
+    }
+
+    public void BindOverlayPresenter(MissionOverlayPresenter presenter)
+    {
+        overlayPresenter = presenter;
     }
 
     struct MissionSortEntry

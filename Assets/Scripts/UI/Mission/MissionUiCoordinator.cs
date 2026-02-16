@@ -10,23 +10,12 @@ public sealed class MissionUiCoordinator : MonoBehaviour
     {
         setupValid = ValidateReferences();
         if (!setupValid)
+        {
             enabled = false;
-    }
-
-    void OnEnable()
-    {
-        if (!setupValid)
             return;
+        }
 
-        worldPresenter.MissionCardSelected += HandleMissionCardSelected;
-    }
-
-    void OnDisable()
-    {
-        if (!setupValid)
-            return;
-
-        worldPresenter.MissionCardSelected -= HandleMissionCardSelected;
+        worldPresenter.BindOverlayPresenter(overlayPresenter);
     }
 
     bool ValidateReferences()
@@ -45,10 +34,5 @@ public sealed class MissionUiCoordinator : MonoBehaviour
         }
 
         return valid;
-    }
-
-    void HandleMissionCardSelected(string missionUid)
-    {
-        overlayPresenter.OpenOrFocus(missionUid);
     }
 }
