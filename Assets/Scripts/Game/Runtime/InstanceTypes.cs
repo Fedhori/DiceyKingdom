@@ -33,6 +33,8 @@ public sealed class AdventurerInstance
 {
     public string uid = string.Empty;
     public string adventurerId = string.Empty;
+    public string displayName = string.Empty;
+    public int portraitIndex = -1;
 
     public int level = 1;
     public int xp;

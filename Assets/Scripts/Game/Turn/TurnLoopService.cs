@@ -126,7 +126,7 @@ public sealed class TurnLoopService
             if (def == null)
                 return;
 
-            AdventurerInstance candidate = CreateAdventurerInstance(def);
+            AdventurerInstance candidate = CreateAdventurerInstance(runState, def);
             runState.candidates.Add(candidate);
             statService.MarkDirty(candidate.uid);
         }
@@ -169,11 +169,11 @@ public sealed class TurnLoopService
         }
     }
 
-    AdventurerInstance CreateAdventurerInstance(AdventurerDef def)
+    AdventurerInstance CreateAdventurerInstance(RunState runState, AdventurerDef def)
     {
         int maxHp = RandomRangeInclusive(def.baseHpMin, def.baseHpMax);
         int maxStamina = RandomRangeInclusive(def.baseStaminaMin, def.baseStaminaMax);
-        return new AdventurerInstance
+        var adventurer = new AdventurerInstance
         {
             uid = Guid.NewGuid().ToString("N"),
             adventurerId = def.id,
@@ -197,6 +197,9 @@ public sealed class TurnLoopService
             equipmentUids = new List<string>(),
             heroismUsedMissionUids = new List<string>()
         };
+
+        AdventurerIdentityPool.AssignIdentity(runState, adventurer);
+        return adventurer;
     }
 
     AdventurerDef PickWeightedAdventurerDef()

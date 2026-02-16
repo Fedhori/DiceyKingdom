@@ -4,6 +4,7 @@ public sealed class MissionUiCoordinator : MonoBehaviour
 {
     [SerializeField] MissionWorldListPresenter worldPresenter;
     [SerializeField] MissionOverlayPresenter overlayPresenter;
+    [SerializeField] MissionAdventurerListPresenter adventurerListPresenter;
     bool setupValid;
 
     void Awake()
@@ -16,6 +17,7 @@ public sealed class MissionUiCoordinator : MonoBehaviour
         }
 
         worldPresenter.BindOverlayPresenter(overlayPresenter);
+        adventurerListPresenter.BindOverlayPresenter(overlayPresenter);
     }
 
     bool ValidateReferences()
@@ -30,6 +32,12 @@ public sealed class MissionUiCoordinator : MonoBehaviour
         if (overlayPresenter == null)
         {
             Debug.LogError("[MissionOverlay] overlayPresenter is not assigned.", this);
+            valid = false;
+        }
+
+        if (adventurerListPresenter == null)
+        {
+            Debug.LogError("[AdventurerList] adventurerListPresenter is not assigned.", this);
             valid = false;
         }
 

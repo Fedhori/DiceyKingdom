@@ -50,11 +50,16 @@ public sealed class MissionAdventurerRowData
 {
     public string adventurerUid = string.Empty;
     public string displayName = string.Empty;
+    public int level = 1;
+    public int hp;
+    public int maxHp;
+    public int stamina;
+    public int maxStamina;
     public int strength;
     public int agility;
     public int intelligence;
     public bool isAssignable;
-    public bool isSelected;
+    public Sprite portraitSprite;
 }
 
 public sealed class MissionDraftSlotData

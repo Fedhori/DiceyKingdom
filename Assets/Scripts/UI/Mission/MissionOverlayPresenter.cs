@@ -42,6 +42,7 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
     bool runRevisionSubscribed;
     bool setupValid;
     string draftMissionUid = string.Empty;
+    public bool IsOverlayVisible => gameObject.activeSelf && panelRoot != null && panelRoot.activeSelf;
 
     void Awake()
     {
@@ -135,6 +136,30 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
         }
 
         return TryAssignAdventurerToSlotInternal(targetIndex, adventurerUid, state, mission, out reason);
+    }
+
+    public bool CanAssignAdventurerFromList(string adventurerUid)
+    {
+        if (!IsOverlayVisible)
+            return false;
+
+        if (!PrepareDraftMutation(out RunState state, out MissionInstance mission, out MissionDef missionDef, out int effectiveLimit, out string reason))
+            return false;
+
+        if (!ValidateDraftAdventurer(state, mission, adventurerUid, out reason))
+            return false;
+
+        int existingIndex = FindDraftIndex(adventurerUid);
+        if (existingIndex >= 0 && existingIndex < effectiveLimit)
+            return true;
+
+        for (int i = 0; i < effectiveLimit; i++)
+        {
+            if (string.IsNullOrWhiteSpace(draftSlots[i]))
+                return true;
+        }
+
+        return false;
     }
 
     public bool TryAssignAdventurerToSlot(int slotIndex, string adventurerUid, out string reason)
@@ -603,7 +628,13 @@ public sealed class MissionOverlayPresenter : MonoBehaviour
 
     Sprite ResolvePortraitSprite(RunState state, string adventurerUid)
     {
-        return null;
+        if (state == null || string.IsNullOrWhiteSpace(adventurerUid))
+            return null;
+
+        if (!TryGetAdventurer(state, adventurerUid, out AdventurerInstance adventurer))
+            return null;
+
+        return AdventurerPortraitCatalog.ResolvePortrait(adventurer.portraitIndex);
     }
 
     bool TryGetActiveMission(RunState state, out MissionInstance mission, out MissionDef missionDef)

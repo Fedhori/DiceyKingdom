@@ -21,7 +21,7 @@
 
 ## In Progress
 
-- [P1-ADVENTURER-LIST] 모험가 리스트 구현 (화면 우측 수직 스크롤, 이름/초상화/스탯/레벨/체력/피로도 요약, 좌클릭 상세 오버레이 진입, MissionOverlay 오픈 중 우클릭 시 임무 자동 할당)
+- (비어 있음)
 
 ## Blocked
 
@@ -29,6 +29,15 @@
 
 ## Done
 
+- 2026-02-16: [P1-ADVENTURER-LIST-08] 스모크 검증/마감 1차 완료 (컴파일 오류 0, 씬 직렬화 참조 점검 완료, 실플레이 검증은 다음 단계에서 계속)
+- 2026-02-16: [P1-ADVENTURER-LIST] 모험가 리스트 구현 완료 (우측 고정 스크롤 + 좌클릭 상세 훅 + MissionOverlay 오픈 중 우클릭 자동 배치)
+- 2026-02-16: [P1-ADVENTURER-LIST-07] `Colors.Semantic` 기반 테마 색 적용 (리스트 패널/행/텍스트 상태색 반영, 알파 1 기준 유지)
+- 2026-02-16: [P1-ADVENTURER-LIST-06] 입력 동작 연결 (`MissionAdventurerRowView` 좌클릭 상세 훅/우클릭 자동 배치, Overlay 비오픈 시 우클릭 무반응)
+- 2026-02-16: [P1-ADVENTURER-LIST-05] Presenter/렌더 파이프라인 연결 (`MissionAdventurerListPresenter` 추가, `UiRevision` 구독 + 정렬 `배치 가능 -> 레벨 내림차순 -> 이름 오름차순`)
+- 2026-02-16: [P1-ADVENTURER-LIST-04] 리스트 행 템플릿 구성 (초상화 64x64, 이름/레벨, HP/STA, 능력 아이콘+수치, 배치 불가 상태)
+- 2026-02-16: [P1-ADVENTURER-LIST-03] 우측 리스트 패널 구성 (MainCanvas 우측 고정 Header + ScrollView + Content 연결)
+- 2026-02-16: [P1-ADVENTURER-LIST-02] 이름/초상화 배정 로직 추가 (`AdventurerIdentityPool`, `AdventurerPortraitCatalog`, 이름 100개/초상화 20개 리소스 추가)
+- 2026-02-16: [P1-ADVENTURER-LIST-01] 리스트 데이터 모델 확장 (`MissionAdventurerRowData` + `AdventurerInstance`에 표시 필드 확장)
 - 2026-02-16: [P1-UI-COLOR-01A] 프로토타입 규칙 반영 (에디터에서 가능한 정적 색상은 코드 적용 제거, 동적 상태색만 코드 유지)
 - 2026-02-16: [P1-UI-COLOR-01] `Colors.Semantic` 화면 alias 추가 + Mission/HUD 1차 적용 + 작업서 작성 (`Docs/UI_COLOR_WORK_ORDER.md`, `RunCoreStatsBinder`, `MissionWorldCardView`, `MissionWorldTestRowView`, `MissionOverlay*`)
 - 2026-02-16: [P1-IMPL-MISSION-09] MissionOverlay 재구축 완료 (`MissionOverlayRoot`/`MissionOverlayPanel` 하위 v13 계층 신설, 테스트/파티/슬롯 템플릿 생성, `MissionOverlayPresenter`/`MissionUiCoordinator` 직렬화 참조 재연결, 루트 기본 비활성)
