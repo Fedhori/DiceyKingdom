@@ -81,6 +81,7 @@
 
 - 모험가
   - 능력치(힘/민첩/지능), 성장치, 레벨, 체력/기력/영웅심, 특성, 장비 귀속
+  - 런 시작 시 스타팅 모험가 자동 고용(`GameConfig.startingAdventurerCount`, 기본 4)
   - 런타임 인력 풀 분리
     - 후보(`RunState.candidates`) / 고용(`RunState.adventurers`) / 공동묘지(`RunState.graveyard`)
 - 왕국
@@ -179,6 +180,7 @@
 - 예: 씬 UI, 연출, 씬 전용 컨트롤러
 - `TopHud`는 `GameScene` 전용 Overlay UI이며 `RunCoreStatsBinder`가 Run Observable을 구독해 텍스트를 갱신한다.
 - 임무 UI는 `WorldCanvas` 기반 월드 카드(요약/선택)와 오버레이 상세 패널(배치/확정)로 분리한다.
+  - 월드 카드/리스트 행/배치 슬롯 같은 반복 UI 요소는 Prefab 에셋으로 관리한다.
   - 월드 카드 표시 최소 항목: 임무명, 남은 기한, 테스트 진행도(아이콘+난이도+통과 여부), 배치 인원(임무별 `partyLimit` 최대값), 선택 강조
   - 오버레이는 `Docs/Wireframes/MissionOverlay_Wireframe_v13.png`를 목표 레이아웃으로 구현한다.
   - 오버레이 좌측은 테스트 주사위/현재 파티합, 우측은 2x2 배치 슬롯, 하단은 보상/실패 요약과 원정 시작 버튼으로 구성한다.

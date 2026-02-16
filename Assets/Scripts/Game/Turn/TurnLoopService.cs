@@ -35,6 +35,7 @@ public sealed class TurnLoopService
         if (runState.turn <= 0)
             runState.turn = 1;
 
+        SpawnStartingAdventurersIfNeeded(runState, config);
         SpawnCandidates(runState, Mathf.Max(0, config.candidateCountPerTurn));
         SpawnMissions(runState, Mathf.Max(0, config.missionSpawnCountPerTurn));
         return true;
@@ -129,6 +130,34 @@ public sealed class TurnLoopService
             AdventurerInstance candidate = CreateAdventurerInstance(runState, def);
             runState.candidates.Add(candidate);
             statService.MarkDirty(candidate.uid);
+        }
+    }
+
+    void SpawnStartingAdventurersIfNeeded(RunState runState, GameConfigData config)
+    {
+        runState.adventurers ??= new List<AdventurerInstance>();
+        runState.candidates ??= new List<AdventurerInstance>();
+        runState.missions ??= new List<MissionInstance>();
+
+        bool shouldSeedStartingParty =
+            runState.turn <= 1 &&
+            runState.adventurers.Count == 0 &&
+            runState.candidates.Count == 0 &&
+            runState.missions.Count == 0;
+
+        if (!shouldSeedStartingParty)
+            return;
+
+        int targetCount = Mathf.Clamp(config.startingAdventurerCount, 0, Mathf.Max(1, runState.barracksCapacity));
+        for (int i = 0; i < targetCount; i++)
+        {
+            AdventurerDef def = PickWeightedAdventurerDef();
+            if (def == null)
+                return;
+
+            AdventurerInstance adventurer = CreateAdventurerInstance(runState, def);
+            runState.adventurers.Add(adventurer);
+            statService.MarkDirty(adventurer.uid);
         }
     }
 

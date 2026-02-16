@@ -9,6 +9,7 @@ public sealed class GameConfigData
     
     public int candidateCountPerTurn;
     public int barracksCapacity;
+    public int startingAdventurerCount;
     public int missionSpawnCountPerTurn;
 
     

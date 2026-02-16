@@ -1,6 +1,7 @@
 {
   "candidateCountPerTurn": 2,
   "barracksCapacity": 6,
+  "startingAdventurerCount": 4,
   "missionSpawnCountPerTurn": 2,
 
   "globalHpRegenPerTurn": 1,
