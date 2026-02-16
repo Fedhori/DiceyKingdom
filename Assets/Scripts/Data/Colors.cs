@@ -279,7 +279,7 @@ public static class Colors
     public static readonly Color32 ActionPrimaryBg         = Primitive.Gold500;
     public static readonly Color32 ActionPrimaryBgHover    = Primitive.Gold400;
     public static readonly Color32 ActionPrimaryBgPressed  = Primitive.Gold600;
-    public static readonly Color32 ActionPrimaryBgDisabled = Primitive.Slate700;
+    public static readonly Color32 ActionPrimaryBgDisabled = Primitive.Gold600;
     public static readonly Color32 ActionPrimaryFg         = TextOnAccentDark;
 
     // Secondary (석재/강철)
