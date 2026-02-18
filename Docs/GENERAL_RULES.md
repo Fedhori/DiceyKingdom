@@ -1,123 +1,196 @@
 # 일반 규칙
 
-이 문서는 모든 Unity 프로젝트에서 공통으로 적용되는 환경/규칙/원칙을 정리합니다.
+이 문서는 모든 Unity 프로젝트에서 공통으로 적용되는 환경/규칙/원칙을 정리한다.
+
+- 마지막 갱신: **2026-02-16**
 
 ## 문서 범위/분리 기준
 
-- 범용 규칙(모든 Unity 프로젝트 공통)은 이 문서에 기록합니다.
-- 프로젝트 특화 규칙/구조는 `Docs/GAME_STRUCTURE.md`(게임 구조) 또는 `Docs/PROJECT_MAP.md`(레포 지도)에 기록합니다.
+- 범용 규칙(모든 Unity 프로젝트 공통)은 이 문서에 기록한다.
+- 프로젝트 특화 구조/설정/데이터는 `Docs/GAME_STRUCTURE.md` 및 세부 시스템 문서에 기록한다.
 
 ## Unity 버전
 
-- Unity 6.2 (6000.2.6f2)
+- Unity 6.2 (6000.2.x)
+
+## 입력 시스템 규칙
+
+- 입력 처리는 `Input System` 패키지(`UnityEngine.InputSystem`)만 사용한다.
+- `UnityEngine.Input` API(`Input.GetKeyDown`, `Input.GetAxis`, `Input.GetButton` 등)는 사용 금지한다.
+- 키/포인터 입력은 Input Actions 또는 Input System 디바이스 API로 처리한다.
 
 ## 코드 컨벤션
 
 - C# 4-스페이스 들여쓰기
 - Allman braces
 - Unity C# 관례 준수
-- 코드에서 데이터 모델/변수 네이밍은 camelCase를 사용합니다.
-- 코드 식별자(타입/메서드/enum 값)에는 의미가 불명확한 축약 기호(`P1`, `P2` 등)를 사용하지 않습니다.
-  - 단계/상태는 의미 기반 이름으로 명명합니다. (예: `TurnStart`, `BoardUpdate`, `Assignment`)
+- 코드/JSON 데이터 모델 네이밍은 camelCase를 사용한다.
 
 ## 데이터 네이밍 규칙
 
-- JSON 키는 camelCase를 사용합니다.
-- 코드(C#)에서 JSON 데이터를 매핑한 필드/프로퍼티도 camelCase를 사용합니다.
-- JSON 내부의 효과 타입/파라미터 키 문자열도 camelCase로 통일합니다.
+- JSON 키는 camelCase를 사용한다.
+- JSON 효과 타입/파라미터 문자열도 camelCase를 사용한다.
 
-## 공용 값 관리 파일(확정)
+## JSON 직렬화/역직렬화 규칙
 
-- 색상 상수는 `Assets/Scripts/Data/Colors.cs`에서 중앙 관리합니다.
-  - 예: `AtkBase`, `AtkBonus`, `AtkFinal`
-- 인게임 수치 상수는 `Assets/Scripts/Data/GameConfig.cs`에서 중앙 관리합니다.
-  - 예: `TooltipShowDelaySeconds = 0.2f`
-- 위 두 범주에 해당하는 값을 다른 스크립트에 하드코딩하지 않습니다.
-- 색깔 관련 수치는 `Assets/Scripts/Data/Colors.cs`에서만 관리합니다.
+- `JsonUtility` 사용 금지
+- JSON 직렬화/역직렬화는 `Newtonsoft.Json`으로 통일
 
-## 런타임 오브젝트 생성 원칙(확정)
+## 공용 값 관리
 
-- 런타임 중 오브젝트 생성이 필요한 경우 반드시 Prefab 기반으로 관리합니다.
-- 코드에서 임의로 UI/게임 오브젝트 구조를 조립하는 방식은 지양하고, 필요한 구성은 Prefab/Inspector에서 관리합니다.
+- 색상 상수는 `Assets/Scripts/Data/Colors.cs`에서 중앙 관리한다.
+- `Colors.cs`는 `Primitive -> Semantic` 2단 구조로 관리한다.
+  - `Primitive`: 프로젝트 톤앤매너(팔레트)
+  - `Semantic`: 실제 UI/게임 의미 색상(`TextPrimary`, `StateDanger` 등)
+- 코드에서는 의미 표현이 필요한 경우 `Semantic`만 사용하고, `Primitive`를 직접 사용하지 않는다.
+- 화면 단위 구현에서는 `Semantic`의 기능별 alias(`Hud...`, `MissionOverlay...`, `MissionWorld...`, `Modal...`)를 우선 사용한다.
+- 색상 치환 작업은 `Docs/UI_COLOR_WORK_ORDER.md`의 매칭표/적용 순서를 기준으로 수행한다.
+- 프로토타입 단계에서는 **에디터로 설정 가능한 정적 UI 색상**(기본 텍스트/패널/배경/버튼 기본색)은 에디터에서 설정한다.
+- 코드 색상 변경은 **상태 기반 동적 표현**(선택/잠금/활성-비활성 등)으로 한정한다.
+- 인게임 수치/확률은 `Assets/StreamingAssets/Data/GameConfig.json`에서 중앙 관리한다.
+  - 로드는 Bootstrap 단계에서 수행한다.
+- Tooltip 표시 지연/배치 같은 UI 표현 수치는 해당 UI 컴포넌트 인스펙터에서 관리한다.
+- 위 범주 값의 하드코딩은 금지한다.
 
-## 구현/협업 규칙
+## 런타임 오브젝트 생성 원칙
 
-1. 사용자가 “코드 작업”을 지시하기 전에는 구현을 시작하지 않습니다.
-2. 코드 변경 시 기존 시스템과 호환되도록 유지합니다.
-3. MCP를 통해 씬/프리팹/Inspector 수정을 진행하기 전에, 반드시 어떤 작업을 진행할지 사용자에게 강조하여 안내합니다.
-4. `.meta` 파일은 Unity가 관리하므로 직접 생성하거나 수정하지 않습니다.
-5. 질문이나 요구에 대해 의문점/개선점이 있으면 반드시 질문·개선사항을 제시합니다. 답변 이후에도 남아 있으면 해결될 때까지 반복적으로 질문·개선사항을 제시합니다.
+- 런타임 생성이 필요한 오브젝트는 반드시 Prefab 기반으로 관리한다.
+- 프리팹으로 대응 가능한 작업은 반드시 프리팹 에셋을 만들어 구현한다.
+  - 반복 생성되는 UI 행/카드/슬롯/셀을 씬 내부 임시 템플릿으로 대체하지 않는다.
+- 코드에서 UI/게임오브젝트 구조를 임의 조립하지 않는다.
 
-## 이벤트/상태 관리 원칙(확정)
+## 하드코딩 규칙
 
-- 이벤트는 UI 갱신 용도로만 사용합니다. 로직 진행/의사결정(턴 전환, 전투 처리, 규칙 판정)을 이벤트 체인으로 연결하지 않습니다.
-- 게임 로직은 매니저 간 직접 메서드 호출로 처리합니다. (`xxxManager.Instance` 호출 허용)
-- 상태값/수치값은 Getter/Setter를 적극 사용해 관리합니다.
-- UI 갱신이 필요한 수치/상태는 Setter에서 해당 이벤트를 즉시 발행합니다.
-- 범용 이벤트(`StateChanged` 등) 대신, 값 단위의 명시적 이벤트를 사용합니다.
-  - 예: `OnStabilityChanged`, `OnGoldChanged`, `OnPhaseChanged`
+- 하드코딩은 대부분의 상황에서 금지한다.
+- 불가피한 경우:
+  - 사용처/사유를 문서 또는 주석으로 명시
+  - 가능하면 Config/데이터로 이전 계획 포함
 
-## Unity 라이프사이클 원칙(확정)
+## 개발 실행 원칙
 
-- `OnEnable`은 사용하지 않습니다.
-- `OnDisable`은 사용하지 않습니다.
-- 초기 구독/초기화는 `Start()`에서 수행합니다.
-- 해제/정리는 `OnDestroy()`에서 수행합니다.
-- 싱글톤 매니저 패턴에서 이벤트 구독 실패를 방지하기 위해, 라이프사이클 로직은 위 규칙으로 통일합니다.
+- Think Before Coding: 가정을 명시하고, 불확실하면 질문하고, 혼란스러우면 멈춘다.
+- Simplicity First: 요청받지 않은 기능/추상화/에러 처리를 추가하지 않는다.
+- Surgical Changes: 관련 없는 코드를 개선하지 않고 요청된 변경만 수행한다.
+- Goal-Driven Execution: 작업 요청을 검증 가능한 목표(예: 컴파일/테스트 통과)로 변환해 실행한다.
+- 사용자 액션 진입 경로에서 조기 `return`이 발생할 경우 원인을 `Debug.LogError` 또는 `Debug.LogWarning`으로 남긴다.
+  - 버튼 클릭/화면 오픈/핵심 전환 요청이 무시되는 상황은 무음 실패를 금지한다.
 
-## 작업 추적 규칙 (TODO.md)
+---
 
-- 작업 추적은 루트의 `TODO.md`를 단일 기준으로 사용합니다.
-- 어떤 작업이든 시작 전에 `TODO.md`의 `Planned`에 등록하고, 착수 시 `In Progress`로 이동합니다.
-- 완료 시 `Done`으로 이동하며 완료일과 핵심 결과를 남깁니다.
-- 보류/중단 작업은 `Blocked`에 사유와 함께 기록합니다.
-- 작업 진행 중 상태가 바뀌면 즉시 `TODO.md`를 업데이트해 추적 가능성을 유지합니다.
+# 구조/스코프 원칙 (1인 인디 최적화)
 
-## 하드코딩 금지 원칙(확정)
+## 싱글톤 / 전역 접근
 
-- 하드코딩은 엄금합니다.
-- 불가피한 경우에는 반드시 사용자에게 사용처를 먼저 제시하고 허가를 받은 뒤 적용합니다.
-- 하드코딩은 거의 대부분의 상황에서 금지합니다.
-- 불가피하게 하드코딩이 필요한 경우, 아래를 먼저 사용자에게 제시하고 허가를 받은 뒤에만 적용합니다.
-  - 사용처(정확한 파일/로직 위치)
-  - 하드코딩이 필요한 이유(대체 불가 사유)
-  - 대체안 및 추후 제거 계획(리팩토링 시점)
-- 데이터/설정으로 표현 가능한 규칙(효과, 수치, 분기)은 코드 분기 대신 데이터 기반으로 구현합니다.
+- **영속 싱글톤은 `GameApp` 하나만 허용**한다.
+- `DontDestroyOnLoad` 호출은 `GameApp` 외 금지한다.
+- `static Instance` 패턴은 `GameApp` 외 금지한다.
 
-## Inspector 우선 설정 원칙(확정)
+> 허용되는 static:
+>
+> - 순수 함수 유틸
+> - 상태를 갖더라도 “부트스트랩에서만 로드되고, SubsystemRegistration에서 Reset 되는” 데이터 캐시(예: Config/StaticData 로더)
 
-- 에디터(Inspector/Scene)에서 설정 가능한 상태값(레이아웃, 앵커, 패딩, 정렬, 크기, 색상 등)은 코드에서 강제 설정하지 않습니다.
-- 동일 값이 코드와 에디터에 동시에 존재하면 에디터 설정을 단일 진실원(Source of Truth)으로 사용합니다.
-- 코드에서는 참조 확인/누락 경고까지만 수행하고, 값 자체는 변경하지 않습니다.
-- 에디터 설정이 필요하면 씬/프리팹 직렬화 데이터에 반영합니다.
+## 스코프 분리
 
-## 공통 패턴
+- App Scope(영속): `GameApp` + `AppServices`
+  - UI/Audio/Input/Save 등 앱 전역
+- Run Scope(런 단위): `RunServices`
+  - `RunState` + 런 로직
+- Scene Scope(씬 단위): 씬 오브젝트
 
-- 매니저/컨트롤러는 `public static Instance` 싱글톤 패턴을 사용하며, 중복 생성 시 `Awake`에서 파괴 처리합니다.
-- 부팅 흐름은 프로젝트별로 정의하되, `SaCache` 초기화가 필요한 경우 `Bootstrap`에서 수행합니다.
-- 데이터 초기화는 `StaticDataManager` 기반의 JSON 로딩 흐름을 사용하며, 실제 데이터 구조는 프로젝트별로 정의합니다.
+## 런 생명주기 규칙
 
-## 텍스트/로컬라이징
+- 런 시작/종료는 `GameApp.BeginRun(...)` / `GameApp.EndRun()`으로만 한다.
+- **Getter/Property/헬퍼가 BeginRun을 호출하는 구조 금지**
+  - “읽기”가 “상태 변경”을 일으키면 디버깅이 불가능해진다.
+- 런 진입점은 씬에 1개만 둔다.
+  - (권장) `GameSceneInstaller` 같은 Installer 계열 컴포넌트
+- 런 진입점 코드는 idempotent 해야 한다.
+  - `GameApp.Run != null`이면 `BeginRun(...)`을 다시 호출하지 않는다.
+  - `EndRun()`은 “내가 시작한 Run 인스턴스”인지 `ReferenceEquals`로 확인 후 호출한다.
 
-- 모든 질의응답과 설명은 한국어로 작성합니다.
-- 모든 텍스트 관련 작업은 반드시 로컬라이징을 고려하며, 코드에 하드코딩된 표현은 사용하지 않습니다.
-- 텍스트 스타일을 사용하는 것은 공통 규칙이며, 스타일 이름은 프로젝트별 문서에서 관리합니다.
+## Domain Reload Off(에디터 빠른 플레이) 안전 규칙
 
-## 문서 최신화 방법론
+- static 상태를 가진 클래스는 반드시 아래 중 하나를 만족해야 한다.
+  1. `RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)`에서 ResetStatic()을 제공한다.
+  2. Reset이 불가능하면 static 상태를 제거한다.
 
-- 변경 후 1차 판단: 코드/데이터/씬 변경이 있을 때마다 문서 반영 필요 여부를 먼저 판단하고 사용자에게 고지합니다.
-- 문서 분류 기준:
-  - 범용 규칙/패턴/컨벤션 변경 → `Docs/GENERAL_RULES.md`
-  - 게임 구조/시스템/플로우 변경 → `Docs/GAME_STRUCTURE.md`
-  - 파일 위치/역할/진입점 변경 → `Docs/PROJECT_MAP.md`
-- 작업 단위 루틴: 변경 목록 확인 → 문서 반영 여부 판단 → 필요한 문서 즉시 갱신(불필요 판단도 1줄 기록).
-- 완료 조건: 모든 변경 작업은 “문서 업데이트 여부 확인”을 완료 조건에 포함합니다.
-- 정기 점검: 스프린트/월말에 `Docs/PROJECT_MAP.md` 기준으로 코드와 1회 정합성 점검을 수행합니다.
-- 의사결정 로그: 사용자 지시가 있을 때만 `Docs/GAME_IDEA.md` 또는 사용자가 지정한 문서에 기록합니다.
+(예: `GameApp`가 I를 Reset하는 것처럼, `SaCache`, `GameConfigProvider`, `StaticDataLoader` 같은 정적 캐시도 Reset 필요)
 
-## 개발 원칙(실수 방지)
+## App UI 영속 규칙
 
-- Input System을 사용합니다. (OnMouseDown / 레거시 마우스 입력 기반 구현 금지)
-- 새 패키지/의존성 추가가 필요하면 먼저 사용자에게 요청합니다.
-- 변경은 작게 쪼개고, 검증 가능한 단위로 진행합니다.
-- 랜덤은 UnityEngine.Random이 아닌 System.Random을 사용합니다.
+- AppScope UI 매니저가 참조하는 뷰/캔버스 루트는 반드시 `GameApp` 하위여야 한다.
+- AppScope UI 뷰/캔버스 배치는 **에디터에서 미리 고정**한다(런타임 자동 편입 금지).
+- 영속 매니저가 SceneScope 뷰를 직접 참조한 채로 유지되는 구조를 금지한다.
+
+## Fallback/Ensure 금지 규칙
+
+- `Fallback`, `Ensure` 패턴을 기본적으로 금지한다.
+  - 예: 런타임에서 누락 참조를 자동 탐색/자동 생성/자동 재할당하는 로직
+- 에디터에서 할당 가능한 참조는 코드가 아니라 **에디터 직렬화 참조**로 해결한다.
+- 구성 오류를 코드가 몰래 보정하지 않는다.
+  - 누락/불일치가 있으면 `Debug.LogError`로 명확히 노출하고 초기화를 중단한다.
+- 불가피하게 Fallback/Ensure가 필요한 경우, 사용자 승인 후에만 도입한다.
+
+---
+
+# 이벤트/상태 관리 원칙
+
+- 이벤트는 **UI 갱신 용도로만** 사용한다.
+- 이벤트 허용 범위는 **상태 변경 사실을 UI에 일방 통보**하는 경우로 한정한다.
+  - 예: 체력/골드/안정도/턴 수치 변경 통보
+- 로직 진행/판정/턴 전환을 이벤트 체인으로 구성하지 않는다.
+- 게임 로직은 서비스 간 직접 메서드 호출로 처리한다.
+- 다음 단계가 반드시 이어져야 하는 흐름은 이벤트를 쓰지 않고 직접 호출로 연결한다.
+  - 예: 버튼 클릭 -> 임무 선택 -> 오버레이 오픈
+
+## UI 구독/해제 규칙
+
+- UI 구독은 `OnEnable`에서 등록하고 `OnDisable`에서 해제한다.
+- 구독/해제는 `IDisposable` 토큰 기반으로 관리한다.
+  - 예: `DisposableBag`, `DisposableToken`, `EventSubscription`
+  - 기본 패턴은 `DisposableBag`에 등록하고 `OnDisable`에서 `Clear()` 호출이다.
+
+## 이벤트 설계 규칙
+
+- 범용 이벤트(`StateChanged`) 대신 값 단위 명시 이벤트를 사용한다.
+- **static event 버스는 금지**한다.
+  - (예외가 필요하면) SubsystemRegistration에서 이벤트를 강제로 null로 Reset해야 하며, 사용처도 최소화한다.
+
+## RunState-UI 바인딩 규칙
+
+- `RunState`는 저장/로드 스냅샷 역할의 **순수 데이터 타입**으로 유지한다.
+  - `RunState` 내부에 이벤트/Observable/델리게이트/Unity 오브젝트 참조를 넣지 않는다.
+- UI 표시용 값은 `RunServices`가 `ObservableValue`로 노출한다.
+  - 최소 노출: `gold`, `stability`, `stabilityMax`, `turn`, `barracksCapacity`, `candidatesCount`, `adventurersCount`, `missionsCount`, `uiRevision`
+- `RunServices`의 public 상태 변경 API는 호출 경계에서 `SyncUiBindingsFromRunState`를 통해 Observable 값을 동기화한다.
+- UI는 Observable을 `OnEnable`에서 구독하고 `OnDisable`에서 해지한다.
+  - `IDisposable` 토큰은 `DisposableBag`로 관리한다.
+- UI는 Observable에 값을 쓰지 않는다.
+  - UI는 `Value` 읽기/`Subscribe`만 사용한다.
+- `EndRun`/`RunServices.Dispose` 시에는 Observable 리스너를 정리해 과거 런 인스턴스 참조가 남지 않게 방어한다.
+- 임무 배치 드래프트 같은 임시 편집 상태는 UI 로컬 상태로 관리한다.
+  - 확정 전에는 `RunState`를 직접 수정하지 않는다.
+  - 확정 반영은 `RunServices` public API 경계에서 원자적으로 처리한다.
+
+---
+
+# 문서 갱신 규칙
+
+- 코드/설계 변경 시 관련 문서를 함께 갱신한다.
+- 사용자 지시가 없으면 의사결정 로그를 별도 기록하지 않는다.
+
+## 문서 맵
+
+- 핵심 스펙: `Docs/GAME_STRUCTURE.md`
+- 레포 구조: `Docs/PROJECT_MAP.md`
+- 아이디어/백로그: `Docs/GAME_IDEA.md`
+- 시스템 세부:
+  - `Docs/ADVENTURER.md`
+  - `Docs/KINGDOM.md`
+  - `Docs/MISSION.md`
+  - `Docs/ABILITY_TEST.md`
+  - `Docs/TRAIT.md`
+  - `Docs/EQUIPMENT.md`
+  - `Docs/FACILITY.md`
+  - `Docs/SKILL_CONSUMABLE.md`

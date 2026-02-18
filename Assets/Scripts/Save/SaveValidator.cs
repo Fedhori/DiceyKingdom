@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 
+
+
+
 public sealed class SaveValidationError
 {
     public string FieldPath { get; }
@@ -18,6 +21,9 @@ public sealed class SaveValidationError
     }
 }
 
+
+
+
 public sealed class SaveValidationResult
 {
     readonly List<SaveValidationError> errors = new();
@@ -29,6 +35,9 @@ public sealed class SaveValidationResult
         errors.Add(new SaveValidationError(fieldPath, expected, actual, code));
     }
 }
+
+
+
 
 public static class SaveValidator
 {
@@ -85,3 +94,4 @@ public static class SaveValidator
         return value.ToString();
     }
 }
+

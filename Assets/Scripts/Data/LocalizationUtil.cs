@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine.Localization;
 
+
+
+
 public static class LocalizationUtil
 {
     public static string Get(string table, string key, Dictionary<string, object> args = null)
@@ -22,3 +25,4 @@ public static class LocalizationUtil
         return reference;
     }
 }
+

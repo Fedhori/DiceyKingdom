@@ -3,19 +3,26 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Security.Cryptography;
 
+
+
+
 public class SaOptions
 {
-    public bool forceRefresh = false;            // 강제 덮어쓰기
+    public bool forceRefresh = false;            
     public bool refreshIfAppVersionChanged = true;
-    public bool verifyHash = true;               // 해시 검증 후 불일치시 갱신
-    public bool cleanStale = false;              // persistent에 불필요 파일 삭제
+    public bool verifyHash = true;               
+    public bool cleanStale = false;              
 }
 
 [Serializable] class SaState { public string appVersion; public string manifestHash; }
+
+
+
 
 public static class SaCache
 {
@@ -25,27 +32,38 @@ public static class SaCache
     static bool inited;
     static Manifest manifest;
 
-    // --- Ready 게이트 ---
+    
     static Task initTask;
     static int initStarted;
-    static readonly TaskCompletionSource<bool> ReadyTcs =
-        new(TaskCreationOptions.RunContinuationsAsynchronously);
+    static TaskCompletionSource<bool> readyTcs = CreateReadyTcs();
 
-    public static Task Ready => ReadyTcs.Task; // 외부에서 기다릴 포인트
-
-    // 앱 시작 시 1회 호출(중복 안전)
-    public static Task InitAsync(SaOptions opt = null, Action<float> onProgress = null)
+    public static Task Ready => readyTcs.Task; 
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStatic()
     {
+        inited = false;
+        manifest = null;
+        initTask = null;
+        initStarted = 0;
+        readyTcs = CreateReadyTcs();
+    }
+
+    
+    public static Task InitAsync(SaOptions opt, Action<float> onProgress = null)
+    {
+        if (opt == null)
+            throw new ArgumentNullException(nameof(opt), "[SACache] InitAsync requires explicit SaOptions.");
+
         if (Volatile.Read(ref initStarted) == 0)
             if (Interlocked.Exchange(ref initStarted, 1) == 0)
                 initTask = InitImplAsync(opt, onProgress);
 
-        // 이미 시작된 경우: 완료되면 onProgress=1.0 한 번 호출(선택)
+        
         if (inited) onProgress?.Invoke(1f);
         return initTask ?? Task.CompletedTask;
     }
 
-    // 항상 persistent 경로 반환 (부모 폴더는 여기서 생성)
+    
     public static string Path(string relativePath)
     {
         string path = "";
@@ -73,13 +91,13 @@ public static class SaCache
         return File.Exists(Path(relativePath));
     }
 
-    // ---- 비동기 API: Ready 대기 + 없으면 즉시 복사 ----
+    
     public static async Task<string> ReadTextAsync(string relativePath)
     {
         await Ready;
         var dst = Path(relativePath);
         if (!File.Exists(dst))
-            await CopyOneAsync(relativePath); // copy-on-demand
+            await CopyOneAsync(relativePath); 
         if (!File.Exists(dst))
             throw new FileNotFoundException($"[SACache] missing: {dst}");
         return File.ReadAllText(dst);
@@ -96,33 +114,31 @@ public static class SaCache
         return File.ReadAllBytes(dst);
     }
 
-    // ---------- 내부 구현 ----------
+    
 
     static async Task InitImplAsync(SaOptions opt, Action<float> onProgress)
     {
         try
         {
-            opt ??= new SaOptions();
-
-            // 1) 매니페스트 읽기
+            
             var manifestJson = await LoadSaAsync("sa_manifest.json");
-            manifest = JsonUtility.FromJson<Manifest>(manifestJson);
+            manifest = JsonConvert.DeserializeObject<Manifest>(manifestJson);
             if (manifest?.files == null || manifest.files.Length == 0)
             {
                 inited = true;
                 onProgress?.Invoke(1f);
-                ReadyTcs.TrySetResult(true);
+                readyTcs.TrySetResult(true);
                 return;
             }
 
-            // 2) state 비교 (버전/매니페스트 해시)
+            
             var state = LoadState();
             var manifestHash = MD5String(manifestJson);
             bool needRefresh = opt.forceRefresh
                 || (opt.refreshIfAppVersionChanged && state?.appVersion != Application.version)
                 || (state?.manifestHash != manifestHash);
 
-            // 3) 복사
+            
             float total = Math.Max(1, manifest.files.Length);
             for (int i = 0; i < manifest.files.Length; i++)
             {
@@ -144,27 +160,32 @@ public static class SaCache
                 onProgress?.Invoke((i + 1) / total);
             }
 
-            // 4) 필요없어진 파일 정리(옵션)
+            
             if (opt.cleanStale) CleanStaleFiles();
 
-            // 5) state 저장
+            
             SaveState(new SaState { appVersion = Application.version, manifestHash = manifestHash });
 
             inited = true;
             onProgress?.Invoke(1f);
 
-            ReadyTcs.TrySetResult(true); // Ready 통지
+            readyTcs.TrySetResult(true); 
         }
         catch (Exception ex)
         {
-            ReadyTcs.TrySetException(ex); // 실패 전파
+            readyTcs.TrySetException(ex); 
             throw;
         }
     }
 
+    static TaskCompletionSource<bool> CreateReadyTcs()
+    {
+        return new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+    }
+
     static async Task CopyOneAsync(Entry e)
     {
-        // 에디터/시스템 파일 스킵(안전장치)
+        
         var lower = e.path.ToLowerInvariant();
         if (lower.EndsWith(".meta") || lower.EndsWith(".ds_store") || lower.EndsWith("thumbs.db"))
         {
@@ -177,7 +198,7 @@ public static class SaCache
         File.WriteAllBytes(dst, bytes);
     }
 
-    // string 오버로드(즉시 복사용)
+    
     static async Task CopyOneAsync(string relativePath)
     {
         var e = new Entry { path = relativePath };
@@ -191,7 +212,7 @@ public static class SaCache
         foreach (var f in Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
         {
             var norm = f.Replace("\\", "/");
-            if (norm.EndsWith("/sa_state.json")) continue; // 상태 파일 제외
+            if (norm.EndsWith("/sa_state.json")) continue; 
             if (!white.Contains(norm)) try { File.Delete(f); } catch { }
         }
     }
@@ -199,10 +220,10 @@ public static class SaCache
     static SaState LoadState()
     {
         var p = Path("sa_state.json");
-        return File.Exists(p) ? JsonUtility.FromJson<SaState>(File.ReadAllText(p)) : null;
+        return File.Exists(p) ? JsonConvert.DeserializeObject<SaState>(File.ReadAllText(p)) : null;
     }
 
-    static void SaveState(SaState s) => File.WriteAllText(Path("sa_state.json"), JsonUtility.ToJson(s));
+    static void SaveState(SaState s) => File.WriteAllText(Path("sa_state.json"), JsonConvert.SerializeObject(s));
 
     static async Task<string> LoadSaAsync(string relativePath)
     {
@@ -250,3 +271,4 @@ public static class SaCache
         return string.Concat(hash.Select(b => b.ToString("x2")));
     }
 }
+

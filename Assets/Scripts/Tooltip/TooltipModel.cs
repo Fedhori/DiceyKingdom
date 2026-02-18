@@ -21,6 +21,9 @@ public readonly struct TooltipKeywordEntry
     }
 }
 
+
+
+
 public sealed class TooltipButtonConfig
 {
     public string LabelKey { get; }
@@ -59,3 +62,4 @@ public readonly struct TooltipModel
         this.buttonConfig = buttonConfig;
     }
 }
+

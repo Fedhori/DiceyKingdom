@@ -2,38 +2,76 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
 
-[DefaultExecutionOrder(-10000)]
+[DefaultExecutionOrder(-20000)]
+
+
+
 public class Bootstrap : MonoBehaviour
 {
     [SerializeField] GameObject managersRoot;
-    
+
     async void Awake()
     {
-        Application.targetFrameRate = 60;
-        // 0) 혹시 이미 켜져 있으면 꺼두기(중복 대비)
-        if (managersRoot && managersRoot.activeSelf) managersRoot.SetActive(false);
-
-        // 1) 캐시/데이터 준비
-        await SaCache.InitAsync(new SaOptions {
-            forceRefresh = Debug.isDebugBuild,
-            refreshIfAppVersionChanged = true,
-            verifyHash = true
-        });
-
-        // 2) 매니저들 활성 + DDoL
-        if (managersRoot)
+        try
         {
-            managersRoot.SetActive(true);              // => 자식 매니저들 Awake() 즉시 호출
-            DontDestroyOnLoad(managersRoot);           // 전 씬 공통 상주
-            await Task.Yield();                        // 한 프레임 양보 → Start()까지 보장하려면 추가로 한 번 더
+            Application.targetFrameRate = 60;
+
+            
+            if (managersRoot && managersRoot.activeSelf)
+                managersRoot.SetActive(false);
+
+            
+            await SaCache.InitAsync(new SaOptions
+            {
+                forceRefresh = Debug.isDebugBuild,
+                refreshIfAppVersionChanged = true,
+                verifyHash = true
+            });
+
+            
+            bool loadedConfig = await GameConfigProvider.LoadFromStreamingAssetsAsync();
+            if (!loadedConfig)
+            {
+                Debug.LogError("[Bootstrap] GameConfig loading failed. Bootstrap halted.");
+                return;
+            }
+
+            
+            StaticDataLoader.LoadAll();
+
+            
+            if (managersRoot == null)
+            {
+                Debug.LogError("[Bootstrap] managersRoot is missing. Bootstrap halted.");
+                return;
+            }
+
+            managersRoot.SetActive(true);
+            await Task.Yield();
+
+            var gameApp = managersRoot.GetComponentInChildren<GameApp>(true);
+            if (gameApp == null)
+            {
+                Debug.LogError("[Bootstrap] GameApp is missing under managersRoot. Bootstrap halted.");
+                return;
+            }
+
+            gameApp.RebuildServices();
+
+            
+            await SaveWebGlSync.SyncFromPersistentAsync();
+
+            await SceneManager.LoadSceneAsync(SceneIds.GameScene).AsTask();
         }
-
-        await SaveWebGlSync.SyncFromPersistentAsync();
-
-        // 3) 다음 씬으로
-        await SceneManager.LoadSceneAsync("GameScene").AsTask();
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[Bootstrap] Bootstrap failed.\n{ex}");
+        }
     }
 }
+
+
+
 
 public static class AsyncOperationExt
 {
@@ -42,3 +80,4 @@ public static class AsyncOperationExt
         while (!op.isDone) await Task.Yield();
     }
 }
+

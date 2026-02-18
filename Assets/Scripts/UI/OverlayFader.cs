@@ -3,6 +3,9 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+
+
 public sealed class OverlayFader : MonoBehaviour
 {
     [SerializeField] private float fadeSeconds = 0.5f;
@@ -111,3 +114,4 @@ public sealed class OverlayFader : MonoBehaviour
         targetGraphic.color = color;
     }
 }
+

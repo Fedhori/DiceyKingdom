@@ -1,38 +1,49 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Button))]
+
+
+
 public class OptionOpener : MonoBehaviour
 {
     [SerializeField] private Button button;
+    [SerializeField] private OptionService optionService;
+    readonly DisposableBag subscriptions = new();
 
     void Reset()
     {
         button = GetComponent<Button>();
     }
 
-    void Start()
+    void OnEnable()
     {
+        subscriptions.Clear();
+
         if (button == null)
             button = GetComponent<Button>();
         if (button == null)
             return;
 
-        button.onClick.RemoveListener(OnClickOpenOptions);
-        button.onClick.AddListener(OnClickOpenOptions);
+        if (optionService == null)
+            optionService = GameApp.I?.UI?.Option;
+
+        subscriptions.Add(EventSubscription.Subscribe(button, OnClickOpenOptions));
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
-        if (button != null)
-            button.onClick.RemoveListener(OnClickOpenOptions);
+        subscriptions.Clear();
     }
 
     private void OnClickOpenOptions()
     {
-        if (OptionManager.Instance != null)
-            OptionManager.Instance.ToggleOption();
+        if (optionService != null)
+            optionService.ToggleOption();
         else
-            Debug.LogWarning("[OptionOpener] OptionManager 인스턴스가 없습니다!");
+            Debug.LogWarning("[OptionOpener] OptionService ?몄뒪?댁뒪媛 ?놁뒿?덈떎!");
     }
 }
+
+

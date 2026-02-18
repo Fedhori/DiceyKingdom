@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <style>
+      .bg { fill:#f6f7fb; }
+      .world { fill:#e8ecf5; stroke:#b7c0d4; stroke-width:2; }
+      .panel { fill:#ffffff; stroke:#2a3550; stroke-width:3; }
+      .sub { fill:#f8faff; stroke:#9ea9c2; stroke-width:2; }
+      .text { font-family: 'Pretendard','Noto Sans KR',sans-serif; fill:#1f2a44; font-size:20px; }
+      .small { font-family: 'Pretendard','Noto Sans KR',sans-serif; fill:#44506b; font-size:16px; }
+      .title { font-family: 'Pretendard','Noto Sans KR',sans-serif; fill:#0f1b33; font-size:26px; font-weight:700; }
+      .pill { fill:#eaf0ff; stroke:#7d95d3; stroke-width:1.5; rx:14; ry:14; }
+      .btn { fill:#d9e5ff; stroke:#6e87c7; stroke-width:2; rx:10; ry:10; }
+      .danger { fill:#ffe8e8; stroke:#d48888; stroke-width:2; }
+      .ok { fill:#eaf8ea; stroke:#7fb287; stroke-width:2; }
+      .guide { fill:none; stroke:#96a3bf; stroke-dasharray:6 6; stroke-width:1.5; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="900"/>
+
+  <rect class="world" x="30" y="30" width="1540" height="840" rx="16"/>
+  <text class="small" x="55" y="70">World View (딤 배경 없음 / 오버레이 열려도 월드 상호작용 허용)</text>
+
+  <rect class="panel" x="50" y="95" width="980" height="770" rx="14"/>
+  <text class="small" x="58" y="890">MissionOverlayPanel (좌측 고정)</text>
+
+  <rect class="sub" x="76" y="120" width="928" height="70" rx="10"/>
+  <text class="title" x="96" y="164">망각의 성채 정리</text>
+  <text class="text" x="812" y="163">기한 3T</text>
+  <rect class="btn" x="942" y="134" width="42" height="42" rx="8"/>
+  <text class="title" x="955" y="163">X</text>
+
+  <rect class="sub" x="76" y="205" width="928" height="52" rx="10"/>
+  <rect class="pill" x="94" y="217" width="102" height="28"/>
+  <rect class="pill" x="208" y="217" width="102" height="28"/>
+  <rect class="pill" x="322" y="217" width="102" height="28"/>
+  <text class="small" x="120" y="237">언데드</text>
+  <text class="small" x="233" y="237">방어전</text>
+  <text class="small" x="348" y="237">중요</text>
+
+  <rect class="sub" x="76" y="272" width="928" height="250" rx="10"/>
+  <text class="text" x="96" y="304">테스트 목록</text>
+  <line class="guide" x1="95" y1="322" x2="984" y2="322"/>
+
+  <text class="small" x="96" y="352">[힘][민] 10   ●</text>
+  <text class="small" x="96" y="386">[지][힘] 12   ●</text>
+  <text class="small" x="96" y="420">[민][민][힘] 14   ●</text>
+
+  <rect class="sub" x="76" y="536" width="928" height="72" rx="10"/>
+  <text class="text" x="96" y="581">현재 파티합: [힘] 3   [민] 5   [지] 6</text>
+
+  <rect class="ok" x="76" y="622" width="928" height="94" rx="10"/>
+  <text class="text" x="96" y="653">임무 보상</text>
+  <text class="small" x="96" y="683">골드 +20, 안정도 +1, 후보 1명 추가</text>
+
+  <rect class="danger" x="76" y="728" width="928" height="94" rx="10"/>
+  <text class="text" x="96" y="759">실패 효과 (기한 초과)</text>
+  <text class="small" x="96" y="789">안정도 -2, 임무 체인 손실 1</text>
+
+  <rect class="sub" x="1070" y="120" width="485" height="745" rx="12"/>
+  <text class="text" x="1094" y="152">우측 영웅 리스트 영역 (별도 UI / 이번 작업 범위 아님)</text>
+  <line class="guide" x1="1090" y1="168" x2="1538" y2="168"/>
+  <text class="small" x="1094" y="200">다키스트 던전식 고정 패널 + 스크롤</text>
+  <text class="small" x="1094" y="228">오버레이와 데이터 연결은 다음 단계</text>
+
+</svg>

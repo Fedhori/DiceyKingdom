@@ -3,6 +3,9 @@ using UnityEngine.UI;
 using System;
 using UnityEngine.Localization.Components;
 
+
+
+
 public class ConfirmationModal : MonoBehaviour
 {
     [SerializeField] public LocalizeStringEvent titleTextEvent;
@@ -12,14 +15,22 @@ public class ConfirmationModal : MonoBehaviour
 
     private Action onConfirmAction;
     private Action onCancelAction;
+    readonly DisposableBag subscriptions = new();
 
     public void Initialize()
     {
-        yesButton.onClick.RemoveAllListeners();
-        yesButton.onClick.AddListener(OnYesClicked);
+    }
 
-        noButton.onClick.RemoveAllListeners();
-        noButton.onClick.AddListener(OnNoClicked);
+    void OnEnable()
+    {
+        subscriptions.Clear();
+        subscriptions.Add(EventSubscription.Subscribe(yesButton, OnYesClicked));
+        subscriptions.Add(EventSubscription.Subscribe(noButton, OnNoClicked));
+    }
+
+    void OnDisable()
+    {
+        subscriptions.Clear();
     }
 
     public void Show(Action onConfirm, Action onCancel)
@@ -45,3 +56,4 @@ public class ConfirmationModal : MonoBehaviour
         onCancelAction?.Invoke();
     }
 }
+

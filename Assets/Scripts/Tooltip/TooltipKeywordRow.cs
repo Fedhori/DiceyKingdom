@@ -3,6 +3,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 
+
+
+
 public sealed class TooltipKeywordRow : MonoBehaviour
 {
     [SerializeField] private TMP_Text titleText;
@@ -29,3 +32,4 @@ public sealed class TooltipKeywordRow : MonoBehaviour
         return loc.GetLocalizedString();
     }
 }
+

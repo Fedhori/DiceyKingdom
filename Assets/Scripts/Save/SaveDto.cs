@@ -1,6 +1,9 @@
 using System;
 
 [Serializable]
+
+
+
 public sealed class SaveData
 {
     public SaveMeta meta = new();
@@ -8,6 +11,9 @@ public sealed class SaveData
 }
 
 [Serializable]
+
+
+
 public sealed class SaveMeta
 {
     public const int CurrentSchemaVersion = 1;
@@ -17,3 +23,4 @@ public sealed class SaveMeta
     public long timestampUtc;
     public string checksum = string.Empty;
 }
+

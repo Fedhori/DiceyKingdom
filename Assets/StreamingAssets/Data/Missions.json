@@ -1,0 +1,74 @@
+{
+  "missionDefs": [
+    {
+      "id": "mission.civil_unrest",
+      "spawnWeight": 1,
+      "partyLimit": 4,
+      "baseDeadlineTurns": 3,
+      "tags": [ "civil" ],
+      "abilityTests": [
+        {
+          "requiredAbilities": [ "strength", "agility" ],
+          "difficulty": 4
+        },
+        {
+          "requiredAbilities": [ "intelligence" ],
+          "difficulty": 3
+        }
+      ],
+      "rules": [
+        {
+          "trigger": "onExpeditionResolved",
+          "condition": {
+            "conditionId": "expeditionSucceeded",
+            "params": []
+          },
+          "effects": [
+            {
+              "effectId": "addGold",
+              "targetId": "",
+              "params": [ 2 ],
+              "priority": 0,
+              "layer": "normal",
+              "stackPolicy": "stack"
+            }
+          ]
+        },
+        {
+          "trigger": "onExpeditionResolved",
+          "condition": {
+            "conditionId": "expeditionFailed",
+            "params": []
+          },
+          "effects": [
+            {
+              "effectId": "addHpAssignedParty",
+              "targetId": "",
+              "params": [ -1 ],
+              "priority": 0,
+              "layer": "normal",
+              "stackPolicy": "stack"
+            }
+          ]
+        },
+        {
+          "trigger": "onMissionFailed",
+          "condition": {
+            "conditionId": "always",
+            "params": []
+          },
+          "effects": [
+            {
+              "effectId": "addStability",
+              "targetId": "",
+              "params": [ -2 ],
+              "priority": 0,
+              "layer": "normal",
+              "stackPolicy": "stack"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

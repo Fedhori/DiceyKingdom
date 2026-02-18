@@ -1,20 +1,23 @@
 using System;
 using UnityEngine;
 
+
+
+
 public class SlidePanelLean : MonoBehaviour
 {
     [Header("Hide Movement")]
-    [SerializeField] private Vector2 direction = Vector2.right; // 숨길 때 이동할 방향
+    [SerializeField] private Vector2 direction = Vector2.right; 
 
     [Header("Tween")]
     [SerializeField] private float duration = 0.5f;
     [SerializeField] private LeanTweenType ease = LeanTweenType.easeInOutCubic;
-    [SerializeField] private bool startHidden = true;           // 시작을 숨김 상태로 둘지
+    [SerializeField] private bool startHidden = true;           
 
     private LTDescr currentTween;
     public bool IsShown { get; private set; }
 
-    // 기준(보이는) 위치
+    
     private Vector2 shownPos;
     RectTransform panel;
     private Vector2 DirNorm => (direction.sqrMagnitude > 0f) ? direction.normalized : Vector2.right;
@@ -23,7 +26,7 @@ public class SlidePanelLean : MonoBehaviour
     {
         panel = GetComponent<RectTransform>();
 
-        // 현재 패널 자리를 '보이는 자리'로 저장
+        
         shownPos = panel.anchoredPosition;
 
         if (startHidden)
@@ -75,7 +78,7 @@ public class SlidePanelLean : MonoBehaviour
         currentTween = null;
     }
 
-    // 기준 위치를 현재 위치로 재설정하고 싶을 때 호출
+    
     public void ReanchorShownToCurrent()
     {
         shownPos = panel.anchoredPosition;
@@ -111,3 +114,4 @@ public class SlidePanelLean : MonoBehaviour
         return shownPos + dir * Mathf.Max(0f, needed);
     }
 }
+

@@ -2,6 +2,9 @@ using System;
 using UnityEngine;
 using TMPro;
 
+
+
+
 public class FloatingText : MonoBehaviour
 {
     [SerializeField] float moveHeight = 50f;
@@ -34,7 +37,7 @@ public class FloatingText : MonoBehaviour
         Color color,
         float fontSize,
         float lifetime,
-        Vector3 startPosition,      // 캔버스 로컬 좌표 (anchoredPosition 용)
+        Vector3 startPosition,      
         Action onComplete)
     {
         if (textMesh == null)
@@ -89,3 +92,4 @@ public class FloatingText : MonoBehaviour
         }
     }
 }
+
