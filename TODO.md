@@ -1,23 +1,14 @@
 # TODO
 
-프로젝트 작업 추적용 파일입니다.
-
-## 사용 규칙
-
-- 새 작업을 시작하기 전에 `Planned`에 작업을 추가합니다.
-- 작업 진행 중에는 상태를 `In Progress`로 변경합니다.
-- 작업 완료 시 `Done`에 완료일과 핵심 결과를 기록합니다.
-- 보류/중단 작업은 `Blocked`에 기록하고 사유를 남깁니다.
+템플릿 초기 상태 작업 보드.
 
 ## Planned
 
-- [P1-ADVENTURER-DETAIL] 모험가 상세 정보 오버레이 구현 (이름/초상화/스탯/레벨/체력/피로도/긍정·부정 특성/장비 표시, MissionOverlay보다 상위 정렬)
-- [P1-SPEC] Overlay `원정 창` 스펙 확정 (원정에 참여한 모험가들 상태 표시, 원정 상태 표기, 테스트버튼, 포기버튼)
-- [P1-SPEC] Overlay `턴 종료/정산 패널` 스펙 확정 (정산 결과 요약, 임무 실패 반영 방식)
-- [P1] 검증/스모크 테스트 (런 시작, 1턴 루프, 원정 실패 즉시 효과, 임무 실패 제거, 조건부 규칙 onHpChanged 재계산 반영)
-- [P1] 문서 동기화 (`Docs/GAME_STRUCTURE.md`, `Docs/ADVENTURER.md`, `Docs/MISSION.md`, `Docs/ABILITY_TEST.md`, `Docs/TRAIT.md`, `Docs/GENERAL_RULES.md`)
-- [P2] 임무 오버레이 저해상도 대응 (현재 데스크톱 기준 고정 레이아웃, 기준 미만 해상도는 레이아웃 깨짐 허용)
-- [P2] 후순위 placeholder 정리 (장비/시설/스킬·소모품/태그 시스템 필드만 유지, 로직 비활성)
+- [TEMPLATE-01] 새 게임 장르/코어 루프 정의
+- [TEMPLATE-02] `RunState`/`RunServices` 게임 전용 확장
+- [TEMPLATE-03] 플레이 씬 추가 및 `SceneIds.TemplateStartScene` 흐름 재정의
+- [TEMPLATE-04] 게임 전용 정적 데이터(JSON) 스키마 설계
+- [TEMPLATE-05] UI/아트 가이드 수립 및 공용 색상 토큰 재정의
 
 ## In Progress
 
@@ -29,31 +20,4 @@
 
 ## Done
 
-- 2026-02-16: [P1-ADVENTURER-LIST-08] 스모크 검증/마감 1차 완료 (컴파일 오류 0, 씬 직렬화 참조 점검 완료, 실플레이 검증은 다음 단계에서 계속)
-- 2026-02-16: [P1-ADVENTURER-LIST] 모험가 리스트 구현 완료 (우측 고정 스크롤 + 좌클릭 상세 훅 + MissionOverlay 오픈 중 우클릭 자동 배치)
-- 2026-02-16: [P1-ADVENTURER-LIST-07] `Colors.Semantic` 기반 테마 색 적용 (리스트 패널/행/텍스트 상태색 반영, 알파 1 기준 유지)
-- 2026-02-16: [P1-ADVENTURER-LIST-06] 입력 동작 연결 (`MissionAdventurerRowView` 좌클릭 상세 훅/우클릭 자동 배치, Overlay 비오픈 시 우클릭 무반응)
-- 2026-02-16: [P1-ADVENTURER-LIST-05] Presenter/렌더 파이프라인 연결 (`MissionAdventurerListPresenter` 추가, `UiRevision` 구독 + 정렬 `배치 가능 -> 레벨 내림차순 -> 이름 오름차순`)
-- 2026-02-16: [P1-ADVENTURER-LIST-04] 리스트 행 템플릿 구성 (초상화 64x64, 이름/레벨, HP/STA, 능력 아이콘+수치, 배치 불가 상태)
-- 2026-02-16: [P1-ADVENTURER-LIST-03] 우측 리스트 패널 구성 (MainCanvas 우측 고정 Header + ScrollView + Content 연결)
-- 2026-02-16: [P1-ADVENTURER-LIST-02] 이름/초상화 배정 로직 추가 (`AdventurerIdentityPool`, `AdventurerPortraitCatalog`, 이름 100개/초상화 20개 리소스 추가)
-- 2026-02-16: [P1-ADVENTURER-LIST-01] 리스트 데이터 모델 확장 (`MissionAdventurerRowData` + `AdventurerInstance`에 표시 필드 확장)
-- 2026-02-16: [P1-UI-COLOR-01A] 프로토타입 규칙 반영 (에디터에서 가능한 정적 색상은 코드 적용 제거, 동적 상태색만 코드 유지)
-- 2026-02-16: [P1-UI-COLOR-01] `Colors.Semantic` 화면 alias 추가 + Mission/HUD 1차 적용 + 작업서 작성 (`Docs/UI_COLOR_WORK_ORDER.md`, `RunCoreStatsBinder`, `MissionWorldCardView`, `MissionWorldTestRowView`, `MissionOverlay*`)
-- 2026-02-16: [P1-IMPL-MISSION-09] MissionOverlay 재구축 완료 (`MissionOverlayRoot`/`MissionOverlayPanel` 하위 v13 계층 신설, 테스트/파티/슬롯 템플릿 생성, `MissionOverlayPresenter`/`MissionUiCoordinator` 직렬화 참조 재연결, 루트 기본 비활성)
-- 2026-02-15: [P1-IMPL-MISSION] 코드 구현 1차 완료 (`RunServices.TryCommitMissionDraft` 원자적 확정+원정 시작 전환, `MissionWorldListPresenter` 정렬/선택 이벤트/partyLimit 반영, `MissionUiCoordinator`/`MissionOverlayPresenter`/`MissionAdventurerRowView`/`MissionDraftSlotView`/`MissionEffectSummaryBuilder` 추가, 문서 `MISSION/GAME_STRUCTURE/GENERAL_RULES` 동기화)
-- 2026-02-15: [P1-SPEC] `임무 카드/리스트` 스펙 확정 (`Docs/MISSION.md`에 월드 카드/오버레이 표시 항목, 배치/확정 규칙, 선택/강조 규칙 고정 / `Docs/GAME_STRUCTURE.md`에 월드+오버레이 분리 원칙 반영)
-- 2026-02-15: [P1-WORLD] GameScene 진입 시 월드 임무 카드 렌더링 복구 (`GameSceneInstaller`에서 신규/미초기화 Run에 한해 `InitializeRunLoop()`를 명시 호출, 초기화 실패 시 즉시 에러 로그 출력)
-- 2026-02-15: [P1-WORLD] 월드 임무 카드 UI 프리팹 분리 완료 (`MissionWorldCard/MissionWorldTestRow/MissionAbilityIcon` 프리팹 생성, `MissionWorldListPresenter.cardPrefab`을 프리팹 에셋 참조로 전환, `GameScene`에서 카드 템플릿 제거 후 `Presenter + Container`만 유지)
-- 2026-02-15: [P1-WORLD] 월드 임무 카드 표시 1차 구현 완료 (`MissionWorldListPresenter/CardView/TestRowView` 추가, `RunServices` 활성 임무 선택 API 추가, `GameScene`에 월드 카드 템플릿/컨테이너 배치 및 직렬화 레퍼런스 연결, 템플릿 비활성화)
-- 2026-02-14: 런타임 인력 저장구조 분리 완료 (`RunState`를 `candidates/adventurers/graveyard` 3리스트로 전환, 후보/공동묘지 uid 리스트 제거, 턴/임무 서비스 로직을 분리 구조 기준으로 수정)
-- 2026-02-14: [P0] 특성 시스템 구현 완료 (`TraitService` 추가, 성공/실패 확률 `60/30/10`·`60/10/30` 적용, 임무당 단일 결과, 슬롯 초과 시 잠금 제외 랜덤 교체, mission 종료 시 mission layer modifier 제거 흐름 유지)
-- 2026-02-14: [P0] 턴 루프 구현 완료 (`TurnLoopService` 추가, 후보 2명 생성/미채용 폐기/정원 6 채용 체크/임무 턴당 2개 생성/정산 시 deadline 감소 및 임무 실패 제거/전원 HP+1·휴식자 Stamina+1 반영)
-- 2026-02-14: [P0] 핵심 원정/임무 규칙 구현 완료 (`MissionExpeditionService` 추가, 영웅심 임무당 1회/첫 테스트 시작 시 참여 잠금/전원 사망 자동 포기/원정 실패 시 임무·진행도 유지/임무 실패 시 제거 반영)
-- 2026-02-14: [P0] Stat Modifier 시스템 구현 완료 (`StatService`, `ModifierService` 추가, `add -> mul -> set -> floor` 계산 순서, `layer/stackPolicy` 반영, owner dirty + on-demand recalc 연결)
-- 2026-02-14: [P0] Effect 처리기 구현 완료 (`EffectApplier` 연결, `effectId` 기반 대상 분기, `params: List<float>` 적용, `paramCount` 검증 연동 유지, `Floor` 반올림 규칙 적용)
-- 2026-02-14: [P0] Rule 시스템 구현 완료 (`RuleContext/RuleConditionEvaluator/RulePipeline/RuleRunner` 추가, `RuleDef = trigger + condition + effects` 공통 실행, Mission/Trait 파이프라인 통합, 전역 순서 `Trait -> Mission` 고정)
-- 2026-02-14: [P0] 런타임 Instance 스키마 구현 완료 (`InstanceTypes.cs`에 `RunState/AdventurerInstance/MissionInstance/TraitInstance/ModifierInstance` 추가, uid-only reference 구조 반영, `GameManager.CurrentRunState` 단일 진입점/API 연결)
-- 2026-02-14: [P0] 정적 Def 로더 안정화 (`StaticDataSet` 읽기 전용화/조회 API 보강 + `sa_manifest.json`을 `GameConfig/Adventurers/Missions/Traits` 기준으로 동기화)
-- 2026-02-14: [P0] 정적 Def 스키마/로더 구현 완료 (`DefTypes.cs`, `StaticDataLoader.cs`, `StaticDataSet.cs` + `Adventurers/Missions/Traits` JSON 추가, Bootstrap 로드 검증 연동)
-- 2026-02-14: `GameConfig.json` 로딩 파이프라인 구현 (`Bootstrap` 로드 -> `GameConfigProvider` -> `GameConfigData` 전역 접근) + `TooltipManager` 연동
+- 2026-02-18: DiceyKingdom 전용 로직/리소스 제거 및 템플릿 구조 전환 완료

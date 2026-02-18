@@ -353,46 +353,43 @@ public static class Colors
     // HUD
     public static readonly Color32 HudStatText = TextPrimary;
 
-    // Mission World
-    public static readonly Color32 MissionWorldCardBg = SurfaceParchment;
-    public static readonly Color32 MissionWorldCardSelectedFill = SurfaceParchmentAlt;
-    public static readonly Color32 MissionWorldCardSelectedBorder = SelectionOutline;
-    public static readonly Color32 MissionWorldCardTitleText = TextOnLightPrimary;
-    public static readonly Color32 MissionWorldCardMetaText = TextOnLightSecondary;
-    public static readonly Color32 MissionWorldTestTileBg = SurfaceParchmentAlt;
-    public static readonly Color32 MissionWorldTestValueText = TextOnLightPrimary;
-    public static readonly Color32 MissionWorldTestClearedText = StatePositive;
+    // Generic list/card aliases
+    public static readonly Color32 ListCardBg = SurfaceParchment;
+    public static readonly Color32 ListCardSelectedFill = SurfaceParchmentAlt;
+    public static readonly Color32 ListCardSelectedBorder = SelectionOutline;
+    public static readonly Color32 ListCardTitleText = TextOnLightPrimary;
+    public static readonly Color32 ListCardMetaText = TextOnLightSecondary;
+    public static readonly Color32 ListCardValueTileBg = SurfaceParchmentAlt;
+    public static readonly Color32 ListCardValueText = TextOnLightPrimary;
+    public static readonly Color32 ListCardStatePositive = StatePositive;
 
-    // Mission Overlay
-    public static readonly Color32 MissionOverlayPanelBg = SurfaceParchment;
-    public static readonly Color32 MissionOverlayHeaderBg = SurfaceParchmentMuted;
-    public static readonly Color32 MissionOverlaySectionBg = SurfaceParchmentAlt;
-    public static readonly Color32 MissionOverlayTitleText = TextOnLightPrimary;
-    public static readonly Color32 MissionOverlayMetaText = TextOnLightSecondary;
-    public static readonly Color32 MissionOverlayTagText = TextOnLightSecondary;
-    public static readonly Color32 MissionOverlayTestTileBg = SurfaceParchmentMuted;
-    public static readonly Color32 MissionOverlayTestValueText = TextOnLightPrimary;
-    public static readonly Color32 MissionOverlayTestClearedText = StatePositive;
-    public static readonly Color32 MissionOverlayPartyStatTileBg = SurfaceParchmentMuted;
-    public static readonly Color32 MissionOverlayPartyStatValueText = TextOnLightPrimary;
-    public static readonly Color32 MissionOverlayRewardPanelBg = Primitive.Moss100;
-    public static readonly Color32 MissionOverlayRewardText = TextOnLightPrimary;
-    public static readonly Color32 MissionOverlayFailurePanelBg = Primitive.Blood100;
-    public static readonly Color32 MissionOverlayFailureText = TextOnLightPrimary;
-    public static readonly Color32 MissionOverlayStartButtonBg = ActionPrimaryBg;
-    public static readonly Color32 MissionOverlayStartButtonBgDisabled = ActionPrimaryBgDisabled;
-    public static readonly Color32 MissionOverlayStartButtonFg = ActionPrimaryFg;
-    public static readonly Color32 MissionOverlayCloseButtonBg = ActionSecondaryBg;
-    public static readonly Color32 MissionOverlayCloseButtonBgHover = ActionSecondaryBgHover;
-    public static readonly Color32 MissionOverlayCloseButtonBgPressed = ActionSecondaryBgPressed;
-    public static readonly Color32 MissionOverlayCloseButtonBgDisabled = ActionSecondaryBgDisabled;
-    public static readonly Color32 MissionOverlayCloseButtonFg = ActionSecondaryFg;
+    // Generic detail panel aliases
+    public static readonly Color32 DetailPanelBg = SurfaceParchment;
+    public static readonly Color32 DetailHeaderBg = SurfaceParchmentMuted;
+    public static readonly Color32 DetailSectionBg = SurfaceParchmentAlt;
+    public static readonly Color32 DetailTitleText = TextOnLightPrimary;
+    public static readonly Color32 DetailMetaText = TextOnLightSecondary;
+    public static readonly Color32 DetailTagText = TextOnLightSecondary;
+    public static readonly Color32 DetailValueTileBg = SurfaceParchmentMuted;
+    public static readonly Color32 DetailValueText = TextOnLightPrimary;
+    public static readonly Color32 DetailPositivePanelBg = Primitive.Moss100;
+    public static readonly Color32 DetailPositiveText = TextOnLightPrimary;
+    public static readonly Color32 DetailNegativePanelBg = Primitive.Blood100;
+    public static readonly Color32 DetailNegativeText = TextOnLightPrimary;
+    public static readonly Color32 DetailPrimaryActionBg = ActionPrimaryBg;
+    public static readonly Color32 DetailPrimaryActionBgDisabled = ActionPrimaryBgDisabled;
+    public static readonly Color32 DetailPrimaryActionFg = ActionPrimaryFg;
+    public static readonly Color32 DetailSecondaryActionBg = ActionSecondaryBg;
+    public static readonly Color32 DetailSecondaryActionBgHover = ActionSecondaryBgHover;
+    public static readonly Color32 DetailSecondaryActionBgPressed = ActionSecondaryBgPressed;
+    public static readonly Color32 DetailSecondaryActionBgDisabled = ActionSecondaryBgDisabled;
+    public static readonly Color32 DetailSecondaryActionFg = ActionSecondaryFg;
 
-    // Mission Overlay
-    public static readonly Color32 MissionOverlaySlotFrameUsable = BorderNormal;
-    public static readonly Color32 MissionOverlaySlotFrameLocked = TextDisabled;
-    public static readonly Color32 MissionOverlaySlotPlus = TextDisabled;
-    public static readonly Color32 MissionOverlaySlotLockedOverlay = Primitive.Slate700;
+    // Generic slot/frame aliases
+    public static readonly Color32 SlotFrameUsable = BorderNormal;
+    public static readonly Color32 SlotFrameLocked = TextDisabled;
+    public static readonly Color32 SlotPlus = TextDisabled;
+    public static readonly Color32 SlotLockedOverlay = Primitive.Slate700;
 
     // Modal
     public static readonly Color32 ModalDimBackground = OverlayDim;

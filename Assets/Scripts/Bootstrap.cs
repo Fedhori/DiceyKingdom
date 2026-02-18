@@ -3,9 +3,6 @@ using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
 
 [DefaultExecutionOrder(-20000)]
-
-
-
 public class Bootstrap : MonoBehaviour
 {
     [SerializeField] GameObject managersRoot;
@@ -37,9 +34,6 @@ public class Bootstrap : MonoBehaviour
             }
 
             
-            StaticDataLoader.LoadAll();
-
-            
             if (managersRoot == null)
             {
                 Debug.LogError("[Bootstrap] managersRoot is missing. Bootstrap halted.");
@@ -61,7 +55,7 @@ public class Bootstrap : MonoBehaviour
             
             await SaveWebGlSync.SyncFromPersistentAsync();
 
-            await SceneManager.LoadSceneAsync(SceneIds.GameScene).AsTask();
+            await SceneManager.LoadSceneAsync(SceneIds.TemplateStartScene).AsTask();
         }
         catch (System.Exception ex)
         {

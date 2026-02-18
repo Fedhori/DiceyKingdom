@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 [DefaultExecutionOrder(-9000)]
@@ -8,6 +7,8 @@ using UnityEngine;
 public sealed class GameSceneInstaller : MonoBehaviour
 {
     [SerializeField] GameSceneRefs sceneRefs = new();
+    [SerializeField] bool useFixedSeed;
+    [SerializeField] int fixedSeed = 1001;
     bool ownsRun;
     RunServices startedRun;
 
@@ -34,11 +35,7 @@ public sealed class GameSceneInstaller : MonoBehaviour
             return;
         }
 
-        if (run.CurrentRunState == null || string.IsNullOrWhiteSpace(run.CurrentRunState.uid))
-        {
-            if (!run.InitializeRunLoop())
-                Debug.LogError("[GameSceneInstaller] InitializeRunLoop failed. Check Bootstrap/GameConfig/StaticData initialization order.");
-        }
+        run.InitializeRunIfNeeded(useFixedSeed ? fixedSeed : null);
     }
 
     void OnDestroy()

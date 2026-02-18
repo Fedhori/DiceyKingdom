@@ -63,19 +63,11 @@ public class OptionService : MonoBehaviour
         HideAllOptionButtons();
 
         quitGameButton.gameObject.SetActive(true);
-
-        switch (SceneManager.GetActiveScene().name)
-        {
-            case SceneIds.GameScene:
-            {
-                returnToMainMenuButton.gameObject.SetActive(true);
-                break;
-            }
-            default:
-            {
-                break;
-            }
-        }
+        string activeScene = SceneManager.GetActiveScene().name;
+        bool showReturnToMainMenu =
+            !string.Equals(activeScene, SceneIds.Bootstrap, System.StringComparison.Ordinal) &&
+            !string.Equals(activeScene, SceneIds.MainMenuScene, System.StringComparison.Ordinal);
+        returnToMainMenuButton.gameObject.SetActive(showReturnToMainMenu);
     }
 
     public void ToggleOption()

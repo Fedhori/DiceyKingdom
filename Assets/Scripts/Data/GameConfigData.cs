@@ -1,32 +1,12 @@
 using System;
 
 [Serializable]
-
-
-
 public sealed class GameConfigData
 {
-    
-    public int candidateCountPerTurn;
-    public int barracksCapacity;
-    public int startingAdventurerCount;
-    public int missionSpawnCountPerTurn;
-
-    
-    public int globalHpRegenPerTurn;
-    public int restStaminaRegenPerTurn;
-
-    
-    public int traitSlotCount;
-
-    
-    public float traitNoChangeOnSuccess;
-    public float traitPositiveOnSuccess;
-    public float traitNegativeOnSuccess;
-
-    
-    public float traitNoChangeOnFailure;
-    public float traitPositiveOnFailure;
-    public float traitNegativeOnFailure;
+    public string templateName = "TemplateProject";
+    public int defaultRunSeed = 1001;
+    public int startingPrimaryValue = 0;
+    public int startingSecondaryValue = 0;
+    public int ticksPerAutoSave = 5;
 }
 

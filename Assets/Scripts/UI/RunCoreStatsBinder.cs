@@ -1,9 +1,6 @@
 using TMPro;
 using UnityEngine;
 
-
-
-
 public sealed class RunCoreStatsBinder : MonoBehaviour
 {
     [Header("Texts")]
@@ -23,15 +20,15 @@ public sealed class RunCoreStatsBinder : MonoBehaviour
         boundRun = GameApp.I?.Run;
         if (boundRun == null)
         {
-            Debug.LogError("[RunCoreStatsBinder] RunServices is null. Ensure this UI is enabled after BeginRun.");
+            Debug.LogWarning("[RunCoreStatsBinder] RunServices is null. Call BeginRun before enabling HUD.");
             return;
         }
 
-        subscriptions.Add(boundRun.Gold.Subscribe(UpdateGold));
-        subscriptions.Add(boundRun.Stability.Subscribe(UpdateStability));
-        subscriptions.Add(boundRun.StabilityMax.Subscribe(UpdateStability));
-        subscriptions.Add(boundRun.Turn.Subscribe(UpdateTurn));
-        subscriptions.Add(boundRun.BarracksCapacity.Subscribe(UpdateBarracksCapacity));
+        subscriptions.Add(boundRun.PrimaryValue.Subscribe(UpdatePrimaryValue));
+        subscriptions.Add(boundRun.SecondaryValue.Subscribe(UpdateSecondaryValue));
+        subscriptions.Add(boundRun.Tick.Subscribe(UpdateTick));
+        subscriptions.Add(boundRun.UiRevision.Subscribe(_ => UpdateSessionLabel()));
+        UpdateSessionLabel();
     }
 
     void OnDisable()
@@ -42,36 +39,38 @@ public sealed class RunCoreStatsBinder : MonoBehaviour
 
     void ApplyDefaults()
     {
-        SetText(goldText, "Gold: 0");
-        SetText(stabilityText, "Stability: 0/0");
-        SetText(turnText, "Turn: 0");
-        SetText(barracksCapacityText, "Capacity: 0");
+        SetText(goldText, "Primary: 0");
+        SetText(stabilityText, "Secondary: 0");
+        SetText(turnText, "Tick: 0");
+        SetText(barracksCapacityText, "Session: -");
     }
 
-    void UpdateGold(int value)
+    void UpdatePrimaryValue(int value)
     {
-        SetText(goldText, $"Gold: {value}");
+        SetText(goldText, $"Primary: {value}");
     }
 
-    void UpdateStability(int _)
+    void UpdateSecondaryValue(int value)
     {
-        if (boundRun == null)
+        SetText(stabilityText, $"Secondary: {value}");
+    }
+
+    void UpdateTick(int value)
+    {
+        SetText(turnText, $"Tick: {value}");
+    }
+
+    void UpdateSessionLabel()
+    {
+        string uid = boundRun?.CurrentRunState?.uid;
+        if (string.IsNullOrWhiteSpace(uid))
         {
-            SetText(stabilityText, "Stability: 0/0");
+            SetText(barracksCapacityText, "Session: -");
             return;
         }
 
-        SetText(stabilityText, $"Stability: {boundRun.Stability.Value}/{boundRun.StabilityMax.Value}");
-    }
-
-    void UpdateTurn(int value)
-    {
-        SetText(turnText, $"Turn: {value}");
-    }
-
-    void UpdateBarracksCapacity(int value)
-    {
-        SetText(barracksCapacityText, $"Capacity: {value}");
+        string shortUid = uid.Length > 8 ? uid.Substring(0, 8) : uid;
+        SetText(barracksCapacityText, $"Session: {shortUid}");
     }
 
     static void SetText(TMP_Text target, string value)

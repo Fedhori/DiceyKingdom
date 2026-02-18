@@ -1,8 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
-
-
-
 
 public sealed class GameService : MonoBehaviour
 {
@@ -21,22 +17,7 @@ public sealed class GameService : MonoBehaviour
         if (!autoStartOnAwake)
             return;
 
-        var app = GameApp.I;
-        if (app == null)
-        {
-            Debug.LogError("[GameService] GameApp is missing.");
-            return;
-        }
-
-        if (app.Run != null)
-            return;
-
-        if (useFixedSeed)
-            Random.InitState(fixedSeed);
-
-        app.BeginRun(sceneRefs);
-        ownsRun = true;
-        startedRun = app.Run;
+        EnsureRunStarted();
     }
 
     void OnDestroy()
@@ -52,9 +33,37 @@ public sealed class GameService : MonoBehaviour
             app.EndRun();
     }
 
+    public bool EnsureRunStarted()
+    {
+        var app = GameApp.I;
+        if (app == null)
+        {
+            Debug.LogError("[GameService] GameApp is missing.");
+            return false;
+        }
+
+        if (app.Run == null)
+        {
+            app.BeginRun(sceneRefs);
+            ownsRun = true;
+            startedRun = app.Run;
+        }
+
+        RunServices run = app.Run;
+        if (run == null)
+            return false;
+
+        run.InitializeRunIfNeeded(useFixedSeed ? fixedSeed : null);
+        return true;
+    }
+
     public RunState CreateNewRunState()
     {
-        return GetRunServices()?.CreateNewRunState();
+        RunServices run = GetRunServices();
+        if (run == null)
+            return null;
+
+        return run.CreateNewRunState(useFixedSeed ? fixedSeed : null);
     }
 
     public void SetRunState(RunState runState)
@@ -72,101 +81,39 @@ public sealed class GameService : MonoBehaviour
         return GetRunServices()?.TryImportRunStateJson(json) ?? false;
     }
 
-    public RuleExecutionSummary RunMissionTrigger(string missionUid, string trigger, RuleContext context = null, IRuleEffectApplier effectApplier = null)
-    {
-        return GetRunServices()?.RunMissionTrigger(missionUid, trigger, context, effectApplier) ?? new RuleExecutionSummary();
-    }
-
-    public RuleExecutionSummary RunAdventurerTrigger(string adventurerUid, string trigger, RuleContext context = null, IRuleEffectApplier effectApplier = null)
-    {
-        return GetRunServices()?.RunAdventurerTrigger(adventurerUid, trigger, context, effectApplier) ?? new RuleExecutionSummary();
-    }
-
-    public int GetAdventurerStat(string adventurerUid, StatId statId)
-    {
-        return GetRunServices()?.GetAdventurerStat(adventurerUid, statId) ?? 0;
-    }
-
-    public void MarkAdventurerStatDirty(string adventurerUid)
-    {
-        GetRunServices()?.MarkAdventurerStatDirty(adventurerUid);
-    }
-
-    public void AddOrMergeModifier(ModifierInstance modifier)
-    {
-        GetRunServices()?.AddOrMergeModifier(modifier);
-    }
-
-    public int RemoveMissionLayerModifiers(string missionUid)
-    {
-        return GetRunServices()?.RemoveMissionLayerModifiers(missionUid) ?? 0;
-    }
-
-    public bool TryAssignAdventurerToMission(string adventurerUid, string missionUid)
-    {
-        return GetRunServices()?.TryAssignAdventurerToMission(adventurerUid, missionUid) ?? false;
-    }
-
-    public bool TryUnassignAdventurer(string adventurerUid)
-    {
-        return GetRunServices()?.TryUnassignAdventurer(adventurerUid) ?? false;
-    }
-
-    public bool TryCommitMissionDraft(string missionUid, IReadOnlyList<string> adventurerUids, out string failureReason)
-    {
-        RunServices run = GetRunServices();
-        if (run == null)
-        {
-            failureReason = "RunServices is null.";
-            return false;
-        }
-
-        return run.TryCommitMissionDraft(missionUid, adventurerUids, out failureReason);
-    }
-
-    public AbilityTestResolveResult ResolveMissionAbilityTestOnce(string missionUid)
-    {
-        return GetRunServices()?.ResolveMissionAbilityTestOnce(missionUid) ?? new AbilityTestResolveResult();
-    }
-
-    public bool FailMissionExpedition(string missionUid)
-    {
-        return GetRunServices()?.FailMissionExpedition(missionUid) ?? false;
-    }
-
-    public int AdvanceMissionDeadlinesAndRemoveFailedMissions()
-    {
-        return GetRunServices()?.AdvanceMissionDeadlinesAndRemoveFailedMissions() ?? 0;
-    }
-
     public bool InitializeRunLoop()
     {
-        return GetRunServices()?.InitializeRunLoop() ?? false;
+        return EnsureRunStarted();
     }
 
     public bool AdvanceTurn()
     {
-        return GetRunServices()?.AdvanceTurn() ?? false;
+        RunServices run = GetRunServices();
+        if (run == null)
+        {
+            return false;
+        }
+
+        run.IncrementTick();
+        return true;
     }
 
-    public bool TryRecruitCandidate(string candidateUid)
+    public int AddPrimaryValue(int delta)
     {
-        return GetRunServices()?.TryRecruitCandidate(candidateUid) ?? false;
+        RunServices run = GetRunServices();
+        if (run == null)
+            return 0;
+
+        return run.AddPrimaryValue(delta);
     }
 
-    public bool SetTraitLocked(string traitUid, bool isLocked)
+    public int AddSecondaryValue(int delta)
     {
-        return GetRunServices()?.SetTraitLocked(traitUid, isLocked) ?? false;
-    }
+        RunServices run = GetRunServices();
+        if (run == null)
+            return 0;
 
-    public bool SetActiveMission(string missionUid)
-    {
-        return GetRunServices()?.SetActiveMission(missionUid) ?? false;
-    }
-
-    public void ClearActiveMission()
-    {
-        GetRunServices()?.ClearActiveMission();
+        return run.AddSecondaryValue(delta);
     }
 
     RunServices GetRunServices()
@@ -181,6 +128,9 @@ public sealed class GameService : MonoBehaviour
             }
             return null;
         }
+
+        if (app.Run == null && !EnsureRunStarted())
+            return null;
 
         if (app.Run == null)
         {

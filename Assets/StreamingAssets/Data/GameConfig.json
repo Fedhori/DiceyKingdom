@@ -1,19 +1,7 @@
 {
-  "candidateCountPerTurn": 2,
-  "barracksCapacity": 6,
-  "startingAdventurerCount": 4,
-  "missionSpawnCountPerTurn": 2,
-
-  "globalHpRegenPerTurn": 1,
-  "restStaminaRegenPerTurn": 1,
-
-  "traitSlotCount": 3,
-
-  "traitNoChangeOnSuccess": 0.6,
-  "traitPositiveOnSuccess": 0.3,
-  "traitNegativeOnSuccess": 0.1,
-
-  "traitNoChangeOnFailure": 0.6,
-  "traitPositiveOnFailure": 0.1,
-  "traitNegativeOnFailure": 0.3
+  "templateName": "TemplateProject",
+  "defaultRunSeed": 1001,
+  "startingPrimaryValue": 10,
+  "startingSecondaryValue": 0,
+  "ticksPerAutoSave": 5
 }

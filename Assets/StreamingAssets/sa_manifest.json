@@ -1,26 +1,11 @@
 {
   "appVersion": "1.0",
-  "generatedAt": "2026-02-14 00:00:00",
+  "generatedAt": "2026-02-18 00:00:00",
   "files": [
     {
       "path": "Data/GameConfig.json",
-      "size": 377,
-      "md5": "c1985be70ecc309b5e127bb1c4a48c1e"
-    },
-    {
-      "path": "Data/Adventurers.json",
-      "size": 657,
-      "md5": "d8ddb33e80640c2a9a876f4bc1e0d5d9"
-    },
-    {
-      "path": "Data/Missions.json",
-      "size": 1752,
-      "md5": "55ccc6fd6eedfbfa43cfb19a824f0831"
-    },
-    {
-      "path": "Data/Traits.json",
-      "size": 1163,
-      "md5": "438590faea5aa6b676802638a95c2d20"
+      "size": 152,
+      "md5": "0d1d87e624506a52834097a2a6d8853a"
     }
   ]
 }

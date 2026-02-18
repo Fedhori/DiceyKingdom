@@ -1,41 +1,47 @@
 # 프로젝트 맵
 
-이 문서는 현재 레포의 주요 문서/코드 위치를 요약한다.
+이 문서는 템플릿 레포의 주요 경로를 요약한다.
 
-## 문서 구조
+## 문서
 
 - 공통 규칙: `Docs/GENERAL_RULES.md`
-- 메인 스펙: `Docs/GAME_STRUCTURE.md`
-- 아이디어/백로그: `Docs/GAME_IDEA.md`
-- 세부 시스템 문서:
-  - `Docs/ADVENTURER.md`
-  - `Docs/KINGDOM.md`
-  - `Docs/MISSION.md`
-  - `Docs/ABILITY_TEST.md`
-  - `Docs/TRAIT.md`
-  - `Docs/EQUIPMENT.md`
-  - `Docs/FACILITY.md`
-  - `Docs/SKILL_CONSUMABLE.md`
+- 템플릿 구조/실행 흐름: `Docs/GAME_STRUCTURE.md`
+- 재사용 자산 목록: `Docs/TEMPLATE_REUSABLES.md`
 
-## 코드 구조(현황)
+## 코드
 
-- `Assets/Scripts`
-- 현재 플레이어블 코드(레거시 구조 포함)
-- 다음 단계에서 신규 기획에 맞춰 단계적 교체 예정
+- 앱 수명/스코프
+  - `Assets/Scripts/App`
+  - `Assets/Scripts/Bootstrap.cs`
 
-- `Assets/StreamingAssets/Data`
-- 게임 데이터 JSON 위치
-- 신규 기획 데이터 스키마 전환 예정
+- 공통 유틸
+  - `Assets/Scripts/Common`
 
-- `Assets/Prefabs`
-- UI/카드/주사위 프리팹
-- 신규 기획 UI 구조에 맞춰 재사용 또는 교체 예정
+- 데이터 로더/설정
+  - `Assets/Scripts/Data`
+  - `Assets/StreamingAssets/Data/GameConfig.json`
 
-- `Assets/Scenes`
-- 씬 구성
-- 신규 게임 루프 기준으로 씬 책임 재정의 예정
+- 저장
+  - `Assets/Scripts/Save`
 
-## 전환 메모
+- UI 공용 서비스
+  - `Assets/Scripts/UI`
+  - `Assets/Scripts/Tooltip`
 
-- 현재 문서 스펙이 코드보다 최신일 수 있다.
-- 구현 단계에서는 `Docs/GAME_STRUCTURE.md`를 기준으로 코드/데이터를 정렬한다.
+- 런타임 서비스
+  - `Assets/Scripts/Audio`
+  - `Assets/Scripts/Particles`
+  - `Assets/Scripts/InputService.cs`
+  - `Assets/Scripts/GameSpeedService.cs`
+  - `Assets/Scripts/OptionService.cs`
+
+## 씬
+
+- `Assets/Scenes/Bootstrap.unity`
+- `Assets/Scenes/GameScene.unity`
+- `Assets/Scenes/MainMenuScene.unity`
+
+## 비고
+
+- 기존 DiceyKingdom 전용 게임 로직/데이터/와이어프레임 문서는 정리되었다.
+- 새 프로젝트 시작 시 구조 확장은 `Docs/GAME_STRUCTURE.md`를 기준으로 진행한다.
