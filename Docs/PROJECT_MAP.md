@@ -1,12 +1,14 @@
 # 프로젝트 맵
+> 역할: 프로젝트의 주요 문서/코드/씬 경로를 빠르게 찾기 위한 내비게이션 문서입니다.
 
-이 문서는 템플릿 레포의 주요 경로를 요약한다.
+이 문서는 현재 프로젝트의 주요 경로를 요약한다.
 
 ## 문서
 
 - 공통 규칙: `Docs/GENERAL_RULES.md`
-- 템플릿 구조/실행 흐름: `Docs/GAME_STRUCTURE.md`
+- 확정 기획/구조/실행 흐름: `Docs/GAME_STRUCTURE.md`
 - 재사용 자산 목록: `Docs/TEMPLATE_REUSABLES.md`
+- 아이디어 브레인스토밍: `Docs/BRAINSTORMING.md`
 
 ## 코드
 
@@ -32,6 +34,7 @@
   - `Assets/Scripts/Audio`
   - `Assets/Scripts/Particles`
   - `Assets/Scripts/InputService.cs`
+  - `Assets/TemplateInputActions.inputactions`
   - `Assets/Scripts/GameSpeedService.cs`
   - `Assets/Scripts/OptionService.cs`
 

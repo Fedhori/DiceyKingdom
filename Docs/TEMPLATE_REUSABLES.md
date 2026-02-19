@@ -1,4 +1,5 @@
 # TEMPLATE 재사용 목록
+> 역할: 현재 템플릿에서 타 프로젝트로 재사용 가능한 구조/코드/리소스를 분류해 둔 문서입니다.
 
 이 문서는 현재 템플릿에서 다른 게임 프로젝트로 그대로 가져갈 수 있는 구조/코드/리소스를 정리한다.
 
@@ -52,6 +53,7 @@
   - `Assets/StreamingAssets/sa_manifest.json`
   - `Assets/StreamingAssets/sa_state.json`
   - `Assets/StreamingAssets/Data/GameConfig.json`
+  - `Assets/TemplateInputActions.inputactions`
 - 씬 시작점
   - `Assets/Scenes/Bootstrap.unity`
   - `Assets/Scenes/GameScene.unity`
