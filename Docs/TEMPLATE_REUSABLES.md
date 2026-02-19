@@ -2,7 +2,7 @@
 
 이 문서는 현재 템플릿에서 다른 게임 프로젝트로 그대로 가져갈 수 있는 구조/코드/리소스를 정리한다.
 
-- 마지막 갱신: **2026-02-18**
+- 마지막 갱신: **2026-02-19**
 
 ## 1) 구조(Architecture)
 
@@ -44,8 +44,8 @@
 
 - 공용 UI 프리팹
   - `Assets/Prefabs/Tooltip/*`
-  - `Assets/Prefabs/Ui/ConfirmModal.prefab`
-  - `Assets/Prefabs/Ui/SelectModal.prefab`
+  - `Assets/Prefabs/Ui/ConfirmationModal.prefab`
+  - `Assets/Prefabs/Ui/InfoModal.prefab`
   - `Assets/Prefabs/Ui/FloatingText.prefab`
   - `Assets/Prefabs/Ui/ToastMessage.prefab`
 - 설정/매니페스트
