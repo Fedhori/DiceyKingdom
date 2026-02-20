@@ -7,6 +7,7 @@
 
 - 공통 규칙: `Docs/GENERAL_RULES.md`
 - 확정 기획/구조/실행 흐름: `Docs/GAME_STRUCTURE.md`
+- 프로토타입 계획/진행도: `Docs/PROTOTYPE.md`
 - 재사용 자산 목록: `Docs/TEMPLATE_REUSABLES.md`
 - 아이디어 브레인스토밍: `Docs/BRAINSTORMING.md`
 

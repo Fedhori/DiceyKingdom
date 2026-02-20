@@ -7,6 +7,7 @@
 
 - 일반 규칙: `Docs/GENERAL_RULES.md` — Unity 공통 환경/규칙/개발 원칙
 - 게임 구조: `Docs/GAME_STRUCTURE.md` — 확정된 게임 기획/핵심 루프/코드·데이터 구조
+- 프로토타입 관리: `Docs/PROTOTYPE.md` — 프로토타입 목표/확정표/진행도 관리
 - 브레인스토밍: `Docs/BRAINSTORMING.md` — 아직 정제되지 않은 아이디어 메모
 
 ## 문서 갱신 규칙
