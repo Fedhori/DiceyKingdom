@@ -74,4 +74,4 @@
 
 - 핵심 구조: `Docs/GAME_STRUCTURE.md`
 - 레포 구조: `Docs/PROJECT_MAP.md`
-- 재사용 자산 목록: `Docs/TEMPLATE_REUSABLES.md`
+- 템플릿 재사용 레퍼런스: `Docs/PROJECT_MAP.md`의 "템플릿 재사용 레퍼런스" 섹션
