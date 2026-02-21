@@ -19,6 +19,7 @@
 ### 포함(P0)
 
 - 전투당 Battlefield 3개 (전투 중 고정)
+  - 배치 제한(Slot Limit): 기본 무제한(전장 데이터에 명시된 경우만 제한)
 - 덱(편성) / 예비 편성(Reserves) / 보급품 한도(Supply Limit)
 - Battle Start Triggers: Squad → Support (전투 시작 1회 트리거)
 - 턴 루프:
@@ -34,8 +35,9 @@
   - 턴 종료 시 쿨다운 -1
 - 스킬(초기 5개): Redeploy / Decoy / Risky Approach / Safe Approach / Reinforce
 - 패배/후퇴 처리:
-  - 패배 시 Stability -2
-  - 후퇴 시 Stability -1 (보상 없음)
+  - 패배(플레이어 Morale ≤ 0) 시: **즉시 게임 오버(런 종료)**
+  - 후퇴 시: 보상 없이 전투 종료 + Stability -1 (최소 0으로 clamp)
+  - 후퇴 가능 조건: **Stability > 0** (Stability ≤ 0 이면 후퇴 불가)
 
 ### 제외(프로토타입 범위 밖)
 
@@ -50,24 +52,31 @@
 |---|---|---|
 | Battlefield 개수 | 3 | 확정 |
 | Battlefield 턴별 교체 | 없음(전투 중 고정) | 확정 |
+| Slot Limit(배치 제한) | 기본 무제한(전장 데이터에 명시된 경우만 적용) | 확정 |
 | Enemy Intent | 완전 공개 | 확정 |
 | 덱 시스템 | 드로우 없음, 편성 리스트(모든 카드 전투 시작 1회 트리거) | 확정 |
 | 카드 타입 | Squad / Support | 확정 |
 | 트리거 우선순위 | Squad → Support | 확정 |
+| 같은 타입 내부 트리거 순서 | 덱(편성) 배열 순서 | 확정 |
 | 병력 수치 | Power(dX) + 눈(Face Value) | 확정 |
 | 눈 최소/최대 | 최소 1 / 최대 없음 | 확정 |
 | Combat Strength | 단순 합 | 확정 |
 | Great Victory | 승자 >= 패자*2 | 확정 |
+| Risky/Safe 적용 범위 | 플레이어에게만 적용(적은 미적용) | 확정 |
 | 이동 후 눈 유지 | 유지 | 확정 |
+| 예비군(Reserve Troop) 미배치 보너스 | 미배치 턴 종료 시 다음 굴림 눈 보정 +2 누적 | 확정 |
 | Reinforce | 전장 Combat Strength +2(눈 변화 없음) | 확정 |
 | 마나 | max=5, 시작 시 최대, 턴 회복 +2 | 확정 |
+| 후퇴 조건 | Stability > 0일 때만 후퇴 가능 | 확정 |
 | 쿨다운 감소 | 턴 종료 시 -1 | 확정 |
+| Resolve(판정) 방식 | 전장을 하나씩 순서대로 판정, 매 전장마다 Morale 체크 | 확정 |
+| Stability clamp | Stability는 최소 0으로 clamp | 확정 |
 
 ## 4) 미확정(TBD)
 
-- 같은 타입 카드 내부 트리거 순서(스쿼드끼리/서포트끼리)
-- 예비군(Troop) “미배치 시 +2”의 정확한 누적/적용 방식
-- Risky/Safe Approach의 “적도 마찬가지” 적용 범위(승리/패배 양쪽 모두 승격/하향인지)
+- Stability 초기값/회복 경로(프로토타입 기본값을 정할지 여부)
+- 전장 결과별 “피해량/효과”의 구체 데이터(최소 2~3종 전장 필요)
+
 
 ## 5) 진행도(체크리스트)
 
