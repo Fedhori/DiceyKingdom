@@ -74,9 +74,10 @@
 ## 4) 작업 계획(작업 단위 분할)
 
 > 원칙
-> - **가장 빠르게 플레이테스트 가능한 상태**에 도달한다.
+> - **구성 요소를 의존성 순서대로** 구현한다.
 > - 각 작업 단위는 “완료 후 즉시 테스트 가능”해야 한다.
 > - 과도한 폴리싱 금지(연출/애니/아트는 기능 검증 후).
+> - 별도 디버그 씬은 만들지 않는다. 필요 검증은 `GameScene`에 단계적으로 붙인다.
 
 각 작업 단위는 아래 형식으로 정의한다.
 - 산출물: 무엇이 생기나(코드/데이터/씬/툴)
@@ -85,89 +86,122 @@
 
 ---
 
-### 작업 0: 전투 디버그 씬(수직 슬라이스 최소) 만들기
+### 작업 1: Domain 상태 모델 고정(BattleState 계층)
 
-**목표:** "클릭으로 전투 1턴"이 가능한 상태를 만든다. (아직 JSON 데이터 없이 하드코딩도 허용)
+**목표:** 전투 규칙이 올라갈 최소 상태 모델을 먼저 확정한다.
 
 - 산출물
-  - `BattleDebugScene` 또는 기존 GameScene에 `BattleDebugPanel`
-  - 버튼:
-    - Start Battle
-    - Enemy Deploy (또는 Next Phase)
-    - Player Deploy (간단 UI로 배치)
-    - Roll
-    - Resolve
-    - Retreat
-  - 화면에 항상 표시:
-    - 플레이어/적 Morale
-    - Stability
-    - Mana + 쿨다운
-    - 전장별 배치 목록 + Combat Strength
+  - `Game.Domain.Battle`
+    - `BattleState`
+    - `BattlefieldState`
+    - `TroopInstance`
+  - 상태 최소 필드
+    - Morale / Mana / Turn / Cooldown / Camp / Battlefields / EnemyIntent 참조
+    - Troop의 `baseRoll`, `modifiers`, `faceValueFinal`
 
 - 수동 테스트
-  - 전투 시작 시 Battle Start Triggers가 1회 실행되는가(Squad→Support)
-  - Player Deploy에서 병력 배치가 가능한가
-  - Roll 후 Face Value가 표시되는가
-  - Resolve 후 Morale이 변하는가
-  - Resolve가 전장 0→1→2 순서로 처리되는가(로그로 확인)
+  - 전투 시작/턴 전환 시 상태 객체가 null 없이 유지되는가
+  - 전장 3개 상태가 항상 초기화되는가
+  - Troop에 `base/mod/final` 기록 슬롯이 유지되는가
 
 - 자동 테스트(가능하면)
-  - Great Victory 판정식(winner >= loser*2)
-  - Face Value 최소 1
+  - 상태 생성 테스트(기본값/필수 컬렉션 null 방지)
+  - 전장 개수 강제(3) 초기화 테스트
 
-**완료 기준(DoD):** 사용자가 직접 버튼/간단 배치 UI로 전투 1턴을 끝까지 진행 가능
+**완료 기준(DoD):** 이후 규칙 구현에서 재사용 가능한 Domain 상태 모델이 고정됨
+
+#### 작업 1 서브테스크(구현 순서)
+
+- [ ] `T1-01` 상태 타입 계약 고정
+  - `BattleState`, `BattlefieldState`, `TroopInstance`의 최소 필드명/자료형을 먼저 확정한다.
+  - 기준: `Docs/GAME_STRUCTURE.md`의 전투 규칙 + `Docs/TECH_ARCHITECTURE.md`의 상태 모델.
+
+- [ ] `T1-02` 파일/네임스페이스 스켈레톤 생성
+  - 경로: `Assets/Scripts/Game/Domain/Battle`
+  - 네임스페이스: `Game.Domain.Battle`
+  - 클래스 3종 생성: `BattleState`, `BattlefieldState`, `TroopInstance`
+
+- [ ] `T1-03` `BattleState` 초기화 정책 구현
+  - 필수 컬렉션(`cooldowns`, `campTroops`, `battlefields`)이 null이 되지 않도록 기본 생성자를 구현한다.
+  - 전장 상태는 기본 3개로 초기화한다.
+  - 턴/리소스 기본값(예: `turnIndex=0`)을 명시한다.
+
+- [ ] `T1-04` `BattlefieldState` 최소 구조 구현
+  - `playerTroops`, `enemyTroops`, `combatStrengthBonusPlayer`, `combatStrengthBonusEnemy`, `slotLimit` 필드를 구현한다.
+  - 컬렉션 null 방지 초기화를 적용한다.
+
+- [ ] `T1-05` `TroopInstance` 굴림 추적 필드 구현
+  - `troopDefId`, `power`, `baseRoll`, `faceValueFinal`, `modifiers`, `tags` 필드를 구현한다.
+  - `modifiers`는 이후 로그/툴팁 확장을 고려해 리스트 구조로 고정한다.
+
+- [ ] `T1-06` 상태 정합성 보조 메서드 추가
+  - 최소 1개 메서드(예: `EnsureInitialized`)로 런타임 중 null 복구/개수 보정을 제공한다.
+  - 책임은 “규칙 계산”이 아니라 “상태 안전성 보장”에 한정한다.
+
+- [ ] `T1-07` EditMode 테스트 추가
+  - `BattleState` 생성 시 필수 컬렉션 null 아님
+  - `battlefields.Count == 3`
+  - `TroopInstance`의 `base/mod/final` 필드가 생성 직후 접근 가능
+
+- [ ] `T1-08` 컴파일/기본 검증
+  - Assembly 컴파일 에러 0 확인
+  - 테스트가 있으면 최소 작업 1 테스트 통과 확인
+  - 실패 시 원인과 수정 범위를 즉시 기록한다.
 
 ---
 
-### 작업 1: Domain 전투 엔진 + 구조화 로그(Event Log) 고정
+### 작업 2: Phase 오케스트레이션 고정(BattlePhaseRunner)
 
-**목표:** UI가 아니라도 “같은 입력이면 같은 결과”가 나오는 전투 엔진을 만든다.
+**목표:** 페이즈 진행 순서와 전환 규칙을 Application 계층에서 고정한다.
 
 - 산출물
-  - `Game/Domain/Battle/*` : BattleState, BattlefieldState, TroopInstance 등
-  - `Game/Application/Battle/BattlePhaseRunner` : 페이즈 진행 오케스트레이션
-  - 구조화 로그:
-    - 문자열이 아니라 `locKey + args + before/after` 형태로 저장
-    - 로그 패널은 이 이벤트를 렌더링
+  - `Game.Application.Battle.BattlePhaseRunner`
+  - `Phase enum`
+    - Recall / EnemyDeploy / PlayerDeploy / Roll / Tactics / Resolve
+  - 전환 API
+    - `StartBattle`
+    - `AdvanceToNextPhase`
+    - `TryRetreat` (PlayerDeploy + Stability 조건 강제)
 
 - 수동 테스트
-  - Roll 결과가 `base → modifiers → final` 형태로 로그에 남는가
-  - 이동(재배치/유인책) 후에도 Face Value가 유지되는가
+  - 페이즈 순서가 확정 규칙대로만 진행되는가
+  - 허용되지 않은 시점의 Retreat 요청이 거부되는가
+  - Resolve 이후 Turn End 내부 처리로 돌아가는가
 
 - 자동 테스트
-  - 시드 고정 + 입력 타임라인으로 결과 재현(리플레이 최소)
+  - 페이즈 전이 테스트(정상/비정상 전이)
+  - Retreat 조건 테스트(Stability > 0, PlayerDeploy 한정)
 
-**완료 기준(DoD):** “로그만 보고도 전투가 올바르게 진행되는지” 검증 가능
+**완료 기준(DoD):** UI 없이도 턴 루프 순서를 코드로 강제 가능
 
 ---
 
-### 작업 2: JSON 데이터 파이프라인(typed DB) + 데이터 검증 커맨드
+### 작업 3: 전투 계산 커널(주사위/전투력/판정) 구현
 
-**목표:** 하드코딩을 걷어내고, 데이터를 바꾸면 게임이 바뀌는 상태로 전환한다.
+**목표:** Resolve까지의 핵심 계산 규칙을 Domain에 고정한다.
 
 - 산출물
-  - `DataIndex.json`(파일 목록/경로)
-  - Def JSON:
-    - BattleConfig/RunConfig
-    - BattlefieldDef
-    - TroopDef
-    - Squad/Support/Skill Def
-    - EncounterDef(Enemy Intent)
-  - `GameDatabase`(typed repository)
-  - `Tools/Validate Game Data` 메뉴 또는 DevCommand `validate_data`
+  - Roll 계산(기본 굴림, FaceValue 최소 1)
+  - Combat Strength 계산
+  - Outcome 판정
+    - Great Victory / Victory / Draw / Defeat / Great Defeat
+  - Resolve 순서 처리(0→1→2 + 매 전장 후 Morale 즉시 체크)
 
 - 수동 테스트
-  - JSON 수정 후 실행하면 실제 동작이 바뀌는가
-  - 참조 오류(존재하지 않는 id)가 있으면 즉시 에러로 잡히는가
+  - Roll 후 `base -> modifiers -> final` 값이 일관되게 갱신되는가
+  - Great Victory 조건(`winner >= loser * 2`)이 맞게 동작하는가
+  - Resolve 중간에 Morale <= 0이면 즉시 종료되는가
 
 - 자동 테스트
-  - 데이터 전체 로드/참조 검증 테스트(EditMode)
+  - 판정식 테스트
+  - FaceValue 하한 테스트
+  - Resolve 조기 종료 테스트
 
-**완료 기준(DoD):** P0 전투가 전부 JSON 기반으로 돌아감
+**완료 기준(DoD):** 전투 결과 계산이 UI와 분리된 순수 로직으로 검증 가능
 
 ---
 
-### 작업 3: Effect 시스템(opcode) 최소 세트 + 스킬 5종 구현
+### 작업 4: Effect 시스템(opcode) 최소 세트 구현
 
 **목표:** “효과 확장”의 핵심 구조를 P0 범위에서 완성한다.
 
@@ -181,7 +215,7 @@
     - TransformOutcome(Risky/Safe)
     - ModifyMorale
     - AddNextRollFaceBonus(예비군)
-  - 스킬 5종이 모두 데이터 기반으로 작동
+  - 스킬 5종이 호출하는 효과 경로를 opcode 핸들러로 통일
 
 - 수동 테스트
   - Risky: 플레이어 Victory → Great Victory 변환이 동작하는가
@@ -191,13 +225,56 @@
 - 자동 테스트
   - opcode 단위 테스트(예: ModifyFaceValue 적용 순서/최소 1)
 
-**완료 기준(DoD):** “새 효과 추가”가 op 조합/데이터 추가 중심으로 가능
+**완료 기준(DoD):** 전투 효과 적용이 하드코딩 분기 대신 opcode 핸들러 경로로 동작
 
 ---
 
-### 작업 4: 최소 메타 루프(보상 → 정비) + Roster Deck 편집
+### 작업 5: JSON 데이터 파이프라인(typed DB) + 검증 커맨드
 
-**목표:** 전투 1회로 끝나지 않고, “편성 변경”을 테스트할 수 있게 한다.
+**목표:** 하드코딩 의존을 제거하고 데이터 기반 전투로 전환한다.
+
+- 산출물
+  - `DataIndex.json` + Def JSON 묶음
+  - `GameDatabase`(typed repository)
+  - `Tools/Validate Game Data` 또는 `validate_data` DevCommand
+
+- 수동 테스트
+  - JSON 변경 시 전투 동작이 실제로 바뀌는가
+  - 참조 오류/금지 op가 즉시 검증 에러로 노출되는가
+
+- 자동 테스트
+  - 데이터 로드/참조 해결/검증 테스트(EditMode)
+
+**완료 기준(DoD):** Battle 실행이 코드 하드코딩이 아닌 Def 데이터로 구동됨
+
+---
+
+### 작업 6: GameScene 통합(UI 최소) + BattleDebugPanel 연결
+
+**목표:** 별도 디버그 씬 없이 `GameScene`에서 전투 흐름을 수동 검증 가능하게 만든다.
+
+- 산출물
+  - `Game.Presentation.Debug.BattleDebugPanel`
+    - StartBattle / EnemyDeploy / PlayerDeploy / Roll / Resolve / Retreat 콜백
+  - 최소 UI
+    - Morale / Stability / Mana / Phase / 전장별 전투력 텍스트
+  - `BattlePhaseRunner`와 연결된 표시 갱신
+
+- 수동 테스트
+  - 버튼 클릭으로 페이즈 진행 및 상태 변화가 즉시 반영되는가
+  - Retreat가 규칙대로 동작하고 전투 종료가 표시되는가
+  - Resolve 결과가 전장 순서대로 반영되는가
+
+- 자동 테스트
+  - (가능 시) Panel의 상태 포맷터 단위 테스트
+
+**완료 기준(DoD):** `GameScene` 하나로 P0 전투 루프 수동 검증 가능
+
+---
+
+### 작업 7: 최소 메타 루프(보상 → 정비) + Roster Deck 편집
+
+**목표:** 전투 단일 테스트를 넘어 런 루프를 최소 연결한다.
 
 - 산출물
   - Reward 화면(카드 3장 중 1장 선택)
@@ -210,7 +287,7 @@
 
 - 수동 테스트
   - 덱 편집이 Supply Limit을 준수하는가
-  - 선택한 카드가 다음 전투의 Battle Start Triggers에 반영되는가
+  - 선택한 카드가 다음 전투 Battle Start Triggers에 반영되는가
 
 - 자동 테스트
   - RunState 직렬화/역직렬화(최소)
@@ -219,7 +296,7 @@
 
 ---
 
-### 작업 5: Localization 정착 + 하드코딩 문자열 제거(최소)
+### 작업 8: Localization 정착 + 하드코딩 문자열 제거(최소)
 
 **목표:** 데이터/로그/툴팁 텍스트가 전부 Localization Key 기반으로 나오게 한다.
 
@@ -237,19 +314,21 @@
 
 ## 5) 진행도 체크리스트
 
-- [ ] 작업 0 완료
 - [ ] 작업 1 완료
 - [ ] 작업 2 완료
 - [ ] 작업 3 완료
 - [ ] 작업 4 완료
 - [ ] 작업 5 완료
+- [ ] 작업 6 완료
+- [ ] 작업 7 완료
+- [ ] 작업 8 완료
 
 ---
 
 ## 6) “테스트 가능한 작업”을 위한 공통 장치
 
-- **Battle Debug Panel**을 항상 유지한다.
-  - 신규 기능을 붙일 때마다 즉시 눈으로 검증할 수 있는 “고정 테스트 베드”로 사용
+- 별도 `BattleDebugScene`은 만들지 않는다.
+- `GameScene`의 `BattleDebugPanel`을 고정 테스트 베드로 사용한다.
 - DevCommand(또는 에디터 메뉴)로 최소 2개 제공
   - `validate_data`
   - `dump_last_battle_log` (최근 전투 로그 덤프)
