@@ -6,12 +6,13 @@
 ## 문서
 
 - 공통 규칙: `Docs/GENERAL_RULES.md`
-- 용어집(단일 기준): `Docs/GLOSSARY.md`
+- 용어 단일 기준: `Docs/GLOSSARY.md`
 - 확정 기획/구조/실행 흐름: `Docs/GAME_STRUCTURE.md`
+- 구현 구조(코드/데이터/로컬라이징): `Docs/TECH_ARCHITECTURE.md`
+- 데이터 스키마(JSON): `Docs/DATA_SCHEMA.md`
 - 프로토타입 계획/진행도: `Docs/PROTOTYPE.md`
-- 아이디어 뱅크(원문 보존 + 구조화): `Docs/IDEA_BANK.md`
-- 아이디어 브레인스토밍(임시 메모): `Docs/BRAINSTORMING.md`
-- 작업 보드: `Docs/TODO.md`
+- 아이디어 브레인스토밍: `Docs/BRAINSTORMING.md`
+- 아이디어 저장소: `Docs/IDEA_BANK.md`
 
 ## 코드
 
