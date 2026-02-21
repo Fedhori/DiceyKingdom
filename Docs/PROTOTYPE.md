@@ -112,38 +112,38 @@
 
 #### 작업 1 서브테스크(구현 순서)
 
-- [ ] `T1-01` 상태 타입 계약 고정
+- [x] `T1-01` 상태 타입 계약 고정
   - `BattleState`, `BattlefieldState`, `TroopInstance`의 최소 필드명/자료형을 먼저 확정한다.
   - 기준: `Docs/GAME_STRUCTURE.md`의 전투 규칙 + `Docs/TECH_ARCHITECTURE.md`의 상태 모델.
 
-- [ ] `T1-02` 파일/네임스페이스 스켈레톤 생성
+- [x] `T1-02` 파일/네임스페이스 스켈레톤 생성
   - 경로: `Assets/Scripts/Game/Domain/Battle`
   - 네임스페이스: `Game.Domain.Battle`
   - 클래스 3종 생성: `BattleState`, `BattlefieldState`, `TroopInstance`
 
-- [ ] `T1-03` `BattleState` 초기화 정책 구현
+- [x] `T1-03` `BattleState` 초기화 정책 구현
   - 필수 컬렉션(`cooldowns`, `campTroops`, `battlefields`)이 null이 되지 않도록 기본 생성자를 구현한다.
   - 전장 상태는 기본 3개로 초기화한다.
   - 턴/리소스 기본값(예: `turnIndex=0`)을 명시한다.
 
-- [ ] `T1-04` `BattlefieldState` 최소 구조 구현
+- [x] `T1-04` `BattlefieldState` 최소 구조 구현
   - `playerTroops`, `enemyTroops`, `combatStrengthBonusPlayer`, `combatStrengthBonusEnemy`, `slotLimit` 필드를 구현한다.
   - 컬렉션 null 방지 초기화를 적용한다.
 
-- [ ] `T1-05` `TroopInstance` 굴림 추적 필드 구현
+- [x] `T1-05` `TroopInstance` 굴림 추적 필드 구현
   - `troopDefId`, `power`, `baseRoll`, `faceValueFinal`, `modifiers`, `tags` 필드를 구현한다.
   - `modifiers`는 이후 로그/툴팁 확장을 고려해 리스트 구조로 고정한다.
 
-- [ ] `T1-06` 상태 정합성 보조 메서드 추가
+- [x] `T1-06` 상태 정합성 보조 메서드 추가
   - 최소 1개 메서드(예: `EnsureInitialized`)로 런타임 중 null 복구/개수 보정을 제공한다.
   - 책임은 “규칙 계산”이 아니라 “상태 안전성 보장”에 한정한다.
 
-- [ ] `T1-07` EditMode 테스트 추가
+- [x] `T1-07` EditMode 테스트 추가
   - `BattleState` 생성 시 필수 컬렉션 null 아님
   - `battlefields.Count == 3`
   - `TroopInstance`의 `base/mod/final` 필드가 생성 직후 접근 가능
 
-- [ ] `T1-08` 컴파일/기본 검증
+- [x] `T1-08` 컴파일/기본 검증
   - Assembly 컴파일 에러 0 확인
   - 테스트가 있으면 최소 작업 1 테스트 통과 확인
   - 실패 시 원인과 수정 범위를 즉시 기록한다.
