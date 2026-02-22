@@ -200,7 +200,7 @@
   - 시작 시 현재 페이즈를 `Recall`로 둔다.
   - 이미 종료 상태면 실패 처리한다(`AlreadyEnded`).
 
-- [ ] `T2-06` AdvanceToNextPhase 구현
+- [x] `T2-06` AdvanceToNextPhase 구현
   - 확정 순서대로만 전이한다.
   - `Resolve` 다음에는 내부 Turn End 처리 후 `Recall`로 복귀한다.
   - Turn End 최소 처리: `turnIndex` 증가.

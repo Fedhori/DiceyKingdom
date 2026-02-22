@@ -33,8 +33,46 @@ namespace Game.Application.Battle
 
         public bool AdvanceToNextPhase()
         {
-            LastFailureReason = BattlePhaseFailureReason.NotStarted;
-            return false;
+            if (!isStarted)
+            {
+                LastFailureReason = BattlePhaseFailureReason.NotStarted;
+                return false;
+            }
+
+            if (state.isBattleEnded)
+            {
+                LastFailureReason = BattlePhaseFailureReason.AlreadyEnded;
+                return false;
+            }
+
+            switch (currentPhase)
+            {
+                case BattlePhase.Recall:
+                    currentPhase = BattlePhase.EnemyDeploy;
+                    break;
+                case BattlePhase.EnemyDeploy:
+                    currentPhase = BattlePhase.PlayerDeploy;
+                    break;
+                case BattlePhase.PlayerDeploy:
+                    currentPhase = BattlePhase.Roll;
+                    break;
+                case BattlePhase.Roll:
+                    currentPhase = BattlePhase.Tactics;
+                    break;
+                case BattlePhase.Tactics:
+                    currentPhase = BattlePhase.Resolve;
+                    break;
+                case BattlePhase.Resolve:
+                    state.turnIndex += 1;
+                    currentPhase = BattlePhase.Recall;
+                    break;
+                default:
+                    LastFailureReason = BattlePhaseFailureReason.InvalidPhase;
+                    return false;
+            }
+
+            LastFailureReason = BattlePhaseFailureReason.None;
+            return true;
         }
 
         public bool TryRetreat()
