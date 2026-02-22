@@ -1,7 +1,9 @@
 {
     "name": "Game.EditModeTests",
     "rootNamespace": "Game.Tests.EditMode",
-    "references": [],
+    "references": [
+        "Game.Runtime"
+    ],
     "includePlatforms": [
         "Editor"
     ],
