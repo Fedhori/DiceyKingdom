@@ -180,7 +180,7 @@
   - `BattlePhase` enum을 고정한다.
   - 순서: `Recall -> EnemyDeploy -> PlayerDeploy -> Roll -> Tactics -> Resolve`
 
-- [ ] `T2-02` 실패 사유 타입 고정
+- [x] `T2-02` 실패 사유 타입 고정
   - `BattlePhaseFailureReason` enum을 고정한다.
   - 최소 항목: `None`, `NotStarted`, `InvalidPhase`, `StabilityInsufficient`, `AlreadyEnded`
 
