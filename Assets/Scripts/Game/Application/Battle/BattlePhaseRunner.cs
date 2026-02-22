@@ -1,5 +1,6 @@
 using System;
 using Game.Domain.Battle;
+using UnityEngine;
 
 namespace Game.Application.Battle
 {
@@ -22,6 +23,7 @@ namespace Game.Application.Battle
             if (state.isBattleEnded)
             {
                 LastFailureReason = BattlePhaseFailureReason.AlreadyEnded;
+                Debug.LogWarning("[BattlePhaseRunner] StartBattle rejected: battle already ended.");
                 return false;
             }
 
@@ -36,12 +38,14 @@ namespace Game.Application.Battle
             if (!isStarted)
             {
                 LastFailureReason = BattlePhaseFailureReason.NotStarted;
+                Debug.LogWarning("[BattlePhaseRunner] AdvanceToNextPhase rejected: battle is not started.");
                 return false;
             }
 
             if (state.isBattleEnded)
             {
                 LastFailureReason = BattlePhaseFailureReason.AlreadyEnded;
+                Debug.LogWarning("[BattlePhaseRunner] AdvanceToNextPhase rejected: battle already ended.");
                 return false;
             }
 
@@ -68,6 +72,7 @@ namespace Game.Application.Battle
                     break;
                 default:
                     LastFailureReason = BattlePhaseFailureReason.InvalidPhase;
+                    Debug.LogWarning("[BattlePhaseRunner] AdvanceToNextPhase rejected: current phase is invalid.");
                     return false;
             }
 
@@ -80,24 +85,29 @@ namespace Game.Application.Battle
             if (!isStarted)
             {
                 LastFailureReason = BattlePhaseFailureReason.NotStarted;
+                Debug.LogWarning("[BattlePhaseRunner] TryRetreat rejected: battle is not started.");
                 return false;
             }
 
             if (state.isBattleEnded)
             {
                 LastFailureReason = BattlePhaseFailureReason.AlreadyEnded;
+                Debug.LogWarning("[BattlePhaseRunner] TryRetreat rejected: battle already ended.");
                 return false;
             }
 
             if (currentPhase != BattlePhase.PlayerDeploy)
             {
                 LastFailureReason = BattlePhaseFailureReason.InvalidPhase;
+                Debug.LogWarning(
+                    $"[BattlePhaseRunner] TryRetreat rejected: current phase is {currentPhase}, required phase is {BattlePhase.PlayerDeploy}.");
                 return false;
             }
 
             if (state.stability <= 0)
             {
                 LastFailureReason = BattlePhaseFailureReason.StabilityInsufficient;
+                Debug.LogWarning("[BattlePhaseRunner] TryRetreat rejected: stability is not greater than zero.");
                 return false;
             }
 

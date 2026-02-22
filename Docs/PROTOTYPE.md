@@ -210,7 +210,7 @@
   - `stability > 0`일 때만 성공한다.
   - 성공 시 `stability -= 1` (최소 0), `isBattleEnded = true`.
 
-- [ ] `T2-08` 거부/보정 시 Warning 정책 적용
+- [x] `T2-08` 거부/보정 시 Warning 정책 적용
   - 잘못된 전이/잘못된 Retreat 요청은 상태 변경 없이 거부한다.
   - 조용한 수정 없이 `Debug.LogWarning`으로 원인을 남긴다.
 
