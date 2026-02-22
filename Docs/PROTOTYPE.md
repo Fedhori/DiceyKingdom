@@ -382,7 +382,7 @@
   - `StartBattle` 직후 Enemy Intent(`enc_debug_01.plans`)를 전장에 자동 배치한다.
   - 배치 결과를 전장 텍스트와 로그에 남긴다.
 
-- [ ] `T6-05` PlayerDeploy 수동 배치 구현
+- [x] `T6-05` PlayerDeploy 수동 배치 구현
   - 흐름: 병력 선택 -> 전장 선택 -> `DeploySelected` 확정
   - `PlayerDeploy` 페이즈에서만 성공, 나머지 페이즈는 거부 + warning 로그
 

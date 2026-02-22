@@ -87,19 +87,73 @@ namespace Game.Presentation.Debug
         public void EnemyDeploy()
         {
             EnsureContextInitialized();
-            AppendLog("EnemyDeploy clicked.");
+
+            if (!phaseRunner.isStarted)
+            {
+                WarnAndLog("EnemyDeploy rejected: battle is not started.");
+                return;
+            }
+
+            if (phaseRunner.currentPhase != BattlePhase.Recall)
+            {
+                WarnAndLog(
+                    $"EnemyDeploy rejected: current phase is {phaseRunner.currentPhase}, required phase is {BattlePhase.Recall}.");
+                return;
+            }
+
+            if (!phaseRunner.AdvanceToNextPhase())
+            {
+                WarnAndLog($"EnemyDeploy rejected: {phaseRunner.LastFailureReason}");
+                return;
+            }
+
+            RefreshStubTexts();
+            RefreshStubButtons();
+            AppendLog("EnemyDeploy phase entered.");
         }
 
         public void PlayerDeploy()
         {
             EnsureContextInitialized();
-            AppendLog("PlayerDeploy clicked.");
+
+            if (!phaseRunner.isStarted)
+            {
+                WarnAndLog("PlayerDeploy rejected: battle is not started.");
+                return;
+            }
+
+            if (phaseRunner.currentPhase != BattlePhase.EnemyDeploy)
+            {
+                WarnAndLog(
+                    $"PlayerDeploy rejected: current phase is {phaseRunner.currentPhase}, required phase is {BattlePhase.EnemyDeploy}.");
+                return;
+            }
+
+            if (!phaseRunner.AdvanceToNextPhase())
+            {
+                WarnAndLog($"PlayerDeploy rejected: {phaseRunner.LastFailureReason}");
+                return;
+            }
+
+            RefreshStubTexts();
+            RefreshStubButtons();
+            AppendLog("PlayerDeploy phase entered.");
         }
 
         public void DeploySelected()
         {
             EnsureContextInitialized();
-            AppendLog("DeploySelected clicked.");
+
+            if (!TryDeploySelectedTroop(out string failureMessage))
+            {
+                WarnAndLog($"DeploySelected rejected: {failureMessage}");
+                return;
+            }
+
+            RefreshStubTexts();
+            RefreshStubButtons();
+            AppendLog(
+                $"DeploySelected success: troop={selectedTroopId}, battlefield={selectedBattlefieldIndex}");
         }
 
         public void Roll()
@@ -123,15 +177,48 @@ namespace Game.Presentation.Debug
         public void SelectTroop(string troopId)
         {
             EnsureContextInitialized();
-            selectedTroopId = troopId ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(troopId))
+            {
+                selectedTroopId = string.Empty;
+                RefreshStubTexts();
+                WarnAndLog("SelectTroop rejected: troopId is empty.");
+                return;
+            }
+
+            if (!battleState.troopsById.ContainsKey(troopId))
+            {
+                RefreshStubTexts();
+                WarnAndLog($"SelectTroop rejected: troopId({troopId}) does not exist.");
+                return;
+            }
+
+            if (!battleState.campTroopIds.Contains(troopId))
+            {
+                RefreshStubTexts();
+                WarnAndLog($"SelectTroop rejected: troopId({troopId}) is not in camp.");
+                return;
+            }
+
+            selectedTroopId = troopId;
             RefreshStubTexts();
+            AppendLog($"Troop selected: {selectedTroopId}");
         }
 
         public void SelectBattlefield(int battlefieldIndex)
         {
             EnsureContextInitialized();
+
+            if (battlefieldIndex < 0 || battlefieldIndex >= battleState.battlefields.Count)
+            {
+                RefreshStubTexts();
+                WarnAndLog($"SelectBattlefield rejected: battlefieldIndex({battlefieldIndex}) is out of range.");
+                return;
+            }
+
             selectedBattlefieldIndex = battlefieldIndex;
             RefreshStubTexts();
+            AppendLog($"Battlefield selected: {selectedBattlefieldIndex}");
         }
 
         public void ResetBattleContext()
@@ -473,6 +560,68 @@ namespace Game.Presentation.Debug
 
             AppendLog(
                 $"Enemy auto deploy complete: deployed={deployedCount}, skipped={skippedCount}");
+        }
+
+        bool TryDeploySelectedTroop(out string failureMessage)
+        {
+            failureMessage = string.Empty;
+
+            if (!phaseRunner.isStarted)
+            {
+                failureMessage = "battle is not started.";
+                return false;
+            }
+
+            if (phaseRunner.currentPhase != BattlePhase.PlayerDeploy)
+            {
+                failureMessage =
+                    $"current phase is {phaseRunner.currentPhase}, required phase is {BattlePhase.PlayerDeploy}.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(selectedTroopId))
+            {
+                failureMessage = "selectedTroopId is empty.";
+                return false;
+            }
+
+            if (selectedBattlefieldIndex < 0 || selectedBattlefieldIndex >= battleState.battlefields.Count)
+            {
+                failureMessage = $"selectedBattlefieldIndex({selectedBattlefieldIndex}) is out of range.";
+                return false;
+            }
+
+            if (!battleState.troopsById.TryGetValue(selectedTroopId, out TroopInstance troopInstance) || troopInstance == null)
+            {
+                failureMessage = $"selected troop({selectedTroopId}) does not exist.";
+                return false;
+            }
+
+            if (!battleState.campTroopIds.Remove(selectedTroopId))
+            {
+                failureMessage = $"selected troop({selectedTroopId}) is not in camp.";
+                return false;
+            }
+
+            BattlefieldState targetField = battleState.battlefields[selectedBattlefieldIndex];
+            targetField.EnsureInitialized();
+
+            if (targetField.slotLimit.HasValue &&
+                targetField.playerTroopIds.Count >= targetField.slotLimit.Value)
+            {
+                battleState.campTroopIds.Add(selectedTroopId);
+                failureMessage = $"target battlefield({selectedBattlefieldIndex}) slotLimit exceeded.";
+                return false;
+            }
+
+            targetField.playerTroopIds.Add(selectedTroopId);
+            return true;
+        }
+
+        void WarnAndLog(string message)
+        {
+            UnityEngine.Debug.LogWarning($"[BattleDebugPanel] {message}");
+            AppendLog(message);
         }
 
         void AppendLog(string message)
