@@ -42,7 +42,14 @@ namespace Game.Domain.Battle
     [Serializable]
     public sealed class TroopModifierEntry
     {
+        public TroopModifierType modifierType = TroopModifierType.Add;
         public int delta;
         public string sourceId = string.Empty;
+    }
+
+    public enum TroopModifierType
+    {
+        Add = 0,
+        PercentBonus = 1
     }
 }

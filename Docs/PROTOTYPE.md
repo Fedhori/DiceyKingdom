@@ -248,6 +248,43 @@
 
 **완료 기준(DoD):** 전투 결과 계산이 UI와 분리된 순수 로직으로 검증 가능
 
+#### 작업 3 서브테스크(구현 순서)
+
+- [x] `T3-01` 계산 타입/진입점 고정
+  - `BattleOutcome` enum 추가
+  - `BattleSimulator` 정적 진입점(`RollTroop`, `ApplyRollFinalization`, `ComputeCombatStrength`, `ComputeOutcome`, `ResolveBattlefieldsInOrder`) 고정
+
+- [x] `T3-02` Roll/최종값 계산 구현
+  - `baseRoll` 범위: `1..power` (power가 1 미만이면 warning 후 1로 clamp)
+  - 계산식: `(base + add합) * (1 + percent합)` 후 `Floor` 적용
+  - 최종 Face Value 최소 1 clamp
+
+- [x] `T3-03` 전장 전투력 계산 구현
+  - 전장 내 Troop `faceValueFinal` 합 + 전장 보너스 합산
+  - 누락 troopId/null 항목은 warning 후 무시
+
+- [x] `T3-04` Outcome 판정 구현
+  - Draw: 동일 전투력
+  - Great Victory / Great Defeat: `winner >= loser * 2`
+  - loser가 0일 때 winner가 양수면 Great 판정
+
+- [x] `T3-05` Resolve 1개 전장 처리 구현
+  - 전장 전투력 계산 -> Outcome 판정 -> Morale 반영
+  - Morale `<= 0`이면 전투 종료 처리
+
+- [x] `T3-06` Resolve 순차 처리 구현
+  - 전장 0 -> 1 -> 2 순서 처리
+  - 중간에 Morale `<= 0`이면 즉시 중단
+
+- [x] `T3-07` EditMode 테스트 추가
+  - 수학 테스트: add/percent/floor/min clamp
+  - 전장 테스트: Combat Strength/Outcome
+  - 전투 테스트: Resolve 순서 + 중간 종료
+
+- [x] `T3-08` 검증 및 체크리스트 반영
+  - Unity EditMode 테스트 통과 확인
+  - 작업 3 진행도 체크 반영
+
 ---
 
 ### 작업 4: Effect 시스템(opcode) 최소 세트 구현
@@ -365,7 +402,7 @@
 
 - [x] 작업 1 완료
 - [x] 작업 2 완료
-- [ ] 작업 3 완료
+- [x] 작업 3 완료
 - [ ] 작업 4 완료
 - [ ] 작업 5 완료
 - [ ] 작업 6 완료
