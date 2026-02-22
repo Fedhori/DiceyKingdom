@@ -404,7 +404,7 @@
   - 성공 시 전투 종료 + `stability -= 1`(최소 0)
   - Retreat 후에는 진행 버튼 잠금, `StartBattle`만 재허용
 
-- [ ] `T6-10` 최소 UI 갱신 루프 완성
+- [x] `T6-10` 최소 UI 갱신 루프 완성
   - 표기: `Phase`, `Mana`, `Stability`, `Player/Enemy Morale`, 전장별 Total Attack
   - 선택 상태(`selectedTroopId`, `selectedBattlefieldIndex`)를 항상 화면에 표시한다.
 

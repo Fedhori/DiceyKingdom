@@ -270,8 +270,8 @@ namespace Game.Presentation.Debug
             SetText(stabilityText, $"Stability: {battleState.stability}");
             SetText(playerMoraleText, $"Player Morale: {battleState.playerMorale}");
             SetText(enemyMoraleText, $"Enemy Morale: {battleState.enemyMorale}");
-            SetText(selectedTroopText, $"Selected Troop: {selectedTroopId}");
-            SetText(selectedBattlefieldText, $"Selected Battlefield: {selectedBattlefieldIndex}");
+            SetText(selectedTroopText, BuildSelectedTroopLine());
+            SetText(selectedBattlefieldText, BuildSelectedBattlefieldLine());
 
             SetText(battlefield0Text, BuildBattlefieldStubLine(0));
             SetText(battlefield1Text, BuildBattlefieldStubLine(1));
@@ -341,7 +341,112 @@ namespace Game.Presentation.Debug
             BattlefieldState battlefield = battleState.battlefields[index];
             battlefield.EnsureInitialized();
 
-            return $"Battlefield {index} | P:{battlefield.playerTroopIds.Count} E:{battlefield.enemyTroopIds.Count}";
+            int playerTotalAttack = ComputeTotalAttackPreview(
+                battlefield.playerTroopIds,
+                battlefield.totalAttackBonusPlayer);
+            int enemyTotalAttack = ComputeTotalAttackPreview(
+                battlefield.enemyTroopIds,
+                battlefield.totalAttackBonusEnemy);
+
+            string slotLabel = battlefield.slotLimit.HasValue
+                ? battlefield.slotLimit.Value.ToString()
+                : "∞";
+
+            return
+                $"Battlefield {index} ({battlefield.battlefieldId}) | TotalAttack P:{playerTotalAttack} E:{enemyTotalAttack} | Troops P:{battlefield.playerTroopIds.Count} E:{battlefield.enemyTroopIds.Count} | Slot:{slotLabel}";
+        }
+
+        string BuildSelectedTroopLine()
+        {
+            if (string.IsNullOrWhiteSpace(selectedTroopId))
+            {
+                return "Selected Troop: (none)";
+            }
+
+            if (!battleState.troopsById.TryGetValue(selectedTroopId, out TroopInstance troop) || troop == null)
+            {
+                return $"Selected Troop: {selectedTroopId} (missing)";
+            }
+
+            troop.EnsureInitialized();
+
+            string locationLabel = "unknown";
+            if (battleState.campTroopIds.Contains(selectedTroopId))
+            {
+                locationLabel = "camp";
+            }
+            else
+            {
+                for (int i = 0; i < battleState.battlefields.Count; i++)
+                {
+                    BattlefieldState field = battleState.battlefields[i];
+                    if (field == null)
+                    {
+                        continue;
+                    }
+
+                    field.EnsureInitialized();
+
+                    if (field.playerTroopIds.Contains(selectedTroopId))
+                    {
+                        locationLabel = $"player@{i}";
+                        break;
+                    }
+
+                    if (field.enemyTroopIds.Contains(selectedTroopId))
+                    {
+                        locationLabel = $"enemy@{i}";
+                        break;
+                    }
+                }
+            }
+
+            return $"Selected Troop: {selectedTroopId} ({troop.troopDefId}) | attackResult:{troop.attackResult} | {locationLabel}";
+        }
+
+        string BuildSelectedBattlefieldLine()
+        {
+            if (selectedBattlefieldIndex < 0 || selectedBattlefieldIndex >= battleState.battlefields.Count)
+            {
+                return "Selected Battlefield: (none)";
+            }
+
+            BattlefieldState battlefield = battleState.battlefields[selectedBattlefieldIndex];
+            if (battlefield == null)
+            {
+                return $"Selected Battlefield: {selectedBattlefieldIndex} (missing)";
+            }
+
+            battlefield.EnsureInitialized();
+            return
+                $"Selected Battlefield: {selectedBattlefieldIndex} ({battlefield.battlefieldId}) | Troops P:{battlefield.playerTroopIds.Count} E:{battlefield.enemyTroopIds.Count}";
+        }
+
+        int ComputeTotalAttackPreview(List<string> troopIds, int totalAttackBonus)
+        {
+            int total = totalAttackBonus;
+            if (troopIds == null)
+            {
+                return total;
+            }
+
+            for (int i = 0; i < troopIds.Count; i++)
+            {
+                string troopId = troopIds[i];
+                if (string.IsNullOrWhiteSpace(troopId))
+                {
+                    continue;
+                }
+
+                if (!battleState.troopsById.TryGetValue(troopId, out TroopInstance troop) || troop == null)
+                {
+                    continue;
+                }
+
+                total += troop.attackResult;
+            }
+
+            return total;
         }
 
         bool TryCreateBattleContextFromData(
