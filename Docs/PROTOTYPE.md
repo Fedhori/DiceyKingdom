@@ -190,7 +190,7 @@
   - 순수 C# 클래스로 구현(MonoBehaviour 금지)
   - 상태는 `BattleState`를 직접 수정(in-place)한다.
 
-- [ ] `T2-04` 공개 API 고정
+- [x] `T2-04` 공개 API 고정
   - `StartBattle()`
   - `AdvanceToNextPhase()`
   - `TryRetreat()`

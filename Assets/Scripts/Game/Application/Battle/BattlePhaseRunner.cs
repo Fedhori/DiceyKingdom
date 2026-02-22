@@ -16,5 +16,23 @@ namespace Game.Application.Battle
             state = battleState ?? throw new ArgumentNullException(nameof(battleState));
             state.EnsureInitialized();
         }
+
+        public bool StartBattle()
+        {
+            LastFailureReason = BattlePhaseFailureReason.NotStarted;
+            return false;
+        }
+
+        public bool AdvanceToNextPhase()
+        {
+            LastFailureReason = BattlePhaseFailureReason.NotStarted;
+            return false;
+        }
+
+        public bool TryRetreat()
+        {
+            LastFailureReason = BattlePhaseFailureReason.NotStarted;
+            return false;
+        }
     }
 }
