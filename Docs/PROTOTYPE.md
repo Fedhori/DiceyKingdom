@@ -378,7 +378,7 @@
   - Encounter는 `enc_debug_01` 고정으로 로드한다.
   - 시작 시 전투 상태를 새로 만들고 기본 UI를 즉시 갱신한다.
 
-- [ ] `T6-04` Enemy 자동 배치 구현
+- [x] `T6-04` Enemy 자동 배치 구현
   - `StartBattle` 직후 Enemy Intent(`enc_debug_01.plans`)를 전장에 자동 배치한다.
   - 배치 결과를 전장 텍스트와 로그에 남긴다.
 

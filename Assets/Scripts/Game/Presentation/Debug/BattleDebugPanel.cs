@@ -58,7 +58,10 @@ namespace Game.Presentation.Debug
 
         public void StartBattle()
         {
-            if (!TryCreateBattleContextFromData(out BattleState nextState, out string failureMessage))
+            if (!TryCreateBattleContextFromData(
+                    out BattleState nextState,
+                    out GameDatabase sourceDatabase,
+                    out string failureMessage))
             {
                 AppendLog($"StartBattle failed: {failureMessage}");
                 return;
@@ -73,6 +76,8 @@ namespace Game.Presentation.Debug
                 AppendLog($"StartBattle rejected: {phaseRunner.LastFailureReason}");
                 return;
             }
+
+            AutoDeployEnemyIntent(battleState, sourceDatabase);
 
             RefreshStubTexts();
             RefreshStubButtons();
@@ -198,9 +203,13 @@ namespace Game.Presentation.Debug
             return $"Battlefield {index} | P:{battlefield.playerTroopIds.Count} E:{battlefield.enemyTroopIds.Count}";
         }
 
-        bool TryCreateBattleContextFromData(out BattleState nextState, out string failureMessage)
+        bool TryCreateBattleContextFromData(
+            out BattleState nextState,
+            out GameDatabase sourceDatabase,
+            out string failureMessage)
         {
             nextState = null;
+            sourceDatabase = null;
             failureMessage = string.Empty;
 
             GameDatabase database = GameDataRuntime.CurrentDatabase;
@@ -229,6 +238,7 @@ namespace Game.Presentation.Debug
                 return false;
             }
 
+            sourceDatabase = database;
             nextState = CreateInitialBattleState(database, encounterDef);
             return true;
         }
@@ -395,6 +405,74 @@ namespace Game.Presentation.Debug
 
             troopInstance.EnsureInitialized();
             return troopInstance;
+        }
+
+        void AutoDeployEnemyIntent(BattleState nextState, GameDatabase sourceDatabase)
+        {
+            if (nextState == null)
+            {
+                AppendLog("Enemy auto deploy skipped: battleState is null.");
+                return;
+            }
+
+            if (sourceDatabase == null)
+            {
+                AppendLog("Enemy auto deploy skipped: sourceDatabase is null.");
+                return;
+            }
+
+            int deployedCount = 0;
+            int skippedCount = 0;
+
+            for (int i = 0; i < nextState.enemyIntent.Count; i++)
+            {
+                EnemyIntentEntry intent = nextState.enemyIntent[i];
+                if (intent == null)
+                {
+                    skippedCount += 1;
+                    AppendLog($"Enemy auto deploy warning: enemyIntent[{i}] is null.");
+                    continue;
+                }
+
+                if (intent.battlefieldIndex < 0 || intent.battlefieldIndex >= nextState.battlefields.Count)
+                {
+                    skippedCount += Mathf.Max(1, intent.count);
+                    AppendLog(
+                        $"Enemy auto deploy warning: battlefieldIndex({intent.battlefieldIndex}) is out of range.");
+                    continue;
+                }
+
+                if (!sourceDatabase.troopsById.TryGetValue(intent.troopDefId, out TroopDef troopDef) || troopDef == null)
+                {
+                    skippedCount += Mathf.Max(1, intent.count);
+                    AppendLog($"Enemy auto deploy warning: troopDef('{intent.troopDefId}') is missing.");
+                    continue;
+                }
+
+                BattlefieldState battlefield = nextState.battlefields[intent.battlefieldIndex];
+                battlefield.EnsureInitialized();
+
+                int requestedCount = Mathf.Max(0, intent.count);
+                for (int copyIndex = 0; copyIndex < requestedCount; copyIndex++)
+                {
+                    if (battlefield.slotLimit.HasValue &&
+                        battlefield.enemyTroopIds.Count >= battlefield.slotLimit.Value)
+                    {
+                        skippedCount += 1;
+                        AppendLog(
+                            $"Enemy auto deploy warning: slotLimit exceeded at battlefield({intent.battlefieldIndex}).");
+                        continue;
+                    }
+
+                    TroopInstance troopInstance = CreateTroopInstance(troopDef);
+                    nextState.troopsById[troopInstance.instanceId] = troopInstance;
+                    battlefield.enemyTroopIds.Add(troopInstance.instanceId);
+                    deployedCount += 1;
+                }
+            }
+
+            AppendLog(
+                $"Enemy auto deploy complete: deployed={deployedCount}, skipped={skippedCount}");
         }
 
         void AppendLog(string message)
