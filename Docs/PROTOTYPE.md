@@ -416,6 +416,11 @@
   - 패널 문자열 포맷을 별도 포맷터 클래스로 분리한다.
   - 포맷터 단위 EditMode 테스트를 추가해 출력 안정성을 검증한다.
 
+- [x] `T6-13` 전투 오케스트레이션 구조 정리
+  - `BattleSessionBuilder`로 초기 상태 생성/적 자동 배치를 분리한다.
+  - `BattleTurnProcessor`로 Roll/Resolve/TurnEnd 처리를 `BattleDebugPanel`에서 분리한다.
+  - `BattleSimulator`는 계산 전용으로 유지하고 상태 변경(예: Morale)은 Application에서 처리한다.
+
 ---
 
 ### 작업 7: 최소 메타 루프(보상 → 정비) + Roster Deck 편집

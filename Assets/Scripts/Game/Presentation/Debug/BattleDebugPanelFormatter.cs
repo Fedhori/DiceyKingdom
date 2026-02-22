@@ -67,15 +67,15 @@ namespace Game.Presentation.Debug
             int playerCount = battlefield.playerTroopIds == null ? 0 : battlefield.playerTroopIds.Count;
             int enemyCount = battlefield.enemyTroopIds == null ? 0 : battlefield.enemyTroopIds.Count;
 
-            int playerTotalAttack = ComputeTotalAttackPreview(
-                battleState,
-                battlefield.playerTroopIds,
-                battlefield.totalAttackBonusPlayer);
+            int playerTotalAttack = BattleSimulator.ComputeTotalAttack(
+                battlefield,
+                battleState.troopsById,
+                true);
 
-            int enemyTotalAttack = ComputeTotalAttackPreview(
-                battleState,
-                battlefield.enemyTroopIds,
-                battlefield.totalAttackBonusEnemy);
+            int enemyTotalAttack = BattleSimulator.ComputeTotalAttack(
+                battlefield,
+                battleState.troopsById,
+                false);
 
             string battlefieldId = string.IsNullOrWhiteSpace(battlefield.battlefieldId)
                 ? "(no-id)"
@@ -216,36 +216,6 @@ namespace Game.Presentation.Debug
             }
 
             return "unknown";
-        }
-
-        static int ComputeTotalAttackPreview(
-            BattleState battleState,
-            List<string> troopIds,
-            int totalAttackBonus)
-        {
-            int total = totalAttackBonus;
-            if (battleState == null || battleState.troopsById == null || troopIds == null)
-            {
-                return total;
-            }
-
-            for (int i = 0; i < troopIds.Count; i++)
-            {
-                string troopId = troopIds[i];
-                if (string.IsNullOrWhiteSpace(troopId))
-                {
-                    continue;
-                }
-
-                if (!battleState.troopsById.TryGetValue(troopId, out TroopInstance troop) || troop == null)
-                {
-                    continue;
-                }
-
-                total += troop.attackResult;
-            }
-
-            return total;
         }
 
         static string FormatVictoryDamageLabel(GameDatabase database, string battlefieldId)

@@ -1,7 +1,7 @@
 # TECH_ARCHITECTURE
 > 역할: **현재 Unity 템플릿 코드베이스(Scripts)** 위에, 본 게임의 P0 시스템을 어떻게 얹을지에 대한 구현 기준 문서입니다.
 
-- 마지막 갱신: `2026-02-21`
+- 마지막 갱신: `2026-02-22`
 - 기준 문서: `Docs/GAME_STRUCTURE.md`, `Docs/GLOSSARY.md`
 
 ---
@@ -169,19 +169,29 @@ Assets/StreamingAssets/
 
 > UI/툴팁 요구사항 때문에 **baseRoll/modifiers/attackResult를 항상 보관**하는 구조를 강제한다.
 
-### 5.2 PhaseRunner(Application)
+### 5.2 Application 오케스트레이션
 
-- `BattlePhaseRunner`가 다음을 담당:
-  - 페이즈 순서 호출
-  - Player 입력(배치/스킬/후퇴) 반영
-  - Domain 호출(roll/resolve)
+- `BattlePhaseRunner`:
+  - 페이즈 순서/전이만 담당
+  - Retreat 허용 조건 검증 및 종료 처리
 
-Domain 쪽은 “규칙 계산”만 맡는다:
+- `BattleSessionBuilder`:
+  - 초기 `BattleState` 생성(캠프/전장/의도)
+  - 적 의도 자동 배치(선호 전장 실패 시 다른 전장 fallback)
+
+- `BattleTurnProcessor`:
+  - Roll 단계 일괄 처리(배치 병력 수집 -> 굴림 -> Roll 타이밍 효과)
+  - Resolve 단계 일괄 처리(전장 순회 -> outcomeEffects 적용 -> TurnEnd 유지보수)
+  - TurnEnd 유지보수(`manaRegenPerTurn`, `cooldownTickPerTurn`) 적용
+
+Domain 쪽은 “계산 전용”으로 유지한다:
 - `BattleSimulator`:
   - Roll(기본 굴림)
   - ApplyRollFinalization(눈 보정 반영)
   - ComputeTotalAttack
-  - ResolveBattlefield(i)
+  - ComputeOutcome
+  - ResolveBattlefield(i) 계산 결과 반환
+- Morale/리소스 같은 전투 상태 갱신은 Application에서 수행한다.
 
 ### 5.3 Resolve 순서(확정)
 

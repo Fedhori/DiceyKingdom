@@ -442,6 +442,7 @@ namespace Game.Application.Battle.Effects
                 }
 
                 troop.EnsureInitialized();
+                RemoveSourcePrefixedModifiers(troop.attackModifiers, rollSourcePrefix);
                 RemoveSourcePrefixedModifiers(troop.attackResultModifiers, rollSourcePrefix);
             }
         }
@@ -545,6 +546,8 @@ namespace Game.Application.Battle.Effects
 
             if (!visitedTroopIds.Add(troopId))
             {
+                Debug.LogWarning(
+                    $"[TroopTimedEffectRunner] Duplicate troopId({troopId}) context detected. Later context was skipped.");
                 return;
             }
 

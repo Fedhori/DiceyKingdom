@@ -1,20 +1,21 @@
-using Game.Application.Battle;
-using Game.Application.Battle.Effects;
-using Game.Domain.Battle;
-using Game.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Game.Application.Battle;
+using Game.Domain.Battle;
+using Game.Infrastructure.Data;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Game.Presentation.Debug
 {
     public sealed class BattleDebugPanel : MonoBehaviour
     {
         const string debugEncounterId = "enc_debug_01";
+        const string troopBlockPrefabPath = "Assets/Prefabs/Ui/BattleTroopBlock.prefab";
 
         [Header("Status")]
         [SerializeField] TMP_Text phaseText;
@@ -39,80 +40,112 @@ namespace Game.Presentation.Debug
         [SerializeField] Button rollButton;
         [SerializeField] Button resolveButton;
         [SerializeField] Button retreatButton;
+        [SerializeField] Button selectFirstCampTroopButton;
+        [SerializeField] Button selectBattlefield0Button;
+        [SerializeField] Button selectBattlefield1Button;
+        [SerializeField] Button selectBattlefield2Button;
+
+        [Header("Troop Blocks")]
+        [SerializeField] BattleTroopBlockView troopBlockPrefab;
+        [SerializeField] RectTransform campTroopBlockRoot;
+        [SerializeField] RectTransform[] battlefieldPlayerTroopBlockRoots =
+            new RectTransform[BattleState.defaultBattlefieldCount];
+        [SerializeField] RectTransform[] battlefieldEnemyTroopBlockRoots =
+            new RectTransform[BattleState.defaultBattlefieldCount];
 
         [Header("Debug")]
         [SerializeField] TMP_Text logText;
         [SerializeField] ScrollRect logScrollRect;
         [SerializeField] int maxLogEntryCount = 200;
-        [SerializeField] int troopBlockHeight = 28;
+        [SerializeField] int maxLogLineLength = 220;
 
         BattleState battleState;
         BattlePhaseRunner phaseRunner;
-        readonly BattleEffectResolver effectResolver = new BattleEffectResolver();
-        TroopTimedEffectRunner troopTimedEffectRunner;
+        BattleSessionBuilder sessionBuilder;
+        BattleTurnProcessor turnProcessor;
+        GameDatabase activeDatabase;
+
         string selectedTroopId = string.Empty;
         int selectedBattlefieldIndex = -1;
-        readonly List<string> logEntries = new List<string>();
-        readonly List<GameObject> runtimeTroopBlockObjects = new List<GameObject>();
-        readonly UnityAction[] battlefieldCardClickActions = new UnityAction[BattleState.defaultBattlefieldCount];
 
-        RectTransform campTroopBlockRoot;
-        readonly RectTransform[] battlefieldPlayerTroopBlockRoots = new RectTransform[BattleState.defaultBattlefieldCount];
-        readonly RectTransform[] battlefieldEnemyTroopBlockRoots = new RectTransform[BattleState.defaultBattlefieldCount];
+        readonly List<string> logEntries = new List<string>();
+        readonly List<BattleTroopBlockView> spawnedTroopBlocks = new List<BattleTroopBlockView>();
+
+        enum TroopLocationType
+        {
+            None = 0,
+            Camp = 1,
+            Battlefield = 2
+        }
 
         public BattleState BattleState => battleState;
         public BattlePhaseRunner PhaseRunner => phaseRunner;
 
         void Awake()
         {
-            AutoBindUiReferencesByName();
-            EnsureCampTroopTextDisplay();
-            EnsureTroopBlockUiSetup();
-            EnsureBattlefieldCardClickBindings();
-            HideLegacyDeploySelectedButton();
-            EnsureLogScrollSetup();
-            WireDefaultButtonCallbacks();
+            if (!ValidateBindings(out string errorMessage))
+            {
+                UnityEngine.Debug.LogError($"[BattleDebugPanel] {errorMessage}");
+                enabled = false;
+                return;
+            }
+
+            ConfigureStaticUi();
+            WireButtonCallbacks();
             ResetContext();
-            RefreshStubTexts();
-            RefreshStubButtons();
+            RefreshView();
         }
+
+        void OnDestroy()
+        {
+            ClearTroopBlocks();
+        }
+
+#if UNITY_EDITOR
+        void OnValidate()
+        {
+            AutoAssignReferencesInEditor();
+        }
+#endif
 
         public void StartBattle()
         {
-            if (!TryCreateBattleContextFromData(
-                    out BattleState nextState,
-                    out GameDatabase sourceDatabase,
-                    out string failureMessage))
+            GameDatabase database = GameDataRuntime.CurrentDatabase;
+            if (database == null)
+            {
+                RejectAction("StartBattle", "GameDataRuntime.CurrentDatabase is null.");
+                return;
+            }
+
+            activeDatabase = database;
+            sessionBuilder = new BattleSessionBuilder(activeDatabase);
+            turnProcessor = new BattleTurnProcessor(activeDatabase);
+
+            if (!sessionBuilder.TryCreateInitialState(debugEncounterId, out BattleState state, out string failureMessage))
             {
                 RejectAction("StartBattle", failureMessage);
                 return;
             }
 
-            battleState = nextState;
+            battleState = state;
             phaseRunner = new BattlePhaseRunner(battleState);
-            troopTimedEffectRunner = CreateTroopTimedEffectRunner(sourceDatabase);
-
-            bool started = phaseRunner.StartBattle();
-            if (!started)
+            if (!phaseRunner.StartBattle())
             {
                 RejectAction("StartBattle", phaseRunner.LastFailureReason.ToString());
                 return;
             }
 
-            AutoDeployEnemyIntent(battleState, sourceDatabase);
-
-            RefreshStubTexts();
-            RefreshStubButtons();
+            EnemyDeployBuildResult deployResult = sessionBuilder.AutoDeployEnemyIntent(battleState);
+            AppendLog($"Enemy auto deploy complete: deployed={deployResult.deployedCount}, skipped={deployResult.skippedCount}");
             AppendLog($"StartBattle success: encounter={debugEncounterId}");
+            RefreshView();
         }
 
         public void EnemyDeploy()
         {
-            EnsureContextInitialized();
-
-            if (!phaseRunner.isStarted)
+            if (!TryValidateBattleStarted(out string failureMessage))
             {
-                RejectAction("EnemyDeploy", "battle is not started.");
+                RejectAction("EnemyDeploy", failureMessage);
                 return;
             }
 
@@ -130,18 +163,15 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            RefreshStubTexts();
-            RefreshStubButtons();
             AppendLog("EnemyDeploy phase entered.");
+            RefreshView();
         }
 
         public void PlayerDeploy()
         {
-            EnsureContextInitialized();
-
-            if (!phaseRunner.isStarted)
+            if (!TryValidateBattleStarted(out string failureMessage))
             {
-                RejectAction("PlayerDeploy", "battle is not started.");
+                RejectAction("PlayerDeploy", failureMessage);
                 return;
             }
 
@@ -159,150 +189,132 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            RefreshStubTexts();
-            RefreshStubButtons();
             AppendLog("PlayerDeploy phase entered.");
-        }
-
-        public void DeploySelected()
-        {
-            EnsureContextInitialized();
-
-            if (!TryDeploySelectedTroop(out string failureMessage, out string moveLog))
-            {
-                RejectAction("DeploySelected", failureMessage);
-                return;
-            }
-
-            RefreshStubTexts();
-            RefreshStubButtons();
-            AppendLog($"DeploySelected success: {moveLog}");
+            RefreshView();
         }
 
         public void Roll()
         {
-            EnsureContextInitialized();
-
-            if (!TryRollAllDeployedTroops(out int rolledCount, out string failureMessage))
+            if (!TryValidateBattleStarted(out string failureMessage))
             {
                 RejectAction("Roll", failureMessage);
                 return;
             }
 
-            RefreshStubTexts();
-            RefreshStubButtons();
-            AppendLog($"Roll success: rolledTroops={rolledCount}");
+            if (turnProcessor == null)
+            {
+                RejectAction("Roll", "turn processor is not initialized.");
+                return;
+            }
+
+            if (!turnProcessor.TryRollAllDeployedTroops(
+                    battleState,
+                    phaseRunner,
+                    out BattleRollResult rollResult,
+                    out string rollFailureMessage))
+            {
+                RejectAction("Roll", rollFailureMessage);
+                return;
+            }
+
+            AppendLog($"Roll success: rolledTroops={rollResult.rolledTroopCount}");
+            if (rollResult.timedEffectResult.failedCount > 0)
+            {
+                WarnAndLog(
+                    $"Effect warning: timing(Roll) failed={rollResult.timedEffectResult.failedCount}, applied={rollResult.timedEffectResult.appliedCount}.");
+            }
+            else if (rollResult.timedEffectResult.appliedCount > 0)
+            {
+                AppendLog(
+                    $"Effect applied: timing=Roll, applied={rollResult.timedEffectResult.appliedCount}, skipped={rollResult.timedEffectResult.skippedCount}.");
+            }
+
+            RefreshView();
         }
 
         public void Resolve()
         {
-            EnsureContextInitialized();
-
-            if (!TryResolveAllBattlefields(out int resolvedCount, out string failureMessage))
+            if (!TryValidateBattleStarted(out string failureMessage))
             {
                 RejectAction("Resolve", failureMessage);
                 return;
             }
 
-            RefreshStubTexts();
-            RefreshStubButtons();
-            AppendLog($"Resolve success: resolvedBattlefields={resolvedCount}");
+            if (turnProcessor == null)
+            {
+                RejectAction("Resolve", "turn processor is not initialized.");
+                return;
+            }
+
+            if (!turnProcessor.TryResolveAllBattlefields(
+                    battleState,
+                    phaseRunner,
+                    out BattleResolveResult resolveResult,
+                    out string resolveFailureMessage))
+            {
+                RejectAction("Resolve", resolveFailureMessage);
+                return;
+            }
+
+            for (int i = 0; i < resolveResult.steps.Count; i++)
+            {
+                BattleResolveStepResult step = resolveResult.steps[i];
+                AppendLog(
+                    $"Resolve[{step.battlefieldIndex}] outcome={step.outcome} totalAttack(P:{step.playerTotalAttack},E:{step.enemyTotalAttack}) morale(P:{battleState.playerMorale},E:{battleState.enemyMorale})");
+            }
+
+            if (resolveResult.outcomeEffectFailedCount > 0)
+            {
+                WarnAndLog(
+                    $"Outcome effect warning: failed={resolveResult.outcomeEffectFailedCount}, applied={resolveResult.outcomeEffectAppliedCount}.");
+            }
+
+            if (resolveResult.turnEndTimedEffectResult.failedCount > 0)
+            {
+                WarnAndLog(
+                    $"Effect warning: timing(TurnEnd) failed={resolveResult.turnEndTimedEffectResult.failedCount}, applied={resolveResult.turnEndTimedEffectResult.appliedCount}.");
+            }
+            else if (resolveResult.turnEndTimedEffectResult.appliedCount > 0)
+            {
+                AppendLog(
+                    $"Effect applied: timing=TurnEnd, applied={resolveResult.turnEndTimedEffectResult.appliedCount}, skipped={resolveResult.turnEndTimedEffectResult.skippedCount}.");
+            }
+
+            if (!battleState.isBattleEnded)
+            {
+                AppendLog(
+                    $"TurnEnd applied: mana {resolveResult.manaBeforeTurnEnd} -> {resolveResult.manaAfterTurnEnd}, cooldownUpdated={resolveResult.cooldownUpdatedCount}");
+            }
+
+            AppendLog($"Resolve success: resolvedBattlefields={resolveResult.steps.Count}");
+            RefreshView();
         }
 
         public void Retreat()
         {
-            EnsureContextInitialized();
-
-            if (!TryRetreatBattle(out string failureMessage))
+            if (!TryValidateBattleStarted(out string failureMessage))
             {
                 RejectAction("Retreat", failureMessage);
                 return;
             }
 
-            RefreshStubTexts();
-            RefreshStubButtons();
+            if (!phaseRunner.TryRetreat())
+            {
+                RejectAction("Retreat", phaseRunner.LastFailureReason.ToString());
+                return;
+            }
+
+            selectedTroopId = string.Empty;
+            selectedBattlefieldIndex = -1;
             AppendLog("Retreat success: battle ended.");
-        }
-
-        public void SelectTroop(string troopId)
-        {
-            EnsureContextInitialized();
-
-            if (string.IsNullOrWhiteSpace(troopId))
-            {
-                selectedTroopId = string.Empty;
-                RejectAction("SelectTroop", "troopId is empty.");
-                return;
-            }
-
-            if (!battleState.troopsById.ContainsKey(troopId))
-            {
-                RejectAction("SelectTroop", $"troopId({troopId}) does not exist.");
-                return;
-            }
-
-            if (!TryFindPlayerTroopLocation(troopId, out TroopLocationType locationType, out int battlefieldIndex))
-            {
-                RejectAction("SelectTroop", $"troopId({troopId}) is not in player controllable zones.");
-                return;
-            }
-
-            selectedTroopId = troopId;
-            selectedBattlefieldIndex = locationType == TroopLocationType.Battlefield
-                ? battlefieldIndex
-                : selectedBattlefieldIndex;
-            RefreshStubTexts();
-            RefreshStubButtons();
-            string troopDefId = ResolveTroopDefIdForDisplay(selectedTroopId);
-            AppendLog($"Troop selected: {troopDefId}");
-        }
-
-        public void SelectBattlefield(int battlefieldIndex)
-        {
-            EnsureContextInitialized();
-
-            if (battlefieldIndex < 0 || battlefieldIndex >= battleState.battlefields.Count)
-            {
-                RejectAction(
-                    "SelectBattlefield",
-                    $"battlefieldIndex({battlefieldIndex}) is out of range.");
-                return;
-            }
-
-            selectedBattlefieldIndex = battlefieldIndex;
-
-            if (CanAutoDeployOnBattlefieldClick() &&
-                !string.IsNullOrWhiteSpace(selectedTroopId))
-            {
-                if (!TryMovePlayerTroopToLocation(
-                        selectedTroopId,
-                        TroopLocationType.Battlefield,
-                        battlefieldIndex,
-                        out string moveLog,
-                        out string failureMessage))
-                {
-                    RejectAction("SelectBattlefieldDeploy", failureMessage);
-                    return;
-                }
-
-                RefreshStubTexts();
-                RefreshStubButtons();
-                AppendLog($"Battlefield click deploy success: {moveLog}");
-                return;
-            }
-
-            RefreshStubTexts();
-            RefreshStubButtons();
-            AppendLog($"Battlefield selected: {selectedBattlefieldIndex}");
+            RefreshView();
         }
 
         public void SelectFirstCampTroop()
         {
-            EnsureContextInitialized();
-
-            if (!phaseRunner.isStarted)
+            if (!TryValidateBattleStarted(out string failureMessage))
             {
-                RejectAction("SelectFirstCampTroop", "battle is not started.");
+                RejectAction("SelectFirstCampTroop", failureMessage);
                 return;
             }
 
@@ -330,523 +342,99 @@ namespace Game.Presentation.Debug
             SelectBattlefield(2);
         }
 
-        public void ResetBattleContext()
+        public void DeploySelected()
         {
-            ResetContext();
-            RefreshStubTexts();
-            RefreshStubButtons();
-            AppendLog("Battle context reset.");
-        }
-
-        void RefreshStubTexts()
-        {
-            EnsureContextInitialized();
-            GameDatabase currentDatabase = GameDataRuntime.CurrentDatabase;
-
-            SetText(phaseText, BattleDebugPanelFormatter.FormatPhase(phaseRunner));
-            SetText(turnText, BattleDebugPanelFormatter.FormatTurn(battleState));
-            SetText(manaText, BattleDebugPanelFormatter.FormatMana(battleState));
-            SetText(stabilityText, BattleDebugPanelFormatter.FormatStability(battleState));
-            SetText(playerMoraleText, BattleDebugPanelFormatter.FormatPlayerMorale(battleState));
-            SetText(enemyMoraleText, BattleDebugPanelFormatter.FormatEnemyMorale(battleState));
-            SetText(selectedTroopText, BattleDebugPanelFormatter.FormatSelectedTroop(battleState, selectedTroopId));
-            SetText(
-                selectedBattlefieldText,
-                BattleDebugPanelFormatter.FormatSelectedBattlefield(battleState, selectedBattlefieldIndex));
-
-            SetText(battlefield0Text, BattleDebugPanelFormatter.FormatBattlefield(battleState, 0, currentDatabase));
-            SetText(battlefield1Text, BattleDebugPanelFormatter.FormatBattlefield(battleState, 1, currentDatabase));
-            SetText(battlefield2Text, BattleDebugPanelFormatter.FormatBattlefield(battleState, 2, currentDatabase));
-            RefreshTroopBlocks();
-        }
-
-        void RefreshStubButtons()
-        {
-            EnsureContextInitialized();
-
-            bool isStarted = phaseRunner.isStarted;
-            bool isEnded = battleState.isBattleEnded;
-            BattlePhase currentPhase = phaseRunner.currentPhase;
-
-            bool canProgress = isStarted && !isEnded;
-
-            SetButtonInteractable(startBattleButton, !isStarted || isEnded);
-            SetButtonInteractable(enemyDeployButton, canProgress && currentPhase == BattlePhase.Recall);
-            SetButtonInteractable(playerDeployButton, canProgress && currentPhase == BattlePhase.EnemyDeploy);
-            SetButtonInteractable(deploySelectedButton, false);
-            SetButtonInteractable(
-                rollButton,
-                canProgress &&
-                (currentPhase == BattlePhase.PlayerDeploy || currentPhase == BattlePhase.Roll));
-            SetButtonInteractable(
-                resolveButton,
-                canProgress &&
-                (currentPhase == BattlePhase.Tactics || currentPhase == BattlePhase.Resolve));
-            SetButtonInteractable(
-                retreatButton,
-                canProgress &&
-                currentPhase == BattlePhase.PlayerDeploy &&
-                battleState.stability > 0);
-        }
-
-        void ResetContext()
-        {
-            battleState = new BattleState();
-            phaseRunner = new BattlePhaseRunner(battleState);
-            troopTimedEffectRunner = null;
-            selectedTroopId = string.Empty;
-            selectedBattlefieldIndex = -1;
-        }
-
-        void EnsureContextInitialized()
-        {
-            if (battleState == null || phaseRunner == null)
+            if (!TryValidateBattleStarted(out string failureMessage))
             {
-                ResetContext();
-                AppendLog("Context auto-initialized.");
-            }
-
-            if (troopTimedEffectRunner == null)
-            {
-                troopTimedEffectRunner = CreateTroopTimedEffectRunner(GameDataRuntime.CurrentDatabase);
-            }
-        }
-
-        void AutoBindUiReferencesByName()
-        {
-            phaseText = ResolveBinding(phaseText, "PhaseText");
-            turnText = ResolveBinding(turnText, "TurnText");
-            manaText = ResolveBinding(manaText, "ManaText");
-            stabilityText = ResolveBinding(stabilityText, "StabilityText");
-            playerMoraleText = ResolveBinding(playerMoraleText, "PlayerMoraleText");
-            enemyMoraleText = ResolveBinding(enemyMoraleText, "EnemyMoraleText");
-            selectedTroopText = ResolveBinding(selectedTroopText, "SelectedTroopText");
-            selectedBattlefieldText = ResolveBinding(selectedBattlefieldText, "SelectedBattlefieldText");
-
-            battlefield0Text = ResolveBinding(battlefield0Text, "Battlefield0Text");
-            battlefield1Text = ResolveBinding(battlefield1Text, "Battlefield1Text");
-            battlefield2Text = ResolveBinding(battlefield2Text, "Battlefield2Text");
-
-            startBattleButton = ResolveBinding(startBattleButton, "StartBattleButton");
-            enemyDeployButton = ResolveBinding(enemyDeployButton, "EnemyDeployButton");
-            playerDeployButton = ResolveBinding(playerDeployButton, "PlayerDeployButton");
-            deploySelectedButton = ResolveBinding(deploySelectedButton, "DeploySelectedButton");
-            rollButton = ResolveBinding(rollButton, "RollButton");
-            resolveButton = ResolveBinding(resolveButton, "ResolveButton");
-            retreatButton = ResolveBinding(retreatButton, "RetreatButton");
-
-            logText = ResolveBinding(logText, "LogText");
-            if (logScrollRect == null)
-            {
-                logScrollRect = FindChildComponentByName<ScrollRect>("LogScrollRect");
-            }
-        }
-
-        void EnsureCampTroopTextDisplay()
-        {
-            if (selectedTroopText == null)
-            {
+                RejectAction("DeploySelected", failureMessage);
                 return;
             }
 
-            selectedTroopText.textWrappingMode = TextWrappingModes.Normal;
-            selectedTroopText.overflowMode = TextOverflowModes.Overflow;
-            selectedTroopText.alignment = TextAlignmentOptions.TopLeft;
-
-            LayoutElement layoutElement = selectedTroopText.GetComponent<LayoutElement>();
-            if (layoutElement == null)
+            if (!TryMovePlayerTroopToBattlefield(selectedTroopId, selectedBattlefieldIndex, out string moveLog, out string moveError))
             {
-                layoutElement = selectedTroopText.gameObject.AddComponent<LayoutElement>();
-            }
-
-            layoutElement.preferredHeight = 32f;
-            layoutElement.flexibleHeight = 0f;
-        }
-
-        enum TroopLocationType
-        {
-            None = 0,
-            Camp = 1,
-            Battlefield = 2
-        }
-
-        void EnsureTroopBlockUiSetup()
-        {
-            campTroopBlockRoot = EnsureTroopBlockRoot(
-                "CampPanel",
-                "CampTroopBlockRoot",
-                2,
-                200f,
-                new Color(0.75f, 0.82f, 0.9f, 0.35f));
-
-            for (int i = 0; i < battlefieldPlayerTroopBlockRoots.Length; i++)
-            {
-                battlefieldPlayerTroopBlockRoots[i] = EnsureTroopBlockRoot(
-                    $"Battlefield{i}Card",
-                    $"Battlefield{i}PlayerTroopBlockRoot",
-                    1,
-                    52f,
-                    new Color(0.73f, 0.84f, 0.96f, 0.45f));
-
-                battlefieldEnemyTroopBlockRoots[i] = EnsureTroopBlockRoot(
-                    $"Battlefield{i}Card",
-                    $"Battlefield{i}EnemyTroopBlockRoot",
-                    2,
-                    52f,
-                    new Color(0.94f, 0.78f, 0.78f, 0.45f));
-            }
-        }
-
-        void EnsureBattlefieldCardClickBindings()
-        {
-            for (int battlefieldIndex = 0; battlefieldIndex < BattleState.defaultBattlefieldCount; battlefieldIndex++)
-            {
-                EnsureBattlefieldCardClickBinding(battlefieldIndex);
-            }
-        }
-
-        void EnsureBattlefieldCardClickBinding(int battlefieldIndex)
-        {
-            RectTransform cardRect = FindChildComponentByName<RectTransform>($"Battlefield{battlefieldIndex}Card");
-            if (cardRect == null)
-            {
-                WarnAndLog($"Battlefield click setup warning: Battlefield{battlefieldIndex}Card was not found.");
+                RejectAction("DeploySelected", moveError);
                 return;
             }
 
-            TMP_Text[] allCardTexts = cardRect.GetComponentsInChildren<TMP_Text>(true);
-            for (int textIndex = 0; textIndex < allCardTexts.Length; textIndex++)
-            {
-                TMP_Text text = allCardTexts[textIndex];
-                if (text == null)
-                {
-                    continue;
-                }
-
-                text.raycastTarget = false;
-            }
-
-            string clickZoneName = $"Battlefield{battlefieldIndex}ClickZone";
-            RectTransform legacyClickZoneRect = FindDirectChildRect(cardRect, clickZoneName);
-            if (legacyClickZoneRect != null)
-            {
-                legacyClickZoneRect.gameObject.SetActive(false);
-            }
-
-            Image cardImage = cardRect.GetComponent<Image>();
-            if (cardImage == null)
-            {
-                cardImage = cardRect.gameObject.AddComponent<Image>();
-                cardImage.color = new Color(0f, 0f, 0f, 0.001f);
-            }
-
-            cardImage.raycastTarget = true;
-
-            Button cardButton = cardRect.GetComponent<Button>();
-            if (cardButton == null)
-            {
-                cardButton = cardRect.gameObject.AddComponent<Button>();
-            }
-
-            cardButton.interactable = true;
-            cardButton.enabled = true;
-            cardButton.targetGraphic = cardImage;
-            cardButton.transition = Selectable.Transition.None;
-
-            if (battlefieldCardClickActions[battlefieldIndex] == null)
-            {
-                int capturedIndex = battlefieldIndex;
-                battlefieldCardClickActions[battlefieldIndex] = () => SelectBattlefield(capturedIndex);
-            }
-
-            cardButton.onClick.RemoveListener(battlefieldCardClickActions[battlefieldIndex]);
-            cardButton.onClick.AddListener(battlefieldCardClickActions[battlefieldIndex]);
+            AppendLog($"DeploySelected success: {moveLog}");
+            RefreshView();
         }
 
-        void HideLegacyDeploySelectedButton()
+        public void SelectTroop(string troopId)
         {
-            if (deploySelectedButton == null)
+            if (!TryValidateBattleStarted(out string failureMessage))
             {
+                RejectAction("SelectTroop", failureMessage);
                 return;
             }
 
-            deploySelectedButton.gameObject.SetActive(false);
-        }
-
-        RectTransform EnsureTroopBlockRoot(
-            string panelName,
-            string blockRootName,
-            int siblingIndex,
-            float preferredHeight,
-            Color backgroundColor)
-        {
-            RectTransform panelRect = FindChildComponentByName<RectTransform>(panelName);
-            if (panelRect == null)
+            if (string.IsNullOrWhiteSpace(troopId))
             {
-                WarnAndLog($"Troop block setup warning: panel '{panelName}' was not found.");
-                return null;
-            }
-
-            RectTransform blockRoot = FindDirectChildRect(panelRect, blockRootName);
-            if (blockRoot == null)
-            {
-                var blockRootObject = new GameObject(
-                    blockRootName,
-                    typeof(RectTransform),
-                    typeof(LayoutElement),
-                    typeof(Image),
-                    typeof(VerticalLayoutGroup));
-                blockRoot = blockRootObject.GetComponent<RectTransform>();
-                blockRoot.SetParent(panelRect, false);
-            }
-
-            int safeSiblingIndex = Mathf.Clamp(siblingIndex, 0, Mathf.Max(0, panelRect.childCount - 1));
-            blockRoot.SetSiblingIndex(safeSiblingIndex);
-
-            LayoutElement layoutElement = blockRoot.GetComponent<LayoutElement>();
-            layoutElement.minHeight = 24f;
-            layoutElement.preferredHeight = preferredHeight;
-            layoutElement.flexibleHeight = 1f;
-
-            Image blockImage = blockRoot.GetComponent<Image>();
-            blockImage.color = backgroundColor;
-            blockImage.raycastTarget = false;
-
-            VerticalLayoutGroup layoutGroup = blockRoot.GetComponent<VerticalLayoutGroup>();
-            layoutGroup.padding.left = 4;
-            layoutGroup.padding.right = 4;
-            layoutGroup.padding.top = 4;
-            layoutGroup.padding.bottom = 4;
-            layoutGroup.spacing = 4;
-            layoutGroup.childAlignment = TextAnchor.UpperLeft;
-            layoutGroup.childControlWidth = true;
-            layoutGroup.childControlHeight = true;
-            layoutGroup.childForceExpandWidth = true;
-            layoutGroup.childForceExpandHeight = false;
-
-            return blockRoot;
-        }
-
-        static RectTransform FindDirectChildRect(Transform parent, string childName)
-        {
-            if (parent == null || string.IsNullOrWhiteSpace(childName))
-            {
-                return null;
-            }
-
-            for (int i = 0; i < parent.childCount; i++)
-            {
-                Transform child = parent.GetChild(i);
-                if (!string.Equals(child.name, childName, StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                return child as RectTransform;
-            }
-
-            return null;
-        }
-
-        void RefreshTroopBlocks()
-        {
-            EnsureTroopBlockUiSetup();
-            ClearRuntimeTroopBlocks();
-
-            if (battleState == null || battleState.troopsById == null)
-            {
+                RejectAction("SelectTroop", "troopId is empty.");
                 return;
             }
 
-            if (campTroopBlockRoot != null && battleState.campTroopIds != null)
+            if (!battleState.troopsById.ContainsKey(troopId))
             {
-                for (int i = 0; i < battleState.campTroopIds.Count; i++)
-                {
-                    CreateTroopBlock(campTroopBlockRoot, battleState.campTroopIds[i], true);
-                }
-            }
-
-            int battlefieldCount = Mathf.Min(
-                battleState.battlefields == null ? 0 : battleState.battlefields.Count,
-                Mathf.Min(battlefieldPlayerTroopBlockRoots.Length, battlefieldEnemyTroopBlockRoots.Length));
-
-            for (int battlefieldIndex = 0; battlefieldIndex < battlefieldCount; battlefieldIndex++)
-            {
-                BattlefieldState battlefield = battleState.battlefields[battlefieldIndex];
-                if (battlefield == null)
-                {
-                    continue;
-                }
-
-                battlefield.EnsureInitialized();
-
-                RectTransform playerBlockRoot = battlefieldPlayerTroopBlockRoots[battlefieldIndex];
-                if (playerBlockRoot != null)
-                {
-                    for (int i = 0; i < battlefield.playerTroopIds.Count; i++)
-                    {
-                        CreateTroopBlock(playerBlockRoot, battlefield.playerTroopIds[i], true);
-                    }
-                }
-
-                RectTransform enemyBlockRoot = battlefieldEnemyTroopBlockRoots[battlefieldIndex];
-                if (enemyBlockRoot != null)
-                {
-                    for (int i = 0; i < battlefield.enemyTroopIds.Count; i++)
-                    {
-                        CreateTroopBlock(enemyBlockRoot, battlefield.enemyTroopIds[i], false);
-                    }
-                }
-            }
-        }
-
-        void ClearRuntimeTroopBlocks()
-        {
-            for (int i = 0; i < runtimeTroopBlockObjects.Count; i++)
-            {
-                GameObject troopBlockObject = runtimeTroopBlockObjects[i];
-                if (troopBlockObject == null)
-                {
-                    continue;
-                }
-
-                troopBlockObject.SetActive(false);
-                Destroy(troopBlockObject);
-            }
-
-            runtimeTroopBlockObjects.Clear();
-        }
-
-        void CreateTroopBlock(RectTransform parent, string troopId, bool canSelect)
-        {
-            if (parent == null || string.IsNullOrWhiteSpace(troopId))
-            {
+                RejectAction("SelectTroop", $"troopId({troopId}) does not exist.");
                 return;
             }
 
-            if (battleState == null ||
-                battleState.troopsById == null ||
-                !battleState.troopsById.TryGetValue(troopId, out TroopInstance troop) ||
-                troop == null)
+            if (!TryFindPlayerTroopLocation(troopId, out TroopLocationType locationType, out int battlefieldIndex))
             {
+                RejectAction("SelectTroop", $"troopId({troopId}) is not in player controllable zones.");
                 return;
             }
 
-            string capturedTroopId = troopId;
-            var troopObject = new GameObject(
-                $"TroopBlock_{capturedTroopId}",
-                typeof(RectTransform),
-                typeof(LayoutElement),
-                typeof(Image));
-            RectTransform troopRect = troopObject.GetComponent<RectTransform>();
-            troopRect.SetParent(parent, false);
-            troopRect.anchorMin = new Vector2(0f, 0f);
-            troopRect.anchorMax = new Vector2(1f, 1f);
-            troopRect.pivot = new Vector2(0.5f, 0.5f);
-            troopRect.anchoredPosition = Vector2.zero;
-            troopRect.sizeDelta = Vector2.zero;
-
-            LayoutElement layoutElement = troopObject.GetComponent<LayoutElement>();
-            layoutElement.preferredHeight = Mathf.Max(24, troopBlockHeight);
-            layoutElement.flexibleHeight = 0f;
-
-            Image backgroundImage = troopObject.GetComponent<Image>();
-            bool isSelected = string.Equals(capturedTroopId, selectedTroopId, StringComparison.Ordinal);
-            backgroundImage.color = isSelected
-                ? new Color(0.2f, 0.5f, 0.8f, 1f)
-                : canSelect
-                    ? new Color(0.52f, 0.58f, 0.66f, 0.95f)
-                    : new Color(0.72f, 0.48f, 0.48f, 0.95f);
-            backgroundImage.raycastTarget = canSelect;
-
-            if (canSelect)
+            selectedTroopId = troopId;
+            if (locationType == TroopLocationType.Battlefield)
             {
-                Button button = troopObject.AddComponent<Button>();
-                button.targetGraphic = backgroundImage;
-                button.transition = Selectable.Transition.ColorTint;
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => SelectTroop(capturedTroopId));
+                selectedBattlefieldIndex = battlefieldIndex;
             }
 
-            TMP_Text infoLabel = CreateTroopInfoLabel(troopRect);
-            infoLabel.text = BuildTroopInfoLabel(capturedTroopId, troop);
-
-            TMP_Text attackLabel = CreateTroopAttackLabel(troopRect);
-            attackLabel.text = BuildTroopAttackText(troop);
-
-            runtimeTroopBlockObjects.Add(troopObject);
+            AppendLog($"Troop selected: {ResolveTroopDefIdForDisplay(troopId)}");
+            RefreshView();
         }
 
-        TMP_Text CreateTroopInfoLabel(RectTransform parent)
+        public void SelectBattlefield(int battlefieldIndex)
         {
-            var labelObject = new GameObject(
-                "InfoLabel",
-                typeof(RectTransform),
-                typeof(TextMeshProUGUI));
-            RectTransform labelRect = labelObject.GetComponent<RectTransform>();
-            labelRect.SetParent(parent, false);
-            labelRect.anchorMin = new Vector2(0f, 0f);
-            labelRect.anchorMax = new Vector2(1f, 1f);
-            labelRect.pivot = new Vector2(0f, 0.5f);
-            labelRect.anchoredPosition = Vector2.zero;
-            labelRect.offsetMin = new Vector2(8f, 1f);
-            labelRect.offsetMax = new Vector2(-66f, -1f);
-
-            var label = labelObject.GetComponent<TextMeshProUGUI>();
-            label.fontSize = 12f;
-            label.color = Color.white;
-            label.alignment = TextAlignmentOptions.MidlineLeft;
-            label.textWrappingMode = TextWrappingModes.NoWrap;
-            label.overflowMode = TextOverflowModes.Ellipsis;
-            label.raycastTarget = false;
-            return label;
-        }
-
-        TMP_Text CreateTroopAttackLabel(RectTransform parent)
-        {
-            var attackObject = new GameObject(
-                "AttackLabel",
-                typeof(RectTransform),
-                typeof(TextMeshProUGUI));
-            RectTransform attackRect = attackObject.GetComponent<RectTransform>();
-            attackRect.SetParent(parent, false);
-            attackRect.anchorMin = new Vector2(1f, 0f);
-            attackRect.anchorMax = new Vector2(1f, 1f);
-            attackRect.pivot = new Vector2(1f, 0.5f);
-            attackRect.anchoredPosition = new Vector2(-8f, 0f);
-            attackRect.sizeDelta = new Vector2(56f, 0f);
-
-            var attackLabel = attackObject.GetComponent<TextMeshProUGUI>();
-            attackLabel.fontSize = 18f;
-            attackLabel.fontStyle = FontStyles.Bold;
-            attackLabel.color = Color.white;
-            attackLabel.alignment = TextAlignmentOptions.MidlineRight;
-            attackLabel.textWrappingMode = TextWrappingModes.NoWrap;
-            attackLabel.overflowMode = TextOverflowModes.Overflow;
-            attackLabel.raycastTarget = false;
-            return attackLabel;
-        }
-
-        string BuildTroopInfoLabel(string troopId, TroopInstance troop)
-        {
-            string troopDefId = ResolveTroopDefIdForDisplay(troopId);
-            string effectsLabel = BattleDebugPanelFormatter.FormatTroopEffects(GameDataRuntime.CurrentDatabase, troop.troopDefId);
-            return $"{troopDefId} | R:{troop.attackResult} | Effects:{effectsLabel}";
-        }
-
-        static string BuildTroopAttackText(TroopInstance troop)
-        {
-            if (troop == null)
+            if (!TryValidateBattleStarted(out string failureMessage))
             {
-                return "A:0";
+                RejectAction("SelectBattlefield", failureMessage);
+                return;
             }
 
-            return $"A:{troop.attack}";
+            if (battlefieldIndex < 0 || battlefieldIndex >= battleState.battlefields.Count)
+            {
+                RejectAction("SelectBattlefield", $"battlefieldIndex({battlefieldIndex}) is out of range.");
+                return;
+            }
+
+            selectedBattlefieldIndex = battlefieldIndex;
+
+            if (CanAutoDeployOnBattlefieldClick() && !string.IsNullOrWhiteSpace(selectedTroopId))
+            {
+                if (!TryMovePlayerTroopToBattlefield(
+                        selectedTroopId,
+                        selectedBattlefieldIndex,
+                        out string moveLog,
+                        out string moveError))
+                {
+                    RejectAction("SelectBattlefieldDeploy", moveError);
+                    return;
+                }
+
+                AppendLog($"Battlefield click deploy success: {moveLog}");
+                RefreshView();
+                return;
+            }
+
+            AppendLog($"Battlefield selected: {battlefieldIndex}");
+            RefreshView();
         }
 
-        bool TryMovePlayerTroopToLocation(
+        bool TryMovePlayerTroopToBattlefield(
             string troopId,
-            TroopLocationType targetType,
             int targetBattlefieldIndex,
             out string moveLog,
             out string failureMessage)
@@ -854,22 +442,9 @@ namespace Game.Presentation.Debug
             moveLog = string.Empty;
             failureMessage = string.Empty;
 
-            if (!phaseRunner.isStarted)
-            {
-                failureMessage = "battle is not started.";
-                return false;
-            }
-
-            if (battleState.isBattleEnded)
-            {
-                failureMessage = "battle already ended.";
-                return false;
-            }
-
             if (phaseRunner.currentPhase != BattlePhase.PlayerDeploy)
             {
-                failureMessage =
-                    $"current phase is {phaseRunner.currentPhase}, required phase is {BattlePhase.PlayerDeploy}.";
+                failureMessage = $"current phase is {phaseRunner.currentPhase}, required phase is {BattlePhase.PlayerDeploy}.";
                 return false;
             }
 
@@ -879,11 +454,9 @@ namespace Game.Presentation.Debug
                 return false;
             }
 
-            if (battleState.troopsById == null ||
-                !battleState.troopsById.TryGetValue(troopId, out TroopInstance troopInstance) ||
-                troopInstance == null)
+            if (targetBattlefieldIndex < 0 || targetBattlefieldIndex >= battleState.battlefields.Count)
             {
-                failureMessage = $"troop({troopId}) does not exist.";
+                failureMessage = $"target battlefield({targetBattlefieldIndex}) is out of range.";
                 return false;
             }
 
@@ -893,60 +466,47 @@ namespace Game.Presentation.Debug
                 return false;
             }
 
-            if (targetType == TroopLocationType.Battlefield &&
-                (targetBattlefieldIndex < 0 || targetBattlefieldIndex >= battleState.battlefields.Count))
+            if (sourceType == TroopLocationType.Battlefield && sourceBattlefieldIndex == targetBattlefieldIndex)
             {
-                failureMessage = $"target battlefield({targetBattlefieldIndex}) is out of range.";
-                return false;
-            }
-
-            bool isSameLocation =
-                sourceType == targetType &&
-                (targetType != TroopLocationType.Battlefield || sourceBattlefieldIndex == targetBattlefieldIndex);
-            if (isSameLocation)
-            {
-                string troopDefId = ResolveTroopDefIdForDisplay(troopId);
-                string locationLabel = FormatTroopLocationLabel(targetType, targetBattlefieldIndex);
-                moveLog = $"Troop move skipped: {troopDefId} already in {locationLabel}.";
+                moveLog = $"Troop move skipped: {ResolveTroopDefIdForDisplay(troopId)} already in battlefield({targetBattlefieldIndex}).";
                 return true;
             }
 
-            if (!RemoveTroopFromLocation(troopId, sourceType, sourceBattlefieldIndex))
+            BattlefieldState targetBattlefield = battleState.battlefields[targetBattlefieldIndex];
+            if (targetBattlefield == null)
             {
-                failureMessage = "failed to remove troop from current location.";
+                failureMessage = $"battlefield({targetBattlefieldIndex}) is null.";
                 return false;
             }
 
-            if (!TryAddTroopToLocation(troopId, targetType, targetBattlefieldIndex, out string addFailureMessage))
+            targetBattlefield.EnsureInitialized();
+            if (!targetBattlefield.playerTroopIds.Contains(troopId) &&
+                targetBattlefield.slotLimit.HasValue &&
+                targetBattlefield.playerTroopIds.Count >= targetBattlefield.slotLimit.Value)
             {
-                TryAddTroopToLocation(troopId, sourceType, sourceBattlefieldIndex, out _);
-                failureMessage = addFailureMessage;
+                failureMessage = $"target battlefield({targetBattlefieldIndex}) slotLimit exceeded.";
                 return false;
+            }
+
+            if (sourceType == TroopLocationType.Camp)
+            {
+                battleState.campTroopIds.Remove(troopId);
+            }
+            else
+            {
+                BattlefieldState sourceBattlefield = battleState.battlefields[sourceBattlefieldIndex];
+                sourceBattlefield?.playerTroopIds.Remove(troopId);
+            }
+
+            if (!targetBattlefield.playerTroopIds.Contains(troopId))
+            {
+                targetBattlefield.playerTroopIds.Add(troopId);
             }
 
             selectedTroopId = troopId;
-            selectedBattlefieldIndex = targetType == TroopLocationType.Battlefield ? targetBattlefieldIndex : -1;
-
-            string troopDefIdAfterMove = ResolveTroopDefIdForDisplay(troopId);
-            string fromLabel = FormatTroopLocationLabel(sourceType, sourceBattlefieldIndex);
-            string toLabel = FormatTroopLocationLabel(targetType, targetBattlefieldIndex);
-            moveLog = $"Troop moved: {troopDefIdAfterMove} {fromLabel} -> {toLabel}.";
+            selectedBattlefieldIndex = targetBattlefieldIndex;
+            moveLog = $"Troop moved: {ResolveTroopDefIdForDisplay(troopId)} -> battlefield({targetBattlefieldIndex}).";
             return true;
-        }
-
-        bool CanAutoDeployOnBattlefieldClick()
-        {
-            if (phaseRunner == null || battleState == null)
-            {
-                return false;
-            }
-
-            if (!phaseRunner.isStarted || battleState.isBattleEnded)
-            {
-                return false;
-            }
-
-            return phaseRunner.currentPhase == BattlePhase.PlayerDeploy;
         }
 
         bool TryFindPlayerTroopLocation(string troopId, out TroopLocationType locationType, out int battlefieldIndex)
@@ -954,7 +514,7 @@ namespace Game.Presentation.Debug
             locationType = TroopLocationType.None;
             battlefieldIndex = -1;
 
-            if (battleState == null || string.IsNullOrWhiteSpace(troopId))
+            if (string.IsNullOrWhiteSpace(troopId))
             {
                 return false;
             }
@@ -992,756 +552,199 @@ namespace Game.Presentation.Debug
             return false;
         }
 
-        bool RemoveTroopFromLocation(string troopId, TroopLocationType sourceType, int sourceBattlefieldIndex)
+        bool CanAutoDeployOnBattlefieldClick()
         {
-            if (sourceType == TroopLocationType.Camp)
-            {
-                return battleState.campTroopIds != null && battleState.campTroopIds.Remove(troopId);
-            }
-
-            if (sourceType != TroopLocationType.Battlefield ||
-                sourceBattlefieldIndex < 0 ||
-                sourceBattlefieldIndex >= battleState.battlefields.Count)
-            {
-                return false;
-            }
-
-            BattlefieldState sourceBattlefield = battleState.battlefields[sourceBattlefieldIndex];
-            if (sourceBattlefield == null)
-            {
-                return false;
-            }
-
-            sourceBattlefield.EnsureInitialized();
-            return sourceBattlefield.playerTroopIds.Remove(troopId);
+            return phaseRunner != null &&
+                   phaseRunner.isStarted &&
+                   !battleState.isBattleEnded &&
+                   phaseRunner.currentPhase == BattlePhase.PlayerDeploy;
         }
 
-        bool TryAddTroopToLocation(
-            string troopId,
-            TroopLocationType targetType,
-            int targetBattlefieldIndex,
-            out string failureMessage)
+        bool TryValidateBattleStarted(out string failureMessage)
         {
             failureMessage = string.Empty;
 
-            if (targetType == TroopLocationType.Camp)
+            if (battleState == null)
             {
-                if (battleState.campTroopIds == null)
-                {
-                    failureMessage = "campTroopIds is null.";
-                    return false;
-                }
-
-                if (!battleState.campTroopIds.Contains(troopId))
-                {
-                    battleState.campTroopIds.Add(troopId);
-                }
-
-                return true;
-            }
-
-            if (targetType != TroopLocationType.Battlefield ||
-                targetBattlefieldIndex < 0 ||
-                targetBattlefieldIndex >= battleState.battlefields.Count)
-            {
-                failureMessage = $"target battlefield({targetBattlefieldIndex}) is out of range.";
+                failureMessage = "battle state is null.";
                 return false;
             }
 
-            BattlefieldState targetBattlefield = battleState.battlefields[targetBattlefieldIndex];
-            if (targetBattlefield == null)
-            {
-                failureMessage = $"battlefield({targetBattlefieldIndex}) is null.";
-                return false;
-            }
-
-            targetBattlefield.EnsureInitialized();
-            if (!targetBattlefield.playerTroopIds.Contains(troopId) &&
-                targetBattlefield.slotLimit.HasValue &&
-                targetBattlefield.playerTroopIds.Count >= targetBattlefield.slotLimit.Value)
-            {
-                failureMessage = $"target battlefield({targetBattlefieldIndex}) slotLimit exceeded.";
-                return false;
-            }
-
-            if (!targetBattlefield.playerTroopIds.Contains(troopId))
-            {
-                targetBattlefield.playerTroopIds.Add(troopId);
-            }
-
-            return true;
-        }
-
-        static string FormatTroopLocationLabel(TroopLocationType locationType, int battlefieldIndex)
-        {
-            if (locationType == TroopLocationType.Camp)
-            {
-                return "camp";
-            }
-
-            if (locationType == TroopLocationType.Battlefield)
-            {
-                return $"battlefield({battlefieldIndex})";
-            }
-
-            return "unknown";
-        }
-
-        void WireDefaultButtonCallbacks()
-        {
-            WireButton(startBattleButton, StartBattle);
-            WireButton(enemyDeployButton, EnemyDeploy);
-            WireButton(playerDeployButton, PlayerDeploy);
-            WireButton(rollButton, Roll);
-            WireButton(resolveButton, Resolve);
-            WireButton(retreatButton, Retreat);
-
-            WireOptionalButton("SelectFirstCampTroopButton", SelectFirstCampTroop);
-            WireOptionalButton("SelectBattlefield0Button", SelectBattlefield0);
-            WireOptionalButton("SelectBattlefield1Button", SelectBattlefield1);
-            WireOptionalButton("SelectBattlefield2Button", SelectBattlefield2);
-        }
-
-        bool TryCreateBattleContextFromData(
-            out BattleState nextState,
-            out GameDatabase sourceDatabase,
-            out string failureMessage)
-        {
-            nextState = null;
-            sourceDatabase = null;
-            failureMessage = string.Empty;
-
-            GameDatabase database = GameDataRuntime.CurrentDatabase;
-            if (database == null)
-            {
-                failureMessage = "GameDataRuntime.CurrentDatabase is null.";
-                return false;
-            }
-
-            if (database.battleConfig == null)
-            {
-                failureMessage = "battle_config is missing.";
-                return false;
-            }
-
-            if (database.runConfig == null)
-            {
-                failureMessage = "run_config is missing.";
-                return false;
-            }
-
-            if (database.playerStart == null)
-            {
-                failureMessage = "player_start is missing.";
-                return false;
-            }
-
-            if (!database.encountersById.TryGetValue(debugEncounterId, out EncounterDef encounterDef) ||
-                encounterDef == null)
-            {
-                failureMessage = $"encounter('{debugEncounterId}') is missing.";
-                return false;
-            }
-
-            sourceDatabase = database;
-            nextState = CreateInitialBattleState(database, encounterDef);
-            return true;
-        }
-
-        BattleState CreateInitialBattleState(GameDatabase database, EncounterDef encounterDef)
-        {
-            var nextState = new BattleState
-            {
-                turnIndex = 0,
-                isBattleEnded = false,
-                mana = database.playerStart.startingMana,
-                stability = database.playerStart.startingStability,
-                playerMorale = Mathf.Max(1, database.playerStart.startingPlayerMorale),
-                enemyMorale = Mathf.Max(1, encounterDef.enemyMorale)
-            };
-
-            nextState.cooldowns.Clear();
-            nextState.campTroopIds.Clear();
-            nextState.troopsById.Clear();
-            nextState.enemyIntent.Clear();
-
-            InitializeBattlefieldSlots(nextState, database);
-            PopulateEnemyIntent(nextState, encounterDef);
-            PopulateCampFromPlayerStart(nextState, database);
-
-            return nextState;
-        }
-
-        void InitializeBattlefieldSlots(BattleState nextState, GameDatabase database)
-        {
-            nextState.battlefields.Clear();
-
-            List<BattlefieldDef> orderedDefs = database.battlefieldsById
-                .Values
-                .OrderBy(def => def.id, StringComparer.Ordinal)
-                .ToList();
-
-            int targetCount = Mathf.Max(1, database.battleConfig.battlefieldCount);
-            for (int i = 0; i < targetCount; i++)
-            {
-                BattlefieldDef sourceDef = i < orderedDefs.Count ? orderedDefs[i] : null;
-                int? resolvedSlotLimit = sourceDef != null
-                    ? sourceDef.slotLimit
-                    : database.battleConfig.p0Rules.defaultSlotLimit;
-
-                var field = new BattlefieldState
-                {
-                    battlefieldId = sourceDef?.id ?? $"missing_battlefield_{i}",
-                    slotLimit = resolvedSlotLimit,
-                    totalAttackBonusPlayer = 0,
-                    totalAttackBonusEnemy = 0
-                };
-
-                field.EnsureInitialized();
-                nextState.battlefields.Add(field);
-            }
-
-            nextState.EnsureInitialized();
-        }
-
-        void PopulateEnemyIntent(BattleState nextState, EncounterDef encounterDef)
-        {
-            if (encounterDef.plans == null)
-            {
-                return;
-            }
-
-            for (int planIndex = 0; planIndex < encounterDef.plans.Count; planIndex++)
-            {
-                EncounterPlanDef plan = encounterDef.plans[planIndex];
-                if (plan == null || plan.troops == null)
-                {
-                    continue;
-                }
-
-                for (int troopIndex = 0; troopIndex < plan.troops.Count; troopIndex++)
-                {
-                    SummonTroopRefDef troop = plan.troops[troopIndex];
-                    if (troop == null || troop.count <= 0 || string.IsNullOrWhiteSpace(troop.troopId))
-                    {
-                        continue;
-                    }
-
-                    nextState.enemyIntent.Add(new EnemyIntentEntry
-                    {
-                        battlefieldIndex = plan.battlefieldIndex,
-                        troopDefId = troop.troopId,
-                        count = troop.count
-                    });
-                }
-            }
-        }
-
-        void PopulateCampFromPlayerStart(BattleState nextState, GameDatabase database)
-        {
-            if (database.playerStart == null)
-            {
-                WarnAndLog("StartBattle warning: player_start is missing.");
-                return;
-            }
-
-            int addedTroopCount = 0;
-            for (int cardIndex = 0; cardIndex < database.playerStart.startingSquadCardIds.Count; cardIndex++)
-            {
-                string cardId = database.playerStart.startingSquadCardIds[cardIndex];
-                if (string.IsNullOrWhiteSpace(cardId))
-                {
-                    WarnAndLog($"StartBattle warning: startingSquadCardIds[{cardIndex}] is empty.");
-                    continue;
-                }
-
-                if (!database.cardsById.TryGetValue(cardId, out CardDef squadCard) || squadCard == null)
-                {
-                    WarnAndLog($"StartBattle warning: card('{cardId}') is missing.");
-                    continue;
-                }
-
-                if (!string.Equals(squadCard.type, "Squad", StringComparison.Ordinal))
-                {
-                    WarnAndLog($"StartBattle warning: card('{cardId}') is not Squad.");
-                    continue;
-                }
-
-                if (squadCard.battleStart == null || squadCard.battleStart.summonTroops == null)
-                {
-                    continue;
-                }
-
-                for (int summonIndex = 0; summonIndex < squadCard.battleStart.summonTroops.Count; summonIndex++)
-                {
-                    SummonTroopRefDef summon = squadCard.battleStart.summonTroops[summonIndex];
-                    if (summon == null || summon.count <= 0 || string.IsNullOrWhiteSpace(summon.troopId))
-                    {
-                        continue;
-                    }
-
-                    if (!database.troopsById.TryGetValue(summon.troopId, out TroopDef troopDef) || troopDef == null)
-                    {
-                        WarnAndLog($"StartBattle warning: troopDef('{summon.troopId}') is missing.");
-                        continue;
-                    }
-
-                    for (int i = 0; i < summon.count; i++)
-                    {
-                        TroopInstance troopInstance = CreateTroopInstance(troopDef);
-                        nextState.troopsById[troopInstance.instanceId] = troopInstance;
-                        nextState.campTroopIds.Add(troopInstance.instanceId);
-                        addedTroopCount += 1;
-                    }
-                }
-            }
-
-            if (addedTroopCount <= 0)
-            {
-                WarnAndLog("StartBattle warning: no troops were added from player_start.startingSquadCardIds.");
-            }
-        }
-
-        static TroopInstance CreateTroopInstance(TroopDef troopDef)
-        {
-            var troopInstance = new TroopInstance
-            {
-                troopDefId = troopDef.id,
-                attack = Mathf.Max(1, troopDef.attack),
-                baseRoll = 0,
-                attackResult = 0
-            };
-
-            if (troopDef.tags != null && troopDef.tags.Count > 0)
-            {
-                troopInstance.tags.AddRange(troopDef.tags);
-            }
-
-            troopInstance.EnsureInitialized();
-            return troopInstance;
-        }
-
-        void AutoDeployEnemyIntent(BattleState nextState, GameDatabase sourceDatabase)
-        {
-            if (nextState == null)
-            {
-                WarnAndLog("Enemy auto deploy skipped: battleState is null.");
-                return;
-            }
-
-            if (sourceDatabase == null)
-            {
-                WarnAndLog("Enemy auto deploy skipped: sourceDatabase is null.");
-                return;
-            }
-
-            int deployedCount = 0;
-            int skippedCount = 0;
-
-            for (int i = 0; i < nextState.enemyIntent.Count; i++)
-            {
-                EnemyIntentEntry intent = nextState.enemyIntent[i];
-                if (intent == null)
-                {
-                    skippedCount += 1;
-                    WarnAndLog($"Enemy auto deploy warning: enemyIntent[{i}] is null.");
-                    continue;
-                }
-
-                if (!sourceDatabase.troopsById.TryGetValue(intent.troopDefId, out TroopDef troopDef) || troopDef == null)
-                {
-                    skippedCount += Mathf.Max(1, intent.count);
-                    WarnAndLog($"Enemy auto deploy warning: troopDef('{intent.troopDefId}') is missing.");
-                    continue;
-                }
-
-                if (intent.battlefieldIndex < 0 || intent.battlefieldIndex >= nextState.battlefields.Count)
-                {
-                    WarnAndLog(
-                        $"Enemy auto deploy warning: battlefieldIndex({intent.battlefieldIndex}) is out of range. Trying fallback battlefield.");
-                }
-
-                int requestedCount = Mathf.Max(0, intent.count);
-                for (int copyIndex = 0; copyIndex < requestedCount; copyIndex++)
-                {
-                    if (!TryFindEnemyBattlefieldForDeploy(
-                            nextState,
-                            intent.battlefieldIndex,
-                            out int deployBattlefieldIndex,
-                            out bool usedFallback))
-                    {
-                        skippedCount += 1;
-                        WarnAndLog(
-                            $"Enemy auto deploy warning: no available battlefield slot for troopDef('{intent.troopDefId}').");
-                        continue;
-                    }
-
-                    BattlefieldState deployBattlefield = nextState.battlefields[deployBattlefieldIndex];
-                    deployBattlefield.EnsureInitialized();
-
-                    TroopInstance troopInstance = CreateTroopInstance(troopDef);
-                    nextState.troopsById[troopInstance.instanceId] = troopInstance;
-                    deployBattlefield.enemyTroopIds.Add(troopInstance.instanceId);
-                    deployedCount += 1;
-
-                    if (usedFallback)
-                    {
-                        WarnAndLog(
-                            $"Enemy auto deploy warning: redirected troopDef('{intent.troopDefId}') battlefield({intent.battlefieldIndex}) -> battlefield({deployBattlefieldIndex}).");
-                    }
-                }
-            }
-
-            AppendLog(
-                $"Enemy auto deploy complete: deployed={deployedCount}, skipped={skippedCount}");
-        }
-
-        bool TryFindEnemyBattlefieldForDeploy(
-            BattleState state,
-            int preferredBattlefieldIndex,
-            out int resolvedBattlefieldIndex,
-            out bool usedFallback)
-        {
-            resolvedBattlefieldIndex = -1;
-            usedFallback = false;
-
-            if (state == null || state.battlefields == null || state.battlefields.Count <= 0)
-            {
-                return false;
-            }
-
-            if (CanDeployEnemyToBattlefield(state, preferredBattlefieldIndex))
-            {
-                resolvedBattlefieldIndex = preferredBattlefieldIndex;
-                return true;
-            }
-
-            for (int battlefieldIndex = 0; battlefieldIndex < state.battlefields.Count; battlefieldIndex++)
-            {
-                if (battlefieldIndex == preferredBattlefieldIndex)
-                {
-                    continue;
-                }
-
-                if (!CanDeployEnemyToBattlefield(state, battlefieldIndex))
-                {
-                    continue;
-                }
-
-                resolvedBattlefieldIndex = battlefieldIndex;
-                usedFallback = true;
-                return true;
-            }
-
-            return false;
-        }
-
-        bool CanDeployEnemyToBattlefield(BattleState state, int battlefieldIndex)
-        {
-            if (state == null || state.battlefields == null)
-            {
-                return false;
-            }
-
-            if (battlefieldIndex < 0 || battlefieldIndex >= state.battlefields.Count)
-            {
-                return false;
-            }
-
-            BattlefieldState battlefield = state.battlefields[battlefieldIndex];
-            if (battlefield == null)
-            {
-                return false;
-            }
-
-            battlefield.EnsureInitialized();
-            if (!battlefield.slotLimit.HasValue)
-            {
-                return true;
-            }
-
-            return battlefield.enemyTroopIds.Count < battlefield.slotLimit.Value;
-        }
-
-        bool TryDeploySelectedTroop(out string failureMessage, out string moveLog)
-        {
-            failureMessage = string.Empty;
-            moveLog = string.Empty;
-            if (selectedBattlefieldIndex < 0 || selectedBattlefieldIndex >= battleState.battlefields.Count)
-            {
-                failureMessage = $"selectedBattlefieldIndex({selectedBattlefieldIndex}) is out of range.";
-                return false;
-            }
-
-            return TryMovePlayerTroopToLocation(
-                selectedTroopId,
-                TroopLocationType.Battlefield,
-                selectedBattlefieldIndex,
-                out moveLog,
-                out failureMessage);
-        }
-
-        bool TryRollAllDeployedTroops(out int rolledCount, out string failureMessage)
-        {
-            rolledCount = 0;
-            failureMessage = string.Empty;
-
-            if (!phaseRunner.isStarted)
+            if (phaseRunner == null || !phaseRunner.isStarted)
             {
                 failureMessage = "battle is not started.";
                 return false;
             }
 
-            if (battleState.isBattleEnded)
+            battleState.EnsureInitialized();
+            return true;
+        }
+
+        void ResetContext()
+        {
+            battleState = new BattleState();
+            phaseRunner = null;
+            sessionBuilder = null;
+            turnProcessor = null;
+            activeDatabase = GameDataRuntime.CurrentDatabase;
+            selectedTroopId = string.Empty;
+            selectedBattlefieldIndex = -1;
+            ClearTroopBlocks();
+        }
+
+        void RefreshView()
+        {
+            RefreshTexts();
+            RefreshButtons();
+            RefreshTroopBlocks();
+        }
+
+        void RefreshTexts()
+        {
+            SetText(phaseText, BattleDebugPanelFormatter.FormatPhase(phaseRunner));
+            SetText(turnText, BattleDebugPanelFormatter.FormatTurn(battleState));
+            SetText(manaText, BattleDebugPanelFormatter.FormatMana(battleState));
+            SetText(stabilityText, BattleDebugPanelFormatter.FormatStability(battleState));
+            SetText(playerMoraleText, BattleDebugPanelFormatter.FormatPlayerMorale(battleState));
+            SetText(enemyMoraleText, BattleDebugPanelFormatter.FormatEnemyMorale(battleState));
+            SetText(selectedTroopText, BattleDebugPanelFormatter.FormatSelectedTroop(battleState, selectedTroopId));
+            SetText(
+                selectedBattlefieldText,
+                BattleDebugPanelFormatter.FormatSelectedBattlefield(battleState, selectedBattlefieldIndex));
+
+            SetText(battlefield0Text, BattleDebugPanelFormatter.FormatBattlefield(battleState, 0, activeDatabase));
+            SetText(battlefield1Text, BattleDebugPanelFormatter.FormatBattlefield(battleState, 1, activeDatabase));
+            SetText(battlefield2Text, BattleDebugPanelFormatter.FormatBattlefield(battleState, 2, activeDatabase));
+        }
+
+        void RefreshButtons()
+        {
+            bool isStarted = phaseRunner != null && phaseRunner.isStarted;
+            bool isEnded = battleState != null && battleState.isBattleEnded;
+            BattlePhase currentPhase = phaseRunner == null ? BattlePhase.Recall : phaseRunner.currentPhase;
+            bool canProgress = isStarted && !isEnded;
+
+            SetButtonInteractable(startBattleButton, !isStarted || isEnded);
+            SetButtonInteractable(enemyDeployButton, canProgress && currentPhase == BattlePhase.Recall);
+            SetButtonInteractable(playerDeployButton, canProgress && currentPhase == BattlePhase.EnemyDeploy);
+            SetButtonInteractable(deploySelectedButton, false);
+            SetButtonInteractable(
+                rollButton,
+                canProgress &&
+                (currentPhase == BattlePhase.PlayerDeploy || currentPhase == BattlePhase.Roll));
+            SetButtonInteractable(
+                resolveButton,
+                canProgress &&
+                (currentPhase == BattlePhase.Tactics || currentPhase == BattlePhase.Resolve));
+            SetButtonInteractable(
+                retreatButton,
+                canProgress &&
+                currentPhase == BattlePhase.PlayerDeploy &&
+                battleState.stability > 0);
+        }
+
+        void RefreshTroopBlocks()
+        {
+            ClearTroopBlocks();
+
+            if (battleState == null || battleState.troopsById == null)
             {
-                failureMessage = "battle already ended.";
-                return false;
+                return;
             }
 
-            if (phaseRunner.currentPhase == BattlePhase.PlayerDeploy)
+            if (campTroopBlockRoot != null && battleState.campTroopIds != null)
             {
-                if (!phaseRunner.AdvanceToNextPhase())
+                for (int i = 0; i < battleState.campTroopIds.Count; i++)
                 {
-                    failureMessage = $"failed to enter Roll phase ({phaseRunner.LastFailureReason}).";
-                    return false;
+                    CreateTroopBlock(campTroopBlockRoot, battleState.campTroopIds[i], true, true);
+                }
+            }
+
+            for (int battlefieldIndex = 0; battlefieldIndex < BattleState.defaultBattlefieldCount; battlefieldIndex++)
+            {
+                if (battlefieldIndex >= battleState.battlefields.Count)
+                {
+                    continue;
                 }
 
-                AppendLog("Roll info: advanced from PlayerDeploy to Roll.");
-            }
-
-            if (phaseRunner.currentPhase != BattlePhase.Roll)
-            {
-                failureMessage = $"current phase is {phaseRunner.currentPhase}, required phase is {BattlePhase.Roll}.";
-                return false;
-            }
-
-            var deployedTroopIds = new HashSet<string>(StringComparer.Ordinal);
-            for (int battlefieldIndex = 0; battlefieldIndex < battleState.battlefields.Count; battlefieldIndex++)
-            {
                 BattlefieldState battlefield = battleState.battlefields[battlefieldIndex];
                 if (battlefield == null)
                 {
-                    WarnAndLog($"Roll warning: battlefields[{battlefieldIndex}] is null.");
                     continue;
                 }
 
                 battlefield.EnsureInitialized();
-                CollectTroopIds(deployedTroopIds, battlefield.playerTroopIds, $"playerTroopIds[{battlefieldIndex}]");
-                CollectTroopIds(deployedTroopIds, battlefield.enemyTroopIds, $"enemyTroopIds[{battlefieldIndex}]");
-            }
 
-            if (deployedTroopIds.Count == 0)
-            {
-                failureMessage = "no deployed troops to roll.";
-                return false;
-            }
-
-            foreach (string troopId in deployedTroopIds)
-            {
-                if (!battleState.troopsById.TryGetValue(troopId, out TroopInstance troop) || troop == null)
+                RectTransform playerRoot = battlefieldPlayerTroopBlockRoots[battlefieldIndex];
+                if (playerRoot != null)
                 {
-                    WarnAndLog($"Roll warning: troopId({troopId}) does not exist.");
-                    continue;
-                }
-
-                BattleSimulator.RollTroop(troop);
-                rolledCount += 1;
-            }
-
-            if (rolledCount <= 0)
-            {
-                failureMessage = "all deployed troops were invalid.";
-                return false;
-            }
-
-            ApplyTimedEffectsForTiming(BattleEffectTiming.Roll);
-
-            if (!phaseRunner.AdvanceToNextPhase())
-            {
-                WarnAndLog($"Roll warning: failed to move to next phase ({phaseRunner.LastFailureReason}).");
-            }
-
-            return true;
-        }
-
-        bool TryResolveAllBattlefields(out int resolvedCount, out string failureMessage)
-        {
-            resolvedCount = 0;
-            failureMessage = string.Empty;
-
-            if (!phaseRunner.isStarted)
-            {
-                failureMessage = "battle is not started.";
-                return false;
-            }
-
-            if (battleState.isBattleEnded)
-            {
-                failureMessage = "battle already ended.";
-                return false;
-            }
-
-            if (phaseRunner.currentPhase == BattlePhase.Tactics)
-            {
-                if (!phaseRunner.AdvanceToNextPhase())
-                {
-                    failureMessage = $"failed to enter Resolve phase ({phaseRunner.LastFailureReason}).";
-                    return false;
-                }
-
-                AppendLog("Resolve info: Tactics phase skipped (no tactics UI in T6).");
-            }
-
-            if (phaseRunner.currentPhase != BattlePhase.Resolve)
-            {
-                failureMessage = $"current phase is {phaseRunner.currentPhase}, required phase is {BattlePhase.Resolve}.";
-                return false;
-            }
-
-            for (int battlefieldIndex = 0; battlefieldIndex < battleState.battlefields.Count; battlefieldIndex++)
-            {
-                bool resolved = BattleSimulator.ResolveBattlefield(
-                    battleState,
-                    battlefieldIndex,
-                    out BattleOutcome outcome,
-                    out int playerTotalAttack,
-                    out int enemyTotalAttack);
-
-                if (!resolved)
-                {
-                    if (resolvedCount == 0)
+                    for (int i = 0; i < battlefield.playerTroopIds.Count; i++)
                     {
-                        failureMessage = $"resolve failed at battlefieldIndex({battlefieldIndex}).";
-                        return false;
+                        CreateTroopBlock(playerRoot, battlefield.playerTroopIds[i], true, true);
                     }
-
-                    WarnAndLog($"Resolve warning: stopped at battlefieldIndex({battlefieldIndex}).");
-                    break;
                 }
 
-                resolvedCount += 1;
-                AppendLog(
-                    $"Resolve[{battlefieldIndex}] outcome={outcome} totalAttack(P:{playerTotalAttack},E:{enemyTotalAttack}) morale(P:{battleState.playerMorale},E:{battleState.enemyMorale})");
-
-                if (battleState.isBattleEnded)
+                RectTransform enemyRoot = battlefieldEnemyTroopBlockRoots[battlefieldIndex];
+                if (enemyRoot != null)
                 {
-                    AppendLog($"Resolve stopped early: battle ended at battlefieldIndex({battlefieldIndex}).");
-                    break;
+                    for (int i = 0; i < battlefield.enemyTroopIds.Count; i++)
+                    {
+                        CreateTroopBlock(enemyRoot, battlefield.enemyTroopIds[i], false, false);
+                    }
                 }
             }
-
-            if (resolvedCount <= 0)
-            {
-                failureMessage = "no battlefields were resolved.";
-                return false;
-            }
-
-            if (!battleState.isBattleEnded)
-            {
-                ApplyTimedEffectsForTiming(BattleEffectTiming.TurnEnd);
-            }
-
-            if (!battleState.isBattleEnded && !phaseRunner.AdvanceToNextPhase())
-            {
-                WarnAndLog($"Resolve warning: failed to move to next phase ({phaseRunner.LastFailureReason}).");
-            }
-
-            return true;
         }
 
-        bool TryRetreatBattle(out string failureMessage)
+        void CreateTroopBlock(
+            RectTransform parent,
+            string troopId,
+            bool isPlayerSide,
+            bool canSelect)
         {
-            failureMessage = string.Empty;
-
-            if (!phaseRunner.isStarted)
+            if (parent == null || string.IsNullOrWhiteSpace(troopId))
             {
-                failureMessage = "battle is not started.";
-                return false;
-            }
-
-            if (battleState.isBattleEnded)
-            {
-                failureMessage = "battle already ended.";
-                return false;
-            }
-
-            bool retreated = phaseRunner.TryRetreat();
-            if (!retreated)
-            {
-                failureMessage = phaseRunner.LastFailureReason.ToString();
-                return false;
-            }
-
-            selectedTroopId = string.Empty;
-            selectedBattlefieldIndex = -1;
-            return true;
-        }
-
-        void CollectTroopIds(HashSet<string> buffer, List<string> troopIds, string sourceLabel)
-        {
-            if (troopIds == null)
-            {
-                WarnAndLog($"Roll warning: {sourceLabel} is null.");
                 return;
             }
 
-            for (int i = 0; i < troopIds.Count; i++)
+            if (!battleState.troopsById.TryGetValue(troopId, out TroopInstance troop) || troop == null)
             {
-                string troopId = troopIds[i];
-                if (string.IsNullOrWhiteSpace(troopId))
+                WarnAndLog($"Troop block warning: troopId({troopId}) does not exist.");
+                return;
+            }
+
+            string troopDefId = ResolveTroopDefIdForDisplay(troopId);
+            string effectsLabel = BattleDebugPanelFormatter.FormatTroopEffects(activeDatabase, troop.troopDefId);
+            bool isSelected = string.Equals(troopId, selectedTroopId, StringComparison.Ordinal);
+
+            BattleTroopBlockView troopBlock = Instantiate(troopBlockPrefab, parent);
+            troopBlock.name = $"TroopBlock_{troopId}";
+            troopBlock.Bind(
+                troopDefId,
+                troop.attack,
+                troop.attackResult,
+                effectsLabel,
+                isPlayerSide,
+                isSelected,
+                canSelect,
+                () => SelectTroop(troopId));
+
+            spawnedTroopBlocks.Add(troopBlock);
+        }
+
+        void ClearTroopBlocks()
+        {
+            for (int i = 0; i < spawnedTroopBlocks.Count; i++)
+            {
+                BattleTroopBlockView troopBlock = spawnedTroopBlocks[i];
+                if (troopBlock == null)
                 {
-                    WarnAndLog($"Roll warning: empty troopId at {sourceLabel}[{i}].");
                     continue;
                 }
 
-                buffer.Add(troopId);
-            }
-        }
-
-        void RejectAction(string actionName, string reason)
-        {
-            WarnAndLog($"{actionName} rejected: {reason}");
-            RefreshStubTexts();
-            RefreshStubButtons();
-        }
-
-        void WarnAndLog(string message)
-        {
-            UnityEngine.Debug.LogWarning($"[BattleDebugPanel] {message}");
-            AppendLog(message);
-        }
-
-        TroopTimedEffectRunner CreateTroopTimedEffectRunner(GameDatabase database)
-        {
-            if (database == null)
-            {
-                WarnAndLog("Effect setup warning: GameDatabase is null.");
-                return null;
+                Destroy(troopBlock.gameObject);
             }
 
-            return new TroopTimedEffectRunner(database, effectResolver);
-        }
-
-        void ApplyTimedEffectsForTiming(BattleEffectTiming timing)
-        {
-            if (troopTimedEffectRunner == null)
-            {
-                WarnAndLog($"Effect warning: timed effect runner is missing for timing({timing}).");
-                return;
-            }
-
-            TroopTimedEffectRunResult result = troopTimedEffectRunner.ApplyForTiming(battleState, timing);
-
-            if (result.failedCount > 0)
-            {
-                WarnAndLog($"Effect warning: timing({timing}) failed={result.failedCount}, applied={result.appliedCount}.");
-                return;
-            }
-
-            if (result.appliedCount > 0)
-            {
-                AppendLog($"Effect applied: timing={timing}, applied={result.appliedCount}, skipped={result.skippedCount}.");
-            }
+            spawnedTroopBlocks.Clear();
         }
 
         string ResolveTroopDefIdForDisplay(string troopId)
@@ -1763,19 +766,32 @@ namespace Game.Presentation.Debug
             return troop.troopDefId;
         }
 
+        void RejectAction(string actionName, string reason)
+        {
+            WarnAndLog($"{actionName} rejected: {reason}");
+            RefreshView();
+        }
+
+        void WarnAndLog(string message)
+        {
+            UnityEngine.Debug.LogWarning($"[BattleDebugPanel] {message}");
+            AppendLog(message);
+        }
+
         void AppendLog(string message)
         {
-            if (string.IsNullOrWhiteSpace(message))
+            string normalizedMessage = NormalizeLogMessage(message);
+            if (string.IsNullOrWhiteSpace(normalizedMessage))
             {
                 return;
             }
 
-            logEntries.Insert(0, message);
+            logEntries.Insert(0, normalizedMessage);
             TrimLogEntries();
             ApplyLogEntriesToText();
             SnapLogScrollToTop();
 
-            UnityEngine.Debug.Log($"[BattleDebugPanel] {message}");
+            UnityEngine.Debug.Log($"[BattleDebugPanel] {normalizedMessage}");
         }
 
         void TrimLogEntries()
@@ -1797,13 +813,9 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            if (logEntries.Count <= 0)
-            {
-                logText.text = "-";
-                return;
-            }
-
-            logText.text = string.Join("\n", logEntries);
+            logText.text = logEntries.Count <= 0
+                ? "-"
+                : string.Join("\n", logEntries);
         }
 
         void SnapLogScrollToTop()
@@ -1817,223 +829,285 @@ namespace Game.Presentation.Debug
             logScrollRect.verticalNormalizedPosition = 1f;
         }
 
-        void EnsureLogScrollSetup()
+        void ConfigureStaticUi()
         {
-            if (logText == null)
+            ConfigureButtonLabelAlignment(startBattleButton);
+            ConfigureButtonLabelAlignment(enemyDeployButton);
+            ConfigureButtonLabelAlignment(playerDeployButton);
+            ConfigureButtonLabelAlignment(deploySelectedButton);
+            ConfigureButtonLabelAlignment(rollButton);
+            ConfigureButtonLabelAlignment(resolveButton);
+            ConfigureButtonLabelAlignment(retreatButton);
+            ConfigureButtonLabelAlignment(selectFirstCampTroopButton);
+
+            if (logText != null)
             {
-                return;
+                logText.textWrappingMode = TextWrappingModes.Normal;
+                logText.overflowMode = TextOverflowModes.Ellipsis;
+                logText.alignment = TextAlignmentOptions.TopLeft;
             }
 
-            if (logScrollRect == null)
+            if (logScrollRect != null)
             {
-                logScrollRect = logText.GetComponentInParent<ScrollRect>(true);
+                logScrollRect.horizontal = false;
+                logScrollRect.vertical = true;
+                logScrollRect.movementType = ScrollRect.MovementType.Clamped;
             }
 
-            if (logScrollRect == null)
+            if (deploySelectedButton != null)
             {
-                logScrollRect = CreateRuntimeLogScrollRect();
+                deploySelectedButton.gameObject.SetActive(false);
             }
-
-            if (logScrollRect == null)
-            {
-                return;
-            }
-
-            ConfigureLogTextForScroll();
-            SnapshotExistingLogText();
-            ApplyLogEntriesToText();
-            SnapLogScrollToTop();
         }
 
-        void SnapshotExistingLogText()
+        string NormalizeLogMessage(string rawMessage)
         {
-            if (logText == null)
+            if (string.IsNullOrWhiteSpace(rawMessage))
+            {
+                return string.Empty;
+            }
+
+            string singleLine = rawMessage
+                .Replace('\r', ' ')
+                .Replace('\n', ' ')
+                .Trim();
+
+            int clampedMaxLength = Mathf.Max(16, maxLogLineLength);
+            if (singleLine.Length <= clampedMaxLength)
+            {
+                return singleLine;
+            }
+
+            return $"{singleLine.Substring(0, clampedMaxLength - 3)}...";
+        }
+
+        static void ConfigureButtonLabelAlignment(Button button)
+        {
+            if (button == null)
             {
                 return;
             }
 
-            if (logEntries.Count > 0)
+            TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
+            if (label == null)
             {
                 return;
             }
 
-            string rawText = logText.text;
-            if (string.IsNullOrWhiteSpace(rawText))
+            label.alignment = TextAlignmentOptions.Center;
+            label.textWrappingMode = TextWrappingModes.NoWrap;
+            label.overflowMode = TextOverflowModes.Ellipsis;
+            label.raycastTarget = false;
+        }
+
+        void WireButtonCallbacks()
+        {
+            BindButton(startBattleButton, StartBattle);
+            BindButton(enemyDeployButton, EnemyDeploy);
+            BindButton(playerDeployButton, PlayerDeploy);
+            BindButton(deploySelectedButton, DeploySelected);
+            BindButton(rollButton, Roll);
+            BindButton(resolveButton, Resolve);
+            BindButton(retreatButton, Retreat);
+            BindButton(selectFirstCampTroopButton, SelectFirstCampTroop);
+            BindButton(selectBattlefield0Button, SelectBattlefield0);
+            BindButton(selectBattlefield1Button, SelectBattlefield1);
+            BindButton(selectBattlefield2Button, SelectBattlefield2);
+        }
+
+        static void BindButton(Button button, UnityEngine.Events.UnityAction action)
+        {
+            if (button == null || action == null)
             {
                 return;
             }
 
-            string[] lines = rawText
-                .Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < lines.Length; i++)
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(action);
+        }
+
+        bool ValidateBindings(out string errorMessage)
+        {
+            var missing = new List<string>();
+
+            ValidateRequired(phaseText, nameof(phaseText), missing);
+            ValidateRequired(turnText, nameof(turnText), missing);
+            ValidateRequired(manaText, nameof(manaText), missing);
+            ValidateRequired(stabilityText, nameof(stabilityText), missing);
+            ValidateRequired(playerMoraleText, nameof(playerMoraleText), missing);
+            ValidateRequired(enemyMoraleText, nameof(enemyMoraleText), missing);
+            ValidateRequired(selectedTroopText, nameof(selectedTroopText), missing);
+            ValidateRequired(selectedBattlefieldText, nameof(selectedBattlefieldText), missing);
+            ValidateRequired(battlefield0Text, nameof(battlefield0Text), missing);
+            ValidateRequired(battlefield1Text, nameof(battlefield1Text), missing);
+            ValidateRequired(battlefield2Text, nameof(battlefield2Text), missing);
+
+            ValidateRequired(startBattleButton, nameof(startBattleButton), missing);
+            ValidateRequired(enemyDeployButton, nameof(enemyDeployButton), missing);
+            ValidateRequired(playerDeployButton, nameof(playerDeployButton), missing);
+            ValidateRequired(rollButton, nameof(rollButton), missing);
+            ValidateRequired(resolveButton, nameof(resolveButton), missing);
+            ValidateRequired(retreatButton, nameof(retreatButton), missing);
+            ValidateRequired(selectFirstCampTroopButton, nameof(selectFirstCampTroopButton), missing);
+            ValidateRequired(selectBattlefield0Button, nameof(selectBattlefield0Button), missing);
+            ValidateRequired(selectBattlefield1Button, nameof(selectBattlefield1Button), missing);
+            ValidateRequired(selectBattlefield2Button, nameof(selectBattlefield2Button), missing);
+
+            ValidateRequired(troopBlockPrefab, nameof(troopBlockPrefab), missing);
+            ValidateRequired(campTroopBlockRoot, nameof(campTroopBlockRoot), missing);
+            ValidateRequired(logText, nameof(logText), missing);
+            ValidateRequired(logScrollRect, nameof(logScrollRect), missing);
+
+            if (battlefieldPlayerTroopBlockRoots == null ||
+                battlefieldPlayerTroopBlockRoots.Length != BattleState.defaultBattlefieldCount)
             {
-                string line = lines[i].Trim();
-                if (string.IsNullOrEmpty(line) || line == "-")
+                missing.Add(nameof(battlefieldPlayerTroopBlockRoots));
+            }
+            else
+            {
+                for (int i = 0; i < battlefieldPlayerTroopBlockRoots.Length; i++)
+                {
+                    if (battlefieldPlayerTroopBlockRoots[i] == null)
+                    {
+                        missing.Add($"{nameof(battlefieldPlayerTroopBlockRoots)}[{i}]");
+                    }
+                }
+            }
+
+            if (battlefieldEnemyTroopBlockRoots == null ||
+                battlefieldEnemyTroopBlockRoots.Length != BattleState.defaultBattlefieldCount)
+            {
+                missing.Add(nameof(battlefieldEnemyTroopBlockRoots));
+            }
+            else
+            {
+                for (int i = 0; i < battlefieldEnemyTroopBlockRoots.Length; i++)
+                {
+                    if (battlefieldEnemyTroopBlockRoots[i] == null)
+                    {
+                        missing.Add($"{nameof(battlefieldEnemyTroopBlockRoots)}[{i}]");
+                    }
+                }
+            }
+
+            if (missing.Count > 0)
+            {
+                errorMessage = $"Missing serialized references: {string.Join(", ", missing)}";
+                return false;
+            }
+
+            errorMessage = string.Empty;
+            return true;
+        }
+
+        static void ValidateRequired(UnityEngine.Object target, string fieldName, List<string> missing)
+        {
+            if (target == null)
+            {
+                missing.Add(fieldName);
+            }
+        }
+
+#if UNITY_EDITOR
+        void AutoAssignReferencesInEditor()
+        {
+            phaseText = AssignByName(phaseText, "PhaseText");
+            turnText = AssignByName(turnText, "TurnText");
+            manaText = AssignByName(manaText, "ManaText");
+            stabilityText = AssignByName(stabilityText, "StabilityText");
+            playerMoraleText = AssignByName(playerMoraleText, "PlayerMoraleText");
+            enemyMoraleText = AssignByName(enemyMoraleText, "EnemyMoraleText");
+            selectedTroopText = AssignByName(selectedTroopText, "SelectedTroopText");
+            selectedBattlefieldText = AssignByName(selectedBattlefieldText, "SelectedBattlefieldText");
+
+            battlefield0Text = AssignByName(battlefield0Text, "Battlefield0Text");
+            battlefield1Text = AssignByName(battlefield1Text, "Battlefield1Text");
+            battlefield2Text = AssignByName(battlefield2Text, "Battlefield2Text");
+
+            startBattleButton = AssignByName(startBattleButton, "StartBattleButton");
+            enemyDeployButton = AssignByName(enemyDeployButton, "EnemyDeployButton");
+            playerDeployButton = AssignByName(playerDeployButton, "PlayerDeployButton");
+            deploySelectedButton = AssignByName(deploySelectedButton, "DeploySelectedButton");
+            rollButton = AssignByName(rollButton, "RollButton");
+            resolveButton = AssignByName(resolveButton, "ResolveButton");
+            retreatButton = AssignByName(retreatButton, "RetreatButton");
+            selectFirstCampTroopButton = AssignByName(selectFirstCampTroopButton, "SelectFirstCampTroopButton");
+            selectBattlefield0Button = AssignByName(selectBattlefield0Button, "SelectBattlefield0Button");
+            selectBattlefield1Button = AssignByName(selectBattlefield1Button, "SelectBattlefield1Button");
+            selectBattlefield2Button = AssignByName(selectBattlefield2Button, "SelectBattlefield2Button");
+
+            campTroopBlockRoot = AssignByName(campTroopBlockRoot, "CampTroopBlockRoot");
+            EnsureTroopRootArrays();
+            battlefieldPlayerTroopBlockRoots[0] = AssignByName(
+                battlefieldPlayerTroopBlockRoots[0],
+                "Battlefield0PlayerTroopBlockRoot");
+            battlefieldPlayerTroopBlockRoots[1] = AssignByName(
+                battlefieldPlayerTroopBlockRoots[1],
+                "Battlefield1PlayerTroopBlockRoot");
+            battlefieldPlayerTroopBlockRoots[2] = AssignByName(
+                battlefieldPlayerTroopBlockRoots[2],
+                "Battlefield2PlayerTroopBlockRoot");
+
+            battlefieldEnemyTroopBlockRoots[0] = AssignByName(
+                battlefieldEnemyTroopBlockRoots[0],
+                "Battlefield0EnemyTroopBlockRoot");
+            battlefieldEnemyTroopBlockRoots[1] = AssignByName(
+                battlefieldEnemyTroopBlockRoots[1],
+                "Battlefield1EnemyTroopBlockRoot");
+            battlefieldEnemyTroopBlockRoots[2] = AssignByName(
+                battlefieldEnemyTroopBlockRoots[2],
+                "Battlefield2EnemyTroopBlockRoot");
+
+            logText = AssignByName(logText, "LogText");
+            logScrollRect = AssignByName(logScrollRect, "LogScrollRect");
+
+            if (troopBlockPrefab == null)
+            {
+                troopBlockPrefab = AssetDatabase.LoadAssetAtPath<BattleTroopBlockView>(troopBlockPrefabPath);
+            }
+        }
+
+        void EnsureTroopRootArrays()
+        {
+            if (battlefieldPlayerTroopBlockRoots == null ||
+                battlefieldPlayerTroopBlockRoots.Length != BattleState.defaultBattlefieldCount)
+            {
+                battlefieldPlayerTroopBlockRoots = new RectTransform[BattleState.defaultBattlefieldCount];
+            }
+
+            if (battlefieldEnemyTroopBlockRoots == null ||
+                battlefieldEnemyTroopBlockRoots.Length != BattleState.defaultBattlefieldCount)
+            {
+                battlefieldEnemyTroopBlockRoots = new RectTransform[BattleState.defaultBattlefieldCount];
+            }
+        }
+
+        TComponent AssignByName<TComponent>(TComponent currentValue, string objectName)
+            where TComponent : Component
+        {
+            if (currentValue != null)
+            {
+                return currentValue;
+            }
+
+            Transform[] allChildren = GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < allChildren.Length; i++)
+            {
+                Transform child = allChildren[i];
+                if (!string.Equals(child.name, objectName, StringComparison.Ordinal))
                 {
                     continue;
                 }
 
-                logEntries.Add(line);
-            }
-
-            if (logEntries.Count > 1)
-            {
-                logEntries.Reverse();
-            }
-        }
-
-        ScrollRect CreateRuntimeLogScrollRect()
-        {
-            RectTransform logTextRect = logText.rectTransform;
-            RectTransform parentRect = logTextRect.parent as RectTransform;
-            if (parentRect == null)
-            {
-                WarnAndLog("Log setup warning: LogText parent is missing.");
-                return null;
-            }
-
-            int siblingIndex = logTextRect.GetSiblingIndex();
-            RectTransform viewportRect = CreateLogScrollViewport(parentRect, siblingIndex, logTextRect);
-            if (viewportRect == null)
-            {
-                WarnAndLog("Log setup warning: failed to create LogScrollRect.");
-                return null;
-            }
-
-            RectTransform contentRect = CreateLogScrollContent(viewportRect);
-            if (contentRect == null)
-            {
-                WarnAndLog("Log setup warning: failed to create LogContent.");
-                return null;
-            }
-
-            LayoutElement sourceLayout = logText.GetComponent<LayoutElement>();
-            if (sourceLayout != null)
-            {
-                LayoutElement viewportLayout = viewportRect.gameObject.GetComponent<LayoutElement>();
-                if (viewportLayout == null)
+                if (child.TryGetComponent(out TComponent component))
                 {
-                    viewportLayout = viewportRect.gameObject.AddComponent<LayoutElement>();
+                    return component;
                 }
-
-                CopyLayoutElement(sourceLayout, viewportLayout);
-                Destroy(sourceLayout);
-            }
-            else
-            {
-                LayoutElement viewportLayout = viewportRect.gameObject.AddComponent<LayoutElement>();
-                viewportLayout.preferredHeight = 170f;
-                viewportLayout.flexibleHeight = 1f;
             }
 
-            logTextRect.SetParent(contentRect, false);
-            logTextRect.anchorMin = new Vector2(0f, 1f);
-            logTextRect.anchorMax = new Vector2(1f, 1f);
-            logTextRect.pivot = new Vector2(0.5f, 1f);
-            logTextRect.anchoredPosition = Vector2.zero;
-            logTextRect.sizeDelta = Vector2.zero;
-
-            ScrollRect scrollRect = viewportRect.gameObject.GetComponent<ScrollRect>();
-            if (scrollRect == null)
-            {
-                WarnAndLog("Log setup warning: ScrollRect component is missing.");
-                return null;
-            }
-
-            scrollRect.viewport = viewportRect;
-            scrollRect.content = contentRect;
-            scrollRect.horizontal = false;
-            scrollRect.vertical = true;
-            scrollRect.movementType = ScrollRect.MovementType.Clamped;
-            scrollRect.inertia = true;
-            scrollRect.scrollSensitivity = 20f;
-
-            return scrollRect;
+            return null;
         }
-
-        RectTransform CreateLogScrollViewport(
-            RectTransform parentRect,
-            int siblingIndex,
-            RectTransform sourceRect)
-        {
-            var viewportObject = new GameObject(
-                "LogScrollRect",
-                typeof(RectTransform),
-                typeof(Image),
-                typeof(Mask),
-                typeof(ScrollRect));
-            RectTransform viewportRect = viewportObject.GetComponent<RectTransform>();
-            viewportRect.SetParent(parentRect, false);
-            viewportRect.SetSiblingIndex(siblingIndex);
-            viewportRect.anchorMin = sourceRect.anchorMin;
-            viewportRect.anchorMax = sourceRect.anchorMax;
-            viewportRect.pivot = sourceRect.pivot;
-            viewportRect.anchoredPosition = sourceRect.anchoredPosition;
-            viewportRect.sizeDelta = sourceRect.sizeDelta;
-
-            Image viewportImage = viewportObject.GetComponent<Image>();
-            viewportImage.color = new Color(0f, 0f, 0f, 0.02f);
-            viewportImage.raycastTarget = true;
-
-            Mask viewportMask = viewportObject.GetComponent<Mask>();
-            viewportMask.showMaskGraphic = false;
-
-            return viewportRect;
-        }
-
-        RectTransform CreateLogScrollContent(RectTransform viewportRect)
-        {
-            var contentObject = new GameObject(
-                "LogContent",
-                typeof(RectTransform),
-                typeof(ContentSizeFitter));
-            RectTransform contentRect = contentObject.GetComponent<RectTransform>();
-            contentRect.SetParent(viewportRect, false);
-            contentRect.anchorMin = new Vector2(0f, 1f);
-            contentRect.anchorMax = new Vector2(1f, 1f);
-            contentRect.pivot = new Vector2(0.5f, 1f);
-            contentRect.anchoredPosition = Vector2.zero;
-            contentRect.sizeDelta = Vector2.zero;
-
-            ContentSizeFitter fitter = contentObject.GetComponent<ContentSizeFitter>();
-            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            return contentRect;
-        }
-
-        void ConfigureLogTextForScroll()
-        {
-            if (logText == null)
-            {
-                return;
-            }
-
-            logText.raycastTarget = false;
-            logText.textWrappingMode = TextWrappingModes.Normal;
-            logText.overflowMode = TextOverflowModes.Overflow;
-            logText.alignment = TextAlignmentOptions.TopLeft;
-
-            ContentSizeFitter fitter = logText.GetComponent<ContentSizeFitter>();
-            if (fitter == null)
-            {
-                fitter = logText.gameObject.AddComponent<ContentSizeFitter>();
-            }
-
-            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        }
-
-        static void CopyLayoutElement(LayoutElement source, LayoutElement destination)
-        {
-            destination.ignoreLayout = source.ignoreLayout;
-            destination.minWidth = source.minWidth;
-            destination.minHeight = source.minHeight;
-            destination.preferredWidth = source.preferredWidth;
-            destination.preferredHeight = source.preferredHeight;
-            destination.flexibleWidth = source.flexibleWidth;
-            destination.flexibleHeight = source.flexibleHeight;
-            destination.layoutPriority = source.layoutPriority;
-        }
+#endif
 
         static void SetText(TMP_Text target, string value)
         {
@@ -2053,62 +1127,6 @@ namespace Game.Presentation.Debug
             }
 
             button.interactable = isInteractable;
-        }
-
-        TComponent ResolveBinding<TComponent>(TComponent currentValue, string childName)
-            where TComponent : Component
-        {
-            if (currentValue != null)
-            {
-                return currentValue;
-            }
-
-            TComponent found = FindChildComponentByName<TComponent>(childName);
-            if (found == null)
-            {
-                UnityEngine.Debug.LogWarning(
-                    $"[BattleDebugPanel] Auto bind failed: {typeof(TComponent).Name} '{childName}' was not found.");
-            }
-
-            return found;
-        }
-
-        TComponent FindChildComponentByName<TComponent>(string childName)
-            where TComponent : Component
-        {
-            Transform[] children = GetComponentsInChildren<Transform>(true);
-            for (int i = 0; i < children.Length; i++)
-            {
-                Transform child = children[i];
-                if (!string.Equals(child.name, childName, StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                if (child.TryGetComponent(out TComponent component))
-                {
-                    return component;
-                }
-            }
-
-            return null;
-        }
-
-        void WireOptionalButton(string buttonName, UnityAction callback)
-        {
-            Button button = FindChildComponentByName<Button>(buttonName);
-            WireButton(button, callback);
-        }
-
-        static void WireButton(Button button, UnityAction callback)
-        {
-            if (button == null)
-            {
-                return;
-            }
-
-            button.onClick.RemoveListener(callback);
-            button.onClick.AddListener(callback);
         }
     }
 }

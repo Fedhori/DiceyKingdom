@@ -177,14 +177,6 @@ namespace Game.Domain.Battle
                 false);
 
             outcome = ComputeOutcome(playerTotalAttack, enemyTotalAttack);
-            ApplyMoraleDelta(battleState, outcome);
-
-            if (battleState.playerMorale <= 0 || battleState.enemyMorale <= 0)
-            {
-                battleState.isBattleEnded = true;
-                ClearModifierLayer(battleState, ModifierLayer.Battle);
-            }
-
             return true;
         }
 
@@ -220,38 +212,9 @@ namespace Game.Domain.Battle
                 }
 
                 resolvedCount += 1;
-
-                if (battleState.isBattleEnded)
-                {
-                    break;
-                }
             }
 
             return resolvedCount;
-        }
-
-        static void ApplyMoraleDelta(BattleState battleState, BattleOutcome outcome)
-        {
-            switch (outcome)
-            {
-                case BattleOutcome.GreatVictory:
-                    battleState.enemyMorale -= 2;
-                    break;
-                case BattleOutcome.Victory:
-                    battleState.enemyMorale -= 1;
-                    break;
-                case BattleOutcome.Draw:
-                    break;
-                case BattleOutcome.Defeat:
-                    battleState.playerMorale -= 1;
-                    break;
-                case BattleOutcome.GreatDefeat:
-                    battleState.playerMorale -= 2;
-                    break;
-                default:
-                    Debug.LogWarning($"[BattleSimulator] Unknown BattleOutcome({outcome}) was ignored.");
-                    break;
-            }
         }
 
         public static int ClearModifierLayer(BattleState battleState, ModifierLayer layer)

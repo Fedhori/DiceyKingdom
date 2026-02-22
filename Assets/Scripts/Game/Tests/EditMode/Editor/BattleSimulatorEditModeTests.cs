@@ -144,7 +144,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void ResolveBattlefieldsInOrder_StopsImmediatelyWhenMoraleDropsToZero()
+        public void ResolveBattlefieldsInOrder_ResolvesAllBattlefieldsWithoutApplyingMoraleDelta()
         {
             var state = new BattleState
             {
@@ -171,15 +171,15 @@ namespace Game.Tests.EditMode
 
             int resolvedCount = BattleSimulator.ResolveBattlefieldsInOrder(state);
 
-            Assert.AreEqual(1, resolvedCount);
-            Assert.IsTrue(state.isBattleEnded);
-            Assert.LessOrEqual(state.playerMorale, 0);
+            Assert.AreEqual(3, resolvedCount);
+            Assert.IsFalse(state.isBattleEnded);
+            Assert.AreEqual(1, state.playerMorale);
             Assert.AreEqual(5, state.enemyMorale);
-            Assert.AreEqual(0, state.troopsById["p0"].attackModifiers.Count);
+            Assert.AreEqual(1, state.troopsById["p0"].attackModifiers.Count);
         }
 
         [Test]
-        public void ResolveBattlefieldsInOrder_ProcessesAllBattlefieldsWhenBattleDoesNotEnd()
+        public void ResolveBattlefieldsInOrder_DoesNotMutateMoraleWhenResolving()
         {
             var state = new BattleState
             {
@@ -205,8 +205,8 @@ namespace Game.Tests.EditMode
 
             Assert.AreEqual(3, resolvedCount);
             Assert.IsFalse(state.isBattleEnded);
-            Assert.AreEqual(4, state.playerMorale);
-            Assert.AreEqual(3, state.enemyMorale);
+            Assert.AreEqual(5, state.playerMorale);
+            Assert.AreEqual(5, state.enemyMorale);
         }
 
         static TroopInstance CreateTroop(string troopId, int attackResultValue)
