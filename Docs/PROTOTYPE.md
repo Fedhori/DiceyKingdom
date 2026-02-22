@@ -205,7 +205,7 @@
   - `Resolve` 다음에는 내부 Turn End 처리 후 `Recall`로 복귀한다.
   - Turn End 최소 처리: `turnIndex` 증가.
 
-- [ ] `T2-07` TryRetreat 구현
+- [x] `T2-07` TryRetreat 구현
   - `PlayerDeploy`에서만 허용한다.
   - `stability > 0`일 때만 성공한다.
   - 성공 시 `stability -= 1` (최소 0), `isBattleEnded = true`.

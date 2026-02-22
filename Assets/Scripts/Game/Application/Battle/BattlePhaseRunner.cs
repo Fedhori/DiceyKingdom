@@ -77,8 +77,39 @@ namespace Game.Application.Battle
 
         public bool TryRetreat()
         {
-            LastFailureReason = BattlePhaseFailureReason.NotStarted;
-            return false;
+            if (!isStarted)
+            {
+                LastFailureReason = BattlePhaseFailureReason.NotStarted;
+                return false;
+            }
+
+            if (state.isBattleEnded)
+            {
+                LastFailureReason = BattlePhaseFailureReason.AlreadyEnded;
+                return false;
+            }
+
+            if (currentPhase != BattlePhase.PlayerDeploy)
+            {
+                LastFailureReason = BattlePhaseFailureReason.InvalidPhase;
+                return false;
+            }
+
+            if (state.stability <= 0)
+            {
+                LastFailureReason = BattlePhaseFailureReason.StabilityInsufficient;
+                return false;
+            }
+
+            state.stability -= 1;
+            if (state.stability < 0)
+            {
+                state.stability = 0;
+            }
+
+            state.isBattleEnded = true;
+            LastFailureReason = BattlePhaseFailureReason.None;
+            return true;
         }
     }
 }
