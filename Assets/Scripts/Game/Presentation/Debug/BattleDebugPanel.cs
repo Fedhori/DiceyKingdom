@@ -174,7 +174,16 @@ namespace Game.Presentation.Debug
         public void Resolve()
         {
             EnsureContextInitialized();
-            AppendLog("Resolve clicked.");
+
+            if (!TryResolveAllBattlefields(out int resolvedCount, out string failureMessage))
+            {
+                WarnAndLog($"Resolve rejected: {failureMessage}");
+                return;
+            }
+
+            RefreshStubTexts();
+            RefreshStubButtons();
+            AppendLog($"Resolve success: resolvedBattlefields={resolvedCount}");
         }
 
         public void Retreat()
@@ -285,7 +294,10 @@ namespace Game.Presentation.Debug
                 hasSelectedTroop &&
                 hasSelectedBattlefield);
             SetButtonInteractable(rollButton, canProgress && currentPhase == BattlePhase.Roll);
-            SetButtonInteractable(resolveButton, canProgress && currentPhase == BattlePhase.Resolve);
+            SetButtonInteractable(
+                resolveButton,
+                canProgress &&
+                (currentPhase == BattlePhase.Tactics || currentPhase == BattlePhase.Resolve));
             SetButtonInteractable(
                 retreatButton,
                 canProgress &&
@@ -716,6 +728,86 @@ namespace Game.Presentation.Debug
             if (!phaseRunner.AdvanceToNextPhase())
             {
                 WarnAndLog($"Roll warning: failed to move to next phase ({phaseRunner.LastFailureReason}).");
+            }
+
+            return true;
+        }
+
+        bool TryResolveAllBattlefields(out int resolvedCount, out string failureMessage)
+        {
+            resolvedCount = 0;
+            failureMessage = string.Empty;
+
+            if (!phaseRunner.isStarted)
+            {
+                failureMessage = "battle is not started.";
+                return false;
+            }
+
+            if (battleState.isBattleEnded)
+            {
+                failureMessage = "battle already ended.";
+                return false;
+            }
+
+            if (phaseRunner.currentPhase == BattlePhase.Tactics)
+            {
+                if (!phaseRunner.AdvanceToNextPhase())
+                {
+                    failureMessage = $"failed to enter Resolve phase ({phaseRunner.LastFailureReason}).";
+                    return false;
+                }
+
+                AppendLog("Resolve info: Tactics phase skipped (no tactics UI in T6).");
+            }
+
+            if (phaseRunner.currentPhase != BattlePhase.Resolve)
+            {
+                failureMessage = $"current phase is {phaseRunner.currentPhase}, required phase is {BattlePhase.Resolve}.";
+                return false;
+            }
+
+            for (int battlefieldIndex = 0; battlefieldIndex < battleState.battlefields.Count; battlefieldIndex++)
+            {
+                bool resolved = BattleSimulator.ResolveBattlefield(
+                    battleState,
+                    battlefieldIndex,
+                    out BattleOutcome outcome,
+                    out int playerTotalAttack,
+                    out int enemyTotalAttack);
+
+                if (!resolved)
+                {
+                    if (resolvedCount == 0)
+                    {
+                        failureMessage = $"resolve failed at battlefieldIndex({battlefieldIndex}).";
+                        return false;
+                    }
+
+                    WarnAndLog($"Resolve warning: stopped at battlefieldIndex({battlefieldIndex}).");
+                    break;
+                }
+
+                resolvedCount += 1;
+                AppendLog(
+                    $"Resolve[{battlefieldIndex}] outcome={outcome} totalAttack(P:{playerTotalAttack},E:{enemyTotalAttack}) morale(P:{battleState.playerMorale},E:{battleState.enemyMorale})");
+
+                if (battleState.isBattleEnded)
+                {
+                    AppendLog($"Resolve stopped early: battle ended at battlefieldIndex({battlefieldIndex}).");
+                    break;
+                }
+            }
+
+            if (resolvedCount <= 0)
+            {
+                failureMessage = "no battlefields were resolved.";
+                return false;
+            }
+
+            if (!battleState.isBattleEnded && !phaseRunner.AdvanceToNextPhase())
+            {
+                WarnAndLog($"Resolve warning: failed to move to next phase ({phaseRunner.LastFailureReason}).");
             }
 
             return true;
