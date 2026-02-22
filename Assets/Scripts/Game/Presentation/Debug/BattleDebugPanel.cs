@@ -159,7 +159,16 @@ namespace Game.Presentation.Debug
         public void Roll()
         {
             EnsureContextInitialized();
-            AppendLog("Roll clicked.");
+
+            if (!TryRollAllDeployedTroops(out int rolledCount, out string failureMessage))
+            {
+                WarnAndLog($"Roll rejected: {failureMessage}");
+                return;
+            }
+
+            RefreshStubTexts();
+            RefreshStubButtons();
+            AppendLog($"Roll success: rolledTroops={rolledCount}");
         }
 
         public void Resolve()
@@ -640,6 +649,97 @@ namespace Game.Presentation.Debug
 
             targetField.playerTroopIds.Add(selectedTroopId);
             return true;
+        }
+
+        bool TryRollAllDeployedTroops(out int rolledCount, out string failureMessage)
+        {
+            rolledCount = 0;
+            failureMessage = string.Empty;
+
+            if (!phaseRunner.isStarted)
+            {
+                failureMessage = "battle is not started.";
+                return false;
+            }
+
+            if (battleState.isBattleEnded)
+            {
+                failureMessage = "battle already ended.";
+                return false;
+            }
+
+            if (phaseRunner.currentPhase != BattlePhase.Roll)
+            {
+                failureMessage = $"current phase is {phaseRunner.currentPhase}, required phase is {BattlePhase.Roll}.";
+                return false;
+            }
+
+            var deployedTroopIds = new HashSet<string>(StringComparer.Ordinal);
+            for (int battlefieldIndex = 0; battlefieldIndex < battleState.battlefields.Count; battlefieldIndex++)
+            {
+                BattlefieldState battlefield = battleState.battlefields[battlefieldIndex];
+                if (battlefield == null)
+                {
+                    WarnAndLog($"Roll warning: battlefields[{battlefieldIndex}] is null.");
+                    continue;
+                }
+
+                battlefield.EnsureInitialized();
+                CollectTroopIds(deployedTroopIds, battlefield.playerTroopIds, $"playerTroopIds[{battlefieldIndex}]");
+                CollectTroopIds(deployedTroopIds, battlefield.enemyTroopIds, $"enemyTroopIds[{battlefieldIndex}]");
+            }
+
+            if (deployedTroopIds.Count == 0)
+            {
+                failureMessage = "no deployed troops to roll.";
+                return false;
+            }
+
+            foreach (string troopId in deployedTroopIds)
+            {
+                if (!battleState.troopsById.TryGetValue(troopId, out TroopInstance troop) || troop == null)
+                {
+                    WarnAndLog($"Roll warning: troopId({troopId}) does not exist.");
+                    continue;
+                }
+
+                BattleSimulator.RollTroop(troop);
+                rolledCount += 1;
+            }
+
+            if (rolledCount <= 0)
+            {
+                failureMessage = "all deployed troops were invalid.";
+                return false;
+            }
+
+            if (!phaseRunner.AdvanceToNextPhase())
+            {
+                WarnAndLog($"Roll warning: failed to move to next phase ({phaseRunner.LastFailureReason}).");
+            }
+
+            return true;
+        }
+
+        void CollectTroopIds(HashSet<string> buffer, List<string> troopIds, string sourceLabel)
+        {
+            if (troopIds == null)
+            {
+                WarnAndLog($"Roll warning: {sourceLabel} is null.");
+                return;
+            }
+
+            for (int i = 0; i < troopIds.Count; i++)
+            {
+                string troopId = troopIds[i];
+                if (string.IsNullOrWhiteSpace(troopId))
+                {
+                    WarnAndLog($"Roll warning: empty troopId at {sourceLabel}[{i}].");
+                    continue;
+                }
+
+                buffer.Add(troopId);
+            }
         }
 
         void WarnAndLog(string message)

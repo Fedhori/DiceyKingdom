@@ -392,7 +392,7 @@
   - `Resolve`: `Resolve` 페이즈에서만 활성
   - `Retreat`: `PlayerDeploy` + `stability > 0`일 때만 활성
 
-- [ ] `T6-07` `Roll` 일괄 굴림 구현
+- [x] `T6-07` `Roll` 일괄 굴림 구현
   - 현재 전장에 배치된 병력 전체를 한 번에 굴린다.
   - 굴림 직후 Attack Result/UI/로그를 즉시 갱신한다.
 
