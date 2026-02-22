@@ -1,7 +1,7 @@
 # PROTOTYPE
 > 역할: 프로토타입 목표/확정표/진행도를 관리하는 **실행 계획 문서**입니다.
 
-- 마지막 갱신: `2026-02-21`
+- 마지막 갱신: `2026-02-22`
 - 기준 문서: `Docs/GAME_STRUCTURE.md`, `Docs/TECH_ARCHITECTURE.md`
 
 ---
@@ -173,6 +173,55 @@
   - Retreat 조건 테스트(Stability > 0, PlayerDeploy 한정)
 
 **완료 기준(DoD):** UI 없이도 턴 루프 순서를 코드로 강제 가능
+
+#### 작업 2 서브테스크(구현 순서)
+
+- [ ] `T2-01` 페이즈 타입 고정
+  - `BattlePhase` enum을 고정한다.
+  - 순서: `Recall -> EnemyDeploy -> PlayerDeploy -> Roll -> Tactics -> Resolve`
+
+- [ ] `T2-02` 실패 사유 타입 고정
+  - `BattlePhaseFailureReason` enum을 고정한다.
+  - 최소 항목: `None`, `NotStarted`, `InvalidPhase`, `StabilityInsufficient`, `AlreadyEnded`
+
+- [ ] `T2-03` Runner 스켈레톤 생성
+  - 경로: `Assets/Scripts/Game/Application/Battle/BattlePhaseRunner.cs`
+  - 네임스페이스: `Game.Application.Battle`
+  - 순수 C# 클래스로 구현(MonoBehaviour 금지)
+  - 상태는 `BattleState`를 직접 수정(in-place)한다.
+
+- [ ] `T2-04` 공개 API 고정
+  - `StartBattle()`
+  - `AdvanceToNextPhase()`
+  - `TryRetreat()`
+  - 반환은 `bool`로 단순화하고, 실패 사유는 `LastFailureReason` 프로퍼티로 노출한다.
+
+- [ ] `T2-05` StartBattle 구현
+  - 시작 시 현재 페이즈를 `Recall`로 둔다.
+  - 이미 종료 상태면 실패 처리한다(`AlreadyEnded`).
+
+- [ ] `T2-06` AdvanceToNextPhase 구현
+  - 확정 순서대로만 전이한다.
+  - `Resolve` 다음에는 내부 Turn End 처리 후 `Recall`로 복귀한다.
+  - Turn End 최소 처리: `turnIndex` 증가.
+
+- [ ] `T2-07` TryRetreat 구현
+  - `PlayerDeploy`에서만 허용한다.
+  - `stability > 0`일 때만 성공한다.
+  - 성공 시 `stability -= 1` (최소 0), `isBattleEnded = true`.
+
+- [ ] `T2-08` 거부/보정 시 Warning 정책 적용
+  - 잘못된 전이/잘못된 Retreat 요청은 상태 변경 없이 거부한다.
+  - 조용한 수정 없이 `Debug.LogWarning`으로 원인을 남긴다.
+
+- [ ] `T2-09` EditMode 테스트 추가
+  - 정상 페이즈 전이 테스트
+  - `Resolve -> Recall` 복귀 + `turnIndex` 증가 테스트
+  - Retreat 성공/실패(페이즈 오류, stability 부족) 테스트
+
+- [ ] `T2-10` 검증 및 체크리스트 반영
+  - Unity EditMode 테스트 통과 확인
+  - 작업 2 서브테스크 체크 상태 갱신
 
 ---
 
