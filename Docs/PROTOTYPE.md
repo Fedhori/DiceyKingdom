@@ -184,7 +184,7 @@
   - `BattlePhaseFailureReason` enum을 고정한다.
   - 최소 항목: `None`, `NotStarted`, `InvalidPhase`, `StabilityInsufficient`, `AlreadyEnded`
 
-- [ ] `T2-03` Runner 스켈레톤 생성
+- [x] `T2-03` Runner 스켈레톤 생성
   - 경로: `Assets/Scripts/Game/Application/Battle/BattlePhaseRunner.cs`
   - 네임스페이스: `Game.Application.Battle`
   - 순수 C# 클래스로 구현(MonoBehaviour 금지)
