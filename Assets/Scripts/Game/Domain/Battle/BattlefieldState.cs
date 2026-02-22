@@ -13,8 +13,8 @@ namespace Game.Domain.Battle
         public List<string> playerTroopIds = new();
         public List<string> enemyTroopIds = new();
 
-        public int combatStrengthBonusPlayer;
-        public int combatStrengthBonusEnemy;
+        public int totalAttackBonusPlayer;
+        public int totalAttackBonusEnemy;
 
         public void EnsureInitialized()
         {

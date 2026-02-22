@@ -31,7 +31,7 @@ namespace Game.Tests.EditMode
             var troop = new TroopInstance();
 
             troop.baseRoll = 2;
-            troop.faceValueFinal = 5;
+            troop.attackResult = 5;
             troop.modifiers.Add(new TroopModifierEntry
             {
                 delta = 3,
@@ -39,7 +39,7 @@ namespace Game.Tests.EditMode
             });
 
             Assert.AreEqual(2, troop.baseRoll);
-            Assert.AreEqual(5, troop.faceValueFinal);
+            Assert.AreEqual(5, troop.attackResult);
             Assert.NotNull(troop.modifiers);
             Assert.AreEqual(1, troop.modifiers.Count);
             Assert.AreEqual(3, troop.modifiers[0].delta);

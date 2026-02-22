@@ -76,11 +76,11 @@
 
 4) Roll
    - 전장에 배치된 모든 병력의 주사위를 굴린다.
-   - 굴림 결과는 “기본 굴림(Base) → 보정(Mod) → 최종 Face Value”로 기록되며 UI에 반영되어야 한다.
+   - 굴림 결과는 “기본 굴림(Base) → 보정(Mod) → 최종 Attack Result”로 기록되며 UI에 반영되어야 한다.
 
 5) Tactics
    - 플레이어가 스킬/효과로 전장을 조정한다.
-   - 재배치/유인책 등 이동 스킬은 **굴림값(최종 Face Value) 유지**
+   - 재배치/유인책 등 이동 스킬은 **굴림값(최종 Attack Result) 유지**
 
 6) Resolve
    - 전장을 **하나씩 순서대로(0→1→2) 판정**한다.
@@ -102,26 +102,26 @@
 
 ### 6.2 주사위/수치
 
-- Troop은 Power(dX)를 가진다.
-  - 예: `Power 4` = d4
+- Troop은 Attack(dX)를 가진다.
+  - 예: `Attack 4` = d4
 - Roll에서 Base를 굴린다.
-  - Base Face Value 범위: `1..Power`
-- 보정은 기본적으로 Face Value에 적용된다.
-  - Face Value 최소: 1
-  - Face Value 최대: 없음
-- Power 변경은 프로토타입(P0)에서 금지한다.
+  - Base Attack Result 범위: `1..Attack`
+- 보정은 기본적으로 Attack Result에 적용된다.
+  - Attack Result 최소: 1
+  - Attack Result 최대: 없음
+- Attack 변경은 프로토타입(P0)에서 금지한다.
 
-### 6.3 Combat Strength 계산
+### 6.3 Total Attack 계산
 
-- 전장 Combat Strength는 다음의 합으로 계산한다.
-  1) 전장 내 모든 Troop의 **최종 Face Value 합**
+- 전장 Total Attack는 다음의 합으로 계산한다.
+  1) 전장 내 모든 Troop의 **최종 Attack Result 합**
   2) 전장 단위 보너스(예: Reinforce로 부여되는 `+2`)
 
-> Reinforce는 “Combat Strength 보너스”이며, **Troop의 Face Value가 변하지 않는다**(UI 예외 표기 필요).
+> Reinforce는 “Total Attack 보너스”이며, **Troop의 Attack Result가 변하지 않는다**(UI 예외 표기 필요).
 
 ### 6.4 판정(Outcome)
 
-- `Combat Strength` 비교로 승패를 가른다.
+- `Total Attack` 비교로 승패를 가른다.
 - Great Victory 조건:
   - `winnerCombatStrength >= loserCombatStrength * 2`
 - Draw:
@@ -131,7 +131,7 @@
 
 - 마나 소모 + 쿨다운 존재
 - 쿨다운은 턴 종료에 `-1`
-- 이동 스킬(재배치/유인책): 이동 후 Face Value 유지
+- 이동 스킬(재배치/유인책): 이동 후 Attack Result 유지
 
 ### 6.6 스킬(P0 대상)
 
@@ -154,7 +154,7 @@
 
 - 증원(Reinforce)
   - Mana 2 / Cooldown 2 / Tactics
-  - 선택한 전장에 아군 Combat Strength `+2`(Face Value 변화 없음)
+  - 선택한 전장에 아군 Total Attack `+2`(Attack Result 변화 없음)
 
 ## 7) 데이터/구현 기준(요약)
 
@@ -182,9 +182,9 @@
 - 쿨다운:
   - 턴 종료 시 -1
 - 수치 증감 기본 규칙:
-  - 기본은 Face Value 변화
-  - Face Value 최소 1 / 최대 없음
-  - Power 변경은 P0에서 금지
+  - 기본은 Attack Result 변화
+  - Attack Result 최소 1 / 최대 없음
+  - Attack 변경은 P0에서 금지
 - 배치 제한:
   - 기본 무제한
   - 명시된 전장만 slotLimit 적용

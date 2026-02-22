@@ -17,15 +17,15 @@ namespace Game.Domain.Battle
 
             troop.EnsureInitialized();
 
-            int maxFaceValue = troop.power;
-            if (maxFaceValue < 1)
+            int maxAttack = troop.attack;
+            if (maxAttack < 1)
             {
-                Debug.LogWarning("[BattleSimulator] troop.power was lower than 1. Roll range was clamped to 1.");
-                maxFaceValue = 1;
+                Debug.LogWarning("[BattleSimulator] troop.attack was lower than 1. Roll range was clamped to 1.");
+                maxAttack = 1;
             }
 
             IRollSource source = rollSource ?? defaultRollSource;
-            troop.baseRoll = source.Next(1, maxFaceValue);
+            troop.baseRoll = source.Next(1, maxAttack);
             ApplyRollFinalization(troop);
         }
 
@@ -37,10 +37,10 @@ namespace Game.Domain.Battle
             }
 
             troop.EnsureInitialized();
-            troop.faceValueFinal = ComputeFinalFaceValue(troop.baseRoll, troop.modifiers);
+            troop.attackResult = ComputeAttackResult(troop.baseRoll, troop.modifiers);
         }
 
-        public static int ComputeFinalFaceValue(int baseRoll, IReadOnlyList<TroopModifierEntry> modifiers)
+        public static int ComputeAttackResult(int baseRoll, IReadOnlyList<TroopModifierEntry> modifiers)
         {
             int addTotal = 0;
             int percentBonusTotal = 0;
@@ -72,18 +72,18 @@ namespace Game.Domain.Battle
                 }
             }
 
-            float rawFinalValue = (baseRoll + addTotal) * (1f + (percentBonusTotal / 100f));
-            int finalValue = Mathf.FloorToInt(rawFinalValue);
+            float rawAttackResult = (baseRoll + addTotal) * (1f + (percentBonusTotal / 100f));
+            int attackResult = Mathf.FloorToInt(rawAttackResult);
 
-            if (finalValue < 1)
+            if (attackResult < 1)
             {
-                finalValue = 1;
+                attackResult = 1;
             }
 
-            return finalValue;
+            return attackResult;
         }
 
-        public static int ComputeCombatStrength(
+        public static int ComputeTotalAttack(
             BattlefieldState battlefieldState,
             IReadOnlyDictionary<string, TroopInstance> troopsById,
             bool isPlayerSide)
@@ -101,8 +101,8 @@ namespace Game.Domain.Battle
             battlefieldState.EnsureInitialized();
 
             int total = isPlayerSide
-                ? battlefieldState.combatStrengthBonusPlayer
-                : battlefieldState.combatStrengthBonusEnemy;
+                ? battlefieldState.totalAttackBonusPlayer
+                : battlefieldState.totalAttackBonusEnemy;
 
             List<string> troopIds = isPlayerSide
                 ? battlefieldState.playerTroopIds
@@ -123,23 +123,23 @@ namespace Game.Domain.Battle
                     continue;
                 }
 
-                total += troop.faceValueFinal;
+                total += troop.attackResult;
             }
 
             return total;
         }
 
-        public static BattleOutcome ComputeOutcome(int playerCombatStrength, int enemyCombatStrength)
+        public static BattleOutcome ComputeOutcome(int playerTotalAttack, int enemyTotalAttack)
         {
-            if (playerCombatStrength == enemyCombatStrength)
+            if (playerTotalAttack == enemyTotalAttack)
             {
                 return BattleOutcome.Draw;
             }
 
-            if (playerCombatStrength > enemyCombatStrength)
+            if (playerTotalAttack > enemyTotalAttack)
             {
-                long doubledLoser = (long)enemyCombatStrength * 2L;
-                if (enemyCombatStrength == 0 || playerCombatStrength >= doubledLoser)
+                long doubledLoser = (long)enemyTotalAttack * 2L;
+                if (enemyTotalAttack == 0 || playerTotalAttack >= doubledLoser)
                 {
                     return BattleOutcome.GreatVictory;
                 }
@@ -147,8 +147,8 @@ namespace Game.Domain.Battle
                 return BattleOutcome.Victory;
             }
 
-            long doubledPlayer = (long)playerCombatStrength * 2L;
-            if (playerCombatStrength == 0 || enemyCombatStrength >= doubledPlayer)
+            long doubledPlayer = (long)playerTotalAttack * 2L;
+            if (playerTotalAttack == 0 || enemyTotalAttack >= doubledPlayer)
             {
                 return BattleOutcome.GreatDefeat;
             }
@@ -160,8 +160,8 @@ namespace Game.Domain.Battle
             BattleState battleState,
             int battlefieldIndex,
             out BattleOutcome outcome,
-            out int playerCombatStrength,
-            out int enemyCombatStrength)
+            out int playerTotalAttack,
+            out int enemyTotalAttack)
         {
             if (battleState == null)
             {
@@ -171,8 +171,8 @@ namespace Game.Domain.Battle
             battleState.EnsureInitialized();
 
             outcome = BattleOutcome.Draw;
-            playerCombatStrength = 0;
-            enemyCombatStrength = 0;
+            playerTotalAttack = 0;
+            enemyTotalAttack = 0;
 
             if (battleState.isBattleEnded)
             {
@@ -194,17 +194,17 @@ namespace Game.Domain.Battle
                 Debug.LogWarning($"[BattleSimulator] battlefields[{battlefieldIndex}] was null and has been replaced.");
             }
 
-            playerCombatStrength = ComputeCombatStrength(
+            playerTotalAttack = ComputeTotalAttack(
                 battlefieldState,
                 battleState.troopsById,
                 true);
 
-            enemyCombatStrength = ComputeCombatStrength(
+            enemyTotalAttack = ComputeTotalAttack(
                 battlefieldState,
                 battleState.troopsById,
                 false);
 
-            outcome = ComputeOutcome(playerCombatStrength, enemyCombatStrength);
+            outcome = ComputeOutcome(playerTotalAttack, enemyTotalAttack);
             ApplyMoraleDelta(battleState, outcome);
 
             if (battleState.playerMorale <= 0 || battleState.enemyMorale <= 0)

@@ -132,7 +132,7 @@
   "schemaVersion": 1,
   "id": "troop_reservist",
 
-  "power": 2,
+  "Attack": 2,
   "tags": ["reserve"],
 
   "nameLocKey": "troop_reservist_name",
@@ -143,7 +143,7 @@
       "timing": "TurnEnd",
       "condition": { "type": "IsInCamp" },
       "ops": [
-        { "op": "AddNextRollFaceBonus", "amount": 2, "textLocKey": "effect_next_roll_plus" }
+        { "op": "AddNextRollAttackBonus", "amount": 2, "textLocKey": "effect_next_roll_plus" }
       ]
     }
   ]
@@ -198,7 +198,7 @@
   "battleStart": {
     "ops": [
       {
-        "op": "ModifyFaceValue",
+        "op": "ModifyAttackResult",
         "side": "Player",
         "scope": "AllTroops",
         "mode": "Add",
@@ -230,7 +230,7 @@
   "descLocKey": "skill_redeploy_desc",
 
   "ops": [
-    { "op": "MoveTroop", "keepFaceValue": true, "textLocKey": "effect_move_keep_face" }
+    { "op": "MoveTroop", "keepAttackResult": true, "textLocKey": "effect_move_keep_face" }
   ]
 }
 ```
@@ -273,12 +273,12 @@
 
 ### OpCode(op)
 
-- ModifyFaceValue
+- ModifyAttackResult
 - MoveTroop
 - MoveEnemyTroop
-- ModifyCombatStrength
+- ModifyTotalAttack
 - TransformOutcome
 - ModifyMorale
-- AddNextRollFaceBonus
+- AddNextRollAttackBonus
 
 > P0 금지: ModifyPower 류 op

@@ -10,9 +10,9 @@ namespace Game.Domain.Battle
         public string instanceId = Guid.NewGuid().ToString("N");
         public string troopDefId = string.Empty;
 
-        public int power;
+        public int attack;
         public int baseRoll;
-        public int faceValueFinal;
+        public int attackResult;
 
         public List<TroopModifierEntry> modifiers = new();
         public List<string> tags = new();

@@ -30,12 +30,12 @@
 | 리소스 | 마나 | Mana | 스킬 자원. 전투 시작 시 최대치로 충전. 턴마다 회복 |
 | 리소스 | 보급품 한도 | Supply Limit | 덱(편성)에 넣을 수 있는 총 비용 상한 |
 | 리소스 | 보급품 비용 | Supply Cost | Squad/Support 카드 1장이 차지하는 비용 |
-| 주사위 | 파워 | Power | 병력의 주사위 면수. 예: Power 4 = d4 |
-| 주사위 | 눈 | Face Value | 굴림 결과 + 보정 후 최종 값. 최소 1, **최대치 없음** |
-| 전투값 | 전투력 | Combat Strength | 전장 내 아군/적의 Face Value 합산값 (+전장 보너스 포함) |
+| 주사위 | 파워 | Attack | 병력의 주사위 면수. 예: Attack 4 = d4 |
+| 주사위 | 눈 | Attack Result | 굴림 결과 + 보정 후 최종 값. 최소 1, **최대치 없음** |
+| 전투값 | 전투력 | Total Attack | 전장 내 아군/적의 Attack Result 합산값 (+전장 보너스 포함) |
 | 판정 | 대승리 | Great Victory | `winnerCombatStrength >= loserCombatStrength * 2` |
 | 판정 | 승리 | Victory | 승리했지만 Great Victory는 아님 |
-| 판정 | 무승부 | Draw | Combat Strength 동률 |
+| 판정 | 무승부 | Draw | Total Attack 동률 |
 | 판정 | 패배 | Defeat | 패배했지만 Great Defeat는 아님 |
 | 판정 | 대패 | Great Defeat | 상대의 Great Victory에 대응(대칭 개념) |
 | 행동 | 후퇴 | Retreat | 배치(Player Deploy) 페이즈에서만 가능. 보상 없음, 즉시 전투 종료, Stability -1 |
@@ -56,6 +56,6 @@
 
 ## 4) 금지/비권장 용어
 
-- **전투력(단독 사용)**: Power/Combat Strength와 혼동되므로 금지. 반드시 Power 또는 Combat Strength로 표기.
+- **전투력(단독 사용)**: Attack/Total Attack와 혼동되므로 금지. 반드시 Attack 또는 Total Attack로 표기.
 - **덱(Deck)**: 본 프로젝트는 드로우가 없으므로 단독 ‘덱’ 대신 **Roster Deck/편성 덱**으로 표기.
 - **벤치(Bench)**: Reserves(예비 편성)으로 통일.

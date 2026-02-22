@@ -23,7 +23,7 @@
 - 플레이어가 “배치 → 굴림 → 조정 → Resolve → 전투 종료”를 최소 2턴 이상 수행할 수 있다.
 - Retreat가 Stability 규칙대로 동작한다.
 - 전투 패배(플레이어 Morale `<= 0`)가 즉시 게임오버로 처리된다.
-- 눈(Face Value) 변화가 **즉시 UI에 반영**되고, 툴팁/로그로 “기본→보정→최종”을 확인할 수 있다.
+- 눈(Attack Result) 변화가 **즉시 UI에 반영**되고, 툴팁/로그로 “기본→보정→최종”을 확인할 수 있다.
 
 ---
 
@@ -34,7 +34,7 @@
 - Battle(전투 1회) 전체 루프
 - 전장 3개 고정 + Enemy Intent 공개
 - Roster Deck(드로우 없음) + Battle Start Triggers(Squad→Support)
-- Troop Power/Face Value/Combat Strength 계산
+- Troop Attack/Attack Result/Total Attack 계산
 - Outcome 판정 + 전장 outcomeEffects(최소 Morale 피해)
 - 스킬 5종: Redeploy / Decoy / Risky / Safe / Reinforce
 - Retreat(Stability 규칙 포함)
@@ -64,9 +64,9 @@
 | 게임오버 | 전투 패배(플레이어 Morale <= 0) |
 | Mana | Max 5, 전투 시작 시 Max, 턴 종료 +2 |
 | Cooldown | 턴 종료 -1 |
-| Face Value | 최소 1, 최대 없음 |
-| 수치 증감 기본 | Face Value 변화(예외: Reinforce는 Combat Strength +2) |
-| Power 변경 | P0에서 금지 |
+| Attack Result | 최소 1, 최대 없음 |
+| 수치 증감 기본 | Attack Result 변화(예외: Reinforce는 Total Attack +2) |
+| Attack 변경 | P0에서 금지 |
 | 배치 제한 | 기본 무제한, 전장에 slotLimit 명시 시만 제한(초과 배치/이동 불가) |
 
 ---
@@ -97,7 +97,7 @@
     - `TroopInstance`
   - 상태 최소 필드
     - Morale / Mana / Turn / Cooldown / Camp / Battlefields / EnemyIntent 참조
-    - Troop의 `baseRoll`, `modifiers`, `faceValueFinal`
+    - Troop의 `baseRoll`, `modifiers`, `attackResult`
 
 - 수동 테스트
   - 전투 시작/턴 전환 시 상태 객체가 null 없이 유지되는가
@@ -127,11 +127,11 @@
   - 턴/리소스 기본값(예: `turnIndex=0`)을 명시한다.
 
 - [x] `T1-04` `BattlefieldState` 최소 구조 구현
-  - `playerTroops`, `enemyTroops`, `combatStrengthBonusPlayer`, `combatStrengthBonusEnemy`, `slotLimit` 필드를 구현한다.
+  - `playerTroops`, `enemyTroops`, `totalAttackBonusPlayer`, `totalAttackBonusEnemy`, `slotLimit` 필드를 구현한다.
   - 컬렉션 null 방지 초기화를 적용한다.
 
 - [x] `T1-05` `TroopInstance` 굴림 추적 필드 구현
-  - `troopDefId`, `power`, `baseRoll`, `faceValueFinal`, `modifiers`, `tags` 필드를 구현한다.
+  - `troopDefId`, `Attack`, `baseRoll`, `attackResult`, `modifiers`, `tags` 필드를 구현한다.
   - `modifiers`는 이후 로그/툴팁 확장을 고려해 리스트 구조로 고정한다.
 
 - [x] `T1-06` 상태 정합성 보조 메서드 추가
@@ -231,7 +231,7 @@
 
 - 산출물
   - Roll 계산(기본 굴림, FaceValue 최소 1)
-  - Combat Strength 계산
+  - Total Attack 계산
   - Outcome 판정
     - Great Victory / Victory / Draw / Defeat / Great Defeat
   - Resolve 순서 처리(0→1→2 + 매 전장 후 Morale 즉시 체크)
@@ -252,15 +252,15 @@
 
 - [x] `T3-01` 계산 타입/진입점 고정
   - `BattleOutcome` enum 추가
-  - `BattleSimulator` 정적 진입점(`RollTroop`, `ApplyRollFinalization`, `ComputeCombatStrength`, `ComputeOutcome`, `ResolveBattlefieldsInOrder`) 고정
+  - `BattleSimulator` 정적 진입점(`RollTroop`, `ApplyRollFinalization`, `ComputeTotalAttack`, `ComputeOutcome`, `ResolveBattlefieldsInOrder`) 고정
 
 - [x] `T3-02` Roll/최종값 계산 구현
-  - `baseRoll` 범위: `1..power` (power가 1 미만이면 warning 후 1로 clamp)
+  - `baseRoll` 범위: `1..Attack` (attack이 1 미만이면 warning 후 1로 clamp)
   - 계산식: `(base + add합) * (1 + percent합)` 후 `Floor` 적용
-  - 최종 Face Value 최소 1 clamp
+  - 최종 Attack Result 최소 1 clamp
 
 - [x] `T3-03` 전장 전투력 계산 구현
-  - 전장 내 Troop `faceValueFinal` 합 + 전장 보너스 합산
+  - 전장 내 Troop `attackResult` 합 + 전장 보너스 합산
   - 누락 troopId/null 항목은 warning 후 무시
 
 - [x] `T3-04` Outcome 판정 구현
@@ -278,7 +278,7 @@
 
 - [x] `T3-07` EditMode 테스트 추가
   - 수학 테스트: add/percent/floor/min clamp
-  - 전장 테스트: Combat Strength/Outcome
+  - 전장 테스트: Total Attack/Outcome
   - 전투 테스트: Resolve 순서 + 중간 종료
 
 - [x] `T3-08` 검증 및 체크리스트 반영
@@ -294,22 +294,22 @@
 - 산출물
   - `EffectResolver` + `OpCode 핸들러(Dictionary<OpCode, IOpHandler>)`
   - P0 opcode 최소:
-    - ModifyFaceValue(Add/Mul)
-    - MoveTroop(keepFaceValue=true)
-    - MoveEnemyTroop(keepFaceValue=true)
-    - ModifyCombatStrength(+2)
+    - ModifyAttackResult(Add/Mul)
+    - MoveTroop(keepAttackResult=true)
+    - MoveEnemyTroop(keepAttackResult=true)
+    - ModifyTotalAttack(+2)
     - TransformOutcome(Risky/Safe)
     - ModifyMorale
-    - AddNextRollFaceBonus(예비군)
+    - AddNextRollAttackBonus(예비군: 다음 Roll 직전 Attack에 합산, 굴리는 순간 소모)
   - 스킬 5종이 호출하는 효과 경로를 opcode 핸들러로 통일
 
 - 수동 테스트
   - Risky: 플레이어 Victory → Great Victory 변환이 동작하는가
   - Safe: 플레이어 Great Victory → Victory 변환이 동작하는가
-  - Reinforce: Face Value 변화 없이 Combat Strength만 +2 되는지(UI/로그로 확인)
+  - Reinforce: Attack Result 변화 없이 Total Attack만 +2 되는지(UI/로그로 확인)
 
 - 자동 테스트
-  - opcode 단위 테스트(예: ModifyFaceValue 적용 순서/최소 1)
+  - opcode 단위 테스트(예: ModifyAttackResult 적용 순서/최소 1)
 
 **완료 기준(DoD):** 전투 효과 적용이 하드코딩 분기 대신 opcode 핸들러 경로로 동작
 

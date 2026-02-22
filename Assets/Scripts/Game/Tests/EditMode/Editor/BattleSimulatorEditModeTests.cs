@@ -7,7 +7,7 @@ namespace Game.Tests.EditMode
     public sealed class BattleSimulatorEditModeTests
     {
         [Test]
-        public void ComputeFinalFaceValue_AppliesAddThenPercentBonusSumAndFloors()
+        public void ComputeAttackResult_AppliesAddThenPercentBonusSumAndFloors()
         {
             var modifiers = new List<TroopModifierEntry>
             {
@@ -28,13 +28,13 @@ namespace Game.Tests.EditMode
                 }
             };
 
-            int finalValue = BattleSimulator.ComputeFinalFaceValue(2, modifiers);
+            int attackResult = BattleSimulator.ComputeAttackResult(2, modifiers);
 
-            Assert.AreEqual(9, finalValue);
+            Assert.AreEqual(9, attackResult);
         }
 
         [Test]
-        public void ComputeFinalFaceValue_UsesFloorWhenResultHasFraction()
+        public void ComputeAttackResult_UsesFloorWhenResultHasFraction()
         {
             var modifiers = new List<TroopModifierEntry>
             {
@@ -45,13 +45,13 @@ namespace Game.Tests.EditMode
                 }
             };
 
-            int finalValue = BattleSimulator.ComputeFinalFaceValue(3, modifiers);
+            int attackResult = BattleSimulator.ComputeAttackResult(3, modifiers);
 
-            Assert.AreEqual(4, finalValue);
+            Assert.AreEqual(4, attackResult);
         }
 
         [Test]
-        public void ComputeFinalFaceValue_ClampsToOneAtTheEnd()
+        public void ComputeAttackResult_ClampsToOneAtTheEnd()
         {
             var modifiers = new List<TroopModifierEntry>
             {
@@ -62,9 +62,9 @@ namespace Game.Tests.EditMode
                 }
             };
 
-            int finalValue = BattleSimulator.ComputeFinalFaceValue(1, modifiers);
+            int attackResult = BattleSimulator.ComputeAttackResult(1, modifiers);
 
-            Assert.AreEqual(1, finalValue);
+            Assert.AreEqual(1, attackResult);
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace Game.Tests.EditMode
         {
             var troop = new TroopInstance
             {
-                power = 6
+                attack = 6
             };
             var fakeRollSource = new FakeRollSource(4);
 
@@ -81,18 +81,18 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(1, fakeRollSource.lastMinInclusive);
             Assert.AreEqual(6, fakeRollSource.lastMaxInclusive);
             Assert.AreEqual(4, troop.baseRoll);
-            Assert.AreEqual(4, troop.faceValueFinal);
+            Assert.AreEqual(4, troop.attackResult);
         }
 
         [Test]
-        public void ComputeCombatStrength_UsesFinalFaceValueSumPlusBattlefieldBonus()
+        public void ComputeTotalAttack_UsesAttackResultSumPlusBattlefieldBonus()
         {
             var battlefield = new BattlefieldState
             {
                 playerTroopIds = new List<string> { "p1", "p2" },
                 enemyTroopIds = new List<string> { "e1" },
-                combatStrengthBonusPlayer = 2,
-                combatStrengthBonusEnemy = 3
+                totalAttackBonusPlayer = 2,
+                totalAttackBonusEnemy = 3
             };
 
             var troopsById = new Dictionary<string, TroopInstance>
@@ -102,8 +102,8 @@ namespace Game.Tests.EditMode
                 { "e1", CreateTroop("e1", 2) }
             };
 
-            int playerStrength = BattleSimulator.ComputeCombatStrength(battlefield, troopsById, true);
-            int enemyStrength = BattleSimulator.ComputeCombatStrength(battlefield, troopsById, false);
+            int playerStrength = BattleSimulator.ComputeTotalAttack(battlefield, troopsById, true);
+            int enemyStrength = BattleSimulator.ComputeTotalAttack(battlefield, troopsById, false);
 
             Assert.AreEqual(7, playerStrength);
             Assert.AreEqual(5, enemyStrength);
@@ -176,14 +176,14 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(3, state.enemyMorale);
         }
 
-        static TroopInstance CreateTroop(string troopId, int finalFaceValue)
+        static TroopInstance CreateTroop(string troopId, int attackResultValue)
         {
             return new TroopInstance
             {
                 troopDefId = troopId,
-                power = 6,
-                baseRoll = finalFaceValue,
-                faceValueFinal = finalFaceValue
+                attack = 6,
+                baseRoll = attackResultValue,
+                attackResult = attackResultValue
             };
         }
 

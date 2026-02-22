@@ -116,7 +116,7 @@ Assets/StreamingAssets/
 로드 흐름(권장):
 1) Parse pass: 모든 Def를 일단 파싱해서 dict에 넣는다.
 2) Resolve pass: ID 참조를 실제 포인터로 매핑/검증한다.
-3) Validation pass: P0 금지 룰(예: Power 변경 op)을 검사한다.
+3) Validation pass: P0 금지 룰(예: Attack 변경 op)을 검사한다.
 
 ### 4.4 Validation(필수)
 
@@ -156,18 +156,18 @@ Assets/StreamingAssets/
 - `BattlefieldState`
   - playerTroops: `List<TroopInstance>`
   - enemyTroops: `List<TroopInstance>`
-  - combatStrengthBonusPlayer / combatStrengthBonusEnemy
+  - totalAttackBonusPlayer / totalAttackBonusEnemy
   - slotLimit: nullable(int)
 
 - `TroopInstance`
   - troopDefId
-  - power
+  - Attack
   - baseRoll
   - modifiers(list)
-  - faceValueFinal
+  - attackResult
   - tags
 
-> UI/툴팁 요구사항 때문에 **baseRoll/modifiers/final을 항상 보관**하는 구조를 강제한다.
+> UI/툴팁 요구사항 때문에 **baseRoll/modifiers/attackResult를 항상 보관**하는 구조를 강제한다.
 
 ### 5.2 PhaseRunner(Application)
 
@@ -180,7 +180,7 @@ Domain 쪽은 “규칙 계산”만 맡는다:
 - `BattleSimulator`:
   - Roll(기본 굴림)
   - ApplyRollFinalization(눈 보정 반영)
-  - ComputeCombatStrength
+  - ComputeTotalAttack
   - ResolveBattlefield(i)
 
 ### 5.3 Resolve 순서(확정)
@@ -202,15 +202,15 @@ Domain 쪽은 “규칙 계산”만 맡는다:
 
 ### 6.2 P0 opcode 최소 세트
 
-- ModifyFaceValue(Add/Mul, min=1)
-- MoveTroop(keepFaceValue=true)
-- MoveEnemyTroop(keepFaceValue=true)
-- ModifyCombatStrength(+2)
+- ModifyAttackResult(Add/Mul, min=1)
+- MoveTroop(keepAttackResult=true)
+- MoveEnemyTroop(keepAttackResult=true)
+- ModifyTotalAttack(+2)
 - TransformOutcome(Risky/Safe)
 - ModifyMorale
-- AddNextRollFaceBonus(예비군)
+- AddNextRollAttackBonus(예비군: 다음 Roll 직전 Attack에 합산, 굴리는 순간 소모)
 
-> Power 변경 op는 P0에서 금지(Validation 단계에서 차단).
+> Attack 변경 op는 P0에서 금지(Validation 단계에서 차단).
 
 ### 6.3 Timing(타이밍)
 
@@ -266,12 +266,12 @@ UI는 `LocalizationUtil`로 렌더링한다.
 
 ### 7.3 UI 피드백(확정 요구)
 
-- Face Value 변화가 발생하면 주사위 UI에 즉시 반영되어야 한다.
+- Attack Result 변화가 발생하면 주사위 UI에 즉시 반영되어야 한다.
 - Troop 툴팁에 아래를 표준으로 표시:
   - Base Roll
   - Modifier 목록(원인/수치)
-  - Final Face Value
-- Reinforce는 “Combat Strength 보너스”이므로
+  - Final Attack Result
+- Reinforce는 “Total Attack 보너스”이므로
   - 주사위 눈이 아니라 **전장 UI의 보너스 배지**로 표시
 
 ---
@@ -281,7 +281,7 @@ UI는 `LocalizationUtil`로 렌더링한다.
 - Domain 로직은 EditMode 테스트로 검증 가능해야 한다.
 - 최소 테스트 항목
   - Great Victory 판정
-  - Face Value 최소 1 / 최대 없음
+  - Attack Result 최소 1 / 최대 없음
   - Resolve 순서(0→1→2) + 중간 종료
   - slotLimit 초과 배치/이동 불가
   - Retreat 규칙(Stability > 0)
