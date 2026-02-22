@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Game.Domain.Modifiers;
 using UnityEngine;
 
 namespace Game.Domain.Battle
@@ -17,7 +18,12 @@ namespace Game.Domain.Battle
 
             troop.EnsureInitialized();
 
-            int maxAttack = troop.attack;
+            int maxAttack = NumericModifierCalculator.Apply(
+                troop.attack,
+                troop.attackModifiers,
+                1,
+                "BattleSimulator.RollTroop.Attack");
+
             if (maxAttack < 1)
             {
                 Debug.LogWarning("[BattleSimulator] troop.attack was lower than 1. Roll range was clamped to 1.");
@@ -37,50 +43,16 @@ namespace Game.Domain.Battle
             }
 
             troop.EnsureInitialized();
-            troop.attackResult = ComputeAttackResult(troop.baseRoll, troop.modifiers);
+            troop.attackResult = ComputeAttackResult(troop.baseRoll, troop.attackResultModifiers);
         }
 
-        public static int ComputeAttackResult(int baseRoll, IReadOnlyList<TroopModifierEntry> modifiers)
+        public static int ComputeAttackResult(int baseRoll, IReadOnlyList<NumericModifier> modifiers)
         {
-            int addTotal = 0;
-            int percentBonusTotal = 0;
-
-            if (modifiers != null)
-            {
-                for (int i = 0; i < modifiers.Count; i++)
-                {
-                    TroopModifierEntry modifier = modifiers[i];
-                    if (modifier == null)
-                    {
-                        Debug.LogWarning($"[BattleSimulator] modifiers[{i}] was null and has been ignored.");
-                        continue;
-                    }
-
-                    switch (modifier.modifierType)
-                    {
-                        case TroopModifierType.Add:
-                            addTotal += modifier.delta;
-                            break;
-                        case TroopModifierType.PercentBonus:
-                            percentBonusTotal += modifier.delta;
-                            break;
-                        default:
-                            Debug.LogWarning(
-                                $"[BattleSimulator] Unknown TroopModifierType({modifier.modifierType}) was ignored. sourceId={modifier.sourceId}");
-                            break;
-                    }
-                }
-            }
-
-            float rawAttackResult = (baseRoll + addTotal) * (1f + (percentBonusTotal / 100f));
-            int attackResult = Mathf.FloorToInt(rawAttackResult);
-
-            if (attackResult < 1)
-            {
-                attackResult = 1;
-            }
-
-            return attackResult;
+            return NumericModifierCalculator.Apply(
+                baseRoll,
+                modifiers,
+                1,
+                "BattleSimulator.ComputeAttackResult");
         }
 
         public static int ComputeTotalAttack(
@@ -210,6 +182,7 @@ namespace Game.Domain.Battle
             if (battleState.playerMorale <= 0 || battleState.enemyMorale <= 0)
             {
                 battleState.isBattleEnded = true;
+                ClearModifierLayer(battleState, ModifierLayer.Battle);
             }
 
             return true;
@@ -279,6 +252,34 @@ namespace Game.Domain.Battle
                     Debug.LogWarning($"[BattleSimulator] Unknown BattleOutcome({outcome}) was ignored.");
                     break;
             }
+        }
+
+        public static int ClearModifierLayer(BattleState battleState, ModifierLayer layer)
+        {
+            if (battleState == null)
+            {
+                throw new ArgumentNullException(nameof(battleState));
+            }
+
+            battleState.EnsureInitialized();
+
+            int removedCount = 0;
+
+            foreach (KeyValuePair<string, TroopInstance> pair in battleState.troopsById)
+            {
+                TroopInstance troop = pair.Value;
+                if (troop == null)
+                {
+                    Debug.LogWarning($"[BattleSimulator] troopsById[{pair.Key}] was null and has been ignored.");
+                    continue;
+                }
+
+                troop.EnsureInitialized();
+                removedCount += NumericModifierCalculator.ClearByLayer(troop.attackModifiers, layer);
+                removedCount += NumericModifierCalculator.ClearByLayer(troop.attackResultModifiers, layer);
+            }
+
+            return removedCount;
         }
     }
 }

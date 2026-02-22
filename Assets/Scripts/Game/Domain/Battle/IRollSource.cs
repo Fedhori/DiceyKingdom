@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using SystemRandom = System.Random;
 
 namespace Game.Domain.Battle
 {
@@ -10,19 +11,19 @@ namespace Game.Domain.Battle
 
     public sealed class SystemRandomRollSource : IRollSource
     {
-        readonly Random random;
+        readonly SystemRandom random;
 
         public SystemRandomRollSource()
-            : this(new Random())
+            : this(new SystemRandom())
         {
         }
 
         public SystemRandomRollSource(int seed)
-            : this(new Random(seed))
+            : this(new SystemRandom(seed))
         {
         }
 
-        public SystemRandomRollSource(Random random)
+        public SystemRandomRollSource(SystemRandom random)
         {
             this.random = random ?? throw new ArgumentNullException(nameof(random));
         }

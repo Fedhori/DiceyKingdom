@@ -143,7 +143,7 @@
       "timing": "TurnEnd",
       "condition": { "type": "IsInCamp" },
       "ops": [
-        { "op": "AddNextRollAttackBonus", "amount": 2, "textLocKey": "effect_next_roll_plus" }
+        { "op": "AddAttackModifier", "target": "Attack", "layer": "Battle", "mode": "Add", "value": 2, "textLocKey": "effect_attack_plus" }
       ]
     }
   ]
@@ -279,6 +279,6 @@
 - ModifyTotalAttack
 - TransformOutcome
 - ModifyMorale
-- AddNextRollAttackBonus
+- AddAttackModifier
 
 > P0 금지: ModifyPower 류 op

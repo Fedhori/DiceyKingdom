@@ -22,7 +22,7 @@
 
 | Troop | Attack | 효과(초안) |
 |---|---:|---|
-| 예비군 | 2 | 이번 턴에 전장에 배치되지 않고 턴 종료할 때마다 **다음 굴림 Attack +2 누적(굴리는 순간 소모)** |
+| 예비군 | 2 | 조건 충족 시 **Attack Modifier(+2, layer=Battle)** 누적 |
 | 미코 암살자 | 4 | 해당 전장에 배치된 적이 1개뿐이면 **Attack Result ×2** |
 | 드워프 대포 | 4 | 같은 전장의 적 Troop들의 **Attack Result -1** (최소 1) |
 | 랫킨 | 2 | (효과 없음) |
@@ -35,7 +35,7 @@
 - 선택한 Troop 1개의 Attack Result +2
 - Squad의 Supply Cost -1
 
-> 참고: P0에서는 Attack 변경 금지. 강화 시스템은 P0 범위 밖.
+> 참고: P0에서는 Base Attack 직접 변경 금지. Modifier 기반 런타임 보정은 허용.
 
 ---
 
@@ -46,5 +46,5 @@
 | 재배치(Redeploy) | 2 | 2 | Tactics | 아군 Troop 1개를 다른 전장으로 이동(굴림값 유지) |
 | 유인책(Decoy) | 2 | 2 | Deploy | 적 Troop 1개를 다른 전장으로 이동(굴림값 유지) |
 | 위험한 접근(Risky) | 1 | 1 | Deploy | 플레이어 Victory → Great Victory |
-| 안전한 접근(Safe) | 1 | 1 | Deploy | 플레이어 Great Victory → Victory |
+| 안전한 접근(Safe) | 1 | 1 | Deploy | 플레이어 Great Defeat → Defeat |
 | 증원(Reinforce) | 2 | 2 | Tactics | 전장 1개의 아군 Total Attack +2 (눈 변화 없음) |

@@ -1,4 +1,5 @@
 using Game.Domain.Battle;
+using Game.Domain.Modifiers;
 using NUnit.Framework;
 
 namespace Game.Tests.EditMode
@@ -32,18 +33,19 @@ namespace Game.Tests.EditMode
 
             troop.baseRoll = 2;
             troop.attackResult = 5;
-            troop.modifiers.Add(new TroopModifierEntry
+            troop.attackResultModifiers.Add(new NumericModifier
             {
-                delta = 3,
+                operation = NumericModifierOperation.Add,
+                value = 3,
                 sourceId = "test.source"
             });
 
             Assert.AreEqual(2, troop.baseRoll);
             Assert.AreEqual(5, troop.attackResult);
-            Assert.NotNull(troop.modifiers);
-            Assert.AreEqual(1, troop.modifiers.Count);
-            Assert.AreEqual(3, troop.modifiers[0].delta);
-            Assert.AreEqual("test.source", troop.modifiers[0].sourceId);
+            Assert.NotNull(troop.attackResultModifiers);
+            Assert.AreEqual(1, troop.attackResultModifiers.Count);
+            Assert.AreEqual(3, troop.attackResultModifiers[0].value);
+            Assert.AreEqual("test.source", troop.attackResultModifiers[0].sourceId);
         }
     }
 }

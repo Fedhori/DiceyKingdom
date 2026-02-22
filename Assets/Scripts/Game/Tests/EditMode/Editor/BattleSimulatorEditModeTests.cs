@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Game.Domain.Battle;
+using Game.Domain.Modifiers;
 using NUnit.Framework;
 
 namespace Game.Tests.EditMode
@@ -9,22 +10,22 @@ namespace Game.Tests.EditMode
         [Test]
         public void ComputeAttackResult_AppliesAddThenPercentBonusSumAndFloors()
         {
-            var modifiers = new List<TroopModifierEntry>
+            var modifiers = new List<NumericModifier>
             {
-                new TroopModifierEntry
+                new NumericModifier
                 {
-                    modifierType = TroopModifierType.Add,
-                    delta = 1
+                    operation = NumericModifierOperation.Add,
+                    value = 1
                 },
-                new TroopModifierEntry
+                new NumericModifier
                 {
-                    modifierType = TroopModifierType.PercentBonus,
-                    delta = 100
+                    operation = NumericModifierOperation.PercentBonus,
+                    value = 100
                 },
-                new TroopModifierEntry
+                new NumericModifier
                 {
-                    modifierType = TroopModifierType.PercentBonus,
-                    delta = 100
+                    operation = NumericModifierOperation.PercentBonus,
+                    value = 100
                 }
             };
 
@@ -36,12 +37,12 @@ namespace Game.Tests.EditMode
         [Test]
         public void ComputeAttackResult_UsesFloorWhenResultHasFraction()
         {
-            var modifiers = new List<TroopModifierEntry>
+            var modifiers = new List<NumericModifier>
             {
-                new TroopModifierEntry
+                new NumericModifier
                 {
-                    modifierType = TroopModifierType.PercentBonus,
-                    delta = 50
+                    operation = NumericModifierOperation.PercentBonus,
+                    value = 50
                 }
             };
 
@@ -53,12 +54,12 @@ namespace Game.Tests.EditMode
         [Test]
         public void ComputeAttackResult_ClampsToOneAtTheEnd()
         {
-            var modifiers = new List<TroopModifierEntry>
+            var modifiers = new List<NumericModifier>
             {
-                new TroopModifierEntry
+                new NumericModifier
                 {
-                    modifierType = TroopModifierType.Add,
-                    delta = -5
+                    operation = NumericModifierOperation.Add,
+                    value = -5
                 }
             };
 
@@ -68,7 +69,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void RollTroop_UsesRangeFromOneToPower()
+        public void RollTroop_UsesRangeFromOneToAttack()
         {
             var troop = new TroopInstance
             {
@@ -82,6 +83,30 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(6, fakeRollSource.lastMaxInclusive);
             Assert.AreEqual(4, troop.baseRoll);
             Assert.AreEqual(4, troop.attackResult);
+        }
+
+        [Test]
+        public void RollTroop_IncludesAttackModifiersBeforeRolling()
+        {
+            var troop = new TroopInstance
+            {
+                attack = 4,
+                attackModifiers = new List<NumericModifier>
+                {
+                    new NumericModifier
+                    {
+                        operation = NumericModifierOperation.Add,
+                        value = 2
+                    }
+                }
+            };
+            var fakeRollSource = new FakeRollSource(6);
+
+            BattleSimulator.RollTroop(troop, fakeRollSource);
+
+            Assert.AreEqual(1, fakeRollSource.lastMinInclusive);
+            Assert.AreEqual(6, fakeRollSource.lastMaxInclusive);
+            Assert.AreEqual(6, troop.baseRoll);
         }
 
         [Test]
@@ -132,6 +157,13 @@ namespace Game.Tests.EditMode
             state.troopsById["p1"] = CreateTroop("p1", 10);
             state.troopsById["e1"] = CreateTroop("e1", 1);
 
+            state.troopsById["p0"].attackModifiers.Add(new NumericModifier
+            {
+                layer = ModifierLayer.Battle,
+                operation = NumericModifierOperation.Add,
+                value = 1
+            });
+
             state.battlefields[0].playerTroopIds.Add("p0");
             state.battlefields[0].enemyTroopIds.Add("e0");
             state.battlefields[1].playerTroopIds.Add("p1");
@@ -143,6 +175,7 @@ namespace Game.Tests.EditMode
             Assert.IsTrue(state.isBattleEnded);
             Assert.LessOrEqual(state.playerMorale, 0);
             Assert.AreEqual(5, state.enemyMorale);
+            Assert.AreEqual(0, state.troopsById["p0"].attackModifiers.Count);
         }
 
         [Test]

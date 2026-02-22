@@ -1,5 +1,6 @@
 using System;
 using Game.Domain.Battle;
+using Game.Domain.Modifiers;
 using UnityEngine;
 
 namespace Game.Application.Battle
@@ -118,6 +119,7 @@ namespace Game.Application.Battle
             }
 
             state.isBattleEnded = true;
+            BattleSimulator.ClearModifierLayer(state, ModifierLayer.Battle);
             LastFailureReason = BattlePhaseFailureReason.None;
             return true;
         }

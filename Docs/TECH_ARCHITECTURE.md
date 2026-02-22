@@ -116,7 +116,7 @@ Assets/StreamingAssets/
 로드 흐름(권장):
 1) Parse pass: 모든 Def를 일단 파싱해서 dict에 넣는다.
 2) Resolve pass: ID 참조를 실제 포인터로 매핑/검증한다.
-3) Validation pass: P0 금지 룰(예: Attack 변경 op)을 검사한다.
+3) Validation pass: P0 금지 룰(예: Base Attack 직접 변경 op)을 검사한다.
 
 ### 4.4 Validation(필수)
 
@@ -202,15 +202,16 @@ Domain 쪽은 “규칙 계산”만 맡는다:
 
 ### 6.2 P0 opcode 최소 세트
 
-- ModifyAttackResult(Add/Mul, min=1)
+- ModifyAttackResult(Add/PercentBonus, min=1)
 - MoveTroop(keepAttackResult=true)
 - MoveEnemyTroop(keepAttackResult=true)
 - ModifyTotalAttack(+2)
 - TransformOutcome(Risky/Safe)
 - ModifyMorale
-- AddNextRollAttackBonus(예비군: 다음 Roll 직전 Attack에 합산, 굴리는 순간 소모)
+- AddAttackModifier(layer=Battle/Permanent)
 
-> Attack 변경 op는 P0에서 금지(Validation 단계에서 차단).
+> Base Attack 직접 변경 op는 P0에서 금지(Validation 단계에서 차단).
+> Modifier를 통한 런타임 Attack 보정은 허용한다.
 
 ### 6.3 Timing(타이밍)
 

@@ -66,7 +66,7 @@
 | Cooldown | 턴 종료 -1 |
 | Attack Result | 최소 1, 최대 없음 |
 | 수치 증감 기본 | Attack Result 변화(예외: Reinforce는 Total Attack +2) |
-| Attack 변경 | P0에서 금지 |
+| Base Attack 직접 변경 | P0에서 금지(Modifier 기반 런타임 보정은 허용) |
 | 배치 제한 | 기본 무제한, 전장에 slotLimit 명시 시만 제한(초과 배치/이동 불가) |
 
 ---
@@ -294,18 +294,18 @@
 - 산출물
   - `EffectResolver` + `OpCode 핸들러(Dictionary<OpCode, IOpHandler>)`
   - P0 opcode 최소:
-    - ModifyAttackResult(Add/Mul)
+    - ModifyAttackResult(Add/PercentBonus)
     - MoveTroop(keepAttackResult=true)
     - MoveEnemyTroop(keepAttackResult=true)
     - ModifyTotalAttack(+2)
     - TransformOutcome(Risky/Safe)
     - ModifyMorale
-    - AddNextRollAttackBonus(예비군: 다음 Roll 직전 Attack에 합산, 굴리는 순간 소모)
+    - AddAttackModifier(layer=Battle/Permanent)
   - 스킬 5종이 호출하는 효과 경로를 opcode 핸들러로 통일
 
 - 수동 테스트
   - Risky: 플레이어 Victory → Great Victory 변환이 동작하는가
-  - Safe: 플레이어 Great Victory → Victory 변환이 동작하는가
+  - Safe: 플레이어 Great Defeat → Defeat 변환이 동작하는가
   - Reinforce: Attack Result 변화 없이 Total Attack만 +2 되는지(UI/로그로 확인)
 
 - 자동 테스트
@@ -403,7 +403,7 @@
 - [x] 작업 1 완료
 - [x] 작업 2 완료
 - [x] 작업 3 완료
-- [ ] 작업 4 완료
+- [x] 작업 4 완료
 - [ ] 작업 5 완료
 - [ ] 작업 6 완료
 - [ ] 작업 7 완료

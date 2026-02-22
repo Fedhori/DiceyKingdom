@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Game.Domain.Modifiers;
 using UnityEngine;
 
 namespace Game.Domain.Battle
@@ -14,7 +15,8 @@ namespace Game.Domain.Battle
         public int baseRoll;
         public int attackResult;
 
-        public List<TroopModifierEntry> modifiers = new();
+        public List<NumericModifier> attackModifiers = new();
+        public List<NumericModifier> attackResultModifiers = new();
         public List<string> tags = new();
 
         public void EnsureInitialized()
@@ -25,10 +27,16 @@ namespace Game.Domain.Battle
                 Debug.LogWarning("[TroopInstance] instanceId was empty and has been regenerated.");
             }
 
-            if (modifiers == null)
+            if (attackModifiers == null)
             {
-                modifiers = new List<TroopModifierEntry>();
-                Debug.LogWarning("[TroopInstance] modifiers was null and has been auto-initialized.");
+                attackModifiers = new List<NumericModifier>();
+                Debug.LogWarning("[TroopInstance] attackModifiers was null and has been auto-initialized.");
+            }
+
+            if (attackResultModifiers == null)
+            {
+                attackResultModifiers = new List<NumericModifier>();
+                Debug.LogWarning("[TroopInstance] attackResultModifiers was null and has been auto-initialized.");
             }
 
             if (tags == null)
@@ -37,19 +45,5 @@ namespace Game.Domain.Battle
                 Debug.LogWarning("[TroopInstance] tags was null and has been auto-initialized.");
             }
         }
-    }
-
-    [Serializable]
-    public sealed class TroopModifierEntry
-    {
-        public TroopModifierType modifierType = TroopModifierType.Add;
-        public int delta;
-        public string sourceId = string.Empty;
-    }
-
-    public enum TroopModifierType
-    {
-        Add = 0,
-        PercentBonus = 1
     }
 }

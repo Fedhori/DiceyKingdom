@@ -109,7 +109,8 @@
 - 보정은 기본적으로 Attack Result에 적용된다.
   - Attack Result 최소: 1
   - Attack Result 최대: 없음
-- Attack 변경은 프로토타입(P0)에서 금지한다.
+- Base Attack 값을 직접 바꾸는 방식은 프로토타입(P0)에서 금지한다.
+- 단, Modifier를 통한 런타임 Attack 보정은 허용한다.
 
 ### 6.3 Total Attack 계산
 
@@ -149,8 +150,8 @@
 
 - 안전한 접근(Safe Approach)
   - Mana 1 / Cooldown 1 / Deploy
-  - **플레이어의 Great Victory를 Victory로 강등**(적에게는 적용되지 않음)
-  - 용도 예: Great Victory 트리거에 리스크가 있는 전장 효과를 회피
+  - **플레이어의 Great Defeat를 Defeat로 완화**(적에게는 적용되지 않음)
+  - 용도 예: 큰 패배 페널티를 줄인다.
 
 - 증원(Reinforce)
   - Mana 2 / Cooldown 2 / Tactics
@@ -184,7 +185,7 @@
 - 수치 증감 기본 규칙:
   - 기본은 Attack Result 변화
   - Attack Result 최소 1 / 최대 없음
-  - Attack 변경은 P0에서 금지
+  - Base Attack 직접 변경은 P0에서 금지(Modifier를 통한 런타임 Attack 보정은 허용)
 - 배치 제한:
   - 기본 무제한
   - 명시된 전장만 slotLimit 적용
