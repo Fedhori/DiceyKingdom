@@ -38,6 +38,17 @@ namespace Game.Infrastructure.Data
 }");
             database.runConfigSourcePath = FallbackSourcePath;
 
+            database.playerStart = Deserialize<PlayerStartDef>(
+@"{
+  ""schemaVersion"": 1,
+  ""id"": ""player_start"",
+  ""startingStability"": 3,
+  ""startingMana"": 5,
+  ""startingPlayerMorale"": 10,
+  ""startingSquadCardIds"": []
+}");
+            database.playerStartSourcePath = FallbackSourcePath;
+
             AddFallbackBattlefields(database);
             return database;
         }

@@ -1,0 +1,12 @@
+{
+	"schemaVersion": 1,
+	"id": "player_start",
+	"startingStability": 3,
+	"startingMana": 5,
+	"startingPlayerMorale": 10,
+	"startingSquadCardIds": [
+		"card_squad_miko",
+		"card_squad_cannon",
+		"card_squad_ratkin"
+	]
+}

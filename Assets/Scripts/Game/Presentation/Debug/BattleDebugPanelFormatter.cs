@@ -85,11 +85,50 @@ namespace Game.Presentation.Debug
                 ? battlefield.slotLimit.Value.ToString()
                 : "unlimited";
 
-            string summaryLine =
+            return
                 $"Battlefield {battlefieldIndex} ({battlefieldId}) | TotalAttack P:{playerTotalAttack} E:{enemyTotalAttack} | Troops P:{playerCount} E:{enemyCount} | Slot:{slotLabel}";
-            string enemyDetailsLine = FormatEnemyTroops(battleState, battlefield, database);
+        }
 
-            return $"{summaryLine}\n{enemyDetailsLine}";
+        public static string FormatCampTroops(BattleState battleState, string selectedTroopId)
+        {
+            string selectedLine = FormatSelectedTroop(battleState, selectedTroopId);
+
+            if (battleState == null ||
+                battleState.campTroopIds == null ||
+                battleState.campTroopIds.Count <= 0)
+            {
+                return $"{selectedLine}\nCamp Troops: none";
+            }
+
+            var lines = new List<string>
+            {
+                selectedLine,
+                $"Camp Troops ({battleState.campTroopIds.Count}):"
+            };
+
+            for (int i = 0; i < battleState.campTroopIds.Count; i++)
+            {
+                string troopId = battleState.campTroopIds[i];
+                if (!TryResolveTroop(battleState, troopId, out TroopInstance troop))
+                {
+                    lines.Add("- (missing troop)");
+                    continue;
+                }
+
+                string troopDefId = ResolveTroopDefId(troop, null);
+                bool isSelected = string.Equals(troopId, selectedTroopId, StringComparison.Ordinal);
+                string selectedSuffix = isSelected ? " <selected>" : string.Empty;
+                lines.Add(
+                    $"- {troopDefId} | Attack:{troop.attack} | Attack Result:{troop.attackResult}{selectedSuffix}");
+            }
+
+            return string.Join("\n", lines);
+        }
+
+        public static string FormatTroopEffects(GameDatabase database, string troopDefId)
+        {
+            TroopDef troopDef = ResolveTroopDef(database, troopDefId);
+            return ResolveEffectsLabel(troopDef);
         }
 
         public static string FormatSelectedTroop(BattleState battleState, string selectedTroopId)
@@ -104,12 +143,12 @@ namespace Game.Presentation.Debug
                 !battleState.troopsById.TryGetValue(selectedTroopId, out TroopInstance troop) ||
                 troop == null)
             {
-                return $"Selected Troop: {selectedTroopId} (missing)";
+                return "Selected Troop: (missing)";
             }
 
             string location = ResolveTroopLocation(battleState, selectedTroopId);
-            string troopDefId = string.IsNullOrWhiteSpace(troop.troopDefId) ? "(no-def)" : troop.troopDefId;
-            return $"Selected Troop: {selectedTroopId} ({troopDefId}) | attackResult:{troop.attackResult} | {location}";
+            string troopDefId = ResolveTroopDefId(troop, null);
+            return $"Selected Troop: {troopDefId} | Attack:{troop.attack} | Attack Result:{troop.attackResult} | {location}";
         }
 
         public static string FormatSelectedBattlefield(BattleState battleState, int selectedBattlefieldIndex)
@@ -202,40 +241,20 @@ namespace Game.Presentation.Debug
             return total;
         }
 
-        static string FormatEnemyTroops(BattleState battleState, BattlefieldState battlefield, GameDatabase database)
+        static bool TryResolveTroop(BattleState battleState, string troopId, out TroopInstance troop)
         {
-            if (battlefield.enemyTroopIds == null || battlefield.enemyTroopIds.Count <= 0)
+            troop = null;
+            if (battleState == null || battleState.troopsById == null || string.IsNullOrWhiteSpace(troopId))
             {
-                return "Enemies: none";
+                return false;
             }
 
-            var lines = new List<string>
+            if (!battleState.troopsById.TryGetValue(troopId, out troop) || troop == null)
             {
-                "Enemies:"
-            };
-
-            for (int i = 0; i < battlefield.enemyTroopIds.Count; i++)
-            {
-                string troopId = battlefield.enemyTroopIds[i];
-                if (string.IsNullOrWhiteSpace(troopId))
-                {
-                    lines.Add("- (missing troop id) | Attack:0 | Effects:none");
-                    continue;
-                }
-
-                if (!battleState.troopsById.TryGetValue(troopId, out TroopInstance troop) || troop == null)
-                {
-                    lines.Add($"- {troopId} (missing) | Attack:0 | Effects:none");
-                    continue;
-                }
-
-                TroopDef troopDef = ResolveTroopDef(database, troop.troopDefId);
-                string enemyName = ResolveEnemyName(troop, troopDef);
-                string effectsLabel = ResolveEffectsLabel(troopDef);
-                lines.Add($"- {enemyName} | Attack:{troop.attack} | Effects:{effectsLabel}");
+                return false;
             }
 
-            return string.Join("\n", lines);
+            return true;
         }
 
         static TroopDef ResolveTroopDef(GameDatabase database, string troopDefId)
@@ -255,29 +274,19 @@ namespace Game.Presentation.Debug
             return troopDef;
         }
 
-        static string ResolveEnemyName(TroopInstance troop, TroopDef troopDef)
+        static string ResolveTroopDefId(TroopInstance troop, TroopDef troopDef)
         {
-            if (troopDef != null)
-            {
-                string fromLocKey = ToDisplayLabel(troopDef.nameLocKey);
-                if (!string.IsNullOrWhiteSpace(fromLocKey))
-                {
-                    return fromLocKey;
-                }
-
-                string fromDefId = ToDisplayLabel(troopDef.id);
-                if (!string.IsNullOrWhiteSpace(fromDefId))
-                {
-                    return fromDefId;
-                }
-            }
-
             if (troop != null && !string.IsNullOrWhiteSpace(troop.troopDefId))
             {
-                return ToDisplayLabel(troop.troopDefId);
+                return troop.troopDefId;
             }
 
-            return "(unknown)";
+            if (troopDef != null && !string.IsNullOrWhiteSpace(troopDef.id))
+            {
+                return troopDef.id;
+            }
+
+            return "(no-def)";
         }
 
         static string ResolveEffectsLabel(TroopDef troopDef)

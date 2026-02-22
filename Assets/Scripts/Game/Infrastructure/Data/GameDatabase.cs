@@ -10,6 +10,9 @@ namespace Game.Infrastructure.Data
         public RunConfigDef runConfig;
         public string runConfigSourcePath = string.Empty;
 
+        public PlayerStartDef playerStart;
+        public string playerStartSourcePath = string.Empty;
+
         public Dictionary<string, BattlefieldDef> battlefieldsById = new();
         public Dictionary<string, string> battlefieldSourcePathById = new();
 

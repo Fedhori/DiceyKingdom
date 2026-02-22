@@ -18,6 +18,8 @@ namespace Game.Tests.EditMode
             StringAssert.Contains("TotalAttack P:6 E:8", line);
             StringAssert.Contains("Troops P:1 E:1", line);
             StringAssert.Contains("Slot:2", line);
+            StringAssert.DoesNotContain("Players:", line);
+            StringAssert.DoesNotContain("Enemies:", line);
         }
 
         [Test]
@@ -37,7 +39,7 @@ namespace Game.Tests.EditMode
 
             string line = BattleDebugPanelFormatter.FormatSelectedTroop(state, "missing_troop");
 
-            Assert.AreEqual("Selected Troop: missing_troop (missing)", line);
+            Assert.AreEqual("Selected Troop: (missing)", line);
         }
 
         [Test]
@@ -47,9 +49,22 @@ namespace Game.Tests.EditMode
 
             string line = BattleDebugPanelFormatter.FormatSelectedTroop(state, "camp_1");
 
-            StringAssert.Contains("Selected Troop: camp_1 (troop.camp)", line);
-            StringAssert.Contains("attackResult:2", line);
+            StringAssert.Contains("Selected Troop: troop.camp", line);
+            StringAssert.Contains("Attack Result:2", line);
             StringAssert.Contains("camp", line);
+        }
+
+        [Test]
+        public void FormatCampTroops_WhenCampTroopExists_IncludesCampDefIdOnly()
+        {
+            BattleState state = CreateBattleStateForFormatterTests();
+
+            string line = BattleDebugPanelFormatter.FormatCampTroops(state, "camp_1");
+
+            StringAssert.Contains("Selected Troop: troop.camp", line);
+            StringAssert.Contains("Camp Troops (1):", line);
+            StringAssert.Contains("- troop.camp | Attack:2 | Attack Result:2 <selected>", line);
+            StringAssert.DoesNotContain("camp_1", line);
         }
 
         [Test]
@@ -96,7 +111,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void FormatBattlefield_WhenEnemyTroopsExist_IncludesEnemyNameAttackAndEffects()
+        public void FormatTroopEffects_WhenTroopHasEffect_ReturnsReadableEffectsLabel()
         {
             BattleState state = CreateBattleStateForFormatterTests();
             TroopInstance enemyTroop = state.troopsById["e_1"];
@@ -129,12 +144,9 @@ namespace Game.Tests.EditMode
 
             enemyTroop.troopDefId = "troop_ratkin";
 
-            string line = BattleDebugPanelFormatter.FormatBattlefield(state, 0, database);
+            string line = BattleDebugPanelFormatter.FormatTroopEffects(database, enemyTroop.troopDefId);
 
-            StringAssert.Contains("Enemies:", line);
-            StringAssert.Contains("- Ratkin", line);
-            StringAssert.Contains("Attack:5", line);
-            StringAssert.Contains("Effects:Turn End: Add Attack Modifier(+2)", line);
+            Assert.AreEqual("Turn End: Add Attack Modifier(+2)", line);
         }
 
         static BattleState CreateBattleStateForFormatterTests()
@@ -156,18 +168,21 @@ namespace Game.Tests.EditMode
             {
                 instanceId = "p_1",
                 troopDefId = "troop.player",
+                attack = 4,
                 attackResult = 4
             };
             state.troopsById["e_1"] = new TroopInstance
             {
                 instanceId = "e_1",
                 troopDefId = "troop.enemy",
+                attack = 5,
                 attackResult = 5
             };
             state.troopsById["camp_1"] = new TroopInstance
             {
                 instanceId = "camp_1",
                 troopDefId = "troop.camp",
+                attack = 2,
                 attackResult = 2
             };
 

@@ -62,6 +62,15 @@ namespace Game.Infrastructure.Data
                     "run_config",
                     "Required config 'run_config' is missing.");
             }
+
+            if (database.playerStart == null)
+            {
+                report.AddError(
+                    GameDataErrorCode.MissingRequiredConfig,
+                    GameDataConstants.DefaultDataIndexPath,
+                    "player_start",
+                    "Required config 'player_start' is missing.");
+            }
         }
 
         void ValidateConfigValues(GameDatabase database, GameDataValidationReport report)
@@ -114,6 +123,115 @@ namespace Game.Infrastructure.Data
                         database.runConfigSourcePath,
                         database.runConfig.id,
                         "supplyLimit must be greater than zero.");
+                }
+            }
+
+            if (database.playerStart != null)
+            {
+                if (database.playerStart.startingStability < 0)
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        database.playerStartSourcePath,
+                        database.playerStart.id,
+                        "startingStability must be greater than or equal to 0.");
+                }
+
+                if (database.playerStart.startingMana < 0)
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        database.playerStartSourcePath,
+                        database.playerStart.id,
+                        "startingMana must be greater than or equal to 0.");
+                }
+
+                if (database.battleConfig != null &&
+                    database.playerStart.startingMana > database.battleConfig.manaMax)
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        database.playerStartSourcePath,
+                        database.playerStart.id,
+                        $"startingMana must be less than or equal to battle_config.manaMax({database.battleConfig.manaMax}).");
+                }
+
+                if (database.playerStart.startingPlayerMorale <= 0)
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        database.playerStartSourcePath,
+                        database.playerStart.id,
+                        "startingPlayerMorale must be greater than zero.");
+                }
+
+                if (database.playerStart.startingSquadCardIds == null ||
+                    database.playerStart.startingSquadCardIds.Count <= 0)
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        database.playerStartSourcePath,
+                        database.playerStart.id,
+                        "startingSquadCardIds must contain at least one Squad card id.");
+                }
+                else
+                {
+                    for (int i = 0; i < database.playerStart.startingSquadCardIds.Count; i++)
+                    {
+                        string cardId = database.playerStart.startingSquadCardIds[i];
+                        if (string.IsNullOrWhiteSpace(cardId))
+                        {
+                            report.AddError(
+                                GameDataErrorCode.InvalidValue,
+                                database.playerStartSourcePath,
+                                database.playerStart.id,
+                                $"startingSquadCardIds[{i}] must not be empty.");
+                            continue;
+                        }
+
+                        if (!database.cardsById.TryGetValue(cardId, out CardDef cardDef) || cardDef == null)
+                        {
+                            report.AddError(
+                                GameDataErrorCode.MissingReference,
+                                database.playerStartSourcePath,
+                                database.playerStart.id,
+                                $"startingSquadCardIds[{i}]('{cardId}') does not exist.");
+                            continue;
+                        }
+
+                        if (!string.Equals(cardDef.type, "Squad", StringComparison.Ordinal))
+                        {
+                            report.AddError(
+                                GameDataErrorCode.InvalidEnum,
+                                database.playerStartSourcePath,
+                                database.playerStart.id,
+                                $"startingSquadCardIds[{i}]('{cardId}') must reference a Squad card.");
+                            continue;
+                        }
+
+                        bool hasPositiveSummon = false;
+                        if (cardDef.battleStart != null && cardDef.battleStart.summonTroops != null)
+                        {
+                            for (int summonIndex = 0; summonIndex < cardDef.battleStart.summonTroops.Count; summonIndex++)
+                            {
+                                SummonTroopRefDef summon = cardDef.battleStart.summonTroops[summonIndex];
+                                if (summon != null && summon.count > 0 && !string.IsNullOrWhiteSpace(summon.troopId))
+                                {
+                                    hasPositiveSummon = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!hasPositiveSummon)
+                        {
+                            report.AddError(
+                                GameDataErrorCode.InvalidValue,
+                                database.playerStartSourcePath,
+                                database.playerStart.id,
+                                $"startingSquadCardIds[{i}]('{cardId}') must summon at least one troop.");
+                        }
+                    }
                 }
             }
         }

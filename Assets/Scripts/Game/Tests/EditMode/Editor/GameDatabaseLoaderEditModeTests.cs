@@ -18,6 +18,7 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(0, result.report.ErrorCount);
             Assert.NotNull(result.database.battleConfig);
             Assert.NotNull(result.database.runConfig);
+            Assert.NotNull(result.database.playerStart);
             Assert.AreEqual(3, result.database.battlefieldsById.Count);
             Assert.Greater(result.database.troopsById.Count, 0);
         }
@@ -137,10 +138,10 @@ namespace Game.Tests.EditMode
                 ["Data/DataIndex.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""configs"": [""Data/battle_config.json"", ""Data/run_config.json""],
+  ""configs"": [""Data/battle_config.json"", ""Data/run_config.json"", ""Data/player_start.json""],
   ""battlefields"": [""Data/battlefields/bf_1.json""],
   ""troops"": [""Data/troops/troop_1.json""],
-  ""cards"": [],
+  ""cards"": [""Data/cards/card_squad_1.json""],
   ""skills"": [],
   ""encounters"": [""Data/encounters/enc_1.json""]
 }",
@@ -166,6 +167,15 @@ namespace Game.Tests.EditMode
   ""startingStability"": 3,
   ""supplyLimit"": 5
 }",
+                ["Data/player_start.json"] =
+@"{
+  ""schemaVersion"": 1,
+  ""id"": ""player_start"",
+  ""startingStability"": 3,
+  ""startingMana"": 5,
+  ""startingPlayerMorale"": 10,
+  ""startingSquadCardIds"": [""card_squad_1""]
+}",
                 ["Data/battlefields/bf_1.json"] =
 @"{
   ""schemaVersion"": 1,
@@ -179,7 +189,20 @@ namespace Game.Tests.EditMode
     ""Victory"": [],
     ""Draw"": [],
     ""Defeat"": [],
-    ""GreatDefeat"": []
+  ""GreatDefeat"": []
+  }
+}",
+                ["Data/cards/card_squad_1.json"] =
+@"{
+  ""schemaVersion"": 1,
+  ""id"": ""card_squad_1"",
+  ""type"": ""Squad"",
+  ""supplyCost"": 1,
+  ""nameLocKey"": ""card_squad_1_name"",
+  ""descLocKey"": ""card_squad_1_desc"",
+  ""battleStart"": {
+    ""summonTroops"": [ { ""troopId"": ""troop_1"", ""count"": 1 } ],
+    ""ops"": []
   }
 }",
                 ["Data/troops/troop_1.json"] =

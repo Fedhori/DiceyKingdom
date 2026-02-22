@@ -383,11 +383,11 @@
   - 배치 결과를 전장 텍스트와 로그에 남긴다.
 
 - [x] `T6-05` PlayerDeploy 수동 배치 구현
-  - 흐름: 병력 선택 -> 전장 선택 -> `DeploySelected` 확정
+  - 흐름: 병력 블록 선택(캠프/전장) -> 전장 카드 클릭 즉시 배치
   - `PlayerDeploy` 페이즈에서만 성공, 나머지 페이즈는 거부 + warning 로그
 
 - [x] `T6-06` 페이즈별 버튼 활성/비활성 규칙 적용
-  - `DeploySelected`: `PlayerDeploy` + 선택 2종 완료 시만 활성
+  - `DeploySelected`: 레거시 버튼으로 비활성/미사용
   - `Roll`: `Roll` 페이즈에서만 활성
   - `Resolve`: `Resolve` 페이즈에서만 활성
   - `Retreat`: `PlayerDeploy` + `stability > 0`일 때만 활성

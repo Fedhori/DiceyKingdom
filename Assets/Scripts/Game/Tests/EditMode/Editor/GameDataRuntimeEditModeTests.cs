@@ -46,6 +46,7 @@ namespace Game.Tests.EditMode
             Assert.IsFalse(loaded.shouldBlockStartup);
             Assert.IsNotNull(loaded.database.battleConfig);
             Assert.IsNotNull(loaded.database.runConfig);
+            Assert.IsNotNull(loaded.database.playerStart);
             Assert.AreEqual(3, loaded.database.battlefieldsById.Count);
             Assert.AreEqual(1, loaded.report.ErrorCount);
         }

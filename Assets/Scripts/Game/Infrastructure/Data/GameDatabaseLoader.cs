@@ -142,11 +142,35 @@ namespace Game.Infrastructure.Data
                     continue;
                 }
 
+                if (string.Equals(header.id, "player_start", StringComparison.Ordinal))
+                {
+                    if (database.playerStart != null)
+                    {
+                        report.AddError(
+                            GameDataErrorCode.DuplicateId,
+                            path,
+                            header.id,
+                            "Duplicate player_start is not allowed.");
+                        continue;
+                    }
+
+                    PlayerStartDef playerStart = ParseStrict<PlayerStartDef>(json, path, header.id, report);
+                    if (playerStart == null)
+                    {
+                        continue;
+                    }
+
+                    ValidateSchemaVersion(playerStart.schemaVersion, path, playerStart.id, report);
+                    database.playerStart = playerStart;
+                    database.playerStartSourcePath = path;
+                    continue;
+                }
+
                 report.AddError(
                     GameDataErrorCode.InvalidValue,
                     path,
                     header.id,
-                    $"Unknown config id '{header.id}'. Allowed: battle_config, run_config.");
+                    $"Unknown config id '{header.id}'. Allowed: battle_config, run_config, player_start.");
             }
         }
 

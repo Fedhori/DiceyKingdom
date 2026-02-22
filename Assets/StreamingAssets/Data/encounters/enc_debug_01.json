@@ -1,10 +1,25 @@
 {
-  "schemaVersion": 1,
-  "id": "enc_debug_01",
-  "enemyMorale": 10,
-  "plans": [
-    { "battlefieldIndex": 0, "troops": [ { "troopId": "troop_miko_assassin", "count": 1 } ] },
-    { "battlefieldIndex": 1, "troops": [ { "troopId": "troop_ratkin", "count": 2 } ] },
-    { "battlefieldIndex": 2, "troops": [ { "troopId": "troop_ratkin", "count": 1 } ] }
-  ]
+	"schemaVersion": 1,
+	"id": "enc_debug_01",
+	"enemyMorale": 10,
+	"plans": [
+		{
+			"battlefieldIndex": 0,
+			"troops": [
+				{ "troopId": "troop_test6", "count": 2 }
+			]
+		},
+		{
+			"battlefieldIndex": 1,
+			"troops": [
+				{ "troopId": "troop_test6", "count": 1 }
+			]
+		},
+		{
+			"battlefieldIndex": 2,
+			"troops": [
+				{ "troopId": "troop_test6", "count": 0 }
+			]
+		}
+	]
 }

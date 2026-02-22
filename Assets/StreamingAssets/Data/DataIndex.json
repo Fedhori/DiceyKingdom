@@ -2,7 +2,8 @@
   "schemaVersion": 1,
   "configs": [
     "Data/battle_config.json",
-    "Data/run_config.json"
+    "Data/run_config.json",
+    "Data/player_start.json"
   ],
   "battlefields": [
     "Data/battlefields/bf_peak.json",
@@ -13,7 +14,8 @@
     "Data/troops/troop_reservist.json",
     "Data/troops/troop_miko_assassin.json",
     "Data/troops/troop_dwarf_cannon.json",
-    "Data/troops/troop_ratkin.json"
+    "Data/troops/troop_ratkin.json",
+    "Data/troops/troop_test6.json"
   ],
   "cards": [
     "Data/cards/card_squad_reserves.json",
