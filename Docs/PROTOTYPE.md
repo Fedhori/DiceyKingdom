@@ -176,7 +176,7 @@
 
 #### 작업 2 서브테스크(구현 순서)
 
-- [ ] `T2-01` 페이즈 타입 고정
+- [x] `T2-01` 페이즈 타입 고정
   - `BattlePhase` enum을 고정한다.
   - 순서: `Recall -> EnemyDeploy -> PlayerDeploy -> Roll -> Tactics -> Resolve`
 
