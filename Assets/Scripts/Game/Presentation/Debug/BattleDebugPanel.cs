@@ -1,5 +1,9 @@
 using Game.Application.Battle;
 using Game.Domain.Battle;
+using Game.Infrastructure.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,6 +12,8 @@ namespace Game.Presentation.Debug
 {
     public sealed class BattleDebugPanel : MonoBehaviour
     {
+        const string debugEncounterId = "enc_debug_01";
+
         [Header("Status")]
         [SerializeField] TMP_Text phaseText;
         [SerializeField] TMP_Text turnText;
@@ -52,8 +58,25 @@ namespace Game.Presentation.Debug
 
         public void StartBattle()
         {
-            EnsureContextInitialized();
-            AppendLog("StartBattle clicked.");
+            if (!TryCreateBattleContextFromData(out BattleState nextState, out string failureMessage))
+            {
+                AppendLog($"StartBattle failed: {failureMessage}");
+                return;
+            }
+
+            battleState = nextState;
+            phaseRunner = new BattlePhaseRunner(battleState);
+
+            bool started = phaseRunner.StartBattle();
+            if (!started)
+            {
+                AppendLog($"StartBattle rejected: {phaseRunner.LastFailureReason}");
+                return;
+            }
+
+            RefreshStubTexts();
+            RefreshStubButtons();
+            AppendLog($"StartBattle success: encounter={debugEncounterId}");
         }
 
         public void EnemyDeploy()
@@ -173,6 +196,205 @@ namespace Game.Presentation.Debug
             battlefield.EnsureInitialized();
 
             return $"Battlefield {index} | P:{battlefield.playerTroopIds.Count} E:{battlefield.enemyTroopIds.Count}";
+        }
+
+        bool TryCreateBattleContextFromData(out BattleState nextState, out string failureMessage)
+        {
+            nextState = null;
+            failureMessage = string.Empty;
+
+            GameDatabase database = GameDataRuntime.CurrentDatabase;
+            if (database == null)
+            {
+                failureMessage = "GameDataRuntime.CurrentDatabase is null.";
+                return false;
+            }
+
+            if (database.battleConfig == null)
+            {
+                failureMessage = "battle_config is missing.";
+                return false;
+            }
+
+            if (database.runConfig == null)
+            {
+                failureMessage = "run_config is missing.";
+                return false;
+            }
+
+            if (!database.encountersById.TryGetValue(debugEncounterId, out EncounterDef encounterDef) ||
+                encounterDef == null)
+            {
+                failureMessage = $"encounter('{debugEncounterId}') is missing.";
+                return false;
+            }
+
+            nextState = CreateInitialBattleState(database, encounterDef);
+            return true;
+        }
+
+        BattleState CreateInitialBattleState(GameDatabase database, EncounterDef encounterDef)
+        {
+            var nextState = new BattleState
+            {
+                turnIndex = 0,
+                isBattleEnded = false,
+                mana = database.battleConfig.manaMax,
+                stability = database.runConfig.startingStability,
+                playerMorale = Mathf.Max(1, encounterDef.enemyMorale),
+                enemyMorale = Mathf.Max(1, encounterDef.enemyMorale)
+            };
+
+            nextState.cooldowns.Clear();
+            nextState.campTroopIds.Clear();
+            nextState.troopsById.Clear();
+            nextState.enemyIntent.Clear();
+
+            InitializeBattlefieldSlots(nextState, database);
+            PopulateEnemyIntent(nextState, encounterDef);
+            PopulateCampFromSquadCards(nextState, database);
+
+            return nextState;
+        }
+
+        void InitializeBattlefieldSlots(BattleState nextState, GameDatabase database)
+        {
+            nextState.battlefields.Clear();
+
+            List<BattlefieldDef> orderedDefs = database.battlefieldsById
+                .Values
+                .OrderBy(def => def.id, StringComparer.Ordinal)
+                .ToList();
+
+            int targetCount = Mathf.Max(1, database.battleConfig.battlefieldCount);
+            for (int i = 0; i < targetCount; i++)
+            {
+                BattlefieldDef sourceDef = i < orderedDefs.Count ? orderedDefs[i] : null;
+                int? resolvedSlotLimit = sourceDef != null
+                    ? sourceDef.slotLimit
+                    : database.battleConfig.p0Rules.defaultSlotLimit;
+
+                var field = new BattlefieldState
+                {
+                    battlefieldId = sourceDef?.id ?? $"missing_battlefield_{i}",
+                    slotLimit = resolvedSlotLimit,
+                    totalAttackBonusPlayer = 0,
+                    totalAttackBonusEnemy = 0
+                };
+
+                field.EnsureInitialized();
+                nextState.battlefields.Add(field);
+            }
+
+            nextState.EnsureInitialized();
+        }
+
+        void PopulateEnemyIntent(BattleState nextState, EncounterDef encounterDef)
+        {
+            if (encounterDef.plans == null)
+            {
+                return;
+            }
+
+            for (int planIndex = 0; planIndex < encounterDef.plans.Count; planIndex++)
+            {
+                EncounterPlanDef plan = encounterDef.plans[planIndex];
+                if (plan == null || plan.troops == null)
+                {
+                    continue;
+                }
+
+                for (int troopIndex = 0; troopIndex < plan.troops.Count; troopIndex++)
+                {
+                    SummonTroopRefDef troop = plan.troops[troopIndex];
+                    if (troop == null || troop.count <= 0 || string.IsNullOrWhiteSpace(troop.troopId))
+                    {
+                        continue;
+                    }
+
+                    nextState.enemyIntent.Add(new EnemyIntentEntry
+                    {
+                        battlefieldIndex = plan.battlefieldIndex,
+                        troopDefId = troop.troopId,
+                        count = troop.count
+                    });
+                }
+            }
+        }
+
+        void PopulateCampFromSquadCards(BattleState nextState, GameDatabase database)
+        {
+            List<CardDef> squadCards = database.cardsById
+                .Values
+                .Where(card => card != null && string.Equals(card.type, "Squad", StringComparison.Ordinal))
+                .OrderBy(card => card.id, StringComparer.Ordinal)
+                .ToList();
+
+            int addedTroopCount = 0;
+            for (int cardIndex = 0; cardIndex < squadCards.Count; cardIndex++)
+            {
+                CardDef squadCard = squadCards[cardIndex];
+                if (squadCard.battleStart == null || squadCard.battleStart.summonTroops == null)
+                {
+                    continue;
+                }
+
+                for (int summonIndex = 0; summonIndex < squadCard.battleStart.summonTroops.Count; summonIndex++)
+                {
+                    SummonTroopRefDef summon = squadCard.battleStart.summonTroops[summonIndex];
+                    if (summon == null || summon.count <= 0 || string.IsNullOrWhiteSpace(summon.troopId))
+                    {
+                        continue;
+                    }
+
+                    if (!database.troopsById.TryGetValue(summon.troopId, out TroopDef troopDef) || troopDef == null)
+                    {
+                        AppendLog($"StartBattle warning: troopDef('{summon.troopId}') is missing.");
+                        continue;
+                    }
+
+                    for (int i = 0; i < summon.count; i++)
+                    {
+                        TroopInstance troopInstance = CreateTroopInstance(troopDef);
+                        nextState.troopsById[troopInstance.instanceId] = troopInstance;
+                        nextState.campTroopIds.Add(troopInstance.instanceId);
+                        addedTroopCount += 1;
+                    }
+                }
+            }
+
+            if (addedTroopCount > 0)
+            {
+                return;
+            }
+
+            AppendLog("StartBattle warning: no Squad troops found, using one copy per troopDef.");
+
+            foreach (TroopDef troopDef in database.troopsById.Values.OrderBy(def => def.id, StringComparer.Ordinal))
+            {
+                TroopInstance troopInstance = CreateTroopInstance(troopDef);
+                nextState.troopsById[troopInstance.instanceId] = troopInstance;
+                nextState.campTroopIds.Add(troopInstance.instanceId);
+            }
+        }
+
+        static TroopInstance CreateTroopInstance(TroopDef troopDef)
+        {
+            var troopInstance = new TroopInstance
+            {
+                troopDefId = troopDef.id,
+                attack = Mathf.Max(1, troopDef.attack),
+                baseRoll = 0,
+                attackResult = 0
+            };
+
+            if (troopDef.tags != null && troopDef.tags.Count > 0)
+            {
+                troopInstance.tags.AddRange(troopDef.tags);
+            }
+
+            troopInstance.EnsureInitialized();
+            return troopInstance;
         }
 
         void AppendLog(string message)

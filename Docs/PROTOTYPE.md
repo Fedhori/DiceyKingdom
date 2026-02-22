@@ -373,7 +373,7 @@
   - 패널 내부에 `BattleState`, `BattlePhaseRunner`, `selectedTroopId`, `selectedBattlefieldIndex`를 유지한다.
   - 상태 리셋/재시작 시 null이 남지 않게 초기화 경로를 고정한다.
 
-- [ ] `T6-03` `StartBattle` 구현(데이터 주입)
+- [x] `T6-03` `StartBattle` 구현(데이터 주입)
   - `GameDataRuntime.CurrentDatabase`를 사용한다.
   - Encounter는 `enc_debug_01` 고정으로 로드한다.
   - 시작 시 전투 상태를 새로 만들고 기본 UI를 즉시 갱신한다.
