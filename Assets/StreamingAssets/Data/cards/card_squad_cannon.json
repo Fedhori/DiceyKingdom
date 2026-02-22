@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "card_squad_cannon",
+  "type": "Squad",
+  "supplyCost": 1,
+  "nameLocKey": "card_cannon_name",
+  "descLocKey": "card_cannon_desc",
+  "battleStart": {
+    "summonTroops": [
+      { "troopId": "troop_dwarf_cannon", "count": 1 }
+    ],
+    "ops": []
+  }
+}

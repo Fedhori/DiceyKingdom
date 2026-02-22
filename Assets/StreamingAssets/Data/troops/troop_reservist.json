@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "troop_reservist",
+  "attack": 2,
+  "tags": ["reserve"],
+  "nameLocKey": "troop_reservist_name",
+  "descLocKey": "troop_reservist_desc",
+  "effects": [
+    {
+      "timing": "TurnEnd",
+      "condition": { "type": "IsInCamp" },
+      "ops": [
+        { "op": "AddAttackModifier", "target": "Attack", "layer": "Battle", "mode": "Add", "value": 2, "textLocKey": "effect_attack_plus" }
+      ]
+    }
+  ]
+}

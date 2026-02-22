@@ -333,6 +333,12 @@
 
 **완료 기준(DoD):** Battle 실행이 코드 하드코딩이 아닌 Def 데이터로 구동됨
 
+- 진행 현황(2026-02-22)
+  - `DataIndex.json` + 샘플 Def 세트 추가
+  - `GameDatabaseLoader` / `GameDataValidator` / `validate_data` 경로 추가
+  - EditMode 데이터 로드/검증 테스트 추가 및 통과
+  - Battle 런타임에 Def를 실제 주입하는 연결 단계는 후속 작업으로 유지
+
 ---
 
 ### 작업 6: GameScene 통합(UI 최소) + BattleDebugPanel 연결

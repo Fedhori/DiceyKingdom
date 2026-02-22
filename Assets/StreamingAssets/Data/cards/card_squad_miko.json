@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "card_squad_miko",
+  "type": "Squad",
+  "supplyCost": 1,
+  "nameLocKey": "card_miko_name",
+  "descLocKey": "card_miko_desc",
+  "battleStart": {
+    "summonTroops": [
+      { "troopId": "troop_miko_assassin", "count": 1 }
+    ],
+    "ops": []
+  }
+}

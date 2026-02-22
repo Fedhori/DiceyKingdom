@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "troop_dwarf_cannon",
+  "attack": 4,
+  "tags": ["cannon"],
+  "nameLocKey": "troop_dwarf_cannon_name",
+  "descLocKey": "troop_dwarf_cannon_desc",
+  "effects": []
+}

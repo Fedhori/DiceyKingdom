@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "skill_decoy",
+  "manaCost": 2,
+  "cooldown": 2,
+  "timing": "Deploy",
+  "target": { "type": "EnemyTroop", "count": 1 },
+  "nameLocKey": "skill_decoy_name",
+  "descLocKey": "skill_decoy_desc",
+  "ops": [
+    { "op": "MoveEnemyTroop", "keepAttackResult": true, "textLocKey": "effect_move_enemy_keep_result" }
+  ]
+}

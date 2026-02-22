@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "skill_redeploy",
+  "manaCost": 2,
+  "cooldown": 2,
+  "timing": "Tactics",
+  "target": { "type": "AllyTroop", "count": 1 },
+  "nameLocKey": "skill_redeploy_name",
+  "descLocKey": "skill_redeploy_desc",
+  "ops": [
+    { "op": "MoveTroop", "keepAttackResult": true, "textLocKey": "effect_move_keep_result" }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "bf_ruins",
+  "slotLimit": null,
+  "tags": ["ruins"],
+  "nameLocKey": "bf_ruins_name",
+  "descLocKey": "bf_ruins_desc",
+  "outcomeEffects": {
+    "GreatVictory": [
+      { "ops": [ { "op": "ModifyMorale", "side": "Enemy", "delta": -2, "textLocKey": "effect_morale_minus" } ] }
+    ],
+    "Victory": [
+      { "ops": [ { "op": "ModifyMorale", "side": "Enemy", "delta": -1, "textLocKey": "effect_morale_minus" } ] }
+    ],
+    "Draw": [],
+    "Defeat": [
+      { "ops": [ { "op": "ModifyMorale", "side": "Player", "delta": -1, "textLocKey": "effect_morale_minus" } ] }
+    ],
+    "GreatDefeat": [
+      { "ops": [ { "op": "ModifyMorale", "side": "Player", "delta": -2, "textLocKey": "effect_morale_minus" } ] }
+    ]
+  }
+}

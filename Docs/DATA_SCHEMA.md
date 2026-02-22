@@ -1,7 +1,7 @@
 # DATA_SCHEMA
 > 역할: P0에서 사용할 JSON 데이터 구조(스키마) 정의 문서입니다.
 
-- 마지막 갱신: `2026-02-21`
+- 마지막 갱신: `2026-02-22`
 - 직렬화: `Newtonsoft.Json`
 
 ---
@@ -77,11 +77,11 @@
   "manaRegenPerTurn": 2,
   "cooldownTickPerTurn": -1,
 
-  "faceValueMin": 1,
+  "attackResultMin": 1,
   "greatVictoryMultiplier": 2,
 
   "p0Rules": {
-    "disallowPowerChange": true,
+    "disallowBaseAttackMutation": true,
     "defaultSlotLimit": null
   }
 }
@@ -132,7 +132,7 @@
   "schemaVersion": 1,
   "id": "troop_reservist",
 
-  "Attack": 2,
+  "attack": 2,
   "tags": ["reserve"],
 
   "nameLocKey": "troop_reservist_name",
@@ -203,7 +203,6 @@
         "scope": "AllTroops",
         "mode": "Add",
         "value": 1,
-        "min": 1,
         "textLocKey": "effect_face_plus"
       }
     ]
@@ -282,3 +281,6 @@
 - AddAttackModifier
 
 > P0 금지: ModifyPower 류 op
+
+- `AddAttackModifier.layer`는 `Battle` / `Permanent`만 허용(대소문자 구분).
+- 수치 입력은 `value` / `amount` / `delta` 중 최소 1개가 필요하다.

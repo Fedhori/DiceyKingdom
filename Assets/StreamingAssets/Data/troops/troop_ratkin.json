@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "troop_ratkin",
+  "attack": 2,
+  "tags": ["ratkin"],
+  "nameLocKey": "troop_ratkin_name",
+  "descLocKey": "troop_ratkin_desc",
+  "effects": []
+}

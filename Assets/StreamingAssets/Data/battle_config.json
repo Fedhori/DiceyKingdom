@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "battle_config",
+  "battlefieldCount": 3,
+  "manaMax": 5,
+  "manaRegenPerTurn": 2,
+  "cooldownTickPerTurn": -1,
+  "attackResultMin": 1,
+  "greatVictoryMultiplier": 2,
+  "p0Rules": {
+    "disallowBaseAttackMutation": true,
+    "defaultSlotLimit": null
+  }
+}
