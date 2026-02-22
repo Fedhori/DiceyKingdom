@@ -21,6 +21,15 @@ namespace Game.Infrastructure.Data
     {
         [JsonProperty("type", Required = Required.Always)]
         public string type = string.Empty;
+
+        [JsonProperty("value", Required = Required.Default)]
+        public int? value;
+
+        [JsonProperty("count", Required = Required.Default)]
+        public int? count;
+
+        [JsonProperty("tag", Required = Required.Default)]
+        public string tag;
     }
 
     [JsonObject(MemberSerialization.OptIn)]

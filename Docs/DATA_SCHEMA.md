@@ -267,8 +267,10 @@
 
 - Always
 - EnemyCountEquals
+  - `value` 또는 `count`로 비교값 지정(둘 다 없으면 1로 처리)
 - IsInCamp
 - HasTag
+  - `tag` 필드로 검사할 태그 지정
 
 ### OpCode(op)
 

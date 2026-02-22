@@ -85,8 +85,15 @@ namespace Game.Presentation.Debug
                 ? battlefield.slotLimit.Value.ToString()
                 : "unlimited";
 
+            string damageLabel = FormatVictoryDamageLabel(database, battlefieldId);
+            if (string.IsNullOrWhiteSpace(damageLabel))
+            {
+                return
+                    $"Battlefield {battlefieldIndex} ({battlefieldId}) | TotalAttack P:{playerTotalAttack} E:{enemyTotalAttack} | Troops P:{playerCount} E:{enemyCount} | Slot:{slotLabel}";
+            }
+
             return
-                $"Battlefield {battlefieldIndex} ({battlefieldId}) | TotalAttack P:{playerTotalAttack} E:{enemyTotalAttack} | Troops P:{playerCount} E:{enemyCount} | Slot:{slotLabel}";
+                $"Battlefield {battlefieldIndex} ({battlefieldId}) | TotalAttack P:{playerTotalAttack} E:{enemyTotalAttack} | Troops P:{playerCount} E:{enemyCount} | Slot:{slotLabel} | {damageLabel}";
         }
 
         public static string FormatCampTroops(BattleState battleState, string selectedTroopId)
@@ -239,6 +246,84 @@ namespace Game.Presentation.Debug
             }
 
             return total;
+        }
+
+        static string FormatVictoryDamageLabel(GameDatabase database, string battlefieldId)
+        {
+            if (database == null ||
+                database.battlefieldsById == null ||
+                string.IsNullOrWhiteSpace(battlefieldId))
+            {
+                return string.Empty;
+            }
+
+            if (!database.battlefieldsById.TryGetValue(battlefieldId, out BattlefieldDef battlefieldDef) ||
+                battlefieldDef == null)
+            {
+                return string.Empty;
+            }
+
+            int greatVictoryDamage = ResolveEnemyMoraleDamageForOutcome(battlefieldDef, "GreatVictory");
+            int victoryDamage = ResolveEnemyMoraleDamageForOutcome(battlefieldDef, "Victory");
+            return $"Damage GV:{greatVictoryDamage} V:{victoryDamage}";
+        }
+
+        static int ResolveEnemyMoraleDamageForOutcome(BattlefieldDef battlefieldDef, string outcomeKey)
+        {
+            if (battlefieldDef == null ||
+                battlefieldDef.outcomeEffects == null ||
+                string.IsNullOrWhiteSpace(outcomeKey))
+            {
+                return 0;
+            }
+
+            if (!battlefieldDef.outcomeEffects.TryGetValue(outcomeKey, out List<EffectBlockDef> blocks) ||
+                blocks == null ||
+                blocks.Count <= 0)
+            {
+                return 0;
+            }
+
+            int totalDamage = 0;
+            for (int blockIndex = 0; blockIndex < blocks.Count; blockIndex++)
+            {
+                EffectBlockDef block = blocks[blockIndex];
+                if (block == null || block.ops == null)
+                {
+                    continue;
+                }
+
+                for (int opIndex = 0; opIndex < block.ops.Count; opIndex++)
+                {
+                    EffectOpDef op = block.ops[opIndex];
+                    if (op == null)
+                    {
+                        continue;
+                    }
+
+                    if (!string.Equals(op.op, "ModifyMorale", StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    if (!string.Equals(op.side, "Enemy", StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    if (!op.TryGetAmount(out int amount))
+                    {
+                        continue;
+                    }
+
+                    if (amount < 0)
+                    {
+                        totalDamage += -amount;
+                    }
+                }
+            }
+
+            return totalDamage;
         }
 
         static bool TryResolveTroop(BattleState battleState, string troopId, out TroopInstance troop)

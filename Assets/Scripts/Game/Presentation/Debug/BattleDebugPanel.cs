@@ -1,4 +1,5 @@
 using Game.Application.Battle;
+using Game.Application.Battle.Effects;
 using Game.Domain.Battle;
 using Game.Infrastructure.Data;
 using System;
@@ -47,6 +48,8 @@ namespace Game.Presentation.Debug
 
         BattleState battleState;
         BattlePhaseRunner phaseRunner;
+        readonly BattleEffectResolver effectResolver = new BattleEffectResolver();
+        TroopTimedEffectRunner troopTimedEffectRunner;
         string selectedTroopId = string.Empty;
         int selectedBattlefieldIndex = -1;
         readonly List<string> logEntries = new List<string>();
@@ -87,6 +90,7 @@ namespace Game.Presentation.Debug
 
             battleState = nextState;
             phaseRunner = new BattlePhaseRunner(battleState);
+            troopTimedEffectRunner = CreateTroopTimedEffectRunner(sourceDatabase);
 
             bool started = phaseRunner.StartBattle();
             if (!started)
@@ -389,6 +393,7 @@ namespace Game.Presentation.Debug
         {
             battleState = new BattleState();
             phaseRunner = new BattlePhaseRunner(battleState);
+            troopTimedEffectRunner = null;
             selectedTroopId = string.Empty;
             selectedBattlefieldIndex = -1;
         }
@@ -399,6 +404,11 @@ namespace Game.Presentation.Debug
             {
                 ResetContext();
                 AppendLog("Context auto-initialized.");
+            }
+
+            if (troopTimedEffectRunner == null)
+            {
+                troopTimedEffectRunner = CreateTroopTimedEffectRunner(GameDataRuntime.CurrentDatabase);
             }
         }
 
@@ -504,21 +514,44 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            Button cardButton = cardRect.GetComponent<Button>();
-            if (cardButton == null)
+            TMP_Text[] allCardTexts = cardRect.GetComponentsInChildren<TMP_Text>(true);
+            for (int textIndex = 0; textIndex < allCardTexts.Length; textIndex++)
             {
-                cardButton = cardRect.gameObject.AddComponent<Button>();
+                TMP_Text text = allCardTexts[textIndex];
+                if (text == null)
+                {
+                    continue;
+                }
+
+                text.raycastTarget = false;
+            }
+
+            string clickZoneName = $"Battlefield{battlefieldIndex}ClickZone";
+            RectTransform legacyClickZoneRect = FindDirectChildRect(cardRect, clickZoneName);
+            if (legacyClickZoneRect != null)
+            {
+                legacyClickZoneRect.gameObject.SetActive(false);
             }
 
             Image cardImage = cardRect.GetComponent<Image>();
             if (cardImage == null)
             {
                 cardImage = cardRect.gameObject.AddComponent<Image>();
-                cardImage.color = new Color(0f, 0f, 0f, 0.01f);
+                cardImage.color = new Color(0f, 0f, 0f, 0.001f);
             }
 
             cardImage.raycastTarget = true;
+
+            Button cardButton = cardRect.GetComponent<Button>();
+            if (cardButton == null)
+            {
+                cardButton = cardRect.gameObject.AddComponent<Button>();
+            }
+
+            cardButton.interactable = true;
+            cardButton.enabled = true;
             cardButton.targetGraphic = cardImage;
+            cardButton.transition = Selectable.Transition.None;
 
             if (battlefieldCardClickActions[battlefieldIndex] == null)
             {
@@ -798,7 +831,7 @@ namespace Game.Presentation.Debug
         {
             string troopDefId = ResolveTroopDefIdForDisplay(troopId);
             string effectsLabel = BattleDebugPanelFormatter.FormatTroopEffects(GameDataRuntime.CurrentDatabase, troop.troopDefId);
-            return $"{troopDefId} | R:{troop.attackResult} | Fx:{effectsLabel}";
+            return $"{troopDefId} | R:{troop.attackResult} | Effects:{effectsLabel}";
         }
 
         static string BuildTroopAttackText(TroopInstance troop)
@@ -1521,6 +1554,8 @@ namespace Game.Presentation.Debug
                 return false;
             }
 
+            ApplyTimedEffectsForTiming(BattleEffectTiming.Roll);
+
             if (!phaseRunner.AdvanceToNextPhase())
             {
                 WarnAndLog($"Roll warning: failed to move to next phase ({phaseRunner.LastFailureReason}).");
@@ -1601,6 +1636,11 @@ namespace Game.Presentation.Debug
                 return false;
             }
 
+            if (!battleState.isBattleEnded)
+            {
+                ApplyTimedEffectsForTiming(BattleEffectTiming.TurnEnd);
+            }
+
             if (!battleState.isBattleEnded && !phaseRunner.AdvanceToNextPhase())
             {
                 WarnAndLog($"Resolve warning: failed to move to next phase ({phaseRunner.LastFailureReason}).");
@@ -1669,6 +1709,39 @@ namespace Game.Presentation.Debug
         {
             UnityEngine.Debug.LogWarning($"[BattleDebugPanel] {message}");
             AppendLog(message);
+        }
+
+        TroopTimedEffectRunner CreateTroopTimedEffectRunner(GameDatabase database)
+        {
+            if (database == null)
+            {
+                WarnAndLog("Effect setup warning: GameDatabase is null.");
+                return null;
+            }
+
+            return new TroopTimedEffectRunner(database, effectResolver);
+        }
+
+        void ApplyTimedEffectsForTiming(BattleEffectTiming timing)
+        {
+            if (troopTimedEffectRunner == null)
+            {
+                WarnAndLog($"Effect warning: timed effect runner is missing for timing({timing}).");
+                return;
+            }
+
+            TroopTimedEffectRunResult result = troopTimedEffectRunner.ApplyForTiming(battleState, timing);
+
+            if (result.failedCount > 0)
+            {
+                WarnAndLog($"Effect warning: timing({timing}) failed={result.failedCount}, applied={result.appliedCount}.");
+                return;
+            }
+
+            if (result.appliedCount > 0)
+            {
+                AppendLog($"Effect applied: timing={timing}, applied={result.appliedCount}, skipped={result.skippedCount}.");
+            }
         }
 
         string ResolveTroopDefIdForDisplay(string troopId)

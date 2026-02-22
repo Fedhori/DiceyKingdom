@@ -18,6 +18,7 @@ namespace Game.Application.Battle.Effects
 
         public NumericModifierOperation modifierOperation = NumericModifierOperation.Add;
         public ModifierLayer modifierLayer = ModifierLayer.Battle;
+        public BattleModifierTarget modifierTarget = BattleModifierTarget.Attack;
         public int amount;
 
         public BattleOutcomeTransformKind transformKind = BattleOutcomeTransformKind.None;

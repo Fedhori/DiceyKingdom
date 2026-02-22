@@ -23,6 +23,54 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
+        public void FormatBattlefield_WithDatabase_IncludesGreatVictoryAndVictoryDamage()
+        {
+            BattleState state = CreateBattleStateForFormatterTests();
+            var database = new GameDatabase();
+            database.battlefieldsById["bf_0"] = new BattlefieldDef
+            {
+                slotLimit = 2,
+                outcomeEffects = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<EffectBlockDef>>
+                {
+                    ["GreatVictory"] = new System.Collections.Generic.List<EffectBlockDef>
+                    {
+                        new EffectBlockDef
+                        {
+                            ops = new System.Collections.Generic.List<EffectOpDef>
+                            {
+                                new EffectOpDef
+                                {
+                                    op = "ModifyMorale",
+                                    side = "Enemy",
+                                    delta = -2
+                                }
+                            }
+                        }
+                    },
+                    ["Victory"] = new System.Collections.Generic.List<EffectBlockDef>
+                    {
+                        new EffectBlockDef
+                        {
+                            ops = new System.Collections.Generic.List<EffectOpDef>
+                            {
+                                new EffectOpDef
+                                {
+                                    op = "ModifyMorale",
+                                    side = "Enemy",
+                                    delta = -1
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            string line = BattleDebugPanelFormatter.FormatBattlefield(state, 0, database);
+
+            StringAssert.Contains("Damage GV:2 V:1", line);
+        }
+
+        [Test]
         public void FormatSelectedTroop_WhenNoSelection_ReturnsNone()
         {
             BattleState state = CreateBattleStateForFormatterTests();

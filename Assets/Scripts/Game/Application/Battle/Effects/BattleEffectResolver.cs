@@ -317,13 +317,24 @@ namespace Game.Application.Battle.Effects
                 }
 
                 troop.EnsureInitialized();
-                troop.attackModifiers.Add(new NumericModifier
+                List<NumericModifier> targetModifiers = command.modifierTarget == BattleModifierTarget.AttackResult
+                    ? troop.attackResultModifiers
+                    : troop.attackModifiers;
+
+                targetModifiers.Add(new NumericModifier
                 {
                     operation = command.modifierOperation,
                     value = command.amount,
                     layer = command.modifierLayer,
                     sourceId = command.sourceId
                 });
+
+                if (command.modifierTarget == BattleModifierTarget.AttackResult && troop.baseRoll > 0)
+                {
+                    troop.attackResult = BattleSimulator.ComputeAttackResult(
+                        troop.baseRoll,
+                        troop.attackResultModifiers);
+                }
 
                 return BattleEffectResult.Success();
             }

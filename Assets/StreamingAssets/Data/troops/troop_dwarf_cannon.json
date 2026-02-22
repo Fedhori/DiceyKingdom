@@ -5,5 +5,13 @@
   "tags": ["cannon"],
   "nameLocKey": "troop_dwarf_cannon_name",
   "descLocKey": "troop_dwarf_cannon_desc",
-  "effects": []
+  "effects": [
+    {
+      "timing": "Roll",
+      "condition": { "type": "Always" },
+      "ops": [
+        { "op": "ModifyAttackResult", "scope": "SameBattlefieldTroops", "side": "Enemy", "mode": "Add", "value": -1, "textLocKey": "effect_dwarf_cannon_enemy_minus_one" }
+      ]
+    }
+  ]
 }

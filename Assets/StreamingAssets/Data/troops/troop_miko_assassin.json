@@ -5,5 +5,13 @@
   "tags": ["assassin"],
   "nameLocKey": "troop_miko_assassin_name",
   "descLocKey": "troop_miko_assassin_desc",
-  "effects": []
+  "effects": [
+    {
+      "timing": "Roll",
+      "condition": { "type": "EnemyCountEquals", "value": 1 },
+      "ops": [
+        { "op": "ModifyAttackResult", "scope": "Self", "mode": "PercentBonus", "value": 100, "textLocKey": "effect_miko_single_enemy_double" }
+      ]
+    }
+  ]
 }
