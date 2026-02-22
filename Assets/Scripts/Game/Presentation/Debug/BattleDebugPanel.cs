@@ -189,7 +189,16 @@ namespace Game.Presentation.Debug
         public void Retreat()
         {
             EnsureContextInitialized();
-            AppendLog("Retreat clicked.");
+
+            if (!TryRetreatBattle(out string failureMessage))
+            {
+                WarnAndLog($"Retreat rejected: {failureMessage}");
+                return;
+            }
+
+            RefreshStubTexts();
+            RefreshStubButtons();
+            AppendLog("Retreat success: battle ended.");
         }
 
         public void SelectTroop(string troopId)
@@ -810,6 +819,34 @@ namespace Game.Presentation.Debug
                 WarnAndLog($"Resolve warning: failed to move to next phase ({phaseRunner.LastFailureReason}).");
             }
 
+            return true;
+        }
+
+        bool TryRetreatBattle(out string failureMessage)
+        {
+            failureMessage = string.Empty;
+
+            if (!phaseRunner.isStarted)
+            {
+                failureMessage = "battle is not started.";
+                return false;
+            }
+
+            if (battleState.isBattleEnded)
+            {
+                failureMessage = "battle already ended.";
+                return false;
+            }
+
+            bool retreated = phaseRunner.TryRetreat();
+            if (!retreated)
+            {
+                failureMessage = phaseRunner.LastFailureReason.ToString();
+                return false;
+            }
+
+            selectedTroopId = string.Empty;
+            selectedBattlefieldIndex = -1;
             return true;
         }
 
