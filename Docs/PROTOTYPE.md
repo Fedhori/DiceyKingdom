@@ -362,6 +362,60 @@
 
 **완료 기준(DoD):** `GameScene` 하나로 P0 전투 루프 수동 검증 가능
 
+#### 작업 6 서브테스크(구현 순서)
+
+- [x] `T6-01` `BattleDebugPanel` 스켈레톤 생성
+  - 경로: `Assets/Scripts/Game/Presentation/Debug/BattleDebugPanel.cs`
+  - 네임스페이스: `Game.Presentation.Debug`
+  - TMP_Text/Button 참조 필드와 콜백 시그니처를 먼저 고정한다.
+
+- [ ] `T6-02` 패널 상태 컨텍스트 고정
+  - 패널 내부에 `BattleState`, `BattlePhaseRunner`, `selectedTroopId`, `selectedBattlefieldIndex`를 유지한다.
+  - 상태 리셋/재시작 시 null이 남지 않게 초기화 경로를 고정한다.
+
+- [ ] `T6-03` `StartBattle` 구현(데이터 주입)
+  - `GameDataRuntime.CurrentDatabase`를 사용한다.
+  - Encounter는 `enc_debug_01` 고정으로 로드한다.
+  - 시작 시 전투 상태를 새로 만들고 기본 UI를 즉시 갱신한다.
+
+- [ ] `T6-04` Enemy 자동 배치 구현
+  - `StartBattle` 직후 Enemy Intent(`enc_debug_01.plans`)를 전장에 자동 배치한다.
+  - 배치 결과를 전장 텍스트와 로그에 남긴다.
+
+- [ ] `T6-05` PlayerDeploy 수동 배치 구현
+  - 흐름: 병력 선택 -> 전장 선택 -> `DeploySelected` 확정
+  - `PlayerDeploy` 페이즈에서만 성공, 나머지 페이즈는 거부 + warning 로그
+
+- [ ] `T6-06` 페이즈별 버튼 활성/비활성 규칙 적용
+  - `DeploySelected`: `PlayerDeploy` + 선택 2종 완료 시만 활성
+  - `Roll`: `Roll` 페이즈에서만 활성
+  - `Resolve`: `Resolve` 페이즈에서만 활성
+  - `Retreat`: `PlayerDeploy` + `stability > 0`일 때만 활성
+
+- [ ] `T6-07` `Roll` 일괄 굴림 구현
+  - 현재 전장에 배치된 병력 전체를 한 번에 굴린다.
+  - 굴림 직후 Attack Result/UI/로그를 즉시 갱신한다.
+
+- [ ] `T6-08` `Resolve` 일괄 처리 구현
+  - 전장 0 -> 1 -> 2 순서로 처리한다.
+  - 중간에 종료 조건 충족 시 즉시 중단하고 종료 상태를 UI에 반영한다.
+
+- [ ] `T6-09` `Retreat` 처리 고정
+  - 성공 시 전투 종료 + `stability -= 1`(최소 0)
+  - Retreat 후에는 진행 버튼 잠금, `StartBattle`만 재허용
+
+- [ ] `T6-10` 최소 UI 갱신 루프 완성
+  - 표기: `Phase`, `Mana`, `Stability`, `Player/Enemy Morale`, 전장별 Total Attack
+  - 선택 상태(`selectedTroopId`, `selectedBattlefieldIndex`)를 항상 화면에 표시한다.
+
+- [ ] `T6-11` 실패 피드백 정책 적용
+  - 거부/실패 케이스는 무반응 금지
+  - 원인을 로그 패널 한 줄 메시지로 즉시 노출한다.
+
+- [ ] `T6-12` 상태 포맷터 분리 + EditMode 테스트
+  - 패널 문자열 포맷을 별도 포맷터 클래스로 분리한다.
+  - 포맷터 단위 EditMode 테스트를 추가해 출력 안정성을 검증한다.
+
 ---
 
 ### 작업 7: 최소 메타 루프(보상 → 정비) + Roster Deck 편집
