@@ -386,7 +386,7 @@
   - 흐름: 병력 선택 -> 전장 선택 -> `DeploySelected` 확정
   - `PlayerDeploy` 페이즈에서만 성공, 나머지 페이즈는 거부 + warning 로그
 
-- [ ] `T6-06` 페이즈별 버튼 활성/비활성 규칙 적용
+- [x] `T6-06` 페이즈별 버튼 활성/비활성 규칙 적용
   - `DeploySelected`: `PlayerDeploy` + 선택 2종 완료 시만 활성
   - `Roll`: `Roll` 페이즈에서만 활성
   - `Resolve`: `Resolve` 페이즈에서만 활성

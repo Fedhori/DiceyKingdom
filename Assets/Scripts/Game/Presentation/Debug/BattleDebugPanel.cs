@@ -202,6 +202,7 @@ namespace Game.Presentation.Debug
 
             selectedTroopId = troopId;
             RefreshStubTexts();
+            RefreshStubButtons();
             AppendLog($"Troop selected: {selectedTroopId}");
         }
 
@@ -218,6 +219,7 @@ namespace Game.Presentation.Debug
 
             selectedBattlefieldIndex = battlefieldIndex;
             RefreshStubTexts();
+            RefreshStubButtons();
             AppendLog($"Battlefield selected: {selectedBattlefieldIndex}");
         }
 
@@ -251,13 +253,35 @@ namespace Game.Presentation.Debug
 
         void RefreshStubButtons()
         {
-            SetButtonInteractable(startBattleButton, true);
-            SetButtonInteractable(enemyDeployButton, true);
-            SetButtonInteractable(playerDeployButton, true);
-            SetButtonInteractable(deploySelectedButton, true);
-            SetButtonInteractable(rollButton, true);
-            SetButtonInteractable(resolveButton, true);
-            SetButtonInteractable(retreatButton, true);
+            EnsureContextInitialized();
+
+            bool isStarted = phaseRunner.isStarted;
+            bool isEnded = battleState.isBattleEnded;
+            BattlePhase currentPhase = phaseRunner.currentPhase;
+
+            bool hasSelectedTroop = !string.IsNullOrWhiteSpace(selectedTroopId) &&
+                                    battleState.campTroopIds.Contains(selectedTroopId);
+            bool hasSelectedBattlefield = selectedBattlefieldIndex >= 0 &&
+                                          selectedBattlefieldIndex < battleState.battlefields.Count;
+
+            bool canProgress = isStarted && !isEnded;
+
+            SetButtonInteractable(startBattleButton, !isStarted || isEnded);
+            SetButtonInteractable(enemyDeployButton, canProgress && currentPhase == BattlePhase.Recall);
+            SetButtonInteractable(playerDeployButton, canProgress && currentPhase == BattlePhase.EnemyDeploy);
+            SetButtonInteractable(
+                deploySelectedButton,
+                canProgress &&
+                currentPhase == BattlePhase.PlayerDeploy &&
+                hasSelectedTroop &&
+                hasSelectedBattlefield);
+            SetButtonInteractable(rollButton, canProgress && currentPhase == BattlePhase.Roll);
+            SetButtonInteractable(resolveButton, canProgress && currentPhase == BattlePhase.Resolve);
+            SetButtonInteractable(
+                retreatButton,
+                canProgress &&
+                currentPhase == BattlePhase.PlayerDeploy &&
+                battleState.stability > 0);
         }
 
         void ResetContext()
