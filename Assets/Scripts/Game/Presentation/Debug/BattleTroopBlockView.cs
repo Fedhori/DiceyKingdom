@@ -7,7 +7,7 @@ namespace Game.Presentation.Debug
 {
     public sealed class BattleTroopBlockView : MonoBehaviour
     {
-        static readonly Vector2 defaultBlockPreferredSize = new Vector2(360f, 68f);
+        static readonly Vector2 defaultBlockPreferredSize = new Vector2(180f, 132f);
         static readonly Color defaultPlayerBackgroundColor = new Color32(68, 129, 192, 220);
         static readonly Color defaultEnemyBackgroundColor = new Color32(160, 82, 82, 220);
         static readonly Color defaultPlayerSelectedColor = new Color32(35, 92, 168, 255);
