@@ -2,35 +2,46 @@
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 [InitializeOnLoad]
-public class AutoStartFromBootstrap
+public static class AutoStartFromBootstrap
 {
-    
-    private const string mainScenePath = "Assets/Scenes/Bootstrap.unity";
-
     static AutoStartFromBootstrap()
     {
-        EditorApplication.playModeStateChanged += ChangePlayMode;
+        SceneAsset bootstrapSceneAsset = FindBootstrapSceneAsset();
+        if (bootstrapSceneAsset == null)
+        {
+            Debug.LogWarning("[AutoStartFromBootstrap] Bootstrap scene was not found in Build Settings. Play Mode Start Scene was not changed.");
+            return;
+        }
+
+        EditorSceneManager.playModeStartScene = bootstrapSceneAsset;
+        string bootstrapScenePath = AssetDatabase.GetAssetPath(bootstrapSceneAsset);
+        Debug.Log($"[AutoStartFromBootstrap] '{bootstrapScenePath}' was set as Play Mode Start Scene.");
     }
 
-    private static void ChangePlayMode(PlayModeStateChange state)
+    private static SceneAsset FindBootstrapSceneAsset()
     {
-        if (state == PlayModeStateChange.ExitingEditMode)
+        EditorBuildSettingsScene[] buildScenes = EditorBuildSettings.scenes;
+        for (int i = 0; i < buildScenes.Length; i++)
         {
-            string currentScene = SceneManager.GetActiveScene().path;
-            if (currentScene != mainScenePath)
+            string scenePath = buildScenes[i].path;
+            string sceneName = System.IO.Path.GetFileNameWithoutExtension(scenePath);
+            if (!string.Equals(sceneName, SceneIds.Bootstrap, System.StringComparison.Ordinal))
             {
-                Debug.Log($"[AutoStart] Switching to main scene: {mainScenePath}");
-                EditorSceneManager.playModeStartScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(mainScenePath);
+                continue;
             }
+
+            SceneAsset sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
+            if (sceneAsset == null)
+            {
+                Debug.LogWarning($"[AutoStartFromBootstrap] Scene asset load failed: {scenePath}");
+            }
+
+            return sceneAsset;
         }
-        else if (state == PlayModeStateChange.EnteredEditMode)
-        {
-            
-            EditorSceneManager.playModeStartScene = null;
-        }
+
+        return null;
     }
 }
 #endif

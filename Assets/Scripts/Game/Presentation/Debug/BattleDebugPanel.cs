@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Game.Presentation.Debug
@@ -51,6 +52,8 @@ namespace Game.Presentation.Debug
 
         void Awake()
         {
+            AutoBindUiReferencesByName();
+            WireDefaultButtonCallbacks();
             ResetContext();
             RefreshStubTexts();
             RefreshStubButtons();
@@ -250,6 +253,40 @@ namespace Game.Presentation.Debug
             AppendLog($"Battlefield selected: {selectedBattlefieldIndex}");
         }
 
+        public void SelectFirstCampTroop()
+        {
+            EnsureContextInitialized();
+
+            if (!phaseRunner.isStarted)
+            {
+                RejectAction("SelectFirstCampTroop", "battle is not started.");
+                return;
+            }
+
+            if (battleState.campTroopIds == null || battleState.campTroopIds.Count <= 0)
+            {
+                RejectAction("SelectFirstCampTroop", "no troop exists in camp.");
+                return;
+            }
+
+            SelectTroop(battleState.campTroopIds[0]);
+        }
+
+        public void SelectBattlefield0()
+        {
+            SelectBattlefield(0);
+        }
+
+        public void SelectBattlefield1()
+        {
+            SelectBattlefield(1);
+        }
+
+        public void SelectBattlefield2()
+        {
+            SelectBattlefield(2);
+        }
+
         public void ResetBattleContext()
         {
             ResetContext();
@@ -261,21 +298,22 @@ namespace Game.Presentation.Debug
         void RefreshStubTexts()
         {
             EnsureContextInitialized();
+            GameDatabase currentDatabase = GameDataRuntime.CurrentDatabase;
 
-            string phaseLabel = phaseRunner == null ? "(none)" : phaseRunner.currentPhase.ToString();
+            SetText(phaseText, BattleDebugPanelFormatter.FormatPhase(phaseRunner));
+            SetText(turnText, BattleDebugPanelFormatter.FormatTurn(battleState));
+            SetText(manaText, BattleDebugPanelFormatter.FormatMana(battleState));
+            SetText(stabilityText, BattleDebugPanelFormatter.FormatStability(battleState));
+            SetText(playerMoraleText, BattleDebugPanelFormatter.FormatPlayerMorale(battleState));
+            SetText(enemyMoraleText, BattleDebugPanelFormatter.FormatEnemyMorale(battleState));
+            SetText(selectedTroopText, BattleDebugPanelFormatter.FormatSelectedTroop(battleState, selectedTroopId));
+            SetText(
+                selectedBattlefieldText,
+                BattleDebugPanelFormatter.FormatSelectedBattlefield(battleState, selectedBattlefieldIndex));
 
-            SetText(phaseText, $"Phase: {phaseLabel}");
-            SetText(turnText, $"Turn: {battleState.turnIndex}");
-            SetText(manaText, $"Mana: {battleState.mana}");
-            SetText(stabilityText, $"Stability: {battleState.stability}");
-            SetText(playerMoraleText, $"Player Morale: {battleState.playerMorale}");
-            SetText(enemyMoraleText, $"Enemy Morale: {battleState.enemyMorale}");
-            SetText(selectedTroopText, BuildSelectedTroopLine());
-            SetText(selectedBattlefieldText, BuildSelectedBattlefieldLine());
-
-            SetText(battlefield0Text, BuildBattlefieldStubLine(0));
-            SetText(battlefield1Text, BuildBattlefieldStubLine(1));
-            SetText(battlefield2Text, BuildBattlefieldStubLine(2));
+            SetText(battlefield0Text, BattleDebugPanelFormatter.FormatBattlefield(battleState, 0, currentDatabase));
+            SetText(battlefield1Text, BattleDebugPanelFormatter.FormatBattlefield(battleState, 1, currentDatabase));
+            SetText(battlefield2Text, BattleDebugPanelFormatter.FormatBattlefield(battleState, 2, currentDatabase));
         }
 
         void RefreshStubButtons()
@@ -302,7 +340,10 @@ namespace Game.Presentation.Debug
                 currentPhase == BattlePhase.PlayerDeploy &&
                 hasSelectedTroop &&
                 hasSelectedBattlefield);
-            SetButtonInteractable(rollButton, canProgress && currentPhase == BattlePhase.Roll);
+            SetButtonInteractable(
+                rollButton,
+                canProgress &&
+                (currentPhase == BattlePhase.PlayerDeploy || currentPhase == BattlePhase.Roll));
             SetButtonInteractable(
                 resolveButton,
                 canProgress &&
@@ -331,122 +372,46 @@ namespace Game.Presentation.Debug
             }
         }
 
-        string BuildBattlefieldStubLine(int index)
+        void AutoBindUiReferencesByName()
         {
-            if (index < 0 || index >= battleState.battlefields.Count)
-            {
-                return $"Battlefield {index}: (missing)";
-            }
+            phaseText = ResolveBinding(phaseText, "PhaseText");
+            turnText = ResolveBinding(turnText, "TurnText");
+            manaText = ResolveBinding(manaText, "ManaText");
+            stabilityText = ResolveBinding(stabilityText, "StabilityText");
+            playerMoraleText = ResolveBinding(playerMoraleText, "PlayerMoraleText");
+            enemyMoraleText = ResolveBinding(enemyMoraleText, "EnemyMoraleText");
+            selectedTroopText = ResolveBinding(selectedTroopText, "SelectedTroopText");
+            selectedBattlefieldText = ResolveBinding(selectedBattlefieldText, "SelectedBattlefieldText");
 
-            BattlefieldState battlefield = battleState.battlefields[index];
-            battlefield.EnsureInitialized();
+            battlefield0Text = ResolveBinding(battlefield0Text, "Battlefield0Text");
+            battlefield1Text = ResolveBinding(battlefield1Text, "Battlefield1Text");
+            battlefield2Text = ResolveBinding(battlefield2Text, "Battlefield2Text");
 
-            int playerTotalAttack = ComputeTotalAttackPreview(
-                battlefield.playerTroopIds,
-                battlefield.totalAttackBonusPlayer);
-            int enemyTotalAttack = ComputeTotalAttackPreview(
-                battlefield.enemyTroopIds,
-                battlefield.totalAttackBonusEnemy);
+            startBattleButton = ResolveBinding(startBattleButton, "StartBattleButton");
+            enemyDeployButton = ResolveBinding(enemyDeployButton, "EnemyDeployButton");
+            playerDeployButton = ResolveBinding(playerDeployButton, "PlayerDeployButton");
+            deploySelectedButton = ResolveBinding(deploySelectedButton, "DeploySelectedButton");
+            rollButton = ResolveBinding(rollButton, "RollButton");
+            resolveButton = ResolveBinding(resolveButton, "ResolveButton");
+            retreatButton = ResolveBinding(retreatButton, "RetreatButton");
 
-            string slotLabel = battlefield.slotLimit.HasValue
-                ? battlefield.slotLimit.Value.ToString()
-                : "∞";
-
-            return
-                $"Battlefield {index} ({battlefield.battlefieldId}) | TotalAttack P:{playerTotalAttack} E:{enemyTotalAttack} | Troops P:{battlefield.playerTroopIds.Count} E:{battlefield.enemyTroopIds.Count} | Slot:{slotLabel}";
+            logText = ResolveBinding(logText, "LogText");
         }
 
-        string BuildSelectedTroopLine()
+        void WireDefaultButtonCallbacks()
         {
-            if (string.IsNullOrWhiteSpace(selectedTroopId))
-            {
-                return "Selected Troop: (none)";
-            }
+            WireButton(startBattleButton, StartBattle);
+            WireButton(enemyDeployButton, EnemyDeploy);
+            WireButton(playerDeployButton, PlayerDeploy);
+            WireButton(deploySelectedButton, DeploySelected);
+            WireButton(rollButton, Roll);
+            WireButton(resolveButton, Resolve);
+            WireButton(retreatButton, Retreat);
 
-            if (!battleState.troopsById.TryGetValue(selectedTroopId, out TroopInstance troop) || troop == null)
-            {
-                return $"Selected Troop: {selectedTroopId} (missing)";
-            }
-
-            troop.EnsureInitialized();
-
-            string locationLabel = "unknown";
-            if (battleState.campTroopIds.Contains(selectedTroopId))
-            {
-                locationLabel = "camp";
-            }
-            else
-            {
-                for (int i = 0; i < battleState.battlefields.Count; i++)
-                {
-                    BattlefieldState field = battleState.battlefields[i];
-                    if (field == null)
-                    {
-                        continue;
-                    }
-
-                    field.EnsureInitialized();
-
-                    if (field.playerTroopIds.Contains(selectedTroopId))
-                    {
-                        locationLabel = $"player@{i}";
-                        break;
-                    }
-
-                    if (field.enemyTroopIds.Contains(selectedTroopId))
-                    {
-                        locationLabel = $"enemy@{i}";
-                        break;
-                    }
-                }
-            }
-
-            return $"Selected Troop: {selectedTroopId} ({troop.troopDefId}) | attackResult:{troop.attackResult} | {locationLabel}";
-        }
-
-        string BuildSelectedBattlefieldLine()
-        {
-            if (selectedBattlefieldIndex < 0 || selectedBattlefieldIndex >= battleState.battlefields.Count)
-            {
-                return "Selected Battlefield: (none)";
-            }
-
-            BattlefieldState battlefield = battleState.battlefields[selectedBattlefieldIndex];
-            if (battlefield == null)
-            {
-                return $"Selected Battlefield: {selectedBattlefieldIndex} (missing)";
-            }
-
-            battlefield.EnsureInitialized();
-            return
-                $"Selected Battlefield: {selectedBattlefieldIndex} ({battlefield.battlefieldId}) | Troops P:{battlefield.playerTroopIds.Count} E:{battlefield.enemyTroopIds.Count}";
-        }
-
-        int ComputeTotalAttackPreview(List<string> troopIds, int totalAttackBonus)
-        {
-            int total = totalAttackBonus;
-            if (troopIds == null)
-            {
-                return total;
-            }
-
-            for (int i = 0; i < troopIds.Count; i++)
-            {
-                string troopId = troopIds[i];
-                if (string.IsNullOrWhiteSpace(troopId))
-                {
-                    continue;
-                }
-
-                if (!battleState.troopsById.TryGetValue(troopId, out TroopInstance troop) || troop == null)
-                {
-                    continue;
-                }
-
-                total += troop.attackResult;
-            }
-
-            return total;
+            WireOptionalButton("SelectFirstCampTroopButton", SelectFirstCampTroop);
+            WireOptionalButton("SelectBattlefield0Button", SelectBattlefield0);
+            WireOptionalButton("SelectBattlefield1Button", SelectBattlefield1);
+            WireOptionalButton("SelectBattlefield2Button", SelectBattlefield2);
         }
 
         bool TryCreateBattleContextFromData(
@@ -794,6 +759,17 @@ namespace Game.Presentation.Debug
                 return false;
             }
 
+            if (phaseRunner.currentPhase == BattlePhase.PlayerDeploy)
+            {
+                if (!phaseRunner.AdvanceToNextPhase())
+                {
+                    failureMessage = $"failed to enter Roll phase ({phaseRunner.LastFailureReason}).";
+                    return false;
+                }
+
+                AppendLog("Roll info: advanced from PlayerDeploy to Roll.");
+            }
+
             if (phaseRunner.currentPhase != BattlePhase.Roll)
             {
                 failureMessage = $"current phase is {phaseRunner.currentPhase}, required phase is {BattlePhase.Roll}.";
@@ -1024,6 +1000,62 @@ namespace Game.Presentation.Debug
             }
 
             button.interactable = isInteractable;
+        }
+
+        TComponent ResolveBinding<TComponent>(TComponent currentValue, string childName)
+            where TComponent : Component
+        {
+            if (currentValue != null)
+            {
+                return currentValue;
+            }
+
+            TComponent found = FindChildComponentByName<TComponent>(childName);
+            if (found == null)
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[BattleDebugPanel] Auto bind failed: {typeof(TComponent).Name} '{childName}' was not found.");
+            }
+
+            return found;
+        }
+
+        TComponent FindChildComponentByName<TComponent>(string childName)
+            where TComponent : Component
+        {
+            Transform[] children = GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < children.Length; i++)
+            {
+                Transform child = children[i];
+                if (!string.Equals(child.name, childName, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (child.TryGetComponent(out TComponent component))
+                {
+                    return component;
+                }
+            }
+
+            return null;
+        }
+
+        void WireOptionalButton(string buttonName, UnityAction callback)
+        {
+            Button button = FindChildComponentByName<Button>(buttonName);
+            WireButton(button, callback);
+        }
+
+        static void WireButton(Button button, UnityAction callback)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            button.onClick.RemoveListener(callback);
+            button.onClick.AddListener(callback);
         }
     }
 }
