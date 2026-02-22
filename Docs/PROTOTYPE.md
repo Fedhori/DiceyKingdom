@@ -196,7 +196,7 @@
   - `TryRetreat()`
   - 반환은 `bool`로 단순화하고, 실패 사유는 `LastFailureReason` 프로퍼티로 노출한다.
 
-- [ ] `T2-05` StartBattle 구현
+- [x] `T2-05` StartBattle 구현
   - 시작 시 현재 페이즈를 `Recall`로 둔다.
   - 이미 종료 상태면 실패 처리한다(`AlreadyEnded`).
 

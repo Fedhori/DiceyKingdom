@@ -19,8 +19,16 @@ namespace Game.Application.Battle
 
         public bool StartBattle()
         {
-            LastFailureReason = BattlePhaseFailureReason.NotStarted;
-            return false;
+            if (state.isBattleEnded)
+            {
+                LastFailureReason = BattlePhaseFailureReason.AlreadyEnded;
+                return false;
+            }
+
+            isStarted = true;
+            currentPhase = BattlePhase.Recall;
+            LastFailureReason = BattlePhaseFailureReason.None;
+            return true;
         }
 
         public bool AdvanceToNextPhase()

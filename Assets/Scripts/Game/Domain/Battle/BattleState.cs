@@ -13,6 +13,7 @@ namespace Game.Domain.Battle
         public int playerMorale;
         public int enemyMorale;
         public int mana;
+        public bool isBattleEnded;
 
         public Dictionary<string, int> cooldowns = new();
         public List<BattlefieldState> battlefields = new();
