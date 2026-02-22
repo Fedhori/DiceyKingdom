@@ -63,7 +63,7 @@ namespace Game.Presentation.Debug
                     out GameDatabase sourceDatabase,
                     out string failureMessage))
             {
-                AppendLog($"StartBattle failed: {failureMessage}");
+                RejectAction("StartBattle", failureMessage);
                 return;
             }
 
@@ -73,7 +73,7 @@ namespace Game.Presentation.Debug
             bool started = phaseRunner.StartBattle();
             if (!started)
             {
-                AppendLog($"StartBattle rejected: {phaseRunner.LastFailureReason}");
+                RejectAction("StartBattle", phaseRunner.LastFailureReason.ToString());
                 return;
             }
 
@@ -90,20 +90,21 @@ namespace Game.Presentation.Debug
 
             if (!phaseRunner.isStarted)
             {
-                WarnAndLog("EnemyDeploy rejected: battle is not started.");
+                RejectAction("EnemyDeploy", "battle is not started.");
                 return;
             }
 
             if (phaseRunner.currentPhase != BattlePhase.Recall)
             {
-                WarnAndLog(
-                    $"EnemyDeploy rejected: current phase is {phaseRunner.currentPhase}, required phase is {BattlePhase.Recall}.");
+                RejectAction(
+                    "EnemyDeploy",
+                    $"current phase is {phaseRunner.currentPhase}, required phase is {BattlePhase.Recall}.");
                 return;
             }
 
             if (!phaseRunner.AdvanceToNextPhase())
             {
-                WarnAndLog($"EnemyDeploy rejected: {phaseRunner.LastFailureReason}");
+                RejectAction("EnemyDeploy", phaseRunner.LastFailureReason.ToString());
                 return;
             }
 
@@ -118,20 +119,21 @@ namespace Game.Presentation.Debug
 
             if (!phaseRunner.isStarted)
             {
-                WarnAndLog("PlayerDeploy rejected: battle is not started.");
+                RejectAction("PlayerDeploy", "battle is not started.");
                 return;
             }
 
             if (phaseRunner.currentPhase != BattlePhase.EnemyDeploy)
             {
-                WarnAndLog(
-                    $"PlayerDeploy rejected: current phase is {phaseRunner.currentPhase}, required phase is {BattlePhase.EnemyDeploy}.");
+                RejectAction(
+                    "PlayerDeploy",
+                    $"current phase is {phaseRunner.currentPhase}, required phase is {BattlePhase.EnemyDeploy}.");
                 return;
             }
 
             if (!phaseRunner.AdvanceToNextPhase())
             {
-                WarnAndLog($"PlayerDeploy rejected: {phaseRunner.LastFailureReason}");
+                RejectAction("PlayerDeploy", phaseRunner.LastFailureReason.ToString());
                 return;
             }
 
@@ -146,7 +148,7 @@ namespace Game.Presentation.Debug
 
             if (!TryDeploySelectedTroop(out string failureMessage))
             {
-                WarnAndLog($"DeploySelected rejected: {failureMessage}");
+                RejectAction("DeploySelected", failureMessage);
                 return;
             }
 
@@ -162,7 +164,7 @@ namespace Game.Presentation.Debug
 
             if (!TryRollAllDeployedTroops(out int rolledCount, out string failureMessage))
             {
-                WarnAndLog($"Roll rejected: {failureMessage}");
+                RejectAction("Roll", failureMessage);
                 return;
             }
 
@@ -177,7 +179,7 @@ namespace Game.Presentation.Debug
 
             if (!TryResolveAllBattlefields(out int resolvedCount, out string failureMessage))
             {
-                WarnAndLog($"Resolve rejected: {failureMessage}");
+                RejectAction("Resolve", failureMessage);
                 return;
             }
 
@@ -192,7 +194,7 @@ namespace Game.Presentation.Debug
 
             if (!TryRetreatBattle(out string failureMessage))
             {
-                WarnAndLog($"Retreat rejected: {failureMessage}");
+                RejectAction("Retreat", failureMessage);
                 return;
             }
 
@@ -208,22 +210,19 @@ namespace Game.Presentation.Debug
             if (string.IsNullOrWhiteSpace(troopId))
             {
                 selectedTroopId = string.Empty;
-                RefreshStubTexts();
-                WarnAndLog("SelectTroop rejected: troopId is empty.");
+                RejectAction("SelectTroop", "troopId is empty.");
                 return;
             }
 
             if (!battleState.troopsById.ContainsKey(troopId))
             {
-                RefreshStubTexts();
-                WarnAndLog($"SelectTroop rejected: troopId({troopId}) does not exist.");
+                RejectAction("SelectTroop", $"troopId({troopId}) does not exist.");
                 return;
             }
 
             if (!battleState.campTroopIds.Contains(troopId))
             {
-                RefreshStubTexts();
-                WarnAndLog($"SelectTroop rejected: troopId({troopId}) is not in camp.");
+                RejectAction("SelectTroop", $"troopId({troopId}) is not in camp.");
                 return;
             }
 
@@ -239,8 +238,9 @@ namespace Game.Presentation.Debug
 
             if (battlefieldIndex < 0 || battlefieldIndex >= battleState.battlefields.Count)
             {
-                RefreshStubTexts();
-                WarnAndLog($"SelectBattlefield rejected: battlefieldIndex({battlefieldIndex}) is out of range.");
+                RejectAction(
+                    "SelectBattlefield",
+                    $"battlefieldIndex({battlefieldIndex}) is out of range.");
                 return;
             }
 
@@ -605,7 +605,7 @@ namespace Game.Presentation.Debug
 
                     if (!database.troopsById.TryGetValue(summon.troopId, out TroopDef troopDef) || troopDef == null)
                     {
-                        AppendLog($"StartBattle warning: troopDef('{summon.troopId}') is missing.");
+                        WarnAndLog($"StartBattle warning: troopDef('{summon.troopId}') is missing.");
                         continue;
                     }
 
@@ -624,7 +624,7 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            AppendLog("StartBattle warning: no Squad troops found, using one copy per troopDef.");
+            WarnAndLog("StartBattle warning: no Squad troops found, using one copy per troopDef.");
 
             foreach (TroopDef troopDef in database.troopsById.Values.OrderBy(def => def.id, StringComparer.Ordinal))
             {
@@ -657,13 +657,13 @@ namespace Game.Presentation.Debug
         {
             if (nextState == null)
             {
-                AppendLog("Enemy auto deploy skipped: battleState is null.");
+                WarnAndLog("Enemy auto deploy skipped: battleState is null.");
                 return;
             }
 
             if (sourceDatabase == null)
             {
-                AppendLog("Enemy auto deploy skipped: sourceDatabase is null.");
+                WarnAndLog("Enemy auto deploy skipped: sourceDatabase is null.");
                 return;
             }
 
@@ -676,14 +676,14 @@ namespace Game.Presentation.Debug
                 if (intent == null)
                 {
                     skippedCount += 1;
-                    AppendLog($"Enemy auto deploy warning: enemyIntent[{i}] is null.");
+                    WarnAndLog($"Enemy auto deploy warning: enemyIntent[{i}] is null.");
                     continue;
                 }
 
                 if (intent.battlefieldIndex < 0 || intent.battlefieldIndex >= nextState.battlefields.Count)
                 {
                     skippedCount += Mathf.Max(1, intent.count);
-                    AppendLog(
+                    WarnAndLog(
                         $"Enemy auto deploy warning: battlefieldIndex({intent.battlefieldIndex}) is out of range.");
                     continue;
                 }
@@ -691,7 +691,7 @@ namespace Game.Presentation.Debug
                 if (!sourceDatabase.troopsById.TryGetValue(intent.troopDefId, out TroopDef troopDef) || troopDef == null)
                 {
                     skippedCount += Mathf.Max(1, intent.count);
-                    AppendLog($"Enemy auto deploy warning: troopDef('{intent.troopDefId}') is missing.");
+                    WarnAndLog($"Enemy auto deploy warning: troopDef('{intent.troopDefId}') is missing.");
                     continue;
                 }
 
@@ -705,7 +705,7 @@ namespace Game.Presentation.Debug
                         battlefield.enemyTroopIds.Count >= battlefield.slotLimit.Value)
                     {
                         skippedCount += 1;
-                        AppendLog(
+                        WarnAndLog(
                             $"Enemy auto deploy warning: slotLimit exceeded at battlefield({intent.battlefieldIndex}).");
                         continue;
                     }
@@ -974,6 +974,13 @@ namespace Game.Presentation.Debug
 
                 buffer.Add(troopId);
             }
+        }
+
+        void RejectAction(string actionName, string reason)
+        {
+            WarnAndLog($"{actionName} rejected: {reason}");
+            RefreshStubTexts();
+            RefreshStubButtons();
         }
 
         void WarnAndLog(string message)

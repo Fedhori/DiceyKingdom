@@ -408,7 +408,7 @@
   - 표기: `Phase`, `Mana`, `Stability`, `Player/Enemy Morale`, 전장별 Total Attack
   - 선택 상태(`selectedTroopId`, `selectedBattlefieldIndex`)를 항상 화면에 표시한다.
 
-- [ ] `T6-11` 실패 피드백 정책 적용
+- [x] `T6-11` 실패 피드백 정책 적용
   - 거부/실패 케이스는 무반응 금지
   - 원인을 로그 패널 한 줄 메시지로 즉시 노출한다.
 
