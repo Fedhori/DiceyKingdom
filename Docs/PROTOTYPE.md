@@ -369,7 +369,7 @@
   - 네임스페이스: `Game.Presentation.Debug`
   - TMP_Text/Button 참조 필드와 콜백 시그니처를 먼저 고정한다.
 
-- [ ] `T6-02` 패널 상태 컨텍스트 고정
+- [x] `T6-02` 패널 상태 컨텍스트 고정
   - 패널 내부에 `BattleState`, `BattlePhaseRunner`, `selectedTroopId`, `selectedBattlefieldIndex`를 유지한다.
   - 상태 리셋/재시작 시 null이 남지 않게 초기화 경로를 고정한다.
 
