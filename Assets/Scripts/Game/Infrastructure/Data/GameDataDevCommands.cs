@@ -137,7 +137,7 @@ namespace Game.Infrastructure.Data
                 mode = GameDataBuildMode.Release;
             }
 
-            GameDataBuildResult result = GameDatabaseLoader.LoadDefault(mode);
+            GameDataBuildResult result = GameDataRuntime.LoadAtStartup(mode);
 
             if (result.isSuccess)
             {
@@ -145,7 +145,8 @@ namespace Game.Infrastructure.Data
                 return;
             }
 
-            Debug.LogWarning($"[validate_data] FAILED | errors={result.report.ErrorCount} | mode={mode}");
+            string fallbackSuffix = GameDataRuntime.IsUsingFallback ? " | fallback=active" : string.Empty;
+            Debug.LogWarning($"[validate_data] FAILED | errors={result.report.ErrorCount} | mode={mode}{fallbackSuffix}");
         }
     }
 }

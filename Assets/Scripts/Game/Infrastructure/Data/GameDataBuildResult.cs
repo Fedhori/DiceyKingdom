@@ -4,7 +4,7 @@ namespace Game.Infrastructure.Data
     {
         public bool isSuccess;
         public bool shouldBlockStartup;
-        public GameDatabase database;
-        public GameDataValidationReport report;
+        public GameDatabase database = new();
+        public GameDataValidationReport report = new();
     }
 }

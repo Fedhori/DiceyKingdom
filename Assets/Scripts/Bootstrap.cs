@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
+using Game.Infrastructure.Data;
 
 [DefaultExecutionOrder(-20000)]
 public class Bootstrap : MonoBehaviour
@@ -30,6 +31,17 @@ public class Bootstrap : MonoBehaviour
             if (!loadedConfig)
             {
                 Debug.LogError("[Bootstrap] GameConfig loading failed. Bootstrap halted.");
+                return;
+            }
+
+            GameDataBuildMode dataMode = Debug.isDebugBuild
+                ? GameDataBuildMode.Development
+                : GameDataBuildMode.Release;
+
+            GameDataBuildResult dataResult = GameDataRuntime.LoadAtStartup(dataMode);
+            if (dataResult.shouldBlockStartup)
+            {
+                Debug.LogError("[Bootstrap] Game data validation failed. Bootstrap halted.");
                 return;
             }
 
