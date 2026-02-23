@@ -1,7 +1,7 @@
 # TECH_ARCHITECTURE
 > 역할: **현재 Unity 템플릿 코드베이스(Scripts)** 위에, 본 게임의 P0 시스템을 어떻게 얹을지에 대한 구현 기준 문서입니다.
 
-- 마지막 갱신: `2026-02-22`
+- 마지막 갱신: `2026-02-23`
 - 기준 문서: `Docs/GAME_STRUCTURE.md`, `Docs/GLOSSARY.md`
 
 ---
@@ -11,7 +11,7 @@
 - 기존 템플릿의 강점(1인 개발 친화적인 Composition Root)을 유지한다.
   - `GameApp`(싱글턴) + 인스펙터 wiring + `AppServices/RunServices`
 - 새 게임 로직은 신규 루트 네임스페이스 `Game.*` 아래에만 추가한다.
-- 전투 규칙/효과는 **Domain(순수 C#)** 로 분리하고, Unity(MonoBehaviour/UI)는 Presentation에서만 다룬다.
+- Duel 규칙/효과는 **Domain(순수 C#)** 로 분리하고, Unity(MonoBehaviour/UI)는 Presentation에서만 다룬다.
 - 효과 확장은 “스크립팅 언어/복잡한 룰 엔진” 대신
   - **opcode + handler 딕셔너리(EffectClashResolver)** 로 해결한다.
 - 데이터는 JSON(`Newtonsoft.Json`) + DataIndex(manifest) 기반.
@@ -37,7 +37,7 @@
   - 내부에 `GameDatabase`(typed def cache) 보유
 
 - `DuelService` 또는 `DuelController` (MonoBehaviour)
-  - Duel Debug Panel / Duel Scene에서 전투 흐름을 구동
+  - Duel Debug Panel / Duel Scene에서 결투 흐름을 구동
 
 - `Game/` 폴더 하위 신규 코드
 
@@ -115,7 +115,7 @@ Assets/StreamingAssets/
 
 로드 흐름(권장):
 1) Parse pass: 모든 Def를 일단 파싱해서 dict에 넣는다.
-2) ClashResolve pass: ID 참조를 실제 포인터로 매핑/검증한다.
+2) Resolve pass: ID 참조를 실제 포인터로 매핑/검증한다.
 3) Validation pass: P0 금지 룰(예: Base Attack 직접 변경 op)을 검사한다.
 
 ### 4.4 Validation(필수)
@@ -132,7 +132,7 @@ Assets/StreamingAssets/
 
 ---
 
-## 5) 전투 엔진 구조
+## 5) Duel 엔진 구조
 
 ### 5.1 런타임 상태 모델(최소)
 
@@ -149,8 +149,8 @@ Assets/StreamingAssets/
   - focus
   - cooldowns: `Dictionary<string skillId, int>`
   - clashes: `List<ClashState>` (3개)
-  - actionHolder: 플레이어 병력 리스트
-  - opponentIntent: 전장별 적 배치 계획
+  - actionHolder: 플레이어 Action 리스트
+  - opponentIntent: Clash별 적 배치 계획
   - logs: `List<DuelLogEvent>`
 
 - `ClashState`
@@ -176,12 +176,12 @@ Assets/StreamingAssets/
   - Retreat 허용 조건 검증 및 종료 처리
 
 - `DuelSessionBuilder`:
-  - 초기 `DuelState` 생성(캠프/전장/의도)
-  - 적 의도 자동 배치(선호 전장 실패 시 다른 전장 fallback)
+  - 초기 `DuelState` 생성(ActionHolder/Clash/의도)
+  - Opponent Intent 자동 배치(선호 Clash 실패 시 다른 Clash fallback)
 
 - `DuelTurnProcessor`:
-  - Roll 단계 일괄 처리(배치 병력 수집 -> 굴림 -> Roll 타이밍 효과)
-  - ClashResolve 단계 일괄 처리(전장 순회 -> outcomeEffects 적용 -> TurnEnd 유지보수)
+  - Roll 단계 일괄 처리(배치 Action 수집 -> 굴림 -> Roll 타이밍 효과)
+  - ClashResolve 단계 일괄 처리(Clash 순회 -> outcomeEffects 적용 -> TurnEnd 유지보수)
   - TurnEnd 유지보수(`focusRegenPerTurn`, `cooldownTickPerTurn`) 적용
 
 Domain 쪽은 “계산 전용”으로 유지한다:
@@ -191,12 +191,12 @@ Domain 쪽은 “계산 전용”으로 유지한다:
   - ComputeTotalAttack
   - ComputeOutcome
   - ClashResolveClash(i) 계산 결과 반환
-- Health/리소스 같은 전투 상태 갱신은 Application에서 수행한다.
+- Health/리소스 같은 Duel 상태 갱신은 Application에서 수행한다.
 
 ### 5.3 ClashResolve 순서(확정)
 
-- 전장 인덱스 순서대로 처리
-- 전장 하나 ClashResolve할 때마다 outcomeEffects 적용 후 즉시 Health 체크
+- Clash 인덱스 순서대로 처리
+- Clash 하나 ClashResolve할 때마다 outcomeEffects 적용 후 즉시 Health 체크
 - 중간 종료 가능
 
 ---
@@ -258,7 +258,7 @@ Domain 쪽은 “계산 전용”으로 유지한다:
 
 ### 7.2 구조화 로그 이벤트
 
-- 전투 로그는 문자열이 아니라 아래 형태로 저장한다.
+- Duel 로그는 문자열이 아니라 아래 형태로 저장한다.
 
 ```
 DuelLogEvent {
@@ -283,7 +283,7 @@ UI는 `LocalizationUtil`로 렌더링한다.
   - Modifier 목록(원인/수치)
   - Final Attack Result
 - Reinforce는 “Total Attack 보너스”이므로
-  - 주사위 눈이 아니라 **전장 UI의 보너스 배지**로 표시
+  - 주사위 눈이 아니라 **Clash UI의 보너스 배지**로 표시
 
 ---
 

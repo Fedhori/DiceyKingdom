@@ -1,7 +1,7 @@
 # DATA_SCHEMA
 > 역할: P0에서 사용할 JSON 데이터 구조(스키마) 정의 문서입니다.
 
-- 마지막 갱신: `2026-02-22`
+- 마지막 갱신: `2026-02-23`
 - 직렬화: `Newtonsoft.Json`
 
 ---
@@ -158,7 +158,7 @@
 
 - `type`: `Squad` 또는 `Support`
 - `supplyCost`
-- `duelStart`: 전투 시작 트리거 블록
+- `duelStart`: Duel Start Triggers 블록
 
 ### Squad 예시
 

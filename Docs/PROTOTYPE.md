@@ -1,7 +1,7 @@
 # PROTOTYPE
 > 역할: 프로토타입 목표/확정표/진행도를 관리하는 **실행 계획 문서**입니다.
 
-- 마지막 갱신: `2026-02-22`
+- 마지막 갱신: `2026-02-23`
 - 기준 문서: `Docs/GAME_STRUCTURE.md`, `Docs/TECH_ARCHITECTURE.md`
 
 ---
@@ -11,18 +11,18 @@
 ### P0 한 줄 목표
 
 **플레이어가 직접 조작**하여,
-- 3개 전장에 병력을 배치하고
+- 3개 Clash에 Action을 배치하고
 - 주사위를 굴리고(눈 변화 UI 확인)
-- 스킬로 전장을 조정한 다음
-- 전장을 순서대로 ClashResolve 하여 승/패/후퇴/게임오버까지 이어지는
+- 스킬로 Clash를 조정한 다음
+- Clash를 순서대로 ClashResolve 하여 승/패/후퇴/Game Over까지 이어지는
 
-최소 전투 루프를 **플레이테스트 가능한 형태**로 완성한다.
+최소 Duel 루프를 **플레이테스트 가능한 형태**로 완성한다.
 
 ### P0 성공 기준(DoD 핵심)
 
-- 플레이어가 “배치 → 굴림 → 조정 → ClashResolve → 전투 종료”를 최소 2턴 이상 수행할 수 있다.
+- 플레이어가 “배치 → 굴림 → 조정 → ClashResolve → Duel 종료”를 최소 2턴 이상 수행할 수 있다.
 - Retreat가 Honor 규칙대로 동작한다.
-- 전투 패배(플레이어 Health `<= 0`)가 즉시 게임오버로 처리된다.
+- Duel 패배(플레이어 Health `<= 0`)가 즉시 Game Over로 처리된다.
 - 눈(Attack Result) 변화가 **즉시 UI에 반영**되고, 툴팁/로그로 “기본→보정→최종”을 확인할 수 있다.
 
 ---
@@ -31,11 +31,11 @@
 
 ### 포함(P0)
 
-- Duel(전투 1회) 전체 루프
-- 전장 3개 고정 + Opponent Intent 공개
+- Duel(결투 1회) 전체 루프
+- Clash 3개 고정 + Opponent Intent 공개
 - Roster Deck(드로우 없음) + Duel Start Triggers(Squad→Support)
 - Action Attack/Attack Result/Total Attack 계산
-- Outcome 판정 + 전장 outcomeEffects(최소 Health 피해)
+- Outcome 판정 + Clash outcomeEffects(최소 Health 피해)
 - 스킬 5종: Redeploy / Decoy / Risky / Safe / Reinforce
 - Retreat(Honor 규칙 포함)
 - JSON 데이터 로딩/검증(최소 스키마)
@@ -44,7 +44,7 @@
 
 ### 제외(P0)
 
-- 전장 랜덤 변경
+- Clash 랜덤 변경
 - 상점/이벤트/유물/강화/소모품
 - 장기 런 맵/분기
 - 완전한 카드 밸런스/아트/연출 폴리싱
@@ -55,19 +55,19 @@
 
 | 항목 | 값 |
 |---|---|
-| 전장 수 | 3개 |
-| 전장 변경 | 전투 내 고정 |
+| Clash 수 | 3개 |
+| Clash 변경 | Duel 내 고정 |
 | Opponent Intent | 완전 공개 |
-| ClashResolve | 전장 0→1→2 순서대로 처리, 매 전장 처리 후 Health 즉시 체크 |
+| ClashResolve | Clash 0→1→2 순서대로 처리, 매 Clash 처리 후 Health 즉시 체크 |
 | Retreat 조건 | Player Deploy에서만, Honor > 0 |
-| Retreat 결과 | 전투 종료, 보상 없음, Honor -1, clamp 0 |
-| 게임오버 | 전투 패배(플레이어 Health <= 0) |
-| Focus | Max 5, 전투 시작 시 Max, 턴 종료 +2 |
+| Retreat 결과 | Duel 종료, 보상 없음, Honor -1, clamp 0 |
+| Game Over | Duel 패배(플레이어 Health <= 0) |
+| Focus | Max 5, Duel 시작 시 Max, 턴 종료 +2 |
 | Cooldown | 턴 종료 -1 |
 | Attack Result | 최소 1, 최대 없음 |
 | 수치 증감 기본 | Attack Result 변화(예외: Reinforce는 Total Attack +2) |
 | Base Attack 직접 변경 | P0에서 금지(Modifier 기반 런타임 보정은 허용) |
-| 배치 제한 | 기본 무제한, 전장에 slotLimit 명시 시만 제한(초과 배치/이동 불가) |
+| 배치 제한 | 기본 무제한, Clash에 slotLimit 명시 시만 제한(초과 배치/이동 불가) |
 
 ---
 
@@ -88,7 +88,7 @@
 
 ### 작업 1: Domain 상태 모델 고정(DuelState 계층)
 
-**목표:** 전투 규칙이 올라갈 최소 상태 모델을 먼저 확정한다.
+**목표:** Duel 규칙이 올라갈 최소 상태 모델을 먼저 확정한다.
 
 - 산출물
   - `Game.Domain.Duel`
@@ -100,13 +100,13 @@
     - Action의 `baseRoll`, `modifiers`, `attackResult`
 
 - 수동 테스트
-  - 전투 시작/턴 전환 시 상태 객체가 null 없이 유지되는가
-  - 전장 3개 상태가 항상 초기화되는가
+  - Duel 시작/턴 전환 시 상태 객체가 null 없이 유지되는가
+  - Clash 3개 상태가 항상 초기화되는가
   - Action에 `base/mod/final` 기록 슬롯이 유지되는가
 
 - 자동 테스트(가능하면)
   - 상태 생성 테스트(기본값/필수 컬렉션 null 방지)
-  - 전장 개수 강제(3) 초기화 테스트
+  - Clash 개수 강제(3) 초기화 테스트
 
 **완료 기준(DoD):** 이후 규칙 구현에서 재사용 가능한 Domain 상태 모델이 고정됨
 
@@ -114,7 +114,7 @@
 
 - [x] `T1-01` 상태 타입 계약 고정
   - `DuelState`, `ClashState`, `ActionInstance`의 최소 필드명/자료형을 먼저 확정한다.
-  - 기준: `Docs/GAME_STRUCTURE.md`의 전투 규칙 + `Docs/TECH_ARCHITECTURE.md`의 상태 모델.
+  - 기준: `Docs/GAME_STRUCTURE.md`의 Duel 규칙 + `Docs/TECH_ARCHITECTURE.md`의 상태 모델.
 
 - [x] `T1-02` 파일/네임스페이스 스켈레톤 생성
   - 경로: `Assets/Scripts/Game/Domain/Duel`
@@ -123,7 +123,7 @@
 
 - [x] `T1-03` `DuelState` 초기화 정책 구현
   - 필수 컬렉션(`cooldowns`, `actionHolderActions`, `clashes`)이 null이 되지 않도록 기본 생성자를 구현한다.
-  - 전장 상태는 기본 3개로 초기화한다.
+  - Clash 상태는 기본 3개로 초기화한다.
   - 턴/리소스 기본값(예: `turnIndex=0`)을 명시한다.
 
 - [x] `T1-04` `ClashState` 최소 구조 구현
@@ -225,7 +225,7 @@
 
 ---
 
-### 작업 3: 전투 계산 커널(주사위/전투력/판정) 구현
+### 작업 3: Duel 계산 커널(주사위/Total Attack/판정) 구현
 
 **목표:** ClashResolve까지의 핵심 계산 규칙을 Domain에 고정한다.
 
@@ -234,7 +234,7 @@
   - Total Attack 계산
   - Outcome 판정
     - Great Victory / Victory / Draw / Defeat / Great Defeat
-  - ClashResolve 순서 처리(0→1→2 + 매 전장 후 Health 즉시 체크)
+  - ClashResolve 순서 처리(0→1→2 + 매 Clash 후 Health 즉시 체크)
 
 - 수동 테스트
   - Roll 후 `base -> modifiers -> final` 값이 일관되게 갱신되는가
@@ -246,7 +246,7 @@
   - FaceValue 하한 테스트
   - ClashResolve 조기 종료 테스트
 
-**완료 기준(DoD):** 전투 결과 계산이 UI와 분리된 순수 로직으로 검증 가능
+**완료 기준(DoD):** Duel 결과 계산이 UI와 분리된 순수 로직으로 검증 가능
 
 #### 작업 3 서브테스크(구현 순서)
 
@@ -259,27 +259,27 @@
   - 계산식: `(base + add합) * (1 + percent합)` 후 `Floor` 적용
   - 최종 Attack Result 최소 1 clamp
 
-- [x] `T3-03` 전장 전투력 계산 구현
-  - 전장 내 Action `attackResult` 합 + 전장 보너스 합산
+- [x] `T3-03` Clash Total Attack 계산 구현
+  - Clash 내 Action `attackResult` 합 + Clash 보너스 합산
   - 누락 actionId/null 항목은 warning 후 무시
 
 - [x] `T3-04` Outcome 판정 구현
-  - Draw: 동일 전투력
+  - Draw: 동일 Total Attack
   - Great Victory / Great Defeat: `winner >= loser * 2`
   - loser가 0일 때 winner가 양수면 Great 판정
 
-- [x] `T3-05` ClashResolve 1개 전장 처리 구현
-  - 전장 전투력 계산 -> Outcome 판정 -> Health 반영
-  - Health `<= 0`이면 전투 종료 처리
+- [x] `T3-05` ClashResolve 1개 Clash 처리 구현
+  - Clash Total Attack 계산 -> Outcome 판정 -> Health 반영
+  - Health `<= 0`이면 Duel 종료 처리
 
 - [x] `T3-06` ClashResolve 순차 처리 구현
-  - 전장 0 -> 1 -> 2 순서 처리
+  - Clash 0 -> 1 -> 2 순서 처리
   - 중간에 Health `<= 0`이면 즉시 중단
 
 - [x] `T3-07` EditMode 테스트 추가
   - 수학 테스트: add/percent/floor/min clamp
-  - 전장 테스트: Total Attack/Outcome
-  - 전투 테스트: ClashResolve 순서 + 중간 종료
+  - Clash 테스트: Total Attack/Outcome
+  - Duel 테스트: ClashResolve 순서 + 중간 종료
 
 - [x] `T3-08` 검증 및 체크리스트 반영
   - Unity EditMode 테스트 통과 확인
@@ -311,13 +311,13 @@
 - 자동 테스트
   - opcode 단위 테스트(예: ModifyAttackResult 적용 순서/최소 1)
 
-**완료 기준(DoD):** 전투 효과 적용이 하드코딩 분기 대신 opcode 핸들러 경로로 동작
+**완료 기준(DoD):** Duel 효과 적용이 하드코딩 분기 대신 opcode 핸들러 경로로 동작
 
 ---
 
 ### 작업 5: JSON 데이터 파이프라인(typed DB) + 검증 커맨드
 
-**목표:** 하드코딩 의존을 제거하고 데이터 기반 전투로 전환한다.
+**목표:** 하드코딩 의존을 제거하고 데이터 기반 Duel로 전환한다.
 
 - 산출물
   - `DataIndex.json` + Def JSON 묶음
@@ -325,7 +325,7 @@
   - `Tools/Validate Game Data` 또는 `validate_data` DevCommand
 
 - 수동 테스트
-  - JSON 변경 시 전투 동작이 실제로 바뀌는가
+  - JSON 변경 시 Duel 동작이 실제로 바뀌는가
   - 참조 오류/금지 op가 즉시 검증 에러로 노출되는가
 
 - 자동 테스트
@@ -343,24 +343,24 @@
 
 ### 작업 6: GameScene 통합(UI 최소) + DuelDebugPanel 연결
 
-**목표:** 별도 디버그 씬 없이 `GameScene`에서 전투 흐름을 수동 검증 가능하게 만든다.
+**목표:** 별도 디버그 씬 없이 `GameScene`에서 Duel 흐름을 수동 검증 가능하게 만든다.
 
 - 산출물
   - `Game.Presentation.Debug.DuelDebugPanel`
     - StartDuel / OpponentSetup / PlayerSetup / Roll / ClashResolve / Retreat 콜백
   - 최소 UI
-    - Health / Honor / Focus / Phase / 전장별 전투력 텍스트
+    - Health / Honor / Focus / Phase / Clash별 Total Attack 텍스트
   - `DuelPhaseRunner`와 연결된 표시 갱신
 
 - 수동 테스트
   - 버튼 클릭으로 페이즈 진행 및 상태 변화가 즉시 반영되는가
-  - Retreat가 규칙대로 동작하고 전투 종료가 표시되는가
-  - ClashResolve 결과가 전장 순서대로 반영되는가
+  - Retreat가 규칙대로 동작하고 Duel 종료가 표시되는가
+  - ClashResolve 결과가 Clash 순서대로 반영되는가
 
 - 자동 테스트
   - (가능 시) Panel의 상태 포맷터 단위 테스트
 
-**완료 기준(DoD):** `GameScene` 하나로 P0 전투 루프 수동 검증 가능
+**완료 기준(DoD):** `GameScene` 하나로 P0 Duel 루프 수동 검증 가능
 
 #### 작업 6 서브테스크(구현 순서)
 
@@ -376,14 +376,14 @@
 - [x] `T6-03` `StartDuel` 구현(데이터 주입)
   - `GameDataRuntime.CurrentDatabase`를 사용한다.
   - Encounter는 `encounter.debug.01` 고정으로 로드한다.
-  - 시작 시 전투 상태를 새로 만들고 기본 UI를 즉시 갱신한다.
+  - 시작 시 Duel 상태를 새로 만들고 기본 UI를 즉시 갱신한다.
 
 - [x] `T6-04` Opponent 자동 배치 구현
-  - `StartDuel` 직후 Opponent Intent(`encounter.debug.01.plans`)를 전장에 자동 배치한다.
-  - 배치 결과를 전장 텍스트와 로그에 남긴다.
+  - `StartDuel` 직후 Opponent Intent(`encounter.debug.01.plans`)를 Clash에 자동 배치한다.
+  - 배치 결과를 Clash 텍스트와 로그에 남긴다.
 
 - [x] `T6-05` PlayerSetup 수동 배치 구현
-  - 흐름: 병력 블록 선택(캠프/전장) -> 전장 카드 클릭 즉시 배치
+  - 흐름: Action 블록 선택(ActionHolder/Clash) -> Clash 카드 클릭 즉시 배치
   - `PlayerSetup` 페이즈에서만 성공, 나머지 페이즈는 거부 + warning 로그
 
 - [x] `T6-06` 페이즈별 버튼 활성/비활성 규칙 적용
@@ -393,19 +393,19 @@
   - `Retreat`: `PlayerSetup` + `honor > 0`일 때만 활성
 
 - [x] `T6-07` `Roll` 일괄 굴림 구현
-  - 현재 전장에 배치된 병력 전체를 한 번에 굴린다.
+  - 현재 Clash에 배치된 Action 전체를 한 번에 굴린다.
   - 굴림 직후 Attack Result/UI/로그를 즉시 갱신한다.
 
 - [x] `T6-08` `ClashResolve` 일괄 처리 구현
-  - 전장 0 -> 1 -> 2 순서로 처리한다.
+  - Clash 0 -> 1 -> 2 순서로 처리한다.
   - 중간에 종료 조건 충족 시 즉시 중단하고 종료 상태를 UI에 반영한다.
 
 - [x] `T6-09` `Retreat` 처리 고정
-  - 성공 시 전투 종료 + `honor -= 1`(최소 0)
+  - 성공 시 Duel 종료 + `honor -= 1`(최소 0)
   - Retreat 후에는 진행 버튼 잠금, `StartDuel`만 재허용
 
 - [x] `T6-10` 최소 UI 갱신 루프 완성
-  - 표기: `Phase`, `Focus`, `Honor`, `Player/Opponent Health`, 전장별 Total Attack
+  - 표기: `Phase`, `Focus`, `Honor`, `Player/Opponent Health`, Clash별 Total Attack
   - 선택 상태(`selectedActionId`, `selectedClashIndex`)를 항상 화면에 표시한다.
 
 - [x] `T6-11` 실패 피드백 정책 적용
@@ -416,7 +416,7 @@
   - 패널 문자열 포맷을 별도 포맷터 클래스로 분리한다.
   - 포맷터 단위 EditMode 테스트를 추가해 출력 안정성을 검증한다.
 
-- [x] `T6-13` 전투 오케스트레이션 구조 정리
+- [x] `T6-13` Duel 오케스트레이션 구조 정리
   - `DuelSessionBuilder`로 초기 상태 생성/적 자동 배치를 분리한다.
   - `DuelTurnProcessor`로 Roll/ClashResolve/TurnEnd 처리를 `DuelDebugPanel`에서 분리한다.
   - `DuelSimulator`는 계산 전용으로 유지하고 상태 변경(예: Health)은 Application에서 처리한다.
@@ -425,7 +425,7 @@
 
 ### 작업 7: 최소 메타 루프(보상 → 정비) + Roster Deck 편집
 
-**목표:** 전투 단일 테스트를 넘어 런 루프를 최소 연결한다.
+**목표:** Duel 단일 테스트를 넘어 런 루프를 최소 연결한다.
 
 - 산출물
   - Reward 화면(카드 3장 중 1장 선택)
@@ -433,17 +433,17 @@
     - Roster Deck 편집
     - Reserves 이동
     - Supply Limit 초과 시 저장 불가
-  - 전투 승리 → Reward → Maintenance → 다음 전투 진입
+  - Duel 승리 → Reward → Maintenance → 다음 Duel 진입
   - Retreat → (보상 없이) Maintenance
 
 - 수동 테스트
   - 덱 편집이 Supply Limit을 준수하는가
-  - 선택한 카드가 다음 전투 Duel Start Triggers에 반영되는가
+  - 선택한 카드가 다음 Duel Start Triggers에 반영되는가
 
 - 자동 테스트
   - RunState 직렬화/역직렬화(최소)
 
-**완료 기준(DoD):** “전투-보상-정비-전투” 루프 플레이테스트 가능
+**완료 기준(DoD):** “Duel-보상-정비-Duel” 루프 플레이테스트 가능
 
 ---
 
@@ -482,6 +482,6 @@
 - `GameScene`의 `DuelDebugPanel`을 고정 테스트 베드로 사용한다.
 - DevCommand(또는 에디터 메뉴)로 최소 2개 제공
   - `validate_data`
-  - `dump_last_duel_log` (최근 전투 로그 덤프)
+  - `dump_last_duel_log` (최근 Duel 로그 덤프)
 - 시드 고정 옵션 제공
   - 같은 입력이면 같은 결과가 나와야 디버깅이 쉬움
