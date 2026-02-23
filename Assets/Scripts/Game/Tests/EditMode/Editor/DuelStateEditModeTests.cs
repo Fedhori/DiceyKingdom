@@ -31,8 +31,8 @@ namespace Game.Tests.EditMode
             var ability = new AbilityInstance();
 
             ability.baseRoll = 2;
-            ability.attackResult = 5;
-            ability.attackResultModifiers.Add(new NumericModifier
+            ability.powerResult = 5;
+            ability.powerResultModifiers.Add(new NumericModifier
             {
                 operation = NumericModifierOperation.Add,
                 value = 3,
@@ -40,11 +40,11 @@ namespace Game.Tests.EditMode
             });
 
             Assert.AreEqual(2, ability.baseRoll);
-            Assert.AreEqual(5, ability.attackResult);
-            Assert.NotNull(ability.attackResultModifiers);
-            Assert.AreEqual(1, ability.attackResultModifiers.Count);
-            Assert.AreEqual(3, ability.attackResultModifiers[0].value);
-            Assert.AreEqual("test.source", ability.attackResultModifiers[0].sourceId);
+            Assert.AreEqual(5, ability.powerResult);
+            Assert.NotNull(ability.powerResultModifiers);
+            Assert.AreEqual(1, ability.powerResultModifiers.Count);
+            Assert.AreEqual(3, ability.powerResultModifiers[0].value);
+            Assert.AreEqual("test.source", ability.powerResultModifiers[0].sourceId);
         }
     }
 }

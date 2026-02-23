@@ -26,19 +26,19 @@ namespace Game.Application.Duel
     {
         public int clashIndex { get; }
         public DuelOutcome outcome { get; }
-        public int playerTotalAttack { get; }
-        public int opponentTotalAttack { get; }
+        public int playerTotalPower { get; }
+        public int opponentTotalPower { get; }
 
         public DuelClashResolveStepResult(
             int clashIndex,
             DuelOutcome outcome,
-            int playerTotalAttack,
-            int opponentTotalAttack)
+            int playerTotalPower,
+            int opponentTotalPower)
         {
             this.clashIndex = clashIndex;
             this.outcome = outcome;
-            this.playerTotalAttack = playerTotalAttack;
-            this.opponentTotalAttack = opponentTotalAttack;
+            this.playerTotalPower = playerTotalPower;
+            this.opponentTotalPower = opponentTotalPower;
         }
     }
 
@@ -211,18 +211,18 @@ namespace Game.Application.Duel
                 return false;
             }
 
-            if (phaseRunner.currentPhase == DuelPhase.Skill)
+            if (phaseRunner.currentPhase == DuelPhase.Roll)
             {
                 if (!phaseRunner.AdvanceToNextPhase())
                 {
-                    failureMessage = $"failed to enter ClashResolve phase ({phaseRunner.LastFailureReason}).";
+                    failureMessage = $"failed to enter Resolve phase ({phaseRunner.LastFailureReason}).";
                     return false;
                 }
             }
 
-            if (phaseRunner.currentPhase != DuelPhase.ClashResolve)
+            if (phaseRunner.currentPhase != DuelPhase.Resolve)
             {
-                failureMessage = $"current phase is {phaseRunner.currentPhase}, required phase is {DuelPhase.ClashResolve}.";
+                failureMessage = $"current phase is {phaseRunner.currentPhase}, required phase is {DuelPhase.Resolve}.";
                 return false;
             }
 
@@ -235,21 +235,21 @@ namespace Game.Application.Duel
                 ClashState clash = state.clashes[clashIndex];
                 if (clash == null)
                 {
-                    Debug.LogWarning($"[DuelTurnProcessor] ClashResolve warning: clashes[{clashIndex}] is null.");
+                    Debug.LogWarning($"[DuelTurnProcessor] Resolve warning: clashes[{clashIndex}] is null.");
                     continue;
                 }
 
                 clash.EnsureInitialized();
 
-                int playerTotalAttack = DuelSimulator.ComputeTotalAttack(
+                int playerTotalPower = DuelSimulator.ComputeTotalPower(
                     clash,
                     state.abilitiesById,
                     true);
-                int opponentTotalAttack = DuelSimulator.ComputeTotalAttack(
+                int opponentTotalPower = DuelSimulator.ComputeTotalPower(
                     clash,
                     state.abilitiesById,
                     false);
-                DuelOutcome outcome = DuelSimulator.ComputeOutcome(playerTotalAttack, opponentTotalAttack);
+                DuelOutcome outcome = DuelSimulator.ComputeOutcome(playerTotalPower, opponentTotalPower);
 
                 if (ApplyOutcomeDamageFromClash(state, clashIndex, outcome))
                 {
@@ -269,8 +269,8 @@ namespace Game.Application.Duel
                 steps.Add(new DuelClashResolveStepResult(
                     clashIndex,
                     outcome,
-                    playerTotalAttack,
-                    opponentTotalAttack));
+                    playerTotalPower,
+                    opponentTotalPower));
 
                 if (state.isDuelEnded)
                 {
@@ -296,7 +296,7 @@ namespace Game.Application.Duel
             if (!state.isDuelEnded && !phaseRunner.AdvanceToNextPhase())
             {
                 Debug.LogWarning(
-                    $"[DuelTurnProcessor] ClashResolve warning: failed to move to next phase ({phaseRunner.LastFailureReason}).");
+                    $"[DuelTurnProcessor] Resolve warning: failed to move to next phase ({phaseRunner.LastFailureReason}).");
             }
 
             result = new DuelClashResolveResult(

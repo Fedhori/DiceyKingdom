@@ -19,20 +19,20 @@ namespace Game.Domain.Duel
 
             ability.EnsureInitialized();
 
-            int maxAttack = NumericModifierCalculator.Apply(
-                ability.attack,
-                ability.attackModifiers,
+            int maxPower = NumericModifierCalculator.Apply(
+                ability.power,
+                ability.powerModifiers,
                 1,
-                "DuelSimulator.RollAbility.Attack");
+                "DuelSimulator.RollAbility.Power");
 
-            if (maxAttack < 1)
+            if (maxPower < 1)
             {
-                Debug.LogWarning("[DuelSimulator] ability.attack was lower than 1. Roll range was clamped to 1.");
-                maxAttack = 1;
+                Debug.LogWarning("[DuelSimulator] ability.power was lower than 1. Roll range was clamped to 1.");
+                maxPower = 1;
             }
 
             IRollSource source = rollSource ?? defaultRollSource;
-            ability.baseRoll = source.Next(1, maxAttack);
+            ability.baseRoll = source.Next(1, maxPower);
             ApplyRollFinalization(ability);
         }
 
@@ -44,19 +44,19 @@ namespace Game.Domain.Duel
             }
 
             ability.EnsureInitialized();
-            ability.attackResult = ComputeAttackResult(ability.baseRoll, ability.attackResultModifiers);
+            ability.powerResult = ComputePowerResult(ability.baseRoll, ability.powerResultModifiers);
         }
 
-        public static int ComputeAttackResult(int baseRoll, IReadOnlyList<NumericModifier> modifiers)
+        public static int ComputePowerResult(int baseRoll, IReadOnlyList<NumericModifier> modifiers)
         {
             return NumericModifierCalculator.Apply(
                 baseRoll,
                 modifiers,
                 1,
-                "DuelSimulator.ComputeAttackResult");
+                "DuelSimulator.ComputePowerResult");
         }
 
-        public static int ComputeTotalAttack(
+        public static int ComputeTotalPower(
             ClashState clashState,
             IReadOnlyDictionary<string, AbilityInstance> abilitiesById,
             bool isPlayerSide)
@@ -74,8 +74,8 @@ namespace Game.Domain.Duel
             clashState.EnsureInitialized();
 
             int total = isPlayerSide
-                ? clashState.totalAttackBonusPlayer
-                : clashState.totalAttackBonusOpponent;
+                ? clashState.totalPowerBonusPlayer
+                : clashState.totalPowerBonusOpponent;
 
             List<string> abilityIds = isPlayerSide
                 ? clashState.playerAbilityIds
@@ -101,20 +101,20 @@ namespace Game.Domain.Duel
                     continue;
                 }
 
-                total += ability.attackResult;
+                total += ability.powerResult;
             }
 
             return total;
         }
 
-        public static DuelOutcome ComputeOutcome(int playerTotalAttack, int opponentTotalAttack)
+        public static DuelOutcome ComputeOutcome(int playerTotalPower, int opponentTotalPower)
         {
-            if (playerTotalAttack == opponentTotalAttack)
+            if (playerTotalPower == opponentTotalPower)
             {
                 return DuelOutcome.Draw;
             }
 
-            if (playerTotalAttack > opponentTotalAttack)
+            if (playerTotalPower > opponentTotalPower)
             {
                 return DuelOutcome.Victory;
             }
@@ -126,8 +126,8 @@ namespace Game.Domain.Duel
             DuelState duelState,
             int clashIndex,
             out DuelOutcome outcome,
-            out int playerTotalAttack,
-            out int opponentTotalAttack)
+            out int playerTotalPower,
+            out int opponentTotalPower)
         {
             if (duelState == null)
             {
@@ -137,8 +137,8 @@ namespace Game.Domain.Duel
             duelState.EnsureInitialized();
 
             outcome = DuelOutcome.Draw;
-            playerTotalAttack = 0;
-            opponentTotalAttack = 0;
+            playerTotalPower = 0;
+            opponentTotalPower = 0;
 
             if (duelState.isDuelEnded)
             {
@@ -160,17 +160,17 @@ namespace Game.Domain.Duel
                 Debug.LogWarning($"[DuelSimulator] clashes[{clashIndex}] was null and has been replaced.");
             }
 
-            playerTotalAttack = ComputeTotalAttack(
+            playerTotalPower = ComputeTotalPower(
                 clashState,
                 duelState.abilitiesById,
                 true);
 
-            opponentTotalAttack = ComputeTotalAttack(
+            opponentTotalPower = ComputeTotalPower(
                 clashState,
                 duelState.abilitiesById,
                 false);
 
-            outcome = ComputeOutcome(playerTotalAttack, opponentTotalAttack);
+            outcome = ComputeOutcome(playerTotalPower, opponentTotalPower);
             return true;
         }
 
@@ -232,8 +232,8 @@ namespace Game.Domain.Duel
                 }
 
                 ability.EnsureInitialized();
-                removedCount += NumericModifierCalculator.ClearByLayer(ability.attackModifiers, layer);
-                removedCount += NumericModifierCalculator.ClearByLayer(ability.attackResultModifiers, layer);
+                removedCount += NumericModifierCalculator.ClearByLayer(ability.powerModifiers, layer);
+                removedCount += NumericModifierCalculator.ClearByLayer(ability.powerResultModifiers, layer);
             }
 
             return removedCount;

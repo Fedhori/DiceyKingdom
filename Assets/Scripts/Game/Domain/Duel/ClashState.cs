@@ -13,8 +13,8 @@ namespace Game.Domain.Duel
         public List<string> playerAbilityIds = new();
         public List<string> opponentAbilityIds = new();
 
-        public int totalAttackBonusPlayer;
-        public int totalAttackBonusOpponent;
+        public int totalPowerBonusPlayer;
+        public int totalPowerBonusOpponent;
 
         public void EnsureInitialized()
         {

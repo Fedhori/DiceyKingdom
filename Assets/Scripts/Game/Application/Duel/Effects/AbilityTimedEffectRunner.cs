@@ -306,7 +306,7 @@ namespace Game.Application.Duel.Effects
                     : targetContext.isPlayerSide
             };
 
-            if (opCode == DuelEffectOpCode.ModifyAttackResult || opCode == DuelEffectOpCode.AddAttackModifier)
+            if (opCode == DuelEffectOpCode.ModifyPowerResult || opCode == DuelEffectOpCode.AddPowerModifier)
             {
                 if (!TryParseModifierOperation(opDef.mode, out NumericModifierOperation modifierOperation))
                 {
@@ -324,17 +324,17 @@ namespace Game.Application.Duel.Effects
                 command.amount = amount;
             }
 
-            if (opCode == DuelEffectOpCode.AddAttackModifier)
+            if (opCode == DuelEffectOpCode.AddPowerModifier)
             {
                 if (!TryParseModifierLayer(opDef.layer, out ModifierLayer layer))
                 {
-                    warningMessage = $"Invalid layer '{opDef.layer}' for AddAttackModifier.";
+                    warningMessage = $"Invalid layer '{opDef.layer}' for AddPowerModifier.";
                     return false;
                 }
 
                 if (!TryParseModifierTarget(opDef.target, out DuelModifierTarget target))
                 {
-                    warningMessage = $"Invalid target '{opDef.target}' for AddAttackModifier.";
+                    warningMessage = $"Invalid target '{opDef.target}' for AddPowerModifier.";
                     return false;
                 }
 
@@ -342,7 +342,7 @@ namespace Game.Application.Duel.Effects
                 command.modifierTarget = target;
             }
 
-            if (opCode == DuelEffectOpCode.ModifyTotalAttack || opCode == DuelEffectOpCode.ModifyHealth)
+            if (opCode == DuelEffectOpCode.ModifyTotalPower || opCode == DuelEffectOpCode.ModifyHealth)
             {
                 if (!opDef.TryGetAmount(out int amount))
                 {
@@ -395,19 +395,19 @@ namespace Game.Application.Duel.Effects
 
         static bool TryParseModifierTarget(string target, out DuelModifierTarget modifierTarget)
         {
-            if (string.Equals(target, "Attack", StringComparison.Ordinal))
+            if (string.Equals(target, "Power", StringComparison.Ordinal))
             {
-                modifierTarget = DuelModifierTarget.Attack;
+                modifierTarget = DuelModifierTarget.Power;
                 return true;
             }
 
-            if (string.Equals(target, "AttackResult", StringComparison.Ordinal))
+            if (string.Equals(target, "PowerResult", StringComparison.Ordinal))
             {
-                modifierTarget = DuelModifierTarget.AttackResult;
+                modifierTarget = DuelModifierTarget.PowerResult;
                 return true;
             }
 
-            modifierTarget = DuelModifierTarget.Attack;
+            modifierTarget = DuelModifierTarget.Power;
             return false;
         }
 
@@ -431,8 +431,8 @@ namespace Game.Application.Duel.Effects
                 }
 
                 ability.EnsureInitialized();
-                RemoveSourcePrefixedModifiers(ability.attackModifiers, rollSourcePrefix);
-                RemoveSourcePrefixedModifiers(ability.attackResultModifiers, rollSourcePrefix);
+                RemoveSourcePrefixedModifiers(ability.powerModifiers, rollSourcePrefix);
+                RemoveSourcePrefixedModifiers(ability.powerResultModifiers, rollSourcePrefix);
             }
         }
 

@@ -14,8 +14,8 @@ namespace Game.Infrastructure.Data
         [JsonProperty("cooldownTickPerTurn", Required = Required.Always)]
         public int cooldownTickPerTurn;
 
-        [JsonProperty("attackResultMin", Required = Required.Always)]
-        public int attackResultMin;
+        [JsonProperty("powerResultMin", Required = Required.Always)]
+        public int powerResultMin;
 
         [JsonProperty("p0Rules", Required = Required.Always)]
         public P0RulesDef p0Rules = new();
@@ -24,8 +24,8 @@ namespace Game.Infrastructure.Data
     [JsonObject(MemberSerialization.OptIn)]
     public sealed class P0RulesDef
     {
-        [JsonProperty("disallowBaseAttackMutation", Required = Required.Always)]
-        public bool disallowBaseAttackMutation;
+        [JsonProperty("disallowBasePowerMutation", Required = Required.Always)]
+        public bool disallowBasePowerMutation;
 
         [JsonProperty("defaultSlotLimit", Required = Required.AllowNull)]
         public int? defaultSlotLimit;

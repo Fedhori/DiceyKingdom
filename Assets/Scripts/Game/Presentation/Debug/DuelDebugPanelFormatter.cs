@@ -66,12 +66,12 @@ namespace Game.Presentation.Debug
             int playerCount = clash.playerAbilityIds == null ? 0 : clash.playerAbilityIds.Count;
             int opponentCount = clash.opponentAbilityIds == null ? 0 : clash.opponentAbilityIds.Count;
 
-            int playerTotalAttack = DuelSimulator.ComputeTotalAttack(
+            int playerTotalPower = DuelSimulator.ComputeTotalPower(
                 clash,
                 duelState.abilitiesById,
                 true);
 
-            int opponentTotalAttack = DuelSimulator.ComputeTotalAttack(
+            int opponentTotalPower = DuelSimulator.ComputeTotalPower(
                 clash,
                 duelState.abilitiesById,
                 false);
@@ -88,11 +88,11 @@ namespace Game.Presentation.Debug
             if (string.IsNullOrWhiteSpace(damageLabel))
             {
                 return
-                    $"Clash {clashIndex} ({clashId}) | TotalAttack P:{playerTotalAttack} E:{opponentTotalAttack} | Abilities P:{playerCount} E:{opponentCount} | Slot:{slotLabel}";
+                    $"Clash {clashIndex} ({clashId}) | TotalPower P:{playerTotalPower} E:{opponentTotalPower} | Abilities P:{playerCount} E:{opponentCount} | Slot:{slotLabel}";
             }
 
             return
-                $"Clash {clashIndex} ({clashId}) | TotalAttack P:{playerTotalAttack} E:{opponentTotalAttack} | Abilities P:{playerCount} E:{opponentCount} | Slot:{slotLabel} | {damageLabel}";
+                $"Clash {clashIndex} ({clashId}) | TotalPower P:{playerTotalPower} E:{opponentTotalPower} | Abilities P:{playerCount} E:{opponentCount} | Slot:{slotLabel} | {damageLabel}";
         }
 
         public static string FormatBagAbilities(DuelState duelState, string selectedAbilityId)
@@ -128,7 +128,7 @@ namespace Game.Presentation.Debug
                     ? $"{ability.cooldownRemaining}/{ability.cooldownTurns}"
                     : "-";
                 lines.Add(
-                    $"- {abilityDefId} | Type:{ability.abilityType} | Damage:{ability.attack} | Attack Result:{ability.attackResult} | CD:{cooldownLabel}{selectedSuffix}");
+                    $"- {abilityDefId} | Type:{ability.abilityType} | Power:{ability.power} | Power Result:{ability.powerResult} | CD:{cooldownLabel}{selectedSuffix}");
             }
 
             return string.Join("\n", lines);
@@ -160,7 +160,7 @@ namespace Game.Presentation.Debug
             string cooldownLabel = ability.cooldownTurns > 0
                 ? $"{ability.cooldownRemaining}/{ability.cooldownTurns}"
                 : "-";
-            return $"Selected Ability: {abilityDefId} | Type:{ability.abilityType} | Damage:{ability.attack} | Attack Result:{ability.attackResult} | CD:{cooldownLabel} | {location}";
+            return $"Selected Ability: {abilityDefId} | Type:{ability.abilityType} | Power:{ability.power} | Power Result:{ability.powerResult} | CD:{cooldownLabel} | {location}";
         }
 
         public static string FormatSelectedClash(DuelState duelState, int selectedClashIndex)

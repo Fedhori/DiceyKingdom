@@ -9,21 +9,21 @@ namespace Game.Tests.EditMode
     public sealed class DuelEffectClashResolverEditModeTests
     {
         [Test]
-        public void ModifyAttackResult_RecomputesCurrentAttackResult()
+        public void ModifyPowerResult_RecomputesCurrentpowerResult()
         {
             var state = CreateDuelState();
             state.abilitiesById["p1"] = new AbilityInstance
             {
                 abilityDefId = "p1",
-                attack = 6,
+                power = 6,
                 baseRoll = 3,
-                attackResult = 3
+                powerResult = 3
             };
 
             var resolver = new DuelEffectClashResolver();
             var command = new DuelEffectCommand
             {
-                opCode = DuelEffectOpCode.ModifyAttackResult,
+                opCode = DuelEffectOpCode.ModifyPowerResult,
                 abilityId = "p1",
                 modifierOperation = NumericModifierOperation.Add,
                 amount = 2
@@ -32,18 +32,18 @@ namespace Game.Tests.EditMode
             DuelEffectResult result = resolver.Apply(state, command);
 
             Assert.IsTrue(result.isSuccess);
-            Assert.AreEqual(5, state.abilitiesById["p1"].attackResult);
-            Assert.AreEqual(1, state.abilitiesById["p1"].attackResultModifiers.Count);
+            Assert.AreEqual(5, state.abilitiesById["p1"].powerResult);
+            Assert.AreEqual(1, state.abilitiesById["p1"].powerResultModifiers.Count);
         }
 
         [Test]
-        public void AddAttackModifier_AffectsRollAttackRange()
+        public void AddPowerModifier_AffectsRollAttackRange()
         {
             var state = CreateDuelState();
             state.abilitiesById["p1"] = new AbilityInstance
             {
                 abilityDefId = "p1",
-                attack = 4
+                power = 4
             };
 
             var resolver = new DuelEffectClashResolver();
@@ -51,7 +51,7 @@ namespace Game.Tests.EditMode
                 state,
                 new DuelEffectCommand
                 {
-                    opCode = DuelEffectOpCode.AddAttackModifier,
+                    opCode = DuelEffectOpCode.AddPowerModifier,
                     abilityId = "p1",
                     modifierOperation = NumericModifierOperation.Add,
                     amount = 2
@@ -137,7 +137,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void ModifyTotalAttack_UpdatesRequestedSide()
+        public void ModifyTotalPower_UpdatesRequestedSide()
         {
             var state = CreateDuelState();
             var resolver = new DuelEffectClashResolver();
@@ -146,7 +146,7 @@ namespace Game.Tests.EditMode
                 state,
                 new DuelEffectCommand
                 {
-                    opCode = DuelEffectOpCode.ModifyTotalAttack,
+                    opCode = DuelEffectOpCode.ModifyTotalPower,
                     clashIndex = 0,
                     isPlayerSide = true,
                     amount = 2
@@ -156,7 +156,7 @@ namespace Game.Tests.EditMode
                 state,
                 new DuelEffectCommand
                 {
-                    opCode = DuelEffectOpCode.ModifyTotalAttack,
+                    opCode = DuelEffectOpCode.ModifyTotalPower,
                     clashIndex = 0,
                     isPlayerSide = false,
                     amount = -1
@@ -164,8 +164,8 @@ namespace Game.Tests.EditMode
 
             Assert.IsTrue(playerResult.isSuccess);
             Assert.IsTrue(opponentResult.isSuccess);
-            Assert.AreEqual(2, state.clashes[0].totalAttackBonusPlayer);
-            Assert.AreEqual(-1, state.clashes[0].totalAttackBonusOpponent);
+            Assert.AreEqual(2, state.clashes[0].totalPowerBonusPlayer);
+            Assert.AreEqual(-1, state.clashes[0].totalPowerBonusOpponent);
         }
 
         [Test]
@@ -192,8 +192,8 @@ namespace Game.Tests.EditMode
             state.abilitiesById["p1"] = new AbilityInstance
             {
                 abilityDefId = "p1",
-                attack = 4,
-                attackModifiers = new List<NumericModifier>
+                power = 4,
+                powerModifiers = new List<NumericModifier>
                 {
                     new NumericModifier
                     {
@@ -223,8 +223,8 @@ namespace Game.Tests.EditMode
             Assert.IsTrue(result.isSuccess);
             Assert.IsTrue(state.isDuelEnded);
             Assert.AreEqual(-1, state.playerHealth);
-            Assert.AreEqual(1, state.abilitiesById["p1"].attackModifiers.Count);
-            Assert.AreEqual(ModifierLayer.Permanent, state.abilitiesById["p1"].attackModifiers[0].layer);
+            Assert.AreEqual(1, state.abilitiesById["p1"].powerModifiers.Count);
+            Assert.AreEqual(ModifierLayer.Permanent, state.abilitiesById["p1"].powerModifiers[0].layer);
         }
 
         [Test]
@@ -244,7 +244,7 @@ namespace Game.Tests.EditMode
                     },
                     new DuelEffectCommand
                     {
-                        opCode = DuelEffectOpCode.ModifyTotalAttack,
+                        opCode = DuelEffectOpCode.ModifyTotalPower,
                         clashIndex = 0,
                         isPlayerSide = true,
                         amount = 2
@@ -254,7 +254,7 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(2, results.Count);
             Assert.IsFalse(results[0].isSuccess);
             Assert.IsTrue(results[1].isSuccess);
-            Assert.AreEqual(2, state.clashes[0].totalAttackBonusPlayer);
+            Assert.AreEqual(2, state.clashes[0].totalPowerBonusPlayer);
         }
 
         [Test]
@@ -297,14 +297,14 @@ namespace Game.Tests.EditMode
             }
         }
 
-        static AbilityInstance CreateAbility(string abilityId, int attackResult)
+        static AbilityInstance CreateAbility(string abilityId, int powerResult)
         {
             return new AbilityInstance
             {
                 abilityDefId = abilityId,
-                attack = 6,
-                baseRoll = attackResult,
-                attackResult = attackResult
+                power = 6,
+                baseRoll = powerResult,
+                powerResult = powerResult
             };
         }
 

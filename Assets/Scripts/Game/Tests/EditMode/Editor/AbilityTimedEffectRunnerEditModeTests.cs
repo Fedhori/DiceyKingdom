@@ -9,7 +9,7 @@ namespace Game.Tests.EditMode
     public sealed class AbilityTimedEffectRunnerEditModeTests
     {
         [Test]
-        public void ApplyForTiming_Roll_DoublesMikoAttackResult_WhenSingleOpponentIsPresent()
+        public void ApplyForTiming_Roll_DoublesMikoPowerResult_WhenSingleOpponentIsPresent()
         {
             GameDatabase database = CreateDatabase();
             DuelState state = CreateDuelState();
@@ -18,17 +18,17 @@ namespace Game.Tests.EditMode
             {
                 instanceId = "p_miko",
                 abilityDefId = "ability.miko.assassin",
-                attack = 4,
+                power = 4,
                 baseRoll = 4,
-                attackResult = 4
+                powerResult = 4
             };
             state.abilitiesById["e_rat"] = new AbilityInstance
             {
                 instanceId = "e_rat",
                 abilityDefId = "ability.ratkin",
-                attack = 2,
+                power = 2,
                 baseRoll = 2,
-                attackResult = 2
+                powerResult = 2
             };
             state.clashes[0].playerAbilityIds.Add("p_miko");
             state.clashes[0].opponentAbilityIds.Add("e_rat");
@@ -38,7 +38,7 @@ namespace Game.Tests.EditMode
 
             Assert.AreEqual(1, result.appliedCount);
             Assert.AreEqual(0, result.failedCount);
-            Assert.AreEqual(8, state.abilitiesById["p_miko"].attackResult);
+            Assert.AreEqual(8, state.abilitiesById["p_miko"].powerResult);
         }
 
         [Test]
@@ -51,31 +51,31 @@ namespace Game.Tests.EditMode
             {
                 instanceId = "p_miko",
                 abilityDefId = "ability.miko.assassin",
-                attack = 4,
+                power = 4,
                 baseRoll = 4,
-                attackResult = 4
+                powerResult = 4
             };
             state.abilitiesById["e_rat"] = new AbilityInstance
             {
                 instanceId = "e_rat",
                 abilityDefId = "ability.ratkin",
-                attack = 2,
+                power = 2,
                 baseRoll = 2,
-                attackResult = 2
+                powerResult = 2
             };
             state.clashes[0].playerAbilityIds.Add("p_miko");
             state.clashes[0].opponentAbilityIds.Add("e_rat");
 
             var runner = new AbilityTimedEffectRunner(database);
             runner.ApplyForTiming(state, DuelEffectTiming.Roll);
-            state.abilitiesById["p_miko"].attackResult = 4;
+            state.abilitiesById["p_miko"].powerResult = 4;
             runner.ApplyForTiming(state, DuelEffectTiming.Roll);
 
-            Assert.AreEqual(8, state.abilitiesById["p_miko"].attackResult);
+            Assert.AreEqual(8, state.abilitiesById["p_miko"].powerResult);
         }
 
         [Test]
-        public void ApplyForTiming_Roll_DwarfCannon_ReducesOpponentAttackResultOnSameClash()
+        public void ApplyForTiming_Roll_DwarfCannon_ReducesOpponentPowerResultOnSameClash()
         {
             GameDatabase database = CreateDatabase();
             DuelState state = CreateDuelState();
@@ -84,25 +84,25 @@ namespace Game.Tests.EditMode
             {
                 instanceId = "p_dwarf",
                 abilityDefId = "ability.dwarf.cannon",
-                attack = 4,
+                power = 4,
                 baseRoll = 3,
-                attackResult = 3
+                powerResult = 3
             };
             state.abilitiesById["e_a"] = new AbilityInstance
             {
                 instanceId = "e_a",
                 abilityDefId = "ability.ratkin",
-                attack = 2,
+                power = 2,
                 baseRoll = 2,
-                attackResult = 2
+                powerResult = 2
             };
             state.abilitiesById["e_b"] = new AbilityInstance
             {
                 instanceId = "e_b",
                 abilityDefId = "ability.ratkin",
-                attack = 2,
+                power = 2,
                 baseRoll = 1,
-                attackResult = 1
+                powerResult = 1
             };
             state.clashes[0].playerAbilityIds.Add("p_dwarf");
             state.clashes[0].opponentAbilityIds.Add("e_a");
@@ -112,12 +112,12 @@ namespace Game.Tests.EditMode
             AbilityTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.Roll);
 
             Assert.AreEqual(2, result.appliedCount);
-            Assert.AreEqual(1, state.abilitiesById["e_a"].attackResult);
-            Assert.AreEqual(1, state.abilitiesById["e_b"].attackResult);
+            Assert.AreEqual(1, state.abilitiesById["e_a"].powerResult);
+            Assert.AreEqual(1, state.abilitiesById["e_b"].powerResult);
         }
 
         [Test]
-        public void ApplyForTiming_TurnEnd_ReservistInBag_AddsDuelAttackModifier()
+        public void ApplyForTiming_TurnEnd_ReservistInBag_AddsDuelPowerModifier()
         {
             GameDatabase database = CreateDatabase();
             DuelState state = CreateDuelState();
@@ -126,9 +126,9 @@ namespace Game.Tests.EditMode
             {
                 instanceId = "p_reserve",
                 abilityDefId = "ability.reservist",
-                attack = 2,
+                power = 2,
                 baseRoll = 0,
-                attackResult = 0
+                powerResult = 0
             };
             state.bagAbilityIds.Add("p_reserve");
 
@@ -137,8 +137,8 @@ namespace Game.Tests.EditMode
 
             Assert.AreEqual(1, result.appliedCount);
             Assert.AreEqual(0, result.failedCount);
-            Assert.AreEqual(1, state.abilitiesById["p_reserve"].attackModifiers.Count);
-            Assert.AreEqual(2, state.abilitiesById["p_reserve"].attackModifiers[0].value);
+            Assert.AreEqual(1, state.abilitiesById["p_reserve"].powerModifiers.Count);
+            Assert.AreEqual(2, state.abilitiesById["p_reserve"].powerModifiers[0].value);
         }
 
         static GameDatabase CreateDatabase()
@@ -149,7 +149,7 @@ namespace Game.Tests.EditMode
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
                 cooldown = 0,
-                damage = 4,
+                power = 4,
                 effects = new List<TimedEffectDef>
                 {
                     new TimedEffectDef
@@ -164,7 +164,7 @@ namespace Game.Tests.EditMode
                         {
                             new EffectOpDef
                             {
-                                op = "ModifyAttackResult",
+                                op = "ModifyPowerResult",
                                 scope = "Self",
                                 mode = "PercentBonus",
                                 value = 100
@@ -179,7 +179,7 @@ namespace Game.Tests.EditMode
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
                 cooldown = 0,
-                damage = 4,
+                power = 4,
                 effects = new List<TimedEffectDef>
                 {
                     new TimedEffectDef
@@ -193,7 +193,7 @@ namespace Game.Tests.EditMode
                         {
                             new EffectOpDef
                             {
-                                op = "ModifyAttackResult",
+                                op = "ModifyPowerResult",
                                 scope = "SameClashAbilities",
                                 side = "Opponent",
                                 mode = "Add",
@@ -209,7 +209,7 @@ namespace Game.Tests.EditMode
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
                 cooldown = 0,
-                damage = 2,
+                power = 2,
                 effects = new List<TimedEffectDef>
                 {
                     new TimedEffectDef
@@ -223,8 +223,8 @@ namespace Game.Tests.EditMode
                         {
                             new EffectOpDef
                             {
-                                op = "AddAttackModifier",
-                                target = "Attack",
+                                op = "AddPowerModifier",
+                                target = "Power",
                                 layer = "Duel",
                                 mode = "Add",
                                 value = 2
@@ -239,7 +239,7 @@ namespace Game.Tests.EditMode
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
                 cooldown = 0,
-                damage = 2,
+                power = 2,
                 effects = new List<TimedEffectDef>()
             };
             return database;

@@ -6,7 +6,6 @@ namespace Game.Application.Duel
         OpponentSetup = 1,
         PlayerSetup = 2,
         Roll = 3,
-        Skill = 4,
-        ClashResolve = 5
+        Resolve = 4
     }
 }

@@ -4,7 +4,7 @@
   "type": "Attack",
   "buildCost": 0,
   "cooldown": 0,
-  "damage": 2,
+  "power": 2,
   "tags": ["ratkin"],
   "nameLocKey": "ability.ratkin_name",
   "descLocKey": "ability.ratkin_desc",

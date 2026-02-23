@@ -32,7 +32,7 @@ namespace Game.Tests.EditMode
             var runner = new DuelPhaseRunner(state);
             var processor = new DuelTurnProcessor(database);
 
-            AdvanceToClashResolve(runner);
+            AdvanceToResolve(runner);
 
             bool success = processor.TryClashResolveAllClashes(
                 state,
@@ -74,7 +74,7 @@ namespace Game.Tests.EditMode
             var runner = new DuelPhaseRunner(state);
             var processor = new DuelTurnProcessor(database);
 
-            AdvanceToClashResolve(runner);
+            AdvanceToResolve(runner);
 
             bool success = processor.TryClashResolveAllClashes(
                 state,
@@ -103,7 +103,7 @@ namespace Game.Tests.EditMode
             state.abilitiesById["p0"] = new AbilityInstance
             {
                 abilityDefId = "ability.player",
-                attack = 1
+                power = 1
             };
             state.clashes[0].playerAbilityIds.Add("p0");
 
@@ -123,18 +123,17 @@ namespace Game.Tests.EditMode
             Assert.IsTrue(success, failureMessage);
             Assert.AreEqual(1, result.rolledAbilityCount);
             Assert.AreEqual(1, result.timedEffectResult.appliedCount);
-            Assert.AreEqual(2, state.abilitiesById["p0"].attackResult);
-            Assert.AreEqual(DuelPhase.Skill, runner.currentPhase);
+            Assert.AreEqual(2, state.abilitiesById["p0"].powerResult);
+            Assert.AreEqual(DuelPhase.Resolve, runner.currentPhase);
         }
 
-        static void AdvanceToClashResolve(DuelPhaseRunner runner)
+        static void AdvanceToResolve(DuelPhaseRunner runner)
         {
             Assert.IsTrue(runner.StartDuel());
             Assert.IsTrue(runner.AdvanceToNextPhase()); // OpponentSetup
             Assert.IsTrue(runner.AdvanceToNextPhase()); // PlayerSetup
             Assert.IsTrue(runner.AdvanceToNextPhase()); // Roll
-            Assert.IsTrue(runner.AdvanceToNextPhase()); // Skill
-            Assert.IsTrue(runner.AdvanceToNextPhase()); // ClashResolve
+            Assert.IsTrue(runner.AdvanceToNextPhase()); // Resolve
         }
 
         static GameDatabase CreateDatabase()
@@ -144,10 +143,10 @@ namespace Game.Tests.EditMode
                 duelConfig = new DuelConfigDef
                 {
                     cooldownTickPerTurn = -1,
-                    attackResultMin = 1,
+                    powerResultMin = 1,
                     p0Rules = new P0RulesDef
                     {
-                        disallowBaseAttackMutation = true,
+                        disallowBasePowerMutation = true,
                         defaultSlotLimit = null
                     }
                 },
@@ -181,7 +180,7 @@ namespace Game.Tests.EditMode
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
                 cooldown = 0,
-                damage = 1,
+                power = 1,
                 effects = new List<TimedEffectDef>
                 {
                     new TimedEffectDef
@@ -195,7 +194,7 @@ namespace Game.Tests.EditMode
                         {
                             new EffectOpDef
                             {
-                                op = "ModifyAttackResult",
+                                op = "ModifyPowerResult",
                                 scope = "Self",
                                 mode = "Add",
                                 value = 1
@@ -206,14 +205,14 @@ namespace Game.Tests.EditMode
             };
         }
 
-        static AbilityInstance CreateAbility(string abilityDefId, int attackResult)
+        static AbilityInstance CreateAbility(string abilityDefId, int powerResult)
         {
             return new AbilityInstance
             {
                 abilityDefId = abilityDefId,
-                attack = 6,
-                baseRoll = attackResult,
-                attackResult = attackResult
+                power = 6,
+                baseRoll = powerResult,
+                powerResult = powerResult
             };
         }
 

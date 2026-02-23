@@ -17,9 +17,9 @@ namespace Game.Infrastructure.Data
   ""schemaVersion"": 2,
   ""id"": ""duel.config"",
   ""cooldownTickPerTurn"": -1,
-  ""attackResultMin"": 1,
+  ""powerResultMin"": 1,
   ""p0Rules"": {
-    ""disallowBaseAttackMutation"": true,
+    ""disallowBasePowerMutation"": true,
     ""defaultSlotLimit"": null
   }
 }");

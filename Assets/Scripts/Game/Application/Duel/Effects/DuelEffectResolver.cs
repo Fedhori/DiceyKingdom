@@ -12,11 +12,11 @@ namespace Game.Application.Duel.Effects
 
         public DuelEffectClashResolver()
         {
-            Register(new ModifyAttackResultEffectHandler());
-            Register(new AddAttackModifierEffectHandler());
+            Register(new ModifyPowerResultEffectHandler());
+            Register(new AddPowerModifierEffectHandler());
             Register(new MoveAbilityEffectHandler());
             Register(new MoveOpponentAbilityEffectHandler());
-            Register(new ModifyTotalAttackEffectHandler());
+            Register(new ModifyTotalPowerEffectHandler());
             Register(new ModifyHealthEffectHandler());
         }
 
@@ -85,7 +85,7 @@ namespace Game.Application.Duel.Effects
                 if (command == null)
                 {
                     DuelEffectResult nullCommandResult = FailWithWarning(
-                        DuelEffectOpCode.ModifyAttackResult,
+                        DuelEffectOpCode.ModifyPowerResult,
                         DuelEffectFailureReason.MissingField,
                         $"Effect at index {i} was null.");
                     results.Add(nullCommandResult);
@@ -255,9 +255,9 @@ namespace Game.Application.Duel.Effects
             return false;
         }
 
-        sealed class ModifyAttackResultEffectHandler : IDuelEffectHandler
+        sealed class ModifyPowerResultEffectHandler : IDuelEffectHandler
         {
-            public DuelEffectOpCode opCode => DuelEffectOpCode.ModifyAttackResult;
+            public DuelEffectOpCode opCode => DuelEffectOpCode.ModifyPowerResult;
 
             public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context)
             {
@@ -276,7 +276,7 @@ namespace Game.Application.Duel.Effects
                 }
 
                 ability.EnsureInitialized();
-                ability.attackResultModifiers.Add(new NumericModifier
+                ability.powerResultModifiers.Add(new NumericModifier
                 {
                     operation = command.modifierOperation,
                     value = command.amount,
@@ -286,18 +286,18 @@ namespace Game.Application.Duel.Effects
 
                 if (ability.baseRoll > 0)
                 {
-                    ability.attackResult = DuelSimulator.ComputeAttackResult(
+                    ability.powerResult = DuelSimulator.ComputePowerResult(
                         ability.baseRoll,
-                        ability.attackResultModifiers);
+                        ability.powerResultModifiers);
                 }
 
                 return DuelEffectResult.Success();
             }
         }
 
-        sealed class AddAttackModifierEffectHandler : IDuelEffectHandler
+        sealed class AddPowerModifierEffectHandler : IDuelEffectHandler
         {
-            public DuelEffectOpCode opCode => DuelEffectOpCode.AddAttackModifier;
+            public DuelEffectOpCode opCode => DuelEffectOpCode.AddPowerModifier;
 
             public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context)
             {
@@ -316,9 +316,9 @@ namespace Game.Application.Duel.Effects
                 }
 
                 ability.EnsureInitialized();
-                List<NumericModifier> targetModifiers = command.modifierTarget == DuelModifierTarget.AttackResult
-                    ? ability.attackResultModifiers
-                    : ability.attackModifiers;
+                List<NumericModifier> targetModifiers = command.modifierTarget == DuelModifierTarget.PowerResult
+                    ? ability.powerResultModifiers
+                    : ability.powerModifiers;
 
                 targetModifiers.Add(new NumericModifier
                 {
@@ -328,11 +328,11 @@ namespace Game.Application.Duel.Effects
                     sourceId = command.sourceId
                 });
 
-                if (command.modifierTarget == DuelModifierTarget.AttackResult && ability.baseRoll > 0)
+                if (command.modifierTarget == DuelModifierTarget.PowerResult && ability.baseRoll > 0)
                 {
-                    ability.attackResult = DuelSimulator.ComputeAttackResult(
+                    ability.powerResult = DuelSimulator.ComputePowerResult(
                         ability.baseRoll,
-                        ability.attackResultModifiers);
+                        ability.powerResultModifiers);
                 }
 
                 return DuelEffectResult.Success();
@@ -359,9 +359,9 @@ namespace Game.Application.Duel.Effects
             }
         }
 
-        sealed class ModifyTotalAttackEffectHandler : IDuelEffectHandler
+        sealed class ModifyTotalPowerEffectHandler : IDuelEffectHandler
         {
-            public DuelEffectOpCode opCode => DuelEffectOpCode.ModifyTotalAttack;
+            public DuelEffectOpCode opCode => DuelEffectOpCode.ModifyTotalPower;
 
             public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context)
             {
@@ -377,11 +377,11 @@ namespace Game.Application.Duel.Effects
 
                 if (command.isPlayerSide)
                 {
-                    clash.totalAttackBonusPlayer += command.amount;
+                    clash.totalPowerBonusPlayer += command.amount;
                 }
                 else
                 {
-                    clash.totalAttackBonusOpponent += command.amount;
+                    clash.totalPowerBonusOpponent += command.amount;
                 }
 
                 return DuelEffectResult.Success();

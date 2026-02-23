@@ -211,8 +211,8 @@ namespace Game.Application.Duel
                 {
                     clashId = sourceDef?.id ?? clashIdFromEnemy,
                     slotLimit = resolvedSlotLimit,
-                    totalAttackBonusPlayer = 0,
-                    totalAttackBonusOpponent = 0
+                    totalPowerBonusPlayer = 0,
+                    totalPowerBonusOpponent = 0
                 };
 
                 if (sourceDef == null)
@@ -340,16 +340,16 @@ namespace Game.Application.Duel
                 abilityType = AbilityType.Attack;
             }
 
-            int resolvedDamage = Mathf.Max(0, abilityDef.ResolveDamage());
+            int resolvedPower = Mathf.Max(0, abilityDef.ResolvePower());
             var abilityInstance = new AbilityInstance
             {
                 abilityDefId = abilityDef.id,
                 abilityType = abilityType,
                 cooldownTurns = Mathf.Max(0, abilityDef.cooldown),
                 cooldownRemaining = 0,
-                attack = resolvedDamage,
+                power = resolvedPower,
                 baseRoll = 0,
-                attackResult = 0
+                powerResult = 0
             };
 
             if (abilityDef.tags != null && abilityDef.tags.Count > 0)

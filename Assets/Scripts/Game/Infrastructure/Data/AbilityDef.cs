@@ -22,8 +22,8 @@ namespace Game.Infrastructure.Data
         [JsonProperty("cooldown", Required = Required.Default)]
         public int cooldown;
 
-        [JsonProperty("damage", Required = Required.Always)]
-        public int damage;
+        [JsonProperty("power", Required = Required.Always)]
+        public int power;
 
         [JsonProperty("tags", Required = Required.Default)]
         public List<string> tags = new();
@@ -42,9 +42,9 @@ namespace Game.Infrastructure.Data
             return Enum.TryParse(type, false, out abilityType);
         }
 
-        public int ResolveDamage()
+        public int ResolvePower()
         {
-            return damage;
+            return power;
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Game.Presentation.Debug
         [SerializeField] Button selectButton;
         [SerializeField] TMP_Text abilityDefIdText;
         [SerializeField] TMP_Text effectsText;
-        [SerializeField] TMP_Text attackResultText;
+        [SerializeField] TMP_Text powerResultText;
         [SerializeField] TMP_Text attackText;
         [SerializeField] Color playerBackgroundColor = defaultPlayerBackgroundColor;
         [SerializeField] Color opponentBackgroundColor = defaultOpponentBackgroundColor;
@@ -65,16 +65,16 @@ namespace Game.Presentation.Debug
                 selectButton = GetComponent<Button>();
             }
 
-            abilityDefIdText = ClashResolveChildText(abilityDefIdText, "AbilityDefIdText");
-            effectsText = ClashResolveChildText(effectsText, "EffectsText");
-            attackResultText = ClashResolveChildText(attackResultText, "AttackResultText");
-            attackText = ClashResolveChildText(attackText, "AttackText");
+            abilityDefIdText = ResolveChildText(abilityDefIdText, "AbilityDefIdText");
+            effectsText = ResolveChildText(effectsText, "EffectsText");
+            powerResultText = ResolveChildText(powerResultText, "PowerResultText", "AttackResultText", "powerResultText");
+            attackText = ResolveChildText(attackText, "PowerText", "AttackText");
         }
 
         public void Bind(
             string abilityDefId,
-            int attack,
-            int attackResult,
+            int power,
+            int powerResult,
             string effectsLabel,
             bool isPlayerSide,
             bool isSelected,
@@ -84,9 +84,9 @@ namespace Game.Presentation.Debug
             this.onSelected = onSelected;
 
             SetText(abilityDefIdText, abilityDefId);
-            string damageLabel = attack > 0 ? $"DMG {attack}" : "DMG -";
-            SetText(attackText, damageLabel);
-            SetText(attackResultText, $"Roll {attackResult}");
+            string powerLabel = power > 0 ? $"PWR {power}" : "PWR -";
+            SetText(attackText, powerLabel);
+            SetText(powerResultText, $"Result {powerResult}");
             SetText(effectsText, effectsLabel);
 
             if (attackText != null)
@@ -137,7 +137,7 @@ namespace Game.Presentation.Debug
             target.text = value ?? string.Empty;
         }
 
-        TMP_Text ClashResolveChildText(TMP_Text currentValue, params string[] childNames)
+        TMP_Text ResolveChildText(TMP_Text currentValue, params string[] childNames)
         {
             if (currentValue != null)
             {

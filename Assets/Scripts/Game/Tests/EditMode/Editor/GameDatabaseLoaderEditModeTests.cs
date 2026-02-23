@@ -70,7 +70,7 @@ namespace Game.Tests.EditMode
   ""type"": ""Attack"",
   ""buildCost"": 0,
   ""cooldown"": 0,
-  ""damage"": 2,
+  ""power"": 2,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
   ""effects"": [],
@@ -107,7 +107,7 @@ namespace Game.Tests.EditMode
   ""type"": ""Attack"",
   ""buildCost"": 0,
   ""cooldown"": 0,
-  ""damage"": 2,
+  ""power"": 2,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
   ""effects"": [
@@ -115,7 +115,7 @@ namespace Game.Tests.EditMode
       ""timing"": ""TurnEnd"",
       ""condition"": { ""type"": ""IsInBag"" },
       ""ops"": [
-        { ""op"": ""AddAttackModifier"", ""target"": ""Attack"", ""layer"": ""duel"", ""mode"": ""Add"", ""value"": 1 }
+        { ""op"": ""AddPowerModifier"", ""target"": ""Power"", ""layer"": ""duel"", ""mode"": ""Add"", ""value"": 1 }
       ]
     }
   ]
@@ -157,9 +157,9 @@ namespace Game.Tests.EditMode
   ""schemaVersion"": 2,
   ""id"": ""duel.config"",
   ""cooldownTickPerTurn"": -1,
-  ""attackResultMin"": 1,
+  ""powerResultMin"": 1,
   ""p0Rules"": {
-    ""disallowBaseAttackMutation"": true,
+    ""disallowBasePowerMutation"": true,
     ""defaultSlotLimit"": null
   }
 }",
@@ -200,7 +200,7 @@ namespace Game.Tests.EditMode
   ""type"": ""Attack"",
   ""buildCost"": 0,
   ""cooldown"": 0,
-  ""damage"": 2,
+  ""power"": 2,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
   ""effects"": []

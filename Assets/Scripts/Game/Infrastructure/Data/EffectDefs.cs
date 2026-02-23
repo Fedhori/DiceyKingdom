@@ -69,8 +69,8 @@ namespace Game.Infrastructure.Data
         [JsonProperty("delta", Required = Required.Default)]
         public int? delta;
 
-        [JsonProperty("keepAttackResult", Required = Required.Default)]
-        public bool? keepAttackResult;
+        [JsonProperty("keeppowerResult", Required = Required.Default)]
+        public bool? keeppowerResult;
 
         [JsonProperty("textLocKey", Required = Required.Default)]
         public string textLocKey;

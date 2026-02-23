@@ -18,7 +18,7 @@ namespace Game.Application.Duel.Effects
 
         public NumericModifierOperation modifierOperation = NumericModifierOperation.Add;
         public ModifierLayer modifierLayer = ModifierLayer.Duel;
-        public DuelModifierTarget modifierTarget = DuelModifierTarget.Attack;
+        public DuelModifierTarget modifierTarget = DuelModifierTarget.Power;
         public int amount;
     }
 }

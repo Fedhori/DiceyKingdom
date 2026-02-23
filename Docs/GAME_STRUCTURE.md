@@ -32,7 +32,7 @@
 ## 3) 핵심 재미
 
 1. Intent를 보고 어떤 Ability를 어느 Clash에 둘지 판단한다.
-2. Attack Result를 얼마나 유리하게 만들지(배치/효과/타이밍) 선택한다.
+2. Power Result를 얼마나 유리하게 만들지(배치/효과/타이밍) 선택한다.
 3. Surrender 타이밍까지 포함해 리스크를 관리한다.
 
 ---
@@ -51,8 +51,7 @@
 2. `OpponentSetup`
 3. `PlayerSetup`
 4. `Roll`
-5. `Skill`
-6. `ClashResolve`
+5. `Resolve`
 
 ## Turn End(내부)
 
@@ -78,16 +77,16 @@
 ## 5.3 굴림/수치
 
 - Attack 타입 Ability만 Roll 대상이다.
-- `damage`는 항상 주사위 면수(굴림 범위)를 의미한다.
-- Attack Result 최소값은 1, 상한은 없다.
-- 기본 Attack 수치를 직접 변형하지 않고 Modifier로 처리한다.
+- `power`는 항상 주사위 면수(굴림 범위)를 의미한다.
+- Power Result 최소값은 1, 상한은 없다.
+- 기본 Power 수치를 직접 변형하지 않고 Modifier로 처리한다.
 
 ## 5.4 판정
 
-- Clash별 Total Attack을 비교한다.
+- Clash별 Total Power를 비교한다.
 - 결과는 `Victory / Draw / Defeat`만 사용한다.
 - 대승리/대패배는 사용하지 않는다.
-- 승리한 쪽이 해당 Clash의 `damage`만큼 상대 Health에 피해를 준다.
+- 승리한 쪽이 해당 Clash의 `damage`(Damage, 체력 피해량)만큼 상대 Health에 피해를 준다.
 
 ## 5.5 Surrender
 
@@ -101,7 +100,7 @@
 
 - Ability 타입: `Attack / Skill / Passive`
 - Attack: Roll 및 Clash 판정에 직접 기여
-- Skill: 특정 타이밍에 수동/자동으로 전장을 조정
+- Skill: PlayerSetup에서 타겟 지정 후, 정의된 타이밍에 자동 적용
 - Passive: 상시 또는 조건부로 적용
 - 적은 항상 1명이지만, Clash별로 서로 다른 Ability 조합을 가진다.
 

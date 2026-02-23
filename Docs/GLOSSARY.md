@@ -20,17 +20,18 @@
 | 프로젝트 | Free or Die | Free or Die | 프로젝트명 |
 | 전투 | 결투 | Duel | 하나의 전투 단위 |
 | 전투 | 페이즈 | Phase | 턴 내 진행 단계 |
-| 전장 | 클래시 | Clash | 공격 결과를 비교하는 슬롯/공간 |
+| 전장 | 클래시 | Clash | 파워 결과를 비교하는 슬롯/공간 |
 | 정보 | 의도 | Intent | 적 배치 계획(공개 정보) |
 | 능력 | 어빌리티 | Ability | Attack/Skill/Passive 통합 상위 개념 |
-| 능력 | 공격 | Attack | 주사위를 굴려 공격 결과를 만드는 Ability 타입 |
+| 능력 | 공격 | Attack | 주사위를 굴려 Power Result를 만드는 Ability 타입 |
 | 능력 | 스킬 | Skill | 특정 타이밍에 발동하는 Ability 타입 |
 | 능력 | 패시브 | Passive | 상시/조건부 효과 타입 |
-| 결과 | 공격 결과 | Attack Result | 굴림 + 보정 이후 최종 값 |
-| 결과 | 총 공격력 | Total Attack | Clash 단위 합산 공격력 |
+| 수치 | 주사위 수치 | Power | 주사위 굴림 범위를 정하는 기본 수치 |
+| 수치 | 주사위 굴림 후 수치 | Power Result | 굴림 + 보정 이후 최종 수치 |
+| 수치 | 총 파워 | Total Power | Clash 단위 합산 수치 |
+| 수치 | 피해량 | Damage | 체력에 적용되는 최종 피해량 |
 | 보관 | 가방 | Bag | Clash 미배치 Ability 보관 영역 |
 | 상태 | 체력 | Health | 0 이하면 결투 종료 |
 | 상태 | 명예 | Honor | Surrender 가능 여부를 결정 |
 | 메타 | 용량 | Capacity | 준비 단계 편성 상한 |
 | 행동 | 항복 | Surrender | 결투 즉시 종료(보상 없음) |
-

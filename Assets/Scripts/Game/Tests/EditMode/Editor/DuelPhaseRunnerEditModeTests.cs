@@ -25,14 +25,14 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(DuelPhase.Roll, runner.currentPhase);
 
             Assert.IsTrue(runner.AdvanceToNextPhase());
-            Assert.AreEqual(DuelPhase.Skill, runner.currentPhase);
+            Assert.AreEqual(DuelPhase.Resolve, runner.currentPhase);
 
             Assert.IsTrue(runner.AdvanceToNextPhase());
-            Assert.AreEqual(DuelPhase.ClashResolve, runner.currentPhase);
+            Assert.AreEqual(DuelPhase.Reset, runner.currentPhase);
         }
 
         [Test]
-        public void AdvanceToNextPhase_FromClashResolve_ReturnsToResetAndIncrementsTurn()
+        public void AdvanceToNextPhase_FromResolve_ReturnsToResetAndIncrementsTurn()
         {
             var state = new DuelState();
             var runner = new DuelPhaseRunner(state);
@@ -42,8 +42,7 @@ namespace Game.Tests.EditMode
             Assert.IsTrue(runner.AdvanceToNextPhase()); // OpponentSetup
             Assert.IsTrue(runner.AdvanceToNextPhase()); // PlayerSetup
             Assert.IsTrue(runner.AdvanceToNextPhase()); // Roll
-            Assert.IsTrue(runner.AdvanceToNextPhase()); // Skill
-            Assert.IsTrue(runner.AdvanceToNextPhase()); // ClashResolve
+            Assert.IsTrue(runner.AdvanceToNextPhase()); // Resolve
 
             int turnBefore = state.turnIndex;
 

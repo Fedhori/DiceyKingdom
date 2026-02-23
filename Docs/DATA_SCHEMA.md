@@ -56,9 +56,9 @@
   "schemaVersion": 2,
   "id": "duel.config",
   "cooldownTickPerTurn": -1,
-  "attackResultMin": 1,
+  "powerResultMin": 1,
   "p0Rules": {
-    "disallowBaseAttackMutation": true,
+    "disallowBasePowerMutation": true,
     "defaultSlotLimit": null
   }
 }
@@ -119,7 +119,7 @@
 - `type`: `Attack` / `Skill` / `Passive`
 - `buildCost`: 편성 비용
 - `cooldown`: 턴 단위 쿨다운
-- `damage`:
+- `power`:
   - Attack 타입: `> 0`
   - Skill/Passive 타입: `0`
 
@@ -130,7 +130,7 @@
   "type": "Attack",
   "buildCost": 0,
   "cooldown": 0,
-  "damage": 4,
+  "power": 4,
   "tags": ["assassin"],
   "nameLocKey": "ability.miko.assassin_name",
   "descLocKey": "ability.miko.assassin_desc",
@@ -172,12 +172,16 @@
 
 ## 7) Effect OpCode (P0)
 
-- `ModifyAttackResult`
+- `ModifyPowerResult`
 - `MoveAbility`
 - `MoveOpponentAbility`
-- `ModifyTotalAttack`
+- `ModifyTotalPower`
 - `ModifyHealth`
-- `AddAttackModifier`
+- `AddPowerModifier`
+
+`AddPowerModifier.target`:
+- `Power`
+- `PowerResult`
 
 조건 타입(P0):
 - `Always`

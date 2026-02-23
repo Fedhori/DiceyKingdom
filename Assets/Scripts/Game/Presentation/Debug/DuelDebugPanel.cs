@@ -233,17 +233,17 @@ namespace Game.Presentation.Debug
             RefreshView();
         }
 
-        public void ClashResolve()
+        public void Resolve()
         {
             if (!TryValidateDuelStarted(out string failureMessage))
             {
-                RejectCommand("ClashResolve", failureMessage);
+                RejectCommand("Resolve", failureMessage);
                 return;
             }
 
             if (turnProcessor == null)
             {
-                RejectCommand("ClashResolve", "turn processor is not initialized.");
+                RejectCommand("Resolve", "turn processor is not initialized.");
                 return;
             }
 
@@ -253,7 +253,7 @@ namespace Game.Presentation.Debug
                     out DuelClashResolveResult resolveResult,
                     out string resolveFailureMessage))
             {
-                RejectCommand("ClashResolve", resolveFailureMessage);
+                RejectCommand("Resolve", resolveFailureMessage);
                 return;
             }
 
@@ -261,7 +261,7 @@ namespace Game.Presentation.Debug
             {
                 DuelClashResolveStepResult step = resolveResult.steps[i];
                 AppendLog(
-                    $"ClashResolve[{step.clashIndex}] outcome={step.outcome} totalAttack(P:{step.playerTotalAttack},E:{step.opponentTotalAttack}) health(P:{duelState.playerHealth},E:{duelState.opponentHealth})");
+                    $"Resolve[{step.clashIndex}] outcome={step.outcome} TotalPower(P:{step.playerTotalPower},E:{step.opponentTotalPower}) health(P:{duelState.playerHealth},E:{duelState.opponentHealth})");
             }
 
             if (resolveResult.outcomeEffectFailedCount > 0)
@@ -286,7 +286,7 @@ namespace Game.Presentation.Debug
                 AppendLog($"TurnEnd applied: cooldownUpdated={resolveResult.cooldownUpdatedCount}");
             }
 
-            AppendLog($"ClashResolve success: resolvedClashes={resolveResult.steps.Count}");
+            AppendLog($"Resolve success: resolvedClashes={resolveResult.steps.Count}");
             RefreshView();
         }
 
@@ -647,7 +647,7 @@ namespace Game.Presentation.Debug
             SetButtonInteractable(
                 resolveButton,
                 canProgress &&
-                (currentPhase == DuelPhase.Skill || currentPhase == DuelPhase.ClashResolve));
+                currentPhase == DuelPhase.Resolve);
             SetButtonInteractable(
                 surrenderButton,
                 canProgress &&
@@ -736,8 +736,8 @@ namespace Game.Presentation.Debug
             abilityBlock.name = $"AbilityBlock_{abilityId}";
             abilityBlock.Bind(
                 abilityDefId,
-                ability.attack,
-                ability.attackResult,
+                ability.power,
+                ability.powerResult,
                 effectsLabel,
                 isPlayerSide,
                 isSelected,
@@ -941,7 +941,7 @@ namespace Game.Presentation.Debug
             BindButton(playerDeployButton, PlayerSetup);
             BindButton(deploySelectedButton, DeploySelected);
             BindButton(rollButton, Roll);
-            BindButton(resolveButton, ClashResolve);
+            BindButton(resolveButton, Resolve);
             BindButton(surrenderButton, Surrender);
             BindButton(selectFirstBagAbilityButton, SelectFirstBagAbility);
             BindButton(selectClash0Button, SelectClash0);
@@ -1063,7 +1063,7 @@ namespace Game.Presentation.Debug
             playerDeployButton = AssignByNames(playerDeployButton, "PlayerSetupButton");
             deploySelectedButton = AssignByNames(deploySelectedButton, "DeploySelectedButton");
             rollButton = AssignByNames(rollButton, "RollButton");
-            resolveButton = AssignByNames(resolveButton, "ClashResolveButton");
+            resolveButton = AssignByNames(resolveButton, "ResolveButton", "ClashResolveButton");
             surrenderButton = AssignByNames(surrenderButton, "SurrenderButton");
             selectFirstBagAbilityButton = AssignByNames(
                 selectFirstBagAbilityButton,

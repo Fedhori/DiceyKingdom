@@ -8,7 +8,7 @@ namespace Game.Tests.EditMode
     public sealed class DuelSimulatorEditModeTests
     {
         [Test]
-        public void ComputeAttackResult_AppliesAddThenPercentBonusSumAndFloors()
+        public void ComputePowerResult_AppliesAddThenPercentBonusSumAndFloors()
         {
             var modifiers = new List<NumericModifier>
             {
@@ -29,13 +29,13 @@ namespace Game.Tests.EditMode
                 }
             };
 
-            int attackResult = DuelSimulator.ComputeAttackResult(2, modifiers);
+            int powerResult = DuelSimulator.ComputePowerResult(2, modifiers);
 
-            Assert.AreEqual(9, attackResult);
+            Assert.AreEqual(9, powerResult);
         }
 
         [Test]
-        public void ComputeAttackResult_UsesFloorWhenResultHasFraction()
+        public void ComputePowerResult_UsesFloorWhenResultHasFraction()
         {
             var modifiers = new List<NumericModifier>
             {
@@ -46,13 +46,13 @@ namespace Game.Tests.EditMode
                 }
             };
 
-            int attackResult = DuelSimulator.ComputeAttackResult(3, modifiers);
+            int powerResult = DuelSimulator.ComputePowerResult(3, modifiers);
 
-            Assert.AreEqual(4, attackResult);
+            Assert.AreEqual(4, powerResult);
         }
 
         [Test]
-        public void ComputeAttackResult_ClampsToOneAtTheEnd()
+        public void ComputePowerResult_ClampsToOneAtTheEnd()
         {
             var modifiers = new List<NumericModifier>
             {
@@ -63,9 +63,9 @@ namespace Game.Tests.EditMode
                 }
             };
 
-            int attackResult = DuelSimulator.ComputeAttackResult(1, modifiers);
+            int powerResult = DuelSimulator.ComputePowerResult(1, modifiers);
 
-            Assert.AreEqual(1, attackResult);
+            Assert.AreEqual(1, powerResult);
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace Game.Tests.EditMode
         {
             var ability = new AbilityInstance
             {
-                attack = 6
+                power = 6
             };
             var fakeRollSource = new FakeRollSource(4);
 
@@ -82,16 +82,16 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(1, fakeRollSource.lastMinInclusive);
             Assert.AreEqual(6, fakeRollSource.lastMaxInclusive);
             Assert.AreEqual(4, ability.baseRoll);
-            Assert.AreEqual(4, ability.attackResult);
+            Assert.AreEqual(4, ability.powerResult);
         }
 
         [Test]
-        public void RollAbility_IncludesAttackModifiersBeforeRolling()
+        public void RollAbility_IncludespowerModifiersBeforeRolling()
         {
             var ability = new AbilityInstance
             {
-                attack = 4,
-                attackModifiers = new List<NumericModifier>
+                power = 4,
+                powerModifiers = new List<NumericModifier>
                 {
                     new NumericModifier
                     {
@@ -110,14 +110,14 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void ComputeTotalAttack_UsesAttackResultSumPlusClashBonus()
+        public void ComputeTotalPower_UsespowerResultSumPlusClashBonus()
         {
             var clash = new ClashState
             {
                 playerAbilityIds = new List<string> { "p1", "p2" },
                 opponentAbilityIds = new List<string> { "e1" },
-                totalAttackBonusPlayer = 2,
-                totalAttackBonusOpponent = 3
+                totalPowerBonusPlayer = 2,
+                totalPowerBonusOpponent = 3
             };
 
             var abilitiesById = new Dictionary<string, AbilityInstance>
@@ -127,8 +127,8 @@ namespace Game.Tests.EditMode
                 { "e1", CreateAbility("e1", 2) }
             };
 
-            int playerStrength = DuelSimulator.ComputeTotalAttack(clash, abilitiesById, true);
-            int opponentStrength = DuelSimulator.ComputeTotalAttack(clash, abilitiesById, false);
+            int playerStrength = DuelSimulator.ComputeTotalPower(clash, abilitiesById, true);
+            int opponentStrength = DuelSimulator.ComputeTotalPower(clash, abilitiesById, false);
 
             Assert.AreEqual(7, playerStrength);
             Assert.AreEqual(5, opponentStrength);
@@ -158,7 +158,7 @@ namespace Game.Tests.EditMode
             state.abilitiesById["p1"] = CreateAbility("p1", 10);
             state.abilitiesById["e1"] = CreateAbility("e1", 1);
 
-            state.abilitiesById["p0"].attackModifiers.Add(new NumericModifier
+            state.abilitiesById["p0"].powerModifiers.Add(new NumericModifier
             {
                 layer = ModifierLayer.Duel,
                 operation = NumericModifierOperation.Add,
@@ -176,7 +176,7 @@ namespace Game.Tests.EditMode
             Assert.IsFalse(state.isDuelEnded);
             Assert.AreEqual(1, state.playerHealth);
             Assert.AreEqual(5, state.opponentHealth);
-            Assert.AreEqual(1, state.abilitiesById["p0"].attackModifiers.Count);
+            Assert.AreEqual(1, state.abilitiesById["p0"].powerModifiers.Count);
         }
 
         [Test]
@@ -211,14 +211,14 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(5, state.opponentHealth);
         }
 
-        static AbilityInstance CreateAbility(string abilityId, int attackResultValue)
+        static AbilityInstance CreateAbility(string abilityId, int powerResultValue)
         {
             return new AbilityInstance
             {
                 abilityDefId = abilityId,
-                attack = 6,
-                baseRoll = attackResultValue,
-                attackResult = attackResultValue
+                power = 6,
+                baseRoll = powerResultValue,
+                powerResult = powerResultValue
             };
         }
 

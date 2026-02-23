@@ -15,12 +15,12 @@ namespace Game.Domain.Duel
         public AbilityType abilityType;
         public int cooldownTurns;
         public int cooldownRemaining;
-        public int attack;
+        public int power;
         public int baseRoll;
-        public int attackResult;
+        public int powerResult;
 
-        public List<NumericModifier> attackModifiers = new();
-        public List<NumericModifier> attackResultModifiers = new();
+        public List<NumericModifier> powerModifiers = new();
+        public List<NumericModifier> powerResultModifiers = new();
         public List<string> tags = new();
 
         public void EnsureInitialized()
@@ -43,16 +43,16 @@ namespace Game.Domain.Duel
                 Debug.LogWarning("[AbilityInstance] cooldownRemaining was negative and has been clamped to 0.");
             }
 
-            if (attackModifiers == null)
+            if (powerModifiers == null)
             {
-                attackModifiers = new List<NumericModifier>();
-                Debug.LogWarning("[AbilityInstance] attackModifiers was null and has been auto-initialized.");
+                powerModifiers = new List<NumericModifier>();
+                Debug.LogWarning("[AbilityInstance] powerModifiers was null and has been auto-initialized.");
             }
 
-            if (attackResultModifiers == null)
+            if (powerResultModifiers == null)
             {
-                attackResultModifiers = new List<NumericModifier>();
-                Debug.LogWarning("[AbilityInstance] attackResultModifiers was null and has been auto-initialized.");
+                powerResultModifiers = new List<NumericModifier>();
+                Debug.LogWarning("[AbilityInstance] powerResultModifiers was null and has been auto-initialized.");
             }
 
             if (tags == null)

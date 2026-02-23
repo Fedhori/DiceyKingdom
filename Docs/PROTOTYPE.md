@@ -20,7 +20,7 @@
 ## 2) 완료된 핵심 작업
 
 - Ability 도메인 모델/효과 처리 기본 경로 동작
-- Duel 페이즈 오케스트레이션(Reset~ClashResolve)
+- Duel 페이즈 오케스트레이션(Reset~Resolve)
 - GameScene 최소 디버그 패널 연동
 - 적 자동 배치 fallback(선호 Clash 실패 시 다른 Clash 탐색)
 - EditMode 테스트 53개 통과
@@ -44,5 +44,5 @@
   - Start Duel
   - PlayerSetup 배치
   - Roll
-  - ClashResolve
+  - Resolve
   - Surrender

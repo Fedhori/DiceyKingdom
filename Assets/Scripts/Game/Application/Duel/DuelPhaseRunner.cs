@@ -62,12 +62,9 @@ namespace Game.Application.Duel
                     currentPhase = DuelPhase.Roll;
                     break;
                 case DuelPhase.Roll:
-                    currentPhase = DuelPhase.Skill;
+                    currentPhase = DuelPhase.Resolve;
                     break;
-                case DuelPhase.Skill:
-                    currentPhase = DuelPhase.ClashResolve;
-                    break;
-                case DuelPhase.ClashResolve:
+                case DuelPhase.Resolve:
                     state.turnIndex += 1;
                     currentPhase = DuelPhase.Reset;
                     break;

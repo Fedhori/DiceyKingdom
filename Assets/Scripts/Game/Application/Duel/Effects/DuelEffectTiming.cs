@@ -6,7 +6,7 @@ namespace Game.Application.Duel.Effects
         Deploy = 1,
         Roll = 2,
         Skill = 3,
-        ClashResolve = 4,
+        Resolve = 4,
         TurnEnd = 5
     }
 }
