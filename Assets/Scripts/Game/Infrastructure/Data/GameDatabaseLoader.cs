@@ -54,8 +54,8 @@ namespace Game.Infrastructure.Data
             ValidateSchemaVersion(dataIndex.schemaVersion, options.dataIndexPath, "data_index", report);
 
             ParseConfigs(database, dataIndex.configs, report);
-            ParseDefCollection(dataIndex.battlefields, database.battlefieldsById, database.battlefieldSourcePathById, report);
-            ParseDefCollection(dataIndex.troops, database.troopsById, database.troopSourcePathById, report);
+            ParseDefCollection(dataIndex.clashes, database.clashesById, database.clashSourcePathById, report);
+            ParseDefCollection(dataIndex.actions, database.actionsById, database.actionSourcePathById, report);
             ParseDefCollection(dataIndex.cards, database.cardsById, database.cardSourcePathById, report);
             ParseDefCollection(dataIndex.skills, database.skillsById, database.skillSourcePathById, report);
             ParseDefCollection(dataIndex.encounters, database.encountersById, database.encounterSourcePathById, report);
@@ -94,31 +94,31 @@ namespace Game.Infrastructure.Data
 
                 ValidateSchemaVersion(header.schemaVersion, path, header.id, report);
 
-                if (string.Equals(header.id, "battle_config", StringComparison.Ordinal))
+                if (string.Equals(header.id, "duel.config", StringComparison.Ordinal))
                 {
-                    if (database.battleConfig != null)
+                    if (database.duelConfig != null)
                     {
                         report.AddError(
                             GameDataErrorCode.DuplicateId,
                             path,
                             header.id,
-                            "Duplicate battle_config is not allowed.");
+                            "Duplicate duel.config is not allowed.");
                         continue;
                     }
 
-                    BattleConfigDef battleConfig = ParseStrict<BattleConfigDef>(json, path, header.id, report);
-                    if (battleConfig == null)
+                    DuelConfigDef duelConfig = ParseStrict<DuelConfigDef>(json, path, header.id, report);
+                    if (duelConfig == null)
                     {
                         continue;
                     }
 
-                    ValidateSchemaVersion(battleConfig.schemaVersion, path, battleConfig.id, report);
-                    database.battleConfig = battleConfig;
-                    database.battleConfigSourcePath = path;
+                    ValidateSchemaVersion(duelConfig.schemaVersion, path, duelConfig.id, report);
+                    database.duelConfig = duelConfig;
+                    database.duelConfigSourcePath = path;
                     continue;
                 }
 
-                if (string.Equals(header.id, "run_config", StringComparison.Ordinal))
+                if (string.Equals(header.id, "run.config", StringComparison.Ordinal))
                 {
                     if (database.runConfig != null)
                     {
@@ -126,7 +126,7 @@ namespace Game.Infrastructure.Data
                             GameDataErrorCode.DuplicateId,
                             path,
                             header.id,
-                            "Duplicate run_config is not allowed.");
+                            "Duplicate run.config is not allowed.");
                         continue;
                     }
 
@@ -142,7 +142,7 @@ namespace Game.Infrastructure.Data
                     continue;
                 }
 
-                if (string.Equals(header.id, "player_start", StringComparison.Ordinal))
+                if (string.Equals(header.id, "player.start", StringComparison.Ordinal))
                 {
                     if (database.playerStart != null)
                     {
@@ -150,7 +150,7 @@ namespace Game.Infrastructure.Data
                             GameDataErrorCode.DuplicateId,
                             path,
                             header.id,
-                            "Duplicate player_start is not allowed.");
+                            "Duplicate player.start is not allowed.");
                         continue;
                     }
 
@@ -170,7 +170,7 @@ namespace Game.Infrastructure.Data
                     GameDataErrorCode.InvalidValue,
                     path,
                     header.id,
-                    $"Unknown config id '{header.id}'. Allowed: battle_config, run_config, player_start.");
+                    $"Unknown config id '{header.id}'. Allowed: duel.config, run.config, player.start.");
             }
         }
 

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "card.squad.cannon",
+  "type": "Squad",
+  "supplyCost": 1,
+  "nameLocKey": "card_cannon_name",
+  "descLocKey": "card_cannon_desc",
+  "duelStart": {
+    "summonActions": [
+      { "actionId": "action.dwarf.cannon", "count": 1 }
+    ],
+    "ops": []
+  }
+}

@@ -12,14 +12,14 @@ namespace Game.Infrastructure.Data
         [JsonProperty("id", Required = Required.Always)]
         public string id { get; private set; } = string.Empty;
 
-        [JsonProperty("startingStability", Required = Required.Always)]
-        public int startingStability;
+        [JsonProperty("startingHonor", Required = Required.Always)]
+        public int startingHonor;
 
-        [JsonProperty("startingMana", Required = Required.Always)]
-        public int startingMana;
+        [JsonProperty("startingFocus", Required = Required.Always)]
+        public int startingFocus;
 
-        [JsonProperty("startingPlayerMorale", Required = Required.Always)]
-        public int startingPlayerMorale;
+        [JsonProperty("startingPlayerHealth", Required = Required.Always)]
+        public int startingPlayerHealth;
 
         [JsonProperty("startingSquadCardIds", Required = Required.Always)]
         public List<string> startingSquadCardIds = new();

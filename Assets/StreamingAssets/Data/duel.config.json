@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "duel.config",
+  "clashCount": 3,
+  "focusMax": 5,
+  "focusRegenPerTurn": 2,
+  "cooldownTickPerTurn": -1,
+  "attackResultMin": 1,
+  "greatVictoryMultiplier": 2,
+  "p0Rules": {
+    "disallowBaseAttackMutation": true,
+    "defaultSlotLimit": null
+  }
+}

@@ -12,13 +12,13 @@ namespace Game.Infrastructure.Data
         {
             var database = new GameDatabase();
 
-            database.battleConfig = Deserialize<BattleConfigDef>(
+            database.duelConfig = Deserialize<DuelConfigDef>(
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""battle_config"",
-  ""battlefieldCount"": 3,
-  ""manaMax"": 5,
-  ""manaRegenPerTurn"": 2,
+  ""id"": ""duel.config"",
+  ""clashCount"": 3,
+  ""focusMax"": 5,
+  ""focusRegenPerTurn"": 2,
   ""cooldownTickPerTurn"": -1,
   ""attackResultMin"": 1,
   ""greatVictoryMultiplier"": 2,
@@ -27,13 +27,13 @@ namespace Game.Infrastructure.Data
     ""defaultSlotLimit"": null
   }
 }");
-            database.battleConfigSourcePath = FallbackSourcePath;
+            database.duelConfigSourcePath = FallbackSourcePath;
 
             database.runConfig = Deserialize<RunConfigDef>(
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""run_config"",
-  ""startingStability"": 3,
+  ""id"": ""run.config"",
+  ""startingHonor"": 3,
   ""supplyLimit"": 5
 }");
             database.runConfigSourcePath = FallbackSourcePath;
@@ -41,24 +41,24 @@ namespace Game.Infrastructure.Data
             database.playerStart = Deserialize<PlayerStartDef>(
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""player_start"",
-  ""startingStability"": 3,
-  ""startingMana"": 5,
-  ""startingPlayerMorale"": 10,
+  ""id"": ""player.start"",
+  ""startingHonor"": 3,
+  ""startingFocus"": 5,
+  ""startingPlayerHealth"": 10,
   ""startingSquadCardIds"": []
 }");
             database.playerStartSourcePath = FallbackSourcePath;
 
-            AddFallbackBattlefields(database);
+            AddFallbackClashes(database);
             return database;
         }
 
-        static void AddFallbackBattlefields(GameDatabase database)
+        static void AddFallbackClashes(GameDatabase database)
         {
             for (int i = 0; i < 3; i++)
             {
-                string id = $"fallback_bf_{i}";
-                BattlefieldDef def = Deserialize<BattlefieldDef>(
+                string id = $"fallback.clash.{i}";
+                ClashDef def = Deserialize<ClashDef>(
 $@"{{
   ""schemaVersion"": 1,
   ""id"": ""{id}"",
@@ -75,8 +75,8 @@ $@"{{
   }}
 }}");
 
-                database.battlefieldsById[id] = def;
-                database.battlefieldSourcePathById[id] = FallbackSourcePath;
+                database.clashesById[id] = def;
+                database.clashSourcePathById[id] = FallbackSourcePath;
             }
         }
 

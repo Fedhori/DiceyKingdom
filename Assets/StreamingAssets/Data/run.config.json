@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "id": "run.config",
+  "startingHonor": 3,
+  "supplyLimit": 6
+}

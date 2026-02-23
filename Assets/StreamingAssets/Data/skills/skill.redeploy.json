@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "skill.redeploy",
+  "focusCost": 2,
+  "cooldown": 2,
+  "timing": "Skill",
+  "target": { "type": "AllyAction", "count": 1 },
+  "nameLocKey": "skill.redeploy_name",
+  "descLocKey": "skill.redeploy_desc",
+  "ops": [
+    { "op": "MoveAction", "keepAttackResult": true, "textLocKey": "effect_move_keep_result" }
+  ]
+}

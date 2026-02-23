@@ -7,7 +7,7 @@ namespace Game.Domain.Modifiers
     {
         public NumericModifierOperation operation = NumericModifierOperation.Add;
         public int value;
-        public ModifierLayer layer = ModifierLayer.Battle;
+        public ModifierLayer layer = ModifierLayer.Duel;
         public string sourceId = string.Empty;
     }
 }

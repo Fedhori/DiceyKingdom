@@ -1,9 +1,0 @@
-{
-  "schemaVersion": 1,
-  "id": "troop_test6",
-  "attack": 6,
-  "tags": [],
-  "nameLocKey": "troop_test6_name",
-  "descLocKey": "troop_test6_desc",
-  "effects": []
-}

@@ -12,8 +12,8 @@ namespace Game.Infrastructure.Data
         [JsonProperty("id", Required = Required.Always)]
         public string id { get; private set; } = string.Empty;
 
-        [JsonProperty("manaCost", Required = Required.Always)]
-        public int manaCost;
+        [JsonProperty("focusCost", Required = Required.Always)]
+        public int focusCost;
 
         [JsonProperty("cooldown", Required = Required.Always)]
         public int cooldown;

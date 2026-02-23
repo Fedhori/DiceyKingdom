@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "action.miko.assassin",
+  "attack": 4,
+  "tags": ["assassin"],
+  "nameLocKey": "action.miko.assassin_name",
+  "descLocKey": "action.miko.assassin_desc",
+  "effects": [
+    {
+      "timing": "Roll",
+      "condition": { "type": "OpponentCountEquals", "value": 1 },
+      "ops": [
+        { "op": "ModifyAttackResult", "scope": "Self", "mode": "PercentBonus", "value": 100, "textLocKey": "effect_miko_single_opponent_double" }
+      ]
+    }
+  ]
+}

@@ -14,20 +14,20 @@
 | 분류 | KR(확정) | EN(확정) | 의미/비고 |
 |---|---|---|---|
 | 진행 | 런 | Run | 게임오버까지의 1회 플레이 |
-| 진행 | 전투 | Battle | 하나의 조우(전투 단위). 전투 패배 시 게임오버 |
+| 진행 | 전투 | Duel | 하나의 조우(전투 단위). 전투 패배 시 게임오버 |
 | 진행 | 턴 | Turn | 전투 내 반복 단위 |
-| 진행 | 페이즈 | Phase | 턴 내 단계(Recall/Deploy/…/Resolve) |
+| 진행 | 페이즈 | Phase | 턴 내 단계(Reset/Deploy/…/ClashResolve) |
 | 카드 | 편성 덱 | Roster Deck | 드로우 없음. 보급품 한도 내에서 선택한 **Squad/Support 리스트** |
-| 카드 | 스쿼드 | Squad | 전투 시작 시 트리거되어 병력(Troop)을 소환/준비하는 카드 |
+| 카드 | 스쿼드 | Squad | 전투 시작 시 트리거되어 병력(Action)을 소환/준비하는 카드 |
 | 카드 | 서포트 | Support | 전투 시작 시 트리거되어 규칙/버프를 적용하는 카드 |
-| 유닛 | 병력 | Troop | 전장에 배치 가능한 **주사위 유닛** |
-| 전장 | 전장 | Battlefield | 병력을 배치해 승패를 가르는 장소 |
-| 전장 | 진영 | Camp | 아직 전장에 배치되지 않은 병력이 대기하는 장소 |
+| 유닛 | 병력 | Action | 전장에 배치 가능한 **주사위 유닛** |
+| 전장 | 전장 | Clash | 병력을 배치해 승패를 가르는 장소 |
+| 전장 | 진영 | ActionHolder | 아직 전장에 배치되지 않은 병력이 대기하는 장소 |
 | 전장 | 예비 편성 | Reserves | 덱(편성) 밖에 보관하는 카드 저장소(시스템 용어). **카드 이름 ‘예비대’와 구분** |
-| 정보 | 적 의도 | Enemy Intent | 적이 이번 턴 어느 전장에 무엇을 배치할지. 프로토타입에서는 완전 공개 |
-| 리소스 | 사기 | Morale | 전투 HP. `<= 0`이면 전투 종료. **플레이어 패배 시 게임오버** |
-| 리소스 | 안정도 | Stability | **후퇴 자원**. `> 0`일 때만 후퇴 가능. 후퇴 시 `-1` & 최소 0으로 clamp |
-| 리소스 | 마나 | Mana | 스킬 자원. 전투 시작 시 최대치로 충전. 턴마다 회복 |
+| 정보 | 적 의도 | Opponent Intent | 적이 이번 턴 어느 전장에 무엇을 배치할지. 프로토타입에서는 완전 공개 |
+| 리소스 | 사기 | Health | 전투 HP. `<= 0`이면 전투 종료. **플레이어 패배 시 게임오버** |
+| 리소스 | 안정도 | Honor | **후퇴 자원**. `> 0`일 때만 후퇴 가능. 후퇴 시 `-1` & 최소 0으로 clamp |
+| 리소스 | 마나 | Focus | 스킬 자원. 전투 시작 시 최대치로 충전. 턴마다 회복 |
 | 리소스 | 보급품 한도 | Supply Limit | 덱(편성)에 넣을 수 있는 총 비용 상한 |
 | 리소스 | 보급품 비용 | Supply Cost | Squad/Support 카드 1장이 차지하는 비용 |
 | 주사위 | 파워 | Attack | 병력의 주사위 면수. 예: Attack 4 = d4 |
@@ -38,20 +38,20 @@
 | 판정 | 무승부 | Draw | Total Attack 동률 |
 | 판정 | 패배 | Defeat | 패배했지만 Great Defeat는 아님 |
 | 판정 | 대패 | Great Defeat | 상대의 Great Victory에 대응(대칭 개념) |
-| 행동 | 후퇴 | Retreat | 배치(Player Deploy) 페이즈에서만 가능. 보상 없음, 즉시 전투 종료, Stability -1 |
+| 행동 | 후퇴 | Retreat | 배치(Player Deploy) 페이즈에서만 가능. 보상 없음, 즉시 전투 종료, Honor -1 |
 
 ## 3) 페이즈 명칭(영문 표준)
 
-- Battle Start Triggers (전투 시작 트리거, 1회)
+- Duel Start Triggers (전투 시작 트리거, 1회)
   - Squad → Support 우선순위
   - 같은 타입 내 순서: Roster Deck 배열 순서
 - Turn Phases
-  1) Recall
-  2) Enemy Deploy
+  1) Reset
+  2) Opponent Deploy
   3) Player Deploy
   4) Roll
-  5) Tactics
-  6) Resolve
+  5) Skill
+  6) ClashResolve
   7) Turn End(내부 처리용: 쿨다운/마나/턴 종료 효과)
 
 ## 4) 금지/비권장 용어

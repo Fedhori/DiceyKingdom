@@ -79,12 +79,12 @@ public sealed class DevCommandService : MonoBehaviour
         {
             if (e.type == EventType.KeyDown && e.keyCode == KeyCode.UpArrow)
             {
-                RecallPrevious();
+                ResetPrevious();
                 e.Use();
             }
             else if (e.type == EventType.KeyDown && e.keyCode == KeyCode.DownArrow)
             {
-                RecallNext();
+                ResetNext();
                 e.Use();
             }
         }
@@ -171,7 +171,7 @@ public sealed class DevCommandService : MonoBehaviour
         historyIndex = history.Count;
     }
 
-    void RecallPrevious()
+    void ResetPrevious()
     {
         if (history.Count == 0)
             return;
@@ -185,7 +185,7 @@ public sealed class DevCommandService : MonoBehaviour
         line = history[historyIndex];
     }
 
-    void RecallNext()
+    void ResetNext()
     {
         if (history.Count == 0)
             return;

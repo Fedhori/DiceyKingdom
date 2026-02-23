@@ -30,7 +30,7 @@
 - 툴팁 문구는 기존 `item.{id}.effect{index}` / `upgrade.{id}.effect{index}` 키를 유지한다.
 - 현재값은 “effect 문자열 뒤에 추가”한다.
 
-### 6.2 공통 해석기(Resolver)
+### 6.2 공통 해석기(ClashResolver)
 - 공통 resolver가 “effect line → statId → currentValue”를 해석한다.
 - 이 resolver는 **효과별 매핑 정의**를 한 곳에서 관리한다.
 - 초기 매핑 대상:

@@ -1,0 +1,12 @@
+{
+	"schemaVersion": 1,
+	"id": "player.start",
+	"startingHonor": 3,
+	"startingFocus": 5,
+	"startingPlayerHealth": 10,
+	"startingSquadCardIds": [
+		"card.squad.miko",
+		"card.squad.cannon",
+		"card.squad.ratkin"
+	]
+}

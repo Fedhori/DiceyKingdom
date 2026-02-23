@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "action.dwarf.cannon",
+  "attack": 4,
+  "tags": ["cannon"],
+  "nameLocKey": "action.dwarf.cannon_name",
+  "descLocKey": "action.dwarf.cannon_desc",
+  "effects": [
+    {
+      "timing": "Roll",
+      "condition": { "type": "Always" },
+      "ops": [
+        { "op": "ModifyAttackResult", "scope": "SameClashActions", "side": "Opponent", "mode": "Add", "value": -1, "textLocKey": "effect_dwarf_cannon_opponent_minus_one" }
+      ]
+    }
+  ]
+}

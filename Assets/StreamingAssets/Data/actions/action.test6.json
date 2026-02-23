@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "action.test6",
+  "attack": 6,
+  "tags": [],
+  "nameLocKey": "action.test6_name",
+  "descLocKey": "action.test6_desc",
+  "effects": []
+}

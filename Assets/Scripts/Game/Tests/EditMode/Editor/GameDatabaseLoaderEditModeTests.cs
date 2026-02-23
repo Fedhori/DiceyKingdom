@@ -16,24 +16,24 @@ namespace Game.Tests.EditMode
             Assert.IsTrue(result.isSuccess);
             Assert.NotNull(result.database);
             Assert.AreEqual(0, result.report.ErrorCount);
-            Assert.NotNull(result.database.battleConfig);
+            Assert.NotNull(result.database.duelConfig);
             Assert.NotNull(result.database.runConfig);
             Assert.NotNull(result.database.playerStart);
-            Assert.AreEqual(3, result.database.battlefieldsById.Count);
-            Assert.Greater(result.database.troopsById.Count, 0);
+            Assert.AreEqual(3, result.database.clashesById.Count);
+            Assert.Greater(result.database.actionsById.Count, 0);
         }
 
         [Test]
-        public void Load_FailsWhenTroopReferenceIsMissing()
+        public void Load_FailsWhenActionReferenceIsMissing()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/encounters/enc_1.json"] =
+            files["Data/encounters/encounter.1.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""enc_1"",
-  ""enemyMorale"": 10,
+  ""id"": ""encounter.1"",
+  ""opponentHealth"": 10,
   ""plans"": [
-    { ""battlefieldIndex"": 0, ""troops"": [ { ""troopId"": ""missing_troop"", ""count"": 1 } ] }
+    { ""clashIndex"": 0, ""actions"": [ { ""actionId"": ""missing_action"", ""count"": 1 } ] }
   ]
 }";
 
@@ -60,13 +60,13 @@ namespace Game.Tests.EditMode
         public void Load_FailsWhenUnknownFieldExists()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/troops/troop_1.json"] =
+            files["Data/actions/action.1.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""troop_1"",
+  ""id"": ""action.1"",
   ""attack"": 2,
-  ""nameLocKey"": ""troop_1_name"",
-  ""descLocKey"": ""troop_1_desc"",
+  ""nameLocKey"": ""action.1_name"",
+  ""descLocKey"": ""action.1_desc"",
   ""effects"": [],
   ""unknownField"": 999
 }";
@@ -94,19 +94,19 @@ namespace Game.Tests.EditMode
         public void Load_FailsWhenModifierLayerIsNotCaseSensitiveMatch()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/troops/troop_1.json"] =
+            files["Data/actions/action.1.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""troop_1"",
+  ""id"": ""action.1"",
   ""attack"": 2,
-  ""nameLocKey"": ""troop_1_name"",
-  ""descLocKey"": ""troop_1_desc"",
+  ""nameLocKey"": ""action.1_name"",
+  ""descLocKey"": ""action.1_desc"",
   ""effects"": [
     {
       ""timing"": ""TurnEnd"",
-      ""condition"": { ""type"": ""IsInCamp"" },
+      ""condition"": { ""type"": ""IsInActionHolder"" },
       ""ops"": [
-        { ""op"": ""AddAttackModifier"", ""target"": ""Attack"", ""layer"": ""battle"", ""mode"": ""Add"", ""value"": 1 }
+        { ""op"": ""AddAttackModifier"", ""target"": ""Attack"", ""layer"": ""duel"", ""mode"": ""Add"", ""value"": 1 }
       ]
     }
   ]
@@ -138,20 +138,20 @@ namespace Game.Tests.EditMode
                 ["Data/DataIndex.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""configs"": [""Data/battle_config.json"", ""Data/run_config.json"", ""Data/player_start.json""],
-  ""battlefields"": [""Data/battlefields/bf_1.json""],
-  ""troops"": [""Data/troops/troop_1.json""],
-  ""cards"": [""Data/cards/card_squad_1.json""],
+  ""configs"": [""Data/duel.config.json"", ""Data/run.config.json"", ""Data/player.start.json""],
+  ""clashes"": [""Data/clashes/clash.1.json""],
+  ""actions"": [""Data/actions/action.1.json""],
+  ""cards"": [""Data/cards/card.squad.1.json""],
   ""skills"": [],
-  ""encounters"": [""Data/encounters/enc_1.json""]
+  ""encounters"": [""Data/encounters/encounter.1.json""]
 }",
-                ["Data/battle_config.json"] =
+                ["Data/duel.config.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""battle_config"",
-  ""battlefieldCount"": 1,
-  ""manaMax"": 5,
-  ""manaRegenPerTurn"": 2,
+  ""id"": ""duel.config"",
+  ""clashCount"": 1,
+  ""focusMax"": 5,
+  ""focusRegenPerTurn"": 2,
   ""cooldownTickPerTurn"": -1,
   ""attackResultMin"": 1,
   ""greatVictoryMultiplier"": 2,
@@ -160,30 +160,30 @@ namespace Game.Tests.EditMode
     ""defaultSlotLimit"": null
   }
 }",
-                ["Data/run_config.json"] =
+                ["Data/run.config.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""run_config"",
-  ""startingStability"": 3,
+  ""id"": ""run.config"",
+  ""startingHonor"": 3,
   ""supplyLimit"": 5
 }",
-                ["Data/player_start.json"] =
+                ["Data/player.start.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""player_start"",
-  ""startingStability"": 3,
-  ""startingMana"": 5,
-  ""startingPlayerMorale"": 10,
-  ""startingSquadCardIds"": [""card_squad_1""]
+  ""id"": ""player.start"",
+  ""startingHonor"": 3,
+  ""startingFocus"": 5,
+  ""startingPlayerHealth"": 10,
+  ""startingSquadCardIds"": [""card.squad.1""]
 }",
-                ["Data/battlefields/bf_1.json"] =
+                ["Data/clashes/clash.1.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""bf_1"",
+  ""id"": ""clash.1"",
   ""slotLimit"": null,
   ""tags"": [],
-  ""nameLocKey"": ""bf_1_name"",
-  ""descLocKey"": ""bf_1_desc"",
+  ""nameLocKey"": ""clash.1_name"",
+  ""descLocKey"": ""clash.1_desc"",
   ""outcomeEffects"": {
     ""GreatVictory"": [],
     ""Victory"": [],
@@ -192,35 +192,35 @@ namespace Game.Tests.EditMode
   ""GreatDefeat"": []
   }
 }",
-                ["Data/cards/card_squad_1.json"] =
+                ["Data/cards/card.squad.1.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""card_squad_1"",
+  ""id"": ""card.squad.1"",
   ""type"": ""Squad"",
   ""supplyCost"": 1,
-  ""nameLocKey"": ""card_squad_1_name"",
-  ""descLocKey"": ""card_squad_1_desc"",
-  ""battleStart"": {
-    ""summonTroops"": [ { ""troopId"": ""troop_1"", ""count"": 1 } ],
+  ""nameLocKey"": ""card.squad.1_name"",
+  ""descLocKey"": ""card.squad.1_desc"",
+  ""duelStart"": {
+    ""summonActions"": [ { ""actionId"": ""action.1"", ""count"": 1 } ],
     ""ops"": []
   }
 }",
-                ["Data/troops/troop_1.json"] =
+                ["Data/actions/action.1.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""troop_1"",
+  ""id"": ""action.1"",
   ""attack"": 2,
-  ""nameLocKey"": ""troop_1_name"",
-  ""descLocKey"": ""troop_1_desc"",
+  ""nameLocKey"": ""action.1_name"",
+  ""descLocKey"": ""action.1_desc"",
   ""effects"": []
 }",
-                ["Data/encounters/enc_1.json"] =
+                ["Data/encounters/encounter.1.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""enc_1"",
-  ""enemyMorale"": 10,
+  ""id"": ""encounter.1"",
+  ""opponentHealth"": 10,
   ""plans"": [
-    { ""battlefieldIndex"": 0, ""troops"": [ { ""troopId"": ""troop_1"", ""count"": 1 } ] }
+    { ""clashIndex"": 0, ""actions"": [ { ""actionId"": ""action.1"", ""count"": 1 } ] }
   ]
 }"
             };

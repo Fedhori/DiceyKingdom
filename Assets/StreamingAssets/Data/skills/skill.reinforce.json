@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "skill.reinforce",
+  "focusCost": 2,
+  "cooldown": 2,
+  "timing": "Skill",
+  "target": { "type": "Clash", "count": 1 },
+  "nameLocKey": "skill.reinforce_name",
+  "descLocKey": "skill.reinforce_desc",
+  "ops": [
+    { "op": "ModifyTotalAttack", "side": "Player", "amount": 2, "textLocKey": "effect_total_attack_plus" }
+  ]
+}

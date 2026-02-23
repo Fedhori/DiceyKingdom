@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "clash.forest",
+  "slotLimit": null,
+  "tags": ["forest"],
+  "nameLocKey": "clash.forest_name",
+  "descLocKey": "clash.forest_desc",
+  "outcomeEffects": {
+    "GreatVictory": [
+      { "ops": [ { "op": "ModifyHealth", "side": "Opponent", "delta": -2, "textLocKey": "effect_health_minus" } ] }
+    ],
+    "Victory": [
+      { "ops": [ { "op": "ModifyHealth", "side": "Opponent", "delta": -1, "textLocKey": "effect_health_minus" } ] }
+    ],
+    "Draw": [],
+    "Defeat": [
+      { "ops": [ { "op": "ModifyHealth", "side": "Player", "delta": -1, "textLocKey": "effect_health_minus" } ] }
+    ],
+    "GreatDefeat": [
+      { "ops": [ { "op": "ModifyHealth", "side": "Player", "delta": -2, "textLocKey": "effect_health_minus" } ] }
+    ]
+  }
+}

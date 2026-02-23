@@ -1,37 +1,37 @@
 {
   "schemaVersion": 1,
   "configs": [
-    "Data/battle_config.json",
-    "Data/run_config.json",
-    "Data/player_start.json"
+    "Data/duel.config.json",
+    "Data/run.config.json",
+    "Data/player.start.json"
   ],
-  "battlefields": [
-    "Data/battlefields/bf_peak.json",
-    "Data/battlefields/bf_ruins.json",
-    "Data/battlefields/bf_forest.json"
+  "clashes": [
+    "Data/clashes/clash.peak.json",
+    "Data/clashes/clash.ruins.json",
+    "Data/clashes/clash.forest.json"
   ],
-  "troops": [
-    "Data/troops/troop_reservist.json",
-    "Data/troops/troop_miko_assassin.json",
-    "Data/troops/troop_dwarf_cannon.json",
-    "Data/troops/troop_ratkin.json",
-    "Data/troops/troop_test6.json"
+  "actions": [
+    "Data/actions/action.reservist.json",
+    "Data/actions/action.miko.assassin.json",
+    "Data/actions/action.dwarf.cannon.json",
+    "Data/actions/action.ratkin.json",
+    "Data/actions/action.test6.json"
   ],
   "cards": [
-    "Data/cards/card_squad_reserves.json",
-    "Data/cards/card_squad_miko.json",
-    "Data/cards/card_squad_cannon.json",
-    "Data/cards/card_squad_ratkin.json",
-    "Data/cards/card_support_latest_gear.json"
+    "Data/cards/card.squad.reserves.json",
+    "Data/cards/card.squad.miko.json",
+    "Data/cards/card.squad.cannon.json",
+    "Data/cards/card.squad.ratkin.json",
+    "Data/cards/card.support.latest.gear.json"
   ],
   "skills": [
-    "Data/skills/skill_redeploy.json",
-    "Data/skills/skill_decoy.json",
-    "Data/skills/skill_risky.json",
-    "Data/skills/skill_safe.json",
-    "Data/skills/skill_reinforce.json"
+    "Data/skills/skill.redeploy.json",
+    "Data/skills/skill.decoy.json",
+    "Data/skills/skill.risky.json",
+    "Data/skills/skill.safe.json",
+    "Data/skills/skill.reinforce.json"
   ],
   "encounters": [
-    "Data/encounters/enc_debug_01.json"
+    "Data/encounters/encounter.debug.01.json"
   ]
 }

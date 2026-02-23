@@ -12,11 +12,11 @@ namespace Game.Infrastructure.Data
         [JsonProperty("configs", Required = Required.Always)]
         public List<string> configs = new();
 
-        [JsonProperty("battlefields", Required = Required.Always)]
-        public List<string> battlefields = new();
+        [JsonProperty("clashes", Required = Required.Always)]
+        public List<string> clashes = new();
 
-        [JsonProperty("troops", Required = Required.Always)]
-        public List<string> troops = new();
+        [JsonProperty("actions", Required = Required.Always)]
+        public List<string> actions = new();
 
         [JsonProperty("cards", Required = Required.Always)]
         public List<string> cards = new();

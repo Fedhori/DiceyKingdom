@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "clash.peak",
+  "slotLimit": 1,
+  "tags": ["peak"],
+  "nameLocKey": "clash.peak_name",
+  "descLocKey": "clash.peak_desc",
+  "outcomeEffects": {
+    "GreatVictory": [
+      { "ops": [ { "op": "ModifyHealth", "side": "Opponent", "delta": -2, "textLocKey": "effect_health_minus" } ] }
+    ],
+    "Victory": [
+      { "ops": [ { "op": "ModifyHealth", "side": "Opponent", "delta": -1, "textLocKey": "effect_health_minus" } ] }
+    ],
+    "Draw": [],
+    "Defeat": [
+      { "ops": [ { "op": "ModifyHealth", "side": "Player", "delta": -1, "textLocKey": "effect_health_minus" } ] }
+    ],
+    "GreatDefeat": [
+      { "ops": [ { "op": "ModifyHealth", "side": "Player", "delta": -2, "textLocKey": "effect_health_minus" } ] }
+    ]
+  }
+}

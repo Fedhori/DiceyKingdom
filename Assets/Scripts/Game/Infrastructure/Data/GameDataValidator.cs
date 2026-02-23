@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Game.Application.Battle.Effects;
+using Game.Application.Duel.Effects;
 
 namespace Game.Infrastructure.Data
 {
@@ -8,13 +8,13 @@ namespace Game.Infrastructure.Data
     {
         static readonly HashSet<string> allowedOpCodes = new(StringComparer.Ordinal)
         {
-            nameof(BattleEffectOpCode.ModifyAttackResult),
-            nameof(BattleEffectOpCode.MoveTroop),
-            nameof(BattleEffectOpCode.MoveEnemyTroop),
-            nameof(BattleEffectOpCode.ModifyTotalAttack),
-            nameof(BattleEffectOpCode.TransformOutcome),
-            nameof(BattleEffectOpCode.ModifyMorale),
-            nameof(BattleEffectOpCode.AddAttackModifier)
+            nameof(DuelEffectOpCode.ModifyAttackResult),
+            nameof(DuelEffectOpCode.MoveAction),
+            nameof(DuelEffectOpCode.MoveOpponentAction),
+            nameof(DuelEffectOpCode.ModifyTotalAttack),
+            nameof(DuelEffectOpCode.TransformOutcome),
+            nameof(DuelEffectOpCode.ModifyHealth),
+            nameof(DuelEffectOpCode.AddAttackModifier)
         };
 
         public void Validate(GameDatabase database, DataIndexDef dataIndex, GameDataValidationReport report)
@@ -36,8 +36,8 @@ namespace Game.Infrastructure.Data
 
             ValidateRequiredConfigs(database, report);
             ValidateConfigValues(database, report);
-            ValidateBattlefieldDefs(database, report);
-            ValidateTroopDefs(database, report);
+            ValidateClashDefs(database, report);
+            ValidateActionDefs(database, report);
             ValidateCardDefs(database, report);
             ValidateEncounterDefs(database, report);
             ValidateEffectOps(database, report);
@@ -45,13 +45,13 @@ namespace Game.Infrastructure.Data
 
         void ValidateRequiredConfigs(GameDatabase database, GameDataValidationReport report)
         {
-            if (database.battleConfig == null)
+            if (database.duelConfig == null)
             {
                 report.AddError(
                     GameDataErrorCode.MissingRequiredConfig,
                     GameDataConstants.DefaultDataIndexPath,
-                    "battle_config",
-                    "Required config 'battle_config' is missing.");
+                    "duel.config",
+                    "Required config 'duel.config' is missing.");
             }
 
             if (database.runConfig == null)
@@ -59,8 +59,8 @@ namespace Game.Infrastructure.Data
                 report.AddError(
                     GameDataErrorCode.MissingRequiredConfig,
                     GameDataConstants.DefaultDataIndexPath,
-                    "run_config",
-                    "Required config 'run_config' is missing.");
+                    "run.config",
+                    "Required config 'run.config' is missing.");
             }
 
             if (database.playerStart == null)
@@ -68,52 +68,52 @@ namespace Game.Infrastructure.Data
                 report.AddError(
                     GameDataErrorCode.MissingRequiredConfig,
                     GameDataConstants.DefaultDataIndexPath,
-                    "player_start",
-                    "Required config 'player_start' is missing.");
+                    "player.start",
+                    "Required config 'player.start' is missing.");
             }
         }
 
         void ValidateConfigValues(GameDatabase database, GameDataValidationReport report)
         {
-            if (database.battleConfig != null)
+            if (database.duelConfig != null)
             {
-                if (database.battleConfig.battlefieldCount <= 0)
+                if (database.duelConfig.clashCount <= 0)
                 {
                     report.AddError(
                         GameDataErrorCode.InvalidValue,
-                        database.battleConfigSourcePath,
-                        database.battleConfig.id,
-                        "battlefieldCount must be greater than zero.");
+                        database.duelConfigSourcePath,
+                        database.duelConfig.id,
+                        "clashCount must be greater than zero.");
                 }
 
-                if (database.battleConfig.attackResultMin < 1)
+                if (database.duelConfig.attackResultMin < 1)
                 {
                     report.AddError(
                         GameDataErrorCode.InvalidValue,
-                        database.battleConfigSourcePath,
-                        database.battleConfig.id,
+                        database.duelConfigSourcePath,
+                        database.duelConfig.id,
                         "attackResultMin must be greater than or equal to 1.");
                 }
 
-                if (database.battleConfig.greatVictoryMultiplier < 2)
+                if (database.duelConfig.greatVictoryMultiplier < 2)
                 {
                     report.AddError(
                         GameDataErrorCode.InvalidValue,
-                        database.battleConfigSourcePath,
-                        database.battleConfig.id,
+                        database.duelConfigSourcePath,
+                        database.duelConfig.id,
                         "greatVictoryMultiplier must be greater than or equal to 2.");
                 }
             }
 
             if (database.runConfig != null)
             {
-                if (database.runConfig.startingStability < 0)
+                if (database.runConfig.startingHonor < 0)
                 {
                     report.AddError(
                         GameDataErrorCode.InvalidValue,
                         database.runConfigSourcePath,
                         database.runConfig.id,
-                        "startingStability must be greater than or equal to 0.");
+                        "startingHonor must be greater than or equal to 0.");
                 }
 
                 if (database.runConfig.supplyLimit <= 0)
@@ -128,41 +128,41 @@ namespace Game.Infrastructure.Data
 
             if (database.playerStart != null)
             {
-                if (database.playerStart.startingStability < 0)
+                if (database.playerStart.startingHonor < 0)
                 {
                     report.AddError(
                         GameDataErrorCode.InvalidValue,
                         database.playerStartSourcePath,
                         database.playerStart.id,
-                        "startingStability must be greater than or equal to 0.");
+                        "startingHonor must be greater than or equal to 0.");
                 }
 
-                if (database.playerStart.startingMana < 0)
+                if (database.playerStart.startingFocus < 0)
                 {
                     report.AddError(
                         GameDataErrorCode.InvalidValue,
                         database.playerStartSourcePath,
                         database.playerStart.id,
-                        "startingMana must be greater than or equal to 0.");
+                        "startingFocus must be greater than or equal to 0.");
                 }
 
-                if (database.battleConfig != null &&
-                    database.playerStart.startingMana > database.battleConfig.manaMax)
+                if (database.duelConfig != null &&
+                    database.playerStart.startingFocus > database.duelConfig.focusMax)
                 {
                     report.AddError(
                         GameDataErrorCode.InvalidValue,
                         database.playerStartSourcePath,
                         database.playerStart.id,
-                        $"startingMana must be less than or equal to battle_config.manaMax({database.battleConfig.manaMax}).");
+                        $"startingFocus must be less than or equal to duel.config.focusMax({database.duelConfig.focusMax}).");
                 }
 
-                if (database.playerStart.startingPlayerMorale <= 0)
+                if (database.playerStart.startingPlayerHealth <= 0)
                 {
                     report.AddError(
                         GameDataErrorCode.InvalidValue,
                         database.playerStartSourcePath,
                         database.playerStart.id,
-                        "startingPlayerMorale must be greater than zero.");
+                        "startingPlayerHealth must be greater than zero.");
                 }
 
                 if (database.playerStart.startingSquadCardIds == null ||
@@ -210,12 +210,12 @@ namespace Game.Infrastructure.Data
                         }
 
                         bool hasPositiveSummon = false;
-                        if (cardDef.battleStart != null && cardDef.battleStart.summonTroops != null)
+                        if (cardDef.duelStart != null && cardDef.duelStart.summonActions != null)
                         {
-                            for (int summonIndex = 0; summonIndex < cardDef.battleStart.summonTroops.Count; summonIndex++)
+                            for (int summonIndex = 0; summonIndex < cardDef.duelStart.summonActions.Count; summonIndex++)
                             {
-                                SummonTroopRefDef summon = cardDef.battleStart.summonTroops[summonIndex];
-                                if (summon != null && summon.count > 0 && !string.IsNullOrWhiteSpace(summon.troopId))
+                                SummonActionRefDef summon = cardDef.duelStart.summonActions[summonIndex];
+                                if (summon != null && summon.count > 0 && !string.IsNullOrWhiteSpace(summon.actionId))
                                 {
                                     hasPositiveSummon = true;
                                     break;
@@ -229,20 +229,20 @@ namespace Game.Infrastructure.Data
                                 GameDataErrorCode.InvalidValue,
                                 database.playerStartSourcePath,
                                 database.playerStart.id,
-                                $"startingSquadCardIds[{i}]('{cardId}') must summon at least one troop.");
+                                $"startingSquadCardIds[{i}]('{cardId}') must summon at least one action.");
                         }
                     }
                 }
             }
         }
 
-        void ValidateBattlefieldDefs(GameDatabase database, GameDataValidationReport report)
+        void ValidateClashDefs(GameDatabase database, GameDataValidationReport report)
         {
-            foreach (KeyValuePair<string, BattlefieldDef> pair in database.battlefieldsById)
+            foreach (KeyValuePair<string, ClashDef> pair in database.clashesById)
             {
                 string id = pair.Key;
-                BattlefieldDef def = pair.Value;
-                string path = database.battlefieldSourcePathById.TryGetValue(id, out string foundPath)
+                ClashDef def = pair.Value;
+                string path = database.clashSourcePathById.TryGetValue(id, out string foundPath)
                     ? foundPath
                     : string.Empty;
 
@@ -257,13 +257,13 @@ namespace Game.Infrastructure.Data
             }
         }
 
-        void ValidateTroopDefs(GameDatabase database, GameDataValidationReport report)
+        void ValidateActionDefs(GameDatabase database, GameDataValidationReport report)
         {
-            foreach (KeyValuePair<string, TroopDef> pair in database.troopsById)
+            foreach (KeyValuePair<string, ActionDef> pair in database.actionsById)
             {
                 string id = pair.Key;
-                TroopDef def = pair.Value;
-                string path = database.troopSourcePathById.TryGetValue(id, out string foundPath)
+                ActionDef def = pair.Value;
+                string path = database.actionSourcePathById.TryGetValue(id, out string foundPath)
                     ? foundPath
                     : string.Empty;
 
@@ -307,16 +307,16 @@ namespace Game.Infrastructure.Data
                         "supplyCost must be greater than or equal to 0.");
                 }
 
-                for (int i = 0; i < cardDef.battleStart.summonTroops.Count; i++)
+                for (int i = 0; i < cardDef.duelStart.summonActions.Count; i++)
                 {
-                    SummonTroopRefDef summon = cardDef.battleStart.summonTroops[i];
-                    if (!database.troopsById.ContainsKey(summon.troopId))
+                    SummonActionRefDef summon = cardDef.duelStart.summonActions[i];
+                    if (!database.actionsById.ContainsKey(summon.actionId))
                     {
                         report.AddError(
                             GameDataErrorCode.MissingReference,
                             path,
                             id,
-                            $"battleStart.summonTroops[{i}].troopId('{summon.troopId}') does not exist.");
+                            $"duelStart.summonActions[{i}].actionId('{summon.actionId}') does not exist.");
                     }
                 }
             }
@@ -324,7 +324,7 @@ namespace Game.Infrastructure.Data
 
         void ValidateEncounterDefs(GameDatabase database, GameDataValidationReport report)
         {
-            int battlefieldCount = database.battleConfig?.battlefieldCount ?? 0;
+            int clashCount = database.duelConfig?.clashCount ?? 0;
 
             foreach (KeyValuePair<string, EncounterDef> pair in database.encountersById)
             {
@@ -337,25 +337,25 @@ namespace Game.Infrastructure.Data
                 for (int planIndex = 0; planIndex < encounterDef.plans.Count; planIndex++)
                 {
                     EncounterPlanDef plan = encounterDef.plans[planIndex];
-                    if (plan.battlefieldIndex < 0 || plan.battlefieldIndex >= battlefieldCount)
+                    if (plan.clashIndex < 0 || plan.clashIndex >= clashCount)
                     {
                         report.AddError(
                             GameDataErrorCode.InvalidIndex,
                             path,
                             id,
-                            $"plans[{planIndex}].battlefieldIndex({plan.battlefieldIndex}) is out of range.");
+                            $"plans[{planIndex}].clashIndex({plan.clashIndex}) is out of range.");
                     }
 
-                    for (int troopIndex = 0; troopIndex < plan.troops.Count; troopIndex++)
+                    for (int actionIndex = 0; actionIndex < plan.actions.Count; actionIndex++)
                     {
-                        SummonTroopRefDef troopRef = plan.troops[troopIndex];
-                        if (!database.troopsById.ContainsKey(troopRef.troopId))
+                        SummonActionRefDef actionRef = plan.actions[actionIndex];
+                        if (!database.actionsById.ContainsKey(actionRef.actionId))
                         {
                             report.AddError(
                                 GameDataErrorCode.MissingReference,
                                 path,
                                 id,
-                                $"plans[{planIndex}].troops[{troopIndex}].troopId('{troopRef.troopId}') does not exist.");
+                                $"plans[{planIndex}].actions[{actionIndex}].actionId('{actionRef.actionId}') does not exist.");
                         }
                     }
                 }
@@ -364,15 +364,15 @@ namespace Game.Infrastructure.Data
 
         void ValidateEffectOps(GameDatabase database, GameDataValidationReport report)
         {
-            foreach (KeyValuePair<string, BattlefieldDef> pair in database.battlefieldsById)
+            foreach (KeyValuePair<string, ClashDef> pair in database.clashesById)
             {
                 string ownerId = pair.Key;
-                string path = database.battlefieldSourcePathById.TryGetValue(ownerId, out string foundPath)
+                string path = database.clashSourcePathById.TryGetValue(ownerId, out string foundPath)
                     ? foundPath
                     : string.Empty;
-                BattlefieldDef battlefieldDef = pair.Value;
+                ClashDef clashDef = pair.Value;
 
-                foreach (KeyValuePair<string, List<EffectBlockDef>> outcomePair in battlefieldDef.outcomeEffects)
+                foreach (KeyValuePair<string, List<EffectBlockDef>> outcomePair in clashDef.outcomeEffects)
                 {
                     string outcome = outcomePair.Key;
                     List<EffectBlockDef> blocks = outcomePair.Value;
@@ -392,17 +392,17 @@ namespace Game.Infrastructure.Data
                 }
             }
 
-            foreach (KeyValuePair<string, TroopDef> pair in database.troopsById)
+            foreach (KeyValuePair<string, ActionDef> pair in database.actionsById)
             {
                 string ownerId = pair.Key;
-                string path = database.troopSourcePathById.TryGetValue(ownerId, out string foundPath)
+                string path = database.actionSourcePathById.TryGetValue(ownerId, out string foundPath)
                     ? foundPath
                     : string.Empty;
-                TroopDef troopDef = pair.Value;
+                ActionDef actionDef = pair.Value;
 
-                for (int effectIndex = 0; effectIndex < troopDef.effects.Count; effectIndex++)
+                for (int effectIndex = 0; effectIndex < actionDef.effects.Count; effectIndex++)
                 {
-                    TimedEffectDef timedEffect = troopDef.effects[effectIndex];
+                    TimedEffectDef timedEffect = actionDef.effects[effectIndex];
                     for (int opIndex = 0; opIndex < timedEffect.ops.Count; opIndex++)
                     {
                         ValidateOp(
@@ -423,13 +423,13 @@ namespace Game.Infrastructure.Data
                     : string.Empty;
                 CardDef cardDef = pair.Value;
 
-                for (int opIndex = 0; opIndex < cardDef.battleStart.ops.Count; opIndex++)
+                for (int opIndex = 0; opIndex < cardDef.duelStart.ops.Count; opIndex++)
                 {
                     ValidateOp(
-                        cardDef.battleStart.ops[opIndex],
+                        cardDef.duelStart.ops[opIndex],
                         path,
                         ownerId,
-                        $"battleStart.ops[{opIndex}]",
+                        $"duelStart.ops[{opIndex}]",
                         report);
                 }
             }
@@ -468,11 +468,11 @@ namespace Game.Infrastructure.Data
 
             switch (opDef.op)
             {
-                case nameof(BattleEffectOpCode.ModifyAttackResult):
+                case nameof(DuelEffectOpCode.ModifyAttackResult):
                     ValidateModeAndAmount(opDef, path, ownerId, context, report);
                     break;
-                case nameof(BattleEffectOpCode.MoveTroop):
-                case nameof(BattleEffectOpCode.MoveEnemyTroop):
+                case nameof(DuelEffectOpCode.MoveAction):
+                case nameof(DuelEffectOpCode.MoveOpponentAction):
                     if (!opDef.keepAttackResult.HasValue || !opDef.keepAttackResult.Value)
                     {
                         report.AddError(
@@ -483,13 +483,13 @@ namespace Game.Infrastructure.Data
                     }
 
                     break;
-                case nameof(BattleEffectOpCode.ModifyTotalAttack):
+                case nameof(DuelEffectOpCode.ModifyTotalAttack):
                     ValidateSide(opDef, path, ownerId, context, report);
                     ValidateAmount(opDef, path, ownerId, context, report);
                     break;
-                case nameof(BattleEffectOpCode.TransformOutcome):
-                    if (!string.Equals(opDef.transformKind, nameof(BattleOutcomeTransformKind.Risky), StringComparison.Ordinal) &&
-                        !string.Equals(opDef.transformKind, nameof(BattleOutcomeTransformKind.Safe), StringComparison.Ordinal))
+                case nameof(DuelEffectOpCode.TransformOutcome):
+                    if (!string.Equals(opDef.transformKind, nameof(DuelOutcomeTransformKind.Risky), StringComparison.Ordinal) &&
+                        !string.Equals(opDef.transformKind, nameof(DuelOutcomeTransformKind.Safe), StringComparison.Ordinal))
                     {
                         report.AddError(
                             GameDataErrorCode.InvalidEnum,
@@ -499,11 +499,11 @@ namespace Game.Infrastructure.Data
                     }
 
                     break;
-                case nameof(BattleEffectOpCode.ModifyMorale):
+                case nameof(DuelEffectOpCode.ModifyHealth):
                     ValidateSide(opDef, path, ownerId, context, report);
                     ValidateAmount(opDef, path, ownerId, context, report);
                     break;
-                case nameof(BattleEffectOpCode.AddAttackModifier):
+                case nameof(DuelEffectOpCode.AddAttackModifier):
                     if (!string.Equals(opDef.target, "Attack", StringComparison.Ordinal) &&
                         !string.Equals(opDef.target, "AttackResult", StringComparison.Ordinal))
                     {
@@ -514,14 +514,14 @@ namespace Game.Infrastructure.Data
                             $"{context}: target must be Attack or AttackResult.");
                     }
 
-                    if (!string.Equals(opDef.layer, "Battle", StringComparison.Ordinal) &&
+                    if (!string.Equals(opDef.layer, "Duel", StringComparison.Ordinal) &&
                         !string.Equals(opDef.layer, "Permanent", StringComparison.Ordinal))
                     {
                         report.AddError(
                             GameDataErrorCode.InvalidEnum,
                             path,
                             ownerId,
-                            $"{context}: layer must be Battle or Permanent (case-sensitive).");
+                            $"{context}: layer must be Duel or Permanent (case-sensitive).");
                     }
 
                     ValidateModeAndAmount(opDef, path, ownerId, context, report);
@@ -552,13 +552,13 @@ namespace Game.Infrastructure.Data
         void ValidateSide(EffectOpDef opDef, string path, string ownerId, string context, GameDataValidationReport report)
         {
             if (!string.Equals(opDef.side, "Player", StringComparison.Ordinal) &&
-                !string.Equals(opDef.side, "Enemy", StringComparison.Ordinal))
+                !string.Equals(opDef.side, "Opponent", StringComparison.Ordinal))
             {
                 report.AddError(
                     GameDataErrorCode.InvalidEnum,
                     path,
                     ownerId,
-                    $"{context}: side must be Player or Enemy.");
+                    $"{context}: side must be Player or Opponent.");
             }
         }
 

@@ -1,0 +1,25 @@
+{
+	"schemaVersion": 1,
+	"id": "encounter.debug.01",
+	"opponentHealth": 10,
+	"plans": [
+		{
+			"clashIndex": 0,
+			"actions": [
+				{ "actionId": "action.test6", "count": 2 }
+			]
+		},
+		{
+			"clashIndex": 1,
+			"actions": [
+				{ "actionId": "action.test6", "count": 1 }
+			]
+		},
+		{
+			"clashIndex": 2,
+			"actions": [
+				{ "actionId": "action.test6", "count": 0 }
+			]
+		}
+	]
+}

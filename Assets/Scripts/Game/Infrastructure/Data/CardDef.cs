@@ -24,25 +24,25 @@ namespace Game.Infrastructure.Data
         [JsonProperty("descLocKey", Required = Required.Always)]
         public string descLocKey = string.Empty;
 
-        [JsonProperty("battleStart", Required = Required.Always)]
-        public CardBattleStartDef battleStart = new();
+        [JsonProperty("duelStart", Required = Required.Always)]
+        public CardDuelStartDef duelStart = new();
     }
 
     [JsonObject(MemberSerialization.OptIn)]
-    public sealed class CardBattleStartDef
+    public sealed class CardDuelStartDef
     {
-        [JsonProperty("summonTroops", Required = Required.Default)]
-        public List<SummonTroopRefDef> summonTroops = new();
+        [JsonProperty("summonActions", Required = Required.Default)]
+        public List<SummonActionRefDef> summonActions = new();
 
         [JsonProperty("ops", Required = Required.Default)]
         public List<EffectOpDef> ops = new();
     }
 
     [JsonObject(MemberSerialization.OptIn)]
-    public sealed class SummonTroopRefDef
+    public sealed class SummonActionRefDef
     {
-        [JsonProperty("troopId", Required = Required.Always)]
-        public string troopId = string.Empty;
+        [JsonProperty("actionId", Required = Required.Always)]
+        public string actionId = string.Empty;
 
         [JsonProperty("count", Required = Required.Always)]
         public int count;

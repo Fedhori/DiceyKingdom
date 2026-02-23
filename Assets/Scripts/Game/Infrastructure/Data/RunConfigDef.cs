@@ -11,8 +11,8 @@ namespace Game.Infrastructure.Data
         [JsonProperty("id", Required = Required.Always)]
         public string id { get; private set; } = string.Empty;
 
-        [JsonProperty("startingStability", Required = Required.Always)]
-        public int startingStability;
+        [JsonProperty("startingHonor", Required = Required.Always)]
+        public int startingHonor;
 
         [JsonProperty("supplyLimit", Required = Required.Always)]
         public int supplyLimit;

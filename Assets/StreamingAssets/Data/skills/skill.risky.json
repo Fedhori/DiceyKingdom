@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "skill.risky",
+  "focusCost": 1,
+  "cooldown": 1,
+  "timing": "Deploy",
+  "target": { "type": "Clash", "count": 1 },
+  "nameLocKey": "skill.risky_name",
+  "descLocKey": "skill.risky_desc",
+  "ops": [
+    { "op": "TransformOutcome", "transformKind": "Risky", "textLocKey": "effect_outcome_risky" }
+  ]
+}

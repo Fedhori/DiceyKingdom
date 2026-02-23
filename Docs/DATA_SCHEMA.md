@@ -27,36 +27,36 @@
 {
   "schemaVersion": 1,
   "configs": [
-    "Data/battle_config.json",
-    "Data/run_config.json"
+    "Data/duel.config.json",
+    "Data/run.config.json"
   ],
-  "battlefields": [
-    "Data/battlefields/bf_peak.json",
-    "Data/battlefields/bf_ruins.json",
-    "Data/battlefields/bf_forest.json"
+  "clashes": [
+    "Data/clashes/clash.peak.json",
+    "Data/clashes/clash.ruins.json",
+    "Data/clashes/clash.forest.json"
   ],
-  "troops": [
-    "Data/troops/troop_reservist.json",
-    "Data/troops/troop_miko_assassin.json",
-    "Data/troops/troop_dwarf_cannon.json",
-    "Data/troops/troop_ratkin.json"
+  "actions": [
+    "Data/actions/action.reservist.json",
+    "Data/actions/action.miko.assassin.json",
+    "Data/actions/action.dwarf.cannon.json",
+    "Data/actions/action.ratkin.json"
   ],
   "cards": [
-    "Data/cards/card_squad_reserves.json",
-    "Data/cards/card_squad_miko.json",
-    "Data/cards/card_squad_cannon.json",
-    "Data/cards/card_squad_ratkin.json",
-    "Data/cards/card_support_latest_gear.json"
+    "Data/cards/card.squad.reserves.json",
+    "Data/cards/card.squad.miko.json",
+    "Data/cards/card.squad.cannon.json",
+    "Data/cards/card.squad.ratkin.json",
+    "Data/cards/card.support.latest.gear.json"
   ],
   "skills": [
-    "Data/skills/skill_redeploy.json",
-    "Data/skills/skill_decoy.json",
-    "Data/skills/skill_risky.json",
-    "Data/skills/skill_safe.json",
-    "Data/skills/skill_reinforce.json"
+    "Data/skills/skill.redeploy.json",
+    "Data/skills/skill.decoy.json",
+    "Data/skills/skill.risky.json",
+    "Data/skills/skill.safe.json",
+    "Data/skills/skill.reinforce.json"
   ],
   "encounters": [
-    "Data/encounters/enc_debug_01.json"
+    "Data/encounters/encounter.debug.01.json"
   ]
 }
 ```
@@ -65,16 +65,16 @@
 
 ## 3) Config
 
-### BattleConfig(예)
+### DuelConfig(예)
 
 ```json
 {
   "schemaVersion": 1,
-  "id": "battle_config",
+  "id": "duel.config",
 
-  "battlefieldCount": 3,
-  "manaMax": 5,
-  "manaRegenPerTurn": 2,
+  "clashCount": 3,
+  "focusMax": 5,
+  "focusRegenPerTurn": 2,
   "cooldownTickPerTurn": -1,
 
   "attackResultMin": 1,
@@ -89,7 +89,7 @@
 
 ---
 
-## 4) BattlefieldDef
+## 4) ClashDef
 
 - `slotLimit`은 선택(optional)이며, 없으면 무제한
 - `outcomeEffects`는 Outcome별 EffectBlock 리스트
@@ -97,27 +97,27 @@
 ```json
 {
   "schemaVersion": 1,
-  "id": "bf_peak",
+  "id": "clash.peak",
 
   "slotLimit": 1,
   "tags": ["peak"],
 
-  "nameLocKey": "bf_peak_name",
-  "descLocKey": "bf_peak_desc",
+  "nameLocKey": "clash.peak_name",
+  "descLocKey": "clash.peak_desc",
 
   "outcomeEffects": {
     "GreatVictory": [
-      { "ops": [ { "op": "ModifyMorale", "side": "Enemy", "delta": -2, "textLocKey": "effect_morale_minus" } ] }
+      { "ops": [ { "op": "ModifyHealth", "side": "Opponent", "delta": -2, "textLocKey": "effect_health_minus" } ] }
     ],
     "Victory": [
-      { "ops": [ { "op": "ModifyMorale", "side": "Enemy", "delta": -1, "textLocKey": "effect_morale_minus" } ] }
+      { "ops": [ { "op": "ModifyHealth", "side": "Opponent", "delta": -1, "textLocKey": "effect_health_minus" } ] }
     ],
     "Draw": [],
     "Defeat": [
-      { "ops": [ { "op": "ModifyMorale", "side": "Player", "delta": -1, "textLocKey": "effect_morale_minus" } ] }
+      { "ops": [ { "op": "ModifyHealth", "side": "Player", "delta": -1, "textLocKey": "effect_health_minus" } ] }
     ],
     "GreatDefeat": [
-      { "ops": [ { "op": "ModifyMorale", "side": "Player", "delta": -2, "textLocKey": "effect_morale_minus" } ] }
+      { "ops": [ { "op": "ModifyHealth", "side": "Player", "delta": -2, "textLocKey": "effect_health_minus" } ] }
     ]
   }
 }
@@ -125,25 +125,25 @@
 
 ---
 
-## 5) TroopDef
+## 5) ActionDef
 
 ```json
 {
   "schemaVersion": 1,
-  "id": "troop_reservist",
+  "id": "action.reservist",
 
   "attack": 2,
   "tags": ["reserve"],
 
-  "nameLocKey": "troop_reservist_name",
-  "descLocKey": "troop_reservist_desc",
+  "nameLocKey": "action.reservist_name",
+  "descLocKey": "action.reservist_desc",
 
   "effects": [
     {
       "timing": "TurnEnd",
-      "condition": { "type": "IsInCamp" },
+      "condition": { "type": "IsInActionHolder" },
       "ops": [
-        { "op": "AddAttackModifier", "target": "Attack", "layer": "Battle", "mode": "Add", "value": 2, "textLocKey": "effect_attack_plus" }
+        { "op": "AddAttackModifier", "target": "Attack", "layer": "Duel", "mode": "Add", "value": 2, "textLocKey": "effect_attack_plus" }
       ]
     }
   ]
@@ -158,14 +158,14 @@
 
 - `type`: `Squad` 또는 `Support`
 - `supplyCost`
-- `battleStart`: 전투 시작 트리거 블록
+- `duelStart`: 전투 시작 트리거 블록
 
 ### Squad 예시
 
 ```json
 {
   "schemaVersion": 1,
-  "id": "card_squad_reserves",
+  "id": "card.squad.reserves",
 
   "type": "Squad",
   "supplyCost": 1,
@@ -173,9 +173,9 @@
   "nameLocKey": "card_reserves_name",
   "descLocKey": "card_reserves_desc",
 
-  "battleStart": {
-    "summonTroops": [
-      { "troopId": "troop_reservist", "count": 2 }
+  "duelStart": {
+    "summonActions": [
+      { "actionId": "action.reservist", "count": 2 }
     ],
     "ops": []
   }
@@ -187,7 +187,7 @@
 ```json
 {
   "schemaVersion": 1,
-  "id": "card_support_latest_gear",
+  "id": "card.support.latest.gear",
 
   "type": "Support",
   "supplyCost": 1,
@@ -195,12 +195,12 @@
   "nameLocKey": "card_latest_gear_name",
   "descLocKey": "card_latest_gear_desc",
 
-  "battleStart": {
+  "duelStart": {
     "ops": [
       {
         "op": "ModifyAttackResult",
         "side": "Player",
-        "scope": "AllTroops",
+        "scope": "AllActions",
         "mode": "Add",
         "value": 1,
         "textLocKey": "effect_face_plus"
@@ -217,39 +217,39 @@
 ```json
 {
   "schemaVersion": 1,
-  "id": "skill_redeploy",
+  "id": "skill.redeploy",
 
-  "manaCost": 2,
+  "focusCost": 2,
   "cooldown": 2,
-  "timing": "Tactics",
+  "timing": "Skill",
 
-  "target": { "type": "AllyTroop", "count": 1 },
+  "target": { "type": "AllyAction", "count": 1 },
 
-  "nameLocKey": "skill_redeploy_name",
-  "descLocKey": "skill_redeploy_desc",
+  "nameLocKey": "skill.redeploy_name",
+  "descLocKey": "skill.redeploy_desc",
 
   "ops": [
-    { "op": "MoveTroop", "keepAttackResult": true, "textLocKey": "effect_move_keep_face" }
+    { "op": "MoveAction", "keepAttackResult": true, "textLocKey": "effect_move_keep_face" }
   ]
 }
 ```
 
 ---
 
-## 8) EncounterDef(Enemy Intent)
+## 8) EncounterDef(Opponent Intent)
 
 > 프로토타입은 “의도 완전 공개”이므로, EncounterDef는 UI에 그대로 보여줄 구조를 가진다.
 
 ```json
 {
   "schemaVersion": 1,
-  "id": "enc_debug_01",
+  "id": "encounter.debug.01",
 
-  "enemyMorale": 10,
+  "opponentHealth": 10,
   "plans": [
-    { "battlefieldIndex": 0, "troops": [ { "troopId": "troop_miko_assassin", "count": 1 } ] },
-    { "battlefieldIndex": 1, "troops": [ { "troopId": "troop_ratkin", "count": 2 } ] },
-    { "battlefieldIndex": 2, "troops": [ { "troopId": "troop_ratkin", "count": 1 } ] }
+    { "clashIndex": 0, "actions": [ { "actionId": "action.miko.assassin", "count": 1 } ] },
+    { "clashIndex": 1, "actions": [ { "actionId": "action.ratkin", "count": 2 } ] },
+    { "clashIndex": 2, "actions": [ { "actionId": "action.ratkin", "count": 1 } ] }
   ]
 }
 ```
@@ -260,29 +260,29 @@
 
 ### Timing
 
-- BattleStart / Deploy / Roll / Tactics / Resolve / TurnEnd
+- DuelStart / Deploy / Roll / Skill / ClashResolve / TurnEnd
 - (권장) RollFinalize: 굴림 후 눈 보정 적용 단계
 
 ### Condition(type)
 
 - Always
-- EnemyCountEquals
+- OpponentCountEquals
   - `value` 또는 `count`로 비교값 지정(둘 다 없으면 1로 처리)
-- IsInCamp
+- IsInActionHolder
 - HasTag
   - `tag` 필드로 검사할 태그 지정
 
 ### OpCode(op)
 
 - ModifyAttackResult
-- MoveTroop
-- MoveEnemyTroop
+- MoveAction
+- MoveOpponentAction
 - ModifyTotalAttack
 - TransformOutcome
-- ModifyMorale
+- ModifyHealth
 - AddAttackModifier
 
 > P0 금지: ModifyPower 류 op
 
-- `AddAttackModifier.layer`는 `Battle` / `Permanent`만 허용(대소문자 구분).
+- `AddAttackModifier.layer`는 `Duel` / `Permanent`만 허용(대소문자 구분).
 - 수치 입력은 `value` / `amount` / `delta` 중 최소 1개가 필요하다.

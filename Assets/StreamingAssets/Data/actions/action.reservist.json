@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "action.reservist",
+  "attack": 2,
+  "tags": ["reserve"],
+  "nameLocKey": "action.reservist_name",
+  "descLocKey": "action.reservist_desc",
+  "effects": [
+    {
+      "timing": "TurnEnd",
+      "condition": { "type": "IsInActionHolder" },
+      "ops": [
+        { "op": "AddAttackModifier", "target": "Attack", "layer": "Duel", "mode": "Add", "value": 2, "textLocKey": "effect_attack_plus" }
+      ]
+    }
+  ]
+}
