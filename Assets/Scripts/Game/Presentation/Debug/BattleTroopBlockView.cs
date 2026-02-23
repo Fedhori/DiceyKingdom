@@ -7,7 +7,6 @@ namespace Game.Presentation.Debug
 {
     public sealed class BattleTroopBlockView : MonoBehaviour
     {
-        static readonly Vector2 defaultBlockPreferredSize = new Vector2(180f, 132f);
         static readonly Color defaultPlayerBackgroundColor = new Color32(68, 129, 192, 220);
         static readonly Color defaultEnemyBackgroundColor = new Color32(160, 82, 82, 220);
         static readonly Color defaultPlayerSelectedColor = new Color32(35, 92, 168, 255);
@@ -21,8 +20,6 @@ namespace Game.Presentation.Debug
         [SerializeField] TMP_Text effectsText;
         [SerializeField] TMP_Text attackResultText;
         [SerializeField] TMP_Text attackText;
-        [SerializeField] bool enforcePrefabSize = true;
-        [SerializeField] Vector2 blockPreferredSize = defaultBlockPreferredSize;
         [SerializeField] Color playerBackgroundColor = defaultPlayerBackgroundColor;
         [SerializeField] Color enemyBackgroundColor = defaultEnemyBackgroundColor;
         [SerializeField] Color playerSelectedColor = defaultPlayerSelectedColor;
@@ -34,8 +31,6 @@ namespace Game.Presentation.Debug
 
         void Awake()
         {
-            ApplyPrefabSizeDefaults();
-
             if (ApplyDefaultColorsIfInvalid())
             {
                 UnityEngine.Debug.LogWarning("[BattleTroopBlockView] Color fields were invalid and reset to defaults.");
@@ -58,7 +53,6 @@ namespace Game.Presentation.Debug
 
         void OnValidate()
         {
-            ApplyPrefabSizeDefaults();
             ApplyDefaultColorsIfInvalid();
 
             if (backgroundImage == null)
@@ -179,37 +173,6 @@ namespace Game.Presentation.Debug
             changed |= TryRestoreColor(ref enemyAttackColor, defaultEnemyAttackColor);
 
             return changed;
-        }
-
-        void ApplyPrefabSizeDefaults()
-        {
-            if (blockPreferredSize.x <= 0f || blockPreferredSize.y <= 0f)
-            {
-                blockPreferredSize = defaultBlockPreferredSize;
-            }
-
-            if (!enforcePrefabSize)
-            {
-                return;
-            }
-
-            if (TryGetComponent(out RectTransform rectTransform))
-            {
-                rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
-                rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-                rectTransform.pivot = new Vector2(0.5f, 0.5f);
-                rectTransform.sizeDelta = blockPreferredSize;
-            }
-
-            if (TryGetComponent(out LayoutElement layoutElement))
-            {
-                layoutElement.minWidth = blockPreferredSize.x;
-                layoutElement.minHeight = blockPreferredSize.y;
-                layoutElement.preferredWidth = blockPreferredSize.x;
-                layoutElement.preferredHeight = blockPreferredSize.y;
-                layoutElement.flexibleWidth = 0f;
-                layoutElement.flexibleHeight = 0f;
-            }
         }
 
         static bool TryRestoreColor(ref Color target, Color fallback)
