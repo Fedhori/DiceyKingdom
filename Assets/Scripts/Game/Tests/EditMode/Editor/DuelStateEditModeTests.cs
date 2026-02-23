@@ -11,7 +11,6 @@ namespace Game.Tests.EditMode
         {
             var state = new DuelState();
 
-            Assert.NotNull(state.cooldowns);
             Assert.NotNull(state.clashes);
             Assert.NotNull(state.actionsById);
             Assert.NotNull(state.actionHolderActionIds);

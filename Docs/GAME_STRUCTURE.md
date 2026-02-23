@@ -123,39 +123,30 @@
 ### 6.4 판정(Outcome)
 
 - `Total Attack` 비교로 승패를 가른다.
-- Great Victory 조건:
-  - `winnerCombatStrength >= loserCombatStrength * 2`
-- Draw:
-  - `winnerCombatStrength == loserCombatStrength`
+- 승리(Victory): `playerTotalAttack > opponentTotalAttack`
+- 무승부(Draw): `playerTotalAttack == opponentTotalAttack`
+- 패배(Defeat): `playerTotalAttack < opponentTotalAttack`
+- 대승리/대패배 판정은 사용하지 않는다.
 
-### 6.5 스킬 공통 규칙
+### 6.5 Ability 공통 규칙
 
-- Focus 소모 + 쿨다운 존재
+- 전투 중 별도 소모 자원(Focus Cost 등)은 사용하지 않는다.
+- 쿨다운은 Ability 인스턴스 단위로 관리한다.
 - 쿨다운은 턴 종료에 `-1`
-- 이동 스킬(재배치/유인책): 이동 후 Attack Result 유지
+- Attack 타입 Ability만 Roll 대상이다.
+- 동일 Clash에서 Attack 사용은 1회 기준으로 처리한다.
+- 이동 효과는 이동 후 Attack Result를 유지한다.
 
-### 6.6 스킬(P0 대상)
+### 6.6 Ability 타입(P0)
 
-- 재배치(Redeploy)
-  - Focus 2 / Cooldown 2 / Skill
-  - 아군 Action 1개를 다른 Clash로 이동(슬롯 제한 준수)
-
-- 유인책(Decoy)
-  - Focus 2 / Cooldown 2 / Deploy
-  - 적 Action 1개를 다른 Clash로 이동(슬롯 제한 준수)
-
-- 위험한 접근(Risky Approach)
-  - Focus 1 / Cooldown 1 / Deploy
-  - **플레이어의 Victory를 Great Victory로 승격**(적에게는 적용되지 않음)
-
-- 안전한 접근(Safe Approach)
-  - Focus 1 / Cooldown 1 / Deploy
-  - **플레이어의 Great Defeat를 Defeat로 완화**(적에게는 적용되지 않음)
-  - 용도 예: 큰 패배 페널티를 줄인다.
-
-- 증원(Reinforce)
-  - Focus 2 / Cooldown 2 / Skill
-  - 선택한 Clash에 아군 Total Attack `+2`(Attack Result 변화 없음)
+- Attack
+  - `damage`를 가진다.
+  - Clash 판정에서 승리한 쪽이 해당 Clash의 `damage`만큼 상대 Health에 피해를 준다.
+- Skill
+  - 상황/타이밍 조건에 따라 발동하는 능력.
+  - 현재 프로토타입에서 적 Skill 사용은 제외한다.
+- Passive
+  - 전투 시작 시 적용되거나, 조건부 상시 적용되는 능력.
 
 ## 7) 데이터/구현 기준(요약)
 

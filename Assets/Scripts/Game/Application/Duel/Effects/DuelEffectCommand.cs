@@ -20,7 +20,5 @@ namespace Game.Application.Duel.Effects
         public ModifierLayer modifierLayer = ModifierLayer.Duel;
         public DuelModifierTarget modifierTarget = DuelModifierTarget.Attack;
         public int amount;
-
-        public DuelOutcomeTransformKind transformKind = DuelOutcomeTransformKind.None;
     }
 }

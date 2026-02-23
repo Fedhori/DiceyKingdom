@@ -35,8 +35,8 @@
 - Clash 3개 고정 + Opponent Intent 공개
 - Roster Deck(드로우 없음) + Duel Start Triggers(Squad→Support)
 - Action Attack/Attack Result/Total Attack 계산
-- Outcome 판정 + Clash outcomeEffects(최소 Health 피해)
-- 스킬 5종: Redeploy / Decoy / Risky / Safe / Reinforce
+- Outcome 판정(Victory/Draw/Defeat) + Clash damage 기반 Health 피해
+- Ability 타입 3종(Attack/Skill/Passive) + opcode 효과 처리
 - Retreat(Honor 규칙 포함)
 - JSON 데이터 로딩/검증(최소 스키마)
 - Unity Localization 기반 텍스트 출력(키+args)
@@ -233,12 +233,12 @@
   - Roll 계산(기본 굴림, FaceValue 최소 1)
   - Total Attack 계산
   - Outcome 판정
-    - Great Victory / Victory / Draw / Defeat / Great Defeat
+    - Victory / Draw / Defeat
   - ClashResolve 순서 처리(0→1→2 + 매 Clash 후 Health 즉시 체크)
 
 - 수동 테스트
   - Roll 후 `base -> modifiers -> final` 값이 일관되게 갱신되는가
-  - Great Victory 조건(`winner >= loser * 2`)이 맞게 동작하는가
+  - Victory / Draw / Defeat 판정이 의도대로 동작하는가
   - ClashResolve 중간에 Health <= 0이면 즉시 종료되는가
 
 - 자동 테스트
@@ -265,8 +265,8 @@
 
 - [x] `T3-04` Outcome 판정 구현
   - Draw: 동일 Total Attack
-  - Great Victory / Great Defeat: `winner >= loser * 2`
-  - loser가 0일 때 winner가 양수면 Great 판정
+  - Victory: playerTotalAttack > opponentTotalAttack
+  - Defeat: playerTotalAttack < opponentTotalAttack
 
 - [x] `T3-05` ClashResolve 1개 Clash 처리 구현
   - Clash Total Attack 계산 -> Outcome 판정 -> Health 반영
@@ -298,14 +298,11 @@
     - MoveAction(keepAttackResult=true)
     - MoveOpponentAction(keepAttackResult=true)
     - ModifyTotalAttack(+2)
-    - TransformOutcome(Risky/Safe)
     - ModifyHealth
     - AddAttackModifier(layer=Duel/Permanent)
   - 스킬 5종이 호출하는 효과 경로를 opcode 핸들러로 통일
 
 - 수동 테스트
-  - Risky: 플레이어 Victory → Great Victory 변환이 동작하는가
-  - Safe: 플레이어 Great Defeat → Defeat 변환이 동작하는가
   - Reinforce: Attack Result 변화 없이 Total Attack만 +2 되는지(UI/로그로 확인)
 
 - 자동 테스트

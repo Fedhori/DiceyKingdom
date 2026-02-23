@@ -150,6 +150,11 @@ namespace Game.Application.Duel
                     continue;
                 }
 
+                if (action.abilityType != AbilityType.Attack)
+                {
+                    continue;
+                }
+
                 DuelSimulator.RollAction(action);
                 rolledCount += 1;
             }
@@ -254,12 +259,14 @@ namespace Game.Application.Duel
                     false);
                 DuelOutcome outcome = DuelSimulator.ComputeOutcome(playerTotalAttack, opponentTotalAttack);
 
-                ApplyOutcomeEffects(
-                    state,
-                    clashIndex,
-                    outcome,
-                    ref outcomeEffectAppliedCount,
-                    ref outcomeEffectFailedCount);
+                if (ApplyOutcomeDamageFromClash(state, clashIndex, outcome))
+                {
+                    outcomeEffectAppliedCount += 1;
+                }
+                else
+                {
+                    outcomeEffectFailedCount += 1;
+                }
 
                 if (state.playerHealth <= 0 || state.opponentHealth <= 0)
                 {
@@ -323,89 +330,70 @@ namespace Game.Application.Duel
             int focusMax = Mathf.Max(0, database.duelConfig.focusMax);
             state.focus = Mathf.Clamp(state.focus + database.duelConfig.focusRegenPerTurn, 0, focusMax);
 
-            if (state.cooldowns == null)
+            if (state.actionsById == null)
             {
-                state.cooldowns = new Dictionary<string, int>();
-                Debug.LogWarning("[DuelTurnProcessor] cooldowns was null and has been auto-initialized.");
+                state.actionsById = new Dictionary<string, ActionInstance>();
+                Debug.LogWarning("[DuelTurnProcessor] actionsById was null and has been auto-initialized.");
                 return 0;
             }
 
             int cooldownUpdatedCount = 0;
-            var cooldownKeys = new List<string>(state.cooldowns.Keys);
-            int cooldownTick = database.duelConfig.cooldownTickPerTurn;
-
-            for (int i = 0; i < cooldownKeys.Count; i++)
+            int cooldownTick = Mathf.Abs(database.duelConfig.cooldownTickPerTurn);
+            foreach (KeyValuePair<string, ActionInstance> pair in state.actionsById)
             {
-                string key = cooldownKeys[i];
-                int currentValue = state.cooldowns[key];
-                int updatedValue = Mathf.Max(0, currentValue + cooldownTick);
-                if (updatedValue == currentValue)
+                ActionInstance action = pair.Value;
+                if (action == null)
                 {
                     continue;
                 }
 
-                state.cooldowns[key] = updatedValue;
+                action.EnsureInitialized();
+                if (action.cooldownRemaining <= 0 || cooldownTick <= 0)
+                {
+                    continue;
+                }
+
+                int updatedValue = Mathf.Max(0, action.cooldownRemaining - cooldownTick);
+                if (updatedValue == action.cooldownRemaining)
+                {
+                    continue;
+                }
+
+                action.cooldownRemaining = updatedValue;
                 cooldownUpdatedCount += 1;
             }
 
             return cooldownUpdatedCount;
         }
 
-        void ApplyOutcomeEffects(
+        bool ApplyOutcomeDamageFromClash(
             DuelState state,
             int clashIndex,
-            DuelOutcome outcome,
-            ref int appliedCount,
-            ref int failedCount)
+            DuelOutcome outcome)
         {
             ClashDef clashDef = ClashResolveClashDef(state, clashIndex);
-            if (clashDef == null || clashDef.outcomeEffects == null)
+            if (clashDef == null)
             {
-                return;
+                Debug.LogWarning($"[DuelTurnProcessor] clashDef for clash[{clashIndex}] is missing.");
+                return false;
             }
 
-            string outcomeKey = outcome.ToString();
-            if (!clashDef.outcomeEffects.TryGetValue(outcomeKey, out List<EffectBlockDef> blocks) || blocks == null)
+            int damage = Mathf.Max(0, clashDef.damage);
+            if (damage <= 0 || outcome == DuelOutcome.Draw)
             {
-                return;
+                return true;
             }
 
-            for (int blockIndex = 0; blockIndex < blocks.Count; blockIndex++)
+            switch (outcome)
             {
-                EffectBlockDef block = blocks[blockIndex];
-                if (block == null || block.ops == null)
-                {
-                    continue;
-                }
-
-                for (int opIndex = 0; opIndex < block.ops.Count; opIndex++)
-                {
-                    EffectOpDef op = block.ops[opIndex];
-                    if (!TryBuildOutcomeCommand(
-                            clashDef,
-                            clashIndex,
-                            outcome,
-                            blockIndex,
-                            opIndex,
-                            op,
-                            out DuelEffectCommand command,
-                            out string warningMessage))
-                    {
-                        failedCount += 1;
-                        Debug.LogWarning($"[DuelTurnProcessor] Outcome effect warning: {warningMessage}");
-                        continue;
-                    }
-
-                    DuelEffectResult applyResult = effectClashResolver.Apply(state, command);
-                    if (applyResult.isSuccess)
-                    {
-                        appliedCount += 1;
-                    }
-                    else
-                    {
-                        failedCount += 1;
-                    }
-                }
+                case DuelOutcome.Victory:
+                    state.opponentHealth -= damage;
+                    return true;
+                case DuelOutcome.Defeat:
+                    state.playerHealth -= damage;
+                    return true;
+                default:
+                    return true;
             }
         }
 
@@ -435,81 +423,6 @@ namespace Game.Application.Duel
             }
 
             return clashDef;
-        }
-
-        static bool TryBuildOutcomeCommand(
-            ClashDef clashDef,
-            int clashIndex,
-            DuelOutcome outcome,
-            int blockIndex,
-            int opIndex,
-            EffectOpDef op,
-            out DuelEffectCommand command,
-            out string warningMessage)
-        {
-            command = null;
-            warningMessage = string.Empty;
-
-            if (op == null)
-            {
-                warningMessage = "op is null.";
-                return false;
-            }
-
-            if (!Enum.TryParse(op.op, false, out DuelEffectOpCode opCode))
-            {
-                warningMessage = $"unsupported op '{op.op}'.";
-                return false;
-            }
-
-            command = new DuelEffectCommand
-            {
-                opCode = opCode,
-                sourceId = $"Outcome:{clashDef.id}:{outcome}:{blockIndex}:{opIndex}",
-                clashIndex = clashIndex
-            };
-
-            switch (opCode)
-            {
-                case DuelEffectOpCode.ModifyHealth:
-                case DuelEffectOpCode.ModifyTotalAttack:
-                    if (!TryClashResolveSide(op.side, out bool isPlayerSide))
-                    {
-                        warningMessage = $"invalid side '{op.side}' for op '{op.op}'.";
-                        return false;
-                    }
-
-                    if (!op.TryGetAmount(out int amount))
-                    {
-                        warningMessage = $"missing amount for op '{op.op}'.";
-                        return false;
-                    }
-
-                    command.isPlayerSide = isPlayerSide;
-                    command.amount = amount;
-                    return true;
-                default:
-                    warningMessage = $"op '{op.op}' is not allowed in clash outcomeEffects.";
-                    return false;
-            }
-        }
-
-        static bool TryClashResolveSide(string side, out bool isPlayerSide)
-        {
-            if (string.Equals(side, "Player", StringComparison.Ordinal))
-            {
-                isPlayerSide = true;
-                return true;
-            }
-
-            if (string.Equals(side, "Opponent", StringComparison.Ordinal))
-            {
-                isPlayerSide = false;
-                return true;
-            }
-
-            isPlayerSide = true;
-            return false;
         }
 
         static HashSet<string> CollectDeployedActionIds(DuelState state)

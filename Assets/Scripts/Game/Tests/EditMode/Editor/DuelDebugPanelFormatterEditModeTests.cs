@@ -23,51 +23,19 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void FormatClash_WithDatabase_IncludesGreatVictoryAndVictoryDamage()
+        public void FormatClash_WithDatabase_IncludesClashDamage()
         {
             DuelState state = CreateDuelStateForFormatterTests();
             var database = new GameDatabase();
             database.clashesById["clash.0"] = new ClashDef
             {
                 slotLimit = 2,
-                outcomeEffects = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<EffectBlockDef>>
-                {
-                    ["GreatVictory"] = new System.Collections.Generic.List<EffectBlockDef>
-                    {
-                        new EffectBlockDef
-                        {
-                            ops = new System.Collections.Generic.List<EffectOpDef>
-                            {
-                                new EffectOpDef
-                                {
-                                    op = "ModifyHealth",
-                                    side = "Opponent",
-                                    delta = -2
-                                }
-                            }
-                        }
-                    },
-                    ["Victory"] = new System.Collections.Generic.List<EffectBlockDef>
-                    {
-                        new EffectBlockDef
-                        {
-                            ops = new System.Collections.Generic.List<EffectOpDef>
-                            {
-                                new EffectOpDef
-                                {
-                                    op = "ModifyHealth",
-                                    side = "Opponent",
-                                    delta = -1
-                                }
-                            }
-                        }
-                    }
-                }
+                damage = 2
             };
 
             string line = DuelDebugPanelFormatter.FormatClash(state, 0, database);
 
-            StringAssert.Contains("Damage GV:2 V:1", line);
+            StringAssert.Contains("Damage:2", line);
         }
 
         [Test]
@@ -111,7 +79,7 @@ namespace Game.Tests.EditMode
 
             StringAssert.Contains("Selected Action: action.actionHolder", line);
             StringAssert.Contains("ActionHolder Actions (1):", line);
-            StringAssert.Contains("- action.actionHolder | Attack:2 | Attack Result:2 <selected>", line);
+            StringAssert.Contains("- action.actionHolder | Type:Attack | Damage:2 | Attack Result:2 | CD:- <selected>", line);
             StringAssert.DoesNotContain("actionHolder_1", line);
         }
 
@@ -167,7 +135,10 @@ namespace Game.Tests.EditMode
 
             var actionDef = new ActionDef
             {
-                attack = 2,
+                type = AbilityType.Attack.ToString(),
+                buildCost = 0,
+                cooldown = 0,
+                damage = 2,
                 nameLocKey = "action.ratkin_name",
                 descLocKey = "action.ratkin_desc",
                 effects = new System.Collections.Generic.List<TimedEffectDef>

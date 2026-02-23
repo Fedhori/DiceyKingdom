@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using Newtonsoft.Json;
 
 namespace Game.Infrastructure.Data
@@ -12,8 +13,20 @@ namespace Game.Infrastructure.Data
         [JsonProperty("id", Required = Required.Always)]
         public string id { get; private set; } = string.Empty;
 
-        [JsonProperty("attack", Required = Required.Always)]
-        public int attack;
+        [JsonProperty("type", Required = Required.Always)]
+        public string type = AbilityType.Attack.ToString();
+
+        [JsonProperty("buildCost", Required = Required.Always)]
+        public int buildCost;
+
+        [JsonProperty("cooldown", Required = Required.Default)]
+        public int cooldown;
+
+        [JsonProperty("damage", Required = Required.Default)]
+        public int? damage;
+
+        [JsonProperty("attack", Required = Required.Default)]
+        public int? legacyAttack;
 
         [JsonProperty("tags", Required = Required.Default)]
         public List<string> tags = new();
@@ -26,5 +39,25 @@ namespace Game.Infrastructure.Data
 
         [JsonProperty("effects", Required = Required.Default)]
         public List<TimedEffectDef> effects = new();
+
+        public bool TryGetAbilityType(out AbilityType abilityType)
+        {
+            return Enum.TryParse(type, false, out abilityType);
+        }
+
+        public int ResolveDamage()
+        {
+            if (damage.HasValue)
+            {
+                return damage.Value;
+            }
+
+            if (legacyAttack.HasValue)
+            {
+                return legacyAttack.Value;
+            }
+
+            return 0;
+        }
     }
 }

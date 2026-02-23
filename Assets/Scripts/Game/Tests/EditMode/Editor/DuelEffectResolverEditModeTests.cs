@@ -169,41 +169,19 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void TransformOutcome_AppliesRiskyAndSafeRules()
+        public void Apply_FailsWhenUnsupportedOpCode()
         {
             var state = CreateDuelState();
             var resolver = new DuelEffectClashResolver();
-            var context = new DuelEffectContext
-            {
-                hasOutcome = true,
-                outcome = DuelOutcome.Victory
-            };
-
-            DuelEffectResult riskyResult = resolver.Apply(
+            DuelEffectResult result = resolver.Apply(
                 state,
                 new DuelEffectCommand
                 {
-                    opCode = DuelEffectOpCode.TransformOutcome,
-                    transformKind = DuelOutcomeTransformKind.Risky
-                },
-                context);
+                    opCode = (DuelEffectOpCode)999
+                });
 
-            Assert.IsTrue(riskyResult.isSuccess);
-            Assert.AreEqual(DuelOutcome.GreatVictory, context.outcome);
-
-            context.outcome = DuelOutcome.GreatDefeat;
-
-            DuelEffectResult safeResult = resolver.Apply(
-                state,
-                new DuelEffectCommand
-                {
-                    opCode = DuelEffectOpCode.TransformOutcome,
-                    transformKind = DuelOutcomeTransformKind.Safe
-                },
-                context);
-
-            Assert.IsTrue(safeResult.isSuccess);
-            Assert.AreEqual(DuelOutcome.Defeat, context.outcome);
+            Assert.IsFalse(result.isSuccess);
+            Assert.AreEqual(DuelEffectFailureReason.UnsupportedOpCode, result.failureReason);
         }
 
         [Test]
@@ -296,23 +274,6 @@ namespace Game.Tests.EditMode
 
             Assert.IsFalse(result.isSuccess);
             Assert.AreEqual(DuelEffectFailureReason.DuelEnded, result.failureReason);
-        }
-
-        [Test]
-        public void TransformOutcome_FailsWithoutOutcomeContext()
-        {
-            var state = CreateDuelState();
-            var resolver = new DuelEffectClashResolver();
-            DuelEffectResult result = resolver.Apply(
-                state,
-                new DuelEffectCommand
-                {
-                    opCode = DuelEffectOpCode.TransformOutcome,
-                    transformKind = DuelOutcomeTransformKind.Risky
-                });
-
-            Assert.IsFalse(result.isSuccess);
-            Assert.AreEqual(DuelEffectFailureReason.MissingOutcomeContext, result.failureReason);
         }
 
         static DuelState CreateDuelState()

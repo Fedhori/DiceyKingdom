@@ -15,6 +15,9 @@ namespace Game.Infrastructure.Data
         [JsonProperty("slotLimit", Required = Required.AllowNull)]
         public int? slotLimit;
 
+        [JsonProperty("damage", Required = Required.Always)]
+        public int damage;
+
         [JsonProperty("tags", Required = Required.Default)]
         public List<string> tags = new();
 
@@ -24,7 +27,7 @@ namespace Game.Infrastructure.Data
         [JsonProperty("descLocKey", Required = Required.Always)]
         public string descLocKey = string.Empty;
 
-        [JsonProperty("outcomeEffects", Required = Required.Always)]
+        [JsonProperty("outcomeEffects", Required = Required.Default)]
         public Dictionary<string, List<EffectBlockDef>> outcomeEffects = new();
     }
 }

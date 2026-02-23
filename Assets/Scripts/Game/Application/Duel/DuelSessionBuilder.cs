@@ -125,6 +125,13 @@ namespace Game.Application.Duel
                     continue;
                 }
 
+                if (actionDef.TryGetAbilityType(out AbilityType abilityType) &&
+                    abilityType == AbilityType.Skill)
+                {
+                    skippedCount += Mathf.Max(0, intent.count);
+                    continue;
+                }
+
                 int requestedCount = Mathf.Max(0, intent.count);
                 for (int copyIndex = 0; copyIndex < requestedCount; copyIndex++)
                 {
@@ -164,43 +171,62 @@ namespace Game.Application.Duel
                 focus = startingFocus,
                 honor = database.playerStart.startingHonor,
                 playerHealth = Mathf.Max(1, database.playerStart.startingPlayerHealth),
-                opponentHealth = Mathf.Max(1, encounterDef.opponentHealth)
+                opponentHealth = Mathf.Max(1, ResolveEncounterOpponentHealth(encounterDef))
             };
 
-            nextState.cooldowns.Clear();
             nextState.actionHolderActionIds.Clear();
             nextState.actionsById.Clear();
             nextState.opponentIntent.Clear();
 
-            InitializeClashSlots(nextState);
+            InitializeClashSlots(nextState, encounterDef);
             PopulateOpponentIntent(nextState, encounterDef);
             PopulateActionHolderFromPlayerStart(nextState);
 
             return nextState;
         }
 
-        void InitializeClashSlots(DuelState state)
+        int ResolveEncounterOpponentHealth(EncounterDef encounterDef)
+        {
+            if (encounterDef?.enemy != null &&
+                encounterDef.enemy.health > 0)
+            {
+                return encounterDef.enemy.health;
+            }
+
+            if (encounterDef != null && encounterDef.opponentHealth > 0)
+            {
+                return encounterDef.opponentHealth;
+            }
+
+            return 1;
+        }
+
+        void InitializeClashSlots(DuelState state, EncounterDef encounterDef)
         {
             state.clashes.Clear();
 
-            var orderedDefs = new List<ClashDef>();
-            if (database.clashesById != null)
-            {
-                orderedDefs = database.clashesById
-                    .Values
-                    .OrderBy(def => def.id, StringComparer.Ordinal)
-                    .ToList();
-            }
+            List<EncounterEnemyClashDef> enemyClashes = ResolveEncounterEnemyClashes(encounterDef);
+            List<ClashDef> fallbackOrderedDefs = ResolveFallbackClashes(enemyClashes.Count <= 0);
+            int targetCount = enemyClashes.Count > 0
+                ? enemyClashes.Count
+                : Mathf.Max(1, database.duelConfig.clashCount);
 
-            int targetCount = Mathf.Max(1, database.duelConfig.clashCount);
             for (int i = 0; i < targetCount; i++)
             {
-                ClashDef sourceDef = i < orderedDefs.Count ? orderedDefs[i] : null;
+                string clashIdFromEnemy = i < enemyClashes.Count
+                    ? enemyClashes[i].clashId
+                    : string.Empty;
+
+                ClashDef sourceDef = ResolveClashDef(
+                    i,
+                    clashIdFromEnemy,
+                    fallbackOrderedDefs);
+
                 int? resolvedSlotLimit = sourceDef != null
                     ? sourceDef.slotLimit
                     : database.duelConfig.p0Rules.defaultSlotLimit;
 
-                var field = new ClashState
+                var clashState = new ClashState
                 {
                     clashId = sourceDef?.id ?? $"missing_clash_{i}",
                     slotLimit = resolvedSlotLimit,
@@ -208,16 +234,93 @@ namespace Game.Application.Duel
                     totalAttackBonusOpponent = 0
                 };
 
-                field.EnsureInitialized();
-                state.clashes.Add(field);
+                clashState.EnsureInitialized();
+                state.clashes.Add(clashState);
             }
 
             state.EnsureInitialized();
         }
 
+        List<EncounterEnemyClashDef> ResolveEncounterEnemyClashes(EncounterDef encounterDef)
+        {
+            if (encounterDef?.enemy?.clashes == null ||
+                encounterDef.enemy.clashes.Count <= 0)
+            {
+                return new List<EncounterEnemyClashDef>();
+            }
+
+            return encounterDef.enemy.clashes
+                .Where(entry => entry != null)
+                .ToList();
+        }
+
+        List<ClashDef> ResolveFallbackClashes(bool shouldResolve)
+        {
+            if (!shouldResolve || database.clashesById == null)
+            {
+                return null;
+            }
+
+            return database.clashesById
+                .Values
+                .OrderBy(def => def.id, StringComparer.Ordinal)
+                .ToList();
+        }
+
+        ClashDef ResolveClashDef(
+            int clashIndex,
+            string clashIdFromEnemy,
+            List<ClashDef> fallbackOrderedDefs)
+        {
+            if (!string.IsNullOrWhiteSpace(clashIdFromEnemy) &&
+                database.clashesById != null &&
+                database.clashesById.TryGetValue(clashIdFromEnemy, out ClashDef foundByEnemyId))
+            {
+                return foundByEnemyId;
+            }
+
+            if (fallbackOrderedDefs != null && clashIndex < fallbackOrderedDefs.Count)
+            {
+                return fallbackOrderedDefs[clashIndex];
+            }
+
+            return null;
+        }
+
         void PopulateOpponentIntent(DuelState state, EncounterDef encounterDef)
         {
-            if (encounterDef.plans == null)
+            if (encounterDef?.enemy?.clashes != null &&
+                encounterDef.enemy.clashes.Count > 0)
+            {
+                for (int clashIndex = 0; clashIndex < encounterDef.enemy.clashes.Count; clashIndex++)
+                {
+                    EncounterEnemyClashDef enemyClash = encounterDef.enemy.clashes[clashIndex];
+                    if (enemyClash == null || enemyClash.abilityLoadout == null)
+                    {
+                        continue;
+                    }
+
+                    for (int abilityIndex = 0; abilityIndex < enemyClash.abilityLoadout.Count; abilityIndex++)
+                    {
+                        SummonActionRefDef abilityRef = enemyClash.abilityLoadout[abilityIndex];
+                        if (abilityRef == null || abilityRef.count <= 0 || string.IsNullOrWhiteSpace(abilityRef.actionId))
+                        {
+                            continue;
+                        }
+
+                        state.opponentIntent.Add(new OpponentIntentEntry
+                        {
+                            clashIndex = clashIndex,
+                            actionDefId = abilityRef.actionId,
+                            count = abilityRef.count
+                        });
+                    }
+                }
+
+                return;
+            }
+
+            if (encounterDef?.plans == null)
             {
                 return;
             }
@@ -304,10 +407,22 @@ namespace Game.Application.Duel
 
         static ActionInstance CreateActionInstance(ActionDef actionDef)
         {
+            AbilityType abilityType = AbilityType.Attack;
+            if (!actionDef.TryGetAbilityType(out abilityType))
+            {
+                Debug.LogWarning(
+                    $"[DuelSessionBuilder] Invalid ability type '{actionDef.type}' on '{actionDef.id}'. Defaulted to Attack.");
+                abilityType = AbilityType.Attack;
+            }
+
+            int resolvedDamage = Mathf.Max(0, actionDef.ResolveDamage());
             var actionInstance = new ActionInstance
             {
                 actionDefId = actionDef.id,
-                attack = Mathf.Max(1, actionDef.attack),
+                abilityType = abilityType,
+                cooldownTurns = Mathf.Max(0, actionDef.cooldown),
+                cooldownRemaining = 0,
+                attack = resolvedDamage,
                 baseRoll = 0,
                 attackResult = 0
             };

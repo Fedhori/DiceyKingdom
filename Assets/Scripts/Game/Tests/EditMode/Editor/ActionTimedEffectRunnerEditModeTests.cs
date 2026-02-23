@@ -146,7 +146,10 @@ namespace Game.Tests.EditMode
             var database = new GameDatabase();
             database.actionsById["action.miko.assassin"] = new ActionDef
             {
-                attack = 4,
+                type = AbilityType.Attack.ToString(),
+                buildCost = 0,
+                cooldown = 0,
+                damage = 4,
                 effects = new List<TimedEffectDef>
                 {
                     new TimedEffectDef
@@ -173,7 +176,10 @@ namespace Game.Tests.EditMode
 
             database.actionsById["action.dwarf.cannon"] = new ActionDef
             {
-                attack = 4,
+                type = AbilityType.Attack.ToString(),
+                buildCost = 0,
+                cooldown = 0,
+                damage = 4,
                 effects = new List<TimedEffectDef>
                 {
                     new TimedEffectDef
@@ -200,7 +206,10 @@ namespace Game.Tests.EditMode
 
             database.actionsById["action.reservist"] = new ActionDef
             {
-                attack = 2,
+                type = AbilityType.Attack.ToString(),
+                buildCost = 0,
+                cooldown = 0,
+                damage = 2,
                 effects = new List<TimedEffectDef>
                 {
                     new TimedEffectDef
@@ -227,7 +236,10 @@ namespace Game.Tests.EditMode
 
             database.actionsById["action.ratkin"] = new ActionDef
             {
-                attack = 2,
+                type = AbilityType.Attack.ToString(),
+                buildCost = 0,
+                cooldown = 0,
+                damage = 2,
                 effects = new List<TimedEffectDef>()
             };
             return database;

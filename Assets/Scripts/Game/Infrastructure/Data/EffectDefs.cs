@@ -69,9 +69,6 @@ namespace Game.Infrastructure.Data
         [JsonProperty("delta", Required = Required.Default)]
         public int? delta;
 
-        [JsonProperty("transformKind", Required = Required.Default)]
-        public string transformKind;
-
         [JsonProperty("keepAttackResult", Required = Required.Default)]
         public bool? keepAttackResult;
 

@@ -16,7 +16,6 @@ namespace Game.Domain.Duel
         public int honor;
         public bool isDuelEnded;
 
-        public Dictionary<string, int> cooldowns = new();
         public List<ClashState> clashes = new();
         public Dictionary<string, ActionInstance> actionsById = new();
         public List<string> actionHolderActionIds = new();
@@ -29,12 +28,6 @@ namespace Game.Domain.Duel
 
         public void EnsureInitialized()
         {
-            if (cooldowns == null)
-            {
-                cooldowns = new Dictionary<string, int>();
-                Debug.LogWarning("[DuelState] cooldowns was null and has been auto-initialized.");
-            }
-
             if (clashes == null)
             {
                 clashes = new List<ClashState>();

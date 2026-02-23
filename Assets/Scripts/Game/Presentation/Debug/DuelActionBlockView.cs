@@ -89,9 +89,10 @@ namespace Game.Presentation.Debug
             this.onSelected = onSelected;
 
             SetText(actionDefIdText, actionDefId);
-            SetText(attackText, attack.ToString());
-            SetText(attackResultText, $"Result {attackResult}");
-            SetText(effectsText, $"Effects: {effectsLabel}");
+            string damageLabel = attack > 0 ? $"DMG {attack}" : "DMG -";
+            SetText(attackText, damageLabel);
+            SetText(attackResultText, $"Roll {attackResult}");
+            SetText(effectsText, effectsLabel);
 
             if (attackText != null)
             {

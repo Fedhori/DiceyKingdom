@@ -21,7 +21,6 @@ namespace Game.Infrastructure.Data
   ""focusRegenPerTurn"": 2,
   ""cooldownTickPerTurn"": -1,
   ""attackResultMin"": 1,
-  ""greatVictoryMultiplier"": 2,
   ""p0Rules"": {
     ""disallowBaseAttackMutation"": true,
     ""defaultSlotLimit"": null
@@ -63,15 +62,14 @@ $@"{{
   ""schemaVersion"": 1,
   ""id"": ""{id}"",
   ""slotLimit"": null,
+  ""damage"": 1,
   ""tags"": [],
   ""nameLocKey"": ""{id}_name"",
   ""descLocKey"": ""{id}_desc"",
   ""outcomeEffects"": {{
-    ""GreatVictory"": [],
     ""Victory"": [],
     ""Draw"": [],
-    ""Defeat"": [],
-    ""GreatDefeat"": []
+    ""Defeat"": []
   }}
 }}");
 

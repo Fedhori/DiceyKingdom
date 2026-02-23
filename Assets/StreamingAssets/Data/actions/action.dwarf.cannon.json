@@ -1,7 +1,10 @@
 {
   "schemaVersion": 1,
   "id": "action.dwarf.cannon",
-  "attack": 4,
+  "type": "Attack",
+  "buildCost": 0,
+  "cooldown": 0,
+  "damage": 4,
   "tags": ["cannon"],
   "nameLocKey": "action.dwarf.cannon_name",
   "descLocKey": "action.dwarf.cannon_desc",

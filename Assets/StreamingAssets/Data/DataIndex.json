@@ -24,13 +24,6 @@
     "Data/cards/card.squad.ratkin.json",
     "Data/cards/card.support.latest.gear.json"
   ],
-  "skills": [
-    "Data/skills/skill.redeploy.json",
-    "Data/skills/skill.decoy.json",
-    "Data/skills/skill.risky.json",
-    "Data/skills/skill.safe.json",
-    "Data/skills/skill.reinforce.json"
-  ],
   "encounters": [
     "Data/encounters/encounter.debug.01.json"
   ]

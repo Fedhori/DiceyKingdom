@@ -12,7 +12,6 @@ namespace Game.Infrastructure.Data
             nameof(DuelEffectOpCode.MoveAction),
             nameof(DuelEffectOpCode.MoveOpponentAction),
             nameof(DuelEffectOpCode.ModifyTotalAttack),
-            nameof(DuelEffectOpCode.TransformOutcome),
             nameof(DuelEffectOpCode.ModifyHealth),
             nameof(DuelEffectOpCode.AddAttackModifier)
         };
@@ -95,14 +94,6 @@ namespace Game.Infrastructure.Data
                         "attackResultMin must be greater than or equal to 1.");
                 }
 
-                if (database.duelConfig.greatVictoryMultiplier < 2)
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        database.duelConfigSourcePath,
-                        database.duelConfig.id,
-                        "greatVictoryMultiplier must be greater than or equal to 2.");
-                }
             }
 
             if (database.runConfig != null)
@@ -254,6 +245,15 @@ namespace Game.Infrastructure.Data
                         id,
                         "slotLimit must be greater than zero when specified.");
                 }
+
+                if (def.damage < 1)
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        path,
+                        id,
+                        "damage must be greater than or equal to 1.");
+                }
             }
         }
 
@@ -267,13 +267,51 @@ namespace Game.Infrastructure.Data
                     ? foundPath
                     : string.Empty;
 
-                if (def.attack <= 0)
+                if (!def.TryGetAbilityType(out AbilityType abilityType))
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidEnum,
+                        path,
+                        id,
+                        $"type '{def.type}' is invalid. Allowed: {AbilityType.Attack}, {AbilityType.Skill}, {AbilityType.Passive}.");
+                    continue;
+                }
+
+                if (def.buildCost < 0)
                 {
                     report.AddError(
                         GameDataErrorCode.InvalidValue,
                         path,
                         id,
-                        "attack must be greater than zero.");
+                        "buildCost must be greater than or equal to 0.");
+                }
+
+                if (def.cooldown < 0)
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        path,
+                        id,
+                        "cooldown must be greater than or equal to 0.");
+                }
+
+                int resolvedDamage = def.ResolveDamage();
+                if (abilityType == AbilityType.Attack && resolvedDamage <= 0)
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        path,
+                        id,
+                        "Attack type ability must define damage greater than 0.");
+                }
+
+                if (abilityType != AbilityType.Attack && resolvedDamage != 0)
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        path,
+                        id,
+                        "Only Attack type ability can define damage.");
                 }
             }
         }
@@ -333,6 +371,104 @@ namespace Game.Infrastructure.Data
                 string path = database.encounterSourcePathById.TryGetValue(id, out string foundPath)
                     ? foundPath
                     : string.Empty;
+
+                if (encounterDef.enemy != null &&
+                    !string.IsNullOrWhiteSpace(encounterDef.enemy.id) &&
+                    encounterDef.enemy.clashes != null &&
+                    encounterDef.enemy.clashes.Count > 0)
+                {
+                    if (encounterDef.enemy.health <= 0)
+                    {
+                        report.AddError(
+                            GameDataErrorCode.InvalidValue,
+                            path,
+                            id,
+                            "enemy.health must be greater than zero.");
+                    }
+
+                    for (int clashIndex = 0; clashIndex < encounterDef.enemy.clashes.Count; clashIndex++)
+                    {
+                        EncounterEnemyClashDef enemyClash = encounterDef.enemy.clashes[clashIndex];
+                        if (enemyClash == null)
+                        {
+                            report.AddError(
+                                GameDataErrorCode.InvalidValue,
+                                path,
+                                id,
+                                $"enemy.clashes[{clashIndex}] is null.");
+                            continue;
+                        }
+
+                        if (string.IsNullOrWhiteSpace(enemyClash.clashId))
+                        {
+                            report.AddError(
+                                GameDataErrorCode.InvalidValue,
+                                path,
+                                id,
+                                $"enemy.clashes[{clashIndex}].clashId must not be empty.");
+                        }
+                        else if (!database.clashesById.ContainsKey(enemyClash.clashId))
+                        {
+                            report.AddError(
+                                GameDataErrorCode.MissingReference,
+                                path,
+                                id,
+                                $"enemy.clashes[{clashIndex}].clashId('{enemyClash.clashId}') does not exist.");
+                        }
+
+                        if (enemyClash.abilityLoadout == null)
+                        {
+                            report.AddError(
+                                GameDataErrorCode.InvalidValue,
+                                path,
+                                id,
+                                $"enemy.clashes[{clashIndex}].abilityLoadout must not be null.");
+                            continue;
+                        }
+
+                        for (int abilityIndex = 0; abilityIndex < enemyClash.abilityLoadout.Count; abilityIndex++)
+                        {
+                            SummonActionRefDef abilityRef = enemyClash.abilityLoadout[abilityIndex];
+                            if (abilityRef == null)
+                            {
+                                report.AddError(
+                                    GameDataErrorCode.InvalidValue,
+                                    path,
+                                    id,
+                                    $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}] is null.");
+                                continue;
+                            }
+
+                            if (string.IsNullOrWhiteSpace(abilityRef.actionId))
+                            {
+                                report.AddError(
+                                    GameDataErrorCode.InvalidValue,
+                                    path,
+                                    id,
+                                    $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}].actionId must not be empty.");
+                            }
+                            else if (!database.actionsById.ContainsKey(abilityRef.actionId))
+                            {
+                                report.AddError(
+                                    GameDataErrorCode.MissingReference,
+                                    path,
+                                    id,
+                                    $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}].actionId('{abilityRef.actionId}') does not exist.");
+                            }
+
+                            if (abilityRef.count < 0)
+                            {
+                                report.AddError(
+                                    GameDataErrorCode.InvalidValue,
+                                    path,
+                                    id,
+                                    $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}].count must be greater than or equal to 0.");
+                            }
+                        }
+                    }
+
+                    continue;
+                }
 
                 for (int planIndex = 0; planIndex < encounterDef.plans.Count; planIndex++)
                 {
@@ -434,24 +570,6 @@ namespace Game.Infrastructure.Data
                 }
             }
 
-            foreach (KeyValuePair<string, SkillDef> pair in database.skillsById)
-            {
-                string ownerId = pair.Key;
-                string path = database.skillSourcePathById.TryGetValue(ownerId, out string foundPath)
-                    ? foundPath
-                    : string.Empty;
-                SkillDef skillDef = pair.Value;
-
-                for (int opIndex = 0; opIndex < skillDef.ops.Count; opIndex++)
-                {
-                    ValidateOp(
-                        skillDef.ops[opIndex],
-                        path,
-                        ownerId,
-                        $"ops[{opIndex}]",
-                        report);
-                }
-            }
         }
 
         void ValidateOp(EffectOpDef opDef, string path, string ownerId, string context, GameDataValidationReport report)
@@ -486,18 +604,6 @@ namespace Game.Infrastructure.Data
                 case nameof(DuelEffectOpCode.ModifyTotalAttack):
                     ValidateSide(opDef, path, ownerId, context, report);
                     ValidateAmount(opDef, path, ownerId, context, report);
-                    break;
-                case nameof(DuelEffectOpCode.TransformOutcome):
-                    if (!string.Equals(opDef.transformKind, nameof(DuelOutcomeTransformKind.Risky), StringComparison.Ordinal) &&
-                        !string.Equals(opDef.transformKind, nameof(DuelOutcomeTransformKind.Safe), StringComparison.Ordinal))
-                    {
-                        report.AddError(
-                            GameDataErrorCode.InvalidEnum,
-                            path,
-                            ownerId,
-                            $"{context}: transformKind must be Risky or Safe.");
-                    }
-
                     break;
                 case nameof(DuelEffectOpCode.ModifyHealth):
                     ValidateSide(opDef, path, ownerId, context, report);

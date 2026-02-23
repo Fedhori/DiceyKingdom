@@ -472,6 +472,18 @@ namespace Game.Presentation.Debug
                 return false;
             }
 
+            if (!duelState.actionsById.TryGetValue(actionId, out ActionInstance action) || action == null)
+            {
+                failureMessage = $"action({actionId}) does not exist.";
+                return false;
+            }
+
+            if (action.abilityType != AbilityType.Attack)
+            {
+                failureMessage = $"only Attack type ability can be deployed to clash (current: {action.abilityType}).";
+                return false;
+            }
+
             if (targetClashIndex < 0 || targetClashIndex >= duelState.clashes.Count)
             {
                 failureMessage = $"target clash({targetClashIndex}) is out of range.";
@@ -731,7 +743,15 @@ namespace Game.Presentation.Debug
             }
 
             string actionDefId = ClashResolveActionDefIdForDisplay(actionId);
-            string effectsLabel = DuelDebugPanelFormatter.FormatActionEffects(activeDatabase, action.actionDefId);
+            string effectSummary = DuelDebugPanelFormatter.FormatActionEffects(activeDatabase, action.actionDefId);
+            string cooldownSummary = action.cooldownTurns > 0
+                ? $"CD {action.cooldownRemaining}/{action.cooldownTurns}"
+                : "CD -";
+            string effectsLabel = $"{action.abilityType} | {cooldownSummary}";
+            if (!string.Equals(effectSummary, "none", StringComparison.OrdinalIgnoreCase))
+            {
+                effectsLabel = $"{effectsLabel} | {effectSummary}";
+            }
             bool isSelected = string.Equals(actionId, selectedActionId, StringComparison.Ordinal);
 
             DuelActionBlockView actionBlock = Instantiate(actionBlockPrefab, parent);

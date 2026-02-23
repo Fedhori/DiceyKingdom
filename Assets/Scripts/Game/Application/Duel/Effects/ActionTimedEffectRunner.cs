@@ -342,17 +342,6 @@ namespace Game.Application.Duel.Effects
                 command.modifierTarget = target;
             }
 
-            if (opCode == DuelEffectOpCode.TransformOutcome)
-            {
-                if (!Enum.TryParse(opDef.transformKind, false, out DuelOutcomeTransformKind transformKind))
-                {
-                    warningMessage = $"Invalid transformKind '{opDef.transformKind}'.";
-                    return false;
-                }
-
-                command.transformKind = transformKind;
-            }
-
             if (opCode == DuelEffectOpCode.ModifyTotalAttack || opCode == DuelEffectOpCode.ModifyHealth)
             {
                 if (!opDef.TryGetAmount(out int amount))

@@ -6,8 +6,7 @@ namespace Game.Application.Duel.Effects
         MoveAction = 1,
         MoveOpponentAction = 2,
         ModifyTotalAttack = 3,
-        TransformOutcome = 4,
-        ModifyHealth = 5,
-        AddAttackModifier = 6
+        ModifyHealth = 4,
+        AddAttackModifier = 5
     }
 }

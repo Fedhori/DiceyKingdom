@@ -57,7 +57,6 @@ namespace Game.Infrastructure.Data
             ParseDefCollection(dataIndex.clashes, database.clashesById, database.clashSourcePathById, report);
             ParseDefCollection(dataIndex.actions, database.actionsById, database.actionSourcePathById, report);
             ParseDefCollection(dataIndex.cards, database.cardsById, database.cardSourcePathById, report);
-            ParseDefCollection(dataIndex.skills, database.skillsById, database.skillSourcePathById, report);
             ParseDefCollection(dataIndex.encounters, database.encountersById, database.encounterSourcePathById, report);
 
             validator.Validate(database, dataIndex, report);

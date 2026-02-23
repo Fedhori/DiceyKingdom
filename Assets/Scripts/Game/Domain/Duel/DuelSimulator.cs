@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Game.Domain.Modifiers;
+using Game.Infrastructure.Data;
 using UnityEngine;
 
 namespace Game.Domain.Duel
@@ -95,6 +96,11 @@ namespace Game.Domain.Duel
                     continue;
                 }
 
+                if (action.abilityType != AbilityType.Attack)
+                {
+                    continue;
+                }
+
                 total += action.attackResult;
             }
 
@@ -110,19 +116,7 @@ namespace Game.Domain.Duel
 
             if (playerTotalAttack > opponentTotalAttack)
             {
-                long doubledLoser = (long)opponentTotalAttack * 2L;
-                if (opponentTotalAttack == 0 || playerTotalAttack >= doubledLoser)
-                {
-                    return DuelOutcome.GreatVictory;
-                }
-
                 return DuelOutcome.Victory;
-            }
-
-            long doubledPlayer = (long)playerTotalAttack * 2L;
-            if (playerTotalAttack == 0 || opponentTotalAttack >= doubledPlayer)
-            {
-                return DuelOutcome.GreatDefeat;
             }
 
             return DuelOutcome.Defeat;

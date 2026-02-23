@@ -21,9 +21,6 @@ namespace Game.Infrastructure.Data
         [JsonProperty("cards", Required = Required.Always)]
         public List<string> cards = new();
 
-        [JsonProperty("skills", Required = Required.Always)]
-        public List<string> skills = new();
-
         [JsonProperty("encounters", Required = Required.Always)]
         public List<string> encounters = new();
     }

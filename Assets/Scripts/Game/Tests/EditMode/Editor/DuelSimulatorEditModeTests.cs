@@ -137,10 +137,10 @@ namespace Game.Tests.EditMode
         [Test]
         public void ComputeOutcome_ReturnsExpectedResult()
         {
-            Assert.AreEqual(DuelOutcome.GreatVictory, DuelSimulator.ComputeOutcome(10, 4));
-            Assert.AreEqual(DuelOutcome.GreatVictory, DuelSimulator.ComputeOutcome(3, 0));
+            Assert.AreEqual(DuelOutcome.Victory, DuelSimulator.ComputeOutcome(10, 4));
+            Assert.AreEqual(DuelOutcome.Victory, DuelSimulator.ComputeOutcome(3, 0));
             Assert.AreEqual(DuelOutcome.Draw, DuelSimulator.ComputeOutcome(5, 5));
-            Assert.AreEqual(DuelOutcome.GreatDefeat, DuelSimulator.ComputeOutcome(3, 10));
+            Assert.AreEqual(DuelOutcome.Defeat, DuelSimulator.ComputeOutcome(3, 10));
         }
 
         [Test]

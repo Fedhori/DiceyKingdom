@@ -9,7 +9,7 @@ namespace Game.Tests.EditMode
     public sealed class DuelTurnProcessorEditModeTests
     {
         [Test]
-        public void TryClashResolveAllClashes_AppliesOutcomeEffectsFromData()
+        public void TryClashResolveAllClashes_AppliesClashDamageFromData()
         {
             GameDatabase database = CreateDatabase();
             database.clashesById["clash.0"] = CreateClashDefWithHealthDamage();
@@ -22,6 +22,8 @@ namespace Game.Tests.EditMode
             };
 
             state.clashes[0].clashId = "clash.0";
+            state.clashes[1].clashId = "clash.0";
+            state.clashes[2].clashId = "clash.0";
             state.actionsById["p0"] = CreateAction("action.player", 3);
             state.actionsById["e0"] = CreateAction("action.opponent", 2);
             state.clashes[0].playerActionIds.Add("p0");
@@ -40,7 +42,7 @@ namespace Game.Tests.EditMode
 
             Assert.IsTrue(success, failureMessage);
             Assert.AreEqual(4, state.opponentHealth);
-            Assert.AreEqual(1, result.outcomeEffectAppliedCount);
+            Assert.AreEqual(3, result.outcomeEffectAppliedCount);
             Assert.AreEqual(0, result.outcomeEffectFailedCount);
             Assert.AreEqual(DuelPhase.Reset, runner.currentPhase);
             Assert.AreEqual(1, state.turnIndex);
@@ -58,10 +60,13 @@ namespace Game.Tests.EditMode
                 opponentHealth = 5,
                 focus = 1
             };
-            state.cooldowns["skill_a"] = 2;
 
             state.clashes[0].clashId = "clash.0";
+            state.clashes[1].clashId = "clash.0";
+            state.clashes[2].clashId = "clash.0";
             state.actionsById["p0"] = CreateAction("action.player", 2);
+            state.actionsById["p0"].cooldownTurns = 2;
+            state.actionsById["p0"].cooldownRemaining = 2;
             state.actionsById["e0"] = CreateAction("action.opponent", 2);
             state.clashes[0].playerActionIds.Add("p0");
             state.clashes[0].opponentActionIds.Add("e0");
@@ -79,7 +84,7 @@ namespace Game.Tests.EditMode
 
             Assert.IsTrue(success, failureMessage);
             Assert.AreEqual(3, state.focus);
-            Assert.AreEqual(1, state.cooldowns["skill_a"]);
+            Assert.AreEqual(1, state.actionsById["p0"].cooldownRemaining);
             Assert.AreEqual(1, result.cooldownUpdatedCount);
             Assert.AreEqual(1, result.focusBeforeTurnEnd);
             Assert.AreEqual(3, result.focusAfterTurnEnd);
@@ -145,7 +150,6 @@ namespace Game.Tests.EditMode
                     focusRegenPerTurn = 2,
                     cooldownTickPerTurn = -1,
                     attackResultMin = 1,
-                    greatVictoryMultiplier = 2,
                     p0Rules = new P0RulesDef
                     {
                         disallowBaseAttackMutation = true,
@@ -163,24 +167,7 @@ namespace Game.Tests.EditMode
         {
             return new ClashDef
             {
-                outcomeEffects = new Dictionary<string, List<EffectBlockDef>>
-                {
-                    ["Victory"] = new List<EffectBlockDef>
-                    {
-                        new EffectBlockDef
-                        {
-                            ops = new List<EffectOpDef>
-                            {
-                                new EffectOpDef
-                                {
-                                    op = "ModifyHealth",
-                                    side = "Opponent",
-                                    delta = -1
-                                }
-                            }
-                        }
-                    }
-                }
+                damage = 1
             };
         }
 
@@ -188,10 +175,7 @@ namespace Game.Tests.EditMode
         {
             return new ClashDef
             {
-                outcomeEffects = new Dictionary<string, List<EffectBlockDef>>
-                {
-                    ["Draw"] = new List<EffectBlockDef>()
-                }
+                damage = 1
             };
         }
 
@@ -199,7 +183,10 @@ namespace Game.Tests.EditMode
         {
             return new ActionDef
             {
-                attack = 1,
+                type = AbilityType.Attack.ToString(),
+                buildCost = 0,
+                cooldown = 0,
+                damage = 1,
                 effects = new List<TimedEffectDef>
                 {
                     new TimedEffectDef

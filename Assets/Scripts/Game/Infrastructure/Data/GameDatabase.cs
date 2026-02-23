@@ -22,9 +22,6 @@ namespace Game.Infrastructure.Data
         public Dictionary<string, CardDef> cardsById = new();
         public Dictionary<string, string> cardSourcePathById = new();
 
-        public Dictionary<string, SkillDef> skillsById = new();
-        public Dictionary<string, string> skillSourcePathById = new();
-
         public Dictionary<string, EncounterDef> encountersById = new();
         public Dictionary<string, string> encounterSourcePathById = new();
     }

@@ -6,7 +6,6 @@
   "focusRegenPerTurn": 2,
   "cooldownTickPerTurn": -1,
   "attackResultMin": 1,
-  "greatVictoryMultiplier": 2,
   "p0Rules": {
     "disallowBaseAttackMutation": true,
     "defaultSlotLimit": null

@@ -99,7 +99,6 @@ Assets/StreamingAssets/
     clashes/*.json
     actions/*.json
     cards/*.json
-    skills/*.json
     encounters/*.json
 ```
 
@@ -109,7 +108,6 @@ Assets/StreamingAssets/
   - `Dictionary<string, ClashDef>`
   - `Dictionary<string, ActionDef>`
   - `Dictionary<string, CardDef>` (Squad/Support 공통)
-  - `Dictionary<string, SkillDef>`
   - `Dictionary<string, EncounterDef>`
   - `DuelConfigDef`, `RunConfigDef`
 
@@ -126,7 +124,7 @@ Assets/StreamingAssets/
 
 최소 검증 항목:
 - ID 중복
-- 참조 누락(없는 actionId/skillId 등)
+- 참조 누락(없는 actionId/clashId 등)
 - `slotLimit < 1` 같은 말이 안 되는 값
 - P0 금지 op(`ModifyPower` 등)가 포함되어 있는지
 
@@ -147,7 +145,6 @@ Assets/StreamingAssets/
   - turnIndex
   - playerHealth / opponentHealth
   - focus
-  - cooldowns: `Dictionary<string skillId, int>`
   - clashes: `List<ClashState>` (3개)
   - actionHolder: 플레이어 Action 리스트
   - opponentIntent: Clash별 적 배치 계획
@@ -161,6 +158,8 @@ Assets/StreamingAssets/
 
 - `ActionInstance`
   - actionDefId
+  - abilityType(Attack/Skill/Passive)
+  - cooldownTurns / cooldownRemaining
   - Attack
   - baseRoll
   - modifiers(list)
@@ -181,8 +180,8 @@ Assets/StreamingAssets/
 
 - `DuelTurnProcessor`:
   - Roll 단계 일괄 처리(배치 Action 수집 -> 굴림 -> Roll 타이밍 효과)
-  - ClashResolve 단계 일괄 처리(Clash 순회 -> outcomeEffects 적용 -> TurnEnd 유지보수)
-  - TurnEnd 유지보수(`focusRegenPerTurn`, `cooldownTickPerTurn`) 적용
+  - ClashResolve 단계 일괄 처리(Clash 순회 -> `clash.damage` 기반 피해 적용 -> TurnEnd 유지보수)
+  - TurnEnd 유지보수(`focusRegenPerTurn`, 인스턴스 쿨다운 감소) 적용
 
 Domain 쪽은 “계산 전용”으로 유지한다:
 - `DuelSimulator`:
@@ -196,7 +195,7 @@ Domain 쪽은 “계산 전용”으로 유지한다:
 ### 5.3 ClashResolve 순서(확정)
 
 - Clash 인덱스 순서대로 처리
-- Clash 하나 ClashResolve할 때마다 outcomeEffects 적용 후 즉시 Health 체크
+- Clash 하나 ClashResolve할 때마다 승/무/패 판정 후 `clash.damage` 적용, 즉시 Health 체크
 - 중간 종료 가능
 
 ---
@@ -216,7 +215,6 @@ Domain 쪽은 “계산 전용”으로 유지한다:
 - MoveAction(keepAttackResult=true)
 - MoveOpponentAction(keepAttackResult=true)
 - ModifyTotalAttack(+2)
-- TransformOutcome(Risky/Safe)
 - ModifyHealth
 - AddAttackModifier(layer=Duel/Permanent)
 
@@ -291,7 +289,7 @@ UI는 `LocalizationUtil`로 렌더링한다.
 
 - Domain 로직은 EditMode 테스트로 검증 가능해야 한다.
 - 최소 테스트 항목
-  - Great Victory 판정
+  - Outcome 판정(Victory / Draw / Defeat)
   - Attack Result 최소 1 / 최대 없음
   - ClashResolve 순서(0→1→2) + 중간 종료
   - slotLimit 초과 배치/이동 불가

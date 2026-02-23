@@ -26,9 +26,6 @@ namespace Game.Infrastructure.Data
         [JsonProperty("attackResultMin", Required = Required.Always)]
         public int attackResultMin;
 
-        [JsonProperty("greatVictoryMultiplier", Required = Required.Always)]
-        public int greatVictoryMultiplier;
-
         [JsonProperty("p0Rules", Required = Required.Always)]
         public P0RulesDef p0Rules = new();
     }

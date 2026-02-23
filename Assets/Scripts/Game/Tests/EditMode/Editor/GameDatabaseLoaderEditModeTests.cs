@@ -31,10 +31,13 @@ namespace Game.Tests.EditMode
 @"{
   ""schemaVersion"": 1,
   ""id"": ""encounter.1"",
-  ""opponentHealth"": 10,
-  ""plans"": [
-    { ""clashIndex"": 0, ""actions"": [ { ""actionId"": ""missing_action"", ""count"": 1 } ] }
-  ]
+  ""enemy"": {
+    ""id"": ""enemy.debug"",
+    ""health"": 10,
+    ""clashes"": [
+      { ""clashId"": ""clash.1"", ""abilityLoadout"": [ { ""actionId"": ""missing_action"", ""count"": 1 } ] }
+    ]
+  }
 }";
 
             var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
@@ -64,7 +67,10 @@ namespace Game.Tests.EditMode
 @"{
   ""schemaVersion"": 1,
   ""id"": ""action.1"",
-  ""attack"": 2,
+  ""type"": ""Attack"",
+  ""buildCost"": 0,
+  ""cooldown"": 0,
+  ""damage"": 2,
   ""nameLocKey"": ""action.1_name"",
   ""descLocKey"": ""action.1_desc"",
   ""effects"": [],
@@ -98,7 +104,10 @@ namespace Game.Tests.EditMode
 @"{
   ""schemaVersion"": 1,
   ""id"": ""action.1"",
-  ""attack"": 2,
+  ""type"": ""Attack"",
+  ""buildCost"": 0,
+  ""cooldown"": 0,
+  ""damage"": 2,
   ""nameLocKey"": ""action.1_name"",
   ""descLocKey"": ""action.1_desc"",
   ""effects"": [
@@ -142,7 +151,6 @@ namespace Game.Tests.EditMode
   ""clashes"": [""Data/clashes/clash.1.json""],
   ""actions"": [""Data/actions/action.1.json""],
   ""cards"": [""Data/cards/card.squad.1.json""],
-  ""skills"": [],
   ""encounters"": [""Data/encounters/encounter.1.json""]
 }",
                 ["Data/duel.config.json"] =
@@ -154,7 +162,6 @@ namespace Game.Tests.EditMode
   ""focusRegenPerTurn"": 2,
   ""cooldownTickPerTurn"": -1,
   ""attackResultMin"": 1,
-  ""greatVictoryMultiplier"": 2,
   ""p0Rules"": {
     ""disallowBaseAttackMutation"": true,
     ""defaultSlotLimit"": null
@@ -181,15 +188,14 @@ namespace Game.Tests.EditMode
   ""schemaVersion"": 1,
   ""id"": ""clash.1"",
   ""slotLimit"": null,
+  ""damage"": 1,
   ""tags"": [],
   ""nameLocKey"": ""clash.1_name"",
   ""descLocKey"": ""clash.1_desc"",
   ""outcomeEffects"": {
-    ""GreatVictory"": [],
     ""Victory"": [],
     ""Draw"": [],
-    ""Defeat"": [],
-  ""GreatDefeat"": []
+    ""Defeat"": []
   }
 }",
                 ["Data/cards/card.squad.1.json"] =
@@ -209,7 +215,10 @@ namespace Game.Tests.EditMode
 @"{
   ""schemaVersion"": 1,
   ""id"": ""action.1"",
-  ""attack"": 2,
+  ""type"": ""Attack"",
+  ""buildCost"": 0,
+  ""cooldown"": 0,
+  ""damage"": 2,
   ""nameLocKey"": ""action.1_name"",
   ""descLocKey"": ""action.1_desc"",
   ""effects"": []
@@ -218,10 +227,13 @@ namespace Game.Tests.EditMode
 @"{
   ""schemaVersion"": 1,
   ""id"": ""encounter.1"",
-  ""opponentHealth"": 10,
-  ""plans"": [
-    { ""clashIndex"": 0, ""actions"": [ { ""actionId"": ""action.1"", ""count"": 1 } ] }
-  ]
+  ""enemy"": {
+    ""id"": ""enemy.debug"",
+    ""health"": 10,
+    ""clashes"": [
+      { ""clashId"": ""clash.1"", ""abilityLoadout"": [ { ""actionId"": ""action.1"", ""count"": 1 } ] }
+    ]
+  }
 }"
             };
         }

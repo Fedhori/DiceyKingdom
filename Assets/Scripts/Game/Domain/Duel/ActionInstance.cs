@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Game.Domain.Modifiers;
+using Game.Infrastructure.Data;
 using UnityEngine;
 
 namespace Game.Domain.Duel
@@ -11,6 +12,9 @@ namespace Game.Domain.Duel
         public string instanceId = Guid.NewGuid().ToString("N");
         public string actionDefId = string.Empty;
 
+        public AbilityType abilityType;
+        public int cooldownTurns;
+        public int cooldownRemaining;
         public int attack;
         public int baseRoll;
         public int attackResult;
@@ -25,6 +29,18 @@ namespace Game.Domain.Duel
             {
                 instanceId = Guid.NewGuid().ToString("N");
                 Debug.LogWarning("[ActionInstance] instanceId was empty and has been regenerated.");
+            }
+
+            if (cooldownTurns < 0)
+            {
+                cooldownTurns = 0;
+                Debug.LogWarning("[ActionInstance] cooldownTurns was negative and has been clamped to 0.");
+            }
+
+            if (cooldownRemaining < 0)
+            {
+                cooldownRemaining = 0;
+                Debug.LogWarning("[ActionInstance] cooldownRemaining was negative and has been clamped to 0.");
             }
 
             if (attackModifiers == null)

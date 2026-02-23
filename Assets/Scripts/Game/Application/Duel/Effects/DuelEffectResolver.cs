@@ -17,7 +17,6 @@ namespace Game.Application.Duel.Effects
             Register(new MoveActionEffectHandler());
             Register(new MoveOpponentActionEffectHandler());
             Register(new ModifyTotalAttackEffectHandler());
-            Register(new TransformOutcomeEffectHandler());
             Register(new ModifyHealthEffectHandler());
         }
 
@@ -386,43 +385,6 @@ namespace Game.Application.Duel.Effects
                 }
 
                 return DuelEffectResult.Success();
-            }
-        }
-
-        sealed class TransformOutcomeEffectHandler : IDuelEffectHandler
-        {
-            public DuelEffectOpCode opCode => DuelEffectOpCode.TransformOutcome;
-
-            public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context)
-            {
-                if (context == null || !context.hasOutcome)
-                {
-                    return DuelEffectResult.Fail(
-                        DuelEffectFailureReason.MissingOutcomeContext,
-                        "Outcome transform requires context.hasOutcome=true.");
-                }
-
-                switch (command.transformKind)
-                {
-                    case DuelOutcomeTransformKind.Risky:
-                        if (context.outcome == DuelOutcome.Victory)
-                        {
-                            context.outcome = DuelOutcome.GreatVictory;
-                        }
-
-                        return DuelEffectResult.Success();
-                    case DuelOutcomeTransformKind.Safe:
-                        if (context.outcome == DuelOutcome.GreatDefeat)
-                        {
-                            context.outcome = DuelOutcome.Defeat;
-                        }
-
-                        return DuelEffectResult.Success();
-                    default:
-                        return DuelEffectResult.Fail(
-                            DuelEffectFailureReason.MissingField,
-                            $"transformKind({command.transformKind}) is invalid.");
-                }
             }
         }
 

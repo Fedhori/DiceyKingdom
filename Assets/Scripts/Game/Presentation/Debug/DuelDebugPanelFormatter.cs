@@ -85,7 +85,7 @@ namespace Game.Presentation.Debug
                 ? clash.slotLimit.Value.ToString()
                 : "unlimited";
 
-            string damageLabel = FormatVictoryDamageLabel(database, clashId);
+            string damageLabel = FormatClashDamageLabel(database, clashId);
             if (string.IsNullOrWhiteSpace(damageLabel))
             {
                 return
@@ -125,8 +125,11 @@ namespace Game.Presentation.Debug
                 string actionDefId = ClashResolveActionDefId(action, null);
                 bool isSelected = string.Equals(actionId, selectedActionId, StringComparison.Ordinal);
                 string selectedSuffix = isSelected ? " <selected>" : string.Empty;
+                string cooldownLabel = action.cooldownTurns > 0
+                    ? $"{action.cooldownRemaining}/{action.cooldownTurns}"
+                    : "-";
                 lines.Add(
-                    $"- {actionDefId} | Attack:{action.attack} | Attack Result:{action.attackResult}{selectedSuffix}");
+                    $"- {actionDefId} | Type:{action.abilityType} | Damage:{action.attack} | Attack Result:{action.attackResult} | CD:{cooldownLabel}{selectedSuffix}");
             }
 
             return string.Join("\n", lines);
@@ -155,7 +158,10 @@ namespace Game.Presentation.Debug
 
             string location = ClashResolveActionLocation(duelState, selectedActionId);
             string actionDefId = ClashResolveActionDefId(action, null);
-            return $"Selected Action: {actionDefId} | Attack:{action.attack} | Attack Result:{action.attackResult} | {location}";
+            string cooldownLabel = action.cooldownTurns > 0
+                ? $"{action.cooldownRemaining}/{action.cooldownTurns}"
+                : "-";
+            return $"Selected Action: {actionDefId} | Type:{action.abilityType} | Damage:{action.attack} | Attack Result:{action.attackResult} | CD:{cooldownLabel} | {location}";
         }
 
         public static string FormatSelectedClash(DuelState duelState, int selectedClashIndex)
@@ -218,7 +224,7 @@ namespace Game.Presentation.Debug
             return "unknown";
         }
 
-        static string FormatVictoryDamageLabel(GameDatabase database, string clashId)
+        static string FormatClashDamageLabel(GameDatabase database, string clashId)
         {
             if (database == null ||
                 database.clashesById == null ||
@@ -233,67 +239,7 @@ namespace Game.Presentation.Debug
                 return string.Empty;
             }
 
-            int greatVictoryDamage = ClashResolveOpponentHealthDamageForOutcome(clashDef, "GreatVictory");
-            int victoryDamage = ClashResolveOpponentHealthDamageForOutcome(clashDef, "Victory");
-            return $"Damage GV:{greatVictoryDamage} V:{victoryDamage}";
-        }
-
-        static int ClashResolveOpponentHealthDamageForOutcome(ClashDef clashDef, string outcomeKey)
-        {
-            if (clashDef == null ||
-                clashDef.outcomeEffects == null ||
-                string.IsNullOrWhiteSpace(outcomeKey))
-            {
-                return 0;
-            }
-
-            if (!clashDef.outcomeEffects.TryGetValue(outcomeKey, out List<EffectBlockDef> blocks) ||
-                blocks == null ||
-                blocks.Count <= 0)
-            {
-                return 0;
-            }
-
-            int totalDamage = 0;
-            for (int blockIndex = 0; blockIndex < blocks.Count; blockIndex++)
-            {
-                EffectBlockDef block = blocks[blockIndex];
-                if (block == null || block.ops == null)
-                {
-                    continue;
-                }
-
-                for (int opIndex = 0; opIndex < block.ops.Count; opIndex++)
-                {
-                    EffectOpDef op = block.ops[opIndex];
-                    if (op == null)
-                    {
-                        continue;
-                    }
-
-                    if (!string.Equals(op.op, "ModifyHealth", StringComparison.Ordinal))
-                    {
-                        continue;
-                    }
-
-                    if (!string.Equals(op.side, "Opponent", StringComparison.Ordinal))
-                    {
-                        continue;
-                    }
-
-                    if (!op.TryGetAmount(out int amount))
-                    {
-                        continue;
-                    }
-
-                    if (amount < 0)
-                    {
-                        totalDamage += -amount;
-                    }
-                }
-            }
-
-            return totalDamage;
+            return $"Damage:{clashDef.damage}";
         }
 
         static bool TryClashResolveAction(DuelState duelState, string actionId, out ActionInstance action)

@@ -1,16 +1,16 @@
 # DATA_SCHEMA
-> 역할: P0에서 사용할 JSON 데이터 구조(스키마) 정의 문서입니다.
+> 역할: 현재 구현 기준 JSON 데이터 구조(스키마) 정의 문서입니다.
 
 - 마지막 갱신: `2026-02-23`
-- 직렬화: `Newtonsoft.Json`
+- 직렬화: `Newtonsoft.Json` (`JsonUtility` 금지)
 
 ---
 
 ## 1) 공통 규칙
 
-- 모든 Def(JSON 루트)는 `schemaVersion`(int)와 `id`(string)를 가진다.
-- 다른 데이터를 참조할 때는 경로가 아니라 **id로만 참조**한다.
-- 필드명은 `camelCase`를 사용한다.
+- 모든 Def(JSON 루트)는 `schemaVersion`(int) + `id`(string)를 가진다.
+- 참조는 파일 경로가 아니라 **id 문자열**로만 한다.
+- ID 네이밍은 점(`.`) 표기법을 사용한다.
 
 ---
 
@@ -18,8 +18,15 @@
 
 ### 목적
 
-- `StaticDataService` 인스펙터에 파일을 잔뜩 등록하지 않기 위해,
-  DataIndex 하나로 모든 JSON 파일 목록을 관리한다.
+- 로딩 대상 JSON 목록을 단일 파일에서 관리한다.
+
+### 필드
+
+- `configs`: config Def 경로 목록
+- `clashes`: clash Def 경로 목록
+- `actions`: action(=ability) Def 경로 목록
+- `cards`: card Def 경로 목록
+- `encounters`: encounter Def 경로 목록
 
 ### 예시
 
@@ -28,7 +35,8 @@
   "schemaVersion": 1,
   "configs": [
     "Data/duel.config.json",
-    "Data/run.config.json"
+    "Data/run.config.json",
+    "Data/player.start.json"
   ],
   "clashes": [
     "Data/clashes/clash.peak.json",
@@ -39,7 +47,8 @@
     "Data/actions/action.reservist.json",
     "Data/actions/action.miko.assassin.json",
     "Data/actions/action.dwarf.cannon.json",
-    "Data/actions/action.ratkin.json"
+    "Data/actions/action.ratkin.json",
+    "Data/actions/action.test6.json"
   ],
   "cards": [
     "Data/cards/card.squad.reserves.json",
@@ -47,13 +56,6 @@
     "Data/cards/card.squad.cannon.json",
     "Data/cards/card.squad.ratkin.json",
     "Data/cards/card.support.latest.gear.json"
-  ],
-  "skills": [
-    "Data/skills/skill.redeploy.json",
-    "Data/skills/skill.decoy.json",
-    "Data/skills/skill.risky.json",
-    "Data/skills/skill.safe.json",
-    "Data/skills/skill.reinforce.json"
   ],
   "encounters": [
     "Data/encounters/encounter.debug.01.json"
@@ -65,21 +67,17 @@
 
 ## 3) Config
 
-### DuelConfig(예)
+### DuelConfigDef
 
 ```json
 {
   "schemaVersion": 1,
   "id": "duel.config",
-
   "clashCount": 3,
   "focusMax": 5,
   "focusRegenPerTurn": 2,
   "cooldownTickPerTurn": -1,
-
   "attackResultMin": 1,
-  "greatVictoryMultiplier": 2,
-
   "p0Rules": {
     "disallowBaseAttackMutation": true,
     "defaultSlotLimit": null
@@ -91,59 +89,56 @@
 
 ## 4) ClashDef
 
-- `slotLimit`은 선택(optional)이며, 없으면 무제한
-- `outcomeEffects`는 Outcome별 EffectBlock 리스트
+- `damage`는 필수이며 `>= 1`.
+- 현재 Clash 판정 후 체력 반영은 `damage`를 사용한다.
+- `outcomeEffects`는 선택 필드(확장/호환 목적)다.
 
 ```json
 {
   "schemaVersion": 1,
   "id": "clash.peak",
-
   "slotLimit": 1,
+  "damage": 2,
   "tags": ["peak"],
-
   "nameLocKey": "clash.peak_name",
   "descLocKey": "clash.peak_desc",
-
   "outcomeEffects": {
-    "GreatVictory": [
-      { "ops": [ { "op": "ModifyHealth", "side": "Opponent", "delta": -2, "textLocKey": "effect_health_minus" } ] }
-    ],
-    "Victory": [
-      { "ops": [ { "op": "ModifyHealth", "side": "Opponent", "delta": -1, "textLocKey": "effect_health_minus" } ] }
-    ],
+    "Victory": [],
     "Draw": [],
-    "Defeat": [
-      { "ops": [ { "op": "ModifyHealth", "side": "Player", "delta": -1, "textLocKey": "effect_health_minus" } ] }
-    ],
-    "GreatDefeat": [
-      { "ops": [ { "op": "ModifyHealth", "side": "Player", "delta": -2, "textLocKey": "effect_health_minus" } ] }
-    ]
+    "Defeat": []
   }
 }
 ```
 
 ---
 
-## 5) ActionDef
+## 5) ActionDef (Ability Def)
+
+- `type`: `Attack` / `Skill` / `Passive`
+- `buildCost`: 편성 비용
+- `cooldown`: 턴 단위 쿨다운
+- `damage`:
+  - `Attack` 타입이면 `> 0` 필수
+  - `Skill/Passive`는 `0`이어야 함
+- `attack` 필드는 레거시 호환용(신규 데이터에서는 사용 금지)
 
 ```json
 {
   "schemaVersion": 1,
-  "id": "action.reservist",
-
-  "attack": 2,
-  "tags": ["reserve"],
-
-  "nameLocKey": "action.reservist_name",
-  "descLocKey": "action.reservist_desc",
-
+  "id": "action.miko.assassin",
+  "type": "Attack",
+  "buildCost": 0,
+  "cooldown": 0,
+  "damage": 4,
+  "tags": ["assassin"],
+  "nameLocKey": "action.miko.assassin_name",
+  "descLocKey": "action.miko.assassin_desc",
   "effects": [
     {
-      "timing": "TurnEnd",
-      "condition": { "type": "IsInActionHolder" },
+      "timing": "Roll",
+      "condition": { "type": "OpponentCountEquals", "value": 1 },
       "ops": [
-        { "op": "AddAttackModifier", "target": "Attack", "layer": "Duel", "mode": "Add", "value": 2, "textLocKey": "effect_attack_plus" }
+        { "op": "ModifyAttackResult", "scope": "Self", "mode": "PercentBonus", "value": 100 }
       ]
     }
   ]
@@ -152,27 +147,20 @@
 
 ---
 
-## 6) CardDef(Squad/Support)
-
-### 공통 필드
+## 6) CardDef (Squad / Support)
 
 - `type`: `Squad` 또는 `Support`
 - `supplyCost`
-- `duelStart`: Duel Start Triggers 블록
-
-### Squad 예시
+- `duelStart.summonActions`: 시작 시 생성할 action 목록
 
 ```json
 {
   "schemaVersion": 1,
   "id": "card.squad.reserves",
-
   "type": "Squad",
   "supplyCost": 1,
-
   "nameLocKey": "card_reserves_name",
   "descLocKey": "card_reserves_desc",
-
   "duelStart": {
     "summonActions": [
       { "actionId": "action.reservist", "count": 2 }
@@ -182,107 +170,83 @@
 }
 ```
 
-### Support 예시
+---
+
+## 7) EncounterDef (Enemy + Clash Loadout)
+
+### 현재 표준 구조
+
+- `enemy.id`
+- `enemy.health`
+- `enemy.clashes[]`
+  - `clashId`
+  - `abilityLoadout[]` (`actionId`, `count`)
 
 ```json
 {
   "schemaVersion": 1,
-  "id": "card.support.latest.gear",
-
-  "type": "Support",
-  "supplyCost": 1,
-
-  "nameLocKey": "card_latest_gear_name",
-  "descLocKey": "card_latest_gear_desc",
-
-  "duelStart": {
-    "ops": [
+  "id": "encounter.debug.01",
+  "enemy": {
+    "id": "enemy.debug.01",
+    "health": 10,
+    "clashes": [
       {
-        "op": "ModifyAttackResult",
-        "side": "Player",
-        "scope": "AllActions",
-        "mode": "Add",
-        "value": 1,
-        "textLocKey": "effect_face_plus"
+        "clashId": "clash.peak",
+        "abilityLoadout": [
+          { "actionId": "action.test6", "count": 2 }
+        ]
+      },
+      {
+        "clashId": "clash.ruins",
+        "abilityLoadout": [
+          { "actionId": "action.test6", "count": 1 }
+        ]
+      },
+      {
+        "clashId": "clash.forest",
+        "abilityLoadout": []
       }
     ]
   }
 }
 ```
 
----
+### 레거시 호환
 
-## 7) SkillDef
-
-```json
-{
-  "schemaVersion": 1,
-  "id": "skill.redeploy",
-
-  "focusCost": 2,
-  "cooldown": 2,
-  "timing": "Skill",
-
-  "target": { "type": "AllyAction", "count": 1 },
-
-  "nameLocKey": "skill.redeploy_name",
-  "descLocKey": "skill.redeploy_desc",
-
-  "ops": [
-    { "op": "MoveAction", "keepAttackResult": true, "textLocKey": "effect_move_keep_face" }
-  ]
-}
-```
+- `opponentHealth`, `plans`도 로더/세션빌더에서 fallback으로 지원한다.
+- 신규 데이터는 `enemy` 구조를 사용한다.
 
 ---
 
-## 8) EncounterDef(Opponent Intent)
-
-> 프로토타입은 “의도 완전 공개”이므로, EncounterDef는 UI에 그대로 보여줄 구조를 가진다.
-
-```json
-{
-  "schemaVersion": 1,
-  "id": "encounter.debug.01",
-
-  "opponentHealth": 10,
-  "plans": [
-    { "clashIndex": 0, "actions": [ { "actionId": "action.miko.assassin", "count": 1 } ] },
-    { "clashIndex": 1, "actions": [ { "actionId": "action.ratkin", "count": 2 } ] },
-    { "clashIndex": 2, "actions": [ { "actionId": "action.ratkin", "count": 1 } ] }
-  ]
-}
-```
-
----
-
-## 9) Effect 스펙(P0)
+## 8) Effect 스펙(현재 허용 OpCode)
 
 ### Timing
 
-- DuelStart / Deploy / Roll / Skill / ClashResolve / TurnEnd
-- (권장) RollFinalize: 굴림 후 눈 보정 적용 단계
+- `DuelStart`
+- `Deploy`
+- `Roll`
+- `Skill`
+- `ClashResolve`
+- `TurnEnd`
 
 ### Condition(type)
 
-- Always
-- OpponentCountEquals
-  - `value` 또는 `count`로 비교값 지정(둘 다 없으면 1로 처리)
-- IsInActionHolder
-- HasTag
-  - `tag` 필드로 검사할 태그 지정
+- `Always`
+- `OpponentCountEquals`
+- `IsInActionHolder`
+- `HasTag`
 
 ### OpCode(op)
 
-- ModifyAttackResult
-- MoveAction
-- MoveOpponentAction
-- ModifyTotalAttack
-- TransformOutcome
-- ModifyHealth
-- AddAttackModifier
+- `ModifyAttackResult`
+- `MoveAction`
+- `MoveOpponentAction`
+- `ModifyTotalAttack`
+- `ModifyHealth`
+- `AddAttackModifier`
 
-> P0 금지: ModifyPower 류 op
+### 제약
 
-- `AddAttackModifier.layer`는 `Duel` / `Permanent`만 허용(대소문자 구분).
-- 수치 입력은 `value` / `amount` / `delta` 중 최소 1개가 필요하다.
+- `AddAttackModifier.layer`: `Duel` / `Permanent`만 허용(대소문자 구분).
+- 수치 입력은 `value` / `amount` / `delta` 중 최소 1개 필요.
+- `TransformOutcome`는 현재 스키마에서 사용하지 않는다.
