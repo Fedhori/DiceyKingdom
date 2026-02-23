@@ -136,7 +136,7 @@ namespace Game.Infrastructure.Data
                         "startingPlayerHealth must be greater than zero.");
                 }
 
-                List<string> startingBagAbilityIds = database.playerStart.ResolveStartingBagAbilityIds();
+                List<string> startingBagAbilityIds = database.playerStart.startingBagAbilityIds;
                 if (startingBagAbilityIds == null || startingBagAbilityIds.Count <= 0)
                 {
                     report.AddError(
@@ -274,127 +274,130 @@ namespace Game.Infrastructure.Data
                     ? foundPath
                     : string.Empty;
 
-                if (encounterDef.enemy != null &&
-                    !string.IsNullOrWhiteSpace(encounterDef.enemy.id) &&
-                    encounterDef.enemy.clashes != null &&
-                    encounterDef.enemy.clashes.Count > 0)
+                if (encounterDef.enemy == null)
                 {
-                    if (encounterDef.enemy.health <= 0)
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        path,
+                        id,
+                        "enemy must not be null.");
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(encounterDef.enemy.id))
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        path,
+                        id,
+                        "enemy.id must not be empty.");
+                }
+
+                if (encounterDef.enemy.health <= 0)
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        path,
+                        id,
+                        "enemy.health must be greater than zero.");
+                }
+
+                if (encounterDef.enemy.clashes == null || encounterDef.enemy.clashes.Count <= 0)
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        path,
+                        id,
+                        "enemy.clashes must contain at least one entry.");
+                    continue;
+                }
+
+                for (int clashIndex = 0; clashIndex < encounterDef.enemy.clashes.Count; clashIndex++)
+                {
+                    EncounterEnemyClashDef enemyClash = encounterDef.enemy.clashes[clashIndex];
+                    if (enemyClash == null)
                     {
                         report.AddError(
                             GameDataErrorCode.InvalidValue,
                             path,
                             id,
-                            "enemy.health must be greater than zero.");
+                            $"enemy.clashes[{clashIndex}] is null.");
+                        continue;
                     }
 
-                    for (int clashIndex = 0; clashIndex < encounterDef.enemy.clashes.Count; clashIndex++)
+                    if (string.IsNullOrWhiteSpace(enemyClash.clashId))
                     {
-                        EncounterEnemyClashDef enemyClash = encounterDef.enemy.clashes[clashIndex];
-                        if (enemyClash == null)
-                        {
-                            report.AddError(
-                                GameDataErrorCode.InvalidValue,
-                                path,
-                                id,
-                                $"enemy.clashes[{clashIndex}] is null.");
-                            continue;
-                        }
-
-                        if (string.IsNullOrWhiteSpace(enemyClash.clashId))
-                        {
-                            report.AddError(
-                                GameDataErrorCode.InvalidValue,
-                                path,
-                                id,
-                                $"enemy.clashes[{clashIndex}].clashId must not be empty.");
-                        }
-                        else if (!database.clashesById.ContainsKey(enemyClash.clashId))
-                        {
-                            report.AddError(
-                                GameDataErrorCode.MissingReference,
-                                path,
-                                id,
-                                $"enemy.clashes[{clashIndex}].clashId('{enemyClash.clashId}') does not exist.");
-                        }
-
-                        if (enemyClash.abilityLoadout == null)
-                        {
-                            report.AddError(
-                                GameDataErrorCode.InvalidValue,
-                                path,
-                                id,
-                                $"enemy.clashes[{clashIndex}].abilityLoadout must not be null.");
-                            continue;
-                        }
-
-                        for (int abilityIndex = 0; abilityIndex < enemyClash.abilityLoadout.Count; abilityIndex++)
-                        {
-                            SummonAbilityRefDef abilityRef = enemyClash.abilityLoadout[abilityIndex];
-                            if (abilityRef == null)
-                            {
-                                report.AddError(
-                                    GameDataErrorCode.InvalidValue,
-                                    path,
-                                    id,
-                                    $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}] is null.");
-                                continue;
-                            }
-
-                            if (string.IsNullOrWhiteSpace(abilityRef.abilityId))
-                            {
-                                report.AddError(
-                                    GameDataErrorCode.InvalidValue,
-                                    path,
-                                    id,
-                                    $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}].abilityId must not be empty.");
-                            }
-                            else if (!database.abilitiesById.ContainsKey(abilityRef.abilityId))
-                            {
-                                report.AddError(
-                                    GameDataErrorCode.MissingReference,
-                                    path,
-                                    id,
-                                    $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}].abilityId('{abilityRef.abilityId}') does not exist.");
-                            }
-
-                            if (abilityRef.count < 0)
-                            {
-                                report.AddError(
-                                    GameDataErrorCode.InvalidValue,
-                                    path,
-                                    id,
-                                    $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}].count must be greater than or equal to 0.");
-                            }
-                        }
+                        report.AddError(
+                            GameDataErrorCode.InvalidValue,
+                            path,
+                            id,
+                            $"enemy.clashes[{clashIndex}].clashId must not be empty.");
+                    }
+                    else if (!database.clashesById.ContainsKey(enemyClash.clashId))
+                    {
+                        report.AddError(
+                            GameDataErrorCode.MissingReference,
+                            path,
+                            id,
+                            $"enemy.clashes[{clashIndex}].clashId('{enemyClash.clashId}') does not exist.");
                     }
 
-                    continue;
-                }
-
-                for (int planIndex = 0; planIndex < encounterDef.plans.Count; planIndex++)
-                {
-                    EncounterPlanDef plan = encounterDef.plans[planIndex];
-                    if (plan.clashIndex < 0 || plan.clashIndex >= clashCount)
+                    if (clashIndex >= clashCount)
                     {
                         report.AddError(
                             GameDataErrorCode.InvalidIndex,
                             path,
                             id,
-                            $"plans[{planIndex}].clashIndex({plan.clashIndex}) is out of range.");
+                            $"enemy.clashes[{clashIndex}] exceeds duel.config.clashCount({clashCount}).");
                     }
 
-                    List<SummonAbilityRefDef> plannedAbilities = plan.ResolveAbilities();
-                    for (int actionIndex = 0; actionIndex < plannedAbilities.Count; actionIndex++)
+                    if (enemyClash.abilityLoadout == null)
                     {
-                        SummonAbilityRefDef actionRef = plannedAbilities[actionIndex];
-                        if (!database.abilitiesById.ContainsKey(actionRef.abilityId))
+                        report.AddError(
+                            GameDataErrorCode.InvalidValue,
+                            path,
+                            id,
+                            $"enemy.clashes[{clashIndex}].abilityLoadout must not be null.");
+                        continue;
+                    }
+
+                    for (int abilityIndex = 0; abilityIndex < enemyClash.abilityLoadout.Count; abilityIndex++)
+                    {
+                        SummonAbilityRefDef abilityRef = enemyClash.abilityLoadout[abilityIndex];
+                        if (abilityRef == null)
+                        {
+                            report.AddError(
+                                GameDataErrorCode.InvalidValue,
+                                path,
+                                id,
+                                $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}] is null.");
+                            continue;
+                        }
+
+                        if (string.IsNullOrWhiteSpace(abilityRef.abilityId))
+                        {
+                            report.AddError(
+                                GameDataErrorCode.InvalidValue,
+                                path,
+                                id,
+                                $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}].abilityId must not be empty.");
+                        }
+                        else if (!database.abilitiesById.ContainsKey(abilityRef.abilityId))
                         {
                             report.AddError(
                                 GameDataErrorCode.MissingReference,
                                 path,
                                 id,
-                                $"plans[{planIndex}].abilities[{actionIndex}].abilityId('{actionRef.abilityId}') does not exist.");
+                                $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}].abilityId('{abilityRef.abilityId}') does not exist.");
+                        }
+
+                        if (abilityRef.count < 0)
+                        {
+                            report.AddError(
+                                GameDataErrorCode.InvalidValue,
+                                path,
+                                id,
+                                $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}].count must be greater than or equal to 0.");
                         }
                     }
                 }

@@ -12,14 +12,8 @@ namespace Game.Infrastructure.Data
         [JsonProperty("id", Required = Required.Always)]
         public string id { get; private set; } = string.Empty;
 
-        [JsonProperty("enemy", Required = Required.Default)]
+        [JsonProperty("enemy", Required = Required.Always)]
         public EncounterEnemyDef enemy = new();
-
-        [JsonProperty("opponentHealth", Required = Required.Default)]
-        public int opponentHealth;
-
-        [JsonProperty("plans", Required = Required.Default)]
-        public List<EncounterPlanDef> plans = new();
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -45,26 +39,4 @@ namespace Game.Infrastructure.Data
         public List<SummonAbilityRefDef> abilityLoadout = new();
     }
 
-    [JsonObject(MemberSerialization.OptIn)]
-    public sealed class EncounterPlanDef
-    {
-        [JsonProperty("clashIndex", Required = Required.Always)]
-        public int clashIndex;
-
-        [JsonProperty("abilities", Required = Required.Default)]
-        public List<SummonAbilityRefDef> abilities = new();
-
-        [JsonProperty("actions", Required = Required.Default)]
-        public List<SummonAbilityRefDef> legacyActions = new();
-
-        public List<SummonAbilityRefDef> ResolveAbilities()
-        {
-            if (abilities != null && abilities.Count > 0)
-            {
-                return abilities;
-            }
-
-            return legacyActions ?? new List<SummonAbilityRefDef>();
-        }
-    }
 }

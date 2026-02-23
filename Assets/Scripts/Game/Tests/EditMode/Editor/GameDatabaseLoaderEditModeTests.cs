@@ -29,7 +29,7 @@ namespace Game.Tests.EditMode
             Dictionary<string, string> files = CreateValidDataSet();
             files["Data/encounters/encounter.1.json"] =
 @"{
-  ""schemaVersion"": 1,
+  ""schemaVersion"": 2,
   ""id"": ""encounter.1"",
   ""enemy"": {
     ""id"": ""enemy.debug"",
@@ -65,7 +65,7 @@ namespace Game.Tests.EditMode
             Dictionary<string, string> files = CreateValidDataSet();
             files["Data/abilities/ability.1.json"] =
 @"{
-  ""schemaVersion"": 1,
+  ""schemaVersion"": 2,
   ""id"": ""ability.1"",
   ""type"": ""Attack"",
   ""buildCost"": 0,
@@ -102,7 +102,7 @@ namespace Game.Tests.EditMode
             Dictionary<string, string> files = CreateValidDataSet();
             files["Data/abilities/ability.1.json"] =
 @"{
-  ""schemaVersion"": 1,
+  ""schemaVersion"": 2,
   ""id"": ""ability.1"",
   ""type"": ""Attack"",
   ""buildCost"": 0,
@@ -146,7 +146,7 @@ namespace Game.Tests.EditMode
             {
                 ["Data/DataIndex.json"] =
 @"{
-  ""schemaVersion"": 1,
+  ""schemaVersion"": 2,
   ""configs"": [""Data/duel.config.json"", ""Data/run.config.json"", ""Data/player.start.json""],
   ""clashes"": [""Data/clashes/clash.1.json""],
   ""abilities"": [""Data/abilities/ability.1.json""],
@@ -154,7 +154,7 @@ namespace Game.Tests.EditMode
 }",
                 ["Data/duel.config.json"] =
 @"{
-  ""schemaVersion"": 1,
+  ""schemaVersion"": 2,
   ""id"": ""duel.config"",
   ""clashCount"": 1,
   ""cooldownTickPerTurn"": -1,
@@ -166,14 +166,14 @@ namespace Game.Tests.EditMode
 }",
                 ["Data/run.config.json"] =
 @"{
-  ""schemaVersion"": 1,
+  ""schemaVersion"": 2,
   ""id"": ""run.config"",
   ""startingHonor"": 3,
   ""capacity"": 5
 }",
                 ["Data/player.start.json"] =
 @"{
-  ""schemaVersion"": 1,
+  ""schemaVersion"": 2,
   ""id"": ""player.start"",
   ""startingHonor"": 3,
   ""startingPlayerHealth"": 10,
@@ -181,7 +181,7 @@ namespace Game.Tests.EditMode
 }",
                 ["Data/clashes/clash.1.json"] =
 @"{
-  ""schemaVersion"": 1,
+  ""schemaVersion"": 2,
   ""id"": ""clash.1"",
   ""slotLimit"": null,
   ""damage"": 1,
@@ -196,7 +196,7 @@ namespace Game.Tests.EditMode
 }",
                 ["Data/abilities/ability.1.json"] =
 @"{
-  ""schemaVersion"": 1,
+  ""schemaVersion"": 2,
   ""id"": ""ability.1"",
   ""type"": ""Attack"",
   ""buildCost"": 0,
@@ -208,7 +208,7 @@ namespace Game.Tests.EditMode
 }",
                 ["Data/encounters/encounter.1.json"] =
 @"{
-  ""schemaVersion"": 1,
+  ""schemaVersion"": 2,
   ""id"": ""encounter.1"",
   ""enemy"": {
     ""id"": ""enemy.debug"",

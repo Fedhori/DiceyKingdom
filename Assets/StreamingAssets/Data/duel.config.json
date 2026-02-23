@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "duel.config",
   "clashCount": 3,
   "cooldownTickPerTurn": -1,

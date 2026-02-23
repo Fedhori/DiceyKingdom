@@ -15,26 +15,10 @@ namespace Game.Infrastructure.Data
         [JsonProperty("startingHonor", Required = Required.Always)]
         public int startingHonor;
 
-        [JsonProperty("startingFocus", Required = Required.Default)]
-        public int startingFocus;
-
         [JsonProperty("startingPlayerHealth", Required = Required.Always)]
         public int startingPlayerHealth;
 
-        [JsonProperty("startingBagAbilityIds", Required = Required.Default)]
+        [JsonProperty("startingBagAbilityIds", Required = Required.Always)]
         public List<string> startingBagAbilityIds = new();
-
-        [JsonProperty("startingAbilityDeckIds", Required = Required.Default)]
-        public List<string> legacyStartingAbilityDeckIds = new();
-
-        public List<string> ResolveStartingBagAbilityIds()
-        {
-            if (startingBagAbilityIds != null && startingBagAbilityIds.Count > 0)
-            {
-                return startingBagAbilityIds;
-            }
-
-            return legacyStartingAbilityDeckIds ?? new List<string>();
-        }
     }
 }

@@ -14,12 +14,6 @@ namespace Game.Infrastructure.Data
         [JsonProperty("clashCount", Required = Required.Always)]
         public int clashCount;
 
-        [JsonProperty("focusMax", Required = Required.Default)]
-        public int? legacyFocusMax;
-
-        [JsonProperty("focusRegenPerTurn", Required = Required.Default)]
-        public int? legacyFocusRegenPerTurn;
-
         [JsonProperty("cooldownTickPerTurn", Required = Required.Always)]
         public int cooldownTickPerTurn;
 

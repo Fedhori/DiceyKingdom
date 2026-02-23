@@ -14,7 +14,7 @@ namespace Game.Infrastructure.Data
 
             database.duelConfig = Deserialize<DuelConfigDef>(
 @"{
-  ""schemaVersion"": 1,
+  ""schemaVersion"": 2,
   ""id"": ""duel.config"",
   ""clashCount"": 3,
   ""cooldownTickPerTurn"": -1,
@@ -28,7 +28,7 @@ namespace Game.Infrastructure.Data
 
             database.runConfig = Deserialize<RunConfigDef>(
 @"{
-  ""schemaVersion"": 1,
+  ""schemaVersion"": 2,
   ""id"": ""run.config"",
   ""startingHonor"": 3,
   ""capacity"": 5
@@ -37,7 +37,7 @@ namespace Game.Infrastructure.Data
 
             database.playerStart = Deserialize<PlayerStartDef>(
 @"{
-  ""schemaVersion"": 1,
+  ""schemaVersion"": 2,
   ""id"": ""player.start"",
   ""startingHonor"": 3,
   ""startingPlayerHealth"": 10,
@@ -56,7 +56,7 @@ namespace Game.Infrastructure.Data
                 string id = $"fallback.clash.{i}";
                 ClashDef def = Deserialize<ClashDef>(
 $@"{{
-  ""schemaVersion"": 1,
+  ""schemaVersion"": 2,
   ""id"": ""{id}"",
   ""slotLimit"": null,
   ""damage"": 1,

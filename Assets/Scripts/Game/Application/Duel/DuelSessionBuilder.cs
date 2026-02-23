@@ -166,7 +166,7 @@ namespace Game.Application.Duel
                 isDuelEnded = false,
                 honor = database.playerStart.startingHonor,
                 playerHealth = Mathf.Max(1, database.playerStart.startingPlayerHealth),
-                opponentHealth = Mathf.Max(1, ResolveEncounterOpponentHealth(encounterDef))
+                opponentHealth = Mathf.Max(1, encounterDef.enemy.health)
             };
 
             nextState.abilityHolderAbilityIds.Clear();
@@ -178,21 +178,6 @@ namespace Game.Application.Duel
             PopulateBagFromPlayerStart(nextState);
 
             return nextState;
-        }
-
-        int ResolveEncounterOpponentHealth(EncounterDef encounterDef)
-        {
-            if (encounterDef?.enemy != null && encounterDef.enemy.health > 0)
-            {
-                return encounterDef.enemy.health;
-            }
-
-            if (encounterDef != null && encounterDef.opponentHealth > 0)
-            {
-                return encounterDef.opponentHealth;
-            }
-
-            return 1;
         }
 
         void InitializeClashSlots(DuelState state, EncounterDef encounterDef)
@@ -307,42 +292,11 @@ namespace Game.Application.Duel
 
                 return;
             }
-
-            if (encounterDef?.plans == null)
-            {
-                return;
-            }
-
-            for (int planIndex = 0; planIndex < encounterDef.plans.Count; planIndex++)
-            {
-                EncounterPlanDef plan = encounterDef.plans[planIndex];
-                if (plan == null)
-                {
-                    continue;
-                }
-
-                List<SummonAbilityRefDef> plannedAbilities = plan.ResolveAbilities();
-                for (int abilityIndex = 0; abilityIndex < plannedAbilities.Count; abilityIndex++)
-                {
-                    SummonAbilityRefDef abilityRef = plannedAbilities[abilityIndex];
-                    if (abilityRef == null || abilityRef.count <= 0 || string.IsNullOrWhiteSpace(abilityRef.abilityId))
-                    {
-                        continue;
-                    }
-
-                    state.intent.Add(new IntentEntry
-                    {
-                        clashIndex = plan.clashIndex,
-                        abilityDefId = abilityRef.abilityId,
-                        count = abilityRef.count
-                    });
-                }
-            }
         }
 
         void PopulateBagFromPlayerStart(DuelState state)
         {
-            List<string> startingAbilityIds = database.playerStart.ResolveStartingBagAbilityIds();
+            List<string> startingAbilityIds = database.playerStart.startingBagAbilityIds;
             if (startingAbilityIds == null)
             {
                 Debug.LogWarning("[DuelSessionBuilder] startingBagAbilityIds is missing.");

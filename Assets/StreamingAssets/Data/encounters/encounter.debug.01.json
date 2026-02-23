@@ -1,5 +1,5 @@
 {
-	"schemaVersion": 1,
+	"schemaVersion": 2,
 	"id": "encounter.debug.01",
 	"enemy": {
 		"id": "enemy.debug.01",
