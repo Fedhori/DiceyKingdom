@@ -9,7 +9,7 @@
 
 - 동일 개념은 항상 동일 용어로 표기한다.
 - 신규 코드/데이터는 아래 EN 용어를 우선 사용한다.
-- 구용어(Action, Retreat, Opponent Intent, Reserves, Roster Deck, Focus)는 신규 작성에서 사용하지 않는다.
+- 구용어는 신규 작성에서 사용하지 않는다.
 
 ---
 
@@ -33,20 +33,4 @@
 | 상태 | 명예 | Honor | Surrender 가능 여부를 결정 |
 | 메타 | 용량 | Capacity | 준비 단계 편성 상한 |
 | 행동 | 항복 | Surrender | 결투 즉시 종료(보상 없음) |
-
----
-
-## 3) 구용어 매핑
-
-| 구용어 | 신용어 |
-|---|---|
-| Action | Ability |
-| ActionHolder | AbilityHolder (UI 표기: Bag) |
-| Opponent Intent | Intent |
-| Retreat | Surrender |
-| Roster Deck | Ability Deck |
-| Reserves | Bag |
-| Supply Limit | Capacity |
-| Supply Cost | Cost |
-| Focus | 제거(전투 자원 미사용) |
 

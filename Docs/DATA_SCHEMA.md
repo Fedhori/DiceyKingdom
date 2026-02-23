@@ -24,7 +24,7 @@
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "configs": [
     "Data/duel.config.json",
     "Data/run.config.json",
@@ -53,9 +53,8 @@
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "duel.config",
-  "clashCount": 3,
   "cooldownTickPerTurn": -1,
   "attackResultMin": 1,
   "p0Rules": {
@@ -69,7 +68,7 @@
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "run.config",
   "startingHonor": 3,
   "capacity": 6
@@ -80,7 +79,7 @@
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "player.start",
   "startingHonor": 3,
   "startingPlayerHealth": 10,
@@ -97,7 +96,7 @@
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "clash.peak",
   "slotLimit": 1,
   "damage": 2,
@@ -126,7 +125,7 @@
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "ability.miko.assassin",
   "type": "Attack",
   "buildCost": 0,
@@ -146,13 +145,13 @@
 현재 표준:
 - `enemy.id`
 - `enemy.health`
-- `enemy.clashes[]`
+- `enemy.clashes[]` (필수, 1개 이상)
   - `clashId`
   - `abilityLoadout[]` (`abilityId`, `count`)
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "encounter.debug.01",
   "enemy": {
     "id": "enemy.debug.01",
@@ -179,4 +178,11 @@
 - `ModifyTotalAttack`
 - `ModifyHealth`
 - `AddAttackModifier`
+
+조건 타입(P0):
+- `Always`
+- `IsInBag`
+- `OpponentCountEquals`
+- `HasTag`
+
 

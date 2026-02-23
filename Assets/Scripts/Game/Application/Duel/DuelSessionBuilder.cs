@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Game.Domain.Duel;
 using Game.Infrastructure.Data;
 using UnityEngine;
@@ -79,6 +78,18 @@ namespace Game.Application.Duel
                 return false;
             }
 
+            if (encounterDef.enemy == null)
+            {
+                failureMessage = $"encounter('{encounterId}') enemy is missing.";
+                return false;
+            }
+
+            if (encounterDef.enemy.clashes == null || encounterDef.enemy.clashes.Count <= 0)
+            {
+                failureMessage = $"encounter('{encounterId}') enemy.clashes is missing or empty.";
+                return false;
+            }
+
             state = CreateInitialDuelState(encounterDef);
             return true;
         }
@@ -150,7 +161,7 @@ namespace Game.Application.Duel
 
                     AbilityInstance abilityInstance = CreateAbilityInstance(abilityDef);
                     state.abilitiesById[abilityInstance.instanceId] = abilityInstance;
-                    deployClash.opponentActionIds.Add(abilityInstance.instanceId);
+                    deployClash.opponentAbilityIds.Add(abilityInstance.instanceId);
                     deployedCount += 1;
                 }
             }
@@ -169,7 +180,7 @@ namespace Game.Application.Duel
                 opponentHealth = Mathf.Max(1, encounterDef.enemy.health)
             };
 
-            nextState.abilityHolderAbilityIds.Clear();
+            nextState.bagAbilityIds.Clear();
             nextState.abilitiesById.Clear();
             nextState.intent.Clear();
 
@@ -185,29 +196,30 @@ namespace Game.Application.Duel
             state.clashes.Clear();
 
             List<EncounterEnemyClashDef> enemyClashes = ResolveEncounterEnemyClashes(encounterDef);
-            List<ClashDef> fallbackOrderedDefs = ResolveFallbackClashes(enemyClashes.Count <= 0);
-            int targetCount = enemyClashes.Count > 0
-                ? enemyClashes.Count
-                : Mathf.Max(1, database.duelConfig.clashCount);
+            int targetCount = enemyClashes.Count;
 
             for (int i = 0; i < targetCount; i++)
             {
-                string clashIdFromEnemy = i < enemyClashes.Count
-                    ? enemyClashes[i].clashId
-                    : string.Empty;
+                string clashIdFromEnemy = enemyClashes[i].clashId;
 
-                ClashDef sourceDef = ResolveClashDef(i, clashIdFromEnemy, fallbackOrderedDefs);
+                ClashDef sourceDef = ResolveClashDef(clashIdFromEnemy);
                 int? resolvedSlotLimit = sourceDef != null
                     ? sourceDef.slotLimit
                     : database.duelConfig.p0Rules.defaultSlotLimit;
 
                 var clashState = new ClashState
                 {
-                    clashId = sourceDef?.id ?? $"missing_clash_{i}",
+                    clashId = sourceDef?.id ?? clashIdFromEnemy,
                     slotLimit = resolvedSlotLimit,
                     totalAttackBonusPlayer = 0,
                     totalAttackBonusOpponent = 0
                 };
+
+                if (sourceDef == null)
+                {
+                    Debug.LogWarning(
+                        $"[DuelSessionBuilder] clashDef('{clashIdFromEnemy}') is missing. defaultSlotLimit will be used.");
+                }
 
                 clashState.EnsureInitialized();
                 state.clashes.Add(clashState);
@@ -222,39 +234,33 @@ namespace Game.Application.Duel
                 return new List<EncounterEnemyClashDef>();
             }
 
-            return encounterDef.enemy.clashes
-                .Where(entry => entry != null)
-                .ToList();
+            var result = new List<EncounterEnemyClashDef>(encounterDef.enemy.clashes.Count);
+            for (int i = 0; i < encounterDef.enemy.clashes.Count; i++)
+            {
+                EncounterEnemyClashDef clash = encounterDef.enemy.clashes[i];
+                if (clash == null)
+                {
+                    Debug.LogWarning($"[DuelSessionBuilder] encounter enemy.clashes[{i}] is null and has been skipped.");
+                    continue;
+                }
+
+                result.Add(clash);
+            }
+
+            return result;
         }
 
-        List<ClashDef> ResolveFallbackClashes(bool shouldResolve)
+        ClashDef ResolveClashDef(string clashIdFromEnemy)
         {
-            if (!shouldResolve || database.clashesById == null)
+            if (string.IsNullOrWhiteSpace(clashIdFromEnemy))
             {
                 return null;
             }
 
-            return database.clashesById
-                .Values
-                .OrderBy(def => def.id, StringComparer.Ordinal)
-                .ToList();
-        }
-
-        ClashDef ResolveClashDef(
-            int clashIndex,
-            string clashIdFromEnemy,
-            List<ClashDef> fallbackOrderedDefs)
-        {
-            if (!string.IsNullOrWhiteSpace(clashIdFromEnemy) &&
-                database.clashesById != null &&
+            if (database.clashesById != null &&
                 database.clashesById.TryGetValue(clashIdFromEnemy, out ClashDef foundByEnemyId))
             {
                 return foundByEnemyId;
-            }
-
-            if (fallbackOrderedDefs != null && clashIndex < fallbackOrderedDefs.Count)
-            {
-                return fallbackOrderedDefs[clashIndex];
             }
 
             return null;
@@ -320,7 +326,7 @@ namespace Game.Application.Duel
 
                 AbilityInstance abilityInstance = CreateAbilityInstance(abilityDef);
                 state.abilitiesById[abilityInstance.instanceId] = abilityInstance;
-                state.abilityHolderAbilityIds.Add(abilityInstance.instanceId);
+                state.bagAbilityIds.Add(abilityInstance.instanceId);
             }
         }
 
@@ -411,7 +417,8 @@ namespace Game.Application.Duel
                 return true;
             }
 
-            return clash.opponentActionIds.Count < clash.slotLimit.Value;
+            return clash.opponentAbilityIds.Count < clash.slotLimit.Value;
         }
     }
 }
+

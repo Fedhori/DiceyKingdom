@@ -19,14 +19,15 @@ namespace Game.Tests.EditMode
                 playerHealth = 5,
                 opponentHealth = 5
             };
+            AddClashes(state, 3);
 
             state.clashes[0].clashId = "clash.0";
             state.clashes[1].clashId = "clash.0";
             state.clashes[2].clashId = "clash.0";
-            state.abilitiesById["p0"] = CreateAction("ability.player", 3);
-            state.abilitiesById["e0"] = CreateAction("ability.opponent", 2);
-            state.clashes[0].playerActionIds.Add("p0");
-            state.clashes[0].opponentActionIds.Add("e0");
+            state.abilitiesById["p0"] = CreateAbility("ability.player", 3);
+            state.abilitiesById["e0"] = CreateAbility("ability.opponent", 2);
+            state.clashes[0].playerAbilityIds.Add("p0");
+            state.clashes[0].opponentAbilityIds.Add("e0");
 
             var runner = new DuelPhaseRunner(state);
             var processor = new DuelTurnProcessor(database);
@@ -58,16 +59,17 @@ namespace Game.Tests.EditMode
                 playerHealth = 5,
                 opponentHealth = 5
             };
+            AddClashes(state, 3);
 
             state.clashes[0].clashId = "clash.0";
             state.clashes[1].clashId = "clash.0";
             state.clashes[2].clashId = "clash.0";
-            state.abilitiesById["p0"] = CreateAction("ability.player", 2);
+            state.abilitiesById["p0"] = CreateAbility("ability.player", 2);
             state.abilitiesById["p0"].cooldownTurns = 2;
             state.abilitiesById["p0"].cooldownRemaining = 2;
-            state.abilitiesById["e0"] = CreateAction("ability.opponent", 2);
-            state.clashes[0].playerActionIds.Add("p0");
-            state.clashes[0].opponentActionIds.Add("e0");
+            state.abilitiesById["e0"] = CreateAbility("ability.opponent", 2);
+            state.clashes[0].playerAbilityIds.Add("p0");
+            state.clashes[0].opponentAbilityIds.Add("e0");
 
             var runner = new DuelPhaseRunner(state);
             var processor = new DuelTurnProcessor(database);
@@ -86,7 +88,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void TryRollAllDeployedActions_AppliesRollTimedEffects()
+        public void TryRollAllDeployedAbilities_AppliesRollTimedEffects()
         {
             GameDatabase database = CreateDatabase();
             database.abilitiesById["ability.player"] = CreateRollEffectAbilityDef();
@@ -96,13 +98,14 @@ namespace Game.Tests.EditMode
                 playerHealth = 5,
                 opponentHealth = 5
             };
+            AddClashes(state, 1);
 
             state.abilitiesById["p0"] = new AbilityInstance
             {
                 abilityDefId = "ability.player",
                 attack = 1
             };
-            state.clashes[0].playerActionIds.Add("p0");
+            state.clashes[0].playerAbilityIds.Add("p0");
 
             var runner = new DuelPhaseRunner(state);
             var processor = new DuelTurnProcessor(database);
@@ -111,14 +114,14 @@ namespace Game.Tests.EditMode
             Assert.IsTrue(runner.AdvanceToNextPhase()); // OpponentSetup
             Assert.IsTrue(runner.AdvanceToNextPhase()); // PlayerSetup
 
-            bool success = processor.TryRollAllDeployedActions(
+            bool success = processor.TryRollAllDeployedAbilities(
                 state,
                 runner,
                 out DuelRollResult result,
                 out string failureMessage);
 
             Assert.IsTrue(success, failureMessage);
-            Assert.AreEqual(1, result.rolledActionCount);
+            Assert.AreEqual(1, result.rolledAbilityCount);
             Assert.AreEqual(1, result.timedEffectResult.appliedCount);
             Assert.AreEqual(2, state.abilitiesById["p0"].attackResult);
             Assert.AreEqual(DuelPhase.Skill, runner.currentPhase);
@@ -140,7 +143,6 @@ namespace Game.Tests.EditMode
             {
                 duelConfig = new DuelConfigDef
                 {
-                    clashCount = 3,
                     cooldownTickPerTurn = -1,
                     attackResultMin = 1,
                     p0Rules = new P0RulesDef
@@ -204,7 +206,7 @@ namespace Game.Tests.EditMode
             };
         }
 
-        static AbilityInstance CreateAction(string abilityDefId, int attackResult)
+        static AbilityInstance CreateAbility(string abilityDefId, int attackResult)
         {
             return new AbilityInstance
             {
@@ -214,5 +216,16 @@ namespace Game.Tests.EditMode
                 attackResult = attackResult
             };
         }
+
+        static void AddClashes(DuelState state, int count)
+        {
+            state.clashes.Clear();
+            for (int i = 0; i < count; i++)
+            {
+                state.clashes.Add(new ClashState());
+            }
+        }
     }
 }
+
+

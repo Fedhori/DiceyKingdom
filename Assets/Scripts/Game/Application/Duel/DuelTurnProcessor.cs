@@ -10,14 +10,14 @@ namespace Game.Application.Duel
 {
     public readonly struct DuelRollResult
     {
-        public int rolledActionCount { get; }
+        public int rolledAbilityCount { get; }
         public AbilityTimedEffectRunResult timedEffectResult { get; }
 
         public DuelRollResult(
-            int rolledActionCount,
+            int rolledAbilityCount,
             AbilityTimedEffectRunResult timedEffectResult)
         {
-            this.rolledActionCount = rolledActionCount;
+            this.rolledAbilityCount = rolledAbilityCount;
             this.timedEffectResult = timedEffectResult;
         }
     }
@@ -78,7 +78,7 @@ namespace Game.Application.Duel
             timedEffectRunner = new AbilityTimedEffectRunner(this.database, this.effectClashResolver);
         }
 
-        public bool TryRollAllDeployedActions(
+        public bool TryRollAllDeployedAbilities(
             DuelState state,
             DuelPhaseRunner phaseRunner,
             out DuelRollResult result,
@@ -128,15 +128,15 @@ namespace Game.Application.Duel
                 return false;
             }
 
-            var deployedActionIds = CollectDeployedActionIds(state);
-            if (deployedActionIds.Count <= 0)
+            var deployedAbilityIds = CollectDeployedAbilityIds(state);
+            if (deployedAbilityIds.Count <= 0)
             {
                 failureMessage = "no deployed abilities to roll.";
                 return false;
             }
 
             int rolledCount = 0;
-            foreach (string abilityId in deployedActionIds)
+            foreach (string abilityId in deployedAbilityIds)
             {
                 if (!state.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) || ability == null)
                 {
@@ -149,7 +149,7 @@ namespace Game.Application.Duel
                     continue;
                 }
 
-                DuelSimulator.RollAction(ability);
+                DuelSimulator.RollAbility(ability);
                 rolledCount += 1;
             }
 
@@ -411,13 +411,13 @@ namespace Game.Application.Duel
             return clashDef;
         }
 
-        static HashSet<string> CollectDeployedActionIds(DuelState state)
+        static HashSet<string> CollectDeployedAbilityIds(DuelState state)
         {
-            var deployedActionIds = new HashSet<string>(StringComparer.Ordinal);
+            var deployedAbilityIds = new HashSet<string>(StringComparer.Ordinal);
 
             if (state.clashes == null)
             {
-                return deployedActionIds;
+                return deployedAbilityIds;
             }
 
             for (int clashIndex = 0; clashIndex < state.clashes.Count; clashIndex++)
@@ -429,14 +429,14 @@ namespace Game.Application.Duel
                 }
 
                 clash.EnsureInitialized();
-                CollectActionIds(deployedActionIds, clash.playerActionIds, $"playerActionIds[{clashIndex}]");
-                CollectActionIds(deployedActionIds, clash.opponentActionIds, $"opponentActionIds[{clashIndex}]");
+                CollectAbilityIds(deployedAbilityIds, clash.playerAbilityIds, $"playerAbilityIds[{clashIndex}]");
+                CollectAbilityIds(deployedAbilityIds, clash.opponentAbilityIds, $"opponentAbilityIds[{clashIndex}]");
             }
 
-            return deployedActionIds;
+            return deployedAbilityIds;
         }
 
-        static void CollectActionIds(HashSet<string> buffer, List<string> abilityIds, string sourceLabel)
+        static void CollectAbilityIds(HashSet<string> buffer, List<string> abilityIds, string sourceLabel)
         {
             if (abilityIds == null)
             {
@@ -458,3 +458,4 @@ namespace Game.Application.Duel
         }
     }
 }
+

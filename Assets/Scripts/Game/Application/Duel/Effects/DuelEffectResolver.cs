@@ -173,7 +173,7 @@ namespace Game.Application.Duel.Effects
                     $"slotLimit({toClash.slotLimit.Value}) must be greater than zero when specified.");
             }
 
-            List<string> toList = isPlayerSide ? toClash.playerActionIds : toClash.opponentActionIds;
+            List<string> toList = isPlayerSide ? toClash.playerAbilityIds : toClash.opponentAbilityIds;
             if (toClash.slotLimit.HasValue && toList.Count >= toClash.slotLimit.Value)
             {
                 return DuelEffectResult.Fail(
@@ -184,7 +184,7 @@ namespace Game.Application.Duel.Effects
             ClashState fromClash = state.clashes[fromIndex];
             fromClash.EnsureInitialized();
 
-            List<string> fromList = isPlayerSide ? fromClash.playerActionIds : fromClash.opponentActionIds;
+            List<string> fromList = isPlayerSide ? fromClash.playerAbilityIds : fromClash.opponentAbilityIds;
             if (!fromList.Remove(command.abilityId))
             {
                 return DuelEffectResult.Fail(
@@ -227,7 +227,7 @@ namespace Game.Application.Duel.Effects
                 ClashState explicitField = state.clashes[fromClashIndex];
                 explicitField.EnsureInitialized();
 
-                List<string> explicitList = isPlayerSide ? explicitField.playerActionIds : explicitField.opponentActionIds;
+                List<string> explicitList = isPlayerSide ? explicitField.playerAbilityIds : explicitField.opponentAbilityIds;
                 if (!explicitList.Contains(abilityId))
                 {
                     return false;
@@ -242,7 +242,7 @@ namespace Game.Application.Duel.Effects
                 ClashState field = state.clashes[i];
                 field.EnsureInitialized();
 
-                List<string> list = isPlayerSide ? field.playerActionIds : field.opponentActionIds;
+                List<string> list = isPlayerSide ? field.playerAbilityIds : field.opponentAbilityIds;
                 if (!list.Contains(abilityId))
                 {
                     continue;
@@ -414,3 +414,4 @@ namespace Game.Application.Duel.Effects
         }
     }
 }
+

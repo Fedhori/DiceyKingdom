@@ -11,9 +11,6 @@ namespace Game.Infrastructure.Data
         [JsonProperty("id", Required = Required.Always)]
         public string id { get; private set; } = string.Empty;
 
-        [JsonProperty("clashCount", Required = Required.Always)]
-        public int clashCount;
-
         [JsonProperty("cooldownTickPerTurn", Required = Required.Always)]
         public int cooldownTickPerTurn;
 

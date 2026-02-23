@@ -60,7 +60,7 @@ namespace Game.Tests.EditMode
             Assert.IsTrue(result.isSuccess);
 
             var fakeRollSource = new FakeRollSource(6);
-            DuelSimulator.RollAction(state.abilitiesById["p1"], fakeRollSource);
+            DuelSimulator.RollAbility(state.abilitiesById["p1"], fakeRollSource);
 
             Assert.AreEqual(6, fakeRollSource.lastMaxInclusive);
             Assert.AreEqual(6, state.abilitiesById["p1"].baseRoll);
@@ -70,8 +70,8 @@ namespace Game.Tests.EditMode
         public void MoveAbility_Succeeds_WhenTargetHasSpace()
         {
             var state = CreateDuelState();
-            state.abilitiesById["p1"] = CreateAction("p1", 2);
-            state.clashes[0].playerActionIds.Add("p1");
+            state.abilitiesById["p1"] = CreateAbility("p1", 2);
+            state.clashes[0].playerAbilityIds.Add("p1");
 
             var resolver = new DuelEffectClashResolver();
             DuelEffectResult result = resolver.Apply(
@@ -84,18 +84,18 @@ namespace Game.Tests.EditMode
                 });
 
             Assert.IsTrue(result.isSuccess);
-            Assert.IsFalse(state.clashes[0].playerActionIds.Contains("p1"));
-            Assert.IsTrue(state.clashes[1].playerActionIds.Contains("p1"));
+            Assert.IsFalse(state.clashes[0].playerAbilityIds.Contains("p1"));
+            Assert.IsTrue(state.clashes[1].playerAbilityIds.Contains("p1"));
         }
 
         [Test]
         public void MoveAbility_Fails_WhenSlotLimitExceeded()
         {
             var state = CreateDuelState();
-            state.abilitiesById["p1"] = CreateAction("p1", 2);
-            state.abilitiesById["p2"] = CreateAction("p2", 2);
-            state.clashes[0].playerActionIds.Add("p1");
-            state.clashes[1].playerActionIds.Add("p2");
+            state.abilitiesById["p1"] = CreateAbility("p1", 2);
+            state.abilitiesById["p2"] = CreateAbility("p2", 2);
+            state.clashes[0].playerAbilityIds.Add("p1");
+            state.clashes[1].playerAbilityIds.Add("p2");
             state.clashes[1].slotLimit = 1;
 
             var resolver = new DuelEffectClashResolver();
@@ -110,16 +110,16 @@ namespace Game.Tests.EditMode
 
             Assert.IsFalse(result.isSuccess);
             Assert.AreEqual(DuelEffectFailureReason.SlotLimitExceeded, result.failureReason);
-            Assert.IsTrue(state.clashes[0].playerActionIds.Contains("p1"));
-            Assert.IsFalse(state.clashes[1].playerActionIds.Contains("p1"));
+            Assert.IsTrue(state.clashes[0].playerAbilityIds.Contains("p1"));
+            Assert.IsFalse(state.clashes[1].playerAbilityIds.Contains("p1"));
         }
 
         [Test]
         public void MoveOpponentAbility_Succeeds_WhenTargetHasSpace()
         {
             var state = CreateDuelState();
-            state.abilitiesById["e1"] = CreateAction("e1", 3);
-            state.clashes[0].opponentActionIds.Add("e1");
+            state.abilitiesById["e1"] = CreateAbility("e1", 3);
+            state.clashes[0].opponentAbilityIds.Add("e1");
 
             var resolver = new DuelEffectClashResolver();
             DuelEffectResult result = resolver.Apply(
@@ -132,8 +132,8 @@ namespace Game.Tests.EditMode
                 });
 
             Assert.IsTrue(result.isSuccess);
-            Assert.IsFalse(state.clashes[0].opponentActionIds.Contains("e1"));
-            Assert.IsTrue(state.clashes[2].opponentActionIds.Contains("e1"));
+            Assert.IsFalse(state.clashes[0].opponentAbilityIds.Contains("e1"));
+            Assert.IsTrue(state.clashes[2].opponentAbilityIds.Contains("e1"));
         }
 
         [Test]
@@ -278,14 +278,26 @@ namespace Game.Tests.EditMode
 
         static DuelState CreateDuelState()
         {
-            return new DuelState
+            var state = new DuelState
             {
                 playerHealth = 10,
                 opponentHealth = 10
             };
+
+            AddClashes(state, 3);
+            return state;
         }
 
-        static AbilityInstance CreateAction(string abilityId, int attackResult)
+        static void AddClashes(DuelState state, int count)
+        {
+            state.clashes.Clear();
+            for (int i = 0; i < count; i++)
+            {
+                state.clashes.Add(new ClashState());
+            }
+        }
+
+        static AbilityInstance CreateAbility(string abilityId, int attackResult)
         {
             return new AbilityInstance
             {
@@ -317,3 +329,5 @@ namespace Game.Tests.EditMode
         }
     }
 }
+
+

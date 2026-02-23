@@ -10,25 +10,26 @@ namespace Game.Domain.Duel
         public string clashId = string.Empty;
         public int? slotLimit;
 
-        public List<string> playerActionIds = new();
-        public List<string> opponentActionIds = new();
+        public List<string> playerAbilityIds = new();
+        public List<string> opponentAbilityIds = new();
 
         public int totalAttackBonusPlayer;
         public int totalAttackBonusOpponent;
 
         public void EnsureInitialized()
         {
-            if (playerActionIds == null)
+            if (playerAbilityIds == null)
             {
-                playerActionIds = new List<string>();
-                Debug.LogWarning("[ClashState] playerActionIds was null and has been auto-initialized.");
+                playerAbilityIds = new List<string>();
+                Debug.LogWarning("[ClashState] playerAbilityIds was null and has been auto-initialized.");
             }
 
-            if (opponentActionIds == null)
+            if (opponentAbilityIds == null)
             {
-                opponentActionIds = new List<string>();
-                Debug.LogWarning("[ClashState] opponentActionIds was null and has been auto-initialized.");
+                opponentAbilityIds = new List<string>();
+                Debug.LogWarning("[ClashState] opponentAbilityIds was null and has been auto-initialized.");
             }
         }
     }
 }
+

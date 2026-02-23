@@ -8,7 +8,7 @@ namespace Game.Tests.EditMode
     public sealed class DuelDebugPanelFormatterEditModeTests
     {
         [Test]
-        public void FormatClash_ValidField_IncludesTotalAttackAndActionCounts()
+        public void FormatClash_ValidField_IncludesTotalAttackAndAbilityCounts()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
@@ -39,57 +39,57 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void FormatSelectedAction_WhenNoSelection_ReturnsNone()
+        public void FormatSelectedAbility_WhenNoSelection_ReturnsNone()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
-            string line = DuelDebugPanelFormatter.FormatSelectedAction(state, string.Empty);
+            string line = DuelDebugPanelFormatter.FormatSelectedAbility(state, string.Empty);
 
             Assert.AreEqual("Selected Ability: (none)", line);
         }
 
         [Test]
-        public void FormatSelectedAction_WhenActionIsMissing_ReturnsMissing()
+        public void FormatSelectedAbility_WhenAbilityIsMissing_ReturnsMissing()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
-            string line = DuelDebugPanelFormatter.FormatSelectedAction(state, "missing_action");
+            string line = DuelDebugPanelFormatter.FormatSelectedAbility(state, "ability.missing");
 
             Assert.AreEqual("Selected Ability: (missing)", line);
         }
 
         [Test]
-        public void FormatSelectedAction_WhenActionIsInAbilityHolder_ReturnsAbilityHolderLocation()
+        public void FormatSelectedAbility_WhenAbilityIsInBag_ReturnsBagLocation()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
-            string line = DuelDebugPanelFormatter.FormatSelectedAction(state, "abilityHolder_1");
+            string line = DuelDebugPanelFormatter.FormatSelectedAbility(state, "bag_1");
 
-            StringAssert.Contains("Selected Ability: ability.abilityHolder", line);
+            StringAssert.Contains("Selected Ability: ability.bag", line);
             StringAssert.Contains("Attack Result:2", line);
             StringAssert.Contains("bag", line);
         }
 
         [Test]
-        public void FormatAbilityHolderActions_WhenAbilityHolderActionExists_IncludesAbilityHolderDefIdOnly()
+        public void FormatBagAbilities_WhenBagAbilityExists_IncludesAbilityDefIdOnly()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
-            string line = DuelDebugPanelFormatter.FormatAbilityHolderActions(state, "abilityHolder_1");
+            string line = DuelDebugPanelFormatter.FormatBagAbilities(state, "bag_1");
 
-            StringAssert.Contains("Selected Ability: ability.abilityHolder", line);
+            StringAssert.Contains("Selected Ability: ability.bag", line);
             StringAssert.Contains("Bag Abilities (1):", line);
-            StringAssert.Contains("- ability.abilityHolder | Type:Attack | Damage:2 | Attack Result:2 | CD:- <selected>", line);
-            StringAssert.DoesNotContain("abilityHolder_1", line);
+            StringAssert.Contains("- ability.bag | Type:Attack | Damage:2 | Attack Result:2 | CD:- <selected>", line);
+            StringAssert.DoesNotContain("bag_1", line);
         }
 
         [Test]
-        public void FormatSelectedAction_WhenActionIsDeployed_ReturnsClashLocation()
+        public void FormatSelectedAbility_WhenAbilityIsDeployed_ReturnsClashLocation()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
-            string playerLine = DuelDebugPanelFormatter.FormatSelectedAction(state, "p_1");
-            string opponentLine = DuelDebugPanelFormatter.FormatSelectedAction(state, "e_1");
+            string playerLine = DuelDebugPanelFormatter.FormatSelectedAbility(state, "p_1");
+            string opponentLine = DuelDebugPanelFormatter.FormatSelectedAbility(state, "e_1");
 
             StringAssert.Contains("player@0", playerLine);
             StringAssert.Contains("opponent@0", opponentLine);
@@ -117,7 +117,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void FormatSelectedClash_WhenValid_ReturnsActionCounts()
+        public void FormatSelectedClash_WhenValid_ReturnsAbilityCounts()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
@@ -127,13 +127,13 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void FormatActionEffects_WhenActionHasEffect_ReturnsReadableEffectsLabel()
+        public void FormatAbilityEffects_WhenAbilityHasEffect_ReturnsReadableEffectsLabel()
         {
             DuelState state = CreateDuelStateForFormatterTests();
-            AbilityInstance opponentAction = state.abilitiesById["e_1"];
-            opponentAction.attack = 5;
+            AbilityInstance opponentAbility = state.abilitiesById["e_1"];
+            opponentAbility.attack = 5;
 
-            var actionDef = new AbilityDef
+            var abilityDef = new AbilityDef
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
@@ -159,11 +159,11 @@ namespace Game.Tests.EditMode
             };
 
             var database = new GameDatabase();
-            database.abilitiesById["ability.ratkin"] = actionDef;
+            database.abilitiesById["ability.ratkin"] = abilityDef;
 
-            opponentAction.abilityDefId = "ability.ratkin";
+            opponentAbility.abilityDefId = "ability.ratkin";
 
-            string line = DuelDebugPanelFormatter.FormatActionEffects(database, opponentAction.abilityDefId);
+            string line = DuelDebugPanelFormatter.FormatAbilityEffects(database, opponentAbility.abilityDefId);
 
             Assert.AreEqual("Turn End: Add Attack Modifier(+2)", line);
         }
@@ -171,15 +171,16 @@ namespace Game.Tests.EditMode
         static DuelState CreateDuelStateForFormatterTests()
         {
             var state = new DuelState();
+            AddClashes(state, 3);
 
             state.abilitiesById.Clear();
-            state.abilityHolderAbilityIds.Clear();
+            state.bagAbilityIds.Clear();
 
             ClashState field0 = state.clashes[0];
             field0.clashId = "clash.0";
             field0.slotLimit = 2;
-            field0.playerActionIds.Clear();
-            field0.opponentActionIds.Clear();
+            field0.playerAbilityIds.Clear();
+            field0.opponentAbilityIds.Clear();
             field0.totalAttackBonusPlayer = 2;
             field0.totalAttackBonusOpponent = 3;
 
@@ -197,19 +198,31 @@ namespace Game.Tests.EditMode
                 attack = 5,
                 attackResult = 5
             };
-            state.abilitiesById["abilityHolder_1"] = new AbilityInstance
+            state.abilitiesById["bag_1"] = new AbilityInstance
             {
-                instanceId = "abilityHolder_1",
-                abilityDefId = "ability.abilityHolder",
+                instanceId = "bag_1",
+                abilityDefId = "ability.bag",
                 attack = 2,
                 attackResult = 2
             };
 
-            field0.playerActionIds.Add("p_1");
-            field0.opponentActionIds.Add("e_1");
-            state.abilityHolderAbilityIds.Add("abilityHolder_1");
+            field0.playerAbilityIds.Add("p_1");
+            field0.opponentAbilityIds.Add("e_1");
+            state.bagAbilityIds.Add("bag_1");
 
             return state;
         }
+
+        static void AddClashes(DuelState state, int count)
+        {
+            state.clashes.Clear();
+            for (int i = 0; i < count; i++)
+            {
+                state.clashes.Add(new ClashState());
+            }
+        }
     }
 }
+
+
+

@@ -24,7 +24,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void Load_FailsWhenActionReferenceIsMissing()
+        public void Load_FailsWhenAbilityReferenceIsMissing()
         {
             Dictionary<string, string> files = CreateValidDataSet();
             files["Data/encounters/encounter.1.json"] =
@@ -35,7 +35,7 @@ namespace Game.Tests.EditMode
     ""id"": ""enemy.debug"",
     ""health"": 10,
     ""clashes"": [
-      { ""clashId"": ""clash.1"", ""abilityLoadout"": [ { ""abilityId"": ""missing_action"", ""count"": 1 } ] }
+      { ""clashId"": ""clash.1"", ""abilityLoadout"": [ { ""abilityId"": ""ability.missing"", ""count"": 1 } ] }
     ]
   }
 }";
@@ -113,7 +113,7 @@ namespace Game.Tests.EditMode
   ""effects"": [
     {
       ""timing"": ""TurnEnd"",
-      ""condition"": { ""type"": ""IsInAbilityHolder"" },
+      ""condition"": { ""type"": ""IsInBag"" },
       ""ops"": [
         { ""op"": ""AddAttackModifier"", ""target"": ""Attack"", ""layer"": ""duel"", ""mode"": ""Add"", ""value"": 1 }
       ]
@@ -156,7 +156,6 @@ namespace Game.Tests.EditMode
 @"{
   ""schemaVersion"": 2,
   ""id"": ""duel.config"",
-  ""clashCount"": 1,
   ""cooldownTickPerTurn"": -1,
   ""attackResultMin"": 1,
   ""p0Rules"": {
@@ -250,3 +249,4 @@ namespace Game.Tests.EditMode
         }
     }
 }
+

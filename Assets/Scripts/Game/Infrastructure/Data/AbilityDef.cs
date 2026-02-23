@@ -22,11 +22,8 @@ namespace Game.Infrastructure.Data
         [JsonProperty("cooldown", Required = Required.Default)]
         public int cooldown;
 
-        [JsonProperty("damage", Required = Required.Default)]
-        public int? damage;
-
-        [JsonProperty("attack", Required = Required.Default)]
-        public int? legacyAttack;
+        [JsonProperty("damage", Required = Required.Always)]
+        public int damage;
 
         [JsonProperty("tags", Required = Required.Default)]
         public List<string> tags = new();
@@ -47,17 +44,7 @@ namespace Game.Infrastructure.Data
 
         public int ResolveDamage()
         {
-            if (damage.HasValue)
-            {
-                return damage.Value;
-            }
-
-            if (legacyAttack.HasValue)
-            {
-                return legacyAttack.Value;
-            }
-
-            return 0;
+            return damage;
         }
     }
 }

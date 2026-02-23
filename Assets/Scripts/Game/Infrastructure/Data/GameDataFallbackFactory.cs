@@ -16,7 +16,6 @@ namespace Game.Infrastructure.Data
 @"{
   ""schemaVersion"": 2,
   ""id"": ""duel.config"",
-  ""clashCount"": 3,
   ""cooldownTickPerTurn"": -1,
   ""attackResultMin"": 1,
   ""p0Rules"": {

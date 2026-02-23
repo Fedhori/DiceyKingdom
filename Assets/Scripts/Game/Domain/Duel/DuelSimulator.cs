@@ -10,7 +10,7 @@ namespace Game.Domain.Duel
     {
         static readonly IRollSource defaultRollSource = new SystemRandomRollSource();
 
-        public static void RollAction(AbilityInstance ability, IRollSource rollSource = null)
+        public static void RollAbility(AbilityInstance ability, IRollSource rollSource = null)
         {
             if (ability == null)
             {
@@ -23,7 +23,7 @@ namespace Game.Domain.Duel
                 ability.attack,
                 ability.attackModifiers,
                 1,
-                "DuelSimulator.RollAction.Attack");
+                "DuelSimulator.RollAbility.Attack");
 
             if (maxAttack < 1)
             {
@@ -78,8 +78,8 @@ namespace Game.Domain.Duel
                 : clashState.totalAttackBonusOpponent;
 
             List<string> abilityIds = isPlayerSide
-                ? clashState.playerActionIds
-                : clashState.opponentActionIds;
+                ? clashState.playerAbilityIds
+                : clashState.opponentAbilityIds;
 
             for (int i = 0; i < abilityIds.Count; i++)
             {
@@ -240,3 +240,4 @@ namespace Game.Domain.Duel
         }
     }
 }
+

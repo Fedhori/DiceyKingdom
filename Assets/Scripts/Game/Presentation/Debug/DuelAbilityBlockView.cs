@@ -1,7 +1,6 @@
 using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Game.Presentation.Debug
@@ -17,19 +16,15 @@ namespace Game.Presentation.Debug
 
         [SerializeField] Image backgroundImage;
         [SerializeField] Button selectButton;
-        [FormerlySerializedAs("troopDefIdText")]
         [SerializeField] TMP_Text abilityDefIdText;
         [SerializeField] TMP_Text effectsText;
         [SerializeField] TMP_Text attackResultText;
         [SerializeField] TMP_Text attackText;
         [SerializeField] Color playerBackgroundColor = defaultPlayerBackgroundColor;
-        [FormerlySerializedAs("enemyBackgroundColor")]
         [SerializeField] Color opponentBackgroundColor = defaultOpponentBackgroundColor;
         [SerializeField] Color playerSelectedColor = defaultPlayerSelectedColor;
-        [FormerlySerializedAs("enemySelectedColor")]
         [SerializeField] Color opponentSelectedColor = defaultOpponentSelectedColor;
         [SerializeField] Color playerAttackColor = defaultPlayerAttackColor;
-        [FormerlySerializedAs("enemyAttackColor")]
         [SerializeField] Color opponentAttackColor = defaultOpponentAttackColor;
 
         Action onSelected;
@@ -70,7 +65,7 @@ namespace Game.Presentation.Debug
                 selectButton = GetComponent<Button>();
             }
 
-            abilityDefIdText = ClashResolveChildText(abilityDefIdText, "AbilityDefIdText", "TroopDefIdText");
+            abilityDefIdText = ClashResolveChildText(abilityDefIdText, "AbilityDefIdText");
             effectsText = ClashResolveChildText(effectsText, "EffectsText");
             attackResultText = ClashResolveChildText(attackResultText, "AttackResultText");
             attackText = ClashResolveChildText(attackText, "AttackText");

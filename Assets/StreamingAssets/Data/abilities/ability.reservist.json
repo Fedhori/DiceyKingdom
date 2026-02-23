@@ -5,16 +5,17 @@
   "buildCost": 0,
   "cooldown": 0,
   "damage": 2,
-  "tags": ["reserve"],
+  "tags": ["bag"],
   "nameLocKey": "ability.reservist_name",
   "descLocKey": "ability.reservist_desc",
   "effects": [
     {
       "timing": "TurnEnd",
-      "condition": { "type": "IsInAbilityHolder" },
+      "condition": { "type": "IsInBag" },
       "ops": [
         { "op": "AddAttackModifier", "target": "Attack", "layer": "Duel", "mode": "Add", "value": 2, "textLocKey": "effect_attack_plus" }
       ]
     }
   ]
 }
+

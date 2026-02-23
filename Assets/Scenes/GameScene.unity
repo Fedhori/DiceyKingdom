@@ -154,10 +154,10 @@ RectTransform:
   - {fileID: 950672587}
   m_Father: {fileID: 813562327}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 247.66666, y: -139}
-  m_SizeDelta: {x: 479.3333, y: 34}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &46863614
 MonoBehaviour:
@@ -273,7 +273,7 @@ GameObject:
   - component: {fileID: 47240634}
   - component: {fileID: 47240635}
   m_Layer: 0
-  m_Name: CampTroopBlockRoot
+  m_Name: BagAbilityBlockRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -293,10 +293,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1095166781}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 381.66666, y: -120}
-  m_SizeDelta: {x: 747.3333, y: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &47240634
 MonoBehaviour:
@@ -356,7 +356,7 @@ GameObject:
   - component: {fileID: 55248918}
   - component: {fileID: 55248917}
   m_Layer: 0
-  m_Name: StartBattleButton
+  m_Name: StartDuelButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -377,10 +377,10 @@ RectTransform:
   - {fileID: 1509788453}
   m_Father: {fileID: 813562327}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 247.66666, y: -59}
-  m_SizeDelta: {x: 479.3333, y: 34}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &55248917
 MonoBehaviour:
@@ -746,7 +746,7 @@ GameObject:
   - component: {fileID: 140429706}
   - component: {fileID: 140429705}
   m_Layer: 0
-  m_Name: Battlefield0Card
+  m_Name: Clash0Card
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -770,10 +770,10 @@ RectTransform:
   - {fileID: 923184522}
   m_Father: {fileID: 179655450}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 296.66666, y: -165}
-  m_SizeDelta: {x: 577.3333, y: 170}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &140429705
 MonoBehaviour:
@@ -998,7 +998,7 @@ GameObject:
   - component: {fileID: 179655452}
   - component: {fileID: 179655451}
   m_Layer: 0
-  m_Name: BattlefieldsPanel
+  m_Name: ClashesPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1023,10 +1023,10 @@ RectTransform:
   - {fileID: 239698433}
   m_Father: {fileID: 1589242624}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1070, y: -367}
-  m_SizeDelta: {x: 593.3333, y: 734}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &179655451
 MonoBehaviour:
@@ -1576,7 +1576,7 @@ GameObject:
   - component: {fileID: 239698435}
   - component: {fileID: 239698434}
   m_Layer: 0
-  m_Name: Battlefield2Card
+  m_Name: Clash2Card
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1600,10 +1600,10 @@ RectTransform:
   - {fileID: 1890898600}
   m_Father: {fileID: 179655450}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 296.66666, y: -521}
-  m_SizeDelta: {x: 577.3333, y: 170}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &239698434
 MonoBehaviour:
@@ -1717,7 +1717,7 @@ GameObject:
   - component: {fileID: 299097186}
   - component: {fileID: 299097185}
   m_Layer: 0
-  m_Name: EnemyMoraleText
+  m_Name: OpponentHealthText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1737,10 +1737,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1171788021}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1150, y: -40}
-  m_SizeDelta: {x: 200, y: 16.71}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &299097185
 MonoBehaviour:
@@ -1874,7 +1874,7 @@ GameObject:
   - component: {fileID: 299883940}
   - component: {fileID: 299883939}
   m_Layer: 0
-  m_Name: Battlefield0Text
+  m_Name: Clash0Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1894,10 +1894,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 140429704}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 288.66666, y: -58}
-  m_SizeDelta: {x: 561.3333, y: 100}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &299883939
 MonoBehaviour:
@@ -2079,7 +2079,7 @@ GameObject:
   - component: {fileID: 328568732}
   - component: {fileID: 328568731}
   m_Layer: 0
-  m_Name: PlayerMoraleText
+  m_Name: PlayerHealthText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2099,10 +2099,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1171788021}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 942, y: -40}
-  m_SizeDelta: {x: 200, y: 16.71}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &328568731
 MonoBehaviour:
@@ -2235,7 +2235,7 @@ GameObject:
   - component: {fileID: 377116053}
   - component: {fileID: 377116054}
   m_Layer: 0
-  m_Name: Battlefield2PlayerTroopBlockRoot
+  m_Name: Clash2PlayerAbilityBlockRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2827,7 +2827,7 @@ GameObject:
   - component: {fileID: 537641720}
   - component: {fileID: 537641719}
   m_Layer: 0
-  m_Name: Battlefield1Text
+  m_Name: Clash1Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2847,10 +2847,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1645219191}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 288.66666, y: -58}
-  m_SizeDelta: {x: 561.3333, y: 100}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &537641719
 MonoBehaviour:
@@ -3053,33 +3053,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.Runtime::Game.Presentation.Debug.DuelDebugPanel
   phaseText: {fileID: 1147913183}
   turnText: {fileID: 2067620456}
-  manaText: {fileID: 1946384801}
-  stabilityText: {fileID: 1702664671}
+  resourceText: {fileID: 1946384801}
+  honorText: {fileID: 1702664671}
   playerHealthText: {fileID: 328568732}
   opponentHealthText: {fileID: 299097186}
-  selectedTroopText: {fileID: 1487069426}
-  selectedBattlefieldText: {fileID: 642078626}
-  battlefield0Text: {fileID: 299883940}
-  battlefield1Text: {fileID: 537641720}
-  battlefield2Text: {fileID: 1361404606}
-  startBattleButton: {fileID: 55248918}
-  enemyDeployButton: {fileID: 827952524}
+  selectedAbilityText: {fileID: 1487069426}
+  selectedClashText: {fileID: 642078626}
+  clash0Text: {fileID: 299883940}
+  clash1Text: {fileID: 537641720}
+  clash2Text: {fileID: 1361404606}
+  startDuelButton: {fileID: 55248918}
+  opponentDeployButton: {fileID: 827952524}
   playerDeployButton: {fileID: 46863615}
   deploySelectedButton: {fileID: 1480344636}
   rollButton: {fileID: 2042133610}
   resolveButton: {fileID: 984600739}
-  retreatButton: {fileID: 1603561871}
-  selectFirstCampTroopButton: {fileID: 2016209301}
-  selectBattlefield0Button: {fileID: 1942361365}
-  selectBattlefield1Button: {fileID: 1522615215}
-  selectBattlefield2Button: {fileID: 857537005}
-  troopBlockPrefab: {fileID: 9144978796006276345, guid: 0d23f3cc00c252945b718ff1bda74455, type: 3}
-  campTroopBlockRoot: {fileID: 47240633}
-  battlefieldPlayerTroopBlockRoots:
+  surrenderButton: {fileID: 1603561871}
+  selectFirstBagAbilityButton: {fileID: 2016209301}
+  selectClash0Button: {fileID: 1942361365}
+  selectClash1Button: {fileID: 1522615215}
+  selectClash2Button: {fileID: 857537005}
+  abilityBlockPrefab: {fileID: 9144978796006276345, guid: 0d23f3cc00c252945b718ff1bda74455, type: 3}
+  bagAbilityBlockRoot: {fileID: 47240633}
+  clashPlayerAbilityBlockRoots:
   - {fileID: 1930731576}
   - {fileID: 1634826987}
   - {fileID: 377116052}
-  battlefieldOpponentActionBlockRoots:
+  clashOpponentAbilityBlockRoots:
   - {fileID: 923184522}
   - {fileID: 1459934756}
   - {fileID: 1890898600}
@@ -3301,7 +3301,7 @@ GameObject:
   - component: {fileID: 642078626}
   - component: {fileID: 642078625}
   m_Layer: 0
-  m_Name: SelectedBattlefieldText
+  m_Name: SelectedClashText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3321,10 +3321,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 179655450}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 296.66666, y: -58}
-  m_SizeDelta: {x: 577.3333, y: 28}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &642078625
 MonoBehaviour:
@@ -3805,10 +3805,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 986070841}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 936, y: -40}
-  m_SizeDelta: {x: 1852, y: 32}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &712527450
 MonoBehaviour:
@@ -3974,10 +3974,10 @@ RectTransform:
   - {fileID: 2129200461}
   m_Father: {fileID: 1589242624}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1624.3333, y: -367}
-  m_SizeDelta: {x: 495.3333, y: 734}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &813562328
 MonoBehaviour:
@@ -4113,10 +4113,10 @@ RectTransform:
   - {fileID: 192814420}
   m_Father: {fileID: 813562327}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 247.66666, y: -99}
-  m_SizeDelta: {x: 479.3333, y: 34}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &827952523
 MonoBehaviour:
@@ -4234,7 +4234,7 @@ GameObject:
   - component: {fileID: 857537005}
   - component: {fileID: 857537004}
   m_Layer: 0
-  m_Name: SelectBattlefield2Button
+  m_Name: SelectClash2Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4374,7 +4374,7 @@ GameObject:
   - component: {fileID: 923184523}
   - component: {fileID: 923184524}
   m_Layer: 0
-  m_Name: Battlefield0OpponentActionBlockRoot
+  m_Name: Clash0OpponentAbilityBlockRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4476,10 +4476,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 813562327}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 247.66666, y: -334}
-  m_SizeDelta: {x: 479.3333, y: 24}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &925917760
 MonoBehaviour:
@@ -4775,10 +4775,10 @@ RectTransform:
   - {fileID: 1803665875}
   m_Father: {fileID: 813562327}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 247.66666, y: -259}
-  m_SizeDelta: {x: 479.3333, y: 34}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &984600738
 MonoBehaviour:
@@ -4918,10 +4918,10 @@ RectTransform:
   - {fileID: 712527449}
   m_Father: {fileID: 539586208}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 948, y: -52}
-  m_SizeDelta: {x: 1872, y: 80}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &986070842
 MonoBehaviour:
@@ -5061,10 +5061,10 @@ RectTransform:
   - {fileID: 47240633}
   m_Father: {fileID: 1589242624}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 381.66666, y: -367}
-  m_SizeDelta: {x: 763.3333, y: 734}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1095166782
 MonoBehaviour:
@@ -5198,10 +5198,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1171788021}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 110, y: -40}
-  m_SizeDelta: {x: 200, y: 28}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1147913182
 MonoBehaviour:
@@ -5363,10 +5363,10 @@ RectTransform:
   - {fileID: 299097184}
   m_Father: {fileID: 539586208}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 948, y: -142}
-  m_SizeDelta: {x: 1872, y: 80}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1171788022
 MonoBehaviour:
@@ -5777,7 +5777,7 @@ GameObject:
   - component: {fileID: 1361404606}
   - component: {fileID: 1361404605}
   m_Layer: 0
-  m_Name: Battlefield2Text
+  m_Name: Clash2Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5797,10 +5797,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 239698433}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 288.66666, y: -58}
-  m_SizeDelta: {x: 561.3333, y: 100}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1361404605
 MonoBehaviour:
@@ -5933,7 +5933,7 @@ GameObject:
   - component: {fileID: 1459934757}
   - component: {fileID: 1459934758}
   m_Layer: 0
-  m_Name: Battlefield1OpponentActionBlockRoot
+  m_Name: Clash1OpponentAbilityBlockRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6037,10 +6037,10 @@ RectTransform:
   - {fileID: 483573204}
   m_Father: {fileID: 813562327}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 247.66666, y: -179}
-  m_SizeDelta: {x: 479.3333, y: 34}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1480344635
 MonoBehaviour:
@@ -6157,7 +6157,7 @@ GameObject:
   - component: {fileID: 1487069426}
   - component: {fileID: 1487069425}
   m_Layer: 0
-  m_Name: SelectedTroopText
+  m_Name: SelectedAbilityText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6177,10 +6177,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1095166781}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 381.66666, y: -58}
-  m_SizeDelta: {x: 747.3333, y: 32}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1487069425
 MonoBehaviour:
@@ -6453,7 +6453,7 @@ GameObject:
   - component: {fileID: 1522615215}
   - component: {fileID: 1522615214}
   m_Layer: 0
-  m_Name: SelectBattlefield1Button
+  m_Name: SelectClash1Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6756,10 +6756,10 @@ RectTransform:
   - {fileID: 813562327}
   m_Father: {fileID: 539586208}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 948, y: -559}
-  m_SizeDelta: {x: 1872, y: 734}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1589242625
 MonoBehaviour:
@@ -6880,10 +6880,10 @@ RectTransform:
   - {fileID: 1220470339}
   m_Father: {fileID: 813562327}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 247.66666, y: -299}
-  m_SizeDelta: {x: 479.3333, y: 34}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1603561870
 MonoBehaviour:
@@ -6999,7 +6999,7 @@ GameObject:
   - component: {fileID: 1634826988}
   - component: {fileID: 1634826989}
   m_Layer: 0
-  m_Name: Battlefield1PlayerTroopBlockRoot
+  m_Name: Clash1PlayerAbilityBlockRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7083,7 +7083,7 @@ GameObject:
   - component: {fileID: 1645219193}
   - component: {fileID: 1645219192}
   m_Layer: 0
-  m_Name: Battlefield1Card
+  m_Name: Clash1Card
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7107,10 +7107,10 @@ RectTransform:
   - {fileID: 1459934756}
   m_Father: {fileID: 179655450}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 296.66666, y: -343}
-  m_SizeDelta: {x: 577.3333, y: 170}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1645219192
 MonoBehaviour:
@@ -7224,7 +7224,7 @@ GameObject:
   - component: {fileID: 1701361859}
   - component: {fileID: 1701361858}
   m_Layer: 0
-  m_Name: BattlefieldsTitleText
+  m_Name: ClashesTitleText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7244,10 +7244,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 179655450}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 296.66666, y: -22}
-  m_SizeDelta: {x: 577.3333, y: 28}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1701361858
 MonoBehaviour:
@@ -7381,7 +7381,7 @@ GameObject:
   - component: {fileID: 1702664671}
   - component: {fileID: 1702664670}
   m_Layer: 0
-  m_Name: StabilityText
+  m_Name: HonorText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7401,10 +7401,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1171788021}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 734, y: -40}
-  m_SizeDelta: {x: 200, y: 16.71}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1702664670
 MonoBehaviour:
@@ -7952,7 +7952,7 @@ GameObject:
   - component: {fileID: 1890898601}
   - component: {fileID: 1890898602}
   m_Layer: 0
-  m_Name: Battlefield2OpponentActionBlockRoot
+  m_Name: Clash2OpponentAbilityBlockRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8033,7 +8033,7 @@ GameObject:
   - component: {fileID: 1930731577}
   - component: {fileID: 1930731578}
   m_Layer: 0
-  m_Name: Battlefield0PlayerTroopBlockRoot
+  m_Name: Clash0PlayerAbilityBlockRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8116,7 +8116,7 @@ GameObject:
   - component: {fileID: 1942361365}
   - component: {fileID: 1942361364}
   m_Layer: 0
-  m_Name: SelectBattlefield0Button
+  m_Name: SelectClash0Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8257,7 +8257,7 @@ GameObject:
   - component: {fileID: 1946384801}
   - component: {fileID: 1946384800}
   m_Layer: 0
-  m_Name: ManaText
+  m_Name: ResourceText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8277,10 +8277,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1171788021}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 526, y: -40}
-  m_SizeDelta: {x: 200, y: 16.71}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1946384800
 MonoBehaviour:
@@ -8681,10 +8681,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 813562327}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 247.66666, y: -22}
-  m_SizeDelta: {x: 479.3333, y: 28}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2015631790
 MonoBehaviour:
@@ -8821,7 +8821,7 @@ GameObject:
   - component: {fileID: 2016209301}
   - component: {fileID: 2016209300}
   m_Layer: 0
-  m_Name: SelectFirstCampTroopButton
+  m_Name: SelectFirstBagAbilityButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8842,10 +8842,10 @@ RectTransform:
   - {fileID: 1960419642}
   m_Father: {fileID: 1095166781}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 381.66666, y: -97}
-  m_SizeDelta: {x: 747.3333, y: 34}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2016209300
 MonoBehaviour:
@@ -8982,10 +8982,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1095166781}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 381.66666, y: -22}
-  m_SizeDelta: {x: 747.3333, y: 28}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2024754555
 MonoBehaviour:
@@ -9141,10 +9141,10 @@ RectTransform:
   - {fileID: 85769538}
   m_Father: {fileID: 813562327}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 247.66666, y: -219}
-  m_SizeDelta: {x: 479.3333, y: 34}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2042133609
 MonoBehaviour:
@@ -9499,10 +9499,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1171788021}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 318, y: -40}
-  m_SizeDelta: {x: 200, y: 16.71}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 200, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2067620455
 MonoBehaviour:
@@ -9761,10 +9761,10 @@ RectTransform:
   - {fileID: 210351810}
   m_Father: {fileID: 813562327}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 247.66666, y: -352}
-  m_SizeDelta: {x: 479.3333, y: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2129200462
 MonoBehaviour:

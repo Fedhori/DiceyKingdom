@@ -7,8 +7,6 @@ namespace Game.Domain.Duel
     [Serializable]
     public sealed class DuelState
     {
-        public const int defaultClashCount = 3;
-
         public int turnIndex;
         public int playerHealth;
         public int opponentHealth;
@@ -17,7 +15,7 @@ namespace Game.Domain.Duel
 
         public List<ClashState> clashes = new();
         public Dictionary<string, AbilityInstance> abilitiesById = new();
-        public List<string> abilityHolderAbilityIds = new();
+        public List<string> bagAbilityIds = new();
         public List<IntentEntry> intent = new();
 
         public DuelState()
@@ -39,24 +37,16 @@ namespace Game.Domain.Duel
                 Debug.LogWarning("[DuelState] abilitiesById was null and has been auto-initialized.");
             }
 
-            if (abilityHolderAbilityIds == null)
+            if (bagAbilityIds == null)
             {
-                abilityHolderAbilityIds = new List<string>();
-                Debug.LogWarning("[DuelState] abilityHolderAbilityIds was null and has been auto-initialized.");
+                bagAbilityIds = new List<string>();
+                Debug.LogWarning("[DuelState] bagAbilityIds was null and has been auto-initialized.");
             }
 
             if (intent == null)
             {
                 intent = new List<IntentEntry>();
                 Debug.LogWarning("[DuelState] intent was null and has been auto-initialized.");
-            }
-
-            if (clashes.Count == 0)
-            {
-                for (int i = 0; i < defaultClashCount; i++)
-                {
-                    clashes.Add(new ClashState());
-                }
             }
 
             for (int i = 0; i < clashes.Count; i++)

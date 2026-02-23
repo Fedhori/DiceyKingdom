@@ -25,7 +25,7 @@
 - Health: 결투 체력
 - Honor: Surrender 가능 여부를 결정하는 값
 - Capacity: 메타 편성 상한(런 준비 단계)
-- 전투 중 별도 소모 자원(Focus 등): 사용하지 않음
+- 전투 중 별도 소모 자원: 사용하지 않음
 
 ---
 
@@ -66,8 +66,8 @@
 ## 5.1 Clash 수
 
 - Clash 수는 고정 3이 아니다.
-- 기본은 `duel.config.clashCount`를 사용한다.
-- Encounter에 enemy.clashes가 정의되어 있으면 그 개수를 우선 사용한다.
+- Encounter의 `enemy.clashes` 개수를 그대로 사용한다.
+- `enemy.clashes`는 필수이며, 비어 있으면 유효하지 않은 데이터로 처리한다.
 
 ## 5.2 배치
 
@@ -114,4 +114,3 @@
 - `encounter`: enemy + enemy.clashes[].abilityLoadout 구조
 
 상세 스키마는 `Docs/DATA_SCHEMA.md`를 따른다.
-

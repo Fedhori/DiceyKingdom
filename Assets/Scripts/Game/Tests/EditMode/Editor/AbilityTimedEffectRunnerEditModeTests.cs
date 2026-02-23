@@ -30,8 +30,8 @@ namespace Game.Tests.EditMode
                 baseRoll = 2,
                 attackResult = 2
             };
-            state.clashes[0].playerActionIds.Add("p_miko");
-            state.clashes[0].opponentActionIds.Add("e_rat");
+            state.clashes[0].playerAbilityIds.Add("p_miko");
+            state.clashes[0].opponentAbilityIds.Add("e_rat");
 
             var runner = new AbilityTimedEffectRunner(database);
             AbilityTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.Roll);
@@ -63,8 +63,8 @@ namespace Game.Tests.EditMode
                 baseRoll = 2,
                 attackResult = 2
             };
-            state.clashes[0].playerActionIds.Add("p_miko");
-            state.clashes[0].opponentActionIds.Add("e_rat");
+            state.clashes[0].playerAbilityIds.Add("p_miko");
+            state.clashes[0].opponentAbilityIds.Add("e_rat");
 
             var runner = new AbilityTimedEffectRunner(database);
             runner.ApplyForTiming(state, DuelEffectTiming.Roll);
@@ -104,9 +104,9 @@ namespace Game.Tests.EditMode
                 baseRoll = 1,
                 attackResult = 1
             };
-            state.clashes[0].playerActionIds.Add("p_dwarf");
-            state.clashes[0].opponentActionIds.Add("e_a");
-            state.clashes[0].opponentActionIds.Add("e_b");
+            state.clashes[0].playerAbilityIds.Add("p_dwarf");
+            state.clashes[0].opponentAbilityIds.Add("e_a");
+            state.clashes[0].opponentAbilityIds.Add("e_b");
 
             var runner = new AbilityTimedEffectRunner(database);
             AbilityTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.Roll);
@@ -117,7 +117,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void ApplyForTiming_TurnEnd_ReservistInAbilityHolder_AddsDuelAttackModifier()
+        public void ApplyForTiming_TurnEnd_ReservistInBag_AddsDuelAttackModifier()
         {
             GameDatabase database = CreateDatabase();
             DuelState state = CreateDuelState();
@@ -130,7 +130,7 @@ namespace Game.Tests.EditMode
                 baseRoll = 0,
                 attackResult = 0
             };
-            state.abilityHolderAbilityIds.Add("p_reserve");
+            state.bagAbilityIds.Add("p_reserve");
 
             var runner = new AbilityTimedEffectRunner(database);
             AbilityTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.TurnEnd);
@@ -194,7 +194,7 @@ namespace Game.Tests.EditMode
                             new EffectOpDef
                             {
                                 op = "ModifyAttackResult",
-                                scope = "SameClashActions",
+                                scope = "SameClashAbilities",
                                 side = "Opponent",
                                 mode = "Add",
                                 value = -1
@@ -217,7 +217,7 @@ namespace Game.Tests.EditMode
                         timing = "TurnEnd",
                         condition = new ConditionDef
                         {
-                            type = "IsInAbilityHolder"
+                            type = "IsInBag"
                         },
                         ops = new List<EffectOpDef>
                         {
@@ -252,17 +252,22 @@ namespace Game.Tests.EditMode
                 playerHealth = 10,
                 opponentHealth = 10
             };
-
-            for (int i = 0; i < state.clashes.Count; i++)
-            {
-                ClashState clash = state.clashes[i];
-                clash.playerActionIds.Clear();
-                clash.opponentActionIds.Clear();
-            }
+            AddClashes(state, 3);
 
             state.abilitiesById.Clear();
-            state.abilityHolderAbilityIds.Clear();
+            state.bagAbilityIds.Clear();
             return state;
+        }
+
+        static void AddClashes(DuelState state, int count)
+        {
+            state.clashes.Clear();
+            for (int i = 0; i < count; i++)
+            {
+                state.clashes.Add(new ClashState());
+            }
         }
     }
 }
+
+

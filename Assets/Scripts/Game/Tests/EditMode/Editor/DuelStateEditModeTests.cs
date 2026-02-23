@@ -13,16 +13,16 @@ namespace Game.Tests.EditMode
 
             Assert.NotNull(state.clashes);
             Assert.NotNull(state.abilitiesById);
-            Assert.NotNull(state.abilityHolderAbilityIds);
+            Assert.NotNull(state.bagAbilityIds);
             Assert.NotNull(state.intent);
         }
 
         [Test]
-        public void DuelState_DefaultInitialization_ClashCountIsThree()
+        public void DuelState_DefaultInitialization_DoesNotCreateImplicitClashes()
         {
             var state = new DuelState();
 
-            Assert.AreEqual(DuelState.defaultClashCount, state.clashes.Count);
+            Assert.AreEqual(0, state.clashes.Count);
         }
 
         [Test]

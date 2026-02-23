@@ -38,7 +38,7 @@
 2. `DuelPhaseRunner.StartDuel`
 3. `AutoDeployOpponentIntent`
 4. 플레이어 배치
-5. `DuelTurnProcessor.TryRollAllDeployedActions`
+5. `DuelTurnProcessor.TryRollAllDeployedAbilities`
 6. `DuelTurnProcessor.TryClashResolveAllClashes`
 
 ---
@@ -46,7 +46,6 @@
 ## 4) 설계 원칙
 
 - 신규 전투 데이터 단위는 Ability로 통일
-- 구용어(Action/Retreat/Opponent Intent/Reserves/Focus)는 신규 코드에서 사용 금지
+- 구용어는 신규 코드에서 사용 금지
 - 조용한 자동 보정은 피하고, 필요한 경우 최소 Warning 로그를 남긴다
 - UI 배치는 가능한 한 에디터에서 처리하고 코드 배치는 불가피한 경우만 사용한다
-

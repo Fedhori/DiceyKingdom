@@ -16,6 +16,14 @@ namespace Game.Infrastructure.Data
             nameof(DuelEffectOpCode.AddAttackModifier)
         };
 
+        static readonly HashSet<string> allowedConditionTypes = new(StringComparer.Ordinal)
+        {
+            "Always",
+            "IsInBag",
+            "OpponentCountEquals",
+            "HasTag"
+        };
+
         public void Validate(GameDatabase database, DataIndexDef dataIndex, GameDataValidationReport report)
         {
             if (database == null)
@@ -75,15 +83,6 @@ namespace Game.Infrastructure.Data
         {
             if (database.duelConfig != null)
             {
-                if (database.duelConfig.clashCount <= 0)
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        database.duelConfigSourcePath,
-                        database.duelConfig.id,
-                        "clashCount must be greater than zero.");
-                }
-
                 if (database.duelConfig.attackResultMin < 1)
                 {
                     report.AddError(
@@ -259,13 +258,55 @@ namespace Game.Infrastructure.Data
                         id,
                         "Only Attack type ability can define damage.");
                 }
+
+                ValidateTimedEffectConditions(def, path, id, report);
+            }
+        }
+
+        void ValidateTimedEffectConditions(
+            AbilityDef abilityDef,
+            string path,
+            string ownerId,
+            GameDataValidationReport report)
+        {
+            if (abilityDef.effects == null)
+            {
+                return;
+            }
+
+            for (int effectIndex = 0; effectIndex < abilityDef.effects.Count; effectIndex++)
+            {
+                TimedEffectDef timedEffect = abilityDef.effects[effectIndex];
+                if (timedEffect?.condition == null)
+                {
+                    continue;
+                }
+
+                ConditionDef condition = timedEffect.condition;
+                if (!allowedConditionTypes.Contains(condition.type))
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidEnum,
+                        path,
+                        ownerId,
+                        $"effects[{effectIndex}].condition.type '{condition.type}' is invalid.");
+                    continue;
+                }
+
+                if (string.Equals(condition.type, "HasTag", StringComparison.Ordinal) &&
+                    string.IsNullOrWhiteSpace(condition.tag))
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        path,
+                        ownerId,
+                        $"effects[{effectIndex}].condition.tag is required for HasTag.");
+                }
             }
         }
 
         void ValidateEncounterDefs(GameDatabase database, GameDataValidationReport report)
         {
-            int clashCount = database.duelConfig?.clashCount ?? 0;
-
             foreach (KeyValuePair<string, EncounterDef> pair in database.encountersById)
             {
                 string id = pair.Key;
@@ -340,15 +381,6 @@ namespace Game.Infrastructure.Data
                             path,
                             id,
                             $"enemy.clashes[{clashIndex}].clashId('{enemyClash.clashId}') does not exist.");
-                    }
-
-                    if (clashIndex >= clashCount)
-                    {
-                        report.AddError(
-                            GameDataErrorCode.InvalidIndex,
-                            path,
-                            id,
-                            $"enemy.clashes[{clashIndex}] exceeds duel.config.clashCount({clashCount}).");
                     }
 
                     if (enemyClash.abilityLoadout == null)

@@ -13,7 +13,7 @@
 - 적 배치 정보: `Intent`
 - 미배치 영역: `Bag`
 - 후퇴 용어: `Surrender`
-- 전투 자원 `Focus`: 사용하지 않음
+- 전투 중 소모 자원: 사용하지 않음
 
 ---
 
@@ -46,4 +46,3 @@
   - Roll
   - ClashResolve
   - Surrender
-

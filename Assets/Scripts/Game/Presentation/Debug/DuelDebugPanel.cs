@@ -5,7 +5,6 @@ using Game.Domain.Duel;
 using Game.Infrastructure.Data;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -16,60 +15,44 @@ namespace Game.Presentation.Debug
     public sealed class DuelDebugPanel : MonoBehaviour
     {
         const string debugEncounterId = "encounter.debug.01";
-        const string actionBlockPrefabPath = "Assets/Prefabs/Ui/DuelAbilityBlock.prefab";
+        const string abilityBlockPrefabPath = "Assets/Prefabs/Ui/DuelAbilityBlock.prefab";
+        const int clashUiSlotCount = 3;
 
         [Header("Status")]
         [SerializeField] TMP_Text phaseText;
         [SerializeField] TMP_Text turnText;
-        [FormerlySerializedAs("manaText")]
-        [SerializeField] TMP_Text focusText;
-        [FormerlySerializedAs("stabilityText")]
+        [SerializeField] TMP_Text resourceText;
         [SerializeField] TMP_Text honorText;
         [SerializeField] TMP_Text playerHealthText;
         [SerializeField] TMP_Text opponentHealthText;
-        [FormerlySerializedAs("selectedTroopText")]
-        [SerializeField] TMP_Text selectedActionText;
-        [FormerlySerializedAs("selectedBattlefieldText")]
+        [SerializeField] TMP_Text selectedAbilityText;
         [SerializeField] TMP_Text selectedClashText;
 
         [Header("Clashes")]
-        [FormerlySerializedAs("battlefield0Text")]
         [SerializeField] TMP_Text clash0Text;
-        [FormerlySerializedAs("battlefield1Text")]
         [SerializeField] TMP_Text clash1Text;
-        [FormerlySerializedAs("battlefield2Text")]
         [SerializeField] TMP_Text clash2Text;
 
-        [Header("Actions")]
-        [FormerlySerializedAs("startBattleButton")]
+        [Header("Controls")]
         [SerializeField] Button startDuelButton;
-        [FormerlySerializedAs("enemyDeployButton")]
         [SerializeField] Button opponentDeployButton;
         [SerializeField] Button playerDeployButton;
         [SerializeField] Button deploySelectedButton;
         [SerializeField] Button rollButton;
         [SerializeField] Button resolveButton;
         [SerializeField] Button surrenderButton;
-        [FormerlySerializedAs("selectFirstCampTroopButton")]
-        [SerializeField] Button selectFirstAbilityHolderActionButton;
-        [FormerlySerializedAs("selectBattlefield0Button")]
+        [SerializeField] Button selectFirstBagAbilityButton;
         [SerializeField] Button selectClash0Button;
-        [FormerlySerializedAs("selectBattlefield1Button")]
         [SerializeField] Button selectClash1Button;
-        [FormerlySerializedAs("selectBattlefield2Button")]
         [SerializeField] Button selectClash2Button;
 
         [Header("Ability Blocks")]
-        [FormerlySerializedAs("troopBlockPrefab")]
-        [SerializeField] DuelAbilityBlockView actionBlockPrefab;
-        [FormerlySerializedAs("campTroopBlockRoot")]
-        [SerializeField] RectTransform abilityHolderActionBlockRoot;
-        [FormerlySerializedAs("battlefieldPlayerTroopBlockRoots")]
-        [SerializeField] RectTransform[] clashPlayerActionBlockRoots =
-            new RectTransform[DuelState.defaultClashCount];
-        [FormerlySerializedAs("battlefieldOpponentActionBlockRoots")]
-        [SerializeField] RectTransform[] clashOpponentActionBlockRoots =
-            new RectTransform[DuelState.defaultClashCount];
+        [SerializeField] DuelAbilityBlockView abilityBlockPrefab;
+        [SerializeField] RectTransform bagAbilityBlockRoot;
+        [SerializeField] RectTransform[] clashPlayerAbilityBlockRoots =
+            new RectTransform[clashUiSlotCount];
+        [SerializeField] RectTransform[] clashOpponentAbilityBlockRoots =
+            new RectTransform[clashUiSlotCount];
 
         [Header("Debug")]
         [SerializeField] TMP_Text logText;
@@ -87,12 +70,12 @@ namespace Game.Presentation.Debug
         int selectedClashIndex = -1;
 
         readonly List<string> logEntries = new List<string>();
-        readonly List<DuelAbilityBlockView> spawnedActionBlocks = new List<DuelAbilityBlockView>();
+        readonly List<DuelAbilityBlockView> spawnedAbilityBlocks = new List<DuelAbilityBlockView>();
 
-        enum ActionLocationType
+        enum AbilityLocationType
         {
             None = 0,
-            AbilityHolder = 1,
+            Bag = 1,
             Clash = 2
         }
 
@@ -116,7 +99,7 @@ namespace Game.Presentation.Debug
 
         void OnDestroy()
         {
-            ClearActionBlocks();
+            ClearAbilityBlocks();
         }
 
 #if UNITY_EDITOR
@@ -131,7 +114,7 @@ namespace Game.Presentation.Debug
             GameDatabase database = GameDataRuntime.CurrentDatabase;
             if (database == null)
             {
-                RejectAction("StartDuel", "GameDataRuntime.CurrentDatabase is null.");
+                RejectCommand("StartDuel", "GameDataRuntime.CurrentDatabase is null.");
                 return;
             }
 
@@ -141,7 +124,7 @@ namespace Game.Presentation.Debug
 
             if (!sessionBuilder.TryCreateInitialState(debugEncounterId, out DuelState state, out string failureMessage))
             {
-                RejectAction("StartDuel", failureMessage);
+                RejectCommand("StartDuel", failureMessage);
                 return;
             }
 
@@ -149,7 +132,7 @@ namespace Game.Presentation.Debug
             phaseRunner = new DuelPhaseRunner(duelState);
             if (!phaseRunner.StartDuel())
             {
-                RejectAction("StartDuel", phaseRunner.LastFailureReason.ToString());
+                RejectCommand("StartDuel", phaseRunner.LastFailureReason.ToString());
                 return;
             }
 
@@ -163,13 +146,13 @@ namespace Game.Presentation.Debug
         {
             if (!TryValidateDuelStarted(out string failureMessage))
             {
-                RejectAction("OpponentSetup", failureMessage);
+                RejectCommand("OpponentSetup", failureMessage);
                 return;
             }
 
             if (phaseRunner.currentPhase != DuelPhase.Reset)
             {
-                RejectAction(
+                RejectCommand(
                     "OpponentSetup",
                     $"current phase is {phaseRunner.currentPhase}, required phase is {DuelPhase.Reset}.");
                 return;
@@ -177,7 +160,7 @@ namespace Game.Presentation.Debug
 
             if (!phaseRunner.AdvanceToNextPhase())
             {
-                RejectAction("OpponentSetup", phaseRunner.LastFailureReason.ToString());
+                RejectCommand("OpponentSetup", phaseRunner.LastFailureReason.ToString());
                 return;
             }
 
@@ -189,13 +172,13 @@ namespace Game.Presentation.Debug
         {
             if (!TryValidateDuelStarted(out string failureMessage))
             {
-                RejectAction("PlayerSetup", failureMessage);
+                RejectCommand("PlayerSetup", failureMessage);
                 return;
             }
 
             if (phaseRunner.currentPhase != DuelPhase.OpponentSetup)
             {
-                RejectAction(
+                RejectCommand(
                     "PlayerSetup",
                     $"current phase is {phaseRunner.currentPhase}, required phase is {DuelPhase.OpponentSetup}.");
                 return;
@@ -203,7 +186,7 @@ namespace Game.Presentation.Debug
 
             if (!phaseRunner.AdvanceToNextPhase())
             {
-                RejectAction("PlayerSetup", phaseRunner.LastFailureReason.ToString());
+                RejectCommand("PlayerSetup", phaseRunner.LastFailureReason.ToString());
                 return;
             }
 
@@ -215,27 +198,27 @@ namespace Game.Presentation.Debug
         {
             if (!TryValidateDuelStarted(out string failureMessage))
             {
-                RejectAction("Roll", failureMessage);
+                RejectCommand("Roll", failureMessage);
                 return;
             }
 
             if (turnProcessor == null)
             {
-                RejectAction("Roll", "turn processor is not initialized.");
+                RejectCommand("Roll", "turn processor is not initialized.");
                 return;
             }
 
-            if (!turnProcessor.TryRollAllDeployedActions(
+            if (!turnProcessor.TryRollAllDeployedAbilities(
                     duelState,
                     phaseRunner,
                     out DuelRollResult rollResult,
                     out string rollFailureMessage))
             {
-                RejectAction("Roll", rollFailureMessage);
+                RejectCommand("Roll", rollFailureMessage);
                 return;
             }
 
-            AppendLog($"Roll success: rolledActions={rollResult.rolledActionCount}");
+            AppendLog($"Roll success: rolledAbilities={rollResult.rolledAbilityCount}");
             if (rollResult.timedEffectResult.failedCount > 0)
             {
                 WarnAndLog(
@@ -254,13 +237,13 @@ namespace Game.Presentation.Debug
         {
             if (!TryValidateDuelStarted(out string failureMessage))
             {
-                RejectAction("ClashResolve", failureMessage);
+                RejectCommand("ClashResolve", failureMessage);
                 return;
             }
 
             if (turnProcessor == null)
             {
-                RejectAction("ClashResolve", "turn processor is not initialized.");
+                RejectCommand("ClashResolve", "turn processor is not initialized.");
                 return;
             }
 
@@ -270,7 +253,7 @@ namespace Game.Presentation.Debug
                     out DuelClashResolveResult resolveResult,
                     out string resolveFailureMessage))
             {
-                RejectAction("ClashResolve", resolveFailureMessage);
+                RejectCommand("ClashResolve", resolveFailureMessage);
                 return;
             }
 
@@ -311,13 +294,13 @@ namespace Game.Presentation.Debug
         {
             if (!TryValidateDuelStarted(out string failureMessage))
             {
-                RejectAction("Surrender", failureMessage);
+                RejectCommand("Surrender", failureMessage);
                 return;
             }
 
             if (!phaseRunner.TrySurrender())
             {
-                RejectAction("Surrender", phaseRunner.LastFailureReason.ToString());
+                RejectCommand("Surrender", phaseRunner.LastFailureReason.ToString());
                 return;
             }
 
@@ -327,21 +310,21 @@ namespace Game.Presentation.Debug
             RefreshView();
         }
 
-        public void SelectFirstAbilityHolderAction()
+        public void SelectFirstBagAbility()
         {
             if (!TryValidateDuelStarted(out string failureMessage))
             {
-                RejectAction("SelectFirstAbilityHolderAction", failureMessage);
+                RejectCommand("SelectFirstBagAbility", failureMessage);
                 return;
             }
 
-            if (duelState.abilityHolderAbilityIds == null || duelState.abilityHolderAbilityIds.Count <= 0)
+            if (duelState.bagAbilityIds == null || duelState.bagAbilityIds.Count <= 0)
             {
-                RejectAction("SelectFirstAbilityHolderAction", "no ability exists in bag.");
+                RejectCommand("SelectFirstBagAbility", "no ability exists in bag.");
                 return;
             }
 
-            SelectAbility(duelState.abilityHolderAbilityIds[0]);
+            SelectAbility(duelState.bagAbilityIds[0]);
         }
 
         public void SelectClash0()
@@ -363,13 +346,13 @@ namespace Game.Presentation.Debug
         {
             if (!TryValidateDuelStarted(out string failureMessage))
             {
-                RejectAction("DeploySelected", failureMessage);
+                RejectCommand("DeploySelected", failureMessage);
                 return;
             }
 
-            if (!TryMovePlayerActionToClash(selectedAbilityId, selectedClashIndex, out string moveLog, out string moveError))
+            if (!TryMovePlayerAbilityToClash(selectedAbilityId, selectedClashIndex, out string moveLog, out string moveError))
             {
-                RejectAction("DeploySelected", moveError);
+                RejectCommand("DeploySelected", moveError);
                 return;
             }
 
@@ -381,30 +364,30 @@ namespace Game.Presentation.Debug
         {
             if (!TryValidateDuelStarted(out string failureMessage))
             {
-                RejectAction("SelectAbility", failureMessage);
+                RejectCommand("SelectAbility", failureMessage);
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(abilityId))
             {
-                RejectAction("SelectAbility", "abilityId is empty.");
+                RejectCommand("SelectAbility", "abilityId is empty.");
                 return;
             }
 
             if (!duelState.abilitiesById.ContainsKey(abilityId))
             {
-                RejectAction("SelectAbility", $"abilityId({abilityId}) does not exist.");
+                RejectCommand("SelectAbility", $"abilityId({abilityId}) does not exist.");
                 return;
             }
 
-            if (!TryFindPlayerActionLocation(abilityId, out ActionLocationType locationType, out int clashIndex))
+            if (!TryFindPlayerAbilityLocation(abilityId, out AbilityLocationType locationType, out int clashIndex))
             {
-                RejectAction("SelectAbility", $"abilityId({abilityId}) is not in player controllable zones.");
+                RejectCommand("SelectAbility", $"abilityId({abilityId}) is not in player controllable zones.");
                 return;
             }
 
             selectedAbilityId = abilityId;
-            if (locationType == ActionLocationType.Clash)
+            if (locationType == AbilityLocationType.Clash)
             {
                 selectedClashIndex = clashIndex;
             }
@@ -417,13 +400,13 @@ namespace Game.Presentation.Debug
         {
             if (!TryValidateDuelStarted(out string failureMessage))
             {
-                RejectAction("SelectClash", failureMessage);
+                RejectCommand("SelectClash", failureMessage);
                 return;
             }
 
             if (clashIndex < 0 || clashIndex >= duelState.clashes.Count)
             {
-                RejectAction("SelectClash", $"clashIndex({clashIndex}) is out of range.");
+                RejectCommand("SelectClash", $"clashIndex({clashIndex}) is out of range.");
                 return;
             }
 
@@ -431,13 +414,13 @@ namespace Game.Presentation.Debug
 
             if (CanAutoDeployOnClashClick() && !string.IsNullOrWhiteSpace(selectedAbilityId))
             {
-                if (!TryMovePlayerActionToClash(
+                if (!TryMovePlayerAbilityToClash(
                         selectedAbilityId,
                         selectedClashIndex,
                         out string moveLog,
                         out string moveError))
                 {
-                    RejectAction("SelectClashDeploy", moveError);
+                    RejectCommand("SelectClashDeploy", moveError);
                     return;
                 }
 
@@ -450,7 +433,7 @@ namespace Game.Presentation.Debug
             RefreshView();
         }
 
-        bool TryMovePlayerActionToClash(
+        bool TryMovePlayerAbilityToClash(
             string abilityId,
             int targetClashIndex,
             out string moveLog,
@@ -489,13 +472,13 @@ namespace Game.Presentation.Debug
                 return false;
             }
 
-            if (!TryFindPlayerActionLocation(abilityId, out ActionLocationType sourceType, out int sourceClashIndex))
+            if (!TryFindPlayerAbilityLocation(abilityId, out AbilityLocationType sourceType, out int sourceClashIndex))
             {
                 failureMessage = $"ability({abilityId}) is not in player controllable zones.";
                 return false;
             }
 
-            if (sourceType == ActionLocationType.Clash && sourceClashIndex == targetClashIndex)
+            if (sourceType == AbilityLocationType.Clash && sourceClashIndex == targetClashIndex)
             {
                 moveLog = $"Ability move skipped: {ResolveAbilityDefIdForDisplay(abilityId)} already in clash({targetClashIndex}).";
                 return true;
@@ -509,27 +492,27 @@ namespace Game.Presentation.Debug
             }
 
             targetClash.EnsureInitialized();
-            if (!targetClash.playerActionIds.Contains(abilityId) &&
+            if (!targetClash.playerAbilityIds.Contains(abilityId) &&
                 targetClash.slotLimit.HasValue &&
-                targetClash.playerActionIds.Count >= targetClash.slotLimit.Value)
+                targetClash.playerAbilityIds.Count >= targetClash.slotLimit.Value)
             {
                 failureMessage = $"target clash({targetClashIndex}) slotLimit exceeded.";
                 return false;
             }
 
-            if (sourceType == ActionLocationType.AbilityHolder)
+            if (sourceType == AbilityLocationType.Bag)
             {
-                duelState.abilityHolderAbilityIds.Remove(abilityId);
+                duelState.bagAbilityIds.Remove(abilityId);
             }
             else
             {
                 ClashState sourceClash = duelState.clashes[sourceClashIndex];
-                sourceClash?.playerActionIds.Remove(abilityId);
+                sourceClash?.playerAbilityIds.Remove(abilityId);
             }
 
-            if (!targetClash.playerActionIds.Contains(abilityId))
+            if (!targetClash.playerAbilityIds.Contains(abilityId))
             {
-                targetClash.playerActionIds.Add(abilityId);
+                targetClash.playerAbilityIds.Add(abilityId);
             }
 
             selectedAbilityId = abilityId;
@@ -538,9 +521,9 @@ namespace Game.Presentation.Debug
             return true;
         }
 
-        bool TryFindPlayerActionLocation(string abilityId, out ActionLocationType locationType, out int clashIndex)
+        bool TryFindPlayerAbilityLocation(string abilityId, out AbilityLocationType locationType, out int clashIndex)
         {
-            locationType = ActionLocationType.None;
+            locationType = AbilityLocationType.None;
             clashIndex = -1;
 
             if (string.IsNullOrWhiteSpace(abilityId))
@@ -548,9 +531,9 @@ namespace Game.Presentation.Debug
                 return false;
             }
 
-            if (duelState.abilityHolderAbilityIds != null && duelState.abilityHolderAbilityIds.Contains(abilityId))
+            if (duelState.bagAbilityIds != null && duelState.bagAbilityIds.Contains(abilityId))
             {
-                locationType = ActionLocationType.AbilityHolder;
+                locationType = AbilityLocationType.Bag;
                 return true;
             }
 
@@ -568,12 +551,12 @@ namespace Game.Presentation.Debug
                 }
 
                 clash.EnsureInitialized();
-                if (!clash.playerActionIds.Contains(abilityId))
+                if (!clash.playerAbilityIds.Contains(abilityId))
                 {
                     continue;
                 }
 
-                locationType = ActionLocationType.Clash;
+                locationType = AbilityLocationType.Clash;
                 clashIndex = i;
                 return true;
             }
@@ -618,25 +601,25 @@ namespace Game.Presentation.Debug
             activeDatabase = GameDataRuntime.CurrentDatabase;
             selectedAbilityId = string.Empty;
             selectedClashIndex = -1;
-            ClearActionBlocks();
+            ClearAbilityBlocks();
         }
 
         void RefreshView()
         {
             RefreshTexts();
             RefreshButtons();
-            RefreshActionBlocks();
+            RefreshAbilityBlocks();
         }
 
         void RefreshTexts()
         {
             SetText(phaseText, DuelDebugPanelFormatter.FormatPhase(phaseRunner));
             SetText(turnText, DuelDebugPanelFormatter.FormatTurn(duelState));
-            SetText(focusText, DuelDebugPanelFormatter.FormatFocus(duelState));
+            SetText(resourceText, DuelDebugPanelFormatter.FormatResourceStatus());
             SetText(honorText, DuelDebugPanelFormatter.FormatHonor(duelState));
             SetText(playerHealthText, DuelDebugPanelFormatter.FormatPlayerHealth(duelState));
             SetText(opponentHealthText, DuelDebugPanelFormatter.FormatOpponentHealth(duelState));
-            SetText(selectedActionText, DuelDebugPanelFormatter.FormatSelectedAbility(duelState, selectedAbilityId));
+            SetText(selectedAbilityText, DuelDebugPanelFormatter.FormatSelectedAbility(duelState, selectedAbilityId));
             SetText(
                 selectedClashText,
                 DuelDebugPanelFormatter.FormatSelectedClash(duelState, selectedClashIndex));
@@ -672,30 +655,26 @@ namespace Game.Presentation.Debug
                 duelState.honor > 0);
         }
 
-        void RefreshActionBlocks()
+        void RefreshAbilityBlocks()
         {
-            ClearActionBlocks();
+            ClearAbilityBlocks();
 
             if (duelState == null || duelState.abilitiesById == null)
             {
                 return;
             }
 
-            if (abilityHolderActionBlockRoot != null && duelState.abilityHolderAbilityIds != null)
+            if (bagAbilityBlockRoot != null && duelState.bagAbilityIds != null)
             {
-                for (int i = 0; i < duelState.abilityHolderAbilityIds.Count; i++)
+                for (int i = 0; i < duelState.bagAbilityIds.Count; i++)
                 {
-                    CreateActionBlock(abilityHolderActionBlockRoot, duelState.abilityHolderAbilityIds[i], true, true);
+                    CreateAbilityBlock(bagAbilityBlockRoot, duelState.bagAbilityIds[i], true, true);
                 }
             }
 
-            for (int clashIndex = 0; clashIndex < DuelState.defaultClashCount; clashIndex++)
+            int clashViewCount = ResolveClashViewCount();
+            for (int clashIndex = 0; clashIndex < clashViewCount; clashIndex++)
             {
-                if (clashIndex >= duelState.clashes.Count)
-                {
-                    continue;
-                }
-
                 ClashState clash = duelState.clashes[clashIndex];
                 if (clash == null)
                 {
@@ -704,27 +683,27 @@ namespace Game.Presentation.Debug
 
                 clash.EnsureInitialized();
 
-                RectTransform playerRoot = clashPlayerActionBlockRoots[clashIndex];
+                RectTransform playerRoot = clashPlayerAbilityBlockRoots[clashIndex];
                 if (playerRoot != null)
                 {
-                    for (int i = 0; i < clash.playerActionIds.Count; i++)
+                    for (int i = 0; i < clash.playerAbilityIds.Count; i++)
                     {
-                        CreateActionBlock(playerRoot, clash.playerActionIds[i], true, true);
+                        CreateAbilityBlock(playerRoot, clash.playerAbilityIds[i], true, true);
                     }
                 }
 
-                RectTransform opponentRoot = clashOpponentActionBlockRoots[clashIndex];
+                RectTransform opponentRoot = clashOpponentAbilityBlockRoots[clashIndex];
                 if (opponentRoot != null)
                 {
-                    for (int i = 0; i < clash.opponentActionIds.Count; i++)
+                    for (int i = 0; i < clash.opponentAbilityIds.Count; i++)
                     {
-                        CreateActionBlock(opponentRoot, clash.opponentActionIds[i], false, false);
+                        CreateAbilityBlock(opponentRoot, clash.opponentAbilityIds[i], false, false);
                     }
                 }
             }
         }
 
-        void CreateActionBlock(
+        void CreateAbilityBlock(
             RectTransform parent,
             string abilityId,
             bool isPlayerSide,
@@ -753,9 +732,9 @@ namespace Game.Presentation.Debug
             }
             bool isSelected = string.Equals(abilityId, selectedAbilityId, StringComparison.Ordinal);
 
-            DuelAbilityBlockView actionBlock = Instantiate(actionBlockPrefab, parent);
-            actionBlock.name = $"AbilityBlock_{abilityId}";
-            actionBlock.Bind(
+            DuelAbilityBlockView abilityBlock = Instantiate(abilityBlockPrefab, parent);
+            abilityBlock.name = $"AbilityBlock_{abilityId}";
+            abilityBlock.Bind(
                 abilityDefId,
                 ability.attack,
                 ability.attackResult,
@@ -765,23 +744,41 @@ namespace Game.Presentation.Debug
                 canSelect,
                 () => SelectAbility(abilityId));
 
-            spawnedActionBlocks.Add(actionBlock);
+            spawnedAbilityBlocks.Add(abilityBlock);
         }
 
-        void ClearActionBlocks()
+        void ClearAbilityBlocks()
         {
-            for (int i = 0; i < spawnedActionBlocks.Count; i++)
+            for (int i = 0; i < spawnedAbilityBlocks.Count; i++)
             {
-                DuelAbilityBlockView actionBlock = spawnedActionBlocks[i];
-                if (actionBlock == null)
+                DuelAbilityBlockView abilityBlock = spawnedAbilityBlocks[i];
+                if (abilityBlock == null)
                 {
                     continue;
                 }
 
-                Destroy(actionBlock.gameObject);
+                Destroy(abilityBlock.gameObject);
             }
 
-            spawnedActionBlocks.Clear();
+            spawnedAbilityBlocks.Clear();
+        }
+
+        int ResolveClashViewCount()
+        {
+            if (duelState == null || duelState.clashes == null)
+            {
+                return 0;
+            }
+
+            int playerRootCount = clashPlayerAbilityBlockRoots == null
+                ? 0
+                : clashPlayerAbilityBlockRoots.Length;
+            int opponentRootCount = clashOpponentAbilityBlockRoots == null
+                ? 0
+                : clashOpponentAbilityBlockRoots.Length;
+            int viewCount = Mathf.Min(duelState.clashes.Count, playerRootCount);
+            viewCount = Mathf.Min(viewCount, opponentRootCount);
+            return Mathf.Max(0, viewCount);
         }
 
         string ResolveAbilityDefIdForDisplay(string abilityId)
@@ -803,9 +800,9 @@ namespace Game.Presentation.Debug
             return ability.abilityDefId;
         }
 
-        void RejectAction(string actionName, string reason)
+        void RejectCommand(string commandName, string reason)
         {
-            WarnAndLog($"{actionName} rejected: {reason}");
+            WarnAndLog($"{commandName} rejected: {reason}");
             RefreshView();
         }
 
@@ -875,7 +872,7 @@ namespace Game.Presentation.Debug
             ConfigureButtonLabelAlignment(rollButton);
             ConfigureButtonLabelAlignment(resolveButton);
             ConfigureButtonLabelAlignment(surrenderButton);
-            ConfigureButtonLabelAlignment(selectFirstAbilityHolderActionButton);
+            ConfigureButtonLabelAlignment(selectFirstBagAbilityButton);
 
             if (logText != null)
             {
@@ -946,21 +943,21 @@ namespace Game.Presentation.Debug
             BindButton(rollButton, Roll);
             BindButton(resolveButton, ClashResolve);
             BindButton(surrenderButton, Surrender);
-            BindButton(selectFirstAbilityHolderActionButton, SelectFirstAbilityHolderAction);
+            BindButton(selectFirstBagAbilityButton, SelectFirstBagAbility);
             BindButton(selectClash0Button, SelectClash0);
             BindButton(selectClash1Button, SelectClash1);
             BindButton(selectClash2Button, SelectClash2);
         }
 
-        static void BindButton(Button button, UnityEngine.Events.UnityAction action)
+        static void BindButton(Button button, UnityEngine.Events.UnityAction callback)
         {
-            if (button == null || action == null)
+            if (button == null || callback == null)
             {
                 return;
             }
 
             button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(action);
+            button.onClick.AddListener(callback);
         }
 
         bool ValidateBindings(out string errorMessage)
@@ -969,11 +966,11 @@ namespace Game.Presentation.Debug
 
             ValidateRequired(phaseText, nameof(phaseText), missing);
             ValidateRequired(turnText, nameof(turnText), missing);
-            ValidateRequired(focusText, nameof(focusText), missing);
+            ValidateRequired(resourceText, nameof(resourceText), missing);
             ValidateRequired(honorText, nameof(honorText), missing);
             ValidateRequired(playerHealthText, nameof(playerHealthText), missing);
             ValidateRequired(opponentHealthText, nameof(opponentHealthText), missing);
-            ValidateRequired(selectedActionText, nameof(selectedActionText), missing);
+            ValidateRequired(selectedAbilityText, nameof(selectedAbilityText), missing);
             ValidateRequired(selectedClashText, nameof(selectedClashText), missing);
             ValidateRequired(clash0Text, nameof(clash0Text), missing);
             ValidateRequired(clash1Text, nameof(clash1Text), missing);
@@ -985,44 +982,44 @@ namespace Game.Presentation.Debug
             ValidateRequired(rollButton, nameof(rollButton), missing);
             ValidateRequired(resolveButton, nameof(resolveButton), missing);
             ValidateRequired(surrenderButton, nameof(surrenderButton), missing);
-            ValidateRequired(selectFirstAbilityHolderActionButton, nameof(selectFirstAbilityHolderActionButton), missing);
+            ValidateRequired(selectFirstBagAbilityButton, nameof(selectFirstBagAbilityButton), missing);
             ValidateRequired(selectClash0Button, nameof(selectClash0Button), missing);
             ValidateRequired(selectClash1Button, nameof(selectClash1Button), missing);
             ValidateRequired(selectClash2Button, nameof(selectClash2Button), missing);
 
-            ValidateRequired(actionBlockPrefab, nameof(actionBlockPrefab), missing);
-            ValidateRequired(abilityHolderActionBlockRoot, nameof(abilityHolderActionBlockRoot), missing);
+            ValidateRequired(abilityBlockPrefab, nameof(abilityBlockPrefab), missing);
+            ValidateRequired(bagAbilityBlockRoot, nameof(bagAbilityBlockRoot), missing);
             ValidateRequired(logText, nameof(logText), missing);
             ValidateRequired(logScrollRect, nameof(logScrollRect), missing);
 
-            if (clashPlayerActionBlockRoots == null ||
-                clashPlayerActionBlockRoots.Length != DuelState.defaultClashCount)
+            if (clashPlayerAbilityBlockRoots == null ||
+                clashPlayerAbilityBlockRoots.Length != clashUiSlotCount)
             {
-                missing.Add(nameof(clashPlayerActionBlockRoots));
+                missing.Add(nameof(clashPlayerAbilityBlockRoots));
             }
             else
             {
-                for (int i = 0; i < clashPlayerActionBlockRoots.Length; i++)
+                for (int i = 0; i < clashPlayerAbilityBlockRoots.Length; i++)
                 {
-                    if (clashPlayerActionBlockRoots[i] == null)
+                    if (clashPlayerAbilityBlockRoots[i] == null)
                     {
-                        missing.Add($"{nameof(clashPlayerActionBlockRoots)}[{i}]");
+                        missing.Add($"{nameof(clashPlayerAbilityBlockRoots)}[{i}]");
                     }
                 }
             }
 
-            if (clashOpponentActionBlockRoots == null ||
-                clashOpponentActionBlockRoots.Length != DuelState.defaultClashCount)
+            if (clashOpponentAbilityBlockRoots == null ||
+                clashOpponentAbilityBlockRoots.Length != clashUiSlotCount)
             {
-                missing.Add(nameof(clashOpponentActionBlockRoots));
+                missing.Add(nameof(clashOpponentAbilityBlockRoots));
             }
             else
             {
-                for (int i = 0; i < clashOpponentActionBlockRoots.Length; i++)
+                for (int i = 0; i < clashOpponentAbilityBlockRoots.Length; i++)
                 {
-                    if (clashOpponentActionBlockRoots[i] == null)
+                    if (clashOpponentAbilityBlockRoots[i] == null)
                     {
-                        missing.Add($"{nameof(clashOpponentActionBlockRoots)}[{i}]");
+                        missing.Add($"{nameof(clashOpponentAbilityBlockRoots)}[{i}]");
                     }
                 }
             }
@@ -1050,81 +1047,76 @@ namespace Game.Presentation.Debug
         {
             phaseText = AssignByNames(phaseText, "PhaseText");
             turnText = AssignByNames(turnText, "TurnText");
-            focusText = AssignByNames(focusText, "FocusText", "ManaText");
-            honorText = AssignByNames(honorText, "HonorText", "StabilityText");
-            playerHealthText = AssignByNames(playerHealthText, "PlayerHealthText", "PlayerMoraleText");
-            opponentHealthText = AssignByNames(opponentHealthText, "OpponentHealthText", "EnemyMoraleText");
-            selectedActionText = AssignByNames(selectedActionText, "SelectedActionText", "SelectedTroopText");
-            selectedClashText = AssignByNames(selectedClashText, "SelectedClashText", "SelectedBattlefieldText");
+            resourceText = AssignByNames(resourceText, "ResourceText");
+            honorText = AssignByNames(honorText, "HonorText");
+            playerHealthText = AssignByNames(playerHealthText, "PlayerHealthText");
+            opponentHealthText = AssignByNames(opponentHealthText, "OpponentHealthText");
+            selectedAbilityText = AssignByNames(selectedAbilityText, "SelectedAbilityText");
+            selectedClashText = AssignByNames(selectedClashText, "SelectedClashText");
 
-            clash0Text = AssignByNames(clash0Text, "Clash0Text", "Battlefield0Text");
-            clash1Text = AssignByNames(clash1Text, "Clash1Text", "Battlefield1Text");
-            clash2Text = AssignByNames(clash2Text, "Clash2Text", "Battlefield2Text");
+            clash0Text = AssignByNames(clash0Text, "Clash0Text");
+            clash1Text = AssignByNames(clash1Text, "Clash1Text");
+            clash2Text = AssignByNames(clash2Text, "Clash2Text");
 
-            startDuelButton = AssignByNames(startDuelButton, "StartDuelButton", "StartBattleButton");
-            opponentDeployButton = AssignByNames(opponentDeployButton, "OpponentSetupButton", "EnemyDeployButton");
-            playerDeployButton = AssignByNames(playerDeployButton, "PlayerSetupButton", "PlayerDeployButton");
+            startDuelButton = AssignByNames(startDuelButton, "StartDuelButton");
+            opponentDeployButton = AssignByNames(opponentDeployButton, "OpponentSetupButton");
+            playerDeployButton = AssignByNames(playerDeployButton, "PlayerSetupButton");
             deploySelectedButton = AssignByNames(deploySelectedButton, "DeploySelectedButton");
             rollButton = AssignByNames(rollButton, "RollButton");
-            resolveButton = AssignByNames(resolveButton, "ClashResolveButton", "ResolveButton");
+            resolveButton = AssignByNames(resolveButton, "ClashResolveButton");
             surrenderButton = AssignByNames(surrenderButton, "SurrenderButton");
-            selectFirstAbilityHolderActionButton = AssignByNames(
-                selectFirstAbilityHolderActionButton,
-                "SelectFirstAbilityHolderActionButton",
-                "SelectFirstCampTroopButton");
-            selectClash0Button = AssignByNames(selectClash0Button, "SelectClash0Button", "SelectBattlefield0Button");
-            selectClash1Button = AssignByNames(selectClash1Button, "SelectClash1Button", "SelectBattlefield1Button");
-            selectClash2Button = AssignByNames(selectClash2Button, "SelectClash2Button", "SelectBattlefield2Button");
+            selectFirstBagAbilityButton = AssignByNames(
+                selectFirstBagAbilityButton,
+                "SelectFirstBagAbilityButton");
+            selectClash0Button = AssignByNames(selectClash0Button, "SelectClash0Button");
+            selectClash1Button = AssignByNames(selectClash1Button, "SelectClash1Button");
+            selectClash2Button = AssignByNames(selectClash2Button, "SelectClash2Button");
 
-            abilityHolderActionBlockRoot = AssignByNames(abilityHolderActionBlockRoot, "AbilityHolderActionBlockRoot", "CampTroopBlockRoot");
-            EnsureActionRootArrays();
-            clashPlayerActionBlockRoots[0] = AssignByNames(
-                clashPlayerActionBlockRoots[0],
-                "Clash0PlayerActionBlockRoot",
-                "Battlefield0PlayerTroopBlockRoot");
-            clashPlayerActionBlockRoots[1] = AssignByNames(
-                clashPlayerActionBlockRoots[1],
-                "Clash1PlayerActionBlockRoot",
-                "Battlefield1PlayerTroopBlockRoot");
-            clashPlayerActionBlockRoots[2] = AssignByNames(
-                clashPlayerActionBlockRoots[2],
-                "Clash2PlayerActionBlockRoot",
-                "Battlefield2PlayerTroopBlockRoot");
+            bagAbilityBlockRoot = AssignByNames(
+                bagAbilityBlockRoot,
+                "BagAbilityBlockRoot");
+            EnsureAbilityRootArrays();
+            clashPlayerAbilityBlockRoots[0] = AssignByNames(
+                clashPlayerAbilityBlockRoots[0],
+                "Clash0PlayerAbilityBlockRoot");
+            clashPlayerAbilityBlockRoots[1] = AssignByNames(
+                clashPlayerAbilityBlockRoots[1],
+                "Clash1PlayerAbilityBlockRoot");
+            clashPlayerAbilityBlockRoots[2] = AssignByNames(
+                clashPlayerAbilityBlockRoots[2],
+                "Clash2PlayerAbilityBlockRoot");
 
-            clashOpponentActionBlockRoots[0] = AssignByNames(
-                clashOpponentActionBlockRoots[0],
-                "Clash0OpponentActionBlockRoot",
-                "Battlefield0OpponentActionBlockRoot");
-            clashOpponentActionBlockRoots[1] = AssignByNames(
-                clashOpponentActionBlockRoots[1],
-                "Clash1OpponentActionBlockRoot",
-                "Battlefield1OpponentActionBlockRoot");
-            clashOpponentActionBlockRoots[2] = AssignByNames(
-                clashOpponentActionBlockRoots[2],
-                "Clash2OpponentActionBlockRoot",
-                "Battlefield2OpponentActionBlockRoot");
+            clashOpponentAbilityBlockRoots[0] = AssignByNames(
+                clashOpponentAbilityBlockRoots[0],
+                "Clash0OpponentAbilityBlockRoot");
+            clashOpponentAbilityBlockRoots[1] = AssignByNames(
+                clashOpponentAbilityBlockRoots[1],
+                "Clash1OpponentAbilityBlockRoot");
+            clashOpponentAbilityBlockRoots[2] = AssignByNames(
+                clashOpponentAbilityBlockRoots[2],
+                "Clash2OpponentAbilityBlockRoot");
 
             logText = AssignByNames(logText, "LogText");
             logScrollRect = AssignByNames(logScrollRect, "LogScrollRect");
 
-            if (actionBlockPrefab == null)
+            if (abilityBlockPrefab == null)
             {
-                actionBlockPrefab = AssetDatabase.LoadAssetAtPath<DuelAbilityBlockView>(actionBlockPrefabPath);
+                abilityBlockPrefab = AssetDatabase.LoadAssetAtPath<DuelAbilityBlockView>(abilityBlockPrefabPath);
             }
         }
 
-        void EnsureActionRootArrays()
+        void EnsureAbilityRootArrays()
         {
-            if (clashPlayerActionBlockRoots == null ||
-                clashPlayerActionBlockRoots.Length != DuelState.defaultClashCount)
+            if (clashPlayerAbilityBlockRoots == null ||
+                clashPlayerAbilityBlockRoots.Length != clashUiSlotCount)
             {
-                clashPlayerActionBlockRoots = new RectTransform[DuelState.defaultClashCount];
+                clashPlayerAbilityBlockRoots = new RectTransform[clashUiSlotCount];
             }
 
-            if (clashOpponentActionBlockRoots == null ||
-                clashOpponentActionBlockRoots.Length != DuelState.defaultClashCount)
+            if (clashOpponentAbilityBlockRoots == null ||
+                clashOpponentAbilityBlockRoots.Length != clashUiSlotCount)
             {
-                clashOpponentActionBlockRoots = new RectTransform[DuelState.defaultClashCount];
+                clashOpponentAbilityBlockRoots = new RectTransform[clashUiSlotCount];
             }
         }
 
@@ -1202,3 +1194,6 @@ namespace Game.Presentation.Debug
         }
     }
 }
+
+
+

@@ -26,11 +26,6 @@ namespace Game.Presentation.Debug
             return "Resource: none";
         }
 
-        public static string FormatFocus(DuelState duelState)
-        {
-            return FormatResourceStatus();
-        }
-
         public static string FormatHonor(DuelState duelState)
         {
             int honor = duelState == null ? 0 : duelState.honor;
@@ -68,8 +63,8 @@ namespace Game.Presentation.Debug
                 return $"Clash {clashIndex}: (missing)";
             }
 
-            int playerCount = clash.playerActionIds == null ? 0 : clash.playerActionIds.Count;
-            int opponentCount = clash.opponentActionIds == null ? 0 : clash.opponentActionIds.Count;
+            int playerCount = clash.playerAbilityIds == null ? 0 : clash.playerAbilityIds.Count;
+            int opponentCount = clash.opponentAbilityIds == null ? 0 : clash.opponentAbilityIds.Count;
 
             int playerTotalAttack = DuelSimulator.ComputeTotalAttack(
                 clash,
@@ -100,13 +95,13 @@ namespace Game.Presentation.Debug
                 $"Clash {clashIndex} ({clashId}) | TotalAttack P:{playerTotalAttack} E:{opponentTotalAttack} | Abilities P:{playerCount} E:{opponentCount} | Slot:{slotLabel} | {damageLabel}";
         }
 
-        public static string FormatAbilityHolderActions(DuelState duelState, string selectedAbilityId)
+        public static string FormatBagAbilities(DuelState duelState, string selectedAbilityId)
         {
             string selectedLine = FormatSelectedAbility(duelState, selectedAbilityId);
 
             if (duelState == null ||
-                duelState.abilityHolderAbilityIds == null ||
-                duelState.abilityHolderAbilityIds.Count <= 0)
+                duelState.bagAbilityIds == null ||
+                duelState.bagAbilityIds.Count <= 0)
             {
                 return $"{selectedLine}\nBag Abilities: none";
             }
@@ -114,12 +109,12 @@ namespace Game.Presentation.Debug
             var lines = new List<string>
             {
                 selectedLine,
-                $"Bag Abilities ({duelState.abilityHolderAbilityIds.Count}):"
+                $"Bag Abilities ({duelState.bagAbilityIds.Count}):"
             };
 
-            for (int i = 0; i < duelState.abilityHolderAbilityIds.Count; i++)
+            for (int i = 0; i < duelState.bagAbilityIds.Count; i++)
             {
-                string abilityId = duelState.abilityHolderAbilityIds[i];
+                string abilityId = duelState.bagAbilityIds[i];
                 if (!TryResolveAbility(duelState, abilityId, out AbilityInstance ability))
                 {
                     lines.Add("- (missing ability)");
@@ -145,11 +140,6 @@ namespace Game.Presentation.Debug
             return ResolveEffectsLabel(abilityDef);
         }
 
-        public static string FormatActionEffects(GameDatabase database, string abilityDefId)
-        {
-            return FormatAbilityEffects(database, abilityDefId);
-        }
-
         public static string FormatSelectedAbility(DuelState duelState, string selectedAbilityId)
         {
             if (string.IsNullOrWhiteSpace(selectedAbilityId))
@@ -173,11 +163,6 @@ namespace Game.Presentation.Debug
             return $"Selected Ability: {abilityDefId} | Type:{ability.abilityType} | Damage:{ability.attack} | Attack Result:{ability.attackResult} | CD:{cooldownLabel} | {location}";
         }
 
-        public static string FormatSelectedAction(DuelState duelState, string selectedAbilityId)
-        {
-            return FormatSelectedAbility(duelState, selectedAbilityId);
-        }
-
         public static string FormatSelectedClash(DuelState duelState, int selectedClashIndex)
         {
             if (duelState == null ||
@@ -194,8 +179,8 @@ namespace Game.Presentation.Debug
                 return $"Selected Clash: {selectedClashIndex} (missing)";
             }
 
-            int playerCount = clash.playerActionIds == null ? 0 : clash.playerActionIds.Count;
-            int opponentCount = clash.opponentActionIds == null ? 0 : clash.opponentActionIds.Count;
+            int playerCount = clash.playerAbilityIds == null ? 0 : clash.playerAbilityIds.Count;
+            int opponentCount = clash.opponentAbilityIds == null ? 0 : clash.opponentAbilityIds.Count;
             string clashId = string.IsNullOrWhiteSpace(clash.clashId)
                 ? "(no-id)"
                 : clash.clashId;
@@ -206,7 +191,7 @@ namespace Game.Presentation.Debug
 
         static string ResolveAbilityLocation(DuelState duelState, string abilityId)
         {
-            if (duelState.abilityHolderAbilityIds != null && duelState.abilityHolderAbilityIds.Contains(abilityId))
+            if (duelState.bagAbilityIds != null && duelState.bagAbilityIds.Contains(abilityId))
             {
                 return "bag";
             }
@@ -224,12 +209,12 @@ namespace Game.Presentation.Debug
                     continue;
                 }
 
-                if (field.playerActionIds != null && field.playerActionIds.Contains(abilityId))
+                if (field.playerAbilityIds != null && field.playerAbilityIds.Contains(abilityId))
                 {
                     return $"player@{i}";
                 }
 
-                if (field.opponentActionIds != null && field.opponentActionIds.Contains(abilityId))
+                if (field.opponentAbilityIds != null && field.opponentAbilityIds.Contains(abilityId))
                 {
                     return $"opponent@{i}";
                 }
@@ -397,8 +382,7 @@ namespace Game.Presentation.Debug
             for (int i = 0; i < tokens.Length; i++)
             {
                 string token = tokens[i];
-                if (string.Equals(token, "action", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(token, "ability", StringComparison.OrdinalIgnoreCase) ||
+                if (string.Equals(token, "ability", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(token, "name", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(token, "desc", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(token, "loc", StringComparison.OrdinalIgnoreCase) ||
@@ -463,3 +447,5 @@ namespace Game.Presentation.Debug
         }
     }
 }
+
+

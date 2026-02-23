@@ -69,7 +69,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void RollAction_UsesRangeFromOneToAttack()
+        public void RollAbility_UsesRangeFromOneToAttack()
         {
             var ability = new AbilityInstance
             {
@@ -77,7 +77,7 @@ namespace Game.Tests.EditMode
             };
             var fakeRollSource = new FakeRollSource(4);
 
-            DuelSimulator.RollAction(ability, fakeRollSource);
+            DuelSimulator.RollAbility(ability, fakeRollSource);
 
             Assert.AreEqual(1, fakeRollSource.lastMinInclusive);
             Assert.AreEqual(6, fakeRollSource.lastMaxInclusive);
@@ -86,7 +86,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void RollAction_IncludesAttackModifiersBeforeRolling()
+        public void RollAbility_IncludesAttackModifiersBeforeRolling()
         {
             var ability = new AbilityInstance
             {
@@ -102,7 +102,7 @@ namespace Game.Tests.EditMode
             };
             var fakeRollSource = new FakeRollSource(6);
 
-            DuelSimulator.RollAction(ability, fakeRollSource);
+            DuelSimulator.RollAbility(ability, fakeRollSource);
 
             Assert.AreEqual(1, fakeRollSource.lastMinInclusive);
             Assert.AreEqual(6, fakeRollSource.lastMaxInclusive);
@@ -114,17 +114,17 @@ namespace Game.Tests.EditMode
         {
             var clash = new ClashState
             {
-                playerActionIds = new List<string> { "p1", "p2" },
-                opponentActionIds = new List<string> { "e1" },
+                playerAbilityIds = new List<string> { "p1", "p2" },
+                opponentAbilityIds = new List<string> { "e1" },
                 totalAttackBonusPlayer = 2,
                 totalAttackBonusOpponent = 3
             };
 
             var abilitiesById = new Dictionary<string, AbilityInstance>
             {
-                { "p1", CreateAction("p1", 4) },
-                { "p2", CreateAction("p2", 1) },
-                { "e1", CreateAction("e1", 2) }
+                { "p1", CreateAbility("p1", 4) },
+                { "p2", CreateAbility("p2", 1) },
+                { "e1", CreateAbility("e1", 2) }
             };
 
             int playerStrength = DuelSimulator.ComputeTotalAttack(clash, abilitiesById, true);
@@ -151,11 +151,12 @@ namespace Game.Tests.EditMode
                 playerHealth = 1,
                 opponentHealth = 5
             };
+            AddClashes(state, 3);
 
-            state.abilitiesById["p0"] = CreateAction("p0", 1);
-            state.abilitiesById["e0"] = CreateAction("e0", 5);
-            state.abilitiesById["p1"] = CreateAction("p1", 10);
-            state.abilitiesById["e1"] = CreateAction("e1", 1);
+            state.abilitiesById["p0"] = CreateAbility("p0", 1);
+            state.abilitiesById["e0"] = CreateAbility("e0", 5);
+            state.abilitiesById["p1"] = CreateAbility("p1", 10);
+            state.abilitiesById["e1"] = CreateAbility("e1", 1);
 
             state.abilitiesById["p0"].attackModifiers.Add(new NumericModifier
             {
@@ -164,10 +165,10 @@ namespace Game.Tests.EditMode
                 value = 1
             });
 
-            state.clashes[0].playerActionIds.Add("p0");
-            state.clashes[0].opponentActionIds.Add("e0");
-            state.clashes[1].playerActionIds.Add("p1");
-            state.clashes[1].opponentActionIds.Add("e1");
+            state.clashes[0].playerAbilityIds.Add("p0");
+            state.clashes[0].opponentAbilityIds.Add("e0");
+            state.clashes[1].playerAbilityIds.Add("p1");
+            state.clashes[1].opponentAbilityIds.Add("e1");
 
             int resolvedCount = DuelSimulator.ClashResolveClashesInOrder(state);
 
@@ -186,20 +187,21 @@ namespace Game.Tests.EditMode
                 playerHealth = 5,
                 opponentHealth = 5
             };
+            AddClashes(state, 3);
 
-            state.abilitiesById["p0"] = CreateAction("p0", 4);
-            state.abilitiesById["e0"] = CreateAction("e0", 2);
-            state.abilitiesById["p1"] = CreateAction("p1", 2);
-            state.abilitiesById["e1"] = CreateAction("e1", 2);
-            state.abilitiesById["p2"] = CreateAction("p2", 2);
-            state.abilitiesById["e2"] = CreateAction("e2", 3);
+            state.abilitiesById["p0"] = CreateAbility("p0", 4);
+            state.abilitiesById["e0"] = CreateAbility("e0", 2);
+            state.abilitiesById["p1"] = CreateAbility("p1", 2);
+            state.abilitiesById["e1"] = CreateAbility("e1", 2);
+            state.abilitiesById["p2"] = CreateAbility("p2", 2);
+            state.abilitiesById["e2"] = CreateAbility("e2", 3);
 
-            state.clashes[0].playerActionIds.Add("p0");
-            state.clashes[0].opponentActionIds.Add("e0");
-            state.clashes[1].playerActionIds.Add("p1");
-            state.clashes[1].opponentActionIds.Add("e1");
-            state.clashes[2].playerActionIds.Add("p2");
-            state.clashes[2].opponentActionIds.Add("e2");
+            state.clashes[0].playerAbilityIds.Add("p0");
+            state.clashes[0].opponentAbilityIds.Add("e0");
+            state.clashes[1].playerAbilityIds.Add("p1");
+            state.clashes[1].opponentAbilityIds.Add("e1");
+            state.clashes[2].playerAbilityIds.Add("p2");
+            state.clashes[2].opponentAbilityIds.Add("e2");
 
             int resolvedCount = DuelSimulator.ClashResolveClashesInOrder(state);
 
@@ -209,7 +211,7 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(5, state.opponentHealth);
         }
 
-        static AbilityInstance CreateAction(string abilityId, int attackResultValue)
+        static AbilityInstance CreateAbility(string abilityId, int attackResultValue)
         {
             return new AbilityInstance
             {
@@ -218,6 +220,15 @@ namespace Game.Tests.EditMode
                 baseRoll = attackResultValue,
                 attackResult = attackResultValue
             };
+        }
+
+        static void AddClashes(DuelState state, int count)
+        {
+            state.clashes.Clear();
+            for (int i = 0; i < count; i++)
+            {
+                state.clashes.Add(new ClashState());
+            }
         }
 
         sealed class FakeRollSource : IRollSource
@@ -241,3 +252,5 @@ namespace Game.Tests.EditMode
         }
     }
 }
+
+

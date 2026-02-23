@@ -145,7 +145,7 @@ namespace Game.Application.Duel.Effects
             {
                 case "Always":
                     return true;
-                case "IsInAbilityHolder":
+                case "IsInBag":
                     return sourceContext.clashIndex < 0;
                 case "OpponentCountEquals":
                 {
@@ -232,9 +232,7 @@ namespace Game.Application.Duel.Effects
                         candidateContext.abilityId,
                         StringComparison.Ordinal);
                 case "AllAbilities":
-                case "AllActions":
                     return true;
-                case "SameClashActions":
                 case "SameClashAbilities":
                 case "SameClash":
                     return sourceContext.clashIndex >= 0 &&
@@ -467,15 +465,15 @@ namespace Game.Application.Duel.Effects
             var contexts = new List<AbilityRuntimeContext>();
             var visitedAbilityIds = new HashSet<string>(StringComparer.Ordinal);
 
-            if (state.abilityHolderAbilityIds != null)
+            if (state.bagAbilityIds != null)
             {
-                for (int i = 0; i < state.abilityHolderAbilityIds.Count; i++)
+                for (int i = 0; i < state.bagAbilityIds.Count; i++)
                 {
                     TryAddContext(
                         contexts,
                         visitedAbilityIds,
                         state,
-                        state.abilityHolderAbilityIds[i],
+                        state.bagAbilityIds[i],
                         true,
                         -1);
                 }
@@ -496,24 +494,24 @@ namespace Game.Application.Duel.Effects
 
                 clash.EnsureInitialized();
 
-                for (int i = 0; i < clash.playerActionIds.Count; i++)
+                for (int i = 0; i < clash.playerAbilityIds.Count; i++)
                 {
                     TryAddContext(
                         contexts,
                         visitedAbilityIds,
                         state,
-                        clash.playerActionIds[i],
+                        clash.playerAbilityIds[i],
                         true,
                         clashIndex);
                 }
 
-                for (int i = 0; i < clash.opponentActionIds.Count; i++)
+                for (int i = 0; i < clash.opponentAbilityIds.Count; i++)
                 {
                     TryAddContext(
                         contexts,
                         visitedAbilityIds,
                         state,
-                        clash.opponentActionIds[i],
+                        clash.opponentAbilityIds[i],
                         false,
                         clashIndex);
                 }
@@ -575,3 +573,4 @@ namespace Game.Application.Duel.Effects
         }
     }
 }
+

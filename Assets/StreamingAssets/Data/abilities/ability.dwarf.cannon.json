@@ -13,8 +13,9 @@
       "timing": "Roll",
       "condition": { "type": "Always" },
       "ops": [
-        { "op": "ModifyAttackResult", "scope": "SameClashActions", "side": "Opponent", "mode": "Add", "value": -1, "textLocKey": "effect_dwarf_cannon_opponent_minus_one" }
+        { "op": "ModifyAttackResult", "scope": "SameClashAbilities", "side": "Opponent", "mode": "Add", "value": -1, "textLocKey": "effect_dwarf_cannon_opponent_minus_one" }
       ]
     }
   ]
 }
+
