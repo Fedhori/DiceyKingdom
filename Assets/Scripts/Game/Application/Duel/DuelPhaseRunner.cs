@@ -81,19 +81,19 @@ namespace Game.Application.Duel
             return true;
         }
 
-        public bool TryRetreat()
+        public bool TrySurrender()
         {
             if (!isStarted)
             {
                 LastFailureReason = DuelPhaseFailureReason.NotStarted;
-                Debug.LogWarning("[DuelPhaseRunner] TryRetreat rejected: duel is not started.");
+                Debug.LogWarning("[DuelPhaseRunner] TrySurrender rejected: duel is not started.");
                 return false;
             }
 
             if (state.isDuelEnded)
             {
                 LastFailureReason = DuelPhaseFailureReason.AlreadyEnded;
-                Debug.LogWarning("[DuelPhaseRunner] TryRetreat rejected: duel already ended.");
+                Debug.LogWarning("[DuelPhaseRunner] TrySurrender rejected: duel already ended.");
                 return false;
             }
 
@@ -101,14 +101,14 @@ namespace Game.Application.Duel
             {
                 LastFailureReason = DuelPhaseFailureReason.InvalidPhase;
                 Debug.LogWarning(
-                    $"[DuelPhaseRunner] TryRetreat rejected: current phase is {currentPhase}, required phase is {DuelPhase.PlayerSetup}.");
+                    $"[DuelPhaseRunner] TrySurrender rejected: current phase is {currentPhase}, required phase is {DuelPhase.PlayerSetup}.");
                 return false;
             }
 
             if (state.honor <= 0)
             {
                 LastFailureReason = DuelPhaseFailureReason.HonorInsufficient;
-                Debug.LogWarning("[DuelPhaseRunner] TryRetreat rejected: honor is not greater than zero.");
+                Debug.LogWarning("[DuelPhaseRunner] TrySurrender rejected: honor is not greater than zero.");
                 return false;
             }
 

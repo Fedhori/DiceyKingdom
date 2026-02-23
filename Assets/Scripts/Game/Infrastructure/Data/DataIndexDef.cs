@@ -15,13 +15,23 @@ namespace Game.Infrastructure.Data
         [JsonProperty("clashes", Required = Required.Always)]
         public List<string> clashes = new();
 
-        [JsonProperty("actions", Required = Required.Always)]
-        public List<string> actions = new();
+        [JsonProperty("abilities", Required = Required.Default)]
+        public List<string> abilities = new();
 
-        [JsonProperty("cards", Required = Required.Always)]
-        public List<string> cards = new();
+        [JsonProperty("actions", Required = Required.Default)]
+        public List<string> legacyActions = new();
 
         [JsonProperty("encounters", Required = Required.Always)]
         public List<string> encounters = new();
+
+        public IReadOnlyList<string> ResolveAbilityPaths()
+        {
+            if (abilities != null && abilities.Count > 0)
+            {
+                return abilities;
+            }
+
+            return legacyActions ?? new List<string>();
+        }
     }
 }

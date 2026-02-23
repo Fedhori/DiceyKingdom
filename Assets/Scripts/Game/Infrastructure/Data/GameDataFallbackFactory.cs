@@ -17,8 +17,6 @@ namespace Game.Infrastructure.Data
   ""schemaVersion"": 1,
   ""id"": ""duel.config"",
   ""clashCount"": 3,
-  ""focusMax"": 5,
-  ""focusRegenPerTurn"": 2,
   ""cooldownTickPerTurn"": -1,
   ""attackResultMin"": 1,
   ""p0Rules"": {
@@ -33,7 +31,7 @@ namespace Game.Infrastructure.Data
   ""schemaVersion"": 1,
   ""id"": ""run.config"",
   ""startingHonor"": 3,
-  ""supplyLimit"": 5
+  ""capacity"": 5
 }");
             database.runConfigSourcePath = FallbackSourcePath;
 
@@ -42,9 +40,8 @@ namespace Game.Infrastructure.Data
   ""schemaVersion"": 1,
   ""id"": ""player.start"",
   ""startingHonor"": 3,
-  ""startingFocus"": 5,
   ""startingPlayerHealth"": 10,
-  ""startingSquadCardIds"": []
+  ""startingBagAbilityIds"": []
 }");
             database.playerStartSourcePath = FallbackSourcePath;
 

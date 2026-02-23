@@ -16,7 +16,7 @@ namespace Game.Presentation.Debug
     public sealed class DuelDebugPanel : MonoBehaviour
     {
         const string debugEncounterId = "encounter.debug.01";
-        const string actionBlockPrefabPath = "Assets/Prefabs/Ui/DuelActionBlock.prefab";
+        const string actionBlockPrefabPath = "Assets/Prefabs/Ui/DuelAbilityBlock.prefab";
 
         [Header("Status")]
         [SerializeField] TMP_Text phaseText;
@@ -49,9 +49,9 @@ namespace Game.Presentation.Debug
         [SerializeField] Button deploySelectedButton;
         [SerializeField] Button rollButton;
         [SerializeField] Button resolveButton;
-        [SerializeField] Button retreatButton;
+        [SerializeField] Button surrenderButton;
         [FormerlySerializedAs("selectFirstCampTroopButton")]
-        [SerializeField] Button selectFirstActionHolderActionButton;
+        [SerializeField] Button selectFirstAbilityHolderActionButton;
         [FormerlySerializedAs("selectBattlefield0Button")]
         [SerializeField] Button selectClash0Button;
         [FormerlySerializedAs("selectBattlefield1Button")]
@@ -59,11 +59,11 @@ namespace Game.Presentation.Debug
         [FormerlySerializedAs("selectBattlefield2Button")]
         [SerializeField] Button selectClash2Button;
 
-        [Header("Action Blocks")]
+        [Header("Ability Blocks")]
         [FormerlySerializedAs("troopBlockPrefab")]
-        [SerializeField] DuelActionBlockView actionBlockPrefab;
+        [SerializeField] DuelAbilityBlockView actionBlockPrefab;
         [FormerlySerializedAs("campTroopBlockRoot")]
-        [SerializeField] RectTransform actionHolderActionBlockRoot;
+        [SerializeField] RectTransform abilityHolderActionBlockRoot;
         [FormerlySerializedAs("battlefieldPlayerTroopBlockRoots")]
         [SerializeField] RectTransform[] clashPlayerActionBlockRoots =
             new RectTransform[DuelState.defaultClashCount];
@@ -83,16 +83,16 @@ namespace Game.Presentation.Debug
         DuelTurnProcessor turnProcessor;
         GameDatabase activeDatabase;
 
-        string selectedActionId = string.Empty;
+        string selectedAbilityId = string.Empty;
         int selectedClashIndex = -1;
 
         readonly List<string> logEntries = new List<string>();
-        readonly List<DuelActionBlockView> spawnedActionBlocks = new List<DuelActionBlockView>();
+        readonly List<DuelAbilityBlockView> spawnedActionBlocks = new List<DuelAbilityBlockView>();
 
         enum ActionLocationType
         {
             None = 0,
-            ActionHolder = 1,
+            AbilityHolder = 1,
             Clash = 2
         }
 
@@ -300,49 +300,48 @@ namespace Game.Presentation.Debug
 
             if (!duelState.isDuelEnded)
             {
-                AppendLog(
-                    $"TurnEnd applied: focus {resolveResult.focusBeforeTurnEnd} -> {resolveResult.focusAfterTurnEnd}, cooldownUpdated={resolveResult.cooldownUpdatedCount}");
+                AppendLog($"TurnEnd applied: cooldownUpdated={resolveResult.cooldownUpdatedCount}");
             }
 
             AppendLog($"ClashResolve success: resolvedClashes={resolveResult.steps.Count}");
             RefreshView();
         }
 
-        public void Retreat()
+        public void Surrender()
         {
             if (!TryValidateDuelStarted(out string failureMessage))
             {
-                RejectAction("Retreat", failureMessage);
+                RejectAction("Surrender", failureMessage);
                 return;
             }
 
-            if (!phaseRunner.TryRetreat())
+            if (!phaseRunner.TrySurrender())
             {
-                RejectAction("Retreat", phaseRunner.LastFailureReason.ToString());
+                RejectAction("Surrender", phaseRunner.LastFailureReason.ToString());
                 return;
             }
 
-            selectedActionId = string.Empty;
+            selectedAbilityId = string.Empty;
             selectedClashIndex = -1;
-            AppendLog("Retreat success: duel ended.");
+            AppendLog("Surrender success: duel ended.");
             RefreshView();
         }
 
-        public void SelectFirstActionHolderAction()
+        public void SelectFirstAbilityHolderAction()
         {
             if (!TryValidateDuelStarted(out string failureMessage))
             {
-                RejectAction("SelectFirstActionHolderAction", failureMessage);
+                RejectAction("SelectFirstAbilityHolderAction", failureMessage);
                 return;
             }
 
-            if (duelState.actionHolderActionIds == null || duelState.actionHolderActionIds.Count <= 0)
+            if (duelState.abilityHolderAbilityIds == null || duelState.abilityHolderAbilityIds.Count <= 0)
             {
-                RejectAction("SelectFirstActionHolderAction", "no action exists in actionHolder.");
+                RejectAction("SelectFirstAbilityHolderAction", "no ability exists in bag.");
                 return;
             }
 
-            SelectAction(duelState.actionHolderActionIds[0]);
+            SelectAbility(duelState.abilityHolderAbilityIds[0]);
         }
 
         public void SelectClash0()
@@ -368,7 +367,7 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            if (!TryMovePlayerActionToClash(selectedActionId, selectedClashIndex, out string moveLog, out string moveError))
+            if (!TryMovePlayerActionToClash(selectedAbilityId, selectedClashIndex, out string moveLog, out string moveError))
             {
                 RejectAction("DeploySelected", moveError);
                 return;
@@ -378,39 +377,39 @@ namespace Game.Presentation.Debug
             RefreshView();
         }
 
-        public void SelectAction(string actionId)
+        public void SelectAbility(string abilityId)
         {
             if (!TryValidateDuelStarted(out string failureMessage))
             {
-                RejectAction("SelectAction", failureMessage);
+                RejectAction("SelectAbility", failureMessage);
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(actionId))
+            if (string.IsNullOrWhiteSpace(abilityId))
             {
-                RejectAction("SelectAction", "actionId is empty.");
+                RejectAction("SelectAbility", "abilityId is empty.");
                 return;
             }
 
-            if (!duelState.actionsById.ContainsKey(actionId))
+            if (!duelState.abilitiesById.ContainsKey(abilityId))
             {
-                RejectAction("SelectAction", $"actionId({actionId}) does not exist.");
+                RejectAction("SelectAbility", $"abilityId({abilityId}) does not exist.");
                 return;
             }
 
-            if (!TryFindPlayerActionLocation(actionId, out ActionLocationType locationType, out int clashIndex))
+            if (!TryFindPlayerActionLocation(abilityId, out ActionLocationType locationType, out int clashIndex))
             {
-                RejectAction("SelectAction", $"actionId({actionId}) is not in player controllable zones.");
+                RejectAction("SelectAbility", $"abilityId({abilityId}) is not in player controllable zones.");
                 return;
             }
 
-            selectedActionId = actionId;
+            selectedAbilityId = abilityId;
             if (locationType == ActionLocationType.Clash)
             {
                 selectedClashIndex = clashIndex;
             }
 
-            AppendLog($"Action selected: {ClashResolveActionDefIdForDisplay(actionId)}");
+            AppendLog($"Ability selected: {ResolveAbilityDefIdForDisplay(abilityId)}");
             RefreshView();
         }
 
@@ -430,10 +429,10 @@ namespace Game.Presentation.Debug
 
             selectedClashIndex = clashIndex;
 
-            if (CanAutoDeployOnClashClick() && !string.IsNullOrWhiteSpace(selectedActionId))
+            if (CanAutoDeployOnClashClick() && !string.IsNullOrWhiteSpace(selectedAbilityId))
             {
                 if (!TryMovePlayerActionToClash(
-                        selectedActionId,
+                        selectedAbilityId,
                         selectedClashIndex,
                         out string moveLog,
                         out string moveError))
@@ -452,7 +451,7 @@ namespace Game.Presentation.Debug
         }
 
         bool TryMovePlayerActionToClash(
-            string actionId,
+            string abilityId,
             int targetClashIndex,
             out string moveLog,
             out string failureMessage)
@@ -466,21 +465,21 @@ namespace Game.Presentation.Debug
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(actionId))
+            if (string.IsNullOrWhiteSpace(abilityId))
             {
-                failureMessage = "actionId is empty.";
+                failureMessage = "abilityId is empty.";
                 return false;
             }
 
-            if (!duelState.actionsById.TryGetValue(actionId, out ActionInstance action) || action == null)
+            if (!duelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) || ability == null)
             {
-                failureMessage = $"action({actionId}) does not exist.";
+                failureMessage = $"ability({abilityId}) does not exist.";
                 return false;
             }
 
-            if (action.abilityType != AbilityType.Attack)
+            if (ability.abilityType != AbilityType.Attack)
             {
-                failureMessage = $"only Attack type ability can be deployed to clash (current: {action.abilityType}).";
+                failureMessage = $"only Attack type ability can be deployed to clash (current: {ability.abilityType}).";
                 return false;
             }
 
@@ -490,15 +489,15 @@ namespace Game.Presentation.Debug
                 return false;
             }
 
-            if (!TryFindPlayerActionLocation(actionId, out ActionLocationType sourceType, out int sourceClashIndex))
+            if (!TryFindPlayerActionLocation(abilityId, out ActionLocationType sourceType, out int sourceClashIndex))
             {
-                failureMessage = $"action({actionId}) is not in player controllable zones.";
+                failureMessage = $"ability({abilityId}) is not in player controllable zones.";
                 return false;
             }
 
             if (sourceType == ActionLocationType.Clash && sourceClashIndex == targetClashIndex)
             {
-                moveLog = $"Action move skipped: {ClashResolveActionDefIdForDisplay(actionId)} already in clash({targetClashIndex}).";
+                moveLog = $"Ability move skipped: {ResolveAbilityDefIdForDisplay(abilityId)} already in clash({targetClashIndex}).";
                 return true;
             }
 
@@ -510,7 +509,7 @@ namespace Game.Presentation.Debug
             }
 
             targetClash.EnsureInitialized();
-            if (!targetClash.playerActionIds.Contains(actionId) &&
+            if (!targetClash.playerActionIds.Contains(abilityId) &&
                 targetClash.slotLimit.HasValue &&
                 targetClash.playerActionIds.Count >= targetClash.slotLimit.Value)
             {
@@ -518,40 +517,40 @@ namespace Game.Presentation.Debug
                 return false;
             }
 
-            if (sourceType == ActionLocationType.ActionHolder)
+            if (sourceType == ActionLocationType.AbilityHolder)
             {
-                duelState.actionHolderActionIds.Remove(actionId);
+                duelState.abilityHolderAbilityIds.Remove(abilityId);
             }
             else
             {
                 ClashState sourceClash = duelState.clashes[sourceClashIndex];
-                sourceClash?.playerActionIds.Remove(actionId);
+                sourceClash?.playerActionIds.Remove(abilityId);
             }
 
-            if (!targetClash.playerActionIds.Contains(actionId))
+            if (!targetClash.playerActionIds.Contains(abilityId))
             {
-                targetClash.playerActionIds.Add(actionId);
+                targetClash.playerActionIds.Add(abilityId);
             }
 
-            selectedActionId = actionId;
+            selectedAbilityId = abilityId;
             selectedClashIndex = targetClashIndex;
-            moveLog = $"Action moved: {ClashResolveActionDefIdForDisplay(actionId)} -> clash({targetClashIndex}).";
+            moveLog = $"Ability moved: {ResolveAbilityDefIdForDisplay(abilityId)} -> clash({targetClashIndex}).";
             return true;
         }
 
-        bool TryFindPlayerActionLocation(string actionId, out ActionLocationType locationType, out int clashIndex)
+        bool TryFindPlayerActionLocation(string abilityId, out ActionLocationType locationType, out int clashIndex)
         {
             locationType = ActionLocationType.None;
             clashIndex = -1;
 
-            if (string.IsNullOrWhiteSpace(actionId))
+            if (string.IsNullOrWhiteSpace(abilityId))
             {
                 return false;
             }
 
-            if (duelState.actionHolderActionIds != null && duelState.actionHolderActionIds.Contains(actionId))
+            if (duelState.abilityHolderAbilityIds != null && duelState.abilityHolderAbilityIds.Contains(abilityId))
             {
-                locationType = ActionLocationType.ActionHolder;
+                locationType = ActionLocationType.AbilityHolder;
                 return true;
             }
 
@@ -569,7 +568,7 @@ namespace Game.Presentation.Debug
                 }
 
                 clash.EnsureInitialized();
-                if (!clash.playerActionIds.Contains(actionId))
+                if (!clash.playerActionIds.Contains(abilityId))
                 {
                     continue;
                 }
@@ -617,7 +616,7 @@ namespace Game.Presentation.Debug
             sessionBuilder = null;
             turnProcessor = null;
             activeDatabase = GameDataRuntime.CurrentDatabase;
-            selectedActionId = string.Empty;
+            selectedAbilityId = string.Empty;
             selectedClashIndex = -1;
             ClearActionBlocks();
         }
@@ -637,7 +636,7 @@ namespace Game.Presentation.Debug
             SetText(honorText, DuelDebugPanelFormatter.FormatHonor(duelState));
             SetText(playerHealthText, DuelDebugPanelFormatter.FormatPlayerHealth(duelState));
             SetText(opponentHealthText, DuelDebugPanelFormatter.FormatOpponentHealth(duelState));
-            SetText(selectedActionText, DuelDebugPanelFormatter.FormatSelectedAction(duelState, selectedActionId));
+            SetText(selectedActionText, DuelDebugPanelFormatter.FormatSelectedAbility(duelState, selectedAbilityId));
             SetText(
                 selectedClashText,
                 DuelDebugPanelFormatter.FormatSelectedClash(duelState, selectedClashIndex));
@@ -667,7 +666,7 @@ namespace Game.Presentation.Debug
                 canProgress &&
                 (currentPhase == DuelPhase.Skill || currentPhase == DuelPhase.ClashResolve));
             SetButtonInteractable(
-                retreatButton,
+                surrenderButton,
                 canProgress &&
                 currentPhase == DuelPhase.PlayerSetup &&
                 duelState.honor > 0);
@@ -677,16 +676,16 @@ namespace Game.Presentation.Debug
         {
             ClearActionBlocks();
 
-            if (duelState == null || duelState.actionsById == null)
+            if (duelState == null || duelState.abilitiesById == null)
             {
                 return;
             }
 
-            if (actionHolderActionBlockRoot != null && duelState.actionHolderActionIds != null)
+            if (abilityHolderActionBlockRoot != null && duelState.abilityHolderAbilityIds != null)
             {
-                for (int i = 0; i < duelState.actionHolderActionIds.Count; i++)
+                for (int i = 0; i < duelState.abilityHolderAbilityIds.Count; i++)
                 {
-                    CreateActionBlock(actionHolderActionBlockRoot, duelState.actionHolderActionIds[i], true, true);
+                    CreateActionBlock(abilityHolderActionBlockRoot, duelState.abilityHolderAbilityIds[i], true, true);
                 }
             }
 
@@ -727,44 +726,44 @@ namespace Game.Presentation.Debug
 
         void CreateActionBlock(
             RectTransform parent,
-            string actionId,
+            string abilityId,
             bool isPlayerSide,
             bool canSelect)
         {
-            if (parent == null || string.IsNullOrWhiteSpace(actionId))
+            if (parent == null || string.IsNullOrWhiteSpace(abilityId))
             {
                 return;
             }
 
-            if (!duelState.actionsById.TryGetValue(actionId, out ActionInstance action) || action == null)
+            if (!duelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) || ability == null)
             {
-                WarnAndLog($"Action block warning: actionId({actionId}) does not exist.");
+                WarnAndLog($"Ability block warning: abilityId({abilityId}) does not exist.");
                 return;
             }
 
-            string actionDefId = ClashResolveActionDefIdForDisplay(actionId);
-            string effectSummary = DuelDebugPanelFormatter.FormatActionEffects(activeDatabase, action.actionDefId);
-            string cooldownSummary = action.cooldownTurns > 0
-                ? $"CD {action.cooldownRemaining}/{action.cooldownTurns}"
+            string abilityDefId = ResolveAbilityDefIdForDisplay(abilityId);
+            string effectSummary = DuelDebugPanelFormatter.FormatAbilityEffects(activeDatabase, ability.abilityDefId);
+            string cooldownSummary = ability.cooldownTurns > 0
+                ? $"CD {ability.cooldownRemaining}/{ability.cooldownTurns}"
                 : "CD -";
-            string effectsLabel = $"{action.abilityType} | {cooldownSummary}";
+            string effectsLabel = $"{ability.abilityType} | {cooldownSummary}";
             if (!string.Equals(effectSummary, "none", StringComparison.OrdinalIgnoreCase))
             {
                 effectsLabel = $"{effectsLabel} | {effectSummary}";
             }
-            bool isSelected = string.Equals(actionId, selectedActionId, StringComparison.Ordinal);
+            bool isSelected = string.Equals(abilityId, selectedAbilityId, StringComparison.Ordinal);
 
-            DuelActionBlockView actionBlock = Instantiate(actionBlockPrefab, parent);
-            actionBlock.name = $"ActionBlock_{actionId}";
+            DuelAbilityBlockView actionBlock = Instantiate(actionBlockPrefab, parent);
+            actionBlock.name = $"AbilityBlock_{abilityId}";
             actionBlock.Bind(
-                actionDefId,
-                action.attack,
-                action.attackResult,
+                abilityDefId,
+                ability.attack,
+                ability.attackResult,
                 effectsLabel,
                 isPlayerSide,
                 isSelected,
                 canSelect,
-                () => SelectAction(actionId));
+                () => SelectAbility(abilityId));
 
             spawnedActionBlocks.Add(actionBlock);
         }
@@ -773,7 +772,7 @@ namespace Game.Presentation.Debug
         {
             for (int i = 0; i < spawnedActionBlocks.Count; i++)
             {
-                DuelActionBlockView actionBlock = spawnedActionBlocks[i];
+                DuelAbilityBlockView actionBlock = spawnedActionBlocks[i];
                 if (actionBlock == null)
                 {
                     continue;
@@ -785,23 +784,23 @@ namespace Game.Presentation.Debug
             spawnedActionBlocks.Clear();
         }
 
-        string ClashResolveActionDefIdForDisplay(string actionId)
+        string ResolveAbilityDefIdForDisplay(string abilityId)
         {
             if (duelState == null ||
-                duelState.actionsById == null ||
-                string.IsNullOrWhiteSpace(actionId))
+                duelState.abilitiesById == null ||
+                string.IsNullOrWhiteSpace(abilityId))
             {
                 return "(no-def)";
             }
 
-            if (!duelState.actionsById.TryGetValue(actionId, out ActionInstance action) ||
-                action == null ||
-                string.IsNullOrWhiteSpace(action.actionDefId))
+            if (!duelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) ||
+                ability == null ||
+                string.IsNullOrWhiteSpace(ability.abilityDefId))
             {
                 return "(no-def)";
             }
 
-            return action.actionDefId;
+            return ability.abilityDefId;
         }
 
         void RejectAction(string actionName, string reason)
@@ -875,8 +874,8 @@ namespace Game.Presentation.Debug
             ConfigureButtonLabelAlignment(deploySelectedButton);
             ConfigureButtonLabelAlignment(rollButton);
             ConfigureButtonLabelAlignment(resolveButton);
-            ConfigureButtonLabelAlignment(retreatButton);
-            ConfigureButtonLabelAlignment(selectFirstActionHolderActionButton);
+            ConfigureButtonLabelAlignment(surrenderButton);
+            ConfigureButtonLabelAlignment(selectFirstAbilityHolderActionButton);
 
             if (logText != null)
             {
@@ -946,8 +945,8 @@ namespace Game.Presentation.Debug
             BindButton(deploySelectedButton, DeploySelected);
             BindButton(rollButton, Roll);
             BindButton(resolveButton, ClashResolve);
-            BindButton(retreatButton, Retreat);
-            BindButton(selectFirstActionHolderActionButton, SelectFirstActionHolderAction);
+            BindButton(surrenderButton, Surrender);
+            BindButton(selectFirstAbilityHolderActionButton, SelectFirstAbilityHolderAction);
             BindButton(selectClash0Button, SelectClash0);
             BindButton(selectClash1Button, SelectClash1);
             BindButton(selectClash2Button, SelectClash2);
@@ -985,14 +984,14 @@ namespace Game.Presentation.Debug
             ValidateRequired(playerDeployButton, nameof(playerDeployButton), missing);
             ValidateRequired(rollButton, nameof(rollButton), missing);
             ValidateRequired(resolveButton, nameof(resolveButton), missing);
-            ValidateRequired(retreatButton, nameof(retreatButton), missing);
-            ValidateRequired(selectFirstActionHolderActionButton, nameof(selectFirstActionHolderActionButton), missing);
+            ValidateRequired(surrenderButton, nameof(surrenderButton), missing);
+            ValidateRequired(selectFirstAbilityHolderActionButton, nameof(selectFirstAbilityHolderActionButton), missing);
             ValidateRequired(selectClash0Button, nameof(selectClash0Button), missing);
             ValidateRequired(selectClash1Button, nameof(selectClash1Button), missing);
             ValidateRequired(selectClash2Button, nameof(selectClash2Button), missing);
 
             ValidateRequired(actionBlockPrefab, nameof(actionBlockPrefab), missing);
-            ValidateRequired(actionHolderActionBlockRoot, nameof(actionHolderActionBlockRoot), missing);
+            ValidateRequired(abilityHolderActionBlockRoot, nameof(abilityHolderActionBlockRoot), missing);
             ValidateRequired(logText, nameof(logText), missing);
             ValidateRequired(logScrollRect, nameof(logScrollRect), missing);
 
@@ -1068,16 +1067,16 @@ namespace Game.Presentation.Debug
             deploySelectedButton = AssignByNames(deploySelectedButton, "DeploySelectedButton");
             rollButton = AssignByNames(rollButton, "RollButton");
             resolveButton = AssignByNames(resolveButton, "ClashResolveButton", "ResolveButton");
-            retreatButton = AssignByNames(retreatButton, "RetreatButton");
-            selectFirstActionHolderActionButton = AssignByNames(
-                selectFirstActionHolderActionButton,
-                "SelectFirstActionHolderActionButton",
+            surrenderButton = AssignByNames(surrenderButton, "SurrenderButton");
+            selectFirstAbilityHolderActionButton = AssignByNames(
+                selectFirstAbilityHolderActionButton,
+                "SelectFirstAbilityHolderActionButton",
                 "SelectFirstCampTroopButton");
             selectClash0Button = AssignByNames(selectClash0Button, "SelectClash0Button", "SelectBattlefield0Button");
             selectClash1Button = AssignByNames(selectClash1Button, "SelectClash1Button", "SelectBattlefield1Button");
             selectClash2Button = AssignByNames(selectClash2Button, "SelectClash2Button", "SelectBattlefield2Button");
 
-            actionHolderActionBlockRoot = AssignByNames(actionHolderActionBlockRoot, "ActionHolderActionBlockRoot", "CampTroopBlockRoot");
+            abilityHolderActionBlockRoot = AssignByNames(abilityHolderActionBlockRoot, "AbilityHolderActionBlockRoot", "CampTroopBlockRoot");
             EnsureActionRootArrays();
             clashPlayerActionBlockRoots[0] = AssignByNames(
                 clashPlayerActionBlockRoots[0],
@@ -1110,7 +1109,7 @@ namespace Game.Presentation.Debug
 
             if (actionBlockPrefab == null)
             {
-                actionBlockPrefab = AssetDatabase.LoadAssetAtPath<DuelActionBlockView>(actionBlockPrefabPath);
+                actionBlockPrefab = AssetDatabase.LoadAssetAtPath<DuelAbilityBlockView>(actionBlockPrefabPath);
             }
         }
 

@@ -53,7 +53,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void TryRetreat_SucceedsOnlyInPlayerSetupWithPositiveHonor()
+        public void TrySurrender_SucceedsOnlyInPlayerSetupWithPositiveHonor()
         {
             var state = new DuelState
             {
@@ -65,16 +65,16 @@ namespace Game.Tests.EditMode
             Assert.IsTrue(runner.AdvanceToNextPhase()); // OpponentSetup
             Assert.IsTrue(runner.AdvanceToNextPhase()); // PlayerSetup
 
-            bool retreated = runner.TryRetreat();
+            bool surrendered = runner.TrySurrender();
 
-            Assert.IsTrue(retreated);
+            Assert.IsTrue(surrendered);
             Assert.IsTrue(state.isDuelEnded);
             Assert.AreEqual(0, state.honor);
             Assert.AreEqual(DuelPhaseFailureReason.None, runner.LastFailureReason);
         }
 
         [Test]
-        public void TryRetreat_FailsWhenPhaseIsNotPlayerSetup()
+        public void TrySurrender_FailsWhenPhaseIsNotPlayerSetup()
         {
             var state = new DuelState
             {
@@ -84,16 +84,16 @@ namespace Game.Tests.EditMode
 
             Assert.IsTrue(runner.StartDuel()); // Reset
 
-            bool retreated = runner.TryRetreat();
+            bool surrendered = runner.TrySurrender();
 
-            Assert.IsFalse(retreated);
+            Assert.IsFalse(surrendered);
             Assert.IsFalse(state.isDuelEnded);
             Assert.AreEqual(1, state.honor);
             Assert.AreEqual(DuelPhaseFailureReason.InvalidPhase, runner.LastFailureReason);
         }
 
         [Test]
-        public void TryRetreat_FailsWhenHonorIsZero()
+        public void TrySurrender_FailsWhenHonorIsZero()
         {
             var state = new DuelState
             {
@@ -105,9 +105,9 @@ namespace Game.Tests.EditMode
             Assert.IsTrue(runner.AdvanceToNextPhase()); // OpponentSetup
             Assert.IsTrue(runner.AdvanceToNextPhase()); // PlayerSetup
 
-            bool retreated = runner.TryRetreat();
+            bool surrendered = runner.TrySurrender();
 
-            Assert.IsFalse(retreated);
+            Assert.IsFalse(surrendered);
             Assert.IsFalse(state.isDuelEnded);
             Assert.AreEqual(0, state.honor);
             Assert.AreEqual(DuelPhaseFailureReason.HonorInsufficient, runner.LastFailureReason);

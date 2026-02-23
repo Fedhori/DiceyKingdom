@@ -10,19 +10,12 @@
     "Data/clashes/clash.ruins.json",
     "Data/clashes/clash.forest.json"
   ],
-  "actions": [
-    "Data/actions/action.reservist.json",
-    "Data/actions/action.miko.assassin.json",
-    "Data/actions/action.dwarf.cannon.json",
-    "Data/actions/action.ratkin.json",
-    "Data/actions/action.test6.json"
-  ],
-  "cards": [
-    "Data/cards/card.squad.reserves.json",
-    "Data/cards/card.squad.miko.json",
-    "Data/cards/card.squad.cannon.json",
-    "Data/cards/card.squad.ratkin.json",
-    "Data/cards/card.support.latest.gear.json"
+  "abilities": [
+    "Data/abilities/ability.reservist.json",
+    "Data/abilities/ability.miko.assassin.json",
+    "Data/abilities/ability.dwarf.cannon.json",
+    "Data/abilities/ability.ratkin.json",
+    "Data/abilities/ability.test6.json"
   ],
   "encounters": [
     "Data/encounters/encounter.debug.01.json"

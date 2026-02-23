@@ -12,9 +12,9 @@ namespace Game.Tests.EditMode
             var state = new DuelState();
 
             Assert.NotNull(state.clashes);
-            Assert.NotNull(state.actionsById);
-            Assert.NotNull(state.actionHolderActionIds);
-            Assert.NotNull(state.opponentIntent);
+            Assert.NotNull(state.abilitiesById);
+            Assert.NotNull(state.abilityHolderAbilityIds);
+            Assert.NotNull(state.intent);
         }
 
         [Test]
@@ -26,25 +26,25 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void ActionInstance_DefaultInitialization_BaseModFinalFieldsAreAccessible()
+        public void AbilityInstance_DefaultInitialization_BaseModFinalFieldsAreAccessible()
         {
-            var action = new ActionInstance();
+            var ability = new AbilityInstance();
 
-            action.baseRoll = 2;
-            action.attackResult = 5;
-            action.attackResultModifiers.Add(new NumericModifier
+            ability.baseRoll = 2;
+            ability.attackResult = 5;
+            ability.attackResultModifiers.Add(new NumericModifier
             {
                 operation = NumericModifierOperation.Add,
                 value = 3,
                 sourceId = "test.source"
             });
 
-            Assert.AreEqual(2, action.baseRoll);
-            Assert.AreEqual(5, action.attackResult);
-            Assert.NotNull(action.attackResultModifiers);
-            Assert.AreEqual(1, action.attackResultModifiers.Count);
-            Assert.AreEqual(3, action.attackResultModifiers[0].value);
-            Assert.AreEqual("test.source", action.attackResultModifiers[0].sourceId);
+            Assert.AreEqual(2, ability.baseRoll);
+            Assert.AreEqual(5, ability.attackResult);
+            Assert.NotNull(ability.attackResultModifiers);
+            Assert.AreEqual(1, ability.attackResultModifiers.Count);
+            Assert.AreEqual(3, ability.attackResultModifiers[0].value);
+            Assert.AreEqual("test.source", ability.attackResultModifiers[0].sourceId);
         }
     }
 }

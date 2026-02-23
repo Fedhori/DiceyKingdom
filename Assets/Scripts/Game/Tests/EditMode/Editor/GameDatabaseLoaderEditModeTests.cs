@@ -20,7 +20,7 @@ namespace Game.Tests.EditMode
             Assert.NotNull(result.database.runConfig);
             Assert.NotNull(result.database.playerStart);
             Assert.AreEqual(3, result.database.clashesById.Count);
-            Assert.Greater(result.database.actionsById.Count, 0);
+            Assert.Greater(result.database.abilitiesById.Count, 0);
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace Game.Tests.EditMode
     ""id"": ""enemy.debug"",
     ""health"": 10,
     ""clashes"": [
-      { ""clashId"": ""clash.1"", ""abilityLoadout"": [ { ""actionId"": ""missing_action"", ""count"": 1 } ] }
+      { ""clashId"": ""clash.1"", ""abilityLoadout"": [ { ""abilityId"": ""missing_action"", ""count"": 1 } ] }
     ]
   }
 }";
@@ -63,16 +63,16 @@ namespace Game.Tests.EditMode
         public void Load_FailsWhenUnknownFieldExists()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/actions/action.1.json"] =
+            files["Data/abilities/ability.1.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""action.1"",
+  ""id"": ""ability.1"",
   ""type"": ""Attack"",
   ""buildCost"": 0,
   ""cooldown"": 0,
   ""damage"": 2,
-  ""nameLocKey"": ""action.1_name"",
-  ""descLocKey"": ""action.1_desc"",
+  ""nameLocKey"": ""ability.1_name"",
+  ""descLocKey"": ""ability.1_desc"",
   ""effects"": [],
   ""unknownField"": 999
 }";
@@ -100,20 +100,20 @@ namespace Game.Tests.EditMode
         public void Load_FailsWhenModifierLayerIsNotCaseSensitiveMatch()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/actions/action.1.json"] =
+            files["Data/abilities/ability.1.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""action.1"",
+  ""id"": ""ability.1"",
   ""type"": ""Attack"",
   ""buildCost"": 0,
   ""cooldown"": 0,
   ""damage"": 2,
-  ""nameLocKey"": ""action.1_name"",
-  ""descLocKey"": ""action.1_desc"",
+  ""nameLocKey"": ""ability.1_name"",
+  ""descLocKey"": ""ability.1_desc"",
   ""effects"": [
     {
       ""timing"": ""TurnEnd"",
-      ""condition"": { ""type"": ""IsInActionHolder"" },
+      ""condition"": { ""type"": ""IsInAbilityHolder"" },
       ""ops"": [
         { ""op"": ""AddAttackModifier"", ""target"": ""Attack"", ""layer"": ""duel"", ""mode"": ""Add"", ""value"": 1 }
       ]
@@ -149,8 +149,7 @@ namespace Game.Tests.EditMode
   ""schemaVersion"": 1,
   ""configs"": [""Data/duel.config.json"", ""Data/run.config.json"", ""Data/player.start.json""],
   ""clashes"": [""Data/clashes/clash.1.json""],
-  ""actions"": [""Data/actions/action.1.json""],
-  ""cards"": [""Data/cards/card.squad.1.json""],
+  ""abilities"": [""Data/abilities/ability.1.json""],
   ""encounters"": [""Data/encounters/encounter.1.json""]
 }",
                 ["Data/duel.config.json"] =
@@ -158,8 +157,6 @@ namespace Game.Tests.EditMode
   ""schemaVersion"": 1,
   ""id"": ""duel.config"",
   ""clashCount"": 1,
-  ""focusMax"": 5,
-  ""focusRegenPerTurn"": 2,
   ""cooldownTickPerTurn"": -1,
   ""attackResultMin"": 1,
   ""p0Rules"": {
@@ -172,16 +169,15 @@ namespace Game.Tests.EditMode
   ""schemaVersion"": 1,
   ""id"": ""run.config"",
   ""startingHonor"": 3,
-  ""supplyLimit"": 5
+  ""capacity"": 5
 }",
                 ["Data/player.start.json"] =
 @"{
   ""schemaVersion"": 1,
   ""id"": ""player.start"",
   ""startingHonor"": 3,
-  ""startingFocus"": 5,
   ""startingPlayerHealth"": 10,
-  ""startingSquadCardIds"": [""card.squad.1""]
+  ""startingBagAbilityIds"": [""ability.1""]
 }",
                 ["Data/clashes/clash.1.json"] =
 @"{
@@ -198,29 +194,16 @@ namespace Game.Tests.EditMode
     ""Defeat"": []
   }
 }",
-                ["Data/cards/card.squad.1.json"] =
+                ["Data/abilities/ability.1.json"] =
 @"{
   ""schemaVersion"": 1,
-  ""id"": ""card.squad.1"",
-  ""type"": ""Squad"",
-  ""supplyCost"": 1,
-  ""nameLocKey"": ""card.squad.1_name"",
-  ""descLocKey"": ""card.squad.1_desc"",
-  ""duelStart"": {
-    ""summonActions"": [ { ""actionId"": ""action.1"", ""count"": 1 } ],
-    ""ops"": []
-  }
-}",
-                ["Data/actions/action.1.json"] =
-@"{
-  ""schemaVersion"": 1,
-  ""id"": ""action.1"",
+  ""id"": ""ability.1"",
   ""type"": ""Attack"",
   ""buildCost"": 0,
   ""cooldown"": 0,
   ""damage"": 2,
-  ""nameLocKey"": ""action.1_name"",
-  ""descLocKey"": ""action.1_desc"",
+  ""nameLocKey"": ""ability.1_name"",
+  ""descLocKey"": ""ability.1_desc"",
   ""effects"": []
 }",
                 ["Data/encounters/encounter.1.json"] =
@@ -231,7 +214,7 @@ namespace Game.Tests.EditMode
     ""id"": ""enemy.debug"",
     ""health"": 10,
     ""clashes"": [
-      { ""clashId"": ""clash.1"", ""abilityLoadout"": [ { ""actionId"": ""action.1"", ""count"": 1 } ] }
+      { ""clashId"": ""clash.1"", ""abilityLoadout"": [ { ""abilityId"": ""ability.1"", ""count"": 1 } ] }
     ]
   }
 }"

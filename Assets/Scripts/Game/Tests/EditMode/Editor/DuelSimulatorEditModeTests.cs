@@ -71,24 +71,24 @@ namespace Game.Tests.EditMode
         [Test]
         public void RollAction_UsesRangeFromOneToAttack()
         {
-            var action = new ActionInstance
+            var ability = new AbilityInstance
             {
                 attack = 6
             };
             var fakeRollSource = new FakeRollSource(4);
 
-            DuelSimulator.RollAction(action, fakeRollSource);
+            DuelSimulator.RollAction(ability, fakeRollSource);
 
             Assert.AreEqual(1, fakeRollSource.lastMinInclusive);
             Assert.AreEqual(6, fakeRollSource.lastMaxInclusive);
-            Assert.AreEqual(4, action.baseRoll);
-            Assert.AreEqual(4, action.attackResult);
+            Assert.AreEqual(4, ability.baseRoll);
+            Assert.AreEqual(4, ability.attackResult);
         }
 
         [Test]
         public void RollAction_IncludesAttackModifiersBeforeRolling()
         {
-            var action = new ActionInstance
+            var ability = new AbilityInstance
             {
                 attack = 4,
                 attackModifiers = new List<NumericModifier>
@@ -102,11 +102,11 @@ namespace Game.Tests.EditMode
             };
             var fakeRollSource = new FakeRollSource(6);
 
-            DuelSimulator.RollAction(action, fakeRollSource);
+            DuelSimulator.RollAction(ability, fakeRollSource);
 
             Assert.AreEqual(1, fakeRollSource.lastMinInclusive);
             Assert.AreEqual(6, fakeRollSource.lastMaxInclusive);
-            Assert.AreEqual(6, action.baseRoll);
+            Assert.AreEqual(6, ability.baseRoll);
         }
 
         [Test]
@@ -120,15 +120,15 @@ namespace Game.Tests.EditMode
                 totalAttackBonusOpponent = 3
             };
 
-            var actionsById = new Dictionary<string, ActionInstance>
+            var abilitiesById = new Dictionary<string, AbilityInstance>
             {
                 { "p1", CreateAction("p1", 4) },
                 { "p2", CreateAction("p2", 1) },
                 { "e1", CreateAction("e1", 2) }
             };
 
-            int playerStrength = DuelSimulator.ComputeTotalAttack(clash, actionsById, true);
-            int opponentStrength = DuelSimulator.ComputeTotalAttack(clash, actionsById, false);
+            int playerStrength = DuelSimulator.ComputeTotalAttack(clash, abilitiesById, true);
+            int opponentStrength = DuelSimulator.ComputeTotalAttack(clash, abilitiesById, false);
 
             Assert.AreEqual(7, playerStrength);
             Assert.AreEqual(5, opponentStrength);
@@ -152,12 +152,12 @@ namespace Game.Tests.EditMode
                 opponentHealth = 5
             };
 
-            state.actionsById["p0"] = CreateAction("p0", 1);
-            state.actionsById["e0"] = CreateAction("e0", 5);
-            state.actionsById["p1"] = CreateAction("p1", 10);
-            state.actionsById["e1"] = CreateAction("e1", 1);
+            state.abilitiesById["p0"] = CreateAction("p0", 1);
+            state.abilitiesById["e0"] = CreateAction("e0", 5);
+            state.abilitiesById["p1"] = CreateAction("p1", 10);
+            state.abilitiesById["e1"] = CreateAction("e1", 1);
 
-            state.actionsById["p0"].attackModifiers.Add(new NumericModifier
+            state.abilitiesById["p0"].attackModifiers.Add(new NumericModifier
             {
                 layer = ModifierLayer.Duel,
                 operation = NumericModifierOperation.Add,
@@ -175,7 +175,7 @@ namespace Game.Tests.EditMode
             Assert.IsFalse(state.isDuelEnded);
             Assert.AreEqual(1, state.playerHealth);
             Assert.AreEqual(5, state.opponentHealth);
-            Assert.AreEqual(1, state.actionsById["p0"].attackModifiers.Count);
+            Assert.AreEqual(1, state.abilitiesById["p0"].attackModifiers.Count);
         }
 
         [Test]
@@ -187,12 +187,12 @@ namespace Game.Tests.EditMode
                 opponentHealth = 5
             };
 
-            state.actionsById["p0"] = CreateAction("p0", 4);
-            state.actionsById["e0"] = CreateAction("e0", 2);
-            state.actionsById["p1"] = CreateAction("p1", 2);
-            state.actionsById["e1"] = CreateAction("e1", 2);
-            state.actionsById["p2"] = CreateAction("p2", 2);
-            state.actionsById["e2"] = CreateAction("e2", 3);
+            state.abilitiesById["p0"] = CreateAction("p0", 4);
+            state.abilitiesById["e0"] = CreateAction("e0", 2);
+            state.abilitiesById["p1"] = CreateAction("p1", 2);
+            state.abilitiesById["e1"] = CreateAction("e1", 2);
+            state.abilitiesById["p2"] = CreateAction("p2", 2);
+            state.abilitiesById["e2"] = CreateAction("e2", 3);
 
             state.clashes[0].playerActionIds.Add("p0");
             state.clashes[0].opponentActionIds.Add("e0");
@@ -209,11 +209,11 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(5, state.opponentHealth);
         }
 
-        static ActionInstance CreateAction(string actionId, int attackResultValue)
+        static AbilityInstance CreateAction(string abilityId, int attackResultValue)
         {
-            return new ActionInstance
+            return new AbilityInstance
             {
-                actionDefId = actionId,
+                abilityDefId = abilityId,
                 attack = 6,
                 baseRoll = attackResultValue,
                 attackResult = attackResultValue

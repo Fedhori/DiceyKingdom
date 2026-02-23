@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "id": "action.dwarf.cannon",
+  "id": "ability.dwarf.cannon",
   "type": "Attack",
   "buildCost": 0,
   "cooldown": 0,
   "damage": 4,
   "tags": ["cannon"],
-  "nameLocKey": "action.dwarf.cannon_name",
-  "descLocKey": "action.dwarf.cannon_desc",
+  "nameLocKey": "ability.dwarf.cannon_name",
+  "descLocKey": "ability.dwarf.cannon_desc",
   "effects": [
     {
       "timing": "Roll",

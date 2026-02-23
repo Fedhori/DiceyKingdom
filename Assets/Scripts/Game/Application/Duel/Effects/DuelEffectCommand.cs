@@ -8,7 +8,7 @@ namespace Game.Application.Duel.Effects
     {
         public DuelEffectOpCode opCode;
         public string sourceId = string.Empty;
-        public string actionId = string.Empty;
+        public string abilityId = string.Empty;
 
         public int clashIndex = -1;
         public int fromClashIndex = -1;

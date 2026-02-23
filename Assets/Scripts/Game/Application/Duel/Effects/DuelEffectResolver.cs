@@ -14,8 +14,8 @@ namespace Game.Application.Duel.Effects
         {
             Register(new ModifyAttackResultEffectHandler());
             Register(new AddAttackModifierEffectHandler());
-            Register(new MoveActionEffectHandler());
-            Register(new MoveOpponentActionEffectHandler());
+            Register(new MoveAbilityEffectHandler());
+            Register(new MoveOpponentAbilityEffectHandler());
             Register(new ModifyTotalAttackEffectHandler());
             Register(new ModifyHealthEffectHandler());
         }
@@ -118,23 +118,23 @@ namespace Game.Application.Duel.Effects
             return DuelEffectResult.Fail(failureReason, warningMessage);
         }
 
-        static DuelEffectResult MoveActionInternal(
+        static DuelEffectResult MoveAbilityInternal(
             DuelState state,
             DuelEffectCommand command,
             bool isPlayerSide)
         {
-            if (string.IsNullOrWhiteSpace(command.actionId))
+            if (string.IsNullOrWhiteSpace(command.abilityId))
             {
                 return DuelEffectResult.Fail(
                     DuelEffectFailureReason.MissingField,
-                    "actionId is required.");
+                    "abilityId is required.");
             }
 
-            if (!state.actionsById.ContainsKey(command.actionId))
+            if (!state.abilitiesById.ContainsKey(command.abilityId))
             {
                 return DuelEffectResult.Fail(
                     DuelEffectFailureReason.InvalidTarget,
-                    $"actionId({command.actionId}) does not exist.");
+                    $"abilityId({command.abilityId}) does not exist.");
             }
 
             if (!TryGetClashIndex(state, command.toClashIndex, out int toIndex))
@@ -146,14 +146,14 @@ namespace Game.Application.Duel.Effects
 
             if (!TryFindSourceClashIndex(
                     state,
-                    command.actionId,
+                    command.abilityId,
                     command.fromClashIndex,
                     isPlayerSide,
                     out int fromIndex))
             {
                 return DuelEffectResult.Fail(
                     DuelEffectFailureReason.InvalidTarget,
-                    $"actionId({command.actionId}) is not deployed on the selected side.");
+                    $"abilityId({command.abilityId}) is not deployed on the selected side.");
             }
 
             if (fromIndex == toIndex)
@@ -185,14 +185,14 @@ namespace Game.Application.Duel.Effects
             fromClash.EnsureInitialized();
 
             List<string> fromList = isPlayerSide ? fromClash.playerActionIds : fromClash.opponentActionIds;
-            if (!fromList.Remove(command.actionId))
+            if (!fromList.Remove(command.abilityId))
             {
                 return DuelEffectResult.Fail(
                     DuelEffectFailureReason.InvalidTarget,
-                    $"actionId({command.actionId}) was not found in source clash({fromIndex}).");
+                    $"abilityId({command.abilityId}) was not found in source clash({fromIndex}).");
             }
 
-            toList.Add(command.actionId);
+            toList.Add(command.abilityId);
             return DuelEffectResult.Success();
         }
 
@@ -210,7 +210,7 @@ namespace Game.Application.Duel.Effects
 
         static bool TryFindSourceClashIndex(
             DuelState state,
-            string actionId,
+            string abilityId,
             int fromClashIndex,
             bool isPlayerSide,
             out int foundIndex)
@@ -228,7 +228,7 @@ namespace Game.Application.Duel.Effects
                 explicitField.EnsureInitialized();
 
                 List<string> explicitList = isPlayerSide ? explicitField.playerActionIds : explicitField.opponentActionIds;
-                if (!explicitList.Contains(actionId))
+                if (!explicitList.Contains(abilityId))
                 {
                     return false;
                 }
@@ -243,7 +243,7 @@ namespace Game.Application.Duel.Effects
                 field.EnsureInitialized();
 
                 List<string> list = isPlayerSide ? field.playerActionIds : field.opponentActionIds;
-                if (!list.Contains(actionId))
+                if (!list.Contains(abilityId))
                 {
                     continue;
                 }
@@ -261,22 +261,22 @@ namespace Game.Application.Duel.Effects
 
             public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context)
             {
-                if (string.IsNullOrWhiteSpace(command.actionId))
+                if (string.IsNullOrWhiteSpace(command.abilityId))
                 {
                     return DuelEffectResult.Fail(
                         DuelEffectFailureReason.MissingField,
-                        "actionId is required.");
+                        "abilityId is required.");
                 }
 
-                if (!state.actionsById.TryGetValue(command.actionId, out ActionInstance action) || action == null)
+                if (!state.abilitiesById.TryGetValue(command.abilityId, out AbilityInstance ability) || ability == null)
                 {
                     return DuelEffectResult.Fail(
                         DuelEffectFailureReason.InvalidTarget,
-                        $"actionId({command.actionId}) does not exist.");
+                        $"abilityId({command.abilityId}) does not exist.");
                 }
 
-                action.EnsureInitialized();
-                action.attackResultModifiers.Add(new NumericModifier
+                ability.EnsureInitialized();
+                ability.attackResultModifiers.Add(new NumericModifier
                 {
                     operation = command.modifierOperation,
                     value = command.amount,
@@ -284,11 +284,11 @@ namespace Game.Application.Duel.Effects
                     sourceId = command.sourceId
                 });
 
-                if (action.baseRoll > 0)
+                if (ability.baseRoll > 0)
                 {
-                    action.attackResult = DuelSimulator.ComputeAttackResult(
-                        action.baseRoll,
-                        action.attackResultModifiers);
+                    ability.attackResult = DuelSimulator.ComputeAttackResult(
+                        ability.baseRoll,
+                        ability.attackResultModifiers);
                 }
 
                 return DuelEffectResult.Success();
@@ -301,24 +301,24 @@ namespace Game.Application.Duel.Effects
 
             public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context)
             {
-                if (string.IsNullOrWhiteSpace(command.actionId))
+                if (string.IsNullOrWhiteSpace(command.abilityId))
                 {
                     return DuelEffectResult.Fail(
                         DuelEffectFailureReason.MissingField,
-                        "actionId is required.");
+                        "abilityId is required.");
                 }
 
-                if (!state.actionsById.TryGetValue(command.actionId, out ActionInstance action) || action == null)
+                if (!state.abilitiesById.TryGetValue(command.abilityId, out AbilityInstance ability) || ability == null)
                 {
                     return DuelEffectResult.Fail(
                         DuelEffectFailureReason.InvalidTarget,
-                        $"actionId({command.actionId}) does not exist.");
+                        $"abilityId({command.abilityId}) does not exist.");
                 }
 
-                action.EnsureInitialized();
+                ability.EnsureInitialized();
                 List<NumericModifier> targetModifiers = command.modifierTarget == DuelModifierTarget.AttackResult
-                    ? action.attackResultModifiers
-                    : action.attackModifiers;
+                    ? ability.attackResultModifiers
+                    : ability.attackModifiers;
 
                 targetModifiers.Add(new NumericModifier
                 {
@@ -328,34 +328,34 @@ namespace Game.Application.Duel.Effects
                     sourceId = command.sourceId
                 });
 
-                if (command.modifierTarget == DuelModifierTarget.AttackResult && action.baseRoll > 0)
+                if (command.modifierTarget == DuelModifierTarget.AttackResult && ability.baseRoll > 0)
                 {
-                    action.attackResult = DuelSimulator.ComputeAttackResult(
-                        action.baseRoll,
-                        action.attackResultModifiers);
+                    ability.attackResult = DuelSimulator.ComputeAttackResult(
+                        ability.baseRoll,
+                        ability.attackResultModifiers);
                 }
 
                 return DuelEffectResult.Success();
             }
         }
 
-        sealed class MoveActionEffectHandler : IDuelEffectHandler
+        sealed class MoveAbilityEffectHandler : IDuelEffectHandler
         {
-            public DuelEffectOpCode opCode => DuelEffectOpCode.MoveAction;
+            public DuelEffectOpCode opCode => DuelEffectOpCode.MoveAbility;
 
             public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context)
             {
-                return MoveActionInternal(state, command, true);
+                return MoveAbilityInternal(state, command, true);
             }
         }
 
-        sealed class MoveOpponentActionEffectHandler : IDuelEffectHandler
+        sealed class MoveOpponentAbilityEffectHandler : IDuelEffectHandler
         {
-            public DuelEffectOpCode opCode => DuelEffectOpCode.MoveOpponentAction;
+            public DuelEffectOpCode opCode => DuelEffectOpCode.MoveOpponentAbility;
 
             public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context)
             {
-                return MoveActionInternal(state, command, false);
+                return MoveAbilityInternal(state, command, false);
             }
         }
 

@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 namespace Game.Infrastructure.Data
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public sealed class ActionDef : IGameDef
+    public sealed class AbilityDef : IGameDef
     {
         [JsonProperty("schemaVersion", Required = Required.Always)]
         public int schemaVersion { get; private set; }

@@ -16,7 +16,7 @@ namespace Game.Tests.EditMode
 
             StringAssert.Contains("Clash 0 (clash.0)", line);
             StringAssert.Contains("TotalAttack P:6 E:8", line);
-            StringAssert.Contains("Actions P:1 E:1", line);
+            StringAssert.Contains("Abilities P:1 E:1", line);
             StringAssert.Contains("Slot:2", line);
             StringAssert.DoesNotContain("Players:", line);
             StringAssert.DoesNotContain("Enemies:", line);
@@ -45,7 +45,7 @@ namespace Game.Tests.EditMode
 
             string line = DuelDebugPanelFormatter.FormatSelectedAction(state, string.Empty);
 
-            Assert.AreEqual("Selected Action: (none)", line);
+            Assert.AreEqual("Selected Ability: (none)", line);
         }
 
         [Test]
@@ -55,32 +55,32 @@ namespace Game.Tests.EditMode
 
             string line = DuelDebugPanelFormatter.FormatSelectedAction(state, "missing_action");
 
-            Assert.AreEqual("Selected Action: (missing)", line);
+            Assert.AreEqual("Selected Ability: (missing)", line);
         }
 
         [Test]
-        public void FormatSelectedAction_WhenActionIsInActionHolder_ReturnsActionHolderLocation()
+        public void FormatSelectedAction_WhenActionIsInAbilityHolder_ReturnsAbilityHolderLocation()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
-            string line = DuelDebugPanelFormatter.FormatSelectedAction(state, "actionHolder_1");
+            string line = DuelDebugPanelFormatter.FormatSelectedAction(state, "abilityHolder_1");
 
-            StringAssert.Contains("Selected Action: action.actionHolder", line);
+            StringAssert.Contains("Selected Ability: ability.abilityHolder", line);
             StringAssert.Contains("Attack Result:2", line);
-            StringAssert.Contains("actionHolder", line);
+            StringAssert.Contains("bag", line);
         }
 
         [Test]
-        public void FormatActionHolderActions_WhenActionHolderActionExists_IncludesActionHolderDefIdOnly()
+        public void FormatAbilityHolderActions_WhenAbilityHolderActionExists_IncludesAbilityHolderDefIdOnly()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
-            string line = DuelDebugPanelFormatter.FormatActionHolderActions(state, "actionHolder_1");
+            string line = DuelDebugPanelFormatter.FormatAbilityHolderActions(state, "abilityHolder_1");
 
-            StringAssert.Contains("Selected Action: action.actionHolder", line);
-            StringAssert.Contains("ActionHolder Actions (1):", line);
-            StringAssert.Contains("- action.actionHolder | Type:Attack | Damage:2 | Attack Result:2 | CD:- <selected>", line);
-            StringAssert.DoesNotContain("actionHolder_1", line);
+            StringAssert.Contains("Selected Ability: ability.abilityHolder", line);
+            StringAssert.Contains("Bag Abilities (1):", line);
+            StringAssert.Contains("- ability.abilityHolder | Type:Attack | Damage:2 | Attack Result:2 | CD:- <selected>", line);
+            StringAssert.DoesNotContain("abilityHolder_1", line);
         }
 
         [Test]
@@ -123,24 +123,24 @@ namespace Game.Tests.EditMode
 
             string line = DuelDebugPanelFormatter.FormatSelectedClash(state, 0);
 
-            Assert.AreEqual("Selected Clash: 0 (clash.0) | Actions P:1 E:1", line);
+            Assert.AreEqual("Selected Clash: 0 (clash.0) | Abilities P:1 E:1", line);
         }
 
         [Test]
         public void FormatActionEffects_WhenActionHasEffect_ReturnsReadableEffectsLabel()
         {
             DuelState state = CreateDuelStateForFormatterTests();
-            ActionInstance opponentAction = state.actionsById["e_1"];
+            AbilityInstance opponentAction = state.abilitiesById["e_1"];
             opponentAction.attack = 5;
 
-            var actionDef = new ActionDef
+            var actionDef = new AbilityDef
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
                 cooldown = 0,
                 damage = 2,
-                nameLocKey = "action.ratkin_name",
-                descLocKey = "action.ratkin_desc",
+                nameLocKey = "ability.ratkin_name",
+                descLocKey = "ability.ratkin_desc",
                 effects = new System.Collections.Generic.List<TimedEffectDef>
                 {
                     new TimedEffectDef
@@ -159,11 +159,11 @@ namespace Game.Tests.EditMode
             };
 
             var database = new GameDatabase();
-            database.actionsById["action.ratkin"] = actionDef;
+            database.abilitiesById["ability.ratkin"] = actionDef;
 
-            opponentAction.actionDefId = "action.ratkin";
+            opponentAction.abilityDefId = "ability.ratkin";
 
-            string line = DuelDebugPanelFormatter.FormatActionEffects(database, opponentAction.actionDefId);
+            string line = DuelDebugPanelFormatter.FormatActionEffects(database, opponentAction.abilityDefId);
 
             Assert.AreEqual("Turn End: Add Attack Modifier(+2)", line);
         }
@@ -172,8 +172,8 @@ namespace Game.Tests.EditMode
         {
             var state = new DuelState();
 
-            state.actionsById.Clear();
-            state.actionHolderActionIds.Clear();
+            state.abilitiesById.Clear();
+            state.abilityHolderAbilityIds.Clear();
 
             ClashState field0 = state.clashes[0];
             field0.clashId = "clash.0";
@@ -183,31 +183,31 @@ namespace Game.Tests.EditMode
             field0.totalAttackBonusPlayer = 2;
             field0.totalAttackBonusOpponent = 3;
 
-            state.actionsById["p_1"] = new ActionInstance
+            state.abilitiesById["p_1"] = new AbilityInstance
             {
                 instanceId = "p_1",
-                actionDefId = "action.player",
+                abilityDefId = "ability.player",
                 attack = 4,
                 attackResult = 4
             };
-            state.actionsById["e_1"] = new ActionInstance
+            state.abilitiesById["e_1"] = new AbilityInstance
             {
                 instanceId = "e_1",
-                actionDefId = "action.opponent",
+                abilityDefId = "ability.opponent",
                 attack = 5,
                 attackResult = 5
             };
-            state.actionsById["actionHolder_1"] = new ActionInstance
+            state.abilitiesById["abilityHolder_1"] = new AbilityInstance
             {
-                instanceId = "actionHolder_1",
-                actionDefId = "action.actionHolder",
+                instanceId = "abilityHolder_1",
+                abilityDefId = "ability.abilityHolder",
                 attack = 2,
                 attackResult = 2
             };
 
             field0.playerActionIds.Add("p_1");
             field0.opponentActionIds.Add("e_1");
-            state.actionHolderActionIds.Add("actionHolder_1");
+            state.abilityHolderAbilityIds.Add("abilityHolder_1");
 
             return state;
         }

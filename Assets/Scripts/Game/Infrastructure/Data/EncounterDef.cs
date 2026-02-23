@@ -42,7 +42,7 @@ namespace Game.Infrastructure.Data
         public string clashId = string.Empty;
 
         [JsonProperty("abilityLoadout", Required = Required.Always)]
-        public List<SummonActionRefDef> abilityLoadout = new();
+        public List<SummonAbilityRefDef> abilityLoadout = new();
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -51,7 +51,20 @@ namespace Game.Infrastructure.Data
         [JsonProperty("clashIndex", Required = Required.Always)]
         public int clashIndex;
 
-        [JsonProperty("actions", Required = Required.Always)]
-        public List<SummonActionRefDef> actions = new();
+        [JsonProperty("abilities", Required = Required.Default)]
+        public List<SummonAbilityRefDef> abilities = new();
+
+        [JsonProperty("actions", Required = Required.Default)]
+        public List<SummonAbilityRefDef> legacyActions = new();
+
+        public List<SummonAbilityRefDef> ResolveAbilities()
+        {
+            if (abilities != null && abilities.Count > 0)
+            {
+                return abilities;
+            }
+
+            return legacyActions ?? new List<SummonAbilityRefDef>();
+        }
     }
 }

@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Game.Tests.EditMode
 {
-    public sealed class ActionTimedEffectRunnerEditModeTests
+    public sealed class AbilityTimedEffectRunnerEditModeTests
     {
         [Test]
         public void ApplyForTiming_Roll_DoublesMikoAttackResult_WhenSingleOpponentIsPresent()
@@ -14,18 +14,18 @@ namespace Game.Tests.EditMode
             GameDatabase database = CreateDatabase();
             DuelState state = CreateDuelState();
 
-            state.actionsById["p_miko"] = new ActionInstance
+            state.abilitiesById["p_miko"] = new AbilityInstance
             {
                 instanceId = "p_miko",
-                actionDefId = "action.miko.assassin",
+                abilityDefId = "ability.miko.assassin",
                 attack = 4,
                 baseRoll = 4,
                 attackResult = 4
             };
-            state.actionsById["e_rat"] = new ActionInstance
+            state.abilitiesById["e_rat"] = new AbilityInstance
             {
                 instanceId = "e_rat",
-                actionDefId = "action.ratkin",
+                abilityDefId = "ability.ratkin",
                 attack = 2,
                 baseRoll = 2,
                 attackResult = 2
@@ -33,12 +33,12 @@ namespace Game.Tests.EditMode
             state.clashes[0].playerActionIds.Add("p_miko");
             state.clashes[0].opponentActionIds.Add("e_rat");
 
-            var runner = new ActionTimedEffectRunner(database);
-            ActionTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.Roll);
+            var runner = new AbilityTimedEffectRunner(database);
+            AbilityTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.Roll);
 
             Assert.AreEqual(1, result.appliedCount);
             Assert.AreEqual(0, result.failedCount);
-            Assert.AreEqual(8, state.actionsById["p_miko"].attackResult);
+            Assert.AreEqual(8, state.abilitiesById["p_miko"].attackResult);
         }
 
         [Test]
@@ -47,18 +47,18 @@ namespace Game.Tests.EditMode
             GameDatabase database = CreateDatabase();
             DuelState state = CreateDuelState();
 
-            state.actionsById["p_miko"] = new ActionInstance
+            state.abilitiesById["p_miko"] = new AbilityInstance
             {
                 instanceId = "p_miko",
-                actionDefId = "action.miko.assassin",
+                abilityDefId = "ability.miko.assassin",
                 attack = 4,
                 baseRoll = 4,
                 attackResult = 4
             };
-            state.actionsById["e_rat"] = new ActionInstance
+            state.abilitiesById["e_rat"] = new AbilityInstance
             {
                 instanceId = "e_rat",
-                actionDefId = "action.ratkin",
+                abilityDefId = "ability.ratkin",
                 attack = 2,
                 baseRoll = 2,
                 attackResult = 2
@@ -66,12 +66,12 @@ namespace Game.Tests.EditMode
             state.clashes[0].playerActionIds.Add("p_miko");
             state.clashes[0].opponentActionIds.Add("e_rat");
 
-            var runner = new ActionTimedEffectRunner(database);
+            var runner = new AbilityTimedEffectRunner(database);
             runner.ApplyForTiming(state, DuelEffectTiming.Roll);
-            state.actionsById["p_miko"].attackResult = 4;
+            state.abilitiesById["p_miko"].attackResult = 4;
             runner.ApplyForTiming(state, DuelEffectTiming.Roll);
 
-            Assert.AreEqual(8, state.actionsById["p_miko"].attackResult);
+            Assert.AreEqual(8, state.abilitiesById["p_miko"].attackResult);
         }
 
         [Test]
@@ -80,26 +80,26 @@ namespace Game.Tests.EditMode
             GameDatabase database = CreateDatabase();
             DuelState state = CreateDuelState();
 
-            state.actionsById["p_dwarf"] = new ActionInstance
+            state.abilitiesById["p_dwarf"] = new AbilityInstance
             {
                 instanceId = "p_dwarf",
-                actionDefId = "action.dwarf.cannon",
+                abilityDefId = "ability.dwarf.cannon",
                 attack = 4,
                 baseRoll = 3,
                 attackResult = 3
             };
-            state.actionsById["e_a"] = new ActionInstance
+            state.abilitiesById["e_a"] = new AbilityInstance
             {
                 instanceId = "e_a",
-                actionDefId = "action.ratkin",
+                abilityDefId = "ability.ratkin",
                 attack = 2,
                 baseRoll = 2,
                 attackResult = 2
             };
-            state.actionsById["e_b"] = new ActionInstance
+            state.abilitiesById["e_b"] = new AbilityInstance
             {
                 instanceId = "e_b",
-                actionDefId = "action.ratkin",
+                abilityDefId = "ability.ratkin",
                 attack = 2,
                 baseRoll = 1,
                 attackResult = 1
@@ -108,43 +108,43 @@ namespace Game.Tests.EditMode
             state.clashes[0].opponentActionIds.Add("e_a");
             state.clashes[0].opponentActionIds.Add("e_b");
 
-            var runner = new ActionTimedEffectRunner(database);
-            ActionTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.Roll);
+            var runner = new AbilityTimedEffectRunner(database);
+            AbilityTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.Roll);
 
             Assert.AreEqual(2, result.appliedCount);
-            Assert.AreEqual(1, state.actionsById["e_a"].attackResult);
-            Assert.AreEqual(1, state.actionsById["e_b"].attackResult);
+            Assert.AreEqual(1, state.abilitiesById["e_a"].attackResult);
+            Assert.AreEqual(1, state.abilitiesById["e_b"].attackResult);
         }
 
         [Test]
-        public void ApplyForTiming_TurnEnd_ReservistInActionHolder_AddsDuelAttackModifier()
+        public void ApplyForTiming_TurnEnd_ReservistInAbilityHolder_AddsDuelAttackModifier()
         {
             GameDatabase database = CreateDatabase();
             DuelState state = CreateDuelState();
 
-            state.actionsById["p_reserve"] = new ActionInstance
+            state.abilitiesById["p_reserve"] = new AbilityInstance
             {
                 instanceId = "p_reserve",
-                actionDefId = "action.reservist",
+                abilityDefId = "ability.reservist",
                 attack = 2,
                 baseRoll = 0,
                 attackResult = 0
             };
-            state.actionHolderActionIds.Add("p_reserve");
+            state.abilityHolderAbilityIds.Add("p_reserve");
 
-            var runner = new ActionTimedEffectRunner(database);
-            ActionTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.TurnEnd);
+            var runner = new AbilityTimedEffectRunner(database);
+            AbilityTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.TurnEnd);
 
             Assert.AreEqual(1, result.appliedCount);
             Assert.AreEqual(0, result.failedCount);
-            Assert.AreEqual(1, state.actionsById["p_reserve"].attackModifiers.Count);
-            Assert.AreEqual(2, state.actionsById["p_reserve"].attackModifiers[0].value);
+            Assert.AreEqual(1, state.abilitiesById["p_reserve"].attackModifiers.Count);
+            Assert.AreEqual(2, state.abilitiesById["p_reserve"].attackModifiers[0].value);
         }
 
         static GameDatabase CreateDatabase()
         {
             var database = new GameDatabase();
-            database.actionsById["action.miko.assassin"] = new ActionDef
+            database.abilitiesById["ability.miko.assassin"] = new AbilityDef
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
@@ -174,7 +174,7 @@ namespace Game.Tests.EditMode
                 }
             };
 
-            database.actionsById["action.dwarf.cannon"] = new ActionDef
+            database.abilitiesById["ability.dwarf.cannon"] = new AbilityDef
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
@@ -204,7 +204,7 @@ namespace Game.Tests.EditMode
                 }
             };
 
-            database.actionsById["action.reservist"] = new ActionDef
+            database.abilitiesById["ability.reservist"] = new AbilityDef
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
@@ -217,7 +217,7 @@ namespace Game.Tests.EditMode
                         timing = "TurnEnd",
                         condition = new ConditionDef
                         {
-                            type = "IsInActionHolder"
+                            type = "IsInAbilityHolder"
                         },
                         ops = new List<EffectOpDef>
                         {
@@ -234,7 +234,7 @@ namespace Game.Tests.EditMode
                 }
             };
 
-            database.actionsById["action.ratkin"] = new ActionDef
+            database.abilitiesById["ability.ratkin"] = new AbilityDef
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
@@ -260,8 +260,8 @@ namespace Game.Tests.EditMode
                 clash.opponentActionIds.Clear();
             }
 
-            state.actionsById.Clear();
-            state.actionHolderActionIds.Clear();
+            state.abilitiesById.Clear();
+            state.abilityHolderAbilityIds.Clear();
             return state;
         }
     }

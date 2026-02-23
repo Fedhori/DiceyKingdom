@@ -12,14 +12,13 @@ namespace Game.Domain.Duel
         public int turnIndex;
         public int playerHealth;
         public int opponentHealth;
-        public int focus;
         public int honor;
         public bool isDuelEnded;
 
         public List<ClashState> clashes = new();
-        public Dictionary<string, ActionInstance> actionsById = new();
-        public List<string> actionHolderActionIds = new();
-        public List<OpponentIntentEntry> opponentIntent = new();
+        public Dictionary<string, AbilityInstance> abilitiesById = new();
+        public List<string> abilityHolderAbilityIds = new();
+        public List<IntentEntry> intent = new();
 
         public DuelState()
         {
@@ -34,45 +33,30 @@ namespace Game.Domain.Duel
                 Debug.LogWarning("[DuelState] clashes was null and has been auto-initialized.");
             }
 
-            if (actionsById == null)
+            if (abilitiesById == null)
             {
-                actionsById = new Dictionary<string, ActionInstance>();
-                Debug.LogWarning("[DuelState] actionsById was null and has been auto-initialized.");
+                abilitiesById = new Dictionary<string, AbilityInstance>();
+                Debug.LogWarning("[DuelState] abilitiesById was null and has been auto-initialized.");
             }
 
-            if (actionHolderActionIds == null)
+            if (abilityHolderAbilityIds == null)
             {
-                actionHolderActionIds = new List<string>();
-                Debug.LogWarning("[DuelState] actionHolderActionIds was null and has been auto-initialized.");
+                abilityHolderAbilityIds = new List<string>();
+                Debug.LogWarning("[DuelState] abilityHolderAbilityIds was null and has been auto-initialized.");
             }
 
-            if (opponentIntent == null)
+            if (intent == null)
             {
-                opponentIntent = new List<OpponentIntentEntry>();
-                Debug.LogWarning("[DuelState] opponentIntent was null and has been auto-initialized.");
+                intent = new List<IntentEntry>();
+                Debug.LogWarning("[DuelState] intent was null and has been auto-initialized.");
             }
 
-            int clashCountBeforePadding = clashes.Count;
-            while (clashes.Count < defaultClashCount)
+            if (clashes.Count == 0)
             {
-                clashes.Add(new ClashState());
-            }
-
-            if (clashCountBeforePadding > 0 &&
-                clashCountBeforePadding < defaultClashCount)
-            {
-                Debug.LogWarning(
-                    $"[DuelState] clashes had {clashCountBeforePadding} entries and was padded to {defaultClashCount}.");
-            }
-
-            if (clashes.Count > defaultClashCount)
-            {
-                Debug.LogWarning(
-                    $"[DuelState] clashes had more than {defaultClashCount} entries and was trimmed.");
-
-                clashes.RemoveRange(
-                    defaultClashCount,
-                    clashes.Count - defaultClashCount);
+                for (int i = 0; i < defaultClashCount; i++)
+                {
+                    clashes.Add(new ClashState());
+                }
             }
 
             for (int i = 0; i < clashes.Count; i++)
@@ -89,10 +73,10 @@ namespace Game.Domain.Duel
     }
 
     [Serializable]
-    public sealed class OpponentIntentEntry
+    public sealed class IntentEntry
     {
         public int clashIndex;
-        public string actionDefId = string.Empty;
+        public string abilityDefId = string.Empty;
         public int count;
     }
 }

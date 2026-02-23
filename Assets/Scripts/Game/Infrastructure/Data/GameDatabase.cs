@@ -16,11 +16,8 @@ namespace Game.Infrastructure.Data
         public Dictionary<string, ClashDef> clashesById = new();
         public Dictionary<string, string> clashSourcePathById = new();
 
-        public Dictionary<string, ActionDef> actionsById = new();
-        public Dictionary<string, string> actionSourcePathById = new();
-
-        public Dictionary<string, CardDef> cardsById = new();
-        public Dictionary<string, string> cardSourcePathById = new();
+        public Dictionary<string, AbilityDef> abilitiesById = new();
+        public Dictionary<string, string> abilitySourcePathById = new();
 
         public Dictionary<string, EncounterDef> encountersById = new();
         public Dictionary<string, string> encounterSourcePathById = new();

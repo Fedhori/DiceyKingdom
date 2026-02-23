@@ -8,13 +8,13 @@
 			{
 				"clashId": "clash.peak",
 				"abilityLoadout": [
-					{ "actionId": "action.test6", "count": 2 }
+					{ "abilityId": "ability.test6", "count": 2 }
 				]
 			},
 			{
 				"clashId": "clash.ruins",
 				"abilityLoadout": [
-					{ "actionId": "action.test6", "count": 1 }
+					{ "abilityId": "ability.test6", "count": 1 }
 				]
 			},
 			{

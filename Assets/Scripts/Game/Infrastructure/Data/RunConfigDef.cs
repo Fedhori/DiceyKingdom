@@ -14,7 +14,7 @@ namespace Game.Infrastructure.Data
         [JsonProperty("startingHonor", Required = Required.Always)]
         public int startingHonor;
 
-        [JsonProperty("supplyLimit", Required = Required.Always)]
-        public int supplyLimit;
+        [JsonProperty("capacity", Required = Required.Always)]
+        public int capacity;
     }
 }

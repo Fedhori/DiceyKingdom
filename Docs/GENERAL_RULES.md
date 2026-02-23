@@ -29,8 +29,8 @@
 
 ## 데이터 ID 네이밍 규칙
 
-- JSON `id`와 참조 ID(`actionId` 등)는 점(`.`) 표기법을 사용한다.
-- 예시: `action.miko.assassin`, `clash.peak`, `enemy.debug.01`, `duel.config`
+- JSON `id`와 참조 ID(`abilityId` 등)는 점(`.`) 표기법을 사용한다.
+- 예시: `ability.miko.assassin`, `clash.peak`, `enemy.debug.01`, `duel.config`
 - 언더스코어(`_`) 기반 ID 네이밍은 신규 데이터에서 사용하지 않는다.
 
 ## JSON 직렬화/역직렬화 규칙

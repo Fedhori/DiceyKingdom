@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Game.Application.Duel.Effects
 {
-    public sealed class ActionTimedEffectRunner
+    public sealed class AbilityTimedEffectRunner
     {
         const string timedSourcePrefix = "Timed";
         const string rollSourcePrefix = "Timed:Roll:";
@@ -15,13 +15,13 @@ namespace Game.Application.Duel.Effects
         readonly GameDatabase database;
         readonly DuelEffectClashResolver resolver;
 
-        public ActionTimedEffectRunner(GameDatabase database, DuelEffectClashResolver resolver = null)
+        public AbilityTimedEffectRunner(GameDatabase database, DuelEffectClashResolver resolver = null)
         {
             this.database = database ?? throw new ArgumentNullException(nameof(database));
             this.resolver = resolver ?? new DuelEffectClashResolver();
         }
 
-        public ActionTimedEffectRunResult ApplyForTiming(DuelState state, DuelEffectTiming timing)
+        public AbilityTimedEffectRunResult ApplyForTiming(DuelState state, DuelEffectTiming timing)
         {
             if (state == null)
             {
@@ -35,22 +35,22 @@ namespace Game.Application.Duel.Effects
                 ClearPreviousRollTimedModifiers(state);
             }
 
-            List<ActionRuntimeContext> contexts = BuildActionContexts(state);
+            List<AbilityRuntimeContext> contexts = BuildAbilityContexts(state);
             int appliedCount = 0;
             int failedCount = 0;
             int skippedCount = 0;
 
             for (int contextIndex = 0; contextIndex < contexts.Count; contextIndex++)
             {
-                ActionRuntimeContext sourceContext = contexts[contextIndex];
-                if (sourceContext.actionDef == null || sourceContext.actionDef.effects == null)
+                AbilityRuntimeContext sourceContext = contexts[contextIndex];
+                if (sourceContext.abilityDef == null || sourceContext.abilityDef.effects == null)
                 {
                     continue;
                 }
 
-                for (int effectIndex = 0; effectIndex < sourceContext.actionDef.effects.Count; effectIndex++)
+                for (int effectIndex = 0; effectIndex < sourceContext.abilityDef.effects.Count; effectIndex++)
                 {
-                    TimedEffectDef timedEffect = sourceContext.actionDef.effects[effectIndex];
+                    TimedEffectDef timedEffect = sourceContext.abilityDef.effects[effectIndex];
                     if (!IsTimingMatch(timedEffect, timing))
                     {
                         continue;
@@ -77,7 +77,7 @@ namespace Game.Application.Duel.Effects
                             continue;
                         }
 
-                        List<ActionRuntimeContext> targets = ClashResolveTargets(contexts, sourceContext, opDef);
+                        List<AbilityRuntimeContext> targets = ClashResolveTargets(contexts, sourceContext, opDef);
                         if (targets.Count <= 0)
                         {
                             skippedCount += 1;
@@ -86,7 +86,7 @@ namespace Game.Application.Duel.Effects
 
                         for (int targetIndex = 0; targetIndex < targets.Count; targetIndex++)
                         {
-                            ActionRuntimeContext targetContext = targets[targetIndex];
+                            AbilityRuntimeContext targetContext = targets[targetIndex];
                             if (!TryCreateCommand(
                                     sourceContext,
                                     targetContext,
@@ -98,7 +98,7 @@ namespace Game.Application.Duel.Effects
                                     out string warningMessage))
                             {
                                 failedCount += 1;
-                                Debug.LogWarning($"[ActionTimedEffectRunner] {warningMessage}");
+                                Debug.LogWarning($"[AbilityTimedEffectRunner] {warningMessage}");
                                 continue;
                             }
 
@@ -116,7 +116,7 @@ namespace Game.Application.Duel.Effects
                 }
             }
 
-            return new ActionTimedEffectRunResult(appliedCount, failedCount, skippedCount);
+            return new AbilityTimedEffectRunResult(appliedCount, failedCount, skippedCount);
         }
 
         static bool IsTimingMatch(TimedEffectDef timedEffect, DuelEffectTiming timing)
@@ -132,9 +132,9 @@ namespace Game.Application.Duel.Effects
 
         static bool EvaluateCondition(
             DuelState state,
-            ActionRuntimeContext sourceContext,
+            AbilityRuntimeContext sourceContext,
             ConditionDef condition,
-            List<ActionRuntimeContext> allContexts)
+            List<AbilityRuntimeContext> allContexts)
         {
             if (condition == null || string.IsNullOrWhiteSpace(condition.type))
             {
@@ -145,7 +145,7 @@ namespace Game.Application.Duel.Effects
             {
                 case "Always":
                     return true;
-                case "IsInActionHolder":
+                case "IsInAbilityHolder":
                     return sourceContext.clashIndex < 0;
                 case "OpponentCountEquals":
                 {
@@ -158,7 +158,7 @@ namespace Game.Application.Duel.Effects
                     int opponentCount = 0;
                     for (int i = 0; i < allContexts.Count; i++)
                     {
-                        ActionRuntimeContext target = allContexts[i];
+                        AbilityRuntimeContext target = allContexts[i];
                         if (target.clashIndex != sourceContext.clashIndex)
                         {
                             continue;
@@ -180,29 +180,29 @@ namespace Game.Application.Duel.Effects
                         return false;
                     }
 
-                    if (sourceContext.action == null || sourceContext.action.tags == null)
+                    if (sourceContext.ability == null || sourceContext.ability.tags == null)
                     {
                         return false;
                     }
 
-                    return sourceContext.action.tags.Contains(condition.tag);
+                    return sourceContext.ability.tags.Contains(condition.tag);
                 default:
-                    Debug.LogWarning($"[ActionTimedEffectRunner] Unsupported condition type '{condition.type}'.");
+                    Debug.LogWarning($"[AbilityTimedEffectRunner] Unsupported condition type '{condition.type}'.");
                     return false;
             }
         }
 
-        static List<ActionRuntimeContext> ClashResolveTargets(
-            List<ActionRuntimeContext> contexts,
-            ActionRuntimeContext sourceContext,
+        static List<AbilityRuntimeContext> ClashResolveTargets(
+            List<AbilityRuntimeContext> contexts,
+            AbilityRuntimeContext sourceContext,
             EffectOpDef opDef)
         {
-            var targets = new List<ActionRuntimeContext>();
+            var targets = new List<AbilityRuntimeContext>();
             string scope = string.IsNullOrWhiteSpace(opDef.scope) ? "Self" : opDef.scope;
 
             for (int i = 0; i < contexts.Count; i++)
             {
-                ActionRuntimeContext candidate = contexts[i];
+                AbilityRuntimeContext candidate = contexts[i];
                 if (!IsScopeMatch(scope, sourceContext, candidate))
                 {
                     continue;
@@ -221,19 +221,21 @@ namespace Game.Application.Duel.Effects
 
         static bool IsScopeMatch(
             string scope,
-            ActionRuntimeContext sourceContext,
-            ActionRuntimeContext candidateContext)
+            AbilityRuntimeContext sourceContext,
+            AbilityRuntimeContext candidateContext)
         {
             switch (scope)
             {
                 case "Self":
                     return string.Equals(
-                        sourceContext.actionId,
-                        candidateContext.actionId,
+                        sourceContext.abilityId,
+                        candidateContext.abilityId,
                         StringComparison.Ordinal);
+                case "AllAbilities":
                 case "AllActions":
                     return true;
                 case "SameClashActions":
+                case "SameClashAbilities":
                 case "SameClash":
                     return sourceContext.clashIndex >= 0 &&
                            sourceContext.clashIndex == candidateContext.clashIndex;
@@ -246,14 +248,14 @@ namespace Game.Application.Duel.Effects
                            sourceContext.clashIndex == candidateContext.clashIndex &&
                            sourceContext.isPlayerSide != candidateContext.isPlayerSide;
                 default:
-                    Debug.LogWarning($"[ActionTimedEffectRunner] Unsupported scope '{scope}'.");
+                    Debug.LogWarning($"[AbilityTimedEffectRunner] Unsupported scope '{scope}'.");
                     return false;
             }
         }
 
         static bool IsSideMatch(
             string side,
-            ActionRuntimeContext candidateContext)
+            AbilityRuntimeContext candidateContext)
         {
             if (string.IsNullOrWhiteSpace(side))
             {
@@ -270,13 +272,13 @@ namespace Game.Application.Duel.Effects
                 return !candidateContext.isPlayerSide;
             }
 
-            Debug.LogWarning($"[ActionTimedEffectRunner] Unsupported side '{side}'.");
+            Debug.LogWarning($"[AbilityTimedEffectRunner] Unsupported side '{side}'.");
             return false;
         }
 
         static bool TryCreateCommand(
-            ActionRuntimeContext sourceContext,
-            ActionRuntimeContext targetContext,
+            AbilityRuntimeContext sourceContext,
+            AbilityRuntimeContext targetContext,
             DuelEffectTiming timing,
             int effectIndex,
             int opIndex,
@@ -297,7 +299,7 @@ namespace Game.Application.Duel.Effects
             {
                 opCode = opCode,
                 sourceId = BuildSourceId(sourceContext, timing, effectIndex, opIndex),
-                actionId = targetContext.actionId,
+                abilityId = targetContext.abilityId,
                 clashIndex = targetContext.clashIndex,
                 fromClashIndex = sourceContext.clashIndex,
                 toClashIndex = targetContext.clashIndex,
@@ -412,27 +414,27 @@ namespace Game.Application.Duel.Effects
         }
 
         static string BuildSourceId(
-            ActionRuntimeContext sourceContext,
+            AbilityRuntimeContext sourceContext,
             DuelEffectTiming timing,
             int effectIndex,
             int opIndex)
         {
-            return $"{timedSourcePrefix}:{timing}:{sourceContext.actionId}:{effectIndex}:{opIndex}";
+            return $"{timedSourcePrefix}:{timing}:{sourceContext.abilityId}:{effectIndex}:{opIndex}";
         }
 
         static void ClearPreviousRollTimedModifiers(DuelState state)
         {
-            foreach (KeyValuePair<string, ActionInstance> pair in state.actionsById)
+            foreach (KeyValuePair<string, AbilityInstance> pair in state.abilitiesById)
             {
-                ActionInstance action = pair.Value;
-                if (action == null)
+                AbilityInstance ability = pair.Value;
+                if (ability == null)
                 {
                     continue;
                 }
 
-                action.EnsureInitialized();
-                RemoveSourcePrefixedModifiers(action.attackModifiers, rollSourcePrefix);
-                RemoveSourcePrefixedModifiers(action.attackResultModifiers, rollSourcePrefix);
+                ability.EnsureInitialized();
+                RemoveSourcePrefixedModifiers(ability.attackModifiers, rollSourcePrefix);
+                RemoveSourcePrefixedModifiers(ability.attackResultModifiers, rollSourcePrefix);
             }
         }
 
@@ -460,20 +462,20 @@ namespace Game.Application.Duel.Effects
             }
         }
 
-        List<ActionRuntimeContext> BuildActionContexts(DuelState state)
+        List<AbilityRuntimeContext> BuildAbilityContexts(DuelState state)
         {
-            var contexts = new List<ActionRuntimeContext>();
-            var visitedActionIds = new HashSet<string>(StringComparer.Ordinal);
+            var contexts = new List<AbilityRuntimeContext>();
+            var visitedAbilityIds = new HashSet<string>(StringComparer.Ordinal);
 
-            if (state.actionHolderActionIds != null)
+            if (state.abilityHolderAbilityIds != null)
             {
-                for (int i = 0; i < state.actionHolderActionIds.Count; i++)
+                for (int i = 0; i < state.abilityHolderAbilityIds.Count; i++)
                 {
                     TryAddContext(
                         contexts,
-                        visitedActionIds,
+                        visitedAbilityIds,
                         state,
-                        state.actionHolderActionIds[i],
+                        state.abilityHolderAbilityIds[i],
                         true,
                         -1);
                 }
@@ -498,7 +500,7 @@ namespace Game.Application.Duel.Effects
                 {
                     TryAddContext(
                         contexts,
-                        visitedActionIds,
+                        visitedAbilityIds,
                         state,
                         clash.playerActionIds[i],
                         true,
@@ -509,7 +511,7 @@ namespace Game.Application.Duel.Effects
                 {
                     TryAddContext(
                         contexts,
-                        visitedActionIds,
+                        visitedAbilityIds,
                         state,
                         clash.opponentActionIds[i],
                         false,
@@ -521,53 +523,53 @@ namespace Game.Application.Duel.Effects
         }
 
         void TryAddContext(
-            List<ActionRuntimeContext> contexts,
-            HashSet<string> visitedActionIds,
+            List<AbilityRuntimeContext> contexts,
+            HashSet<string> visitedAbilityIds,
             DuelState state,
-            string actionId,
+            string abilityId,
             bool isPlayerSide,
             int clashIndex)
         {
-            if (string.IsNullOrWhiteSpace(actionId))
+            if (string.IsNullOrWhiteSpace(abilityId))
             {
                 return;
             }
 
-            if (!visitedActionIds.Add(actionId))
+            if (!visitedAbilityIds.Add(abilityId))
             {
                 Debug.LogWarning(
-                    $"[ActionTimedEffectRunner] Duplicate actionId({actionId}) context detected. Later context was skipped.");
+                    $"[AbilityTimedEffectRunner] Duplicate abilityId({abilityId}) context detected. Later context was skipped.");
                 return;
             }
 
-            if (!state.actionsById.TryGetValue(actionId, out ActionInstance action) || action == null)
+            if (!state.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) || ability == null)
             {
                 return;
             }
 
-            action.EnsureInitialized();
+            ability.EnsureInitialized();
 
-            ActionDef actionDef = null;
-            if (database.actionsById != null && !string.IsNullOrWhiteSpace(action.actionDefId))
+            AbilityDef abilityDef = null;
+            if (database.abilitiesById != null && !string.IsNullOrWhiteSpace(ability.abilityDefId))
             {
-                database.actionsById.TryGetValue(action.actionDefId, out actionDef);
+                database.abilitiesById.TryGetValue(ability.abilityDefId, out abilityDef);
             }
 
-            contexts.Add(new ActionRuntimeContext
+            contexts.Add(new AbilityRuntimeContext
             {
-                actionId = actionId,
-                action = action,
-                actionDef = actionDef,
+                abilityId = abilityId,
+                ability = ability,
+                abilityDef = abilityDef,
                 isPlayerSide = isPlayerSide,
                 clashIndex = clashIndex
             });
         }
 
-        struct ActionRuntimeContext
+        struct AbilityRuntimeContext
         {
-            public string actionId;
-            public ActionInstance action;
-            public ActionDef actionDef;
+            public string abilityId;
+            public AbilityInstance ability;
+            public AbilityDef abilityDef;
             public bool isPlayerSide;
             public int clashIndex;
         }

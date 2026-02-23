@@ -9,8 +9,8 @@ namespace Game.Infrastructure.Data
         static readonly HashSet<string> allowedOpCodes = new(StringComparer.Ordinal)
         {
             nameof(DuelEffectOpCode.ModifyAttackResult),
-            nameof(DuelEffectOpCode.MoveAction),
-            nameof(DuelEffectOpCode.MoveOpponentAction),
+            nameof(DuelEffectOpCode.MoveAbility),
+            nameof(DuelEffectOpCode.MoveOpponentAbility),
             nameof(DuelEffectOpCode.ModifyTotalAttack),
             nameof(DuelEffectOpCode.ModifyHealth),
             nameof(DuelEffectOpCode.AddAttackModifier)
@@ -36,8 +36,7 @@ namespace Game.Infrastructure.Data
             ValidateRequiredConfigs(database, report);
             ValidateConfigValues(database, report);
             ValidateClashDefs(database, report);
-            ValidateActionDefs(database, report);
-            ValidateCardDefs(database, report);
+            ValidateAbilityDefs(database, report);
             ValidateEncounterDefs(database, report);
             ValidateEffectOps(database, report);
         }
@@ -107,13 +106,13 @@ namespace Game.Infrastructure.Data
                         "startingHonor must be greater than or equal to 0.");
                 }
 
-                if (database.runConfig.supplyLimit <= 0)
+                if (database.runConfig.capacity <= 0)
                 {
                     report.AddError(
                         GameDataErrorCode.InvalidValue,
                         database.runConfigSourcePath,
                         database.runConfig.id,
-                        "supplyLimit must be greater than zero.");
+                        "capacity must be greater than zero.");
                 }
             }
 
@@ -128,25 +127,6 @@ namespace Game.Infrastructure.Data
                         "startingHonor must be greater than or equal to 0.");
                 }
 
-                if (database.playerStart.startingFocus < 0)
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        database.playerStartSourcePath,
-                        database.playerStart.id,
-                        "startingFocus must be greater than or equal to 0.");
-                }
-
-                if (database.duelConfig != null &&
-                    database.playerStart.startingFocus > database.duelConfig.focusMax)
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        database.playerStartSourcePath,
-                        database.playerStart.id,
-                        $"startingFocus must be less than or equal to duel.config.focusMax({database.duelConfig.focusMax}).");
-                }
-
                 if (database.playerStart.startingPlayerHealth <= 0)
                 {
                     report.AddError(
@@ -156,71 +136,37 @@ namespace Game.Infrastructure.Data
                         "startingPlayerHealth must be greater than zero.");
                 }
 
-                if (database.playerStart.startingSquadCardIds == null ||
-                    database.playerStart.startingSquadCardIds.Count <= 0)
+                List<string> startingBagAbilityIds = database.playerStart.ResolveStartingBagAbilityIds();
+                if (startingBagAbilityIds == null || startingBagAbilityIds.Count <= 0)
                 {
                     report.AddError(
                         GameDataErrorCode.InvalidValue,
                         database.playerStartSourcePath,
                         database.playerStart.id,
-                        "startingSquadCardIds must contain at least one Squad card id.");
+                        "startingBagAbilityIds must contain at least one ability id.");
                 }
                 else
                 {
-                    for (int i = 0; i < database.playerStart.startingSquadCardIds.Count; i++)
+                    for (int i = 0; i < startingBagAbilityIds.Count; i++)
                     {
-                        string cardId = database.playerStart.startingSquadCardIds[i];
-                        if (string.IsNullOrWhiteSpace(cardId))
+                        string abilityId = startingBagAbilityIds[i];
+                        if (string.IsNullOrWhiteSpace(abilityId))
                         {
                             report.AddError(
                                 GameDataErrorCode.InvalidValue,
                                 database.playerStartSourcePath,
                                 database.playerStart.id,
-                                $"startingSquadCardIds[{i}] must not be empty.");
+                                $"startingBagAbilityIds[{i}] must not be empty.");
                             continue;
                         }
 
-                        if (!database.cardsById.TryGetValue(cardId, out CardDef cardDef) || cardDef == null)
+                        if (!database.abilitiesById.ContainsKey(abilityId))
                         {
                             report.AddError(
                                 GameDataErrorCode.MissingReference,
                                 database.playerStartSourcePath,
                                 database.playerStart.id,
-                                $"startingSquadCardIds[{i}]('{cardId}') does not exist.");
-                            continue;
-                        }
-
-                        if (!string.Equals(cardDef.type, "Squad", StringComparison.Ordinal))
-                        {
-                            report.AddError(
-                                GameDataErrorCode.InvalidEnum,
-                                database.playerStartSourcePath,
-                                database.playerStart.id,
-                                $"startingSquadCardIds[{i}]('{cardId}') must reference a Squad card.");
-                            continue;
-                        }
-
-                        bool hasPositiveSummon = false;
-                        if (cardDef.duelStart != null && cardDef.duelStart.summonActions != null)
-                        {
-                            for (int summonIndex = 0; summonIndex < cardDef.duelStart.summonActions.Count; summonIndex++)
-                            {
-                                SummonActionRefDef summon = cardDef.duelStart.summonActions[summonIndex];
-                                if (summon != null && summon.count > 0 && !string.IsNullOrWhiteSpace(summon.actionId))
-                                {
-                                    hasPositiveSummon = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (!hasPositiveSummon)
-                        {
-                            report.AddError(
-                                GameDataErrorCode.InvalidValue,
-                                database.playerStartSourcePath,
-                                database.playerStart.id,
-                                $"startingSquadCardIds[{i}]('{cardId}') must summon at least one action.");
+                                $"startingBagAbilityIds[{i}]('{abilityId}') does not exist.");
                         }
                     }
                 }
@@ -257,13 +203,13 @@ namespace Game.Infrastructure.Data
             }
         }
 
-        void ValidateActionDefs(GameDatabase database, GameDataValidationReport report)
+        void ValidateAbilityDefs(GameDatabase database, GameDataValidationReport report)
         {
-            foreach (KeyValuePair<string, ActionDef> pair in database.actionsById)
+            foreach (KeyValuePair<string, AbilityDef> pair in database.abilitiesById)
             {
                 string id = pair.Key;
-                ActionDef def = pair.Value;
-                string path = database.actionSourcePathById.TryGetValue(id, out string foundPath)
+                AbilityDef def = pair.Value;
+                string path = database.abilitySourcePathById.TryGetValue(id, out string foundPath)
                     ? foundPath
                     : string.Empty;
 
@@ -312,50 +258,6 @@ namespace Game.Infrastructure.Data
                         path,
                         id,
                         "Only Attack type ability can define damage.");
-                }
-            }
-        }
-
-        void ValidateCardDefs(GameDatabase database, GameDataValidationReport report)
-        {
-            foreach (KeyValuePair<string, CardDef> pair in database.cardsById)
-            {
-                string id = pair.Key;
-                CardDef cardDef = pair.Value;
-                string path = database.cardSourcePathById.TryGetValue(id, out string foundPath)
-                    ? foundPath
-                    : string.Empty;
-
-                if (!string.Equals(cardDef.type, "Squad", StringComparison.Ordinal) &&
-                    !string.Equals(cardDef.type, "Support", StringComparison.Ordinal))
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidEnum,
-                        path,
-                        id,
-                        $"Card type '{cardDef.type}' is invalid. Allowed: Squad, Support.");
-                }
-
-                if (cardDef.supplyCost < 0)
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        path,
-                        id,
-                        "supplyCost must be greater than or equal to 0.");
-                }
-
-                for (int i = 0; i < cardDef.duelStart.summonActions.Count; i++)
-                {
-                    SummonActionRefDef summon = cardDef.duelStart.summonActions[i];
-                    if (!database.actionsById.ContainsKey(summon.actionId))
-                    {
-                        report.AddError(
-                            GameDataErrorCode.MissingReference,
-                            path,
-                            id,
-                            $"duelStart.summonActions[{i}].actionId('{summon.actionId}') does not exist.");
-                    }
                 }
             }
         }
@@ -428,7 +330,7 @@ namespace Game.Infrastructure.Data
 
                         for (int abilityIndex = 0; abilityIndex < enemyClash.abilityLoadout.Count; abilityIndex++)
                         {
-                            SummonActionRefDef abilityRef = enemyClash.abilityLoadout[abilityIndex];
+                            SummonAbilityRefDef abilityRef = enemyClash.abilityLoadout[abilityIndex];
                             if (abilityRef == null)
                             {
                                 report.AddError(
@@ -439,21 +341,21 @@ namespace Game.Infrastructure.Data
                                 continue;
                             }
 
-                            if (string.IsNullOrWhiteSpace(abilityRef.actionId))
+                            if (string.IsNullOrWhiteSpace(abilityRef.abilityId))
                             {
                                 report.AddError(
                                     GameDataErrorCode.InvalidValue,
                                     path,
                                     id,
-                                    $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}].actionId must not be empty.");
+                                    $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}].abilityId must not be empty.");
                             }
-                            else if (!database.actionsById.ContainsKey(abilityRef.actionId))
+                            else if (!database.abilitiesById.ContainsKey(abilityRef.abilityId))
                             {
                                 report.AddError(
                                     GameDataErrorCode.MissingReference,
                                     path,
                                     id,
-                                    $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}].actionId('{abilityRef.actionId}') does not exist.");
+                                    $"enemy.clashes[{clashIndex}].abilityLoadout[{abilityIndex}].abilityId('{abilityRef.abilityId}') does not exist.");
                             }
 
                             if (abilityRef.count < 0)
@@ -482,16 +384,17 @@ namespace Game.Infrastructure.Data
                             $"plans[{planIndex}].clashIndex({plan.clashIndex}) is out of range.");
                     }
 
-                    for (int actionIndex = 0; actionIndex < plan.actions.Count; actionIndex++)
+                    List<SummonAbilityRefDef> plannedAbilities = plan.ResolveAbilities();
+                    for (int actionIndex = 0; actionIndex < plannedAbilities.Count; actionIndex++)
                     {
-                        SummonActionRefDef actionRef = plan.actions[actionIndex];
-                        if (!database.actionsById.ContainsKey(actionRef.actionId))
+                        SummonAbilityRefDef actionRef = plannedAbilities[actionIndex];
+                        if (!database.abilitiesById.ContainsKey(actionRef.abilityId))
                         {
                             report.AddError(
                                 GameDataErrorCode.MissingReference,
                                 path,
                                 id,
-                                $"plans[{planIndex}].actions[{actionIndex}].actionId('{actionRef.actionId}') does not exist.");
+                                $"plans[{planIndex}].abilities[{actionIndex}].abilityId('{actionRef.abilityId}') does not exist.");
                         }
                     }
                 }
@@ -528,17 +431,17 @@ namespace Game.Infrastructure.Data
                 }
             }
 
-            foreach (KeyValuePair<string, ActionDef> pair in database.actionsById)
+            foreach (KeyValuePair<string, AbilityDef> pair in database.abilitiesById)
             {
                 string ownerId = pair.Key;
-                string path = database.actionSourcePathById.TryGetValue(ownerId, out string foundPath)
+                string path = database.abilitySourcePathById.TryGetValue(ownerId, out string foundPath)
                     ? foundPath
                     : string.Empty;
-                ActionDef actionDef = pair.Value;
+                AbilityDef abilityDef = pair.Value;
 
-                for (int effectIndex = 0; effectIndex < actionDef.effects.Count; effectIndex++)
+                for (int effectIndex = 0; effectIndex < abilityDef.effects.Count; effectIndex++)
                 {
-                    TimedEffectDef timedEffect = actionDef.effects[effectIndex];
+                    TimedEffectDef timedEffect = abilityDef.effects[effectIndex];
                     for (int opIndex = 0; opIndex < timedEffect.ops.Count; opIndex++)
                     {
                         ValidateOp(
@@ -548,25 +451,6 @@ namespace Game.Infrastructure.Data
                             $"effects[{effectIndex}].ops[{opIndex}]",
                             report);
                     }
-                }
-            }
-
-            foreach (KeyValuePair<string, CardDef> pair in database.cardsById)
-            {
-                string ownerId = pair.Key;
-                string path = database.cardSourcePathById.TryGetValue(ownerId, out string foundPath)
-                    ? foundPath
-                    : string.Empty;
-                CardDef cardDef = pair.Value;
-
-                for (int opIndex = 0; opIndex < cardDef.duelStart.ops.Count; opIndex++)
-                {
-                    ValidateOp(
-                        cardDef.duelStart.ops[opIndex],
-                        path,
-                        ownerId,
-                        $"duelStart.ops[{opIndex}]",
-                        report);
                 }
             }
 
@@ -589,8 +473,8 @@ namespace Game.Infrastructure.Data
                 case nameof(DuelEffectOpCode.ModifyAttackResult):
                     ValidateModeAndAmount(opDef, path, ownerId, context, report);
                     break;
-                case nameof(DuelEffectOpCode.MoveAction):
-                case nameof(DuelEffectOpCode.MoveOpponentAction):
+                case nameof(DuelEffectOpCode.MoveAbility):
+                case nameof(DuelEffectOpCode.MoveOpponentAbility):
                     if (!opDef.keepAttackResult.HasValue || !opDef.keepAttackResult.Value)
                     {
                         report.AddError(

@@ -12,9 +12,9 @@ namespace Game.Tests.EditMode
         public void ModifyAttackResult_RecomputesCurrentAttackResult()
         {
             var state = CreateDuelState();
-            state.actionsById["p1"] = new ActionInstance
+            state.abilitiesById["p1"] = new AbilityInstance
             {
-                actionDefId = "p1",
+                abilityDefId = "p1",
                 attack = 6,
                 baseRoll = 3,
                 attackResult = 3
@@ -24,7 +24,7 @@ namespace Game.Tests.EditMode
             var command = new DuelEffectCommand
             {
                 opCode = DuelEffectOpCode.ModifyAttackResult,
-                actionId = "p1",
+                abilityId = "p1",
                 modifierOperation = NumericModifierOperation.Add,
                 amount = 2
             };
@@ -32,17 +32,17 @@ namespace Game.Tests.EditMode
             DuelEffectResult result = resolver.Apply(state, command);
 
             Assert.IsTrue(result.isSuccess);
-            Assert.AreEqual(5, state.actionsById["p1"].attackResult);
-            Assert.AreEqual(1, state.actionsById["p1"].attackResultModifiers.Count);
+            Assert.AreEqual(5, state.abilitiesById["p1"].attackResult);
+            Assert.AreEqual(1, state.abilitiesById["p1"].attackResultModifiers.Count);
         }
 
         [Test]
         public void AddAttackModifier_AffectsRollAttackRange()
         {
             var state = CreateDuelState();
-            state.actionsById["p1"] = new ActionInstance
+            state.abilitiesById["p1"] = new AbilityInstance
             {
-                actionDefId = "p1",
+                abilityDefId = "p1",
                 attack = 4
             };
 
@@ -52,7 +52,7 @@ namespace Game.Tests.EditMode
                 new DuelEffectCommand
                 {
                     opCode = DuelEffectOpCode.AddAttackModifier,
-                    actionId = "p1",
+                    abilityId = "p1",
                     modifierOperation = NumericModifierOperation.Add,
                     amount = 2
                 });
@@ -60,17 +60,17 @@ namespace Game.Tests.EditMode
             Assert.IsTrue(result.isSuccess);
 
             var fakeRollSource = new FakeRollSource(6);
-            DuelSimulator.RollAction(state.actionsById["p1"], fakeRollSource);
+            DuelSimulator.RollAction(state.abilitiesById["p1"], fakeRollSource);
 
             Assert.AreEqual(6, fakeRollSource.lastMaxInclusive);
-            Assert.AreEqual(6, state.actionsById["p1"].baseRoll);
+            Assert.AreEqual(6, state.abilitiesById["p1"].baseRoll);
         }
 
         [Test]
-        public void MoveAction_Succeeds_WhenTargetHasSpace()
+        public void MoveAbility_Succeeds_WhenTargetHasSpace()
         {
             var state = CreateDuelState();
-            state.actionsById["p1"] = CreateAction("p1", 2);
+            state.abilitiesById["p1"] = CreateAction("p1", 2);
             state.clashes[0].playerActionIds.Add("p1");
 
             var resolver = new DuelEffectClashResolver();
@@ -78,8 +78,8 @@ namespace Game.Tests.EditMode
                 state,
                 new DuelEffectCommand
                 {
-                    opCode = DuelEffectOpCode.MoveAction,
-                    actionId = "p1",
+                    opCode = DuelEffectOpCode.MoveAbility,
+                    abilityId = "p1",
                     toClashIndex = 1
                 });
 
@@ -89,11 +89,11 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void MoveAction_Fails_WhenSlotLimitExceeded()
+        public void MoveAbility_Fails_WhenSlotLimitExceeded()
         {
             var state = CreateDuelState();
-            state.actionsById["p1"] = CreateAction("p1", 2);
-            state.actionsById["p2"] = CreateAction("p2", 2);
+            state.abilitiesById["p1"] = CreateAction("p1", 2);
+            state.abilitiesById["p2"] = CreateAction("p2", 2);
             state.clashes[0].playerActionIds.Add("p1");
             state.clashes[1].playerActionIds.Add("p2");
             state.clashes[1].slotLimit = 1;
@@ -103,8 +103,8 @@ namespace Game.Tests.EditMode
                 state,
                 new DuelEffectCommand
                 {
-                    opCode = DuelEffectOpCode.MoveAction,
-                    actionId = "p1",
+                    opCode = DuelEffectOpCode.MoveAbility,
+                    abilityId = "p1",
                     toClashIndex = 1
                 });
 
@@ -115,10 +115,10 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void MoveOpponentAction_Succeeds_WhenTargetHasSpace()
+        public void MoveOpponentAbility_Succeeds_WhenTargetHasSpace()
         {
             var state = CreateDuelState();
-            state.actionsById["e1"] = CreateAction("e1", 3);
+            state.abilitiesById["e1"] = CreateAction("e1", 3);
             state.clashes[0].opponentActionIds.Add("e1");
 
             var resolver = new DuelEffectClashResolver();
@@ -126,8 +126,8 @@ namespace Game.Tests.EditMode
                 state,
                 new DuelEffectCommand
                 {
-                    opCode = DuelEffectOpCode.MoveOpponentAction,
-                    actionId = "e1",
+                    opCode = DuelEffectOpCode.MoveOpponentAbility,
+                    abilityId = "e1",
                     toClashIndex = 2
                 });
 
@@ -189,9 +189,9 @@ namespace Game.Tests.EditMode
         {
             var state = CreateDuelState();
             state.playerHealth = 1;
-            state.actionsById["p1"] = new ActionInstance
+            state.abilitiesById["p1"] = new AbilityInstance
             {
-                actionDefId = "p1",
+                abilityDefId = "p1",
                 attack = 4,
                 attackModifiers = new List<NumericModifier>
                 {
@@ -223,8 +223,8 @@ namespace Game.Tests.EditMode
             Assert.IsTrue(result.isSuccess);
             Assert.IsTrue(state.isDuelEnded);
             Assert.AreEqual(-1, state.playerHealth);
-            Assert.AreEqual(1, state.actionsById["p1"].attackModifiers.Count);
-            Assert.AreEqual(ModifierLayer.Permanent, state.actionsById["p1"].attackModifiers[0].layer);
+            Assert.AreEqual(1, state.abilitiesById["p1"].attackModifiers.Count);
+            Assert.AreEqual(ModifierLayer.Permanent, state.abilitiesById["p1"].attackModifiers[0].layer);
         }
 
         [Test]
@@ -238,8 +238,8 @@ namespace Game.Tests.EditMode
                 {
                     new DuelEffectCommand
                     {
-                        opCode = DuelEffectOpCode.MoveAction,
-                        actionId = "missing",
+                        opCode = DuelEffectOpCode.MoveAbility,
+                        abilityId = "missing",
                         toClashIndex = 1
                     },
                     new DuelEffectCommand
@@ -285,11 +285,11 @@ namespace Game.Tests.EditMode
             };
         }
 
-        static ActionInstance CreateAction(string actionId, int attackResult)
+        static AbilityInstance CreateAction(string abilityId, int attackResult)
         {
-            return new ActionInstance
+            return new AbilityInstance
             {
-                actionDefId = actionId,
+                abilityDefId = abilityId,
                 attack = 6,
                 baseRoll = attackResult,
                 attackResult = attackResult

@@ -21,10 +21,14 @@ namespace Game.Presentation.Debug
             return $"Turn: {turn}";
         }
 
+        public static string FormatResourceStatus()
+        {
+            return "Resource: none";
+        }
+
         public static string FormatFocus(DuelState duelState)
         {
-            int focus = duelState == null ? 0 : duelState.focus;
-            return $"Focus: {focus}";
+            return FormatResourceStatus();
         }
 
         public static string FormatHonor(DuelState duelState)
@@ -69,12 +73,12 @@ namespace Game.Presentation.Debug
 
             int playerTotalAttack = DuelSimulator.ComputeTotalAttack(
                 clash,
-                duelState.actionsById,
+                duelState.abilitiesById,
                 true);
 
             int opponentTotalAttack = DuelSimulator.ComputeTotalAttack(
                 clash,
-                duelState.actionsById,
+                duelState.abilitiesById,
                 false);
 
             string clashId = string.IsNullOrWhiteSpace(clash.clashId)
@@ -89,79 +93,89 @@ namespace Game.Presentation.Debug
             if (string.IsNullOrWhiteSpace(damageLabel))
             {
                 return
-                    $"Clash {clashIndex} ({clashId}) | TotalAttack P:{playerTotalAttack} E:{opponentTotalAttack} | Actions P:{playerCount} E:{opponentCount} | Slot:{slotLabel}";
+                    $"Clash {clashIndex} ({clashId}) | TotalAttack P:{playerTotalAttack} E:{opponentTotalAttack} | Abilities P:{playerCount} E:{opponentCount} | Slot:{slotLabel}";
             }
 
             return
-                $"Clash {clashIndex} ({clashId}) | TotalAttack P:{playerTotalAttack} E:{opponentTotalAttack} | Actions P:{playerCount} E:{opponentCount} | Slot:{slotLabel} | {damageLabel}";
+                $"Clash {clashIndex} ({clashId}) | TotalAttack P:{playerTotalAttack} E:{opponentTotalAttack} | Abilities P:{playerCount} E:{opponentCount} | Slot:{slotLabel} | {damageLabel}";
         }
 
-        public static string FormatActionHolderActions(DuelState duelState, string selectedActionId)
+        public static string FormatAbilityHolderActions(DuelState duelState, string selectedAbilityId)
         {
-            string selectedLine = FormatSelectedAction(duelState, selectedActionId);
+            string selectedLine = FormatSelectedAbility(duelState, selectedAbilityId);
 
             if (duelState == null ||
-                duelState.actionHolderActionIds == null ||
-                duelState.actionHolderActionIds.Count <= 0)
+                duelState.abilityHolderAbilityIds == null ||
+                duelState.abilityHolderAbilityIds.Count <= 0)
             {
-                return $"{selectedLine}\nActionHolder Actions: none";
+                return $"{selectedLine}\nBag Abilities: none";
             }
 
             var lines = new List<string>
             {
                 selectedLine,
-                $"ActionHolder Actions ({duelState.actionHolderActionIds.Count}):"
+                $"Bag Abilities ({duelState.abilityHolderAbilityIds.Count}):"
             };
 
-            for (int i = 0; i < duelState.actionHolderActionIds.Count; i++)
+            for (int i = 0; i < duelState.abilityHolderAbilityIds.Count; i++)
             {
-                string actionId = duelState.actionHolderActionIds[i];
-                if (!TryClashResolveAction(duelState, actionId, out ActionInstance action))
+                string abilityId = duelState.abilityHolderAbilityIds[i];
+                if (!TryResolveAbility(duelState, abilityId, out AbilityInstance ability))
                 {
-                    lines.Add("- (missing action)");
+                    lines.Add("- (missing ability)");
                     continue;
                 }
 
-                string actionDefId = ClashResolveActionDefId(action, null);
-                bool isSelected = string.Equals(actionId, selectedActionId, StringComparison.Ordinal);
+                string abilityDefId = ResolveAbilityDefId(ability, null);
+                bool isSelected = string.Equals(abilityId, selectedAbilityId, StringComparison.Ordinal);
                 string selectedSuffix = isSelected ? " <selected>" : string.Empty;
-                string cooldownLabel = action.cooldownTurns > 0
-                    ? $"{action.cooldownRemaining}/{action.cooldownTurns}"
+                string cooldownLabel = ability.cooldownTurns > 0
+                    ? $"{ability.cooldownRemaining}/{ability.cooldownTurns}"
                     : "-";
                 lines.Add(
-                    $"- {actionDefId} | Type:{action.abilityType} | Damage:{action.attack} | Attack Result:{action.attackResult} | CD:{cooldownLabel}{selectedSuffix}");
+                    $"- {abilityDefId} | Type:{ability.abilityType} | Damage:{ability.attack} | Attack Result:{ability.attackResult} | CD:{cooldownLabel}{selectedSuffix}");
             }
 
             return string.Join("\n", lines);
         }
 
-        public static string FormatActionEffects(GameDatabase database, string actionDefId)
+        public static string FormatAbilityEffects(GameDatabase database, string abilityDefId)
         {
-            ActionDef actionDef = ClashResolveActionDef(database, actionDefId);
-            return ClashResolveEffectsLabel(actionDef);
+            AbilityDef abilityDef = ResolveAbilityDef(database, abilityDefId);
+            return ResolveEffectsLabel(abilityDef);
         }
 
-        public static string FormatSelectedAction(DuelState duelState, string selectedActionId)
+        public static string FormatActionEffects(GameDatabase database, string abilityDefId)
         {
-            if (string.IsNullOrWhiteSpace(selectedActionId))
+            return FormatAbilityEffects(database, abilityDefId);
+        }
+
+        public static string FormatSelectedAbility(DuelState duelState, string selectedAbilityId)
+        {
+            if (string.IsNullOrWhiteSpace(selectedAbilityId))
             {
-                return "Selected Action: (none)";
+                return "Selected Ability: (none)";
             }
 
             if (duelState == null ||
-                duelState.actionsById == null ||
-                !duelState.actionsById.TryGetValue(selectedActionId, out ActionInstance action) ||
-                action == null)
+                duelState.abilitiesById == null ||
+                !duelState.abilitiesById.TryGetValue(selectedAbilityId, out AbilityInstance ability) ||
+                ability == null)
             {
-                return "Selected Action: (missing)";
+                return "Selected Ability: (missing)";
             }
 
-            string location = ClashResolveActionLocation(duelState, selectedActionId);
-            string actionDefId = ClashResolveActionDefId(action, null);
-            string cooldownLabel = action.cooldownTurns > 0
-                ? $"{action.cooldownRemaining}/{action.cooldownTurns}"
+            string location = ResolveAbilityLocation(duelState, selectedAbilityId);
+            string abilityDefId = ResolveAbilityDefId(ability, null);
+            string cooldownLabel = ability.cooldownTurns > 0
+                ? $"{ability.cooldownRemaining}/{ability.cooldownTurns}"
                 : "-";
-            return $"Selected Action: {actionDefId} | Type:{action.abilityType} | Damage:{action.attack} | Attack Result:{action.attackResult} | CD:{cooldownLabel} | {location}";
+            return $"Selected Ability: {abilityDefId} | Type:{ability.abilityType} | Damage:{ability.attack} | Attack Result:{ability.attackResult} | CD:{cooldownLabel} | {location}";
+        }
+
+        public static string FormatSelectedAction(DuelState duelState, string selectedAbilityId)
+        {
+            return FormatSelectedAbility(duelState, selectedAbilityId);
         }
 
         public static string FormatSelectedClash(DuelState duelState, int selectedClashIndex)
@@ -187,14 +201,14 @@ namespace Game.Presentation.Debug
                 : clash.clashId;
 
             return
-                $"Selected Clash: {selectedClashIndex} ({clashId}) | Actions P:{playerCount} E:{opponentCount}";
+                $"Selected Clash: {selectedClashIndex} ({clashId}) | Abilities P:{playerCount} E:{opponentCount}";
         }
 
-        static string ClashResolveActionLocation(DuelState duelState, string actionId)
+        static string ResolveAbilityLocation(DuelState duelState, string abilityId)
         {
-            if (duelState.actionHolderActionIds != null && duelState.actionHolderActionIds.Contains(actionId))
+            if (duelState.abilityHolderAbilityIds != null && duelState.abilityHolderAbilityIds.Contains(abilityId))
             {
-                return "actionHolder";
+                return "bag";
             }
 
             if (duelState.clashes == null)
@@ -210,12 +224,12 @@ namespace Game.Presentation.Debug
                     continue;
                 }
 
-                if (field.playerActionIds != null && field.playerActionIds.Contains(actionId))
+                if (field.playerActionIds != null && field.playerActionIds.Contains(abilityId))
                 {
                     return $"player@{i}";
                 }
 
-                if (field.opponentActionIds != null && field.opponentActionIds.Contains(actionId))
+                if (field.opponentActionIds != null && field.opponentActionIds.Contains(abilityId))
                 {
                     return $"opponent@{i}";
                 }
@@ -242,15 +256,15 @@ namespace Game.Presentation.Debug
             return $"Damage:{clashDef.damage}";
         }
 
-        static bool TryClashResolveAction(DuelState duelState, string actionId, out ActionInstance action)
+        static bool TryResolveAbility(DuelState duelState, string abilityId, out AbilityInstance ability)
         {
-            action = null;
-            if (duelState == null || duelState.actionsById == null || string.IsNullOrWhiteSpace(actionId))
+            ability = null;
+            if (duelState == null || duelState.abilitiesById == null || string.IsNullOrWhiteSpace(abilityId))
             {
                 return false;
             }
 
-            if (!duelState.actionsById.TryGetValue(actionId, out action) || action == null)
+            if (!duelState.abilitiesById.TryGetValue(abilityId, out ability) || ability == null)
             {
                 return false;
             }
@@ -258,50 +272,50 @@ namespace Game.Presentation.Debug
             return true;
         }
 
-        static ActionDef ClashResolveActionDef(GameDatabase database, string actionDefId)
+        static AbilityDef ResolveAbilityDef(GameDatabase database, string abilityDefId)
         {
             if (database == null ||
-                database.actionsById == null ||
-                string.IsNullOrWhiteSpace(actionDefId))
+                database.abilitiesById == null ||
+                string.IsNullOrWhiteSpace(abilityDefId))
             {
                 return null;
             }
 
-            if (!database.actionsById.TryGetValue(actionDefId, out ActionDef actionDef) || actionDef == null)
+            if (!database.abilitiesById.TryGetValue(abilityDefId, out AbilityDef abilityDef) || abilityDef == null)
             {
                 return null;
             }
 
-            return actionDef;
+            return abilityDef;
         }
 
-        static string ClashResolveActionDefId(ActionInstance action, ActionDef actionDef)
+        static string ResolveAbilityDefId(AbilityInstance ability, AbilityDef abilityDef)
         {
-            if (action != null && !string.IsNullOrWhiteSpace(action.actionDefId))
+            if (ability != null && !string.IsNullOrWhiteSpace(ability.abilityDefId))
             {
-                return action.actionDefId;
+                return ability.abilityDefId;
             }
 
-            if (actionDef != null && !string.IsNullOrWhiteSpace(actionDef.id))
+            if (abilityDef != null && !string.IsNullOrWhiteSpace(abilityDef.id))
             {
-                return actionDef.id;
+                return abilityDef.id;
             }
 
             return "(no-def)";
         }
 
-        static string ClashResolveEffectsLabel(ActionDef actionDef)
+        static string ResolveEffectsLabel(AbilityDef abilityDef)
         {
-            if (actionDef == null || actionDef.effects == null || actionDef.effects.Count <= 0)
+            if (abilityDef == null || abilityDef.effects == null || abilityDef.effects.Count <= 0)
             {
                 return "none";
             }
 
             var effectLabels = new List<string>();
 
-            for (int i = 0; i < actionDef.effects.Count; i++)
+            for (int i = 0; i < abilityDef.effects.Count; i++)
             {
-                TimedEffectDef timedEffect = actionDef.effects[i];
+                TimedEffectDef timedEffect = abilityDef.effects[i];
                 if (timedEffect == null)
                 {
                     continue;
@@ -384,6 +398,7 @@ namespace Game.Presentation.Debug
             {
                 string token = tokens[i];
                 if (string.Equals(token, "action", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(token, "ability", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(token, "name", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(token, "desc", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(token, "loc", StringComparison.OrdinalIgnoreCase) ||

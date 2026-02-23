@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "id": "action.miko.assassin",
+  "id": "ability.miko.assassin",
   "type": "Attack",
   "buildCost": 0,
   "cooldown": 0,
   "damage": 4,
   "tags": ["assassin"],
-  "nameLocKey": "action.miko.assassin_name",
-  "descLocKey": "action.miko.assassin_desc",
+  "nameLocKey": "ability.miko.assassin_name",
+  "descLocKey": "ability.miko.assassin_desc",
   "effects": [
     {
       "timing": "Roll",

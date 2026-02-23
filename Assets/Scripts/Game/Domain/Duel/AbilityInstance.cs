@@ -7,10 +7,10 @@ using UnityEngine;
 namespace Game.Domain.Duel
 {
     [Serializable]
-    public sealed class ActionInstance
+    public sealed class AbilityInstance
     {
         public string instanceId = Guid.NewGuid().ToString("N");
-        public string actionDefId = string.Empty;
+        public string abilityDefId = string.Empty;
 
         public AbilityType abilityType;
         public int cooldownTurns;
@@ -28,37 +28,37 @@ namespace Game.Domain.Duel
             if (string.IsNullOrWhiteSpace(instanceId))
             {
                 instanceId = Guid.NewGuid().ToString("N");
-                Debug.LogWarning("[ActionInstance] instanceId was empty and has been regenerated.");
+                Debug.LogWarning("[AbilityInstance] instanceId was empty and has been regenerated.");
             }
 
             if (cooldownTurns < 0)
             {
                 cooldownTurns = 0;
-                Debug.LogWarning("[ActionInstance] cooldownTurns was negative and has been clamped to 0.");
+                Debug.LogWarning("[AbilityInstance] cooldownTurns was negative and has been clamped to 0.");
             }
 
             if (cooldownRemaining < 0)
             {
                 cooldownRemaining = 0;
-                Debug.LogWarning("[ActionInstance] cooldownRemaining was negative and has been clamped to 0.");
+                Debug.LogWarning("[AbilityInstance] cooldownRemaining was negative and has been clamped to 0.");
             }
 
             if (attackModifiers == null)
             {
                 attackModifiers = new List<NumericModifier>();
-                Debug.LogWarning("[ActionInstance] attackModifiers was null and has been auto-initialized.");
+                Debug.LogWarning("[AbilityInstance] attackModifiers was null and has been auto-initialized.");
             }
 
             if (attackResultModifiers == null)
             {
                 attackResultModifiers = new List<NumericModifier>();
-                Debug.LogWarning("[ActionInstance] attackResultModifiers was null and has been auto-initialized.");
+                Debug.LogWarning("[AbilityInstance] attackResultModifiers was null and has been auto-initialized.");
             }
 
             if (tags == null)
             {
                 tags = new List<string>();
-                Debug.LogWarning("[ActionInstance] tags was null and has been auto-initialized.");
+                Debug.LogWarning("[AbilityInstance] tags was null and has been auto-initialized.");
             }
         }
     }

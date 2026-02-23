@@ -66,15 +66,9 @@ namespace Game.Application.Duel
                 return false;
             }
 
-            if (database.actionsById == null)
+            if (database.abilitiesById == null)
             {
-                failureMessage = "actions table is missing.";
-                return false;
-            }
-
-            if (database.cardsById == null)
-            {
-                failureMessage = "cards table is missing.";
+                failureMessage = "abilities table is missing.";
                 return false;
             }
 
@@ -98,35 +92,43 @@ namespace Game.Application.Duel
 
             state.EnsureInitialized();
 
-            if (database.actionsById == null)
+            if (database.abilitiesById == null)
             {
-                int skipped = state.opponentIntent == null ? 0 : state.opponentIntent.Count;
-                Debug.LogWarning("[DuelSessionBuilder] Opponent deploy skipped: actions table is missing.");
+                int skipped = state.intent == null ? 0 : state.intent.Count;
+                Debug.LogWarning("[DuelSessionBuilder] Opponent deploy skipped: abilities table is missing.");
                 return new OpponentSetupBuildResult(0, skipped);
             }
 
             int deployedCount = 0;
             int skippedCount = 0;
 
-            for (int i = 0; i < state.opponentIntent.Count; i++)
+            for (int i = 0; i < state.intent.Count; i++)
             {
-                OpponentIntentEntry intent = state.opponentIntent[i];
+                IntentEntry intent = state.intent[i];
                 if (intent == null)
                 {
                     skippedCount += 1;
-                    Debug.LogWarning($"[DuelSessionBuilder] opponentIntent[{i}] is null.");
+                    Debug.LogWarning($"[DuelSessionBuilder] intent[{i}] is null.");
                     continue;
                 }
 
-                if (!database.actionsById.TryGetValue(intent.actionDefId, out ActionDef actionDef) || actionDef == null)
+                if (!database.abilitiesById.TryGetValue(intent.abilityDefId, out AbilityDef abilityDef) ||
+                    abilityDef == null)
                 {
                     skippedCount += Mathf.Max(1, intent.count);
-                    Debug.LogWarning($"[DuelSessionBuilder] actionDef('{intent.actionDefId}') is missing.");
+                    Debug.LogWarning($"[DuelSessionBuilder] abilityDef('{intent.abilityDefId}') is missing.");
                     continue;
                 }
 
-                if (actionDef.TryGetAbilityType(out AbilityType abilityType) &&
-                    abilityType == AbilityType.Skill)
+                if (!abilityDef.TryGetAbilityType(out AbilityType abilityType))
+                {
+                    skippedCount += Mathf.Max(1, intent.count);
+                    Debug.LogWarning(
+                        $"[DuelSessionBuilder] Invalid ability type '{abilityDef.type}' on '{abilityDef.id}'.");
+                    continue;
+                }
+
+                if (abilityType == AbilityType.Skill)
                 {
                     skippedCount += Mathf.Max(0, intent.count);
                     continue;
@@ -135,23 +137,20 @@ namespace Game.Application.Duel
                 int requestedCount = Mathf.Max(0, intent.count);
                 for (int copyIndex = 0; copyIndex < requestedCount; copyIndex++)
                 {
-                    if (!TryFindOpponentClashForDeploy(
-                            state,
-                            intent.clashIndex,
-                            out int deployClashIndex))
+                    if (!TryFindOpponentClashForDeploy(state, intent.clashIndex, out int deployClashIndex))
                     {
                         skippedCount += 1;
                         Debug.LogWarning(
-                            $"[DuelSessionBuilder] no available clash slot for actionDef('{intent.actionDefId}').");
+                            $"[DuelSessionBuilder] no available clash slot for abilityDef('{intent.abilityDefId}').");
                         continue;
                     }
 
                     ClashState deployClash = state.clashes[deployClashIndex];
                     deployClash.EnsureInitialized();
 
-                    ActionInstance actionInstance = CreateActionInstance(actionDef);
-                    state.actionsById[actionInstance.instanceId] = actionInstance;
-                    deployClash.opponentActionIds.Add(actionInstance.instanceId);
+                    AbilityInstance abilityInstance = CreateAbilityInstance(abilityDef);
+                    state.abilitiesById[abilityInstance.instanceId] = abilityInstance;
+                    deployClash.opponentActionIds.Add(abilityInstance.instanceId);
                     deployedCount += 1;
                 }
             }
@@ -161,34 +160,29 @@ namespace Game.Application.Duel
 
         DuelState CreateInitialDuelState(EncounterDef encounterDef)
         {
-            int focusMax = Mathf.Max(0, database.duelConfig.focusMax);
-            int startingFocus = Mathf.Clamp(database.playerStart.startingFocus, 0, focusMax);
-
             var nextState = new DuelState
             {
                 turnIndex = 0,
                 isDuelEnded = false,
-                focus = startingFocus,
                 honor = database.playerStart.startingHonor,
                 playerHealth = Mathf.Max(1, database.playerStart.startingPlayerHealth),
                 opponentHealth = Mathf.Max(1, ResolveEncounterOpponentHealth(encounterDef))
             };
 
-            nextState.actionHolderActionIds.Clear();
-            nextState.actionsById.Clear();
-            nextState.opponentIntent.Clear();
+            nextState.abilityHolderAbilityIds.Clear();
+            nextState.abilitiesById.Clear();
+            nextState.intent.Clear();
 
             InitializeClashSlots(nextState, encounterDef);
             PopulateOpponentIntent(nextState, encounterDef);
-            PopulateActionHolderFromPlayerStart(nextState);
+            PopulateBagFromPlayerStart(nextState);
 
             return nextState;
         }
 
         int ResolveEncounterOpponentHealth(EncounterDef encounterDef)
         {
-            if (encounterDef?.enemy != null &&
-                encounterDef.enemy.health > 0)
+            if (encounterDef?.enemy != null && encounterDef.enemy.health > 0)
             {
                 return encounterDef.enemy.health;
             }
@@ -217,11 +211,7 @@ namespace Game.Application.Duel
                     ? enemyClashes[i].clashId
                     : string.Empty;
 
-                ClashDef sourceDef = ResolveClashDef(
-                    i,
-                    clashIdFromEnemy,
-                    fallbackOrderedDefs);
-
+                ClashDef sourceDef = ResolveClashDef(i, clashIdFromEnemy, fallbackOrderedDefs);
                 int? resolvedSlotLimit = sourceDef != null
                     ? sourceDef.slotLimit
                     : database.duelConfig.p0Rules.defaultSlotLimit;
@@ -237,8 +227,6 @@ namespace Game.Application.Duel
                 clashState.EnsureInitialized();
                 state.clashes.Add(clashState);
             }
-
-            state.EnsureInitialized();
         }
 
         List<EncounterEnemyClashDef> ResolveEncounterEnemyClashes(EncounterDef encounterDef)
@@ -302,16 +290,16 @@ namespace Game.Application.Duel
 
                     for (int abilityIndex = 0; abilityIndex < enemyClash.abilityLoadout.Count; abilityIndex++)
                     {
-                        SummonActionRefDef abilityRef = enemyClash.abilityLoadout[abilityIndex];
-                        if (abilityRef == null || abilityRef.count <= 0 || string.IsNullOrWhiteSpace(abilityRef.actionId))
+                        SummonAbilityRefDef abilityRef = enemyClash.abilityLoadout[abilityIndex];
+                        if (abilityRef == null || abilityRef.count <= 0 || string.IsNullOrWhiteSpace(abilityRef.abilityId))
                         {
                             continue;
                         }
 
-                        state.opponentIntent.Add(new OpponentIntentEntry
+                        state.intent.Add(new IntentEntry
                         {
                             clashIndex = clashIndex,
-                            actionDefId = abilityRef.actionId,
+                            abilityDefId = abilityRef.abilityId,
                             count = abilityRef.count
                         });
                     }
@@ -328,112 +316,89 @@ namespace Game.Application.Duel
             for (int planIndex = 0; planIndex < encounterDef.plans.Count; planIndex++)
             {
                 EncounterPlanDef plan = encounterDef.plans[planIndex];
-                if (plan == null || plan.actions == null)
+                if (plan == null)
                 {
                     continue;
                 }
 
-                for (int actionIndex = 0; actionIndex < plan.actions.Count; actionIndex++)
+                List<SummonAbilityRefDef> plannedAbilities = plan.ResolveAbilities();
+                for (int abilityIndex = 0; abilityIndex < plannedAbilities.Count; abilityIndex++)
                 {
-                    SummonActionRefDef action = plan.actions[actionIndex];
-                    if (action == null || action.count <= 0 || string.IsNullOrWhiteSpace(action.actionId))
+                    SummonAbilityRefDef abilityRef = plannedAbilities[abilityIndex];
+                    if (abilityRef == null || abilityRef.count <= 0 || string.IsNullOrWhiteSpace(abilityRef.abilityId))
                     {
                         continue;
                     }
 
-                    state.opponentIntent.Add(new OpponentIntentEntry
+                    state.intent.Add(new IntentEntry
                     {
                         clashIndex = plan.clashIndex,
-                        actionDefId = action.actionId,
-                        count = action.count
+                        abilityDefId = abilityRef.abilityId,
+                        count = abilityRef.count
                     });
                 }
             }
         }
 
-        void PopulateActionHolderFromPlayerStart(DuelState state)
+        void PopulateBagFromPlayerStart(DuelState state)
         {
-            if (database.playerStart.startingSquadCardIds == null)
+            List<string> startingAbilityIds = database.playerStart.ResolveStartingBagAbilityIds();
+            if (startingAbilityIds == null)
             {
-                Debug.LogWarning("[DuelSessionBuilder] startingSquadCardIds is missing.");
+                Debug.LogWarning("[DuelSessionBuilder] startingBagAbilityIds is missing.");
                 return;
             }
 
-            for (int cardIndex = 0; cardIndex < database.playerStart.startingSquadCardIds.Count; cardIndex++)
+            for (int abilityIndex = 0; abilityIndex < startingAbilityIds.Count; abilityIndex++)
             {
-                string cardId = database.playerStart.startingSquadCardIds[cardIndex];
-                if (string.IsNullOrWhiteSpace(cardId))
+                string abilityDefId = startingAbilityIds[abilityIndex];
+                if (string.IsNullOrWhiteSpace(abilityDefId))
                 {
                     continue;
                 }
 
-                if (!database.cardsById.TryGetValue(cardId, out CardDef squadCard) || squadCard == null)
+                if (!database.abilitiesById.TryGetValue(abilityDefId, out AbilityDef abilityDef) || abilityDef == null)
                 {
+                    Debug.LogWarning(
+                        $"[DuelSessionBuilder] startingBagAbilityIds[{abilityIndex}] '{abilityDefId}' is missing.");
                     continue;
                 }
 
-                if (!string.Equals(squadCard.type, "Squad", StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                if (squadCard.duelStart == null || squadCard.duelStart.summonActions == null)
-                {
-                    continue;
-                }
-
-                for (int summonIndex = 0; summonIndex < squadCard.duelStart.summonActions.Count; summonIndex++)
-                {
-                    SummonActionRefDef summon = squadCard.duelStart.summonActions[summonIndex];
-                    if (summon == null || summon.count <= 0 || string.IsNullOrWhiteSpace(summon.actionId))
-                    {
-                        continue;
-                    }
-
-                    if (!database.actionsById.TryGetValue(summon.actionId, out ActionDef actionDef) || actionDef == null)
-                    {
-                        continue;
-                    }
-
-                    for (int i = 0; i < summon.count; i++)
-                    {
-                        ActionInstance actionInstance = CreateActionInstance(actionDef);
-                        state.actionsById[actionInstance.instanceId] = actionInstance;
-                        state.actionHolderActionIds.Add(actionInstance.instanceId);
-                    }
-                }
+                AbilityInstance abilityInstance = CreateAbilityInstance(abilityDef);
+                state.abilitiesById[abilityInstance.instanceId] = abilityInstance;
+                state.abilityHolderAbilityIds.Add(abilityInstance.instanceId);
             }
         }
 
-        static ActionInstance CreateActionInstance(ActionDef actionDef)
+        static AbilityInstance CreateAbilityInstance(AbilityDef abilityDef)
         {
             AbilityType abilityType = AbilityType.Attack;
-            if (!actionDef.TryGetAbilityType(out abilityType))
+            if (!abilityDef.TryGetAbilityType(out abilityType))
             {
                 Debug.LogWarning(
-                    $"[DuelSessionBuilder] Invalid ability type '{actionDef.type}' on '{actionDef.id}'. Defaulted to Attack.");
+                    $"[DuelSessionBuilder] Invalid ability type '{abilityDef.type}' on '{abilityDef.id}'. Defaulted to Attack.");
                 abilityType = AbilityType.Attack;
             }
 
-            int resolvedDamage = Mathf.Max(0, actionDef.ResolveDamage());
-            var actionInstance = new ActionInstance
+            int resolvedDamage = Mathf.Max(0, abilityDef.ResolveDamage());
+            var abilityInstance = new AbilityInstance
             {
-                actionDefId = actionDef.id,
+                abilityDefId = abilityDef.id,
                 abilityType = abilityType,
-                cooldownTurns = Mathf.Max(0, actionDef.cooldown),
+                cooldownTurns = Mathf.Max(0, abilityDef.cooldown),
                 cooldownRemaining = 0,
                 attack = resolvedDamage,
                 baseRoll = 0,
                 attackResult = 0
             };
 
-            if (actionDef.tags != null && actionDef.tags.Count > 0)
+            if (abilityDef.tags != null && abilityDef.tags.Count > 0)
             {
-                actionInstance.tags.AddRange(actionDef.tags);
+                abilityInstance.tags.AddRange(abilityDef.tags);
             }
 
-            actionInstance.EnsureInitialized();
-            return actionInstance;
+            abilityInstance.EnsureInitialized();
+            return abilityInstance;
         }
 
         static bool TryFindOpponentClashForDeploy(

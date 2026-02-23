@@ -1,60 +1,52 @@
 # GLOSSARY
-> 역할: 문서/코드/데이터에서 **용어 혼용을 방지**하기 위한 단일 기준표입니다.
+> 역할: 문서/코드/데이터 용어를 단일 기준으로 고정하는 사전.
 
 - 마지막 갱신: `2026-02-23`
 
+---
+
 ## 1) 사용 원칙
 
-- 이 프로젝트에서 **동일 개념은 반드시 동일 용어로만** 표기한다.
-- 코드/데이터의 필드명은 가능하면 **영문 용어(아래 EN)** 를 따른다.
-- 한국어 문서/UI도 가능하면 **아래 KR 표기**를 따른다.
+- 동일 개념은 항상 동일 용어로 표기한다.
+- 신규 코드/데이터는 아래 EN 용어를 우선 사용한다.
+- 구용어(Action, Retreat, Opponent Intent, Reserves, Roster Deck, Focus)는 신규 작성에서 사용하지 않는다.
 
-## 2) 확정 용어(한/영)
+---
 
-| 분류 | KR(확정) | EN(확정) | 의미/비고 |
+## 2) 확정 용어
+
+| 분류 | KR | EN | 설명 |
 |---|---|---|---|
-| 진행 | 런 | Run | Game Over까지의 1회 플레이 |
-| 진행 | Duel | Duel | 하나의 조우(Duel 단위). Duel 패배 시 Game Over |
-| 진행 | 턴 | Turn | Duel 내 반복 단위 |
-| 진행 | 페이즈 | Phase | 턴 내 단계(Reset/Deploy/…/ClashResolve) |
-| 카드 | 편성 덱 | Roster Deck | 드로우 없음. 보급품 한도 내에서 선택한 **Squad/Support 리스트** |
-| 카드 | 스쿼드 | Squad | Duel 시작 시 트리거되어 Action을 소환/준비하는 카드 |
-| 카드 | 서포트 | Support | Duel 시작 시 트리거되어 규칙/버프를 적용하는 카드 |
-| 유닛 | Ability | Ability | Attack/Skill/Passive를 묶는 상위 전투 단위 |
-| 유닛 | Action | Action | 코드/데이터 레거시 필드명(`action.*`)으로 남아 있는 용어 |
-| Clash | Clash | Clash | Action을 배치해 승패를 가르는 장소 |
-| Clash | 진영 | ActionHolder | 아직 Clash에 배치되지 않은 Action이 대기하는 장소 |
-| Clash | 예비 편성 | Reserves | 덱(편성) 밖에 보관하는 카드 저장소(시스템 용어). **카드 이름 ‘예비대’와 구분** |
-| 정보 | Opponent Intent | Opponent Intent | 적이 이번 턴 어느 Clash에 무엇을 배치할지. 프로토타입에서는 완전 공개 |
-| 리소스 | Health | Health | Duel HP. `<= 0`이면 Duel 종료. **플레이어 패배 시 Game Over** |
-| 리소스 | Honor | Honor | **후퇴 자원**. `> 0`일 때만 후퇴 가능. 후퇴 시 `-1` & 최소 0으로 clamp |
-| 리소스 | Focus | Focus | 현재 프로토타입에서는 **소모 없는 보조 상태값**(턴마다 회복 규칙은 유지) |
-| 리소스 | 보급품 한도 | Supply Limit | 덱(편성)에 넣을 수 있는 총 비용 상한 |
-| 리소스 | 보급품 비용 | Supply Cost | Squad/Support 카드 1장이 차지하는 비용 |
-| 주사위 | 파워 | Attack | Action의 주사위 면수. 예: Attack 4 = d4 |
-| 주사위 | 눈 | Attack Result | 굴림 결과 + 보정 후 최종 값. 최소 1, **최대치 없음** |
-| 계산값 | Total Attack | Total Attack | Clash 내 아군/적의 Attack Result 합산값 (+Clash 보너스 포함) |
-| 판정 | 승리 | Victory | Clash Total Attack 비교에서 우세 |
-| 판정 | 무승부 | Draw | Total Attack 동률 |
-| 판정 | 패배 | Defeat | Clash Total Attack 비교에서 열세 |
-| 행동 | 후퇴 | Retreat | 배치(Player Deploy) 페이즈에서만 가능. 보상 없음, 즉시 Duel 종료, Honor -1 |
+| 프로젝트 | Free or Die | Free or Die | 프로젝트명 |
+| 전투 | 결투 | Duel | 하나의 전투 단위 |
+| 전투 | 페이즈 | Phase | 턴 내 진행 단계 |
+| 전장 | 클래시 | Clash | 공격 결과를 비교하는 슬롯/공간 |
+| 정보 | 의도 | Intent | 적 배치 계획(공개 정보) |
+| 능력 | 어빌리티 | Ability | Attack/Skill/Passive 통합 상위 개념 |
+| 능력 | 공격 | Attack | 주사위를 굴려 공격 결과를 만드는 Ability 타입 |
+| 능력 | 스킬 | Skill | 특정 타이밍에 발동하는 Ability 타입 |
+| 능력 | 패시브 | Passive | 상시/조건부 효과 타입 |
+| 결과 | 공격 결과 | Attack Result | 굴림 + 보정 이후 최종 값 |
+| 결과 | 총 공격력 | Total Attack | Clash 단위 합산 공격력 |
+| 보관 | 가방 | Bag | Clash 미배치 Ability 보관 영역 |
+| 상태 | 체력 | Health | 0 이하면 결투 종료 |
+| 상태 | 명예 | Honor | Surrender 가능 여부를 결정 |
+| 메타 | 용량 | Capacity | 준비 단계 편성 상한 |
+| 행동 | 항복 | Surrender | 결투 즉시 종료(보상 없음) |
 
-## 3) 페이즈 명칭(영문 표준)
+---
 
-- Duel Start Triggers (1회)
-  - Squad → Support 우선순위
-  - 같은 타입 내 순서: Roster Deck 배열 순서
-- Turn Phases
-  1) Reset
-  2) Opponent Deploy
-  3) Player Deploy
-  4) Roll
-  5) Skill
-  6) ClashResolve
-  7) Turn End(내부 처리용: 쿨다운/Focus/턴 종료 효과)
+## 3) 구용어 매핑
 
-## 4) 금지/비권장 용어
+| 구용어 | 신용어 |
+|---|---|
+| Action | Ability |
+| ActionHolder | AbilityHolder (UI 표기: Bag) |
+| Opponent Intent | Intent |
+| Retreat | Surrender |
+| Roster Deck | Ability Deck |
+| Reserves | Bag |
+| Supply Limit | Capacity |
+| Supply Cost | Cost |
+| Focus | 제거(전투 자원 미사용) |
 
-- **전투력**: Attack/Total Attack와 혼동되므로 금지. 반드시 Attack 또는 Total Attack로 표기.
-- **덱(Deck)**: 본 프로젝트는 드로우가 없으므로 단독 ‘덱’ 대신 **Roster Deck/편성 덱**으로 표기.
-- **벤치(Bench)**: Reserves(예비 편성)으로 통일.

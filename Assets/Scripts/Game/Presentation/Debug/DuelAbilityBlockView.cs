@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace Game.Presentation.Debug
 {
-    public sealed class DuelActionBlockView : MonoBehaviour
+    public sealed class DuelAbilityBlockView : MonoBehaviour
     {
         static readonly Color defaultPlayerBackgroundColor = new Color32(68, 129, 192, 220);
         static readonly Color defaultOpponentBackgroundColor = new Color32(160, 82, 82, 220);
@@ -18,7 +18,7 @@ namespace Game.Presentation.Debug
         [SerializeField] Image backgroundImage;
         [SerializeField] Button selectButton;
         [FormerlySerializedAs("troopDefIdText")]
-        [SerializeField] TMP_Text actionDefIdText;
+        [SerializeField] TMP_Text abilityDefIdText;
         [SerializeField] TMP_Text effectsText;
         [SerializeField] TMP_Text attackResultText;
         [SerializeField] TMP_Text attackText;
@@ -38,7 +38,7 @@ namespace Game.Presentation.Debug
         {
             if (ApplyDefaultColorsIfInvalid())
             {
-                UnityEngine.Debug.LogWarning("[DuelActionBlockView] Color fields were invalid and reset to defaults.");
+                UnityEngine.Debug.LogWarning("[DuelAbilityBlockView] Color fields were invalid and reset to defaults.");
             }
 
             if (selectButton != null)
@@ -70,14 +70,14 @@ namespace Game.Presentation.Debug
                 selectButton = GetComponent<Button>();
             }
 
-            actionDefIdText = ClashResolveChildText(actionDefIdText, "ActionDefIdText", "TroopDefIdText");
+            abilityDefIdText = ClashResolveChildText(abilityDefIdText, "AbilityDefIdText", "TroopDefIdText");
             effectsText = ClashResolveChildText(effectsText, "EffectsText");
             attackResultText = ClashResolveChildText(attackResultText, "AttackResultText");
             attackText = ClashResolveChildText(attackText, "AttackText");
         }
 
         public void Bind(
-            string actionDefId,
+            string abilityDefId,
             int attack,
             int attackResult,
             string effectsLabel,
@@ -88,7 +88,7 @@ namespace Game.Presentation.Debug
         {
             this.onSelected = onSelected;
 
-            SetText(actionDefIdText, actionDefId);
+            SetText(abilityDefIdText, abilityDefId);
             string damageLabel = attack > 0 ? $"DMG {attack}" : "DMG -";
             SetText(attackText, damageLabel);
             SetText(attackResultText, $"Roll {attackResult}");

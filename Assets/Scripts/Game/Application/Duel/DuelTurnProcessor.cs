@@ -11,11 +11,11 @@ namespace Game.Application.Duel
     public readonly struct DuelRollResult
     {
         public int rolledActionCount { get; }
-        public ActionTimedEffectRunResult timedEffectResult { get; }
+        public AbilityTimedEffectRunResult timedEffectResult { get; }
 
         public DuelRollResult(
             int rolledActionCount,
-            ActionTimedEffectRunResult timedEffectResult)
+            AbilityTimedEffectRunResult timedEffectResult)
         {
             this.rolledActionCount = rolledActionCount;
             this.timedEffectResult = timedEffectResult;
@@ -45,29 +45,23 @@ namespace Game.Application.Duel
     public sealed class DuelClashResolveResult
     {
         public IReadOnlyList<DuelClashResolveStepResult> steps { get; }
-        public ActionTimedEffectRunResult turnEndTimedEffectResult { get; }
+        public AbilityTimedEffectRunResult turnEndTimedEffectResult { get; }
         public int outcomeEffectAppliedCount { get; }
         public int outcomeEffectFailedCount { get; }
         public int cooldownUpdatedCount { get; }
-        public int focusBeforeTurnEnd { get; }
-        public int focusAfterTurnEnd { get; }
 
         public DuelClashResolveResult(
             IReadOnlyList<DuelClashResolveStepResult> steps,
-            ActionTimedEffectRunResult turnEndTimedEffectResult,
+            AbilityTimedEffectRunResult turnEndTimedEffectResult,
             int outcomeEffectAppliedCount,
             int outcomeEffectFailedCount,
-            int cooldownUpdatedCount,
-            int focusBeforeTurnEnd,
-            int focusAfterTurnEnd)
+            int cooldownUpdatedCount)
         {
             this.steps = steps ?? Array.Empty<DuelClashResolveStepResult>();
             this.turnEndTimedEffectResult = turnEndTimedEffectResult;
             this.outcomeEffectAppliedCount = outcomeEffectAppliedCount;
             this.outcomeEffectFailedCount = outcomeEffectFailedCount;
             this.cooldownUpdatedCount = cooldownUpdatedCount;
-            this.focusBeforeTurnEnd = focusBeforeTurnEnd;
-            this.focusAfterTurnEnd = focusAfterTurnEnd;
         }
     }
 
@@ -75,13 +69,13 @@ namespace Game.Application.Duel
     {
         readonly GameDatabase database;
         readonly DuelEffectClashResolver effectClashResolver;
-        readonly ActionTimedEffectRunner timedEffectRunner;
+        readonly AbilityTimedEffectRunner timedEffectRunner;
 
         public DuelTurnProcessor(GameDatabase database, DuelEffectClashResolver effectClashResolver = null)
         {
             this.database = database ?? throw new ArgumentNullException(nameof(database));
             this.effectClashResolver = effectClashResolver ?? new DuelEffectClashResolver();
-            timedEffectRunner = new ActionTimedEffectRunner(this.database, this.effectClashResolver);
+            timedEffectRunner = new AbilityTimedEffectRunner(this.database, this.effectClashResolver);
         }
 
         public bool TryRollAllDeployedActions(
@@ -90,7 +84,7 @@ namespace Game.Application.Duel
             out DuelRollResult result,
             out string failureMessage)
         {
-            result = new DuelRollResult(0, new ActionTimedEffectRunResult(0, 0, 0));
+            result = new DuelRollResult(0, new AbilityTimedEffectRunResult(0, 0, 0));
             failureMessage = string.Empty;
 
             if (state == null)
@@ -137,35 +131,35 @@ namespace Game.Application.Duel
             var deployedActionIds = CollectDeployedActionIds(state);
             if (deployedActionIds.Count <= 0)
             {
-                failureMessage = "no deployed actions to roll.";
+                failureMessage = "no deployed abilities to roll.";
                 return false;
             }
 
             int rolledCount = 0;
-            foreach (string actionId in deployedActionIds)
+            foreach (string abilityId in deployedActionIds)
             {
-                if (!state.actionsById.TryGetValue(actionId, out ActionInstance action) || action == null)
+                if (!state.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) || ability == null)
                 {
-                    Debug.LogWarning($"[DuelTurnProcessor] Roll warning: actionId({actionId}) does not exist.");
+                    Debug.LogWarning($"[DuelTurnProcessor] Roll warning: abilityId({abilityId}) does not exist.");
                     continue;
                 }
 
-                if (action.abilityType != AbilityType.Attack)
+                if (ability.abilityType != AbilityType.Attack)
                 {
                     continue;
                 }
 
-                DuelSimulator.RollAction(action);
+                DuelSimulator.RollAction(ability);
                 rolledCount += 1;
             }
 
             if (rolledCount <= 0)
             {
-                failureMessage = "all deployed actions were invalid.";
+                failureMessage = "all deployed abilities were invalid.";
                 return false;
             }
 
-            ActionTimedEffectRunResult timedResult = timedEffectRunner.ApplyForTiming(state, DuelEffectTiming.Roll);
+            AbilityTimedEffectRunResult timedResult = timedEffectRunner.ApplyForTiming(state, DuelEffectTiming.Roll);
 
             if (!phaseRunner.AdvanceToNextPhase())
             {
@@ -185,9 +179,7 @@ namespace Game.Application.Duel
         {
             result = new DuelClashResolveResult(
                 Array.Empty<DuelClashResolveStepResult>(),
-                new ActionTimedEffectRunResult(0, 0, 0),
-                0,
-                0,
+                new AbilityTimedEffectRunResult(0, 0, 0),
                 0,
                 0,
                 0);
@@ -251,11 +243,11 @@ namespace Game.Application.Duel
 
                 int playerTotalAttack = DuelSimulator.ComputeTotalAttack(
                     clash,
-                    state.actionsById,
+                    state.abilitiesById,
                     true);
                 int opponentTotalAttack = DuelSimulator.ComputeTotalAttack(
                     clash,
-                    state.actionsById,
+                    state.abilitiesById,
                     false);
                 DuelOutcome outcome = DuelSimulator.ComputeOutcome(playerTotalAttack, opponentTotalAttack);
 
@@ -292,9 +284,8 @@ namespace Game.Application.Duel
                 return false;
             }
 
-            int focusBeforeTurnEnd = state.focus;
             int cooldownUpdatedCount = 0;
-            ActionTimedEffectRunResult turnEndTimedEffects = new ActionTimedEffectRunResult(0, 0, 0);
+            AbilityTimedEffectRunResult turnEndTimedEffects = new AbilityTimedEffectRunResult(0, 0, 0);
 
             if (!state.isDuelEnded)
             {
@@ -313,9 +304,7 @@ namespace Game.Application.Duel
                 turnEndTimedEffects,
                 outcomeEffectAppliedCount,
                 outcomeEffectFailedCount,
-                cooldownUpdatedCount,
-                focusBeforeTurnEnd,
-                state.focus);
+                cooldownUpdatedCount);
             return true;
         }
 
@@ -327,39 +316,36 @@ namespace Game.Application.Duel
                 return 0;
             }
 
-            int focusMax = Mathf.Max(0, database.duelConfig.focusMax);
-            state.focus = Mathf.Clamp(state.focus + database.duelConfig.focusRegenPerTurn, 0, focusMax);
-
-            if (state.actionsById == null)
+            if (state.abilitiesById == null)
             {
-                state.actionsById = new Dictionary<string, ActionInstance>();
-                Debug.LogWarning("[DuelTurnProcessor] actionsById was null and has been auto-initialized.");
+                state.abilitiesById = new Dictionary<string, AbilityInstance>();
+                Debug.LogWarning("[DuelTurnProcessor] abilitiesById was null and has been auto-initialized.");
                 return 0;
             }
 
             int cooldownUpdatedCount = 0;
             int cooldownTick = Mathf.Abs(database.duelConfig.cooldownTickPerTurn);
-            foreach (KeyValuePair<string, ActionInstance> pair in state.actionsById)
+            foreach (KeyValuePair<string, AbilityInstance> pair in state.abilitiesById)
             {
-                ActionInstance action = pair.Value;
-                if (action == null)
+                AbilityInstance ability = pair.Value;
+                if (ability == null)
                 {
                     continue;
                 }
 
-                action.EnsureInitialized();
-                if (action.cooldownRemaining <= 0 || cooldownTick <= 0)
+                ability.EnsureInitialized();
+                if (ability.cooldownRemaining <= 0 || cooldownTick <= 0)
                 {
                     continue;
                 }
 
-                int updatedValue = Mathf.Max(0, action.cooldownRemaining - cooldownTick);
-                if (updatedValue == action.cooldownRemaining)
+                int updatedValue = Mathf.Max(0, ability.cooldownRemaining - cooldownTick);
+                if (updatedValue == ability.cooldownRemaining)
                 {
                     continue;
                 }
 
-                action.cooldownRemaining = updatedValue;
+                ability.cooldownRemaining = updatedValue;
                 cooldownUpdatedCount += 1;
             }
 
@@ -450,24 +436,24 @@ namespace Game.Application.Duel
             return deployedActionIds;
         }
 
-        static void CollectActionIds(HashSet<string> buffer, List<string> actionIds, string sourceLabel)
+        static void CollectActionIds(HashSet<string> buffer, List<string> abilityIds, string sourceLabel)
         {
-            if (actionIds == null)
+            if (abilityIds == null)
             {
                 Debug.LogWarning($"[DuelTurnProcessor] Roll warning: {sourceLabel} is null.");
                 return;
             }
 
-            for (int i = 0; i < actionIds.Count; i++)
+            for (int i = 0; i < abilityIds.Count; i++)
             {
-                string actionId = actionIds[i];
-                if (string.IsNullOrWhiteSpace(actionId))
+                string abilityId = abilityIds[i];
+                if (string.IsNullOrWhiteSpace(abilityId))
                 {
-                    Debug.LogWarning($"[DuelTurnProcessor] Roll warning: empty actionId at {sourceLabel}[{i}].");
+                    Debug.LogWarning($"[DuelTurnProcessor] Roll warning: empty abilityId at {sourceLabel}[{i}].");
                     continue;
                 }
 
-                buffer.Add(actionId);
+                buffer.Add(abilityId);
             }
         }
     }

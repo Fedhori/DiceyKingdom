@@ -10,41 +10,41 @@ namespace Game.Domain.Duel
     {
         static readonly IRollSource defaultRollSource = new SystemRandomRollSource();
 
-        public static void RollAction(ActionInstance action, IRollSource rollSource = null)
+        public static void RollAction(AbilityInstance ability, IRollSource rollSource = null)
         {
-            if (action == null)
+            if (ability == null)
             {
-                throw new ArgumentNullException(nameof(action));
+                throw new ArgumentNullException(nameof(ability));
             }
 
-            action.EnsureInitialized();
+            ability.EnsureInitialized();
 
             int maxAttack = NumericModifierCalculator.Apply(
-                action.attack,
-                action.attackModifiers,
+                ability.attack,
+                ability.attackModifiers,
                 1,
                 "DuelSimulator.RollAction.Attack");
 
             if (maxAttack < 1)
             {
-                Debug.LogWarning("[DuelSimulator] action.attack was lower than 1. Roll range was clamped to 1.");
+                Debug.LogWarning("[DuelSimulator] ability.attack was lower than 1. Roll range was clamped to 1.");
                 maxAttack = 1;
             }
 
             IRollSource source = rollSource ?? defaultRollSource;
-            action.baseRoll = source.Next(1, maxAttack);
-            ApplyRollFinalization(action);
+            ability.baseRoll = source.Next(1, maxAttack);
+            ApplyRollFinalization(ability);
         }
 
-        public static void ApplyRollFinalization(ActionInstance action)
+        public static void ApplyRollFinalization(AbilityInstance ability)
         {
-            if (action == null)
+            if (ability == null)
             {
-                throw new ArgumentNullException(nameof(action));
+                throw new ArgumentNullException(nameof(ability));
             }
 
-            action.EnsureInitialized();
-            action.attackResult = ComputeAttackResult(action.baseRoll, action.attackResultModifiers);
+            ability.EnsureInitialized();
+            ability.attackResult = ComputeAttackResult(ability.baseRoll, ability.attackResultModifiers);
         }
 
         public static int ComputeAttackResult(int baseRoll, IReadOnlyList<NumericModifier> modifiers)
@@ -58,7 +58,7 @@ namespace Game.Domain.Duel
 
         public static int ComputeTotalAttack(
             ClashState clashState,
-            IReadOnlyDictionary<string, ActionInstance> actionsById,
+            IReadOnlyDictionary<string, AbilityInstance> abilitiesById,
             bool isPlayerSide)
         {
             if (clashState == null)
@@ -66,9 +66,9 @@ namespace Game.Domain.Duel
                 throw new ArgumentNullException(nameof(clashState));
             }
 
-            if (actionsById == null)
+            if (abilitiesById == null)
             {
-                throw new ArgumentNullException(nameof(actionsById));
+                throw new ArgumentNullException(nameof(abilitiesById));
             }
 
             clashState.EnsureInitialized();
@@ -77,31 +77,31 @@ namespace Game.Domain.Duel
                 ? clashState.totalAttackBonusPlayer
                 : clashState.totalAttackBonusOpponent;
 
-            List<string> actionIds = isPlayerSide
+            List<string> abilityIds = isPlayerSide
                 ? clashState.playerActionIds
                 : clashState.opponentActionIds;
 
-            for (int i = 0; i < actionIds.Count; i++)
+            for (int i = 0; i < abilityIds.Count; i++)
             {
-                string actionId = actionIds[i];
-                if (string.IsNullOrWhiteSpace(actionId))
+                string abilityId = abilityIds[i];
+                if (string.IsNullOrWhiteSpace(abilityId))
                 {
-                    Debug.LogWarning($"[DuelSimulator] Empty action id at index {i} was ignored.");
+                    Debug.LogWarning($"[DuelSimulator] Empty abilityId at index {i} was ignored.");
                     continue;
                 }
 
-                if (!actionsById.TryGetValue(actionId, out ActionInstance action) || action == null)
+                if (!abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) || ability == null)
                 {
-                    Debug.LogWarning($"[DuelSimulator] actionId({actionId}) was missing and has been ignored.");
+                    Debug.LogWarning($"[DuelSimulator] abilityId({abilityId}) was missing and has been ignored.");
                     continue;
                 }
 
-                if (action.abilityType != AbilityType.Attack)
+                if (ability.abilityType != AbilityType.Attack)
                 {
                     continue;
                 }
 
-                total += action.attackResult;
+                total += ability.attackResult;
             }
 
             return total;
@@ -162,12 +162,12 @@ namespace Game.Domain.Duel
 
             playerTotalAttack = ComputeTotalAttack(
                 clashState,
-                duelState.actionsById,
+                duelState.abilitiesById,
                 true);
 
             opponentTotalAttack = ComputeTotalAttack(
                 clashState,
-                duelState.actionsById,
+                duelState.abilitiesById,
                 false);
 
             outcome = ComputeOutcome(playerTotalAttack, opponentTotalAttack);
@@ -222,18 +222,18 @@ namespace Game.Domain.Duel
 
             int removedCount = 0;
 
-            foreach (KeyValuePair<string, ActionInstance> pair in duelState.actionsById)
+            foreach (KeyValuePair<string, AbilityInstance> pair in duelState.abilitiesById)
             {
-                ActionInstance action = pair.Value;
-                if (action == null)
+                AbilityInstance ability = pair.Value;
+                if (ability == null)
                 {
-                    Debug.LogWarning($"[DuelSimulator] actionsById[{pair.Key}] was null and has been ignored.");
+                    Debug.LogWarning($"[DuelSimulator] abilitiesById[{pair.Key}] was null and has been ignored.");
                     continue;
                 }
 
-                action.EnsureInitialized();
-                removedCount += NumericModifierCalculator.ClearByLayer(action.attackModifiers, layer);
-                removedCount += NumericModifierCalculator.ClearByLayer(action.attackResultModifiers, layer);
+                ability.EnsureInitialized();
+                removedCount += NumericModifierCalculator.ClearByLayer(ability.attackModifiers, layer);
+                removedCount += NumericModifierCalculator.ClearByLayer(ability.attackResultModifiers, layer);
             }
 
             return removedCount;
