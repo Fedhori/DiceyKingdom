@@ -106,10 +106,17 @@
   "buildCost": 1,
   "cooldown": 0,
   "power": 10,
-  "tags": ["ability.effect.no.outgoing.damage.on.win"],
   "nameLocKey": "ability.shield.up_name",
   "descLocKey": "ability.shield.up_desc",
-  "effects": []
+  "effects": [
+    {
+      "timing": "Resolve",
+      "condition": { "type": "Always" },
+      "ops": [
+        { "op": "PreventOutgoingDamageOnWin", "scope": "Self" }
+      ]
+    }
+  ]
 }
 ```
 
@@ -151,6 +158,7 @@
 - `ModifyTotalPower`
 - `ModifyHealth`
 - `AddPowerModifier`
+- `PreventOutgoingDamageOnWin`
 
 `AddPowerModifier.target`:
 - `Power`
@@ -160,4 +168,3 @@
 - `Always`
 - `IsInLoadout`
 - `OpponentCountEquals`
-- `HasTag`

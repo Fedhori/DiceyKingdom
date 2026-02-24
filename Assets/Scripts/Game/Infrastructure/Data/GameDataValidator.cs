@@ -13,15 +13,15 @@ namespace Game.Infrastructure.Data
             nameof(DuelEffectOpCode.MoveOpponentAbility),
             nameof(DuelEffectOpCode.ModifyTotalPower),
             nameof(DuelEffectOpCode.ModifyHealth),
-            nameof(DuelEffectOpCode.AddPowerModifier)
+            nameof(DuelEffectOpCode.AddPowerModifier),
+            nameof(DuelEffectOpCode.PreventOutgoingDamageOnWin)
         };
 
         static readonly HashSet<string> allowedConditionTypes = new(StringComparer.Ordinal)
         {
             "Always",
             "IsInLoadout",
-            "OpponentCountEquals",
-            "HasTag"
+            "OpponentCountEquals"
         };
 
         public void Validate(GameDatabase database, DataIndexDef dataIndex, GameDataValidationReport report)
@@ -261,15 +261,6 @@ namespace Game.Infrastructure.Data
                     continue;
                 }
 
-                if (string.Equals(condition.type, "HasTag", StringComparison.Ordinal) &&
-                    string.IsNullOrWhiteSpace(condition.tag))
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        path,
-                        ownerId,
-                        $"effects[{effectIndex}].condition.tag is required for HasTag.");
-                }
             }
         }
 
@@ -429,6 +420,8 @@ namespace Game.Infrastructure.Data
                     }
 
                     ValidateModeAndAmount(opDef, path, ownerId, context, report);
+                    break;
+                case nameof(DuelEffectOpCode.PreventOutgoingDamageOnWin):
                     break;
             }
         }

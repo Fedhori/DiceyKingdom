@@ -289,11 +289,6 @@ namespace Game.Application.Duel
                 powerResult = 0
             };
 
-            if (abilityDef.tags != null && abilityDef.tags.Count > 0)
-            {
-                abilityInstance.tags.AddRange(abilityDef.tags);
-            }
-
             abilityInstance.EnsureInitialized();
             return abilityInstance;
         }

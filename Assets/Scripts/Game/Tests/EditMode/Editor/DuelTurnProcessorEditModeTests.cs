@@ -9,7 +9,7 @@ namespace Game.Tests.EditMode
     public sealed class DuelTurnProcessorEditModeTests
     {
         [Test]
-        public void TryResolveAllCombats_AppliesDifferenceDamageAndReturnsPlayerAbilitiesToLoadout()
+        public void TryResolveAllCombats_AppliesFixedOneDamageAndReturnsPlayerAbilitiesToLoadout()
         {
             GameDatabase database = CreateDatabase();
 
@@ -37,10 +37,10 @@ namespace Game.Tests.EditMode
                 out string failureMessage);
 
             Assert.IsTrue(success, failureMessage);
-            Assert.AreEqual(7, state.opponentHealth);
+            Assert.AreEqual(9, state.opponentHealth);
             Assert.AreEqual(1, result.steps.Count);
             Assert.AreEqual(DuelOutcome.Victory, result.steps[0].outcome);
-            Assert.AreEqual(3, result.steps[0].appliedDamage);
+            Assert.AreEqual(1, result.steps[0].appliedDamage);
             Assert.AreEqual(DuelPhase.Reset, runner.currentPhase);
             Assert.AreEqual(1, state.turnIndex);
             Assert.IsTrue(state.loadoutAbilityIds.Contains("p0"));
@@ -83,7 +83,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void TryResolveAllCombats_ShieldUpTag_BlocksWinnerOutgoingDamage()
+        public void TryResolveAllCombats_ShieldUpEffect_BlocksWinnerOutgoingDamage()
         {
             GameDatabase database = CreateDatabase();
 
@@ -94,10 +94,8 @@ namespace Game.Tests.EditMode
             };
             AddCombats(state, 1);
 
-            state.abilitiesById["p0"] = CreateAbility(
-                "ability.shield.up",
-                5,
-                "ability.effect.no.outgoing.damage.on.win");
+            database.abilitiesById["ability.shield.up"] = CreateShieldUpEffectAbilityDef();
+            state.abilitiesById["p0"] = CreateAbility("ability.shield.up", 5);
             state.abilitiesById["e0"] = CreateAbility("ability.opponent", 1);
             state.combats[0].playerAbilityIds.Add("p0");
             state.combats[0].opponentAbilityIds.Add("e0");
@@ -256,12 +254,41 @@ namespace Game.Tests.EditMode
             };
         }
 
+        static AbilityDef CreateShieldUpEffectAbilityDef()
+        {
+            return new AbilityDef
+            {
+                type = AbilityType.Attack.ToString(),
+                buildCost = 1,
+                cooldown = 0,
+                power = 10,
+                effects = new List<TimedEffectDef>
+                {
+                    new TimedEffectDef
+                    {
+                        timing = "Resolve",
+                        condition = new ConditionDef
+                        {
+                            type = "Always"
+                        },
+                        ops = new List<EffectOpDef>
+                        {
+                            new EffectOpDef
+                            {
+                                op = "PreventOutgoingDamageOnWin",
+                                scope = "Self"
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
         static AbilityInstance CreateAbility(
             string abilityDefId,
-            int powerResult,
-            params string[] tags)
+            int powerResult)
         {
-            var ability = new AbilityInstance
+            return new AbilityInstance
             {
                 abilityDefId = abilityDefId,
                 abilityType = AbilityType.Attack,
@@ -269,13 +296,6 @@ namespace Game.Tests.EditMode
                 baseRoll = powerResult,
                 powerResult = powerResult
             };
-
-            if (tags != null && tags.Length > 0)
-            {
-                ability.tags.AddRange(tags);
-            }
-
-            return ability;
         }
 
         static void AddCombats(DuelState state, int count)

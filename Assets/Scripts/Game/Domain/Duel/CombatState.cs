@@ -14,6 +14,8 @@ namespace Game.Domain.Duel
 
         public int totalPowerBonusPlayer;
         public int totalPowerBonusOpponent;
+        public bool preventOutgoingDamageOnWinPlayer;
+        public bool preventOutgoingDamageOnWinOpponent;
 
         public void EnsureInitialized()
         {

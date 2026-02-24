@@ -174,18 +174,6 @@ namespace Game.Application.Duel.Effects
 
                     return opponentCount == expectedCount;
                 }
-                case "HasTag":
-                    if (string.IsNullOrWhiteSpace(condition.tag))
-                    {
-                        return false;
-                    }
-
-                    if (sourceContext.ability == null || sourceContext.ability.tags == null)
-                    {
-                        return false;
-                    }
-
-                    return sourceContext.ability.tags.Contains(condition.tag);
                 default:
                     Debug.LogWarning($"[AbilityTimedEffectRunner] Unsupported condition type '{condition.type}'.");
                     return false;

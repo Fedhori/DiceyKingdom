@@ -5,7 +5,6 @@
   "buildCost": 1,
   "cooldown": 0,
   "power": 5,
-  "tags": [],
   "nameLocKey": "ability.slash.sword_name",
   "descLocKey": "ability.slash.sword_desc",
   "effects": []

@@ -64,8 +64,6 @@ namespace Game.Application.Duel
 
     public sealed class DuelTurnProcessor
     {
-        const string noOutgoingDamageOnWinTag = "ability.effect.no.outgoing.damage.on.win";
-
         readonly GameDatabase database;
         readonly DuelEffectCombatResolver effectCombatResolver;
         readonly AbilityTimedEffectRunner timedEffectRunner;
@@ -225,6 +223,9 @@ namespace Game.Application.Duel
                 return false;
             }
 
+            ClearResolveCombatFlags(state);
+            timedEffectRunner.ApplyForTiming(state, DuelEffectTiming.Resolve);
+
             var steps = new List<DuelCombatResolveStepResult>(state.combats.Count);
 
             for (int combatIndex = 0; combatIndex < state.combats.Count; combatIndex++)
@@ -354,12 +355,12 @@ namespace Game.Application.Duel
             }
 
             bool isPlayerWinner = diff > 0;
-            if (HasNoOutgoingDamageOnWinTag(state, combat, isPlayerWinner))
+            if (IsOutgoingDamagePreventedOnWin(combat, isPlayerWinner))
             {
                 return 0;
             }
 
-            int damage = Mathf.Abs(diff);
+            const int damage = 1;
             if (isPlayerWinner)
             {
                 state.opponentHealth -= damage;
@@ -372,39 +373,36 @@ namespace Game.Application.Duel
             return damage;
         }
 
-        static bool HasNoOutgoingDamageOnWinTag(DuelState state, CombatState combat, bool isPlayerSide)
+        static bool IsOutgoingDamagePreventedOnWin(CombatState combat, bool isPlayerSide)
         {
-            if (state?.abilitiesById == null || combat == null)
+            if (combat == null)
             {
                 return false;
             }
 
-            List<string> winnerAbilityIds = isPlayerSide
-                ? combat.playerAbilityIds
-                : combat.opponentAbilityIds;
-            if (winnerAbilityIds == null)
+            return isPlayerSide
+                ? combat.preventOutgoingDamageOnWinPlayer
+                : combat.preventOutgoingDamageOnWinOpponent;
+        }
+
+        static void ClearResolveCombatFlags(DuelState state)
+        {
+            if (state?.combats == null)
             {
-                return false;
+                return;
             }
 
-            for (int i = 0; i < winnerAbilityIds.Count; i++)
+            for (int combatIndex = 0; combatIndex < state.combats.Count; combatIndex++)
             {
-                string abilityId = winnerAbilityIds[i];
-                if (string.IsNullOrWhiteSpace(abilityId) ||
-                    !state.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) ||
-                    ability == null)
+                CombatState combat = state.combats[combatIndex];
+                if (combat == null)
                 {
                     continue;
                 }
 
-                ability.EnsureInitialized();
-                if (ability.tags != null && ability.tags.Contains(noOutgoingDamageOnWinTag))
-                {
-                    return true;
-                }
+                combat.preventOutgoingDamageOnWinPlayer = false;
+                combat.preventOutgoingDamageOnWinOpponent = false;
             }
-
-            return false;
         }
 
         static void ReturnPlayerAbilitiesToLoadout(DuelState state)

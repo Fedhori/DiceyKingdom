@@ -18,6 +18,7 @@ namespace Game.Application.Duel.Effects
             Register(new MoveOpponentAbilityEffectHandler());
             Register(new ModifyTotalPowerEffectHandler());
             Register(new ModifyHealthEffectHandler());
+            Register(new PreventOutgoingDamageOnWinEffectHandler());
         }
 
         public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context = null)
@@ -404,6 +405,46 @@ namespace Game.Application.Duel.Effects
                 {
                     state.isDuelEnded = true;
                     DuelSimulator.ClearModifierLayer(state, ModifierLayer.Duel);
+                }
+
+                return DuelEffectResult.Success();
+            }
+        }
+
+        sealed class PreventOutgoingDamageOnWinEffectHandler : IDuelEffectHandler
+        {
+            public DuelEffectOpCode opCode => DuelEffectOpCode.PreventOutgoingDamageOnWin;
+
+            public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context)
+            {
+                if (command.combatIndex < 0)
+                {
+                    return DuelEffectResult.Success();
+                }
+
+                if (!TryGetCombatIndex(state, command.combatIndex, out int combatIndex))
+                {
+                    return DuelEffectResult.Fail(
+                        DuelEffectFailureReason.InvalidIndex,
+                        $"combatIndex({command.combatIndex}) is out of range.");
+                }
+
+                CombatState combat = state.combats[combatIndex];
+                if (combat == null)
+                {
+                    return DuelEffectResult.Fail(
+                        DuelEffectFailureReason.InvalidTarget,
+                        $"combat({combatIndex}) is null.");
+                }
+
+                combat.EnsureInitialized();
+                if (command.isPlayerSide)
+                {
+                    combat.preventOutgoingDamageOnWinPlayer = true;
+                }
+                else
+                {
+                    combat.preventOutgoingDamageOnWinOpponent = true;
                 }
 
                 return DuelEffectResult.Success();

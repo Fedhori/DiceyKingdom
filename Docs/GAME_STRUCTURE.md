@@ -87,7 +87,8 @@
 
 - Combat별로 `Total Power`를 비교한다.
 - 결과는 `Victory / Draw / Defeat`만 사용한다.
-- 피해는 `abs(playerTotalPower - opponentTotalPower)`를 적용한다.
+- Victory가 발생하면 승자 측이 패자에게 `Damage 1`을 준다.
+- 일부 Effect(예: `PreventOutgoingDamageOnWin`)는 승리 피해를 0으로 만들 수 있다.
 - Draw는 피해가 없다.
 
 ## 5.5 Surrender

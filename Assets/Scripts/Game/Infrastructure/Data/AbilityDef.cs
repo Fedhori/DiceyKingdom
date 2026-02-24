@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Game.Infrastructure.Data
@@ -24,9 +24,6 @@ namespace Game.Infrastructure.Data
 
         [JsonProperty("power", Required = Required.Always)]
         public int power;
-
-        [JsonProperty("tags", Required = Required.Default)]
-        public List<string> tags = new();
 
         [JsonProperty("nameLocKey", Required = Required.Always)]
         public string nameLocKey = string.Empty;

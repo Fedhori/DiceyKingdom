@@ -21,7 +21,6 @@ namespace Game.Domain.Duel
 
         public List<NumericModifier> powerModifiers = new();
         public List<NumericModifier> powerResultModifiers = new();
-        public List<string> tags = new();
 
         public void EnsureInitialized()
         {
@@ -55,11 +54,6 @@ namespace Game.Domain.Duel
                 Debug.LogWarning("[AbilityInstance] powerResultModifiers was null and has been auto-initialized.");
             }
 
-            if (tags == null)
-            {
-                tags = new List<string>();
-                Debug.LogWarning("[AbilityInstance] tags was null and has been auto-initialized.");
-            }
         }
     }
 }

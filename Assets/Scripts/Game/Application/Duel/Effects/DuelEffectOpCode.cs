@@ -7,6 +7,7 @@ namespace Game.Application.Duel.Effects
         MoveOpponentAbility = 2,
         ModifyTotalPower = 3,
         ModifyHealth = 4,
-        AddPowerModifier = 5
+        AddPowerModifier = 5,
+        PreventOutgoingDamageOnWin = 6
     }
 }
