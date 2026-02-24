@@ -1,55 +1,66 @@
 # CURRENT_TASK
 
 ## 상태
-- 현재 단계: **기획/정리**
-- 구현 시작: **아직 시작하지 않음 (작업 착수 금지)**
+- 현재 단계: **전투 UI 구현 계획 확정**
+- 기준 와이어프레임: `Docs/Wireframes/BattleScreen_Wireframe_v27_MetalCompactTotal.png`
+- 다음 단계: **GameScene에 v27 레이아웃 구현**
 
 ## 목표
-- `DEBUG PANEL` 중심 화면에서 벗어나, 실제 플레이어 경험 기준의 전투 UI 화면을 구현하기 위한 작업 기준을 고정한다.
+- 디버그 패널 중심 화면에서 벗어나, 실제 플레이어용 전투 화면(v27)을 `GameScene`에 고정한다.
 
-## 확정된 화면 구성
-1. 좌측 영역: 플레이어 영역
-   - 플레이어 체력
-   - 플레이어 Ability 목록
-2. 중앙 영역: `Combat` 3개
-   - 각 Combat는 좌/우로 분리
-   - 좌측: 플레이어 Ability 배치 공간
-   - 우측: 적 Ability 배치 공간
-3. 우측 영역: 적 영역
-   - 적 체력
-   - 적 Ability 목록 (읽기 전용)
-4. 상단바
-   - `Phase`, `Turn`만 표시
-5. 중앙 하단
-   - `Roll` 버튼 1개
+## v27 확정 레이아웃
+1. 상단 메탈릭 바는 화면 최상단에 붙는다. (`Turn` 표시)
+2. `SURRENDER` 버튼은 좌상단, `COMBAT START` 버튼은 우하단에 배치한다.
+3. 적 Ability 대기열은 상단 중앙 1줄, 플레이어 Ability 대기열은 하단 중앙 1줄로 배치한다.
+4. 적/플레이어 체력(하트)은 각각 상단/하단 중앙에 배치한다.
+5. 중앙에는 가로 3개의 Combat Zone을 둔다.
+6. 각 Combat Zone 내부 규칙:
+   - 위 행: 적 슬롯 1줄 6칸
+   - 아래 행: 플레이어 슬롯 1줄 6칸
+   - 슬롯은 중앙 정렬
+   - `TOTAL POWER`는 슬롯과 분리된 전용 영역(메탈릭 직사각형)으로 표시
+7. Combat Zone에는 `Attack` 타입만 배치 가능하다.
+8. `Passive` 카드는 현재 화면에서 숨긴다. (표시/배치 모두 제외)
 
-## Ability 카드 UI 규칙
-- 정사각형 아이콘 카드 사용
-- 타입별 테두리 색상
-  - `Attack`: RED
-  - `Skill`: BLUE
-  - `Passive`: GREEN
-- 카드 하단 `Power` 표기
-  - Power 없는 Skill/Passive는 수치 표기 생략
-- Ability별 전용 아이콘 사용
-  - 데이터에서 Ability별 아이콘 참조 가능해야 함
+## 카드 UI 규칙
+1. 카드 크기: 세로가 더 긴 직사각형.
+2. 대기열 카드와 Combat Zone 카드 크기는 동일.
+3. 타입별 테두리 색상:
+   - `Attack`: RED
+   - `Skill`: BLUE
+   - `Passive`: GREEN
+4. Power는 카드 우하단 원형 배지로 표시한다.
+5. 아이콘은 `iconId -> Sprite` 매핑으로 렌더한다.
 
-## 상호작용 확정 사항
-- 배치 방식: `선택 + 클릭`
-  - Ability 선택 후 Combat 클릭으로 배치/이동
-- Combat 배치 허용 타입: `Attack`만
-- 적 영역 Ability는 `읽기 전용`
-- Roll 처리: 버튼 1회로 `Roll -> Resolve` 연속 처리
-- Resolve 진행은 Combat 0 -> 1 -> 2 순서로 시각적으로 보여줌
-  - 숫자 카운트업 애니메이션 포함
-- Tooltip: `Hover only` (모바일 고려하지 않음)
-  - 내용은 Localization 우선, 실패 시 key fallback
+## 구현 순서
+1. `GameScene` UI 루트 정리
+   - 기존 `DuelDebugPanel` 의존 제거
+   - v27 배치용 UI 루트/컨테이너 생성
+2. 레이아웃 프리팹/오브젝트 구성 (에디터 우선)
+   - 상단바, 버튼 2개, 상/하단 대기열, 하트 영역, Combat Zone 3개
+3. Combat Zone 프리팹화
+   - 적 슬롯 6, 플레이어 슬롯 6, 구분선, TOTAL POWER 메탈릭 박스 2개
+4. 카드 프리팹 정리
+   - 직사각형 카드, 테두리/아이콘/원형 파워 배지 고정
+5. Presenter 바인딩
+   - Enemy/Player 대기열 렌더
+   - Combat 배치 렌더
+   - TOTAL POWER 갱신
+   - `COMBAT START` / `SURRENDER` 이벤트 연결
+6. 규칙 연결
+   - Combat 슬롯은 Attack-only
+   - Skill은 대기열에서만 보이고 Combat 배치 불가
+   - Passive는 렌더 제외
+7. 툴팁 연결 (Hover only)
+   - 표시: 이름, 설명, 타입, Power
 
-## 구현 원칙(중요)
-- UI 위치/크기/정렬은 가능한 한 **에디터에서 배치**
-- 코드에서 UI 배치 강제 조정은 불가피한 경우만 허용
-- 기존 전투 로직(`DuelSessionBuilder`, `DuelPhaseRunner`, `DuelTurnProcessor`)은 재사용 우선
-
-## 이번 문서의 목적
-- 지금은 작업 실행이 아니라, 다음 구현 턴에서 바로 착수 가능한 기준을 고정하는 것.
-- 실제 코드/씬/프리팹 수정은 **다음 지시 후 시작**.
+## 검증 기준
+1. 컴파일 에러 0
+2. EditMode 테스트 통과
+3. GameScene 수동 검증
+   - v27 레이아웃 일치
+   - Combat 슬롯 1줄 6칸, 중앙 정렬 확인
+   - TOTAL POWER가 슬롯과 겹치지 않는지 확인
+   - `COMBAT START` 동작 확인
+   - `SURRENDER` 즉시 처리 확인
+   - Passive 비표시 확인
