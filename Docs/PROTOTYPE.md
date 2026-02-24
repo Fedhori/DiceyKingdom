@@ -1,49 +1,52 @@
-﻿# PROTOTYPE
-> ??븷: ?꾨줈?좏????④퀎 紐⑺몴/踰붿쐞/吏꾪뻾 ?곹깭 愿由?
+# PROTOTYPE
+> 역할: 프로토타입 단계 목표/범위/진행 상태 관리.
 
-- 留덉?留?媛깆떊: `2026-02-24`
-
----
-
-## 1) ?꾩옱 諛⑺뼢
-
-- ?꾨줈?앺듃紐? `Free or Die`
-- 而⑥뀎: ?ш린??1:1 寃고닾
-- ?듭떖 ?⑥쐞: `Ability`
-- ??怨꾪쉷 ?⑥쐞: `Clash`
-- 誘몃같移??곸뿭: `Loadout`
-- ?꾪닾 以??뚮え ?먯썝: ?놁쓬
+- 마지막 갱신: `2026-02-24`
 
 ---
 
-## 2) ?꾨즺???듭떖 ?묒뾽
+## 1) 현재 방향
 
-- Domain/Application ?덉씠?대? `Clash + Pattern` 紐⑤뜽濡?留덉씠洹몃젅?댁뀡
-- Resolve ?쇳빐 怨듭떇??怨좎젙: `Total Power` 李⑥씠媛?吏곸젒 ?쇳빐
-- Turn End 泥섎━ 怨좎젙: 荑⑤떎??媛먯냼, TurnEnd ?④낵, Loadout 蹂듦?, Pattern ?꾩씠
-- Data schema 留덉씠洹몃젅?댁뀡: `DataIndex(援??꾩옣 紐⑸줉 ?꾨뱶 ?쒓굅)`, `player.start(startingLoadoutAbilityIds)`, `encounter(patterns/clashes/nextPatterns)`
-- Debug formatter/?⑤꼸 ?띿뒪?몃? `Clash/Loadout` 湲곗??쇰줈 ?뺣━
-
----
-
-## 3) ?ㅼ쓬 ?묒뾽 ?곗꽑?쒖쐞
-
-1. GameScene UI 諛붿씤???먭?(由щ꽕?꾨맂 ?꾨뱶 吏곷젹???뺤씤)
-2. Skill/Passive ?ㅼ젣 ?ъ슜 ?뚮줈???뺤옣
-3. Enemy Pattern ?ㅼ뼇???⑦꽩 ?꾩씠/?섎룄 議고빀)
-4. 硫뷀? 猷⑦봽 理쒖냼??蹂댁긽/吏꾪뻾)
+- 프로젝트명: `Free or Die`
+- 컨셉: 투기장 1:1 결투
+- 핵심 단위: `Ability`
+- 전투 공간: `Combat` 3개 고정
+- 미배치 영역: `Loadout`
+- 후퇴 용어: `Surrender`
+- 전투 중 소모 자원: 없음
 
 ---
 
-## 4) 寃利?湲곗?
+## 2) 완료된 핵심 작업
 
-- 而댄뙆???먮윭 0
-- EditMode ?뚯뒪???꾨? ?듦낵
-- GameScene ?섎룞 寃利?
+- 기본 전투 루프(Reset~Resolve) 동작
+- GameScene 디버그 패널 연동
+- Ability 데이터 `slash.sword`, `shield.up` 기준으로 교체
+- EditMode 테스트 통과(53개)
+- Docs 깨짐 복구 및 최신 기획 기준 재정렬 진행
+
+---
+
+## 3) 다음 작업 우선순위
+
+1. 코드/데이터 마이그레이션
+2. `Clash -> Combat` 타입/필드명 정리
+3. `Pattern` 및 `Encounter` 제거
+4. `Enemy` 단일 데이터 구조로 로더/검증기 전환
+5. 적 Ability 무작위 Combat 배치 고정
+6. UI 텍스트/로그 용어 `Combat`로 통일
+7. 테스트 케이스 재정비
+
+---
+
+## 4) 검증 기준
+
+- 컴파일 에러 0
+- EditMode 테스트 전부 통과
+- GameScene 수동 검증:
   - Start Duel
-  - PlayerSetup 諛곗튂
+  - OpponentSetup(적 랜덤 배치 확인)
+  - PlayerSetup 배치
   - Roll
   - Resolve
   - Surrender
-
-

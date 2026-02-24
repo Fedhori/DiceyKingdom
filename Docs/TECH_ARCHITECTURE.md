@@ -1,49 +1,52 @@
-﻿# TECH_ARCHITECTURE
-> ??븷: ?꾩옱 援ы쁽 湲곗? ?꾪궎?띿쿂 ?붿빟.
+# TECH_ARCHITECTURE
+> 역할: 최신 기획 기준 아키텍처 요약.
 
-- 留덉?留?媛깆떊: `2026-02-24`
+- 마지막 갱신: `2026-02-24`
 
 ---
 
-## 1) 怨꾩링
+## 1) 계층
 
 - Domain
-  - `DuelState`, `ClashState`, `AbilityInstance`
-  - ?쒖닔 ?곹깭/怨꾩궛(`DuelSimulator`)
+  - `DuelState`, `CombatState`, `AbilityInstance`
+  - 순수 상태/계산(`DuelSimulator`)
 - Application
   - `DuelPhaseRunner`
   - `DuelSessionBuilder`
   - `DuelTurnProcessor`
-  - `AbilityTimedEffectRunner`, `DuelEffectClashResolver`
+  - `AbilityTimedEffectRunner`, `DuelEffectCombatResolver`
 - Infrastructure
   - `GameDatabaseLoader`, `GameDataValidator`
-  - StreamingAssets JSON 濡쒕뵫(Newtonsoft.Json)
+  - StreamingAssets JSON 로딩(`Newtonsoft.Json`)
 - Presentation
   - `DuelDebugPanel`, `DuelAbilityBlockView`
 
 ---
 
-## 2) ?곗씠???뚯씠?꾨씪??
-1. `Data/DataIndex.json` 濡쒕뱶
-2. `configs`, `abilities`, `encounters` ?쒖꽌 ?뚯떛
-3. `GameDataValidator` 寃利?4. ?깃났 ??`GameDataRuntime.CurrentDatabase`??諛섏쁺
+## 2) 데이터 파이프라인
+
+1. `Data/DataIndex.json` 로드
+2. `configs`, `abilities`, `enemies` 순서 파싱
+3. `GameDataValidator` 검증
+4. 성공 시 `GameDataRuntime.CurrentDatabase`에 반영
 
 ---
 
-## 3) ?꾪닾 ?ㅽ뻾 ?뚯씠?꾨씪??
-1. `DuelSessionBuilder.TryCreateInitialState`
+## 3) 전투 실행 파이프라인
+
+1. `DuelSessionBuilder.TryCreateInitialState(enemyId)`
 2. `DuelPhaseRunner.StartDuel`
-3. `DuelSessionBuilder.AutoDeployOpponentClash`
-4. ?뚮젅?댁뼱 諛곗튂(`PlayerSetup`)
+3. `OpponentSetup`에서 적 Ability 무작위 Combat 배치
+4. 플레이어 배치
 5. `DuelTurnProcessor.TryRollAllDeployedAbilities`
-6. `DuelTurnProcessor.TryResolveAllClashes`
+6. `DuelTurnProcessor.TryResolveAllCombats`
 
 ---
 
-## 4) ?ㅺ퀎 ?먯튃
+## 4) 핵심 설계 규칙
 
-- ?좉퇋 ?꾪닾 ?곗씠???⑥쐞??Ability濡??듭씪
-- 援ъ슜?대뒗 ?좉퇋 肄붾뱶?먯꽌 ?ъ슜?섏? ?딆쓬
-- 議곗슜???먮룞 蹂댁젙? ?쇳븯怨? ?꾩슂??寃쎌슦 理쒖냼 Warning 濡쒓렇瑜??④?
-- UI 諛곗튂??媛?ν븳 ???먮뵒?곗뿉??泥섎━?섍퀬 肄붾뱶 諛곗튂??遺덇??쇳븳 寃쎌슦留??ъ슜
-
+- Combat은 런타임 고정 3개로 생성한다.
+- Combat은 ID가 아니라 `combatIndex(0~2)`로 참조한다.
+- 적 배치는 Pattern 기반이 아니라 `Enemy abilityLoadout` 기반이다.
+- 조용한 자동 보정은 피하고 필요한 경우 `Warning` 로그를 남긴다.
+- UI 배치는 가능한 한 에디터에서 처리하고 코드 배치는 불가피한 경우만 사용한다.

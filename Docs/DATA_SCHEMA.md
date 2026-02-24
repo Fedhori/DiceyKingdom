@@ -1,25 +1,25 @@
 # DATA_SCHEMA
-> ??븷: ?꾩옱 援ы쁽 湲곗? JSON ?ㅽ궎留??붿빟.
+> 역할: 현재 확정 기획 기준 JSON 스키마 요약.
 
-- 留덉?留?媛깆떊: `2026-02-24`
-- 吏곷젹?? `Newtonsoft.Json` (`JsonUtility` 湲덉?)
+- 마지막 갱신: `2026-02-24`
+- 직렬화: `Newtonsoft.Json` (`JsonUtility` 금지)
 
 ---
 
-## 1) 怨듯넻 洹쒖튃
+## 1) 공통 규칙
 
-- 紐⑤뱺 Def 猷⑦듃??`schemaVersion` + `id`瑜?媛吏꾨떎.
-- 李몄“???뚯씪 寃쎈줈媛 ?꾨땲??ID 臾몄옄?대줈 ?쒕떎.
-- ID????`.`) ?쒓린踰뺤쓣 ?ъ슜?쒕떎. ?? `ability.slash.sword`
+- 모든 Def 루트는 `schemaVersion` + `id`를 가진다.
+- 참조는 파일 경로가 아니라 ID 문자열로 한다.
+- ID는 점(`.`) 표기법을 사용한다. 예: `ability.slash.sword`
 
 ---
 
 ## 2) DataIndex.json
 
-?꾨뱶:
+필드:
 - `configs`
 - `abilities`
-- `encounters`
+- `enemies`
 
 ```json
 {
@@ -31,10 +31,10 @@
   ],
   "abilities": [
     "Data/abilities/ability.slash.sword.json",
-    "Data/abilities/ability.slash.sword.json"
+    "Data/abilities/ability.shield.up.json"
   ],
-  "encounters": [
-    "Data/encounters/encounter.debug.01.json"
+  "enemies": [
+    "Data/enemies/enemy.debug.01.json"
   ]
 }
 ```
@@ -79,6 +79,8 @@
   "startingPlayerHealth": 10,
   "startingLoadoutAbilityIds": [
     "ability.slash.sword",
+    "ability.slash.sword",
+    "ability.slash.sword",
     "ability.shield.up"
   ]
 }
@@ -88,78 +90,60 @@
 
 ## 4) AbilityDef
 
-?꾨뱶:
+필드:
 - `type`: `Attack` / `Skill` / `Passive`
-- `buildCost`: ?몄꽦 鍮꾩슜
-- `cooldown`: ???⑥쐞 荑⑤떎??- `power`:
-  - Attack ??? `> 0`
-  - Skill/Passive ??? `0`
+- `buildCost`: 편성 비용
+- `cooldown`: 턴 단위 쿨다운
+- `power`:
+  - Attack 타입: `> 0`
+  - Skill/Passive 타입: `0` 가능
 
 ```json
 {
   "schemaVersion": 2,
-  "id": "ability.slash.sword",
+  "id": "ability.shield.up",
   "type": "Attack",
-  "buildCost": 0,
+  "buildCost": 1,
   "cooldown": 0,
-  "power": 4,
-  "tags": ["assassin"],
-  "nameLocKey": "ability.slash.sword_name",
-  "descLocKey": "ability.slash.sword_desc",
+  "power": 10,
+  "tags": ["ability.effect.no.outgoing.damage.on.win"],
+  "nameLocKey": "ability.shield.up_name",
+  "descLocKey": "ability.shield.up_desc",
   "effects": []
 }
 ```
 
 ---
 
-## 5) EncounterDef
+## 5) EnemyDef
 
-?꾩옱 ?쒖?:
-- `enemy.id`
-- `enemy.health`
-- `enemy.startPatternId`
-- `enemy.patterns[]`
-  - `patternId`
-  - `clashes[]`
-    - `clashId`
-    - `maxPlayerAssignments` (optional)
-    - `abilityLoadout[]` (`abilityId`, `count`)
-  - `nextPatterns[]`
-    - `patternId`
-    - `probability` (?⑷퀎 1.0)
+현재 표준:
+- `id`
+- `health`
+- `abilityLoadout[]` (`abilityId`, `count`)
 
 ```json
 {
   "schemaVersion": 2,
-  "id": "encounter.debug.01",
-  "enemy": {
-    "id": "enemy.debug.01",
-    "health": 10,
-    "startPatternId": "pattern.opening",
-    "patterns": [
-      {
-        "patternId": "pattern.opening",
-        "clashes": [
-          {
-            "clashId": "clash.peak",
-            "maxPlayerAssignments": 1,
-            "abilityLoadout": [
-              { "abilityId": "ability.slash.sword", "count": 2 }
-            ]
-          }
-        ],
-        "nextPatterns": [
-          { "patternId": "pattern.opening", "probability": 1.0 }
-        ]
-      }
-    ]
-  }
+  "id": "enemy.debug.01",
+  "health": 10,
+  "abilityLoadout": [
+    { "abilityId": "ability.slash.sword", "count": 3 }
+  ]
 }
 ```
 
 ---
 
-## 6) Effect OpCode (P0)
+## 6) Combat 규칙(데이터 외 규칙)
+
+- Combat은 데이터 ID로 관리하지 않는다.
+- 런타임에서 항상 3개 고정 생성한다. (`combatIndex: 0,1,2`)
+- 적 Ability는 `OpponentSetup`마다 각 Combat에 무작위 배치한다.
+
+---
+
+## 7) Effect OpCode (P0)
 
 - `ModifyPowerResult`
 - `MoveAbility`
@@ -172,11 +156,8 @@
 - `Power`
 - `PowerResult`
 
-議곌굔 ???P0):
+조건 타입(P0):
 - `Always`
 - `IsInLoadout`
 - `OpponentCountEquals`
 - `HasTag`
-
-
-
