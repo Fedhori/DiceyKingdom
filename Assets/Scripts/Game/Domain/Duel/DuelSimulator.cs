@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Game.Domain.Modifiers;
 using Game.Infrastructure.Data;
@@ -57,13 +57,13 @@ namespace Game.Domain.Duel
         }
 
         public static int ComputeTotalPower(
-            ClashState clashState,
+            CombatState combatState,
             IReadOnlyDictionary<string, AbilityInstance> abilitiesById,
             bool isPlayerSide)
         {
-            if (clashState == null)
+            if (combatState == null)
             {
-                throw new ArgumentNullException(nameof(clashState));
+                throw new ArgumentNullException(nameof(combatState));
             }
 
             if (abilitiesById == null)
@@ -71,15 +71,15 @@ namespace Game.Domain.Duel
                 throw new ArgumentNullException(nameof(abilitiesById));
             }
 
-            clashState.EnsureInitialized();
+            combatState.EnsureInitialized();
 
             int total = isPlayerSide
-                ? clashState.totalPowerBonusPlayer
-                : clashState.totalPowerBonusOpponent;
+                ? combatState.totalPowerBonusPlayer
+                : combatState.totalPowerBonusOpponent;
 
             List<string> abilityIds = isPlayerSide
-                ? clashState.playerAbilityIds
-                : clashState.opponentAbilityIds;
+                ? combatState.playerAbilityIds
+                : combatState.opponentAbilityIds;
 
             for (int i = 0; i < abilityIds.Count; i++)
             {
@@ -151,4 +151,3 @@ namespace Game.Domain.Duel
         }
     }
 }
-

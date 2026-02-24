@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Game.Infrastructure.Data;
 using NUnit.Framework;
@@ -20,36 +20,21 @@ namespace Game.Tests.EditMode
             Assert.NotNull(result.database.runConfig);
             Assert.NotNull(result.database.playerStart);
             Assert.Greater(result.database.abilitiesById.Count, 0);
-            Assert.Greater(result.database.encountersById.Count, 0);
+            Assert.Greater(result.database.enemiesById.Count, 0);
         }
 
         [Test]
-        public void Load_FailsWhenAbilityReferenceIsMissing()
+        public void Load_FailsWhenEnemyAbilityReferenceIsMissing()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/encounters/encounter.1.json"] =
+            files["Data/enemies/enemy.1.json"] =
 @"{
   ""schemaVersion"": 2,
-  ""id"": ""encounter.1"",
-  ""enemy"": {
-    ""id"": ""enemy.debug"",
-    ""health"": 10,
-    ""startPatternId"": ""pattern.a"",
-    ""patterns"": [
-      {
-        ""patternId"": ""pattern.a"",
-        ""clashes"": [
-          {
-            ""clashId"": ""clash.1"",
-            ""abilityLoadout"": [ { ""abilityId"": ""ability.missing"", ""count"": 1 } ]
-          }
-        ],
-        ""nextPatterns"": [
-          { ""patternId"": ""pattern.a"", ""probability"": 1.0 }
-        ]
-      }
-    ]
-  }
+  ""id"": ""enemy.1"",
+  ""health"": 10,
+  ""abilityLoadout"": [
+    { ""abilityId"": ""ability.missing"", ""count"": 1 }
+  ]
 }";
 
             var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
@@ -161,7 +146,7 @@ namespace Game.Tests.EditMode
   ""schemaVersion"": 2,
   ""configs"": [""Data/duel.config.json"", ""Data/run.config.json"", ""Data/player.start.json""],
   ""abilities"": [""Data/abilities/ability.1.json""],
-  ""encounters"": [""Data/encounters/encounter.1.json""]
+  ""enemies"": [""Data/enemies/enemy.1.json""]
 }",
                 ["Data/duel.config.json"] =
 @"{
@@ -201,29 +186,14 @@ namespace Game.Tests.EditMode
   ""descLocKey"": ""ability.1_desc"",
   ""effects"": []
 }",
-                ["Data/encounters/encounter.1.json"] =
+                ["Data/enemies/enemy.1.json"] =
 @"{
   ""schemaVersion"": 2,
-  ""id"": ""encounter.1"",
-  ""enemy"": {
-    ""id"": ""enemy.debug"",
-    ""health"": 10,
-    ""startPatternId"": ""pattern.a"",
-    ""patterns"": [
-      {
-        ""patternId"": ""pattern.a"",
-        ""clashes"": [
-          {
-            ""clashId"": ""clash.1"",
-            ""abilityLoadout"": [ { ""abilityId"": ""ability.1"", ""count"": 1 } ]
-          }
-        ],
-        ""nextPatterns"": [
-          { ""patternId"": ""pattern.a"", ""probability"": 1.0 }
-        ]
-      }
-    ]
-  }
+  ""id"": ""enemy.1"",
+  ""health"": 10,
+  ""abilityLoadout"": [
+    { ""abilityId"": ""ability.1"", ""count"": 1 }
+  ]
 }"
             };
         }
@@ -257,5 +227,3 @@ namespace Game.Tests.EditMode
         }
     }
 }
-
-

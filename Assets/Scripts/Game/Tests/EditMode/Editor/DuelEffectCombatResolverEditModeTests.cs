@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace Game.Tests.EditMode
 {
-    public sealed class DuelEffectClashResolverEditModeTests
+    public sealed class DuelEffectCombatResolverEditModeTests
     {
         [Test]
         public void ModifyPowerResult_RecomputesCurrentPowerResult()
@@ -22,7 +22,7 @@ namespace Game.Tests.EditMode
                 powerResult = 3
             };
 
-            var resolver = new DuelEffectClashResolver();
+            var resolver = new DuelEffectCombatResolver();
             var command = new DuelEffectCommand
             {
                 opCode = DuelEffectOpCode.ModifyPowerResult,
@@ -49,7 +49,7 @@ namespace Game.Tests.EditMode
                 power = 4
             };
 
-            var resolver = new DuelEffectClashResolver();
+            var resolver = new DuelEffectCombatResolver();
             DuelEffectResult result = resolver.Apply(
                 state,
                 new DuelEffectCommand
@@ -74,21 +74,21 @@ namespace Game.Tests.EditMode
         {
             var state = CreateDuelState();
             state.abilitiesById["p1"] = CreateAbility("p1", 2);
-            state.clashes[0].playerAbilityIds.Add("p1");
+            state.combats[0].playerAbilityIds.Add("p1");
 
-            var resolver = new DuelEffectClashResolver();
+            var resolver = new DuelEffectCombatResolver();
             DuelEffectResult result = resolver.Apply(
                 state,
                 new DuelEffectCommand
                 {
                     opCode = DuelEffectOpCode.MoveAbility,
                     abilityId = "p1",
-                    toClashIndex = 1
+                    toCombatIndex = 1
                 });
 
             Assert.IsTrue(result.isSuccess);
-            Assert.IsFalse(state.clashes[0].playerAbilityIds.Contains("p1"));
-            Assert.IsTrue(state.clashes[1].playerAbilityIds.Contains("p1"));
+            Assert.IsFalse(state.combats[0].playerAbilityIds.Contains("p1"));
+            Assert.IsTrue(state.combats[1].playerAbilityIds.Contains("p1"));
         }
 
         [Test]
@@ -97,24 +97,24 @@ namespace Game.Tests.EditMode
             var state = CreateDuelState();
             state.abilitiesById["p1"] = CreateAbility("p1", 2);
             state.abilitiesById["p2"] = CreateAbility("p2", 2);
-            state.clashes[0].playerAbilityIds.Add("p1");
-            state.clashes[1].playerAbilityIds.Add("p2");
-            state.clashes[1].maxPlayerAssignments = 1;
+            state.combats[0].playerAbilityIds.Add("p1");
+            state.combats[1].playerAbilityIds.Add("p2");
+            state.combats[1].maxPlayerAssignments = 1;
 
-            var resolver = new DuelEffectClashResolver();
+            var resolver = new DuelEffectCombatResolver();
             DuelEffectResult result = resolver.Apply(
                 state,
                 new DuelEffectCommand
                 {
                     opCode = DuelEffectOpCode.MoveAbility,
                     abilityId = "p1",
-                    toClashIndex = 1
+                    toCombatIndex = 1
                 });
 
             Assert.IsFalse(result.isSuccess);
             Assert.AreEqual(DuelEffectFailureReason.SlotLimitExceeded, result.failureReason);
-            Assert.IsTrue(state.clashes[0].playerAbilityIds.Contains("p1"));
-            Assert.IsFalse(state.clashes[1].playerAbilityIds.Contains("p1"));
+            Assert.IsTrue(state.combats[0].playerAbilityIds.Contains("p1"));
+            Assert.IsFalse(state.combats[1].playerAbilityIds.Contains("p1"));
         }
 
         [Test]
@@ -122,35 +122,35 @@ namespace Game.Tests.EditMode
         {
             var state = CreateDuelState();
             state.abilitiesById["e1"] = CreateAbility("e1", 3);
-            state.clashes[0].opponentAbilityIds.Add("e1");
+            state.combats[0].opponentAbilityIds.Add("e1");
 
-            var resolver = new DuelEffectClashResolver();
+            var resolver = new DuelEffectCombatResolver();
             DuelEffectResult result = resolver.Apply(
                 state,
                 new DuelEffectCommand
                 {
                     opCode = DuelEffectOpCode.MoveOpponentAbility,
                     abilityId = "e1",
-                    toClashIndex = 2
+                    toCombatIndex = 2
                 });
 
             Assert.IsTrue(result.isSuccess);
-            Assert.IsFalse(state.clashes[0].opponentAbilityIds.Contains("e1"));
-            Assert.IsTrue(state.clashes[2].opponentAbilityIds.Contains("e1"));
+            Assert.IsFalse(state.combats[0].opponentAbilityIds.Contains("e1"));
+            Assert.IsTrue(state.combats[2].opponentAbilityIds.Contains("e1"));
         }
 
         [Test]
         public void ModifyTotalPower_UpdatesRequestedSide()
         {
             var state = CreateDuelState();
-            var resolver = new DuelEffectClashResolver();
+            var resolver = new DuelEffectCombatResolver();
 
             DuelEffectResult playerResult = resolver.Apply(
                 state,
                 new DuelEffectCommand
                 {
                     opCode = DuelEffectOpCode.ModifyTotalPower,
-                    clashIndex = 0,
+                    combatIndex = 0,
                     isPlayerSide = true,
                     amount = 2
                 });
@@ -160,22 +160,22 @@ namespace Game.Tests.EditMode
                 new DuelEffectCommand
                 {
                     opCode = DuelEffectOpCode.ModifyTotalPower,
-                    clashIndex = 0,
+                    combatIndex = 0,
                     isPlayerSide = false,
                     amount = -1
                 });
 
             Assert.IsTrue(playerResult.isSuccess);
             Assert.IsTrue(opponentResult.isSuccess);
-            Assert.AreEqual(2, state.clashes[0].totalPowerBonusPlayer);
-            Assert.AreEqual(-1, state.clashes[0].totalPowerBonusOpponent);
+            Assert.AreEqual(2, state.combats[0].totalPowerBonusPlayer);
+            Assert.AreEqual(-1, state.combats[0].totalPowerBonusOpponent);
         }
 
         [Test]
         public void Apply_FailsWhenUnsupportedOpCode()
         {
             var state = CreateDuelState();
-            var resolver = new DuelEffectClashResolver();
+            var resolver = new DuelEffectCombatResolver();
             DuelEffectResult result = resolver.Apply(
                 state,
                 new DuelEffectCommand
@@ -214,7 +214,7 @@ namespace Game.Tests.EditMode
                 }
             };
 
-            var resolver = new DuelEffectClashResolver();
+            var resolver = new DuelEffectCombatResolver();
             DuelEffectResult result = resolver.Apply(
                 state,
                 new DuelEffectCommand
@@ -235,7 +235,7 @@ namespace Game.Tests.EditMode
         public void ApplyAll_ContinuesAfterFailure()
         {
             var state = CreateDuelState();
-            var resolver = new DuelEffectClashResolver();
+            var resolver = new DuelEffectCombatResolver();
             List<DuelEffectResult> results = resolver.ApplyAll(
                 state,
                 new List<DuelEffectCommand>
@@ -244,12 +244,12 @@ namespace Game.Tests.EditMode
                     {
                         opCode = DuelEffectOpCode.MoveAbility,
                         abilityId = "missing",
-                        toClashIndex = 1
+                        toCombatIndex = 1
                     },
                     new DuelEffectCommand
                     {
                         opCode = DuelEffectOpCode.ModifyTotalPower,
-                        clashIndex = 0,
+                        combatIndex = 0,
                         isPlayerSide = true,
                         amount = 2
                     }
@@ -258,7 +258,7 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(2, results.Count);
             Assert.IsFalse(results[0].isSuccess);
             Assert.IsTrue(results[1].isSuccess);
-            Assert.AreEqual(2, state.clashes[0].totalPowerBonusPlayer);
+            Assert.AreEqual(2, state.combats[0].totalPowerBonusPlayer);
         }
 
         [Test]
@@ -267,7 +267,7 @@ namespace Game.Tests.EditMode
             var state = CreateDuelState();
             state.isDuelEnded = true;
 
-            var resolver = new DuelEffectClashResolver();
+            var resolver = new DuelEffectCombatResolver();
             DuelEffectResult result = resolver.Apply(
                 state,
                 new DuelEffectCommand
@@ -288,16 +288,16 @@ namespace Game.Tests.EditMode
                 opponentHealth = 10
             };
 
-            AddClashes(state, 3);
+            AddCombats(state, 3);
             return state;
         }
 
-        static void AddClashes(DuelState state, int count)
+        static void AddCombats(DuelState state, int count)
         {
-            state.clashes.Clear();
+            state.combats.Clear();
             for (int i = 0; i < count; i++)
             {
-                state.clashes.Add(new ClashState());
+                state.combats.Add(new CombatState());
             }
         }
 
@@ -334,4 +334,5 @@ namespace Game.Tests.EditMode
         }
     }
 }
+
 

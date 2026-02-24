@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Game.Domain.Modifiers;
 
 namespace Game.Application.Duel.Effects
@@ -10,9 +10,9 @@ namespace Game.Application.Duel.Effects
         public string sourceId = string.Empty;
         public string abilityId = string.Empty;
 
-        public int clashIndex = -1;
-        public int fromClashIndex = -1;
-        public int toClashIndex = -1;
+        public int combatIndex = -1;
+        public int fromCombatIndex = -1;
+        public int toCombatIndex = -1;
 
         public bool isPlayerSide = true;
 
@@ -22,4 +22,3 @@ namespace Game.Application.Duel.Effects
         public int amount;
     }
 }
-

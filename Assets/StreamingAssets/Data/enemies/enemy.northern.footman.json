@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 2,
+  "id": "enemy.northern.footman",
+  "health": 10,
+  "abilityLoadout": [
+    {
+      "abilityId": "ability.slash.sword",
+      "count": 3
+    }
+  ]
+}

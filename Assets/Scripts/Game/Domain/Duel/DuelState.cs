@@ -12,13 +12,12 @@ namespace Game.Domain.Duel
         public int opponentHealth;
         public int honor;
         public bool isDuelEnded;
-        public string encounterId = string.Empty;
-        public string currentPatternId = string.Empty;
+        public string enemyId = string.Empty;
 
-        public List<ClashState> clashes = new();
+        public List<CombatState> combats = new();
         public Dictionary<string, AbilityInstance> abilitiesById = new();
         public List<string> loadoutAbilityIds = new();
-        public List<OpponentClashLoadoutEntry> opponentClashLoadoutEntries = new();
+        public List<OpponentLoadoutEntry> opponentLoadoutEntries = new();
 
         public DuelState()
         {
@@ -27,10 +26,10 @@ namespace Game.Domain.Duel
 
         public void EnsureInitialized()
         {
-            if (clashes == null)
+            if (combats == null)
             {
-                clashes = new List<ClashState>();
-                Debug.LogWarning("[DuelState] clashes was null and has been auto-initialized.");
+                combats = new List<CombatState>();
+                Debug.LogWarning("[DuelState] combats was null and has been auto-initialized.");
             }
 
             if (abilitiesById == null)
@@ -45,29 +44,28 @@ namespace Game.Domain.Duel
                 Debug.LogWarning("[DuelState] loadoutAbilityIds was null and has been auto-initialized.");
             }
 
-            if (opponentClashLoadoutEntries == null)
+            if (opponentLoadoutEntries == null)
             {
-                opponentClashLoadoutEntries = new List<OpponentClashLoadoutEntry>();
-                Debug.LogWarning("[DuelState] opponentClashLoadoutEntries was null and has been auto-initialized.");
+                opponentLoadoutEntries = new List<OpponentLoadoutEntry>();
+                Debug.LogWarning("[DuelState] opponentLoadoutEntries was null and has been auto-initialized.");
             }
 
-            for (int i = 0; i < clashes.Count; i++)
+            for (int i = 0; i < combats.Count; i++)
             {
-                if (clashes[i] == null)
+                if (combats[i] == null)
                 {
-                    clashes[i] = new ClashState();
-                    Debug.LogWarning($"[DuelState] clashes[{i}] was null and has been replaced.");
+                    combats[i] = new CombatState();
+                    Debug.LogWarning($"[DuelState] combats[{i}] was null and has been replaced.");
                 }
 
-                clashes[i].EnsureInitialized();
+                combats[i].EnsureInitialized();
             }
         }
     }
 
     [Serializable]
-    public sealed class OpponentClashLoadoutEntry
+    public sealed class OpponentLoadoutEntry
     {
-        public int clashIndex;
         public string abilityDefId = string.Empty;
         public int count;
     }

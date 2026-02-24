@@ -20,15 +20,19 @@ namespace Game.Application.Duel
 
     public sealed class DuelSessionBuilder
     {
-        readonly GameDatabase database;
+        const int fixedCombatCount = 3;
 
-        public DuelSessionBuilder(GameDatabase database)
+        readonly GameDatabase database;
+        readonly System.Random random;
+
+        public DuelSessionBuilder(GameDatabase database, System.Random random = null)
         {
             this.database = database ?? throw new ArgumentNullException(nameof(database));
+            this.random = random ?? new System.Random();
         }
 
         public bool TryCreateInitialState(
-            string encounterId,
+            string enemyId,
             out DuelState state,
             out string failureMessage)
         {
@@ -53,9 +57,9 @@ namespace Game.Application.Duel
                 return false;
             }
 
-            if (database.encountersById == null)
+            if (database.enemiesById == null)
             {
-                failureMessage = "encounters table is missing.";
+                failureMessage = "enemies table is missing.";
                 return false;
             }
 
@@ -65,39 +69,18 @@ namespace Game.Application.Duel
                 return false;
             }
 
-            if (!database.encountersById.TryGetValue(encounterId, out EncounterDef encounterDef) ||
-                encounterDef == null)
+            if (!database.enemiesById.TryGetValue(enemyId, out EnemyDef enemyDef) ||
+                enemyDef == null)
             {
-                failureMessage = $"encounter('{encounterId}') is missing.";
+                failureMessage = $"enemy('{enemyId}') is missing.";
                 return false;
             }
 
-            if (encounterDef.enemy == null)
-            {
-                failureMessage = $"encounter('{encounterId}') enemy is missing.";
-                return false;
-            }
-
-            if (encounterDef.enemy.patterns == null || encounterDef.enemy.patterns.Count <= 0)
-            {
-                failureMessage = $"encounter('{encounterId}') enemy.patterns is missing or empty.";
-                return false;
-            }
-
-            EncounterEnemyPatternDef startPattern = ResolvePattern(
-                encounterDef.enemy.patterns,
-                encounterDef.enemy.startPatternId);
-            if (startPattern == null)
-            {
-                failureMessage = $"encounter('{encounterId}') startPatternId('{encounterDef.enemy.startPatternId}') is invalid.";
-                return false;
-            }
-
-            state = CreateInitialDuelState(encounterDef, startPattern);
+            state = CreateInitialDuelState(enemyDef);
             return true;
         }
 
-        public OpponentSetupBuildResult AutoDeployOpponentClash(DuelState state)
+        public OpponentSetupBuildResult AutoDeployOpponentCombat(DuelState state)
         {
             if (state == null)
             {
@@ -108,8 +91,15 @@ namespace Game.Application.Duel
 
             if (database.abilitiesById == null)
             {
-                int skipped = state.opponentClashLoadoutEntries == null ? 0 : state.opponentClashLoadoutEntries.Count;
+                int skipped = state.opponentLoadoutEntries == null ? 0 : state.opponentLoadoutEntries.Count;
                 Debug.LogWarning("[DuelSessionBuilder] Opponent deploy skipped: abilities table is missing.");
+                return new OpponentSetupBuildResult(0, skipped);
+            }
+
+            if (state.combats == null || state.combats.Count <= 0)
+            {
+                int skipped = state.opponentLoadoutEntries == null ? 0 : state.opponentLoadoutEntries.Count;
+                Debug.LogWarning("[DuelSessionBuilder] Opponent deploy skipped: combat slots are missing.");
                 return new OpponentSetupBuildResult(0, skipped);
             }
 
@@ -118,13 +108,13 @@ namespace Game.Application.Duel
             int deployedCount = 0;
             int skippedCount = 0;
 
-            for (int i = 0; i < state.opponentClashLoadoutEntries.Count; i++)
+            for (int i = 0; i < state.opponentLoadoutEntries.Count; i++)
             {
-                OpponentClashLoadoutEntry loadoutEntry = state.opponentClashLoadoutEntries[i];
+                OpponentLoadoutEntry loadoutEntry = state.opponentLoadoutEntries[i];
                 if (loadoutEntry == null)
                 {
                     skippedCount += 1;
-                    Debug.LogWarning($"[DuelSessionBuilder] opponentClashLoadoutEntries[{i}] is null.");
+                    Debug.LogWarning($"[DuelSessionBuilder] opponentLoadoutEntries[{i}] is null.");
                     continue;
                 }
 
@@ -150,30 +140,23 @@ namespace Game.Application.Duel
                     continue;
                 }
 
-                if (loadoutEntry.clashIndex < 0 || loadoutEntry.clashIndex >= state.clashes.Count)
-                {
-                    skippedCount += Mathf.Max(1, loadoutEntry.count);
-                    Debug.LogWarning(
-                        $"[DuelSessionBuilder] clashIndex({loadoutEntry.clashIndex}) is out of range for abilityDef('{loadoutEntry.abilityDefId}').");
-                    continue;
-                }
-
-                ClashState deployClash = state.clashes[loadoutEntry.clashIndex];
-                if (deployClash == null)
-                {
-                    skippedCount += Mathf.Max(1, loadoutEntry.count);
-                    Debug.LogWarning(
-                        $"[DuelSessionBuilder] clashes[{loadoutEntry.clashIndex}] is null for abilityDef('{loadoutEntry.abilityDefId}').");
-                    continue;
-                }
-
-                deployClash.EnsureInitialized();
                 int requestedCount = Mathf.Max(0, loadoutEntry.count);
                 for (int copyIndex = 0; copyIndex < requestedCount; copyIndex++)
                 {
                     AbilityInstance abilityInstance = CreateAbilityInstance(abilityDef);
                     state.abilitiesById[abilityInstance.instanceId] = abilityInstance;
-                    deployClash.opponentAbilityIds.Add(abilityInstance.instanceId);
+
+                    int combatIndex = random.Next(0, state.combats.Count);
+                    CombatState deployCombat = state.combats[combatIndex];
+                    if (deployCombat == null)
+                    {
+                        skippedCount += 1;
+                        Debug.LogWarning($"[DuelSessionBuilder] combats[{combatIndex}] is null.");
+                        continue;
+                    }
+
+                    deployCombat.EnsureInitialized();
+                    deployCombat.opponentAbilityIds.Add(abilityInstance.instanceId);
                     deployedCount += 1;
                 }
             }
@@ -181,104 +164,77 @@ namespace Game.Application.Duel
             return new OpponentSetupBuildResult(deployedCount, skippedCount);
         }
 
-        DuelState CreateInitialDuelState(EncounterDef encounterDef, EncounterEnemyPatternDef startPattern)
+        DuelState CreateInitialDuelState(EnemyDef enemyDef)
         {
+            int? defaultSlotLimit = null;
+            if (database.duelConfig != null &&
+                database.duelConfig.p0Rules != null &&
+                database.duelConfig.p0Rules.defaultSlotLimit.HasValue &&
+                database.duelConfig.p0Rules.defaultSlotLimit.Value > 0)
+            {
+                defaultSlotLimit = database.duelConfig.p0Rules.defaultSlotLimit.Value;
+            }
+
             var nextState = new DuelState
             {
                 turnIndex = 0,
                 isDuelEnded = false,
                 honor = database.playerStart.startingHonor,
                 playerHealth = Mathf.Max(1, database.playerStart.startingPlayerHealth),
-                opponentHealth = Mathf.Max(1, encounterDef.enemy.health),
-                encounterId = encounterDef.id,
-                currentPatternId = startPattern.patternId
+                opponentHealth = Mathf.Max(1, enemyDef.health),
+                enemyId = enemyDef.id
             };
 
             nextState.loadoutAbilityIds.Clear();
             nextState.abilitiesById.Clear();
-            nextState.opponentClashLoadoutEntries.Clear();
-            nextState.clashes.Clear();
+            nextState.opponentLoadoutEntries.Clear();
+            nextState.combats.Clear();
 
-            BuildClashSlotsFromPattern(nextState, startPattern);
+            BuildCombatSlots(nextState, defaultSlotLimit);
+            BuildOpponentLoadoutEntries(nextState, enemyDef);
             PopulateLoadoutFromPlayerStart(nextState);
 
             return nextState;
         }
 
-        static void BuildClashSlotsFromPattern(DuelState state, EncounterEnemyPatternDef pattern)
+        static void BuildCombatSlots(DuelState state, int? defaultSlotLimit)
         {
-            state.clashes.Clear();
-            state.opponentClashLoadoutEntries.Clear();
+            state.combats.Clear();
 
-            if (pattern == null || pattern.clashes == null)
+            for (int combatIndex = 0; combatIndex < fixedCombatCount; combatIndex++)
+            {
+                var combatState = new CombatState
+                {
+                    maxPlayerAssignments = defaultSlotLimit
+                };
+                combatState.EnsureInitialized();
+                state.combats.Add(combatState);
+            }
+        }
+
+        static void BuildOpponentLoadoutEntries(DuelState state, EnemyDef enemyDef)
+        {
+            state.opponentLoadoutEntries.Clear();
+
+            if (enemyDef == null || enemyDef.abilityLoadout == null)
             {
                 return;
             }
 
-            for (int clashIndex = 0; clashIndex < pattern.clashes.Count; clashIndex++)
+            for (int loadoutIndex = 0; loadoutIndex < enemyDef.abilityLoadout.Count; loadoutIndex++)
             {
-                EncounterEnemyClashDef clashDef = pattern.clashes[clashIndex];
-                if (clashDef == null)
-                {
-                    state.clashes.Add(new ClashState());
-                    continue;
-                }
-
-                var clashState = new ClashState
-                {
-                    clashId = clashDef.clashId,
-                    maxPlayerAssignments = clashDef.maxPlayerAssignments
-                };
-                clashState.EnsureInitialized();
-                state.clashes.Add(clashState);
-
-                if (clashDef.abilityLoadout == null)
+                SummonAbilityRefDef abilityRef = enemyDef.abilityLoadout[loadoutIndex];
+                if (abilityRef == null || abilityRef.count <= 0 || string.IsNullOrWhiteSpace(abilityRef.abilityId))
                 {
                     continue;
                 }
 
-                for (int loadoutIndex = 0; loadoutIndex < clashDef.abilityLoadout.Count; loadoutIndex++)
+                state.opponentLoadoutEntries.Add(new OpponentLoadoutEntry
                 {
-                    SummonAbilityRefDef abilityRef = clashDef.abilityLoadout[loadoutIndex];
-                    if (abilityRef == null || abilityRef.count <= 0 || string.IsNullOrWhiteSpace(abilityRef.abilityId))
-                    {
-                        continue;
-                    }
-
-                    state.opponentClashLoadoutEntries.Add(new OpponentClashLoadoutEntry
-                    {
-                        clashIndex = clashIndex,
-                        abilityDefId = abilityRef.abilityId,
-                        count = abilityRef.count
-                    });
-                }
+                    abilityDefId = abilityRef.abilityId,
+                    count = abilityRef.count
+                });
             }
-        }
-
-        static EncounterEnemyPatternDef ResolvePattern(
-            IReadOnlyList<EncounterEnemyPatternDef> patterns,
-            string patternId)
-        {
-            if (patterns == null || string.IsNullOrWhiteSpace(patternId))
-            {
-                return null;
-            }
-
-            for (int i = 0; i < patterns.Count; i++)
-            {
-                EncounterEnemyPatternDef pattern = patterns[i];
-                if (pattern == null)
-                {
-                    continue;
-                }
-
-                if (string.Equals(pattern.patternId, patternId, StringComparison.Ordinal))
-                {
-                    return pattern;
-                }
-            }
-
-            return null;
         }
 
         void PopulateLoadoutFromPlayerStart(DuelState state)
@@ -344,23 +300,23 @@ namespace Game.Application.Duel
 
         static void RemoveCurrentOpponentAbilityInstances(DuelState state)
         {
-            if (state.clashes == null || state.abilitiesById == null)
+            if (state.combats == null || state.abilitiesById == null)
             {
                 return;
             }
 
-            for (int clashIndex = 0; clashIndex < state.clashes.Count; clashIndex++)
+            for (int combatIndex = 0; combatIndex < state.combats.Count; combatIndex++)
             {
-                ClashState clash = state.clashes[clashIndex];
-                if (clash == null)
+                CombatState combat = state.combats[combatIndex];
+                if (combat == null)
                 {
                     continue;
                 }
 
-                clash.EnsureInitialized();
-                for (int i = 0; i < clash.opponentAbilityIds.Count; i++)
+                combat.EnsureInitialized();
+                for (int i = 0; i < combat.opponentAbilityIds.Count; i++)
                 {
-                    string abilityId = clash.opponentAbilityIds[i];
+                    string abilityId = combat.opponentAbilityIds[i];
                     if (string.IsNullOrWhiteSpace(abilityId))
                     {
                         continue;
@@ -369,7 +325,7 @@ namespace Game.Application.Duel
                     state.abilitiesById.Remove(abilityId);
                 }
 
-                clash.opponentAbilityIds.Clear();
+                combat.opponentAbilityIds.Clear();
             }
         }
     }

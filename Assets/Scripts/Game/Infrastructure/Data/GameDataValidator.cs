@@ -6,8 +6,6 @@ namespace Game.Infrastructure.Data
 {
     public sealed class GameDataValidator
     {
-        const double probabilityEpsilon = 0.000001d;
-
         static readonly HashSet<string> allowedOpCodes = new(StringComparer.Ordinal)
         {
             nameof(DuelEffectOpCode.ModifyPowerResult),
@@ -46,7 +44,7 @@ namespace Game.Infrastructure.Data
             ValidateRequiredConfigs(database, report);
             ValidateConfigValues(database, report);
             ValidateAbilityDefs(database, report);
-            ValidateEncounterDefs(database, report);
+            ValidateEnemyDefs(database, report);
             ValidateEffectOps(database, report);
         }
 
@@ -275,181 +273,45 @@ namespace Game.Infrastructure.Data
             }
         }
 
-        void ValidateEncounterDefs(GameDatabase database, GameDataValidationReport report)
+        void ValidateEnemyDefs(GameDatabase database, GameDataValidationReport report)
         {
-            foreach (KeyValuePair<string, EncounterDef> pair in database.encountersById)
+            foreach (KeyValuePair<string, EnemyDef> pair in database.enemiesById)
             {
                 string id = pair.Key;
-                EncounterDef encounterDef = pair.Value;
-                string path = database.encounterSourcePathById.TryGetValue(id, out string foundPath)
+                EnemyDef enemyDef = pair.Value;
+                string path = database.enemySourcePathById.TryGetValue(id, out string foundPath)
                     ? foundPath
                     : string.Empty;
 
-                if (encounterDef.enemy == null)
+                if (enemyDef.health <= 0)
                 {
                     report.AddError(
                         GameDataErrorCode.InvalidValue,
                         path,
                         id,
-                        "enemy must not be null.");
+                        "health must be greater than zero.");
+                }
+
+                if (enemyDef.abilityLoadout == null || enemyDef.abilityLoadout.Count <= 0)
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        path,
+                        id,
+                        "abilityLoadout must contain at least one entry.");
                     continue;
                 }
 
-                if (string.IsNullOrWhiteSpace(encounterDef.enemy.id))
+                for (int loadoutIndex = 0; loadoutIndex < enemyDef.abilityLoadout.Count; loadoutIndex++)
                 {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        path,
-                        id,
-                        "enemy.id must not be empty.");
-                }
-
-                if (encounterDef.enemy.health <= 0)
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        path,
-                        id,
-                        "enemy.health must be greater than zero.");
-                }
-
-                if (encounterDef.enemy.patterns == null || encounterDef.enemy.patterns.Count <= 0)
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        path,
-                        id,
-                        "enemy.patterns must contain at least one entry.");
-                    continue;
-                }
-
-                if (string.IsNullOrWhiteSpace(encounterDef.enemy.startPatternId))
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        path,
-                        id,
-                        "enemy.startPatternId must not be empty.");
-                }
-
-                var patternIds = new HashSet<string>(StringComparer.Ordinal);
-
-                for (int patternIndex = 0; patternIndex < encounterDef.enemy.patterns.Count; patternIndex++)
-                {
-                    EncounterEnemyPatternDef pattern = encounterDef.enemy.patterns[patternIndex];
-                    if (pattern == null)
-                    {
-                        report.AddError(
-                            GameDataErrorCode.InvalidValue,
-                            path,
-                            id,
-                            $"enemy.patterns[{patternIndex}] is null.");
-                        continue;
-                    }
-
-                    if (string.IsNullOrWhiteSpace(pattern.patternId))
-                    {
-                        report.AddError(
-                            GameDataErrorCode.InvalidValue,
-                            path,
-                            id,
-                            $"enemy.patterns[{patternIndex}].patternId must not be empty.");
-                    }
-                    else if (!patternIds.Add(pattern.patternId))
-                    {
-                        report.AddError(
-                            GameDataErrorCode.DuplicateId,
-                            path,
-                            id,
-                            $"enemy.patterns[{patternIndex}].patternId('{pattern.patternId}') is duplicated.");
-                    }
-
-                    ValidatePatternClashes(database, report, path, id, patternIndex, pattern);
-                }
-
-                if (!string.IsNullOrWhiteSpace(encounterDef.enemy.startPatternId) &&
-                    !patternIds.Contains(encounterDef.enemy.startPatternId))
-                {
-                    report.AddError(
-                        GameDataErrorCode.MissingReference,
-                        path,
-                        id,
-                        $"enemy.startPatternId('{encounterDef.enemy.startPatternId}') does not exist.");
-                }
-
-                ValidatePatternTransitions(report, path, id, encounterDef.enemy.patterns, patternIds);
-            }
-        }
-
-        void ValidatePatternClashes(
-            GameDatabase database,
-            GameDataValidationReport report,
-            string path,
-            string encounterId,
-            int patternIndex,
-            EncounterEnemyPatternDef pattern)
-        {
-            if (pattern.clashes == null || pattern.clashes.Count <= 0)
-            {
-                report.AddError(
-                    GameDataErrorCode.InvalidValue,
-                    path,
-                    encounterId,
-                    $"enemy.patterns[{patternIndex}].clashes must contain at least one entry.");
-                return;
-            }
-
-            for (int clashIndex = 0; clashIndex < pattern.clashes.Count; clashIndex++)
-            {
-                EncounterEnemyClashDef clash = pattern.clashes[clashIndex];
-                if (clash == null)
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        path,
-                        encounterId,
-                        $"enemy.patterns[{patternIndex}].clashes[{clashIndex}] is null.");
-                    continue;
-                }
-
-                if (string.IsNullOrWhiteSpace(clash.clashId))
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        path,
-                        encounterId,
-                        $"enemy.patterns[{patternIndex}].clashes[{clashIndex}].clashId must not be empty.");
-                }
-
-                if (clash.maxPlayerAssignments.HasValue && clash.maxPlayerAssignments.Value < 1)
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        path,
-                        encounterId,
-                        $"enemy.patterns[{patternIndex}].clashes[{clashIndex}].maxPlayerAssignments must be greater than zero when specified.");
-                }
-
-                if (clash.abilityLoadout == null)
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        path,
-                        encounterId,
-                        $"enemy.patterns[{patternIndex}].clashes[{clashIndex}].abilityLoadout must not be null.");
-                    continue;
-                }
-
-                for (int abilityIndex = 0; abilityIndex < clash.abilityLoadout.Count; abilityIndex++)
-                {
-                    SummonAbilityRefDef abilityRef = clash.abilityLoadout[abilityIndex];
+                    SummonAbilityRefDef abilityRef = enemyDef.abilityLoadout[loadoutIndex];
                     if (abilityRef == null)
                     {
                         report.AddError(
                             GameDataErrorCode.InvalidValue,
                             path,
-                            encounterId,
-                            $"enemy.patterns[{patternIndex}].clashes[{clashIndex}].abilityLoadout[{abilityIndex}] is null.");
+                            id,
+                            $"abilityLoadout[{loadoutIndex}] is null.");
                         continue;
                     }
 
@@ -458,16 +320,16 @@ namespace Game.Infrastructure.Data
                         report.AddError(
                             GameDataErrorCode.InvalidValue,
                             path,
-                            encounterId,
-                            $"enemy.patterns[{patternIndex}].clashes[{clashIndex}].abilityLoadout[{abilityIndex}].abilityId must not be empty.");
+                            id,
+                            $"abilityLoadout[{loadoutIndex}].abilityId must not be empty.");
                     }
                     else if (!database.abilitiesById.ContainsKey(abilityRef.abilityId))
                     {
                         report.AddError(
                             GameDataErrorCode.MissingReference,
                             path,
-                            encounterId,
-                            $"enemy.patterns[{patternIndex}].clashes[{clashIndex}].abilityLoadout[{abilityIndex}].abilityId('{abilityRef.abilityId}') does not exist.");
+                            id,
+                            $"abilityLoadout[{loadoutIndex}].abilityId('{abilityRef.abilityId}') does not exist.");
                     }
 
                     if (abilityRef.count < 0)
@@ -475,89 +337,9 @@ namespace Game.Infrastructure.Data
                         report.AddError(
                             GameDataErrorCode.InvalidValue,
                             path,
-                            encounterId,
-                            $"enemy.patterns[{patternIndex}].clashes[{clashIndex}].abilityLoadout[{abilityIndex}].count must be greater than or equal to 0.");
+                            id,
+                            $"abilityLoadout[{loadoutIndex}].count must be greater than or equal to 0.");
                     }
-                }
-            }
-        }
-
-        void ValidatePatternTransitions(
-            GameDataValidationReport report,
-            string path,
-            string encounterId,
-            IReadOnlyList<EncounterEnemyPatternDef> patterns,
-            HashSet<string> patternIds)
-        {
-            if (patterns == null)
-            {
-                return;
-            }
-
-            for (int patternIndex = 0; patternIndex < patterns.Count; patternIndex++)
-            {
-                EncounterEnemyPatternDef pattern = patterns[patternIndex];
-                if (pattern == null)
-                {
-                    continue;
-                }
-
-                if (pattern.nextPatterns == null || pattern.nextPatterns.Count <= 0)
-                {
-                    continue;
-                }
-
-                double probabilitySum = 0.0d;
-                for (int transitionIndex = 0; transitionIndex < pattern.nextPatterns.Count; transitionIndex++)
-                {
-                    EncounterEnemyPatternTransitionDef transition = pattern.nextPatterns[transitionIndex];
-                    if (transition == null)
-                    {
-                        report.AddError(
-                            GameDataErrorCode.InvalidValue,
-                            path,
-                            encounterId,
-                            $"enemy.patterns[{patternIndex}].nextPatterns[{transitionIndex}] is null.");
-                        continue;
-                    }
-
-                    if (string.IsNullOrWhiteSpace(transition.patternId))
-                    {
-                        report.AddError(
-                            GameDataErrorCode.InvalidValue,
-                            path,
-                            encounterId,
-                            $"enemy.patterns[{patternIndex}].nextPatterns[{transitionIndex}].patternId must not be empty.");
-                    }
-                    else if (!patternIds.Contains(transition.patternId))
-                    {
-                        report.AddError(
-                            GameDataErrorCode.MissingReference,
-                            path,
-                            encounterId,
-                            $"enemy.patterns[{patternIndex}].nextPatterns[{transitionIndex}].patternId('{transition.patternId}') does not exist.");
-                    }
-
-                    if (transition.probability <= 0.0d)
-                    {
-                        report.AddError(
-                            GameDataErrorCode.InvalidValue,
-                            path,
-                            encounterId,
-                            $"enemy.patterns[{patternIndex}].nextPatterns[{transitionIndex}].probability must be greater than 0.");
-                        continue;
-                    }
-
-                    probabilitySum += transition.probability;
-                }
-
-                if (Math.Abs(probabilitySum - 1.0d) > probabilityEpsilon)
-                {
-                    report.AddError(
-                        GameDataErrorCode.InvalidValue,
-                        path,
-                        encounterId,
-                        $"enemy.patterns[{patternIndex}].nextPatterns probability sum must be 1.0. current={probabilitySum:0.######}");
                 }
             }
         }

@@ -1,4 +1,4 @@
-﻿using Game.Application.Duel;
+using Game.Application.Duel;
 using Game.Domain.Duel;
 using Game.Infrastructure.Data;
 using System;
@@ -44,45 +44,41 @@ namespace Game.Presentation.Debug
             return $"Opponent Health: {opponentHealth}";
         }
 
-        public static string FormatClash(DuelState duelState, int clashIndex)
+        public static string FormatCombat(DuelState duelState, int combatIndex)
         {
             if (duelState == null ||
-                duelState.clashes == null ||
-                clashIndex < 0 ||
-                clashIndex >= duelState.clashes.Count)
+                duelState.combats == null ||
+                combatIndex < 0 ||
+                combatIndex >= duelState.combats.Count)
             {
-                return $"Clash {clashIndex}: (missing)";
+                return $"Combat {combatIndex}: (missing)";
             }
 
-            ClashState clash = duelState.clashes[clashIndex];
-            if (clash == null)
+            CombatState combat = duelState.combats[combatIndex];
+            if (combat == null)
             {
-                return $"Clash {clashIndex}: (missing)";
+                return $"Combat {combatIndex}: (missing)";
             }
 
-            int playerCount = clash.playerAbilityIds == null ? 0 : clash.playerAbilityIds.Count;
-            int opponentCount = clash.opponentAbilityIds == null ? 0 : clash.opponentAbilityIds.Count;
+            int playerCount = combat.playerAbilityIds == null ? 0 : combat.playerAbilityIds.Count;
+            int opponentCount = combat.opponentAbilityIds == null ? 0 : combat.opponentAbilityIds.Count;
 
             int playerTotalPower = DuelSimulator.ComputeTotalPower(
-                clash,
+                combat,
                 duelState.abilitiesById,
                 true);
 
             int opponentTotalPower = DuelSimulator.ComputeTotalPower(
-                clash,
+                combat,
                 duelState.abilitiesById,
                 false);
 
-            string clashId = string.IsNullOrWhiteSpace(clash.clashId)
-                ? "(no-id)"
-                : clash.clashId;
-
-            string capLabel = clash.maxPlayerAssignments.HasValue
-                ? clash.maxPlayerAssignments.Value.ToString()
+            string capLabel = combat.maxPlayerAssignments.HasValue
+                ? combat.maxPlayerAssignments.Value.ToString()
                 : "unlimited";
 
             return
-                $"Clash {clashIndex} ({clashId}) | TotalPower P:{playerTotalPower} E:{opponentTotalPower} | Abilities P:{playerCount} E:{opponentCount} | Cap:{capLabel}";
+                $"Combat {combatIndex} | TotalPower P:{playerTotalPower} E:{opponentTotalPower} | Abilities P:{playerCount} E:{opponentCount} | Cap:{capLabel}";
         }
 
         public static string FormatLoadoutAbilities(DuelState duelState, string selectedAbilityId)
@@ -153,30 +149,27 @@ namespace Game.Presentation.Debug
             return $"Selected Ability: {abilityDefId} | Type:{ability.abilityType} | Power:{ability.power} | Power Result:{ability.powerResult} | CD:{cooldownLabel} | {location}";
         }
 
-        public static string FormatSelectedClash(DuelState duelState, int selectedClashIndex)
+        public static string FormatSelectedCombat(DuelState duelState, int selectedCombatIndex)
         {
             if (duelState == null ||
-                duelState.clashes == null ||
-                selectedClashIndex < 0 ||
-                selectedClashIndex >= duelState.clashes.Count)
+                duelState.combats == null ||
+                selectedCombatIndex < 0 ||
+                selectedCombatIndex >= duelState.combats.Count)
             {
-                return "Selected Clash: (none)";
+                return "Selected Combat: (none)";
             }
 
-            ClashState clash = duelState.clashes[selectedClashIndex];
-            if (clash == null)
+            CombatState combat = duelState.combats[selectedCombatIndex];
+            if (combat == null)
             {
-                return $"Selected Clash: {selectedClashIndex} (missing)";
+                return $"Selected Combat: {selectedCombatIndex} (missing)";
             }
 
-            int playerCount = clash.playerAbilityIds == null ? 0 : clash.playerAbilityIds.Count;
-            int opponentCount = clash.opponentAbilityIds == null ? 0 : clash.opponentAbilityIds.Count;
-            string clashId = string.IsNullOrWhiteSpace(clash.clashId)
-                ? "(no-id)"
-                : clash.clashId;
+            int playerCount = combat.playerAbilityIds == null ? 0 : combat.playerAbilityIds.Count;
+            int opponentCount = combat.opponentAbilityIds == null ? 0 : combat.opponentAbilityIds.Count;
 
             return
-                $"Selected Clash: {selectedClashIndex} ({clashId}) | Abilities P:{playerCount} E:{opponentCount}";
+                $"Selected Combat: {selectedCombatIndex} | Abilities P:{playerCount} E:{opponentCount}";
         }
 
         static string ResolveAbilityLocation(DuelState duelState, string abilityId)
@@ -186,25 +179,25 @@ namespace Game.Presentation.Debug
                 return "loadout";
             }
 
-            if (duelState.clashes == null)
+            if (duelState.combats == null)
             {
                 return "unknown";
             }
 
-            for (int i = 0; i < duelState.clashes.Count; i++)
+            for (int i = 0; i < duelState.combats.Count; i++)
             {
-                ClashState clash = duelState.clashes[i];
-                if (clash == null)
+                CombatState combat = duelState.combats[i];
+                if (combat == null)
                 {
                     continue;
                 }
 
-                if (clash.playerAbilityIds != null && clash.playerAbilityIds.Contains(abilityId))
+                if (combat.playerAbilityIds != null && combat.playerAbilityIds.Contains(abilityId))
                 {
                     return $"player@{i}";
                 }
 
-                if (clash.opponentAbilityIds != null && clash.opponentAbilityIds.Contains(abilityId))
+                if (combat.opponentAbilityIds != null && combat.opponentAbilityIds.Contains(abilityId))
                 {
                     return $"opponent@{i}";
                 }
@@ -376,5 +369,3 @@ namespace Game.Presentation.Debug
         }
     }
 }
-
-

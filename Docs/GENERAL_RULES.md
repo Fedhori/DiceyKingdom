@@ -25,7 +25,7 @@
 - `JsonUtility` 사용 금지
 - JSON 직렬화/역직렬화는 `Newtonsoft.Json` 사용
 - JSON `id` 및 참조 ID(`abilityId`, `enemyId` 등)는 점(`.`) 표기법을 사용한다.
-- 예시: `ability.slash.sword`, `ability.shield.up`, `enemy.debug.01`, `duel.config`
+- 예시: `ability.slash.sword`, `ability.shield.up`, `enemy.northern.footman`, `duel.config`
 - 언더스코어(`_`) 기반 신규 ID는 사용하지 않는다.
 
 ## 난수 규칙

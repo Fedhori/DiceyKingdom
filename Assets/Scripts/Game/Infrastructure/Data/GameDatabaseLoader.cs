@@ -55,7 +55,7 @@ namespace Game.Infrastructure.Data
 
             ParseConfigs(database, dataIndex.configs, report);
             ParseDefCollection(dataIndex.abilities, database.abilitiesById, database.abilitySourcePathById, report);
-            ParseDefCollection(dataIndex.encounters, database.encountersById, database.encounterSourcePathById, report);
+            ParseDefCollection(dataIndex.enemies, database.enemiesById, database.enemySourcePathById, report);
 
             validator.Validate(database, dataIndex, report);
 

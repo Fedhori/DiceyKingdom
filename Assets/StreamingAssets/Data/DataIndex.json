@@ -9,7 +9,7 @@
     "Data/abilities/ability.slash.sword.json",
     "Data/abilities/ability.shield.up.json"
   ],
-  "encounters": [
-    "Data/encounters/encounter.debug.01.json"
+  "enemies": [
+    "Data/enemies/enemy.northern.footman.json"
   ]
 }

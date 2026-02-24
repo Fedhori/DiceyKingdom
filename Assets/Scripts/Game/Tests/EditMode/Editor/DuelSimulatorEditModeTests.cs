@@ -111,9 +111,9 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void ComputeTotalPower_UsesPowerResultSumPlusClashBonus()
+        public void ComputeTotalPower_UsesPowerResultSumPlusCombatBonus()
         {
-            var clash = new ClashState
+            var combat = new CombatState
             {
                 playerAbilityIds = new List<string> { "p1", "p2" },
                 opponentAbilityIds = new List<string> { "e1" },
@@ -128,8 +128,8 @@ namespace Game.Tests.EditMode
                 { "e1", CreateAbility("e1", 2) }
             };
 
-            int playerTotalPower = DuelSimulator.ComputeTotalPower(clash, abilitiesById, true);
-            int opponentTotalPower = DuelSimulator.ComputeTotalPower(clash, abilitiesById, false);
+            int playerTotalPower = DuelSimulator.ComputeTotalPower(combat, abilitiesById, true);
+            int opponentTotalPower = DuelSimulator.ComputeTotalPower(combat, abilitiesById, false);
 
             Assert.AreEqual(7, playerTotalPower);
             Assert.AreEqual(5, opponentTotalPower);
@@ -213,4 +213,5 @@ namespace Game.Tests.EditMode
         }
     }
 }
+
 

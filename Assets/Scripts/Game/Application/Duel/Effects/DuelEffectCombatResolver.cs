@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Game.Domain.Duel;
 using Game.Domain.Modifiers;
@@ -6,11 +6,11 @@ using UnityEngine;
 
 namespace Game.Application.Duel.Effects
 {
-    public sealed class DuelEffectClashResolver
+    public sealed class DuelEffectCombatResolver
     {
         readonly Dictionary<DuelEffectOpCode, IDuelEffectHandler> handlers = new();
 
-        public DuelEffectClashResolver()
+        public DuelEffectCombatResolver()
         {
             Register(new ModifyPowerResultEffectHandler());
             Register(new AddPowerModifierEffectHandler());
@@ -114,7 +114,7 @@ namespace Game.Application.Duel.Effects
             DuelEffectFailureReason failureReason,
             string warningMessage)
         {
-            Debug.LogWarning($"[EffectClashResolver] [{opCode}] {warningMessage}");
+            Debug.LogWarning($"[EffectCombatResolver] [{opCode}] {warningMessage}");
             return DuelEffectResult.Fail(failureReason, warningMessage);
         }
 
@@ -137,17 +137,17 @@ namespace Game.Application.Duel.Effects
                     $"abilityId({command.abilityId}) does not exist.");
             }
 
-            if (!TryGetClashIndex(state, command.toClashIndex, out int toIndex))
+            if (!TryGetCombatIndex(state, command.toCombatIndex, out int toIndex))
             {
                 return DuelEffectResult.Fail(
                     DuelEffectFailureReason.InvalidIndex,
-                    $"toClashIndex({command.toClashIndex}) is out of range.");
+                    $"toCombatIndex({command.toCombatIndex}) is out of range.");
             }
 
-            if (!TryFindSourceClashIndex(
+            if (!TryFindSourceCombatIndex(
                     state,
                     command.abilityId,
-                    command.fromClashIndex,
+                    command.fromCombatIndex,
                     isPlayerSide,
                     out int fromIndex))
             {
@@ -160,44 +160,44 @@ namespace Game.Application.Duel.Effects
             {
                 return DuelEffectResult.Fail(
                     DuelEffectFailureReason.InvalidTarget,
-                    $"fromClashIndex({fromIndex}) and toClashIndex({toIndex}) are the same.");
+                    $"fromCombatIndex({fromIndex}) and toCombatIndex({toIndex}) are the same.");
             }
 
-            ClashState toClash = state.clashes[toIndex];
-            toClash.EnsureInitialized();
+            CombatState toCombat = state.combats[toIndex];
+            toCombat.EnsureInitialized();
 
             if (isPlayerSide &&
-                toClash.maxPlayerAssignments.HasValue &&
-                toClash.maxPlayerAssignments.Value > 0 &&
-                toClash.playerAbilityIds.Count >= toClash.maxPlayerAssignments.Value)
+                toCombat.maxPlayerAssignments.HasValue &&
+                toCombat.maxPlayerAssignments.Value > 0 &&
+                toCombat.playerAbilityIds.Count >= toCombat.maxPlayerAssignments.Value)
             {
                 return DuelEffectResult.Fail(
                     DuelEffectFailureReason.SlotLimitExceeded,
-                    $"target clash({toIndex}) maxPlayerAssignments exceeded.");
+                    $"target combat({toIndex}) maxPlayerAssignments exceeded.");
             }
 
-            List<string> toList = isPlayerSide ? toClash.playerAbilityIds : toClash.opponentAbilityIds;
+            List<string> toList = isPlayerSide ? toCombat.playerAbilityIds : toCombat.opponentAbilityIds;
 
-            ClashState fromClash = state.clashes[fromIndex];
-            fromClash.EnsureInitialized();
+            CombatState fromCombat = state.combats[fromIndex];
+            fromCombat.EnsureInitialized();
 
-            List<string> fromList = isPlayerSide ? fromClash.playerAbilityIds : fromClash.opponentAbilityIds;
+            List<string> fromList = isPlayerSide ? fromCombat.playerAbilityIds : fromCombat.opponentAbilityIds;
             if (!fromList.Remove(command.abilityId))
             {
                 return DuelEffectResult.Fail(
                     DuelEffectFailureReason.InvalidTarget,
-                    $"abilityId({command.abilityId}) was not found in source clash({fromIndex}).");
+                    $"abilityId({command.abilityId}) was not found in source combat({fromIndex}).");
             }
 
             toList.Add(command.abilityId);
             return DuelEffectResult.Success();
         }
 
-        static bool TryGetClashIndex(DuelState state, int clashIndex, out int resolvedIndex)
+        static bool TryGetCombatIndex(DuelState state, int combatIndex, out int resolvedIndex)
         {
-            resolvedIndex = clashIndex;
+            resolvedIndex = combatIndex;
 
-            if (clashIndex < 0 || clashIndex >= state.clashes.Count)
+            if (combatIndex < 0 || combatIndex >= state.combats.Count)
             {
                 return false;
             }
@@ -205,41 +205,41 @@ namespace Game.Application.Duel.Effects
             return true;
         }
 
-        static bool TryFindSourceClashIndex(
+        static bool TryFindSourceCombatIndex(
             DuelState state,
             string abilityId,
-            int fromClashIndex,
+            int fromCombatIndex,
             bool isPlayerSide,
             out int foundIndex)
         {
             foundIndex = -1;
 
-            if (fromClashIndex >= 0)
+            if (fromCombatIndex >= 0)
             {
-                if (fromClashIndex >= state.clashes.Count)
+                if (fromCombatIndex >= state.combats.Count)
                 {
                     return false;
                 }
 
-                ClashState explicitClash = state.clashes[fromClashIndex];
-                explicitClash.EnsureInitialized();
+                CombatState explicitCombat = state.combats[fromCombatIndex];
+                explicitCombat.EnsureInitialized();
 
-                List<string> explicitList = isPlayerSide ? explicitClash.playerAbilityIds : explicitClash.opponentAbilityIds;
+                List<string> explicitList = isPlayerSide ? explicitCombat.playerAbilityIds : explicitCombat.opponentAbilityIds;
                 if (!explicitList.Contains(abilityId))
                 {
                     return false;
                 }
 
-                foundIndex = fromClashIndex;
+                foundIndex = fromCombatIndex;
                 return true;
             }
 
-            for (int i = 0; i < state.clashes.Count; i++)
+            for (int i = 0; i < state.combats.Count; i++)
             {
-                ClashState clash = state.clashes[i];
-                clash.EnsureInitialized();
+                CombatState combat = state.combats[i];
+                combat.EnsureInitialized();
 
-                List<string> list = isPlayerSide ? clash.playerAbilityIds : clash.opponentAbilityIds;
+                List<string> list = isPlayerSide ? combat.playerAbilityIds : combat.opponentAbilityIds;
                 if (!list.Contains(abilityId))
                 {
                     continue;
@@ -362,23 +362,23 @@ namespace Game.Application.Duel.Effects
 
             public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context)
             {
-                if (!TryGetClashIndex(state, command.clashIndex, out int clashIndex))
+                if (!TryGetCombatIndex(state, command.combatIndex, out int combatIndex))
                 {
                     return DuelEffectResult.Fail(
                         DuelEffectFailureReason.InvalidIndex,
-                        $"clashIndex({command.clashIndex}) is out of range.");
+                        $"combatIndex({command.combatIndex}) is out of range.");
                 }
 
-                ClashState clash = state.clashes[clashIndex];
-                clash.EnsureInitialized();
+                CombatState combat = state.combats[combatIndex];
+                combat.EnsureInitialized();
 
                 if (command.isPlayerSide)
                 {
-                    clash.totalPowerBonusPlayer += command.amount;
+                    combat.totalPowerBonusPlayer += command.amount;
                 }
                 else
                 {
-                    clash.totalPowerBonusOpponent += command.amount;
+                    combat.totalPowerBonusOpponent += command.amount;
                 }
 
                 return DuelEffectResult.Success();
@@ -411,4 +411,3 @@ namespace Game.Application.Duel.Effects
         }
     }
 }
-

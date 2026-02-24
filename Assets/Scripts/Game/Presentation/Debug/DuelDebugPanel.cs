@@ -1,18 +1,18 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Game.Application.Duel;
 using Game.Domain.Duel;
 using Game.Infrastructure.Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Game.Presentation.Debug
 {
     public sealed class DuelDebugPanel : MonoBehaviour
     {
-        const string debugEncounterId = "encounter.debug.01";
-        const int clashUiSlotCount = 3;
+        const string debugEnemyId = "enemy.northern.footman";
 
         [Header("Status")]
         [SerializeField] TMP_Text phaseText;
@@ -22,12 +22,16 @@ namespace Game.Presentation.Debug
         [SerializeField] TMP_Text playerHealthText;
         [SerializeField] TMP_Text opponentHealthText;
         [SerializeField] TMP_Text selectedAbilityText;
-        [SerializeField] TMP_Text selectedClashText;
+        [FormerlySerializedAs("selectedClashText")]
+        [SerializeField] TMP_Text selectedCombatText;
 
-        [Header("Clashes")]
-        [SerializeField] TMP_Text clash0Text;
-        [SerializeField] TMP_Text clash1Text;
-        [SerializeField] TMP_Text clash2Text;
+        [Header("Combats")]
+        [FormerlySerializedAs("clash0Text")]
+        [SerializeField] TMP_Text combat0Text;
+        [FormerlySerializedAs("clash1Text")]
+        [SerializeField] TMP_Text combat1Text;
+        [FormerlySerializedAs("clash2Text")]
+        [SerializeField] TMP_Text combat2Text;
 
         [Header("Controls")]
         [SerializeField] Button startDuelButton;
@@ -38,9 +42,12 @@ namespace Game.Presentation.Debug
         [SerializeField] Button resolveButton;
         [SerializeField] Button surrenderButton;
         [SerializeField] Button selectFirstLoadoutAbilityButton;
-        [SerializeField] Button selectClash0Button;
-        [SerializeField] Button selectClash1Button;
-        [SerializeField] Button selectClash2Button;
+        [FormerlySerializedAs("selectClash0Button")]
+        [SerializeField] Button selectCombat0Button;
+        [FormerlySerializedAs("selectClash1Button")]
+        [SerializeField] Button selectCombat1Button;
+        [FormerlySerializedAs("selectClash2Button")]
+        [SerializeField] Button selectCombat2Button;
 
         [Header("Debug")]
         [SerializeField] TMP_Text logText;
@@ -54,14 +61,14 @@ namespace Game.Presentation.Debug
         DuelTurnProcessor turnProcessor;
 
         string selectedAbilityId = string.Empty;
-        int selectedClashIndex = -1;
+        int selectedCombatIndex = -1;
         readonly List<string> logEntries = new();
 
         enum AbilityLocationType
         {
             None = 0,
             Loadout = 1,
-            Clash = 2
+            Combat = 2
         }
 
         public DuelState DuelState => duelState;
@@ -85,7 +92,7 @@ namespace Game.Presentation.Debug
             sessionBuilder = new DuelSessionBuilder(database);
             turnProcessor = new DuelTurnProcessor(database);
 
-            if (!sessionBuilder.TryCreateInitialState(debugEncounterId, out DuelState state, out string failureMessage))
+            if (!sessionBuilder.TryCreateInitialState(debugEnemyId, out DuelState state, out string failureMessage))
             {
                 RejectCommand("StartDuel", failureMessage);
                 return;
@@ -99,9 +106,9 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            OpponentSetupBuildResult deployResult = sessionBuilder.AutoDeployOpponentClash(duelState);
+            OpponentSetupBuildResult deployResult = sessionBuilder.AutoDeployOpponentCombat(duelState);
             AppendLog($"Opponent auto deploy complete: deployed={deployResult.deployedCount}, skipped={deployResult.skippedCount}");
-            AppendLog($"StartDuel success: encounter={debugEncounterId}");
+            AppendLog($"StartDuel success: enemy={debugEnemyId}");
             RefreshView();
         }
 
@@ -125,7 +132,7 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            OpponentSetupBuildResult deployResult = sessionBuilder.AutoDeployOpponentClash(duelState);
+            OpponentSetupBuildResult deployResult = sessionBuilder.AutoDeployOpponentCombat(duelState);
             AppendLog($"OpponentSetup success: deployed={deployResult.deployedCount}, skipped={deployResult.skippedCount}");
             RefreshView();
         }
@@ -196,10 +203,10 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            if (!turnProcessor.TryResolveAllClashes(
+            if (!turnProcessor.TryResolveAllCombats(
                     duelState,
                     phaseRunner,
-                    out DuelClashResolveResult resolveResult,
+                    out DuelCombatResolveResult resolveResult,
                     out string resolveFailureMessage))
             {
                 RejectCommand("Resolve", resolveFailureMessage);
@@ -208,12 +215,12 @@ namespace Game.Presentation.Debug
 
             for (int i = 0; i < resolveResult.steps.Count; i++)
             {
-                DuelClashResolveStepResult step = resolveResult.steps[i];
+                DuelCombatResolveStepResult step = resolveResult.steps[i];
                 AppendLog(
-                    $"Resolve[{step.clashIndex}] {step.outcome} damage={step.appliedDamage} P:{step.playerTotalPower} E:{step.opponentTotalPower}");
+                    $"Resolve[{step.combatIndex}] {step.outcome} damage={step.appliedDamage} P:{step.playerTotalPower} E:{step.opponentTotalPower}");
             }
 
-            AppendLog($"Resolve success: resolvedClashes={resolveResult.steps.Count}");
+            AppendLog($"Resolve success: resolvedCombats={resolveResult.steps.Count}");
             RefreshView();
         }
 
@@ -232,7 +239,7 @@ namespace Game.Presentation.Debug
             }
 
             selectedAbilityId = string.Empty;
-            selectedClashIndex = -1;
+            selectedCombatIndex = -1;
             AppendLog("Surrender success: duel ended.");
             RefreshView();
         }
@@ -254,19 +261,19 @@ namespace Game.Presentation.Debug
             SelectAbility(duelState.loadoutAbilityIds[0]);
         }
 
-        public void SelectClash0()
+        public void SelectCombat0()
         {
-            SelectClash(0);
+            SelectCombat(0);
         }
 
-        public void SelectClash1()
+        public void SelectCombat1()
         {
-            SelectClash(1);
+            SelectCombat(1);
         }
 
-        public void SelectClash2()
+        public void SelectCombat2()
         {
-            SelectClash(2);
+            SelectCombat(2);
         }
 
         public void DeploySelected()
@@ -277,7 +284,7 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            if (!TryMovePlayerAbilityToClash(selectedAbilityId, selectedClashIndex, out string moveLog, out string moveError))
+            if (!TryMovePlayerAbilityToCombat(selectedAbilityId, selectedCombatIndex, out string moveLog, out string moveError))
             {
                 RejectCommand("DeploySelected", moveError);
                 return;
@@ -307,56 +314,56 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            if (!TryFindPlayerAbilityLocation(abilityId, out AbilityLocationType locationType, out int clashIndex))
+            if (!TryFindPlayerAbilityLocation(abilityId, out AbilityLocationType locationType, out int combatIndex))
             {
                 RejectCommand("SelectAbility", $"abilityId({abilityId}) is not in player controllable zones.");
                 return;
             }
 
             selectedAbilityId = abilityId;
-            if (locationType == AbilityLocationType.Clash)
+            if (locationType == AbilityLocationType.Combat)
             {
-                selectedClashIndex = clashIndex;
+                selectedCombatIndex = combatIndex;
             }
 
             AppendLog($"Ability selected: {ResolveAbilityDefIdForDisplay(abilityId)}");
             RefreshView();
         }
 
-        public void SelectClash(int clashIndex)
+        public void SelectCombat(int combatIndex)
         {
             if (!TryValidateDuelStarted(out string failureMessage))
             {
-                RejectCommand("SelectClash", failureMessage);
+                RejectCommand("SelectCombat", failureMessage);
                 return;
             }
 
-            if (clashIndex < 0 || clashIndex >= duelState.clashes.Count)
+            if (combatIndex < 0 || combatIndex >= duelState.combats.Count)
             {
-                RejectCommand("SelectClash", $"clashIndex({clashIndex}) is out of range.");
+                RejectCommand("SelectCombat", $"combatIndex({combatIndex}) is out of range.");
                 return;
             }
 
-            selectedClashIndex = clashIndex;
+            selectedCombatIndex = combatIndex;
 
             if (!string.IsNullOrWhiteSpace(selectedAbilityId) && phaseRunner.currentPhase == DuelPhase.PlayerSetup)
             {
-                if (!TryMovePlayerAbilityToClash(selectedAbilityId, selectedClashIndex, out string moveLog, out string moveError))
+                if (!TryMovePlayerAbilityToCombat(selectedAbilityId, selectedCombatIndex, out string moveLog, out string moveError))
                 {
-                    RejectCommand("SelectClashDeploy", moveError);
+                    RejectCommand("SelectCombatDeploy", moveError);
                     return;
                 }
 
-                AppendLog($"Clash click deploy success: {moveLog}");
+                AppendLog($"Combat click deploy success: {moveLog}");
                 RefreshView();
                 return;
             }
 
-            AppendLog($"Clash selected: {clashIndex}");
+            AppendLog($"Combat selected: {combatIndex}");
             RefreshView();
         }
 
-        bool TryMovePlayerAbilityToClash(string abilityId, int targetClashIndex, out string moveLog, out string failureMessage)
+        bool TryMovePlayerAbilityToCombat(string abilityId, int targetCombatIndex, out string moveLog, out string failureMessage)
         {
             moveLog = string.Empty;
             failureMessage = string.Empty;
@@ -381,36 +388,36 @@ namespace Game.Presentation.Debug
 
             if (ability.abilityType != AbilityType.Attack)
             {
-                failureMessage = $"only Attack type ability can be deployed to clash (current: {ability.abilityType}).";
+                failureMessage = $"only Attack type ability can be deployed to combat (current: {ability.abilityType}).";
                 return false;
             }
 
-            if (targetClashIndex < 0 || targetClashIndex >= duelState.clashes.Count)
+            if (targetCombatIndex < 0 || targetCombatIndex >= duelState.combats.Count)
             {
-                failureMessage = $"target clash({targetClashIndex}) is out of range.";
+                failureMessage = $"target combat({targetCombatIndex}) is out of range.";
                 return false;
             }
 
-            if (!TryFindPlayerAbilityLocation(abilityId, out AbilityLocationType sourceType, out int sourceClashIndex))
+            if (!TryFindPlayerAbilityLocation(abilityId, out AbilityLocationType sourceType, out int sourceCombatIndex))
             {
                 failureMessage = $"ability({abilityId}) is not in player controllable zones.";
                 return false;
             }
 
-            ClashState targetClash = duelState.clashes[targetClashIndex];
-            if (targetClash == null)
+            CombatState targetCombat = duelState.combats[targetCombatIndex];
+            if (targetCombat == null)
             {
-                failureMessage = $"clash({targetClashIndex}) is null.";
+                failureMessage = $"combat({targetCombatIndex}) is null.";
                 return false;
             }
 
-            targetClash.EnsureInitialized();
-            if (!targetClash.playerAbilityIds.Contains(abilityId) &&
-                targetClash.maxPlayerAssignments.HasValue &&
-                targetClash.maxPlayerAssignments.Value > 0 &&
-                targetClash.playerAbilityIds.Count >= targetClash.maxPlayerAssignments.Value)
+            targetCombat.EnsureInitialized();
+            if (!targetCombat.playerAbilityIds.Contains(abilityId) &&
+                targetCombat.maxPlayerAssignments.HasValue &&
+                targetCombat.maxPlayerAssignments.Value > 0 &&
+                targetCombat.playerAbilityIds.Count >= targetCombat.maxPlayerAssignments.Value)
             {
-                failureMessage = $"target clash({targetClashIndex}) maxPlayerAssignments exceeded.";
+                failureMessage = $"target combat({targetCombatIndex}) maxPlayerAssignments exceeded.";
                 return false;
             }
 
@@ -420,25 +427,25 @@ namespace Game.Presentation.Debug
             }
             else
             {
-                ClashState sourceClash = duelState.clashes[sourceClashIndex];
-                sourceClash?.playerAbilityIds.Remove(abilityId);
+                CombatState sourceCombat = duelState.combats[sourceCombatIndex];
+                sourceCombat?.playerAbilityIds.Remove(abilityId);
             }
 
-            if (!targetClash.playerAbilityIds.Contains(abilityId))
+            if (!targetCombat.playerAbilityIds.Contains(abilityId))
             {
-                targetClash.playerAbilityIds.Add(abilityId);
+                targetCombat.playerAbilityIds.Add(abilityId);
             }
 
             selectedAbilityId = abilityId;
-            selectedClashIndex = targetClashIndex;
-            moveLog = $"Ability moved: {ResolveAbilityDefIdForDisplay(abilityId)} -> clash({targetClashIndex}).";
+            selectedCombatIndex = targetCombatIndex;
+            moveLog = $"Ability moved: {ResolveAbilityDefIdForDisplay(abilityId)} -> combat({targetCombatIndex}).";
             return true;
         }
 
-        bool TryFindPlayerAbilityLocation(string abilityId, out AbilityLocationType locationType, out int clashIndex)
+        bool TryFindPlayerAbilityLocation(string abilityId, out AbilityLocationType locationType, out int combatIndex)
         {
             locationType = AbilityLocationType.None;
-            clashIndex = -1;
+            combatIndex = -1;
 
             if (string.IsNullOrWhiteSpace(abilityId))
             {
@@ -451,27 +458,27 @@ namespace Game.Presentation.Debug
                 return true;
             }
 
-            if (duelState.clashes == null)
+            if (duelState.combats == null)
             {
                 return false;
             }
 
-            for (int i = 0; i < duelState.clashes.Count; i++)
+            for (int i = 0; i < duelState.combats.Count; i++)
             {
-                ClashState clash = duelState.clashes[i];
-                if (clash == null)
+                CombatState combat = duelState.combats[i];
+                if (combat == null)
                 {
                     continue;
                 }
 
-                clash.EnsureInitialized();
-                if (!clash.playerAbilityIds.Contains(abilityId))
+                combat.EnsureInitialized();
+                if (!combat.playerAbilityIds.Contains(abilityId))
                 {
                     continue;
                 }
 
-                locationType = AbilityLocationType.Clash;
-                clashIndex = i;
+                locationType = AbilityLocationType.Combat;
+                combatIndex = i;
                 return true;
             }
 
@@ -506,11 +513,11 @@ namespace Game.Presentation.Debug
             SetText(playerHealthText, DuelDebugPanelFormatter.FormatPlayerHealth(duelState));
             SetText(opponentHealthText, DuelDebugPanelFormatter.FormatOpponentHealth(duelState));
             SetText(selectedAbilityText, DuelDebugPanelFormatter.FormatSelectedAbility(duelState, selectedAbilityId));
-            SetText(selectedClashText, DuelDebugPanelFormatter.FormatSelectedClash(duelState, selectedClashIndex));
+            SetText(selectedCombatText, DuelDebugPanelFormatter.FormatSelectedCombat(duelState, selectedCombatIndex));
 
-            SetText(clash0Text, DuelDebugPanelFormatter.FormatClash(duelState, 0));
-            SetText(clash1Text, DuelDebugPanelFormatter.FormatClash(duelState, 1));
-            SetText(clash2Text, DuelDebugPanelFormatter.FormatClash(duelState, 2));
+            SetText(combat0Text, DuelDebugPanelFormatter.FormatCombat(duelState, 0));
+            SetText(combat1Text, DuelDebugPanelFormatter.FormatCombat(duelState, 1));
+            SetText(combat2Text, DuelDebugPanelFormatter.FormatCombat(duelState, 2));
 
             RefreshButtonInteractableState();
         }
@@ -529,9 +536,9 @@ namespace Game.Presentation.Debug
             SetButtonInteractable(resolveButton, started && phase == DuelPhase.Resolve && !ended);
             SetButtonInteractable(surrenderButton, started && phase == DuelPhase.PlayerSetup && !ended);
             SetButtonInteractable(selectFirstLoadoutAbilityButton, started && !ended);
-            SetButtonInteractable(selectClash0Button, started && !ended);
-            SetButtonInteractable(selectClash1Button, started && !ended);
-            SetButtonInteractable(selectClash2Button, started && !ended);
+            SetButtonInteractable(selectCombat0Button, started && !ended);
+            SetButtonInteractable(selectCombat1Button, started && !ended);
+            SetButtonInteractable(selectCombat2Button, started && !ended);
         }
 
         void WireButtonCallbacks()
@@ -544,9 +551,9 @@ namespace Game.Presentation.Debug
             BindButton(resolveButton, Resolve);
             BindButton(surrenderButton, Surrender);
             BindButton(selectFirstLoadoutAbilityButton, SelectFirstLoadoutAbility);
-            BindButton(selectClash0Button, SelectClash0);
-            BindButton(selectClash1Button, SelectClash1);
-            BindButton(selectClash2Button, SelectClash2);
+            BindButton(selectCombat0Button, SelectCombat0);
+            BindButton(selectCombat1Button, SelectCombat1);
+            BindButton(selectCombat2Button, SelectCombat2);
         }
 
         static void BindButton(Button button, Action onClick)
@@ -645,6 +652,4 @@ namespace Game.Presentation.Debug
         }
     }
 }
-
-
 

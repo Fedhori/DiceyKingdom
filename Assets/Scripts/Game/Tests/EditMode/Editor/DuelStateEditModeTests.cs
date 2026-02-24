@@ -11,18 +11,18 @@ namespace Game.Tests.EditMode
         {
             var state = new DuelState();
 
-            Assert.NotNull(state.clashes);
+            Assert.NotNull(state.combats);
             Assert.NotNull(state.abilitiesById);
             Assert.NotNull(state.loadoutAbilityIds);
-            Assert.NotNull(state.opponentClashLoadoutEntries);
+            Assert.NotNull(state.opponentLoadoutEntries);
         }
 
         [Test]
-        public void DuelState_DefaultInitialization_DoesNotCreateImplicitClashes()
+        public void DuelState_DefaultInitialization_DoesNotCreateImplicitCombats()
         {
             var state = new DuelState();
 
-            Assert.AreEqual(0, state.clashes.Count);
+            Assert.AreEqual(0, state.combats.Count);
         }
 
         [Test]
@@ -48,3 +48,4 @@ namespace Game.Tests.EditMode
         }
     }
 }
+

@@ -16,7 +16,7 @@ namespace Game.Infrastructure.Data
         public Dictionary<string, AbilityDef> abilitiesById = new();
         public Dictionary<string, string> abilitySourcePathById = new();
 
-        public Dictionary<string, EncounterDef> encountersById = new();
-        public Dictionary<string, string> encounterSourcePathById = new();
+        public Dictionary<string, EnemyDef> enemiesById = new();
+        public Dictionary<string, string> enemySourcePathById = new();
     }
 }

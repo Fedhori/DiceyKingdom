@@ -32,8 +32,8 @@ namespace Game.Tests.EditMode
                 baseRoll = 2,
                 powerResult = 2
             };
-            state.clashes[0].playerAbilityIds.Add("p_miko");
-            state.clashes[0].opponentAbilityIds.Add("e_rat");
+            state.combats[0].playerAbilityIds.Add("p_miko");
+            state.combats[0].opponentAbilityIds.Add("e_rat");
 
             var runner = new AbilityTimedEffectRunner(database);
             AbilityTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.Roll);
@@ -67,8 +67,8 @@ namespace Game.Tests.EditMode
                 baseRoll = 2,
                 powerResult = 2
             };
-            state.clashes[0].playerAbilityIds.Add("p_miko");
-            state.clashes[0].opponentAbilityIds.Add("e_rat");
+            state.combats[0].playerAbilityIds.Add("p_miko");
+            state.combats[0].opponentAbilityIds.Add("e_rat");
 
             var runner = new AbilityTimedEffectRunner(database);
             runner.ApplyForTiming(state, DuelEffectTiming.Roll);
@@ -79,7 +79,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void ApplyForTiming_Roll_DwarfCannon_ReducesOpponentPowerResultOnSameClash()
+        public void ApplyForTiming_Roll_DwarfCannon_ReducesOpponentPowerResultOnSameCombat()
         {
             GameDatabase database = CreateDatabase();
             DuelState state = CreateDuelState();
@@ -111,9 +111,9 @@ namespace Game.Tests.EditMode
                 baseRoll = 1,
                 powerResult = 1
             };
-            state.clashes[0].playerAbilityIds.Add("p_dwarf");
-            state.clashes[0].opponentAbilityIds.Add("e_a");
-            state.clashes[0].opponentAbilityIds.Add("e_b");
+            state.combats[0].playerAbilityIds.Add("p_dwarf");
+            state.combats[0].opponentAbilityIds.Add("e_a");
+            state.combats[0].opponentAbilityIds.Add("e_b");
 
             var runner = new AbilityTimedEffectRunner(database);
             AbilityTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.Roll);
@@ -202,7 +202,7 @@ namespace Game.Tests.EditMode
                             new EffectOpDef
                             {
                                 op = "ModifyPowerResult",
-                                scope = "SameClashAbilities",
+                                scope = "SameCombatAbilities",
                                 side = "Opponent",
                                 mode = "Add",
                                 value = -1
@@ -261,21 +261,22 @@ namespace Game.Tests.EditMode
                 opponentHealth = 10
             };
 
-            AddClashes(state, 3);
+            AddCombats(state, 3);
             state.abilitiesById.Clear();
             state.loadoutAbilityIds.Clear();
             return state;
         }
 
-        static void AddClashes(DuelState state, int count)
+        static void AddCombats(DuelState state, int count)
         {
-            state.clashes.Clear();
+            state.combats.Clear();
             for (int i = 0; i < count; i++)
             {
-                state.clashes.Add(new ClashState());
+                state.combats.Add(new CombatState());
             }
         }
     }
 }
+
 
 

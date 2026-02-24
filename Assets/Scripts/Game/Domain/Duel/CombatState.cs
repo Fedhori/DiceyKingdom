@@ -1,13 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game.Domain.Duel
 {
     [Serializable]
-    public sealed class ClashState
+    public sealed class CombatState
     {
-        public string clashId = string.Empty;
         public int? maxPlayerAssignments;
 
         public List<string> playerAbilityIds = new();
@@ -21,16 +20,14 @@ namespace Game.Domain.Duel
             if (playerAbilityIds == null)
             {
                 playerAbilityIds = new List<string>();
-                Debug.LogWarning("[ClashState] playerAbilityIds was null and has been auto-initialized.");
+                Debug.LogWarning("[CombatState] playerAbilityIds was null and has been auto-initialized.");
             }
 
             if (opponentAbilityIds == null)
             {
                 opponentAbilityIds = new List<string>();
-                Debug.LogWarning("[ClashState] opponentAbilityIds was null and has been auto-initialized.");
+                Debug.LogWarning("[CombatState] opponentAbilityIds was null and has been auto-initialized.");
             }
         }
     }
 }
-
-

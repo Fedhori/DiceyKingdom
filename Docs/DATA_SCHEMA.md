@@ -34,7 +34,7 @@
     "Data/abilities/ability.shield.up.json"
   ],
   "enemies": [
-    "Data/enemies/enemy.debug.01.json"
+    "Data/enemies/enemy.northern.footman.json"
   ]
 }
 ```
@@ -125,7 +125,7 @@
 ```json
 {
   "schemaVersion": 2,
-  "id": "enemy.debug.01",
+  "id": "enemy.northern.footman",
   "health": 10,
   "abilityLoadout": [
     { "abilityId": "ability.slash.sword", "count": 3 }

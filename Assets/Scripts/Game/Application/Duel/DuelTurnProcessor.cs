@@ -22,22 +22,22 @@ namespace Game.Application.Duel
         }
     }
 
-    public readonly struct DuelClashResolveStepResult
+    public readonly struct DuelCombatResolveStepResult
     {
-        public int clashIndex { get; }
+        public int combatIndex { get; }
         public DuelOutcome outcome { get; }
         public int playerTotalPower { get; }
         public int opponentTotalPower { get; }
         public int appliedDamage { get; }
 
-        public DuelClashResolveStepResult(
-            int clashIndex,
+        public DuelCombatResolveStepResult(
+            int combatIndex,
             DuelOutcome outcome,
             int playerTotalPower,
             int opponentTotalPower,
             int appliedDamage)
         {
-            this.clashIndex = clashIndex;
+            this.combatIndex = combatIndex;
             this.outcome = outcome;
             this.playerTotalPower = playerTotalPower;
             this.opponentTotalPower = opponentTotalPower;
@@ -45,23 +45,20 @@ namespace Game.Application.Duel
         }
     }
 
-    public sealed class DuelClashResolveResult
+    public sealed class DuelCombatResolveResult
     {
-        public IReadOnlyList<DuelClashResolveStepResult> steps { get; }
+        public IReadOnlyList<DuelCombatResolveStepResult> steps { get; }
         public AbilityTimedEffectRunResult turnEndTimedEffectResult { get; }
         public int cooldownUpdatedCount { get; }
-        public bool patternAdvanced { get; }
 
-        public DuelClashResolveResult(
-            IReadOnlyList<DuelClashResolveStepResult> steps,
+        public DuelCombatResolveResult(
+            IReadOnlyList<DuelCombatResolveStepResult> steps,
             AbilityTimedEffectRunResult turnEndTimedEffectResult,
-            int cooldownUpdatedCount,
-            bool patternAdvanced)
+            int cooldownUpdatedCount)
         {
-            this.steps = steps ?? Array.Empty<DuelClashResolveStepResult>();
+            this.steps = steps ?? Array.Empty<DuelCombatResolveStepResult>();
             this.turnEndTimedEffectResult = turnEndTimedEffectResult;
             this.cooldownUpdatedCount = cooldownUpdatedCount;
-            this.patternAdvanced = patternAdvanced;
         }
     }
 
@@ -70,19 +67,16 @@ namespace Game.Application.Duel
         const string noOutgoingDamageOnWinTag = "ability.effect.no.outgoing.damage.on.win";
 
         readonly GameDatabase database;
-        readonly DuelEffectClashResolver effectClashResolver;
+        readonly DuelEffectCombatResolver effectCombatResolver;
         readonly AbilityTimedEffectRunner timedEffectRunner;
-        readonly System.Random random;
 
         public DuelTurnProcessor(
             GameDatabase database,
-            DuelEffectClashResolver effectClashResolver = null,
-            System.Random random = null)
+            DuelEffectCombatResolver effectCombatResolver = null)
         {
             this.database = database ?? throw new ArgumentNullException(nameof(database));
-            this.effectClashResolver = effectClashResolver ?? new DuelEffectClashResolver();
-            timedEffectRunner = new AbilityTimedEffectRunner(this.database, this.effectClashResolver);
-            this.random = random ?? new System.Random();
+            this.effectCombatResolver = effectCombatResolver ?? new DuelEffectCombatResolver();
+            timedEffectRunner = new AbilityTimedEffectRunner(this.database, this.effectCombatResolver);
         }
 
         public bool TryRollAllDeployedAbilities(
@@ -135,7 +129,7 @@ namespace Game.Application.Duel
                 return false;
             }
 
-            var deployedAbilityIds = CollectDeployedAbilityIds(state);
+            HashSet<string> deployedAbilityIds = CollectDeployedAbilityIds(state);
             if (deployedAbilityIds.Count <= 0)
             {
                 failureMessage = "no deployed abilities to roll.";
@@ -178,17 +172,16 @@ namespace Game.Application.Duel
             return true;
         }
 
-        public bool TryResolveAllClashes(
+        public bool TryResolveAllCombats(
             DuelState state,
             DuelPhaseRunner phaseRunner,
-            out DuelClashResolveResult result,
+            out DuelCombatResolveResult result,
             out string failureMessage)
         {
-            result = new DuelClashResolveResult(
-                Array.Empty<DuelClashResolveStepResult>(),
+            result = new DuelCombatResolveResult(
+                Array.Empty<DuelCombatResolveStepResult>(),
                 new AbilityTimedEffectRunResult(0, 0, 0),
-                0,
-                false);
+                0);
             failureMessage = string.Empty;
 
             if (state == null)
@@ -232,29 +225,29 @@ namespace Game.Application.Duel
                 return false;
             }
 
-            var steps = new List<DuelClashResolveStepResult>(state.clashes.Count);
+            var steps = new List<DuelCombatResolveStepResult>(state.combats.Count);
 
-            for (int clashIndex = 0; clashIndex < state.clashes.Count; clashIndex++)
+            for (int combatIndex = 0; combatIndex < state.combats.Count; combatIndex++)
             {
-                ClashState clash = state.clashes[clashIndex];
-                if (clash == null)
+                CombatState combat = state.combats[combatIndex];
+                if (combat == null)
                 {
-                    Debug.LogWarning($"[DuelTurnProcessor] Resolve warning: clashes[{clashIndex}] is null.");
+                    Debug.LogWarning($"[DuelTurnProcessor] Resolve warning: combats[{combatIndex}] is null.");
                     continue;
                 }
 
-                clash.EnsureInitialized();
+                combat.EnsureInitialized();
 
                 int playerTotalPower = DuelSimulator.ComputeTotalPower(
-                    clash,
+                    combat,
                     state.abilitiesById,
                     true);
                 int opponentTotalPower = DuelSimulator.ComputeTotalPower(
-                    clash,
+                    combat,
                     state.abilitiesById,
                     false);
                 DuelOutcome outcome = DuelSimulator.ComputeOutcome(playerTotalPower, opponentTotalPower);
-                int appliedDamage = ApplyClashOutcomeDamage(state, clash, playerTotalPower, opponentTotalPower);
+                int appliedDamage = ApplyCombatOutcomeDamage(state, combat, playerTotalPower, opponentTotalPower);
 
                 if (state.playerHealth <= 0 || state.opponentHealth <= 0)
                 {
@@ -262,8 +255,8 @@ namespace Game.Application.Duel
                     DuelSimulator.ClearModifierLayer(state, ModifierLayer.Duel);
                 }
 
-                steps.Add(new DuelClashResolveStepResult(
-                    clashIndex,
+                steps.Add(new DuelCombatResolveStepResult(
+                    combatIndex,
                     outcome,
                     playerTotalPower,
                     opponentTotalPower,
@@ -277,20 +270,18 @@ namespace Game.Application.Duel
 
             if (steps.Count <= 0)
             {
-                failureMessage = "no clashes were resolved.";
+                failureMessage = "no combats were resolved.";
                 return false;
             }
 
             int cooldownUpdatedCount = 0;
             AbilityTimedEffectRunResult turnEndTimedEffects = new AbilityTimedEffectRunResult(0, 0, 0);
-            bool patternAdvanced = false;
 
             if (!state.isDuelEnded)
             {
                 cooldownUpdatedCount = ApplyTurnEndMaintenance(state);
                 turnEndTimedEffects = timedEffectRunner.ApplyForTiming(state, DuelEffectTiming.TurnEnd);
                 ReturnPlayerAbilitiesToLoadout(state);
-                patternAdvanced = TryAdvancePatternAndRebuildClash(state);
             }
 
             if (!state.isDuelEnded && !phaseRunner.AdvanceToNextPhase())
@@ -299,11 +290,10 @@ namespace Game.Application.Duel
                     $"[DuelTurnProcessor] Resolve warning: failed to move to next phase ({phaseRunner.LastFailureReason}).");
             }
 
-            result = new DuelClashResolveResult(
+            result = new DuelCombatResolveResult(
                 steps,
                 turnEndTimedEffects,
-                cooldownUpdatedCount,
-                patternAdvanced);
+                cooldownUpdatedCount);
             return true;
         }
 
@@ -351,9 +341,9 @@ namespace Game.Application.Duel
             return cooldownUpdatedCount;
         }
 
-        static int ApplyClashOutcomeDamage(
+        static int ApplyCombatOutcomeDamage(
             DuelState state,
-            ClashState clash,
+            CombatState combat,
             int playerTotalPower,
             int opponentTotalPower)
         {
@@ -364,7 +354,7 @@ namespace Game.Application.Duel
             }
 
             bool isPlayerWinner = diff > 0;
-            if (HasNoOutgoingDamageOnWinTag(state, clash, isPlayerWinner))
+            if (HasNoOutgoingDamageOnWinTag(state, combat, isPlayerWinner))
             {
                 return 0;
             }
@@ -382,16 +372,16 @@ namespace Game.Application.Duel
             return damage;
         }
 
-        static bool HasNoOutgoingDamageOnWinTag(DuelState state, ClashState clash, bool isPlayerSide)
+        static bool HasNoOutgoingDamageOnWinTag(DuelState state, CombatState combat, bool isPlayerSide)
         {
-            if (state?.abilitiesById == null || clash == null)
+            if (state?.abilitiesById == null || combat == null)
             {
                 return false;
             }
 
             List<string> winnerAbilityIds = isPlayerSide
-                ? clash.playerAbilityIds
-                : clash.opponentAbilityIds;
+                ? combat.playerAbilityIds
+                : combat.opponentAbilityIds;
             if (winnerAbilityIds == null)
             {
                 return false;
@@ -419,23 +409,23 @@ namespace Game.Application.Duel
 
         static void ReturnPlayerAbilitiesToLoadout(DuelState state)
         {
-            if (state.clashes == null || state.loadoutAbilityIds == null)
+            if (state.combats == null || state.loadoutAbilityIds == null)
             {
                 return;
             }
 
-            for (int clashIndex = 0; clashIndex < state.clashes.Count; clashIndex++)
+            for (int combatIndex = 0; combatIndex < state.combats.Count; combatIndex++)
             {
-                ClashState clash = state.clashes[clashIndex];
-                if (clash == null)
+                CombatState combat = state.combats[combatIndex];
+                if (combat == null)
                 {
                     continue;
                 }
 
-                clash.EnsureInitialized();
-                for (int i = 0; i < clash.playerAbilityIds.Count; i++)
+                combat.EnsureInitialized();
+                for (int i = 0; i < combat.playerAbilityIds.Count; i++)
                 {
-                    string abilityId = clash.playerAbilityIds[i];
+                    string abilityId = combat.playerAbilityIds[i];
                     if (string.IsNullOrWhiteSpace(abilityId))
                     {
                         continue;
@@ -447,199 +437,7 @@ namespace Game.Application.Duel
                     }
                 }
 
-                clash.playerAbilityIds.Clear();
-            }
-        }
-
-        bool TryAdvancePatternAndRebuildClash(DuelState state)
-        {
-            if (string.IsNullOrWhiteSpace(state.encounterId))
-            {
-                return false;
-            }
-
-            if (database.encountersById == null ||
-                !database.encountersById.TryGetValue(state.encounterId, out EncounterDef encounter) ||
-                encounter?.enemy == null ||
-                encounter.enemy.patterns == null ||
-                encounter.enemy.patterns.Count <= 0)
-            {
-                return false;
-            }
-
-            EncounterEnemyPatternDef currentPattern = ResolvePattern(encounter.enemy.patterns, state.currentPatternId);
-            if (currentPattern == null)
-            {
-                currentPattern = ResolvePattern(encounter.enemy.patterns, encounter.enemy.startPatternId);
-                if (currentPattern == null)
-                {
-                    return false;
-                }
-            }
-
-            string nextPatternId = ResolveNextPatternId(currentPattern);
-            EncounterEnemyPatternDef nextPattern = ResolvePattern(encounter.enemy.patterns, nextPatternId);
-            if (nextPattern == null)
-            {
-                return false;
-            }
-
-            state.currentPatternId = nextPattern.patternId;
-            RebuildClashSlotsFromPattern(state, nextPattern);
-            return true;
-        }
-
-        string ResolveNextPatternId(EncounterEnemyPatternDef currentPattern)
-        {
-            if (currentPattern.nextPatterns == null || currentPattern.nextPatterns.Count <= 0)
-            {
-                return currentPattern.patternId;
-            }
-
-            double totalProbability = 0.0d;
-            for (int i = 0; i < currentPattern.nextPatterns.Count; i++)
-            {
-                EncounterEnemyPatternTransitionDef transition = currentPattern.nextPatterns[i];
-                if (transition == null || transition.probability <= 0.0d)
-                {
-                    continue;
-                }
-
-                totalProbability += transition.probability;
-            }
-
-            if (totalProbability <= 0.0d)
-            {
-                return currentPattern.patternId;
-            }
-
-            double roll = random.NextDouble() * totalProbability;
-            double cumulative = 0.0d;
-
-            for (int i = 0; i < currentPattern.nextPatterns.Count; i++)
-            {
-                EncounterEnemyPatternTransitionDef transition = currentPattern.nextPatterns[i];
-                if (transition == null || transition.probability <= 0.0d)
-                {
-                    continue;
-                }
-
-                cumulative += transition.probability;
-                if (roll <= cumulative)
-                {
-                    return transition.patternId;
-                }
-            }
-
-            return currentPattern.patternId;
-        }
-
-        static EncounterEnemyPatternDef ResolvePattern(
-            IReadOnlyList<EncounterEnemyPatternDef> patterns,
-            string patternId)
-        {
-            if (patterns == null || string.IsNullOrWhiteSpace(patternId))
-            {
-                return null;
-            }
-
-            for (int i = 0; i < patterns.Count; i++)
-            {
-                EncounterEnemyPatternDef pattern = patterns[i];
-                if (pattern == null)
-                {
-                    continue;
-                }
-
-                if (string.Equals(pattern.patternId, patternId, StringComparison.Ordinal))
-                {
-                    return pattern;
-                }
-            }
-
-            return null;
-        }
-
-        static void RebuildClashSlotsFromPattern(DuelState state, EncounterEnemyPatternDef pattern)
-        {
-            RemoveOpponentAbilityInstances(state);
-
-            state.clashes.Clear();
-            state.opponentClashLoadoutEntries.Clear();
-
-            if (pattern?.clashes == null)
-            {
-                return;
-            }
-
-            for (int clashIndex = 0; clashIndex < pattern.clashes.Count; clashIndex++)
-            {
-                EncounterEnemyClashDef clashDef = pattern.clashes[clashIndex];
-                if (clashDef == null)
-                {
-                    state.clashes.Add(new ClashState());
-                    continue;
-                }
-
-                var clashState = new ClashState
-                {
-                    clashId = clashDef.clashId,
-                    maxPlayerAssignments = clashDef.maxPlayerAssignments
-                };
-                clashState.EnsureInitialized();
-                state.clashes.Add(clashState);
-
-                if (clashDef.abilityLoadout == null)
-                {
-                    continue;
-                }
-
-                for (int loadoutIndex = 0; loadoutIndex < clashDef.abilityLoadout.Count; loadoutIndex++)
-                {
-                    SummonAbilityRefDef abilityRef = clashDef.abilityLoadout[loadoutIndex];
-                    if (abilityRef == null || abilityRef.count <= 0 || string.IsNullOrWhiteSpace(abilityRef.abilityId))
-                    {
-                        continue;
-                    }
-
-                    state.opponentClashLoadoutEntries.Add(new OpponentClashLoadoutEntry
-                    {
-                        clashIndex = clashIndex,
-                        abilityDefId = abilityRef.abilityId,
-                        count = abilityRef.count
-                    });
-                }
-            }
-        }
-
-        static void RemoveOpponentAbilityInstances(DuelState state)
-        {
-            if (state.clashes == null || state.abilitiesById == null)
-            {
-                return;
-            }
-
-            for (int clashIndex = 0; clashIndex < state.clashes.Count; clashIndex++)
-            {
-                ClashState clashState = state.clashes[clashIndex];
-                if (clashState == null)
-                {
-                    continue;
-                }
-
-                clashState.EnsureInitialized();
-                for (int i = 0; i < clashState.opponentAbilityIds.Count; i++)
-                {
-                    string abilityId = clashState.opponentAbilityIds[i];
-                    if (string.IsNullOrWhiteSpace(abilityId))
-                    {
-                        continue;
-                    }
-
-                    state.abilitiesById.Remove(abilityId);
-                }
-
-                clashState.opponentAbilityIds.Clear();
+                combat.playerAbilityIds.Clear();
             }
         }
 
@@ -647,22 +445,22 @@ namespace Game.Application.Duel
         {
             var deployedAbilityIds = new HashSet<string>(StringComparer.Ordinal);
 
-            if (state.clashes == null)
+            if (state.combats == null)
             {
                 return deployedAbilityIds;
             }
 
-            for (int clashIndex = 0; clashIndex < state.clashes.Count; clashIndex++)
+            for (int combatIndex = 0; combatIndex < state.combats.Count; combatIndex++)
             {
-                ClashState clash = state.clashes[clashIndex];
-                if (clash == null)
+                CombatState combat = state.combats[combatIndex];
+                if (combat == null)
                 {
                     continue;
                 }
 
-                clash.EnsureInitialized();
-                CollectAbilityIds(deployedAbilityIds, clash.playerAbilityIds, $"playerAbilityIds[{clashIndex}]");
-                CollectAbilityIds(deployedAbilityIds, clash.opponentAbilityIds, $"opponentAbilityIds[{clashIndex}]");
+                combat.EnsureInitialized();
+                CollectAbilityIds(deployedAbilityIds, combat.playerAbilityIds, $"playerAbilityIds[{combatIndex}]");
+                CollectAbilityIds(deployedAbilityIds, combat.opponentAbilityIds, $"opponentAbilityIds[{combatIndex}]");
             }
 
             return deployedAbilityIds;

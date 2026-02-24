@@ -8,13 +8,13 @@ namespace Game.Tests.EditMode
     public sealed class DuelDebugPanelFormatterEditModeTests
     {
         [Test]
-        public void FormatClash_ValidClash_IncludesTotalPowerAndAbilityCounts()
+        public void FormatCombat_ValidCombat_IncludesTotalPowerAndAbilityCounts()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
-            string line = DuelDebugPanelFormatter.FormatClash(state, 0);
+            string line = DuelDebugPanelFormatter.FormatCombat(state, 0);
 
-            StringAssert.Contains("Clash 0 (clash.0)", line);
+            StringAssert.Contains("Combat 0", line);
             StringAssert.Contains("TotalPower P:6 E:8", line);
             StringAssert.Contains("Abilities P:1 E:1", line);
             StringAssert.Contains("Cap:2", line);
@@ -68,7 +68,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void FormatSelectedAbility_WhenAbilityIsDeployed_ReturnsClashLocation()
+        public void FormatSelectedAbility_WhenAbilityIsDeployed_ReturnsCombatLocation()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
@@ -80,34 +80,34 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void FormatSelectedClash_WhenIndexIsOutOfRange_ReturnsNone()
+        public void FormatSelectedCombat_WhenIndexIsOutOfRange_ReturnsNone()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
-            string line = DuelDebugPanelFormatter.FormatSelectedClash(state, -1);
+            string line = DuelDebugPanelFormatter.FormatSelectedCombat(state, -1);
 
-            Assert.AreEqual("Selected Clash: (none)", line);
+            Assert.AreEqual("Selected Combat: (none)", line);
         }
 
         [Test]
-        public void FormatSelectedClash_WhenClashIsNull_ReturnsMissing()
+        public void FormatSelectedCombat_WhenCombatIsNull_ReturnsMissing()
         {
             DuelState state = CreateDuelStateForFormatterTests();
-            state.clashes[1] = null;
+            state.combats[1] = null;
 
-            string line = DuelDebugPanelFormatter.FormatSelectedClash(state, 1);
+            string line = DuelDebugPanelFormatter.FormatSelectedCombat(state, 1);
 
-            Assert.AreEqual("Selected Clash: 1 (missing)", line);
+            Assert.AreEqual("Selected Combat: 1 (missing)", line);
         }
 
         [Test]
-        public void FormatSelectedClash_WhenValid_ReturnsAbilityCounts()
+        public void FormatSelectedCombat_WhenValid_ReturnsAbilityCounts()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
-            string line = DuelDebugPanelFormatter.FormatSelectedClash(state, 0);
+            string line = DuelDebugPanelFormatter.FormatSelectedCombat(state, 0);
 
-            Assert.AreEqual("Selected Clash: 0 (clash.0) | Abilities P:1 E:1", line);
+            Assert.AreEqual("Selected Combat: 0 | Abilities P:1 E:1", line);
         }
 
         [Test]
@@ -155,18 +155,17 @@ namespace Game.Tests.EditMode
         static DuelState CreateDuelStateForFormatterTests()
         {
             var state = new DuelState();
-            AddClashes(state, 3);
+            AddCombats(state, 3);
 
             state.abilitiesById.Clear();
             state.loadoutAbilityIds.Clear();
 
-            ClashState clash0 = state.clashes[0];
-            clash0.clashId = "clash.0";
-            clash0.maxPlayerAssignments = 2;
-            clash0.playerAbilityIds.Clear();
-            clash0.opponentAbilityIds.Clear();
-            clash0.totalPowerBonusPlayer = 2;
-            clash0.totalPowerBonusOpponent = 3;
+            CombatState combat0 = state.combats[0];
+            combat0.maxPlayerAssignments = 2;
+            combat0.playerAbilityIds.Clear();
+            combat0.opponentAbilityIds.Clear();
+            combat0.totalPowerBonusPlayer = 2;
+            combat0.totalPowerBonusOpponent = 3;
 
             state.abilitiesById["p_1"] = new AbilityInstance
             {
@@ -193,22 +192,20 @@ namespace Game.Tests.EditMode
                 powerResult = 2
             };
 
-            clash0.playerAbilityIds.Add("p_1");
-            clash0.opponentAbilityIds.Add("e_1");
+            combat0.playerAbilityIds.Add("p_1");
+            combat0.opponentAbilityIds.Add("e_1");
             state.loadoutAbilityIds.Add("loadout_1");
 
             return state;
         }
 
-        static void AddClashes(DuelState state, int count)
+        static void AddCombats(DuelState state, int count)
         {
-            state.clashes.Clear();
+            state.combats.Clear();
             for (int i = 0; i < count; i++)
             {
-                state.clashes.Add(new ClashState());
+                state.combats.Add(new CombatState());
             }
         }
     }
 }
-
-
