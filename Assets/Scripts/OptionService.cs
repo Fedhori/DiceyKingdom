@@ -23,7 +23,7 @@ public class OptionService : MonoBehaviour
 
     private void Awake()
     {
-        ClashResolveDependencies();
+        ResolveDependencies();
         if (optionOverlayFader == null && optionOverlay != null)
             optionOverlayFader = optionOverlay.GetComponent<OverlayFader>();
         ToggleOption(false);
@@ -37,7 +37,7 @@ public class OptionService : MonoBehaviour
 
     void OnEnable()
     {
-        ClashResolveDependencies();
+        ResolveDependencies();
         subscriptions.Clear();
         subscriptions.Add(EventSubscription.Create(
             () => SceneManager.sceneLoaded += OnSceneLoaded,
@@ -204,7 +204,7 @@ public class OptionService : MonoBehaviour
         UpdatePauseState(false);
     }
 
-    void ClashResolveDependencies()
+    void ResolveDependencies()
     {
         var appServices = GameApp.I?.App;
         if (bgmService == null)

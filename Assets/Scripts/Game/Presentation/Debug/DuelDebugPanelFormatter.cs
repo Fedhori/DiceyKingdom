@@ -1,4 +1,4 @@
-using Game.Application.Duel;
+﻿using Game.Application.Duel;
 using Game.Domain.Duel;
 using Game.Infrastructure.Data;
 using System;
@@ -44,10 +44,7 @@ namespace Game.Presentation.Debug
             return $"Opponent Health: {opponentHealth}";
         }
 
-        public static string FormatClash(
-            DuelState duelState,
-            int clashIndex,
-            GameDatabase database = null)
+        public static string FormatClash(DuelState duelState, int clashIndex)
         {
             if (duelState == null ||
                 duelState.clashes == null ||
@@ -80,41 +77,34 @@ namespace Game.Presentation.Debug
                 ? "(no-id)"
                 : clash.clashId;
 
-            string slotLabel = clash.slotLimit.HasValue
-                ? clash.slotLimit.Value.ToString()
+            string capLabel = clash.maxPlayerAssignments.HasValue
+                ? clash.maxPlayerAssignments.Value.ToString()
                 : "unlimited";
 
-            string damageLabel = FormatClashDamageLabel(database, clashId);
-            if (string.IsNullOrWhiteSpace(damageLabel))
-            {
-                return
-                    $"Clash {clashIndex} ({clashId}) | TotalPower P:{playerTotalPower} E:{opponentTotalPower} | Abilities P:{playerCount} E:{opponentCount} | Slot:{slotLabel}";
-            }
-
             return
-                $"Clash {clashIndex} ({clashId}) | TotalPower P:{playerTotalPower} E:{opponentTotalPower} | Abilities P:{playerCount} E:{opponentCount} | Slot:{slotLabel} | {damageLabel}";
+                $"Clash {clashIndex} ({clashId}) | TotalPower P:{playerTotalPower} E:{opponentTotalPower} | Abilities P:{playerCount} E:{opponentCount} | Cap:{capLabel}";
         }
 
-        public static string FormatBagAbilities(DuelState duelState, string selectedAbilityId)
+        public static string FormatLoadoutAbilities(DuelState duelState, string selectedAbilityId)
         {
             string selectedLine = FormatSelectedAbility(duelState, selectedAbilityId);
 
             if (duelState == null ||
-                duelState.bagAbilityIds == null ||
-                duelState.bagAbilityIds.Count <= 0)
+                duelState.loadoutAbilityIds == null ||
+                duelState.loadoutAbilityIds.Count <= 0)
             {
-                return $"{selectedLine}\nBag Abilities: none";
+                return $"{selectedLine}\nLoadout Abilities: none";
             }
 
             var lines = new List<string>
             {
                 selectedLine,
-                $"Bag Abilities ({duelState.bagAbilityIds.Count}):"
+                $"Loadout Abilities ({duelState.loadoutAbilityIds.Count}):"
             };
 
-            for (int i = 0; i < duelState.bagAbilityIds.Count; i++)
+            for (int i = 0; i < duelState.loadoutAbilityIds.Count; i++)
             {
-                string abilityId = duelState.bagAbilityIds[i];
+                string abilityId = duelState.loadoutAbilityIds[i];
                 if (!TryResolveAbility(duelState, abilityId, out AbilityInstance ability))
                 {
                     lines.Add("- (missing ability)");
@@ -191,9 +181,9 @@ namespace Game.Presentation.Debug
 
         static string ResolveAbilityLocation(DuelState duelState, string abilityId)
         {
-            if (duelState.bagAbilityIds != null && duelState.bagAbilityIds.Contains(abilityId))
+            if (duelState.loadoutAbilityIds != null && duelState.loadoutAbilityIds.Contains(abilityId))
             {
-                return "bag";
+                return "loadout";
             }
 
             if (duelState.clashes == null)
@@ -203,42 +193,24 @@ namespace Game.Presentation.Debug
 
             for (int i = 0; i < duelState.clashes.Count; i++)
             {
-                ClashState field = duelState.clashes[i];
-                if (field == null)
+                ClashState clash = duelState.clashes[i];
+                if (clash == null)
                 {
                     continue;
                 }
 
-                if (field.playerAbilityIds != null && field.playerAbilityIds.Contains(abilityId))
+                if (clash.playerAbilityIds != null && clash.playerAbilityIds.Contains(abilityId))
                 {
                     return $"player@{i}";
                 }
 
-                if (field.opponentAbilityIds != null && field.opponentAbilityIds.Contains(abilityId))
+                if (clash.opponentAbilityIds != null && clash.opponentAbilityIds.Contains(abilityId))
                 {
                     return $"opponent@{i}";
                 }
             }
 
             return "unknown";
-        }
-
-        static string FormatClashDamageLabel(GameDatabase database, string clashId)
-        {
-            if (database == null ||
-                database.clashesById == null ||
-                string.IsNullOrWhiteSpace(clashId))
-            {
-                return string.Empty;
-            }
-
-            if (!database.clashesById.TryGetValue(clashId, out ClashDef clashDef) ||
-                clashDef == null)
-            {
-                return string.Empty;
-            }
-
-            return $"Damage:{clashDef.damage}";
         }
 
         static bool TryResolveAbility(DuelState duelState, string abilityId, out AbilityInstance ability)
@@ -361,85 +333,42 @@ namespace Game.Presentation.Debug
                 return "none";
             }
 
-            return string.Join(" | ", effectLabels);
+            return string.Join(" / ", effectLabels);
         }
 
-        static string ToDisplayLabel(string raw)
+        static string ToDisplayLabel(string rawLabel)
         {
-            if (string.IsNullOrWhiteSpace(raw))
+            if (string.IsNullOrWhiteSpace(rawLabel))
             {
                 return string.Empty;
             }
 
-            string normalized = raw.Trim().Replace("-", "_").Replace(" ", "_");
-            string[] tokens = normalized.Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
-            if (tokens.Length <= 0)
-            {
-                return raw.Trim();
-            }
-
-            var words = new List<string>();
-            for (int i = 0; i < tokens.Length; i++)
-            {
-                string token = tokens[i];
-                if (string.Equals(token, "ability", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(token, "name", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(token, "desc", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(token, "loc", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(token, "key", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                string word = ToTitleWord(token);
-                if (string.IsNullOrWhiteSpace(word))
-                {
-                    continue;
-                }
-
-                words.Add(word);
-            }
-
-            if (words.Count <= 0)
-            {
-                return raw.Trim();
-            }
-
-            return string.Join(" ", words);
-        }
-
-        static string ToTitleWord(string token)
-        {
-            if (string.IsNullOrWhiteSpace(token))
+            string normalized = rawLabel.Replace('_', ' ').Replace('.', ' ').Trim();
+            if (normalized.Length <= 0)
             {
                 return string.Empty;
             }
 
-            var builder = new StringBuilder(token.Length + 4);
-            builder.Append(char.ToUpperInvariant(token[0]));
-
-            for (int i = 1; i < token.Length; i++)
+            string[] chunks = normalized.Split(' ');
+            var builder = new StringBuilder(normalized.Length);
+            for (int i = 0; i < chunks.Length; i++)
             {
-                char previous = token[i - 1];
-                char current = token[i];
+                string chunk = chunks[i];
+                if (string.IsNullOrWhiteSpace(chunk))
+                {
+                    continue;
+                }
 
-                bool shouldInsertSpace =
-                    (char.IsUpper(current) && (char.IsLower(previous) || char.IsDigit(previous))) ||
-                    (char.IsDigit(current) && !char.IsDigit(previous)) ||
-                    (char.IsLetter(current) && char.IsDigit(previous));
-
-                if (shouldInsertSpace)
+                if (builder.Length > 0)
                 {
                     builder.Append(' ');
                 }
 
-                if (char.IsLetter(current))
+                string lower = chunk.ToLowerInvariant();
+                builder.Append(char.ToUpperInvariant(lower[0]));
+                if (lower.Length > 1)
                 {
-                    builder.Append(char.IsUpper(current) ? current : char.ToLowerInvariant(current));
-                }
-                else
-                {
-                    builder.Append(current);
+                    builder.Append(lower.Substring(1));
                 }
             }
 

@@ -1,49 +1,47 @@
-# GAME_STRUCTURE
-> 역할: 구현 기준이 되는 확정 기획/규칙/시스템 구조의 단일 기준 문서.
+﻿# GAME_STRUCTURE
+> ??븷: 援ы쁽 湲곗????섎뒗 ?뺤젙 湲고쉷/洹쒖튃/?쒖뒪??援ъ“???⑥씪 湲곗? 臾몄꽌.
 
-- 버전: `v0.3`
-- 마지막 갱신: `2026-02-23`
-- 용어 기준: `Docs/GLOSSARY.md`
-
----
-
-## 1) 한 줄 정체성
-
-`Free or Die`는 다크 판타지 투기장에서, 플레이어(검투사)가 여러 Clash에서 Ability를 분배/굴림/해결하며 살아남는 1:1 결투 게임이다.
+- 踰꾩쟾: `v0.4`
+- 留덉?留?媛깆떊: `2026-02-24`
+- ?⑹뼱 湲곗?: `Docs/GLOSSARY.md`
 
 ---
 
-## 2) 게임 개요
-
-- 프로젝트명: `Free or Die`
-- 장르: 전술/빌드형 로그라이크 프로토타입
-- 테마: 투기장 1:1 검투 결투
-- 플레이어 역할: 검투단 운영자가 아니라 **플레이어 본인이 검투사**
-
-### 핵심 상태
-
-- Health: 결투 체력
-- Honor: Surrender 가능 여부를 결정하는 값
-- Capacity: 메타 편성 상한(런 준비 단계)
-- 전투 중 별도 소모 자원: 사용하지 않음
+## 1) ??以??뺤껜??
+`Free or Die`???ㅽ겕 ?먰?吏 ?ш린?μ뿉?? ?뚮젅?댁뼱(寃?ъ궗)媛 怨듦컻??Clash??Ability瑜?諛곗튂?섍퀬 二쇱궗?꾨? 援대젮 ?앹〈??寃⑤（??1:1 寃고닾 寃뚯엫?대떎.
 
 ---
 
-## 3) 핵심 재미
+## 2) 寃뚯엫 媛쒖슂
 
-1. Intent를 보고 어떤 Ability를 어느 Clash에 둘지 판단한다.
-2. Power Result를 얼마나 유리하게 만들지(배치/효과/타이밍) 선택한다.
-3. Surrender 타이밍까지 포함해 리스크를 관리한다.
+- ?꾨줈?앺듃紐? `Free or Die`
+- ?λⅤ: ?꾩닠/鍮뚮뱶??濡쒓렇?쇱씠???꾨줈?좏???- ?뚮쭏: ?ш린??1:1 寃??寃고닾
+- ?뚮젅?댁뼱 ??븷: ?뚮젅?댁뼱 蹂몄씤??寃?ъ궗
+
+### ?듭떖 ?곹깭
+
+- Health: 寃고닾 泥대젰
+- Honor: Surrender 媛???щ?瑜?寃곗젙?섎뒗 媛?- Capacity: 硫뷀? ?몄꽦 ?곹븳(??以鍮??④퀎)
+- ?꾪닾 以??뚮え ?먯썝: ?놁쓬
 
 ---
 
-## 4) 턴/페이즈 루프
+## 3) ?듭떖 ?щ?
 
-## Duel Start (1회)
+1. 怨듦컻??Clash瑜?蹂닿퀬 Ability 諛곗튂瑜?理쒖쟻?뷀븳??
+2. Roll 寃곌낵? Ability ?④낵瑜??댁슜??Total Power 寃⑹감瑜?留뚮뱺??
+3. Surrender ?ы븿 由ъ뒪??愿由щ? ?듯빐 ?⑤같 鍮꾩슜??議곗젅?쒕떎.
 
-1. Encounter 기준 Clash 목록 생성
-2. Enemy Intent 생성(완전 공개)
-3. 시작 Bag Ability 인스턴스 생성
+---
+
+## 4) ?꾪닾 猷⑦봽
+
+## Duel Start (1??
+
+1. Encounter??`startPatternId`濡??쒖옉 Pattern???좏깮?쒕떎.
+2. ?좏깮??Pattern??`clashes`濡?Clash ?щ’???앹꽦?쒕떎.
+3. `player.start.startingLoadoutAbilityIds`濡??뚮젅?댁뼱 Loadout Ability ?몄뒪?댁뒪瑜?留뚮뱺??
+4. Enemy Ability??Pattern??`abilityLoadout`??湲곗??쇰줈 Clash??諛곗튂?쒕떎.
 
 ## Turn Phases
 
@@ -53,63 +51,65 @@
 4. `Roll`
 5. `Resolve`
 
-## Turn End(내부)
+## Turn End (Resolve ?대?)
 
-- 쿨다운 감소(`cooldownTickPerTurn`)
-- TurnEnd 타이밍 효과 처리
-
+- 荑⑤떎??媛먯냼(`cooldownTickPerTurn`)
+- TurnEnd ??대컢 ?④낵 泥섎━
+- ?뚮젅?댁뼱媛 Clash??諛곗튂?덈뜕 Ability瑜?Loadout濡?蹂듦?
+- Pattern ?꾩씠(`nextPatterns` ?뺣쪧) ??Clash ?щ’ ?ш뎄??
 ---
 
-## 5) 전투 규칙
+## 5) ?꾪닾 洹쒖튃
 
-## 5.1 Clash 수
+## 5.1 Clash ??
+- Clash ?섎뒗 怨좎젙媛믪씠 ?꾨땲??
+- ?꾩옱 Pattern??`clashes` 湲몄씠瑜?洹몃?濡??ъ슜?쒕떎.
 
-- Clash 수는 고정 3이 아니다.
-- Encounter의 `enemy.clashes` 개수를 그대로 사용한다.
-- `enemy.clashes`는 필수이며, 비어 있으면 유효하지 않은 데이터로 처리한다.
+## 5.2 諛곗튂
 
-## 5.2 배치
+- ?뚮젅?댁뼱??Loadout??Ability瑜?Clash??諛곗튂?쒕떎.
+- `maxPlayerAssignments`媛 ?덉쑝硫??대떦 Clash???뚮젅?댁뼱 諛곗튂 ?곹븳?쇰줈 ?ъ슜?쒕떎.
+- ?곹븳???놁쑝硫?臾댁젣?쒖씠??
 
-- Bag에 있는 플레이어 Ability를 Clash에 배치한다.
-- 기본 슬롯 제한은 무제한.
-- Clash에 `slotLimit`이 있으면 해당 Clash에서만 제한한다.
+## 5.3 援대┝/?섏튂
 
-## 5.3 굴림/수치
+- Attack ???Ability留?Roll ??곸씠??
+- `Power`??二쇱궗??踰붿쐞(硫댁닔)??
+- `Power Result`??援대┝ + 蹂댁젙 ?댄썑 ?섏튂??
+- `Total Power`??Clash ??Attack `Power Result` ??+ Clash 蹂대꼫?ㅻ떎.
 
-- Attack 타입 Ability만 Roll 대상이다.
-- `power`는 항상 주사위 면수(굴림 범위)를 의미한다.
-- Power Result 최소값은 1, 상한은 없다.
-- 기본 Power 수치를 직접 변형하지 않고 Modifier로 처리한다.
+## 5.4 ?먯젙/?쇳빐
 
-## 5.4 판정
-
-- Clash별 Total Power를 비교한다.
-- 결과는 `Victory / Draw / Defeat`만 사용한다.
-- 대승리/대패배는 사용하지 않는다.
-- 승리한 쪽이 해당 Clash의 `damage`(Damage, 체력 피해량)만큼 상대 Health에 피해를 준다.
+- Clash index ?쒖꽌?濡?Resolve?쒕떎.
+- 寃곌낵??`Victory / Draw / Defeat`留??ъ슜?쒕떎.
+- ?뱁뙣媛 ?섎㈃ `|Player Total Power - Opponent Total Power|`留뚰겮 ?⑤같 痢?Health???쇳빐瑜?以??
+- 臾댁듅遺硫??쇳빐媛 ?녿떎.
 
 ## 5.5 Surrender
 
-- `PlayerSetup`에서만 가능하다.
-- `Honor > 0`일 때만 허용한다.
-- 실행 시 즉시 Duel 종료, 보상 없음, Honor를 1 소모한다.
+- `PlayerSetup`?먯꽌留?媛?ν븯??
+- `Honor > 0`???뚮쭔 ?덉슜?쒕떎.
+- ?ㅽ뻾 ??利됱떆 Duel 醫낅즺, Honor瑜?1 ?뚮え?쒕떎.
 
 ---
 
-## 6) Ability 시스템 (P0)
+## 6) Ability ?쒖뒪??(?꾩옱)
 
-- Ability 타입: `Attack / Skill / Passive`
-- Attack: Roll 및 Clash 판정에 직접 기여
-- Skill: PlayerSetup에서 타겟 지정 후, 정의된 타이밍에 자동 적용
-- Passive: 상시 또는 조건부로 적용
-- 적은 항상 1명이지만, Clash별로 서로 다른 Ability 조합을 가진다.
+- Ability ??? `Attack / Skill / Passive`
+- Attack: Roll 諛?Resolve??吏곸젒 湲곗뿬
+- Skill: ??대컢 湲곕컲 ?④낵 ?ㅽ뻾(?몃? ??대컢/?寃?洹쒖튃? ?뺤옣 ?덉젙)
+- Passive: ?곸떆 ?먮뒗 議곌굔遺 ?④낵
+- ?곸? ??긽 1紐낆씠硫? Clash蹂?Ability 議고빀? Pattern?쇰줈 ?쒖뼱?쒕떎.
 
 ---
 
-## 7) 데이터 구조 요약
+## 7) ?곗씠??援ъ“ ?붿빟
 
-- `DataIndex`: `configs`, `clashes`, `abilities`, `encounters`
-- `player.start`: 시작 Health/Honor/Bag 구성
-- `encounter`: enemy + enemy.clashes[].abilityLoadout 구조
+- `DataIndex`: `configs`, `abilities`, `encounters`
+- `player.start`: ?쒖옉 Health/Honor/Loadout 援ъ꽦
+- `encounter`: `enemy.startPatternId`, `enemy.patterns[]`, `pattern.clashes[]`, `pattern.nextPatterns[]`
 
-상세 스키마는 `Docs/DATA_SCHEMA.md`를 따른다.
+?곸꽭 ?ㅽ궎留덈뒗 `Docs/DATA_SCHEMA.md`瑜??곕Ⅸ??
+
+
+

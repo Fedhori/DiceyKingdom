@@ -28,7 +28,7 @@ namespace Game.Infrastructure.Data
                 return false;
             }
 
-            string fullPath = ClashResolveExistingPath(relativePath);
+            string fullPath = ResolveExistingPath(relativePath);
             if (string.IsNullOrEmpty(fullPath))
             {
                 errorMessage = $"File does not exist: {relativePath}";
@@ -53,7 +53,7 @@ namespace Game.Infrastructure.Data
             }
         }
 
-        static string ClashResolveExistingPath(string relativePath)
+        static string ResolveExistingPath(string relativePath)
         {
             string streamingPath = BuildStreamingAssetsPath(relativePath);
             if (File.Exists(streamingPath))

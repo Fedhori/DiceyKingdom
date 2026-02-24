@@ -13,9 +13,6 @@ namespace Game.Infrastructure.Data
         public PlayerStartDef playerStart;
         public string playerStartSourcePath = string.Empty;
 
-        public Dictionary<string, ClashDef> clashesById = new();
-        public Dictionary<string, string> clashSourcePathById = new();
-
         public Dictionary<string, AbilityDef> abilitiesById = new();
         public Dictionary<string, string> abilitySourcePathById = new();
 

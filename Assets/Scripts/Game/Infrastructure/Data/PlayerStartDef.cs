@@ -18,7 +18,8 @@ namespace Game.Infrastructure.Data
         [JsonProperty("startingPlayerHealth", Required = Required.Always)]
         public int startingPlayerHealth;
 
-        [JsonProperty("startingBagAbilityIds", Required = Required.Always)]
-        public List<string> startingBagAbilityIds = new();
+        [JsonProperty("startingLoadoutAbilityIds", Required = Required.Always)]
+        public List<string> startingLoadoutAbilityIds = new();
     }
 }
+

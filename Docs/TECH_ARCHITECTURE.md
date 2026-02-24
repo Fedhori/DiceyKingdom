@@ -1,15 +1,15 @@
-# TECH_ARCHITECTURE
-> 역할: 현재 구현 기준 아키텍처 요약.
+﻿# TECH_ARCHITECTURE
+> ??븷: ?꾩옱 援ы쁽 湲곗? ?꾪궎?띿쿂 ?붿빟.
 
-- 마지막 갱신: `2026-02-23`
+- 留덉?留?媛깆떊: `2026-02-24`
 
 ---
 
-## 1) 계층
+## 1) 怨꾩링
 
 - Domain
   - `DuelState`, `ClashState`, `AbilityInstance`
-  - 순수 상태/계산(`DuelSimulator`)
+  - ?쒖닔 ?곹깭/怨꾩궛(`DuelSimulator`)
 - Application
   - `DuelPhaseRunner`
   - `DuelSessionBuilder`
@@ -17,35 +17,33 @@
   - `AbilityTimedEffectRunner`, `DuelEffectClashResolver`
 - Infrastructure
   - `GameDatabaseLoader`, `GameDataValidator`
-  - StreamingAssets JSON 로딩(Newtonsoft.Json)
+  - StreamingAssets JSON 濡쒕뵫(Newtonsoft.Json)
 - Presentation
   - `DuelDebugPanel`, `DuelAbilityBlockView`
 
 ---
 
-## 2) 데이터 파이프라인
-
-1. `Data/DataIndex.json` 로드
-2. `configs`, `clashes`, `abilities`, `encounters` 순서 파싱
-3. `GameDataValidator` 검증
-4. 성공 시 `GameDataRuntime.CurrentDatabase`에 반영
+## 2) ?곗씠???뚯씠?꾨씪??
+1. `Data/DataIndex.json` 濡쒕뱶
+2. `configs`, `abilities`, `encounters` ?쒖꽌 ?뚯떛
+3. `GameDataValidator` 寃利?4. ?깃났 ??`GameDataRuntime.CurrentDatabase`??諛섏쁺
 
 ---
 
-## 3) 전투 실행 파이프라인
-
+## 3) ?꾪닾 ?ㅽ뻾 ?뚯씠?꾨씪??
 1. `DuelSessionBuilder.TryCreateInitialState`
 2. `DuelPhaseRunner.StartDuel`
-3. `AutoDeployOpponentIntent`
-4. 플레이어 배치
+3. `DuelSessionBuilder.AutoDeployOpponentClash`
+4. ?뚮젅?댁뼱 諛곗튂(`PlayerSetup`)
 5. `DuelTurnProcessor.TryRollAllDeployedAbilities`
-6. `DuelTurnProcessor.TryClashResolveAllClashes`
+6. `DuelTurnProcessor.TryResolveAllClashes`
 
 ---
 
-## 4) 설계 원칙
+## 4) ?ㅺ퀎 ?먯튃
 
-- 신규 전투 데이터 단위는 Ability로 통일
-- 구용어는 신규 코드에서 사용 금지
-- 조용한 자동 보정은 피하고, 필요한 경우 최소 Warning 로그를 남긴다
-- UI 배치는 가능한 한 에디터에서 처리하고 코드 배치는 불가피한 경우만 사용한다
+- ?좉퇋 ?꾪닾 ?곗씠???⑥쐞??Ability濡??듭씪
+- 援ъ슜?대뒗 ?좉퇋 肄붾뱶?먯꽌 ?ъ슜?섏? ?딆쓬
+- 議곗슜???먮룞 蹂댁젙? ?쇳븯怨? ?꾩슂??寃쎌슦 理쒖냼 Warning 濡쒓렇瑜??④?
+- UI 諛곗튂??媛?ν븳 ???먮뵒?곗뿉??泥섎━?섍퀬 肄붾뱶 諛곗튂??遺덇??쇳븳 寃쎌슦留??ъ슜
+

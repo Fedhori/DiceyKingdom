@@ -47,7 +47,6 @@ namespace Game.Tests.EditMode
             Assert.IsNotNull(loaded.database.duelConfig);
             Assert.IsNotNull(loaded.database.runConfig);
             Assert.IsNotNull(loaded.database.playerStart);
-            Assert.AreEqual(3, loaded.database.clashesById.Count);
             Assert.AreEqual(1, loaded.report.ErrorCount);
         }
 

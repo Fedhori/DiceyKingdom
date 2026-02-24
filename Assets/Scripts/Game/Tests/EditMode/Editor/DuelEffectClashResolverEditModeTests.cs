@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Game.Application.Duel.Effects;
 using Game.Domain.Duel;
 using Game.Domain.Modifiers;
+using Game.Infrastructure.Data;
 using NUnit.Framework;
 
 namespace Game.Tests.EditMode
@@ -9,12 +10,13 @@ namespace Game.Tests.EditMode
     public sealed class DuelEffectClashResolverEditModeTests
     {
         [Test]
-        public void ModifyPowerResult_RecomputesCurrentpowerResult()
+        public void ModifyPowerResult_RecomputesCurrentPowerResult()
         {
             var state = CreateDuelState();
             state.abilitiesById["p1"] = new AbilityInstance
             {
                 abilityDefId = "p1",
+                abilityType = AbilityType.Attack,
                 power = 6,
                 baseRoll = 3,
                 powerResult = 3
@@ -37,12 +39,13 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void AddPowerModifier_AffectsRollAttackRange()
+        public void AddPowerModifier_AffectsRollPowerRange()
         {
             var state = CreateDuelState();
             state.abilitiesById["p1"] = new AbilityInstance
             {
                 abilityDefId = "p1",
+                abilityType = AbilityType.Attack,
                 power = 4
             };
 
@@ -89,14 +92,14 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void MoveAbility_Fails_WhenSlotLimitExceeded()
+        public void MoveAbility_Fails_WhenMaxPlayerAssignmentsExceeded()
         {
             var state = CreateDuelState();
             state.abilitiesById["p1"] = CreateAbility("p1", 2);
             state.abilitiesById["p2"] = CreateAbility("p2", 2);
             state.clashes[0].playerAbilityIds.Add("p1");
             state.clashes[1].playerAbilityIds.Add("p2");
-            state.clashes[1].slotLimit = 1;
+            state.clashes[1].maxPlayerAssignments = 1;
 
             var resolver = new DuelEffectClashResolver();
             DuelEffectResult result = resolver.Apply(
@@ -192,6 +195,7 @@ namespace Game.Tests.EditMode
             state.abilitiesById["p1"] = new AbilityInstance
             {
                 abilityDefId = "p1",
+                abilityType = AbilityType.Attack,
                 power = 4,
                 powerModifiers = new List<NumericModifier>
                 {
@@ -302,6 +306,7 @@ namespace Game.Tests.EditMode
             return new AbilityInstance
             {
                 abilityDefId = abilityId,
+                abilityType = AbilityType.Attack,
                 power = 6,
                 baseRoll = powerResult,
                 powerResult = powerResult
@@ -329,5 +334,4 @@ namespace Game.Tests.EditMode
         }
     }
 }
-
 

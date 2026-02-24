@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Game.Domain.Modifiers;
 
 namespace Game.Application.Duel.Effects
@@ -22,3 +22,4 @@ namespace Game.Application.Duel.Effects
         public int amount;
     }
 }
+

@@ -12,11 +12,13 @@ namespace Game.Domain.Duel
         public int opponentHealth;
         public int honor;
         public bool isDuelEnded;
+        public string encounterId = string.Empty;
+        public string currentPatternId = string.Empty;
 
         public List<ClashState> clashes = new();
         public Dictionary<string, AbilityInstance> abilitiesById = new();
-        public List<string> bagAbilityIds = new();
-        public List<IntentEntry> intent = new();
+        public List<string> loadoutAbilityIds = new();
+        public List<OpponentClashLoadoutEntry> opponentClashLoadoutEntries = new();
 
         public DuelState()
         {
@@ -37,16 +39,16 @@ namespace Game.Domain.Duel
                 Debug.LogWarning("[DuelState] abilitiesById was null and has been auto-initialized.");
             }
 
-            if (bagAbilityIds == null)
+            if (loadoutAbilityIds == null)
             {
-                bagAbilityIds = new List<string>();
-                Debug.LogWarning("[DuelState] bagAbilityIds was null and has been auto-initialized.");
+                loadoutAbilityIds = new List<string>();
+                Debug.LogWarning("[DuelState] loadoutAbilityIds was null and has been auto-initialized.");
             }
 
-            if (intent == null)
+            if (opponentClashLoadoutEntries == null)
             {
-                intent = new List<IntentEntry>();
-                Debug.LogWarning("[DuelState] intent was null and has been auto-initialized.");
+                opponentClashLoadoutEntries = new List<OpponentClashLoadoutEntry>();
+                Debug.LogWarning("[DuelState] opponentClashLoadoutEntries was null and has been auto-initialized.");
             }
 
             for (int i = 0; i < clashes.Count; i++)
@@ -63,7 +65,7 @@ namespace Game.Domain.Duel
     }
 
     [Serializable]
-    public sealed class IntentEntry
+    public sealed class OpponentClashLoadoutEntry
     {
         public int clashIndex;
         public string abilityDefId = string.Empty;

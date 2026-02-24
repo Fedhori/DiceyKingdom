@@ -54,7 +54,6 @@ namespace Game.Infrastructure.Data
             ValidateSchemaVersion(dataIndex.schemaVersion, options.dataIndexPath, "data_index", report);
 
             ParseConfigs(database, dataIndex.configs, report);
-            ParseDefCollection(dataIndex.clashes, database.clashesById, database.clashSourcePathById, report);
             ParseDefCollection(dataIndex.abilities, database.abilitiesById, database.abilitySourcePathById, report);
             ParseDefCollection(dataIndex.encounters, database.encountersById, database.encounterSourcePathById, report);
 

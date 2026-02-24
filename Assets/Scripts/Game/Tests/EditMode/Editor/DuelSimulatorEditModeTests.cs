@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Game.Domain.Duel;
 using Game.Domain.Modifiers;
+using Game.Infrastructure.Data;
 using NUnit.Framework;
 
 namespace Game.Tests.EditMode
@@ -69,7 +70,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void RollAbility_UsesRangeFromOneToAttack()
+        public void RollAbility_UsesRangeFromOneToPower()
         {
             var ability = new AbilityInstance
             {
@@ -86,7 +87,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void RollAbility_IncludespowerModifiersBeforeRolling()
+        public void RollAbility_IncludesPowerModifiersBeforeRolling()
         {
             var ability = new AbilityInstance
             {
@@ -110,7 +111,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void ComputeTotalPower_UsespowerResultSumPlusClashBonus()
+        public void ComputeTotalPower_UsesPowerResultSumPlusClashBonus()
         {
             var clash = new ClashState
             {
@@ -127,11 +128,11 @@ namespace Game.Tests.EditMode
                 { "e1", CreateAbility("e1", 2) }
             };
 
-            int playerStrength = DuelSimulator.ComputeTotalPower(clash, abilitiesById, true);
-            int opponentStrength = DuelSimulator.ComputeTotalPower(clash, abilitiesById, false);
+            int playerTotalPower = DuelSimulator.ComputeTotalPower(clash, abilitiesById, true);
+            int opponentTotalPower = DuelSimulator.ComputeTotalPower(clash, abilitiesById, false);
 
-            Assert.AreEqual(7, playerStrength);
-            Assert.AreEqual(5, opponentStrength);
+            Assert.AreEqual(7, playerTotalPower);
+            Assert.AreEqual(5, opponentTotalPower);
         }
 
         [Test]
@@ -144,71 +145,39 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void ClashResolveClashesInOrder_ClashResolvesAllClashesWithoutApplyingHealthDelta()
+        public void ClearModifierLayer_RemovesOnlyRequestedLayer()
         {
             var state = new DuelState
             {
-                playerHealth = 1,
-                opponentHealth = 5
+                abilitiesById = new Dictionary<string, AbilityInstance>
+                {
+                    ["p1"] = new AbilityInstance
+                    {
+                        abilityDefId = "ability.player",
+                        powerModifiers = new List<NumericModifier>
+                        {
+                            new NumericModifier
+                            {
+                                layer = ModifierLayer.Duel,
+                                operation = NumericModifierOperation.Add,
+                                value = 1
+                            },
+                            new NumericModifier
+                            {
+                                layer = ModifierLayer.Permanent,
+                                operation = NumericModifierOperation.Add,
+                                value = 1
+                            }
+                        }
+                    }
+                }
             };
-            AddClashes(state, 3);
 
-            state.abilitiesById["p0"] = CreateAbility("p0", 1);
-            state.abilitiesById["e0"] = CreateAbility("e0", 5);
-            state.abilitiesById["p1"] = CreateAbility("p1", 10);
-            state.abilitiesById["e1"] = CreateAbility("e1", 1);
+            int removedCount = DuelSimulator.ClearModifierLayer(state, ModifierLayer.Duel);
 
-            state.abilitiesById["p0"].powerModifiers.Add(new NumericModifier
-            {
-                layer = ModifierLayer.Duel,
-                operation = NumericModifierOperation.Add,
-                value = 1
-            });
-
-            state.clashes[0].playerAbilityIds.Add("p0");
-            state.clashes[0].opponentAbilityIds.Add("e0");
-            state.clashes[1].playerAbilityIds.Add("p1");
-            state.clashes[1].opponentAbilityIds.Add("e1");
-
-            int resolvedCount = DuelSimulator.ClashResolveClashesInOrder(state);
-
-            Assert.AreEqual(3, resolvedCount);
-            Assert.IsFalse(state.isDuelEnded);
-            Assert.AreEqual(1, state.playerHealth);
-            Assert.AreEqual(5, state.opponentHealth);
-            Assert.AreEqual(1, state.abilitiesById["p0"].powerModifiers.Count);
-        }
-
-        [Test]
-        public void ClashResolveClashesInOrder_DoesNotMutateHealthWhenResolving()
-        {
-            var state = new DuelState
-            {
-                playerHealth = 5,
-                opponentHealth = 5
-            };
-            AddClashes(state, 3);
-
-            state.abilitiesById["p0"] = CreateAbility("p0", 4);
-            state.abilitiesById["e0"] = CreateAbility("e0", 2);
-            state.abilitiesById["p1"] = CreateAbility("p1", 2);
-            state.abilitiesById["e1"] = CreateAbility("e1", 2);
-            state.abilitiesById["p2"] = CreateAbility("p2", 2);
-            state.abilitiesById["e2"] = CreateAbility("e2", 3);
-
-            state.clashes[0].playerAbilityIds.Add("p0");
-            state.clashes[0].opponentAbilityIds.Add("e0");
-            state.clashes[1].playerAbilityIds.Add("p1");
-            state.clashes[1].opponentAbilityIds.Add("e1");
-            state.clashes[2].playerAbilityIds.Add("p2");
-            state.clashes[2].opponentAbilityIds.Add("e2");
-
-            int resolvedCount = DuelSimulator.ClashResolveClashesInOrder(state);
-
-            Assert.AreEqual(3, resolvedCount);
-            Assert.IsFalse(state.isDuelEnded);
-            Assert.AreEqual(5, state.playerHealth);
-            Assert.AreEqual(5, state.opponentHealth);
+            Assert.AreEqual(1, removedCount);
+            Assert.AreEqual(1, state.abilitiesById["p1"].powerModifiers.Count);
+            Assert.AreEqual(ModifierLayer.Permanent, state.abilitiesById["p1"].powerModifiers[0].layer);
         }
 
         static AbilityInstance CreateAbility(string abilityId, int powerResultValue)
@@ -216,19 +185,11 @@ namespace Game.Tests.EditMode
             return new AbilityInstance
             {
                 abilityDefId = abilityId,
+                abilityType = AbilityType.Attack,
                 power = 6,
                 baseRoll = powerResultValue,
                 powerResult = powerResultValue
             };
-        }
-
-        static void AddClashes(DuelState state, int count)
-        {
-            state.clashes.Clear();
-            for (int i = 0; i < count; i++)
-            {
-                state.clashes.Add(new ClashState());
-            }
         }
 
         sealed class FakeRollSource : IRollSource
@@ -252,5 +213,4 @@ namespace Game.Tests.EditMode
         }
     }
 }
-
 

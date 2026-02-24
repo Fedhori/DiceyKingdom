@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Game.Infrastructure.Data;
 using NUnit.Framework;
@@ -19,8 +19,8 @@ namespace Game.Tests.EditMode
             Assert.NotNull(result.database.duelConfig);
             Assert.NotNull(result.database.runConfig);
             Assert.NotNull(result.database.playerStart);
-            Assert.AreEqual(3, result.database.clashesById.Count);
             Assert.Greater(result.database.abilitiesById.Count, 0);
+            Assert.Greater(result.database.encountersById.Count, 0);
         }
 
         [Test]
@@ -34,8 +34,20 @@ namespace Game.Tests.EditMode
   ""enemy"": {
     ""id"": ""enemy.debug"",
     ""health"": 10,
-    ""clashes"": [
-      { ""clashId"": ""clash.1"", ""abilityLoadout"": [ { ""abilityId"": ""ability.missing"", ""count"": 1 } ] }
+    ""startPatternId"": ""pattern.a"",
+    ""patterns"": [
+      {
+        ""patternId"": ""pattern.a"",
+        ""clashes"": [
+          {
+            ""clashId"": ""clash.1"",
+            ""abilityLoadout"": [ { ""abilityId"": ""ability.missing"", ""count"": 1 } ]
+          }
+        ],
+        ""nextPatterns"": [
+          { ""patternId"": ""pattern.a"", ""probability"": 1.0 }
+        ]
+      }
     ]
   }
 }";
@@ -113,7 +125,7 @@ namespace Game.Tests.EditMode
   ""effects"": [
     {
       ""timing"": ""TurnEnd"",
-      ""condition"": { ""type"": ""IsInBag"" },
+      ""condition"": { ""type"": ""IsInLoadout"" },
       ""ops"": [
         { ""op"": ""AddPowerModifier"", ""target"": ""Power"", ""layer"": ""duel"", ""mode"": ""Add"", ""value"": 1 }
       ]
@@ -148,7 +160,6 @@ namespace Game.Tests.EditMode
 @"{
   ""schemaVersion"": 2,
   ""configs"": [""Data/duel.config.json"", ""Data/run.config.json"", ""Data/player.start.json""],
-  ""clashes"": [""Data/clashes/clash.1.json""],
   ""abilities"": [""Data/abilities/ability.1.json""],
   ""encounters"": [""Data/encounters/encounter.1.json""]
 }",
@@ -176,22 +187,7 @@ namespace Game.Tests.EditMode
   ""id"": ""player.start"",
   ""startingHonor"": 3,
   ""startingPlayerHealth"": 10,
-  ""startingBagAbilityIds"": [""ability.1""]
-}",
-                ["Data/clashes/clash.1.json"] =
-@"{
-  ""schemaVersion"": 2,
-  ""id"": ""clash.1"",
-  ""slotLimit"": null,
-  ""damage"": 1,
-  ""tags"": [],
-  ""nameLocKey"": ""clash.1_name"",
-  ""descLocKey"": ""clash.1_desc"",
-  ""outcomeEffects"": {
-    ""Victory"": [],
-    ""Draw"": [],
-    ""Defeat"": []
-  }
+  ""startingLoadoutAbilityIds"": [""ability.1""]
 }",
                 ["Data/abilities/ability.1.json"] =
 @"{
@@ -212,8 +208,20 @@ namespace Game.Tests.EditMode
   ""enemy"": {
     ""id"": ""enemy.debug"",
     ""health"": 10,
-    ""clashes"": [
-      { ""clashId"": ""clash.1"", ""abilityLoadout"": [ { ""abilityId"": ""ability.1"", ""count"": 1 } ] }
+    ""startPatternId"": ""pattern.a"",
+    ""patterns"": [
+      {
+        ""patternId"": ""pattern.a"",
+        ""clashes"": [
+          {
+            ""clashId"": ""clash.1"",
+            ""abilityLoadout"": [ { ""abilityId"": ""ability.1"", ""count"": 1 } ]
+          }
+        ],
+        ""nextPatterns"": [
+          { ""patternId"": ""pattern.a"", ""probability"": 1.0 }
+        ]
+      }
     ]
   }
 }"
@@ -236,7 +244,7 @@ namespace Game.Tests.EditMode
 
             public bool TryReadText(string relativePath, out string json, out string errorMessage)
             {
-                if (!files.TryGetValue(relativePath, out json!))
+                if (!files.TryGetValue(relativePath, out json))
                 {
                     json = string.Empty;
                     errorMessage = $"Not found: {relativePath}";
@@ -249,4 +257,5 @@ namespace Game.Tests.EditMode
         }
     }
 }
+
 

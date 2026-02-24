@@ -1,24 +1,23 @@
 # DATA_SCHEMA
-> 역할: 현재 구현 기준 JSON 스키마 요약.
+> ??븷: ?꾩옱 援ы쁽 湲곗? JSON ?ㅽ궎留??붿빟.
 
-- 마지막 갱신: `2026-02-23`
-- 직렬화: `Newtonsoft.Json` (`JsonUtility` 금지)
+- 留덉?留?媛깆떊: `2026-02-24`
+- 吏곷젹?? `Newtonsoft.Json` (`JsonUtility` 湲덉?)
 
 ---
 
-## 1) 공통 규칙
+## 1) 怨듯넻 洹쒖튃
 
-- 모든 Def 루트는 `schemaVersion` + `id`를 가진다.
-- 참조는 파일 경로가 아니라 ID 문자열로 한다.
-- ID는 점(`.`) 표기법을 사용한다. 예: `ability.miko.assassin`
+- 紐⑤뱺 Def 猷⑦듃??`schemaVersion` + `id`瑜?媛吏꾨떎.
+- 李몄“???뚯씪 寃쎈줈媛 ?꾨땲??ID 臾몄옄?대줈 ?쒕떎.
+- ID????`.`) ?쒓린踰뺤쓣 ?ъ슜?쒕떎. ?? `ability.slash.sword`
 
 ---
 
 ## 2) DataIndex.json
 
-필드:
+?꾨뱶:
 - `configs`
-- `clashes`
 - `abilities`
 - `encounters`
 
@@ -30,14 +29,9 @@
     "Data/run.config.json",
     "Data/player.start.json"
   ],
-  "clashes": [
-    "Data/clashes/clash.peak.json",
-    "Data/clashes/clash.ruins.json",
-    "Data/clashes/clash.forest.json"
-  ],
   "abilities": [
-    "Data/abilities/ability.reservist.json",
-    "Data/abilities/ability.miko.assassin.json"
+    "Data/abilities/ability.slash.sword.json",
+    "Data/abilities/ability.slash.sword.json"
   ],
   "encounters": [
     "Data/encounters/encounter.debug.01.json"
@@ -83,71 +77,56 @@
   "id": "player.start",
   "startingHonor": 3,
   "startingPlayerHealth": 10,
-  "startingBagAbilityIds": [
-    "ability.miko.assassin",
-    "ability.dwarf.cannon"
+  "startingLoadoutAbilityIds": [
+    "ability.slash.sword",
+    "ability.shield.up"
   ]
 }
 ```
 
 ---
 
-## 4) ClashDef
+## 4) AbilityDef
 
-```json
-{
-  "schemaVersion": 2,
-  "id": "clash.peak",
-  "slotLimit": 1,
-  "damage": 2,
-  "tags": ["peak"],
-  "nameLocKey": "clash.peak_name",
-  "descLocKey": "clash.peak_desc",
-  "outcomeEffects": {
-    "Victory": [],
-    "Draw": [],
-    "Defeat": []
-  }
-}
-```
-
----
-
-## 5) AbilityDef
-
-필드:
+?꾨뱶:
 - `type`: `Attack` / `Skill` / `Passive`
-- `buildCost`: 편성 비용
-- `cooldown`: 턴 단위 쿨다운
-- `power`:
-  - Attack 타입: `> 0`
-  - Skill/Passive 타입: `0`
+- `buildCost`: ?몄꽦 鍮꾩슜
+- `cooldown`: ???⑥쐞 荑⑤떎??- `power`:
+  - Attack ??? `> 0`
+  - Skill/Passive ??? `0`
 
 ```json
 {
   "schemaVersion": 2,
-  "id": "ability.miko.assassin",
+  "id": "ability.slash.sword",
   "type": "Attack",
   "buildCost": 0,
   "cooldown": 0,
   "power": 4,
   "tags": ["assassin"],
-  "nameLocKey": "ability.miko.assassin_name",
-  "descLocKey": "ability.miko.assassin_desc",
+  "nameLocKey": "ability.slash.sword_name",
+  "descLocKey": "ability.slash.sword_desc",
   "effects": []
 }
 ```
 
 ---
 
-## 6) EncounterDef
+## 5) EncounterDef
 
-현재 표준:
+?꾩옱 ?쒖?:
 - `enemy.id`
 - `enemy.health`
-- `enemy.clashes[]` (필수, 1개 이상)
-  - `clashId`
-  - `abilityLoadout[]` (`abilityId`, `count`)
+- `enemy.startPatternId`
+- `enemy.patterns[]`
+  - `patternId`
+  - `clashes[]`
+    - `clashId`
+    - `maxPlayerAssignments` (optional)
+    - `abilityLoadout[]` (`abilityId`, `count`)
+  - `nextPatterns[]`
+    - `patternId`
+    - `probability` (?⑷퀎 1.0)
 
 ```json
 {
@@ -156,11 +135,21 @@
   "enemy": {
     "id": "enemy.debug.01",
     "health": 10,
-    "clashes": [
+    "startPatternId": "pattern.opening",
+    "patterns": [
       {
-        "clashId": "clash.peak",
-        "abilityLoadout": [
-          { "abilityId": "ability.test6", "count": 2 }
+        "patternId": "pattern.opening",
+        "clashes": [
+          {
+            "clashId": "clash.peak",
+            "maxPlayerAssignments": 1,
+            "abilityLoadout": [
+              { "abilityId": "ability.slash.sword", "count": 2 }
+            ]
+          }
+        ],
+        "nextPatterns": [
+          { "patternId": "pattern.opening", "probability": 1.0 }
         ]
       }
     ]
@@ -170,7 +159,7 @@
 
 ---
 
-## 7) Effect OpCode (P0)
+## 6) Effect OpCode (P0)
 
 - `ModifyPowerResult`
 - `MoveAbility`
@@ -183,10 +172,11 @@
 - `Power`
 - `PowerResult`
 
-조건 타입(P0):
+議곌굔 ???P0):
 - `Always`
-- `IsInBag`
+- `IsInLoadout`
 - `OpponentCountEquals`
 - `HasTag`
+
 
 

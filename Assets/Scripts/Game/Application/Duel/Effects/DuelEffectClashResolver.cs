@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Game.Domain.Duel;
 using Game.Domain.Modifiers;
@@ -166,20 +166,17 @@ namespace Game.Application.Duel.Effects
             ClashState toClash = state.clashes[toIndex];
             toClash.EnsureInitialized();
 
-            if (toClash.slotLimit.HasValue && toClash.slotLimit.Value <= 0)
-            {
-                return DuelEffectResult.Fail(
-                    DuelEffectFailureReason.InvalidTarget,
-                    $"slotLimit({toClash.slotLimit.Value}) must be greater than zero when specified.");
-            }
-
-            List<string> toList = isPlayerSide ? toClash.playerAbilityIds : toClash.opponentAbilityIds;
-            if (toClash.slotLimit.HasValue && toList.Count >= toClash.slotLimit.Value)
+            if (isPlayerSide &&
+                toClash.maxPlayerAssignments.HasValue &&
+                toClash.maxPlayerAssignments.Value > 0 &&
+                toClash.playerAbilityIds.Count >= toClash.maxPlayerAssignments.Value)
             {
                 return DuelEffectResult.Fail(
                     DuelEffectFailureReason.SlotLimitExceeded,
-                    $"target clash({toIndex}) slotLimit exceeded.");
+                    $"target clash({toIndex}) maxPlayerAssignments exceeded.");
             }
+
+            List<string> toList = isPlayerSide ? toClash.playerAbilityIds : toClash.opponentAbilityIds;
 
             ClashState fromClash = state.clashes[fromIndex];
             fromClash.EnsureInitialized();
@@ -224,10 +221,10 @@ namespace Game.Application.Duel.Effects
                     return false;
                 }
 
-                ClashState explicitField = state.clashes[fromClashIndex];
-                explicitField.EnsureInitialized();
+                ClashState explicitClash = state.clashes[fromClashIndex];
+                explicitClash.EnsureInitialized();
 
-                List<string> explicitList = isPlayerSide ? explicitField.playerAbilityIds : explicitField.opponentAbilityIds;
+                List<string> explicitList = isPlayerSide ? explicitClash.playerAbilityIds : explicitClash.opponentAbilityIds;
                 if (!explicitList.Contains(abilityId))
                 {
                     return false;
@@ -239,10 +236,10 @@ namespace Game.Application.Duel.Effects
 
             for (int i = 0; i < state.clashes.Count; i++)
             {
-                ClashState field = state.clashes[i];
-                field.EnsureInitialized();
+                ClashState clash = state.clashes[i];
+                clash.EnsureInitialized();
 
-                List<string> list = isPlayerSide ? field.playerAbilityIds : field.opponentAbilityIds;
+                List<string> list = isPlayerSide ? clash.playerAbilityIds : clash.opponentAbilityIds;
                 if (!list.Contains(abilityId))
                 {
                     continue;

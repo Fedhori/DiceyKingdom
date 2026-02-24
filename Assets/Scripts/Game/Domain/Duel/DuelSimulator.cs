@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Game.Domain.Modifiers;
 using Game.Infrastructure.Data;
@@ -120,95 +120,6 @@ namespace Game.Domain.Duel
             }
 
             return DuelOutcome.Defeat;
-        }
-
-        public static bool ClashResolveClash(
-            DuelState duelState,
-            int clashIndex,
-            out DuelOutcome outcome,
-            out int playerTotalPower,
-            out int opponentTotalPower)
-        {
-            if (duelState == null)
-            {
-                throw new ArgumentNullException(nameof(duelState));
-            }
-
-            duelState.EnsureInitialized();
-
-            outcome = DuelOutcome.Draw;
-            playerTotalPower = 0;
-            opponentTotalPower = 0;
-
-            if (duelState.isDuelEnded)
-            {
-                Debug.LogWarning("[DuelSimulator] ClashResolveClash rejected: duel already ended.");
-                return false;
-            }
-
-            if (clashIndex < 0 || clashIndex >= duelState.clashes.Count)
-            {
-                Debug.LogWarning($"[DuelSimulator] clashIndex({clashIndex}) was out of range.");
-                return false;
-            }
-
-            ClashState clashState = duelState.clashes[clashIndex];
-            if (clashState == null)
-            {
-                duelState.clashes[clashIndex] = new ClashState();
-                clashState = duelState.clashes[clashIndex];
-                Debug.LogWarning($"[DuelSimulator] clashes[{clashIndex}] was null and has been replaced.");
-            }
-
-            playerTotalPower = ComputeTotalPower(
-                clashState,
-                duelState.abilitiesById,
-                true);
-
-            opponentTotalPower = ComputeTotalPower(
-                clashState,
-                duelState.abilitiesById,
-                false);
-
-            outcome = ComputeOutcome(playerTotalPower, opponentTotalPower);
-            return true;
-        }
-
-        public static int ClashResolveClashesInOrder(DuelState duelState)
-        {
-            if (duelState == null)
-            {
-                throw new ArgumentNullException(nameof(duelState));
-            }
-
-            duelState.EnsureInitialized();
-
-            if (duelState.isDuelEnded)
-            {
-                Debug.LogWarning("[DuelSimulator] ClashResolveClashesInOrder rejected: duel already ended.");
-                return 0;
-            }
-
-            int resolvedCount = 0;
-
-            for (int i = 0; i < duelState.clashes.Count; i++)
-            {
-                bool resolved = ClashResolveClash(
-                    duelState,
-                    i,
-                    out _,
-                    out _,
-                    out _);
-
-                if (!resolved)
-                {
-                    break;
-                }
-
-                resolvedCount += 1;
-            }
-
-            return resolvedCount;
         }
 
         public static int ClearModifierLayer(DuelState duelState, ModifierLayer layer)

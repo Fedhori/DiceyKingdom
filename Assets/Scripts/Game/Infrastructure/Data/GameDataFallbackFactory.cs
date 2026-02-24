@@ -40,38 +40,11 @@ namespace Game.Infrastructure.Data
   ""id"": ""player.start"",
   ""startingHonor"": 3,
   ""startingPlayerHealth"": 10,
-  ""startingBagAbilityIds"": []
+  ""startingLoadoutAbilityIds"": []
 }");
             database.playerStartSourcePath = FallbackSourcePath;
 
-            AddFallbackClashes(database);
             return database;
-        }
-
-        static void AddFallbackClashes(GameDatabase database)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                string id = $"fallback.clash.{i}";
-                ClashDef def = Deserialize<ClashDef>(
-$@"{{
-  ""schemaVersion"": 2,
-  ""id"": ""{id}"",
-  ""slotLimit"": null,
-  ""damage"": 1,
-  ""tags"": [],
-  ""nameLocKey"": ""{id}_name"",
-  ""descLocKey"": ""{id}_desc"",
-  ""outcomeEffects"": {{
-    ""Victory"": [],
-    ""Draw"": [],
-    ""Defeat"": []
-  }}
-}}");
-
-                database.clashesById[id] = def;
-                database.clashSourcePathById[id] = FallbackSourcePath;
-            }
         }
 
         static TDef Deserialize<TDef>(string json)
@@ -87,3 +60,4 @@ $@"{{
         }
     }
 }
+

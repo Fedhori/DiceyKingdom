@@ -3,9 +3,10 @@
 	"id": "player.start",
 	"startingHonor": 3,
 	"startingPlayerHealth": 10,
-	"startingBagAbilityIds": [
-		"ability.miko.assassin",
-		"ability.dwarf.cannon",
-		"ability.ratkin"
+	"startingLoadoutAbilityIds": [
+		"ability.slash.sword",
+		"ability.slash.sword",
+		"ability.slash.sword",
+		"ability.shield.up"
 	]
 }

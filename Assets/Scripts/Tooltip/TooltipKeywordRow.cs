@@ -14,13 +14,13 @@ public sealed class TooltipKeywordRow : MonoBehaviour
     public void Bind(TooltipKeywordEntry entry)
     {
         if (titleText != null)
-            titleText.text = ClashResolve(entry.titleKey, null);
+            titleText.text = ResolveLocalizedText(entry.titleKey, null);
 
         if (bodyText != null)
-            bodyText.text = ClashResolve(entry.bodyKey, entry.arguments);
+            bodyText.text = ResolveLocalizedText(entry.bodyKey, entry.arguments);
     }
 
-    static string ClashResolve(string key, Dictionary<string, object> args)
+    static string ResolveLocalizedText(string key, Dictionary<string, object> args)
     {
         if (string.IsNullOrEmpty(key))
             return string.Empty;

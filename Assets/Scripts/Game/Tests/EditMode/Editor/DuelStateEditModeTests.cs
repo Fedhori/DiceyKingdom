@@ -13,8 +13,8 @@ namespace Game.Tests.EditMode
 
             Assert.NotNull(state.clashes);
             Assert.NotNull(state.abilitiesById);
-            Assert.NotNull(state.bagAbilityIds);
-            Assert.NotNull(state.intent);
+            Assert.NotNull(state.loadoutAbilityIds);
+            Assert.NotNull(state.opponentClashLoadoutEntries);
         }
 
         [Test]

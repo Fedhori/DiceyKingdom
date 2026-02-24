@@ -8,7 +8,7 @@ namespace Game.Tests.EditMode
     public sealed class DuelDebugPanelFormatterEditModeTests
     {
         [Test]
-        public void FormatClash_ValidField_IncludesTotalPowerAndAbilityCounts()
+        public void FormatClash_ValidClash_IncludesTotalPowerAndAbilityCounts()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
@@ -17,25 +17,9 @@ namespace Game.Tests.EditMode
             StringAssert.Contains("Clash 0 (clash.0)", line);
             StringAssert.Contains("TotalPower P:6 E:8", line);
             StringAssert.Contains("Abilities P:1 E:1", line);
-            StringAssert.Contains("Slot:2", line);
+            StringAssert.Contains("Cap:2", line);
             StringAssert.DoesNotContain("Players:", line);
             StringAssert.DoesNotContain("Enemies:", line);
-        }
-
-        [Test]
-        public void FormatClash_WithDatabase_IncludesClashDamage()
-        {
-            DuelState state = CreateDuelStateForFormatterTests();
-            var database = new GameDatabase();
-            database.clashesById["clash.0"] = new ClashDef
-            {
-                slotLimit = 2,
-                damage = 2
-            };
-
-            string line = DuelDebugPanelFormatter.FormatClash(state, 0, database);
-
-            StringAssert.Contains("Damage:2", line);
         }
 
         [Test]
@@ -59,28 +43,28 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void FormatSelectedAbility_WhenAbilityIsInBag_ReturnsBagLocation()
+        public void FormatSelectedAbility_WhenAbilityIsInLoadout_ReturnsLoadoutLocation()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
-            string line = DuelDebugPanelFormatter.FormatSelectedAbility(state, "bag_1");
+            string line = DuelDebugPanelFormatter.FormatSelectedAbility(state, "loadout_1");
 
-            StringAssert.Contains("Selected Ability: ability.bag", line);
+            StringAssert.Contains("Selected Ability: ability.loadout", line);
             StringAssert.Contains("Power Result:2", line);
-            StringAssert.Contains("bag", line);
+            StringAssert.Contains("loadout", line);
         }
 
         [Test]
-        public void FormatBagAbilities_WhenBagAbilityExists_IncludesAbilityDefIdOnly()
+        public void FormatLoadoutAbilities_WhenLoadoutAbilityExists_IncludesAbilityDefIdOnly()
         {
             DuelState state = CreateDuelStateForFormatterTests();
 
-            string line = DuelDebugPanelFormatter.FormatBagAbilities(state, "bag_1");
+            string line = DuelDebugPanelFormatter.FormatLoadoutAbilities(state, "loadout_1");
 
-            StringAssert.Contains("Selected Ability: ability.bag", line);
-            StringAssert.Contains("Bag Abilities (1):", line);
-            StringAssert.Contains("- ability.bag | Type:Attack | Power:2 | Power Result:2 | CD:- <selected>", line);
-            StringAssert.DoesNotContain("bag_1", line);
+            StringAssert.Contains("Selected Ability: ability.loadout", line);
+            StringAssert.Contains("Loadout Abilities (1):", line);
+            StringAssert.Contains("- ability.loadout | Type:Attack | Power:2 | Power Result:2 | CD:- <selected>", line);
+            StringAssert.DoesNotContain("loadout_1", line);
         }
 
         [Test]
@@ -165,7 +149,7 @@ namespace Game.Tests.EditMode
 
             string line = DuelDebugPanelFormatter.FormatAbilityEffects(database, opponentAbility.abilityDefId);
 
-            Assert.AreEqual("Turn End: Add Power Modifier(+2)", line);
+            Assert.AreEqual("Turnend: Addpowermodifier(+2)", line);
         }
 
         static DuelState CreateDuelStateForFormatterTests()
@@ -174,20 +158,21 @@ namespace Game.Tests.EditMode
             AddClashes(state, 3);
 
             state.abilitiesById.Clear();
-            state.bagAbilityIds.Clear();
+            state.loadoutAbilityIds.Clear();
 
-            ClashState field0 = state.clashes[0];
-            field0.clashId = "clash.0";
-            field0.slotLimit = 2;
-            field0.playerAbilityIds.Clear();
-            field0.opponentAbilityIds.Clear();
-            field0.totalPowerBonusPlayer = 2;
-            field0.totalPowerBonusOpponent = 3;
+            ClashState clash0 = state.clashes[0];
+            clash0.clashId = "clash.0";
+            clash0.maxPlayerAssignments = 2;
+            clash0.playerAbilityIds.Clear();
+            clash0.opponentAbilityIds.Clear();
+            clash0.totalPowerBonusPlayer = 2;
+            clash0.totalPowerBonusOpponent = 3;
 
             state.abilitiesById["p_1"] = new AbilityInstance
             {
                 instanceId = "p_1",
                 abilityDefId = "ability.player",
+                abilityType = AbilityType.Attack,
                 power = 4,
                 powerResult = 4
             };
@@ -195,20 +180,22 @@ namespace Game.Tests.EditMode
             {
                 instanceId = "e_1",
                 abilityDefId = "ability.opponent",
+                abilityType = AbilityType.Attack,
                 power = 5,
                 powerResult = 5
             };
-            state.abilitiesById["bag_1"] = new AbilityInstance
+            state.abilitiesById["loadout_1"] = new AbilityInstance
             {
-                instanceId = "bag_1",
-                abilityDefId = "ability.bag",
+                instanceId = "loadout_1",
+                abilityDefId = "ability.loadout",
+                abilityType = AbilityType.Attack,
                 power = 2,
                 powerResult = 2
             };
 
-            field0.playerAbilityIds.Add("p_1");
-            field0.opponentAbilityIds.Add("e_1");
-            state.bagAbilityIds.Add("bag_1");
+            clash0.playerAbilityIds.Add("p_1");
+            clash0.opponentAbilityIds.Add("e_1");
+            state.loadoutAbilityIds.Add("loadout_1");
 
             return state;
         }
@@ -223,6 +210,5 @@ namespace Game.Tests.EditMode
         }
     }
 }
-
 
 

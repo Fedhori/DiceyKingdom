@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!29 &1
 OcclusionCullingSettings:
@@ -273,7 +273,7 @@ GameObject:
   - component: {fileID: 47240634}
   - component: {fileID: 47240635}
   m_Layer: 0
-  m_Name: BagAbilityBlockRoot
+  m_Name: LoadoutAbilityBlockRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3069,12 +3069,12 @@ MonoBehaviour:
   rollButton: {fileID: 2042133610}
   resolveButton: {fileID: 984600739}
   surrenderButton: {fileID: 1603561871}
-  selectFirstBagAbilityButton: {fileID: 2016209301}
+  selectFirstLoadoutAbilityButton: {fileID: 2016209301}
   selectClash0Button: {fileID: 1942361365}
   selectClash1Button: {fileID: 1522615215}
   selectClash2Button: {fileID: 857537005}
   abilityBlockPrefab: {fileID: 9144978796006276345, guid: 0d23f3cc00c252945b718ff1bda74455, type: 3}
-  bagAbilityBlockRoot: {fileID: 47240633}
+  loadoutAbilityBlockRoot: {fileID: 47240633}
   clashPlayerAbilityBlockRoots:
   - {fileID: 1930731576}
   - {fileID: 1634826987}
@@ -7718,7 +7718,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Clash Resolve
+  m_text: Resolve
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 746f86218c845bb49a98169d005126fe, type: 2}
   m_sharedMaterial: {fileID: 645271727}
@@ -8458,7 +8458,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Select First Bag Ability
+  m_text: Select First Loadout Ability
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 746f86218c845bb49a98169d005126fe, type: 2}
   m_sharedMaterial: {fileID: 697323382}
@@ -8821,7 +8821,7 @@ GameObject:
   - component: {fileID: 2016209301}
   - component: {fileID: 2016209300}
   m_Layer: 0
-  m_Name: SelectFirstBagAbilityButton
+  m_Name: SelectFirstLoadoutAbilityButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9876,3 +9876,10 @@ SceneRoots:
   - {fileID: 617915112}
   - {fileID: 1831022632}
   - {fileID: 2114596191}
+
+
+
+
+
+
+

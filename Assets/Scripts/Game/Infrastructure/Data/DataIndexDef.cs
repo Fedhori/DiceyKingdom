@@ -12,9 +12,6 @@ namespace Game.Infrastructure.Data
         [JsonProperty("configs", Required = Required.Always)]
         public List<string> configs = new();
 
-        [JsonProperty("clashes", Required = Required.Always)]
-        public List<string> clashes = new();
-
         [JsonProperty("abilities", Required = Required.Always)]
         public List<string> abilities = new();
 

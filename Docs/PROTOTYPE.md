@@ -1,48 +1,49 @@
-# PROTOTYPE
-> 역할: 프로토타입 단계 목표/범위/진행 상태 관리.
+﻿# PROTOTYPE
+> ??븷: ?꾨줈?좏????④퀎 紐⑺몴/踰붿쐞/吏꾪뻾 ?곹깭 愿由?
 
-- 마지막 갱신: `2026-02-23`
-
----
-
-## 1) 현재 방향
-
-- 프로젝트명: `Free or Die`
-- 컨셉: 군대 전장형이 아니라 투기장 1:1 결투형
-- 핵심 단위: `Ability`
-- 적 배치 정보: `Intent`
-- 미배치 영역: `Bag`
-- 후퇴 용어: `Surrender`
-- 전투 중 소모 자원: 사용하지 않음
+- 留덉?留?媛깆떊: `2026-02-24`
 
 ---
 
-## 2) 완료된 핵심 작업
+## 1) ?꾩옱 諛⑺뼢
 
-- Ability 도메인 모델/효과 처리 기본 경로 동작
-- Duel 페이즈 오케스트레이션(Reset~Resolve)
-- GameScene 최소 디버그 패널 연동
-- 적 자동 배치 fallback(선호 Clash 실패 시 다른 Clash 탐색)
-- EditMode 테스트 53개 통과
-
----
-
-## 3) 다음 작업 우선순위
-
-1. UI/프리팹 정리
-2. Ability 타입별 실제 효과 확장(Attack/Skill/Passive)
-3. Encounter/Enemy 스케일 확장(다양한 Clash 구성)
-4. 메타 진행(Reward/Maintenance) 최소 루프
+- ?꾨줈?앺듃紐? `Free or Die`
+- 而⑥뀎: ?ш린??1:1 寃고닾
+- ?듭떖 ?⑥쐞: `Ability`
+- ??怨꾪쉷 ?⑥쐞: `Clash`
+- 誘몃같移??곸뿭: `Loadout`
+- ?꾪닾 以??뚮え ?먯썝: ?놁쓬
 
 ---
 
-## 4) 검증 기준
+## 2) ?꾨즺???듭떖 ?묒뾽
 
-- 컴파일 에러 0
-- EditMode 테스트 전부 통과
-- GameScene 수동 검증:
+- Domain/Application ?덉씠?대? `Clash + Pattern` 紐⑤뜽濡?留덉씠洹몃젅?댁뀡
+- Resolve ?쇳빐 怨듭떇??怨좎젙: `Total Power` 李⑥씠媛?吏곸젒 ?쇳빐
+- Turn End 泥섎━ 怨좎젙: 荑⑤떎??媛먯냼, TurnEnd ?④낵, Loadout 蹂듦?, Pattern ?꾩씠
+- Data schema 留덉씠洹몃젅?댁뀡: `DataIndex(援??꾩옣 紐⑸줉 ?꾨뱶 ?쒓굅)`, `player.start(startingLoadoutAbilityIds)`, `encounter(patterns/clashes/nextPatterns)`
+- Debug formatter/?⑤꼸 ?띿뒪?몃? `Clash/Loadout` 湲곗??쇰줈 ?뺣━
+
+---
+
+## 3) ?ㅼ쓬 ?묒뾽 ?곗꽑?쒖쐞
+
+1. GameScene UI 諛붿씤???먭?(由щ꽕?꾨맂 ?꾨뱶 吏곷젹???뺤씤)
+2. Skill/Passive ?ㅼ젣 ?ъ슜 ?뚮줈???뺤옣
+3. Enemy Pattern ?ㅼ뼇???⑦꽩 ?꾩씠/?섎룄 議고빀)
+4. 硫뷀? 猷⑦봽 理쒖냼??蹂댁긽/吏꾪뻾)
+
+---
+
+## 4) 寃利?湲곗?
+
+- 而댄뙆???먮윭 0
+- EditMode ?뚯뒪???꾨? ?듦낵
+- GameScene ?섎룞 寃利?
   - Start Duel
-  - PlayerSetup 배치
+  - PlayerSetup 諛곗튂
   - Roll
   - Resolve
   - Surrender
+
+

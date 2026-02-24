@@ -1,26 +1,37 @@
-{
+﻿{
 	"schemaVersion": 2,
 	"id": "encounter.debug.01",
 	"enemy": {
 		"id": "enemy.debug.01",
 		"health": 10,
-		"clashes": [
+		"startPatternId": "pattern.opening",
+		"patterns": [
 			{
-				"clashId": "clash.peak",
-				"abilityLoadout": [
-					{ "abilityId": "ability.test6", "count": 2 }
+				"patternId": "pattern.opening",
+				"clashes": [
+					{
+						"clashId": "clash.peak",
+						"maxPlayerAssignments": 1,
+						"abilityLoadout": [
+							{ "abilityId": "ability.slash.sword", "count": 2 }
+						]
+					},
+					{
+						"clashId": "clash.ruins",
+						"abilityLoadout": [
+							{ "abilityId": "ability.slash.sword", "count": 1 }
+						]
+					},
+					{
+						"clashId": "clash.forest",
+						"abilityLoadout": []
+					}
+				],
+				"nextPatterns": [
+					{ "patternId": "pattern.opening", "probability": 1.0 }
 				]
-			},
-			{
-				"clashId": "clash.ruins",
-				"abilityLoadout": [
-					{ "abilityId": "ability.test6", "count": 1 }
-				]
-			},
-			{
-				"clashId": "clash.forest",
-				"abilityLoadout": []
 			}
 		]
 	}
 }
+

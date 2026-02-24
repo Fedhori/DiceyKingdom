@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Game.Domain.Duel;
 using Game.Domain.Modifiers;
@@ -77,7 +77,7 @@ namespace Game.Application.Duel.Effects
                             continue;
                         }
 
-                        List<AbilityRuntimeContext> targets = ClashResolveTargets(contexts, sourceContext, opDef);
+                        List<AbilityRuntimeContext> targets = ResolveTargets(contexts, sourceContext, opDef);
                         if (targets.Count <= 0)
                         {
                             skippedCount += 1;
@@ -145,7 +145,7 @@ namespace Game.Application.Duel.Effects
             {
                 case "Always":
                     return true;
-                case "IsInBag":
+                case "IsInLoadout":
                     return sourceContext.clashIndex < 0;
                 case "OpponentCountEquals":
                 {
@@ -192,7 +192,7 @@ namespace Game.Application.Duel.Effects
             }
         }
 
-        static List<AbilityRuntimeContext> ClashResolveTargets(
+        static List<AbilityRuntimeContext> ResolveTargets(
             List<AbilityRuntimeContext> contexts,
             AbilityRuntimeContext sourceContext,
             EffectOpDef opDef)
@@ -465,15 +465,15 @@ namespace Game.Application.Duel.Effects
             var contexts = new List<AbilityRuntimeContext>();
             var visitedAbilityIds = new HashSet<string>(StringComparer.Ordinal);
 
-            if (state.bagAbilityIds != null)
+            if (state.loadoutAbilityIds != null)
             {
-                for (int i = 0; i < state.bagAbilityIds.Count; i++)
+                for (int i = 0; i < state.loadoutAbilityIds.Count; i++)
                 {
                     TryAddContext(
                         contexts,
                         visitedAbilityIds,
                         state,
-                        state.bagAbilityIds[i],
+                        state.loadoutAbilityIds[i],
                         true,
                         -1);
                 }
@@ -573,4 +573,7 @@ namespace Game.Application.Duel.Effects
         }
     }
 }
+
+
+
 

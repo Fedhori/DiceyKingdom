@@ -5,17 +5,9 @@
     "Data/run.config.json",
     "Data/player.start.json"
   ],
-  "clashes": [
-    "Data/clashes/clash.peak.json",
-    "Data/clashes/clash.ruins.json",
-    "Data/clashes/clash.forest.json"
-  ],
   "abilities": [
-    "Data/abilities/ability.reservist.json",
-    "Data/abilities/ability.miko.assassin.json",
-    "Data/abilities/ability.dwarf.cannon.json",
-    "Data/abilities/ability.ratkin.json",
-    "Data/abilities/ability.test6.json"
+    "Data/abilities/ability.slash.sword.json",
+    "Data/abilities/ability.shield.up.json"
   ],
   "encounters": [
     "Data/encounters/encounter.debug.01.json"

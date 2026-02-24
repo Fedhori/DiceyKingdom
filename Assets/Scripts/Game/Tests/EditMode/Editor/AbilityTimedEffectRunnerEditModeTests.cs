@@ -18,6 +18,7 @@ namespace Game.Tests.EditMode
             {
                 instanceId = "p_miko",
                 abilityDefId = "ability.miko.assassin",
+                abilityType = AbilityType.Attack,
                 power = 4,
                 baseRoll = 4,
                 powerResult = 4
@@ -26,6 +27,7 @@ namespace Game.Tests.EditMode
             {
                 instanceId = "e_rat",
                 abilityDefId = "ability.ratkin",
+                abilityType = AbilityType.Attack,
                 power = 2,
                 baseRoll = 2,
                 powerResult = 2
@@ -51,6 +53,7 @@ namespace Game.Tests.EditMode
             {
                 instanceId = "p_miko",
                 abilityDefId = "ability.miko.assassin",
+                abilityType = AbilityType.Attack,
                 power = 4,
                 baseRoll = 4,
                 powerResult = 4
@@ -59,6 +62,7 @@ namespace Game.Tests.EditMode
             {
                 instanceId = "e_rat",
                 abilityDefId = "ability.ratkin",
+                abilityType = AbilityType.Attack,
                 power = 2,
                 baseRoll = 2,
                 powerResult = 2
@@ -84,6 +88,7 @@ namespace Game.Tests.EditMode
             {
                 instanceId = "p_dwarf",
                 abilityDefId = "ability.dwarf.cannon",
+                abilityType = AbilityType.Attack,
                 power = 4,
                 baseRoll = 3,
                 powerResult = 3
@@ -92,6 +97,7 @@ namespace Game.Tests.EditMode
             {
                 instanceId = "e_a",
                 abilityDefId = "ability.ratkin",
+                abilityType = AbilityType.Attack,
                 power = 2,
                 baseRoll = 2,
                 powerResult = 2
@@ -100,6 +106,7 @@ namespace Game.Tests.EditMode
             {
                 instanceId = "e_b",
                 abilityDefId = "ability.ratkin",
+                abilityType = AbilityType.Attack,
                 power = 2,
                 baseRoll = 1,
                 powerResult = 1
@@ -117,28 +124,29 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void ApplyForTiming_TurnEnd_ReservistInBag_AddsDuelPowerModifier()
+        public void ApplyForTiming_TurnEnd_ReservistInLoadout_AddsDuelPowerModifier()
         {
             GameDatabase database = CreateDatabase();
             DuelState state = CreateDuelState();
 
-            state.abilitiesById["p_reserve"] = new AbilityInstance
+            state.abilitiesById["p_loadout"] = new AbilityInstance
             {
-                instanceId = "p_reserve",
+                instanceId = "p_loadout",
                 abilityDefId = "ability.reservist",
+                abilityType = AbilityType.Attack,
                 power = 2,
                 baseRoll = 0,
                 powerResult = 0
             };
-            state.bagAbilityIds.Add("p_reserve");
+            state.loadoutAbilityIds.Add("p_loadout");
 
             var runner = new AbilityTimedEffectRunner(database);
             AbilityTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.TurnEnd);
 
             Assert.AreEqual(1, result.appliedCount);
             Assert.AreEqual(0, result.failedCount);
-            Assert.AreEqual(1, state.abilitiesById["p_reserve"].powerModifiers.Count);
-            Assert.AreEqual(2, state.abilitiesById["p_reserve"].powerModifiers[0].value);
+            Assert.AreEqual(1, state.abilitiesById["p_loadout"].powerModifiers.Count);
+            Assert.AreEqual(2, state.abilitiesById["p_loadout"].powerModifiers[0].value);
         }
 
         static GameDatabase CreateDatabase()
@@ -217,7 +225,7 @@ namespace Game.Tests.EditMode
                         timing = "TurnEnd",
                         condition = new ConditionDef
                         {
-                            type = "IsInBag"
+                            type = "IsInLoadout"
                         },
                         ops = new List<EffectOpDef>
                         {
@@ -252,10 +260,10 @@ namespace Game.Tests.EditMode
                 playerHealth = 10,
                 opponentHealth = 10
             };
-            AddClashes(state, 3);
 
+            AddClashes(state, 3);
             state.abilitiesById.Clear();
-            state.bagAbilityIds.Clear();
+            state.loadoutAbilityIds.Clear();
             return state;
         }
 

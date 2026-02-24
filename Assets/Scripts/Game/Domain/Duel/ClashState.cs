@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,7 +8,7 @@ namespace Game.Domain.Duel
     public sealed class ClashState
     {
         public string clashId = string.Empty;
-        public int? slotLimit;
+        public int? maxPlayerAssignments;
 
         public List<string> playerAbilityIds = new();
         public List<string> opponentAbilityIds = new();
@@ -32,4 +32,5 @@ namespace Game.Domain.Duel
         }
     }
 }
+
 
