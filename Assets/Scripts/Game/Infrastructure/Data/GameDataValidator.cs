@@ -186,7 +186,7 @@ namespace Game.Infrastructure.Data
                         GameDataErrorCode.InvalidEnum,
                         path,
                         id,
-                        $"type '{def.type}' is invalid. Allowed: {AbilityType.Attack}, {AbilityType.Skill}, {AbilityType.Passive}.");
+                        $"type '{def.type}' is invalid. Allowed: {AbilityType.Attack}, {AbilityType.Skill}.");
                     continue;
                 }
 

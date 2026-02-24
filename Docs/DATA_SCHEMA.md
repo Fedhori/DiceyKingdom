@@ -91,12 +91,12 @@
 ## 4) AbilityDef
 
 필드:
-- `type`: `Attack` / `Skill` / `Passive`
+- `type`: `Attack` / `Skill`
 - `buildCost`: 편성 비용
 - `cooldown`: 턴 단위 쿨다운
 - `power`:
   - Attack 타입: `> 0`
-  - Skill/Passive 타입: `0` 가능
+  - Skill 타입: `0` 가능
 
 ```json
 {

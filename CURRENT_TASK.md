@@ -20,7 +20,7 @@
    - 슬롯은 중앙 정렬
    - `TOTAL POWER`는 슬롯과 분리된 전용 영역(메탈릭 직사각형)으로 표시
 7. Combat Zone에는 `Attack` 타입만 배치 가능하다.
-8. `Passive` 카드는 현재 화면에서 숨긴다. (표시/배치 모두 제외)
+8. `Talent` UI는 이번 작업 범위에서 제외한다.
 
 ## 카드 UI 규칙
 1. 카드 크기: 세로가 더 긴 직사각형.
@@ -28,7 +28,6 @@
 3. 타입별 테두리 색상:
    - `Attack`: RED
    - `Skill`: BLUE
-   - `Passive`: GREEN
 4. Power는 카드 우하단 원형 배지로 표시한다.
 5. 아이콘은 `iconId -> Sprite` 매핑으로 렌더한다.
 
@@ -50,7 +49,7 @@
 6. 규칙 연결
    - Combat 슬롯은 Attack-only
    - Skill은 대기열에서만 보이고 Combat 배치 불가
-   - Passive는 렌더 제외
+   - Talent는 별도 시스템으로 분리 예정 (현 단계 미표시)
 7. 툴팁 연결 (Hover only)
    - 표시: 이름, 설명, 타입, Power
 
@@ -63,4 +62,4 @@
    - TOTAL POWER가 슬롯과 겹치지 않는지 확인
    - `COMBAT START` 동작 확인
    - `SURRENDER` 즉시 처리 확인
-   - Passive 비표시 확인
+   - Talent UI 비노출 확인

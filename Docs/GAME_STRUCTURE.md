@@ -101,10 +101,11 @@
 
 ## 6) Ability 시스템 (현재 기준)
 
-- Ability 타입: `Attack / Skill / Passive`
+- Ability 타입: `Attack / Skill`
 - Attack: Combat에 배치되고 Roll/Resolve에 직접 기여
 - Skill: 설계상 지원하되, 상세 발동 규칙은 확장 단계에서 고정
-- Passive: 상시/조건부 효과로 적용
+- Passive 타입은 Ability에서 제거되었다.
+- Talent는 Ability와 별도 시스템으로 분리 설계한다. (구현 전, 아이디어는 `Docs/BRAINSTORMING.md`에서 관리)
 - 현재 프로토타입의 기본 검증은 Attack 중심으로 진행
 
 ---
