@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Game.Application.Duel;
 using Game.Domain.Duel;
 using Game.Infrastructure.Data;
+using Game.Presentation.Battle;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -55,24 +56,12 @@ namespace Game.Presentation.Debug
         [SerializeField] int maxLogEntryCount = 200;
         [SerializeField] int maxLogLineLength = 220;
 
-        DuelState duelState;
-        DuelPhaseRunner phaseRunner;
-        DuelSessionBuilder sessionBuilder;
-        DuelTurnProcessor turnProcessor;
-
-        string selectedAbilityId = string.Empty;
-        int selectedCombatIndex = -1;
+        readonly BattleSessionRunner sessionRunner = new();
+        readonly BattleSelectionState selectionState = new();
         readonly List<string> logEntries = new();
 
-        enum AbilityLocationType
-        {
-            None = 0,
-            Loadout = 1,
-            Combat = 2
-        }
-
-        public DuelState DuelState => duelState;
-        public DuelPhaseRunner PhaseRunner => phaseRunner;
+        public DuelState DuelState => sessionRunner.DuelState;
+        public DuelPhaseRunner PhaseRunner => sessionRunner.PhaseRunner;
 
         void Awake()
         {
@@ -89,24 +78,20 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            sessionBuilder = new DuelSessionBuilder(database);
-            turnProcessor = new DuelTurnProcessor(database);
-
-            if (!sessionBuilder.TryCreateInitialState(debugEnemyId, out DuelState state, out string failureMessage))
+            if (!sessionRunner.TryInitialize(database, debugEnemyId, advanceToPlayerSetup: false, out string failureMessage))
             {
                 RejectCommand("StartDuel", failureMessage);
                 return;
             }
 
-            duelState = state;
-            phaseRunner = new DuelPhaseRunner(duelState);
-            if (!phaseRunner.StartDuel())
+            selectionState.ClearAll();
+
+            if (!sessionRunner.TryAutoDeployOpponent(out OpponentSetupBuildResult deployResult, out string deployFailure))
             {
-                RejectCommand("StartDuel", phaseRunner.LastFailureReason.ToString());
+                RejectCommand("StartDuel", deployFailure);
                 return;
             }
 
-            OpponentSetupBuildResult deployResult = sessionBuilder.AutoDeployOpponentCombat(duelState);
             AppendLog($"Opponent auto deploy complete: deployed={deployResult.deployedCount}, skipped={deployResult.skippedCount}");
             AppendLog($"StartDuel success: enemy={debugEnemyId}");
             RefreshView();
@@ -120,19 +105,12 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            if (phaseRunner.currentPhase != DuelPhase.Reset)
+            if (!sessionRunner.TryEnterOpponentSetup(out OpponentSetupBuildResult deployResult, out string setupFailure))
             {
-                RejectCommand("OpponentSetup", $"current phase is {phaseRunner.currentPhase}, required phase is {DuelPhase.Reset}.");
+                RejectCommand("OpponentSetup", setupFailure);
                 return;
             }
 
-            if (!phaseRunner.AdvanceToNextPhase())
-            {
-                RejectCommand("OpponentSetup", phaseRunner.LastFailureReason.ToString());
-                return;
-            }
-
-            OpponentSetupBuildResult deployResult = sessionBuilder.AutoDeployOpponentCombat(duelState);
             AppendLog($"OpponentSetup success: deployed={deployResult.deployedCount}, skipped={deployResult.skippedCount}");
             RefreshView();
         }
@@ -145,15 +123,9 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            if (phaseRunner.currentPhase != DuelPhase.OpponentSetup)
+            if (!sessionRunner.TryEnterPlayerSetup(out string setupFailure))
             {
-                RejectCommand("PlayerSetup", $"current phase is {phaseRunner.currentPhase}, required phase is {DuelPhase.OpponentSetup}.");
-                return;
-            }
-
-            if (!phaseRunner.AdvanceToNextPhase())
-            {
-                RejectCommand("PlayerSetup", phaseRunner.LastFailureReason.ToString());
+                RejectCommand("PlayerSetup", setupFailure);
                 return;
             }
 
@@ -169,17 +141,7 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            if (turnProcessor == null)
-            {
-                RejectCommand("Roll", "turn processor is not initialized.");
-                return;
-            }
-
-            if (!turnProcessor.TryRollAllDeployedAbilities(
-                    duelState,
-                    phaseRunner,
-                    out DuelRollResult rollResult,
-                    out string rollFailureMessage))
+            if (!sessionRunner.TryRoll(out DuelRollResult rollResult, out string rollFailureMessage))
             {
                 RejectCommand("Roll", rollFailureMessage);
                 return;
@@ -197,17 +159,7 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            if (turnProcessor == null)
-            {
-                RejectCommand("Resolve", "turn processor is not initialized.");
-                return;
-            }
-
-            if (!turnProcessor.TryResolveAllCombats(
-                    duelState,
-                    phaseRunner,
-                    out DuelCombatResolveResult resolveResult,
-                    out string resolveFailureMessage))
+            if (!sessionRunner.TryResolve(out DuelCombatResolveResult resolveResult, out string resolveFailureMessage))
             {
                 RejectCommand("Resolve", resolveFailureMessage);
                 return;
@@ -232,14 +184,13 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            if (!phaseRunner.TrySurrender())
+            if (!sessionRunner.TrySurrender(out string surrenderFailure))
             {
-                RejectCommand("Surrender", phaseRunner.LastFailureReason.ToString());
+                RejectCommand("Surrender", surrenderFailure);
                 return;
             }
 
-            selectedAbilityId = string.Empty;
-            selectedCombatIndex = -1;
+            selectionState.ClearAll();
             AppendLog("Surrender success: duel ended.");
             RefreshView();
         }
@@ -252,6 +203,7 @@ namespace Game.Presentation.Debug
                 return;
             }
 
+            DuelState duelState = sessionRunner.DuelState;
             if (duelState.loadoutAbilityIds == null || duelState.loadoutAbilityIds.Count <= 0)
             {
                 RejectCommand("SelectFirstLoadoutAbility", "no ability exists in loadout.");
@@ -284,13 +236,18 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            if (!TryMovePlayerAbilityToCombat(selectedAbilityId, selectedCombatIndex, out string moveLog, out string moveError))
+            if (!selectionState.TryMovePlayerAbilityToCombat(
+                    sessionRunner.DuelState,
+                    sessionRunner.PhaseRunner,
+                    selectionState.SelectedAbilityId,
+                    selectionState.SelectedCombatIndex,
+                    out string moveError))
             {
                 RejectCommand("DeploySelected", moveError);
                 return;
             }
 
-            AppendLog($"DeploySelected success: {moveLog}");
+            AppendLog($"DeploySelected success: {BuildMoveLog()}");
             RefreshView();
         }
 
@@ -302,28 +259,10 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(abilityId))
+            if (!selectionState.TrySelectAbility(sessionRunner.DuelState, abilityId, out string selectFailure))
             {
-                RejectCommand("SelectAbility", "abilityId is empty.");
+                RejectCommand("SelectAbility", selectFailure);
                 return;
-            }
-
-            if (!duelState.abilitiesById.ContainsKey(abilityId))
-            {
-                RejectCommand("SelectAbility", $"abilityId({abilityId}) does not exist.");
-                return;
-            }
-
-            if (!TryFindPlayerAbilityLocation(abilityId, out AbilityLocationType locationType, out int combatIndex))
-            {
-                RejectCommand("SelectAbility", $"abilityId({abilityId}) is not in player controllable zones.");
-                return;
-            }
-
-            selectedAbilityId = abilityId;
-            if (locationType == AbilityLocationType.Combat)
-            {
-                selectedCombatIndex = combatIndex;
             }
 
             AppendLog($"Ability selected: {ResolveAbilityDefIdForDisplay(abilityId)}");
@@ -338,23 +277,27 @@ namespace Game.Presentation.Debug
                 return;
             }
 
-            if (combatIndex < 0 || combatIndex >= duelState.combats.Count)
+            if (!selectionState.TrySetSelectedCombat(sessionRunner.DuelState, combatIndex, out string selectFailure))
             {
-                RejectCommand("SelectCombat", $"combatIndex({combatIndex}) is out of range.");
+                RejectCommand("SelectCombat", selectFailure);
                 return;
             }
 
-            selectedCombatIndex = combatIndex;
-
-            if (!string.IsNullOrWhiteSpace(selectedAbilityId) && phaseRunner.currentPhase == DuelPhase.PlayerSetup)
+            if (!string.IsNullOrWhiteSpace(selectionState.SelectedAbilityId) &&
+                sessionRunner.PhaseRunner.currentPhase == DuelPhase.PlayerSetup)
             {
-                if (!TryMovePlayerAbilityToCombat(selectedAbilityId, selectedCombatIndex, out string moveLog, out string moveError))
+                if (!selectionState.TryMovePlayerAbilityToCombat(
+                        sessionRunner.DuelState,
+                        sessionRunner.PhaseRunner,
+                        selectionState.SelectedAbilityId,
+                        selectionState.SelectedCombatIndex,
+                        out string moveError))
                 {
                     RejectCommand("SelectCombatDeploy", moveError);
                     return;
                 }
 
-                AppendLog($"Combat click deploy success: {moveLog}");
+                AppendLog($"Combat click deploy success: {BuildMoveLog()}");
                 RefreshView();
                 return;
             }
@@ -363,139 +306,17 @@ namespace Game.Presentation.Debug
             RefreshView();
         }
 
-        bool TryMovePlayerAbilityToCombat(string abilityId, int targetCombatIndex, out string moveLog, out string failureMessage)
-        {
-            moveLog = string.Empty;
-            failureMessage = string.Empty;
-
-            if (phaseRunner.currentPhase != DuelPhase.PlayerSetup)
-            {
-                failureMessage = $"current phase is {phaseRunner.currentPhase}, required phase is {DuelPhase.PlayerSetup}.";
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(abilityId))
-            {
-                failureMessage = "abilityId is empty.";
-                return false;
-            }
-
-            if (!duelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) || ability == null)
-            {
-                failureMessage = $"ability({abilityId}) does not exist.";
-                return false;
-            }
-
-            if (ability.abilityType != AbilityType.Attack)
-            {
-                failureMessage = $"only Attack type ability can be deployed to combat (current: {ability.abilityType}).";
-                return false;
-            }
-
-            if (targetCombatIndex < 0 || targetCombatIndex >= duelState.combats.Count)
-            {
-                failureMessage = $"target combat({targetCombatIndex}) is out of range.";
-                return false;
-            }
-
-            if (!TryFindPlayerAbilityLocation(abilityId, out AbilityLocationType sourceType, out int sourceCombatIndex))
-            {
-                failureMessage = $"ability({abilityId}) is not in player controllable zones.";
-                return false;
-            }
-
-            CombatState targetCombat = duelState.combats[targetCombatIndex];
-            if (targetCombat == null)
-            {
-                failureMessage = $"combat({targetCombatIndex}) is null.";
-                return false;
-            }
-
-            targetCombat.EnsureInitialized();
-            if (!targetCombat.playerAbilityIds.Contains(abilityId) &&
-                targetCombat.maxPlayerAssignments.HasValue &&
-                targetCombat.maxPlayerAssignments.Value > 0 &&
-                targetCombat.playerAbilityIds.Count >= targetCombat.maxPlayerAssignments.Value)
-            {
-                failureMessage = $"target combat({targetCombatIndex}) maxPlayerAssignments exceeded.";
-                return false;
-            }
-
-            if (sourceType == AbilityLocationType.Loadout)
-            {
-                duelState.loadoutAbilityIds.Remove(abilityId);
-            }
-            else
-            {
-                CombatState sourceCombat = duelState.combats[sourceCombatIndex];
-                sourceCombat?.playerAbilityIds.Remove(abilityId);
-            }
-
-            if (!targetCombat.playerAbilityIds.Contains(abilityId))
-            {
-                targetCombat.playerAbilityIds.Add(abilityId);
-            }
-
-            selectedAbilityId = abilityId;
-            selectedCombatIndex = targetCombatIndex;
-            moveLog = $"Ability moved: {ResolveAbilityDefIdForDisplay(abilityId)} -> combat({targetCombatIndex}).";
-            return true;
-        }
-
-        bool TryFindPlayerAbilityLocation(string abilityId, out AbilityLocationType locationType, out int combatIndex)
-        {
-            locationType = AbilityLocationType.None;
-            combatIndex = -1;
-
-            if (string.IsNullOrWhiteSpace(abilityId))
-            {
-                return false;
-            }
-
-            if (duelState.loadoutAbilityIds != null && duelState.loadoutAbilityIds.Contains(abilityId))
-            {
-                locationType = AbilityLocationType.Loadout;
-                return true;
-            }
-
-            if (duelState.combats == null)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < duelState.combats.Count; i++)
-            {
-                CombatState combat = duelState.combats[i];
-                if (combat == null)
-                {
-                    continue;
-                }
-
-                combat.EnsureInitialized();
-                if (!combat.playerAbilityIds.Contains(abilityId))
-                {
-                    continue;
-                }
-
-                locationType = AbilityLocationType.Combat;
-                combatIndex = i;
-                return true;
-            }
-
-            return false;
-        }
-
         bool TryValidateDuelStarted(out string failureMessage)
         {
             failureMessage = string.Empty;
 
-            if (duelState == null)
+            if (!sessionRunner.IsInitialized || sessionRunner.DuelState == null)
             {
                 failureMessage = "duel state is null. call StartDuel first.";
                 return false;
             }
 
-            if (phaseRunner == null || !phaseRunner.isStarted)
+            if (sessionRunner.PhaseRunner == null || !sessionRunner.PhaseRunner.isStarted)
             {
                 failureMessage = "phase runner is not started.";
                 return false;
@@ -506,14 +327,17 @@ namespace Game.Presentation.Debug
 
         void RefreshView()
         {
+            DuelState duelState = sessionRunner.DuelState;
+            DuelPhaseRunner phaseRunner = sessionRunner.PhaseRunner;
+
             SetText(phaseText, DuelDebugPanelFormatter.FormatPhase(phaseRunner));
             SetText(turnText, DuelDebugPanelFormatter.FormatTurn(duelState));
             SetText(resourceText, DuelDebugPanelFormatter.FormatResourceStatus());
             SetText(honorText, DuelDebugPanelFormatter.FormatHonor(duelState));
             SetText(playerHealthText, DuelDebugPanelFormatter.FormatPlayerHealth(duelState));
             SetText(opponentHealthText, DuelDebugPanelFormatter.FormatOpponentHealth(duelState));
-            SetText(selectedAbilityText, DuelDebugPanelFormatter.FormatSelectedAbility(duelState, selectedAbilityId));
-            SetText(selectedCombatText, DuelDebugPanelFormatter.FormatSelectedCombat(duelState, selectedCombatIndex));
+            SetText(selectedAbilityText, DuelDebugPanelFormatter.FormatSelectedAbility(duelState, selectionState.SelectedAbilityId));
+            SetText(selectedCombatText, DuelDebugPanelFormatter.FormatSelectedCombat(duelState, selectionState.SelectedCombatIndex));
 
             SetText(combat0Text, DuelDebugPanelFormatter.FormatCombat(duelState, 0));
             SetText(combat1Text, DuelDebugPanelFormatter.FormatCombat(duelState, 1));
@@ -524,6 +348,9 @@ namespace Game.Presentation.Debug
 
         void RefreshButtonInteractableState()
         {
+            DuelPhaseRunner phaseRunner = sessionRunner.PhaseRunner;
+            DuelState duelState = sessionRunner.DuelState;
+
             bool started = phaseRunner != null && phaseRunner.isStarted;
             bool ended = duelState != null && duelState.isDuelEnded;
             DuelPhase phase = started ? phaseRunner.currentPhase : DuelPhase.Reset;
@@ -627,8 +454,14 @@ namespace Game.Presentation.Debug
             return message.Substring(0, maxLogLineLength) + "...";
         }
 
+        string BuildMoveLog()
+        {
+            return $"Ability moved: {ResolveAbilityDefIdForDisplay(selectionState.SelectedAbilityId)} -> combat({selectionState.SelectedCombatIndex}).";
+        }
+
         string ResolveAbilityDefIdForDisplay(string abilityInstanceId)
         {
+            DuelState duelState = sessionRunner.DuelState;
             if (duelState == null ||
                 duelState.abilitiesById == null ||
                 string.IsNullOrWhiteSpace(abilityInstanceId) ||
@@ -652,4 +485,3 @@ namespace Game.Presentation.Debug
         }
     }
 }
-

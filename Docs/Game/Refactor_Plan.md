@@ -150,7 +150,7 @@ Output:
 
 **Target:**
 - `BattleScreenController` (MonoBehaviour): wiring only
-- `BattleSessionOrchestrator` (plain C#): duel flow
+- `BattleSessionRunner` (plain C#): duel flow
 - `BattleScreenView`: UI updates
 - `BattleSelectionState`: selection/input state
 
@@ -164,7 +164,7 @@ Files:
 - Related battle view components (e.g., BattleAbilityCardView, BattleCombatZoneView)
 
 Requirements:
-1) Extract duel flow orchestration into `BattleSessionOrchestrator` (non-MonoBehaviour).
+1) Extract duel flow orchestration into `BattleSessionRunner` (non-MonoBehaviour).
 2) Extract UI binding/update code into `BattleScreenView`.
 3) Keep BattleScreenController as the entry point:
    - keeps SerializeField scene references

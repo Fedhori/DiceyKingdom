@@ -1,0 +1,163 @@
+using System.Collections.Generic;
+using System.Linq;
+using Game.Application.Duel;
+using Game.Domain.Duel;
+using Game.Infrastructure.Data;
+using Game.Presentation.Battle;
+using NUnit.Framework;
+
+namespace Game.Tests.EditMode
+{
+    public sealed class BattleSessionRunnerEditModeTests
+    {
+        [Test]
+        public void TryInitialize_WithAdvanceToPlayerSetup_EntersPlayerSetupAndDeploysOpponent()
+        {
+            GameDatabase database = CreateDatabase(startingHonor: 1);
+            var sessionRunner = new BattleSessionRunner();
+
+            bool success = sessionRunner.TryInitialize(
+                database,
+                "enemy.test",
+                advanceToPlayerSetup: true,
+                out string failureMessage);
+
+            Assert.IsTrue(success, failureMessage);
+            Assert.NotNull(sessionRunner.DuelState);
+            Assert.NotNull(sessionRunner.PhaseRunner);
+            Assert.AreEqual(DuelPhase.PlayerSetup, sessionRunner.PhaseRunner.currentPhase);
+
+            int deployedCount = sessionRunner.DuelState.combats.Sum(combat =>
+            {
+                if (combat == null || combat.opponentAbilityIds == null)
+                {
+                    return 0;
+                }
+
+                return combat.opponentAbilityIds.Count;
+            });
+
+            Assert.GreaterOrEqual(deployedCount, 1);
+        }
+
+        [Test]
+        public void TryEnsureReadyForCombatStart_FromReset_AutoAdvancesToPlayerSetup()
+        {
+            GameDatabase database = CreateDatabase(startingHonor: 1);
+            var sessionRunner = new BattleSessionRunner();
+
+            Assert.IsTrue(sessionRunner.TryInitialize(
+                database,
+                "enemy.test",
+                advanceToPlayerSetup: false,
+                out string initializeFailure),
+                initializeFailure);
+            Assert.AreEqual(DuelPhase.Reset, sessionRunner.PhaseRunner.currentPhase);
+
+            bool success = sessionRunner.TryEnsureReadyForCombatStart(out string failureMessage);
+
+            Assert.IsTrue(success, failureMessage);
+            Assert.AreEqual(DuelPhase.PlayerSetup, sessionRunner.PhaseRunner.currentPhase);
+        }
+
+        [Test]
+        public void TryEnterOpponentSetup_FailsWhenCurrentPhaseIsNotReset()
+        {
+            GameDatabase database = CreateDatabase(startingHonor: 1);
+            var sessionRunner = new BattleSessionRunner();
+
+            Assert.IsTrue(sessionRunner.TryInitialize(
+                database,
+                "enemy.test",
+                advanceToPlayerSetup: true,
+                out string initializeFailure),
+                initializeFailure);
+            Assert.AreEqual(DuelPhase.PlayerSetup, sessionRunner.PhaseRunner.currentPhase);
+
+            bool success = sessionRunner.TryEnterOpponentSetup(
+                out OpponentSetupBuildResult _,
+                out string failureMessage);
+
+            Assert.IsFalse(success);
+            StringAssert.Contains("required phase is Reset", failureMessage);
+        }
+
+        [Test]
+        public void TrySurrender_InPlayerSetupWithHonor_SucceedsAndConsumesHonor()
+        {
+            GameDatabase database = CreateDatabase(startingHonor: 1);
+            var sessionRunner = new BattleSessionRunner();
+
+            Assert.IsTrue(sessionRunner.TryInitialize(
+                database,
+                "enemy.test",
+                advanceToPlayerSetup: true,
+                out string initializeFailure),
+                initializeFailure);
+
+            bool success = sessionRunner.TrySurrender(out string failureMessage);
+
+            Assert.IsTrue(success, failureMessage);
+            Assert.IsTrue(sessionRunner.DuelState.isDuelEnded);
+            Assert.AreEqual(0, sessionRunner.DuelState.honor);
+        }
+
+        static GameDatabase CreateDatabase(int startingHonor)
+        {
+            var database = new GameDatabase
+            {
+                duelConfig = new DuelConfigDef
+                {
+                    cooldownTickPerTurn = 1,
+                    powerResultMin = 1,
+                    p0Rules = new P0RulesDef
+                    {
+                        disallowBasePowerMutation = true,
+                        defaultSlotLimit = null
+                    }
+                },
+                runConfig = new RunConfigDef(),
+                playerStart = new PlayerStartDef
+                {
+                    startingHonor = startingHonor,
+                    startingPlayerHealth = 10,
+                    startingLoadoutAbilityIds = new List<string>
+                    {
+                        "ability.player"
+                    }
+                }
+            };
+
+            database.abilitiesById["ability.player"] = new AbilityDef
+            {
+                type = AbilityType.Attack.ToString(),
+                buildCost = 0,
+                cooldown = 0,
+                power = 3
+            };
+
+            database.abilitiesById["ability.enemy"] = new AbilityDef
+            {
+                type = AbilityType.Attack.ToString(),
+                buildCost = 0,
+                cooldown = 0,
+                power = 2
+            };
+
+            database.enemiesById["enemy.test"] = new EnemyDef
+            {
+                health = 8,
+                abilityLoadout = new List<SummonAbilityRefDef>
+                {
+                    new SummonAbilityRefDef
+                    {
+                        abilityId = "ability.enemy",
+                        count = 1
+                    }
+                }
+            };
+
+            return database;
+        }
+    }
+}
