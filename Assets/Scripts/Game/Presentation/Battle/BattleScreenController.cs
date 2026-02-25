@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Game.Application.Duel;
 using Game.Domain.Duel;
@@ -37,6 +38,8 @@ namespace Game.Presentation.Battle
 
         readonly BattleSessionRunner sessionRunner = new();
         readonly BattleSelectionState selectionState = new();
+        readonly BattleScreenObservableState observableState = new();
+        readonly List<IDisposable> uiSubscriptions = new();
 
         BattleScreenView view;
         bool isFlowRunning;
@@ -52,8 +55,9 @@ namespace Game.Presentation.Battle
             RebuildView();
             view.ApplyStaticVisuals();
             WireCallbacks();
+            WireObservableBindings();
             InitializeDuelOrWarn();
-            RefreshView();
+            PublishObservableState();
         }
 
         void OnEnable()
@@ -88,6 +92,7 @@ namespace Game.Presentation.Battle
             }
 
             ClearDragState();
+            UnwireObservableBindings();
             view?.UnwireZoneCallbacks();
         }
 
@@ -172,17 +177,45 @@ namespace Game.Presentation.Battle
             selectionState.ClearAll();
         }
 
-        void RefreshView()
+        void WireObservableBindings()
         {
-            view.Refresh(
-                sessionRunner,
-                selectionState,
-                isFlowRunning,
+            UnwireObservableBindings();
+
+            if (view == null)
+            {
+                return;
+            }
+
+            uiSubscriptions.Add(observableState.TopBarState.Subscribe(view.RenderTopBar));
+            uiSubscriptions.Add(observableState.HealthState.Subscribe(view.RenderHealth));
+            uiSubscriptions.Add(observableState.ButtonState.Subscribe(view.RenderButtons));
+            uiSubscriptions.Add(observableState.BoardState.Subscribe(HandleBoardStateChanged));
+        }
+
+        void UnwireObservableBindings()
+        {
+            for (int i = 0; i < uiSubscriptions.Count; i++)
+            {
+                uiSubscriptions[i]?.Dispose();
+            }
+
+            uiSubscriptions.Clear();
+        }
+
+        void HandleBoardStateChanged(BattleBoardState boardState)
+        {
+            view.RenderBoard(
+                boardState,
                 HandlePlayerAbilityCardClicked,
                 HandleCardDragStarted,
                 HandleCardDragMoved,
                 HandleCardDragEnded,
                 HandleCardRightClicked);
+        }
+
+        void PublishObservableState()
+        {
+            observableState.Publish(sessionRunner, selectionState, isFlowRunning);
         }
 
         void HandleCombatStartClicked()
@@ -209,7 +242,7 @@ namespace Game.Presentation.Battle
             }
 
             selectionState.ClearAbility();
-            RefreshView();
+            PublishObservableState();
         }
 
         void HandlePlayerAbilityCardClicked(string abilityId)
@@ -228,7 +261,7 @@ namespace Game.Presentation.Battle
                 return;
             }
 
-            RefreshView();
+            PublishObservableState();
         }
 
         void HandleCardDragStarted(
@@ -283,7 +316,7 @@ namespace Game.Presentation.Battle
                 return;
             }
 
-            bool shouldRefresh = false;
+            bool shouldPublishState = false;
             bool isDropFailure = false;
             if (CanUseCardInteractions(abilityId) &&
                 TryFindDropCombatIndex(screenPosition, eventCamera, out int targetCombatIndex))
@@ -298,7 +331,7 @@ namespace Game.Presentation.Battle
                             targetCombatIndex,
                             out string failureMessage))
                     {
-                        shouldRefresh = true;
+                        shouldPublishState = true;
                     }
                     else
                     {
@@ -319,9 +352,9 @@ namespace Game.Presentation.Battle
 
             ClearDragState();
 
-            if (shouldRefresh)
+            if (shouldPublishState)
             {
-                RefreshView();
+                PublishObservableState();
             }
         }
 
@@ -345,7 +378,7 @@ namespace Game.Presentation.Battle
                 return;
             }
 
-            RefreshView();
+            PublishObservableState();
         }
 
         void HandleCombatZoneClicked(int combatIndex)
@@ -369,7 +402,7 @@ namespace Game.Presentation.Battle
                 return;
             }
 
-            RefreshView();
+            PublishObservableState();
         }
 
         IEnumerator RunCombatStartFlow()
@@ -381,29 +414,29 @@ namespace Game.Presentation.Battle
             }
 
             isFlowRunning = true;
-            RefreshView();
+            PublishObservableState();
 
             if (!sessionRunner.TryRoll(out DuelRollResult _, out string rollFailure))
             {
                 Debug.LogWarning($"[BattleScreenController] Roll failed: {rollFailure}");
                 isFlowRunning = false;
-                RefreshView();
+                PublishObservableState();
                 yield break;
             }
 
             yield return view.AnimateRoll(ResolveAnimationConfig());
-            RefreshView();
+            PublishObservableState();
 
             if (!sessionRunner.TryResolve(out DuelCombatResolveResult resolveResult, out string resolveFailure))
             {
                 Debug.LogWarning($"[BattleScreenController] Resolve failed: {resolveFailure}");
                 isFlowRunning = false;
-                RefreshView();
+                PublishObservableState();
                 yield break;
             }
 
             yield return view.AnimateResolve(resolveResult, ResolveAnimationConfig());
-            RefreshView();
+            PublishObservableState();
 
             if (!sessionRunner.DuelState.isDuelEnded)
             {
@@ -418,7 +451,7 @@ namespace Game.Presentation.Battle
 
             selectionState.ClearAbility();
             isFlowRunning = false;
-            RefreshView();
+            PublishObservableState();
         }
 
         BattleAnimationConfig ResolveAnimationConfig()

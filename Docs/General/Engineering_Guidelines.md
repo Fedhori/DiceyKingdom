@@ -84,6 +84,17 @@ Minimum rule:
 - Only compute positions/sizes in code when it is unavoidable and documented.
 - Keep UI controllers thin; push business logic out of `MonoBehaviour`s.
 
+### 7.1 Observable UI state (mandatory)
+
+- Any UI value/state that must be reflected immediately when data changes **must** use `ObservableValue` / `IReadOnlyObservableValue` subscription.
+- Do not rely on ad-hoc/manual full refresh calls as the primary update mechanism for those subscribed values.
+- This rule applies to scalar values and list-like UI states that require real-time reflection (use observable revision signals if needed).
+- If an exception is unavoidable, the implementer must notify the user first with:
+  - Why the exception is necessary
+  - Scope and risk
+  - Temporary workaround and follow-up plan
+- Without explicit user approval, exception handling must not be merged as final behavior.
+
 ## 8) Tests and verification
 
 Minimum expectation for refactors:

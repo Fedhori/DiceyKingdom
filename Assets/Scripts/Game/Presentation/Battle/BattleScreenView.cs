@@ -109,10 +109,27 @@ namespace Game.Presentation.Battle
             HideTooltip();
         }
 
-        public void Refresh(
-            BattleSessionRunner sessionRunner,
-            BattleSelectionState selectionState,
-            bool isFlowRunning,
+        public void RenderTopBar(BattleTopBarState state)
+        {
+            UpdateTopBar(state.turnIndex);
+        }
+
+        public void RenderHealth(BattleHealthState state)
+        {
+            RenderHealth(
+                state.playerHealth,
+                state.maxPlayerHealth,
+                state.opponentHealth,
+                state.maxOpponentHealth);
+        }
+
+        public void RenderButtons(BattleButtonState state)
+        {
+            UpdateButtonState(state.canCombatStart, state.canSurrender);
+        }
+
+        public void RenderBoard(
+            BattleBoardState state,
             Action<string> onPlayerAbilityClicked,
             Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragStart,
             Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragMove,
@@ -123,24 +140,12 @@ namespace Game.Presentation.Battle
             HideAllCardViews();
             HideTooltip();
 
-            DuelState duelState = sessionRunner == null ? null : sessionRunner.DuelState;
-            DuelPhaseRunner phaseRunner = sessionRunner == null ? null : sessionRunner.PhaseRunner;
-            GameDatabase database = sessionRunner == null ? null : sessionRunner.Database;
-            int maxPlayerHealth = sessionRunner == null ? 1 : sessionRunner.MaxPlayerHealth;
-            int maxOpponentHealth = sessionRunner == null ? 1 : sessionRunner.MaxOpponentHealth;
-
-            string selectedAbilityId = selectionState == null
-                ? string.Empty
-                : selectionState.SelectedAbilityId;
-
-            UpdateTopBar(duelState);
-            RenderHealth(duelState, maxPlayerHealth, maxOpponentHealth);
             RenderLoadoutRows(
-                duelState,
-                phaseRunner,
-                database,
-                selectedAbilityId,
-                isFlowRunning,
+                state.duelState,
+                state.phaseRunner,
+                state.database,
+                state.selectedAbilityId,
+                state.isFlowRunning,
                 onPlayerAbilityClicked,
                 onCardDragStart,
                 onCardDragMove,
@@ -148,17 +153,16 @@ namespace Game.Presentation.Battle
                 onCardRightClick);
             ForceRebuildLoadoutLayouts();
             RenderCombatZones(
-                duelState,
-                phaseRunner,
-                database,
-                selectedAbilityId,
-                isFlowRunning,
+                state.duelState,
+                state.phaseRunner,
+                state.database,
+                state.selectedAbilityId,
+                state.isFlowRunning,
                 onPlayerAbilityClicked,
                 onCardDragStart,
                 onCardDragMove,
                 onCardDragEnd,
                 onCardRightClick);
-            UpdateButtonState(duelState, phaseRunner, isFlowRunning);
         }
 
         public IEnumerator AnimateRoll(BattleAnimationConfig animationConfig)
@@ -287,31 +291,30 @@ namespace Game.Presentation.Battle
             topBarImage.color = baseColor;
         }
 
-        void UpdateTopBar(DuelState duelState)
+        void UpdateTopBar(int turnIndex)
         {
             if (turnText == null)
             {
                 return;
             }
 
-            int turnIndex = duelState == null ? 0 : duelState.turnIndex;
             turnText.text = $"Turn: {turnIndex}";
         }
 
-        void RenderHealth(DuelState duelState, int maxPlayerHealth, int maxOpponentHealth)
+        void RenderHealth(
+            int playerHealth,
+            int maxPlayerHealth,
+            int opponentHealth,
+            int maxOpponentHealth)
         {
             if (enemyHealthText != null)
             {
-                enemyHealthText.text = BuildHeartText(
-                    duelState == null ? 0 : duelState.opponentHealth,
-                    maxOpponentHealth);
+                enemyHealthText.text = BuildHeartText(opponentHealth, maxOpponentHealth);
             }
 
             if (playerHealthText != null)
             {
-                playerHealthText.text = BuildHeartText(
-                    duelState == null ? 0 : duelState.playerHealth,
-                    maxPlayerHealth);
+                playerHealthText.text = BuildHeartText(playerHealth, maxPlayerHealth);
             }
         }
 
@@ -601,27 +604,20 @@ namespace Game.Presentation.Battle
             }
         }
 
-        void UpdateButtonState(DuelState duelState, DuelPhaseRunner phaseRunner, bool isFlowRunning)
+        void UpdateButtonState(bool canCombatStart, bool canSurrender)
         {
-            bool isBusy = isFlowRunning || duelState == null || phaseRunner == null;
-
             if (combatStartButton != null)
             {
-                bool canStart = !isBusy && !duelState.isDuelEnded;
-                combatStartButton.interactable = canStart;
+                combatStartButton.interactable = canCombatStart;
                 ApplyButtonVisual(
                     combatStartButton,
-                    canStart
+                    canCombatStart
                         ? defaultCombatStartButtonColor
                         : defaultButtonDisabledColor);
             }
 
             if (surrenderButton != null)
             {
-                bool canSurrender = !isBusy &&
-                    !duelState.isDuelEnded &&
-                    phaseRunner.currentPhase == DuelPhase.PlayerSetup &&
-                    duelState.honor > 0;
                 surrenderButton.interactable = canSurrender;
                 ApplyButtonVisual(
                     surrenderButton,
