@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Game.App;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -13,6 +12,21 @@ namespace Game.Dev
 
 public sealed class DevCommandService : MonoBehaviour
 {
+    public bool RegisterCommand(string command, Action<string[]> handler)
+    {
+#if DEVCONSOLE_OFF
+        return false;
+#else
+        if (string.IsNullOrWhiteSpace(command) || handler == null)
+        {
+            return false;
+        }
+
+        handlers[command] = handler;
+        return true;
+#endif
+    }
+
 #if DEVCONSOLE_OFF
     void Awake() => Destroy(gameObject);
 #else
@@ -31,18 +45,6 @@ public sealed class DevCommandService : MonoBehaviour
 
     readonly Dictionary<string, Action<string[]>> handlers =
         new(StringComparer.OrdinalIgnoreCase);
-
-    public static void Register(string command, Action<string[]> handler)
-    {
-        var manager = GameApp.I?.App?.DevCommand;
-        if (manager == null)
-            return;
-
-        if (string.IsNullOrWhiteSpace(command) || handler == null)
-            return;
-
-        manager.handlers[command] = handler;
-    }
 
     bool pendingClear;
     bool open;

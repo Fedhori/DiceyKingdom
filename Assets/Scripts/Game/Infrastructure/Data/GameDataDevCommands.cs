@@ -1,125 +1,34 @@
 using System;
-using System.Reflection;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Game.Infrastructure.Data
 {
     public static class GameDataDevCommands
     {
         static bool isRegistered;
-        static bool isHooked;
-        static readonly Type[] registerParameterTypes = { typeof(string), typeof(Action<string[]>) };
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        static void Initialize()
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatic()
         {
-            TryRegister();
-
-            if (isHooked)
-            {
-                return;
-            }
-
-            SceneManager.sceneLoaded += OnSceneLoaded;
-            isHooked = true;
+            isRegistered = false;
         }
 
-        static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            TryRegister();
-        }
-
-        static void TryRegister()
+        public static bool TryRegister(Action<string, Action<string[]>> registerCommand)
         {
             if (isRegistered)
             {
-                return;
+                return true;
             }
 
-            if (!IsDevCommandReady())
-            {
-                return;
-            }
-
-            if (!TryRegisterCommand())
-            {
-                return;
-            }
-
-            isRegistered = true;
-
-            if (isHooked)
-            {
-                SceneManager.sceneLoaded -= OnSceneLoaded;
-                isHooked = false;
-            }
-        }
-
-        static bool IsDevCommandReady()
-        {
-            Type gameAppType = Type.GetType("Game.App.GameApp, Assembly-CSharp");
-            if (gameAppType == null)
-            {
-                return false;
-            }
-
-            PropertyInfo instanceProperty = gameAppType.GetProperty("I", BindingFlags.Public | BindingFlags.Static);
-            if (instanceProperty == null)
-            {
-                return false;
-            }
-
-            object gameAppInstance = instanceProperty.GetValue(null, null);
-            if (gameAppInstance == null)
-            {
-                return false;
-            }
-
-            PropertyInfo appProperty = gameAppType.GetProperty("App", BindingFlags.Public | BindingFlags.Instance);
-            if (appProperty == null)
-            {
-                return false;
-            }
-
-            object appServices = appProperty.GetValue(gameAppInstance, null);
-            if (appServices == null)
-            {
-                return false;
-            }
-
-            PropertyInfo devCommandProperty = appServices.GetType().GetProperty("DevCommand", BindingFlags.Public | BindingFlags.Instance);
-            if (devCommandProperty == null)
-            {
-                return false;
-            }
-
-            return devCommandProperty.GetValue(appServices, null) != null;
-        }
-
-        static bool TryRegisterCommand()
-        {
-            Type devCommandServiceType = Type.GetType("Game.Dev.DevCommandService, Assembly-CSharp");
-            if (devCommandServiceType == null)
-            {
-                return false;
-            }
-
-            MethodInfo registerMethod = devCommandServiceType.GetMethod(
-                "Register",
-                BindingFlags.Public | BindingFlags.Static,
-                null,
-                registerParameterTypes,
-                null);
-
-            if (registerMethod == null)
+            if (registerCommand == null)
             {
                 return false;
             }
 
             try
             {
-                registerMethod.Invoke(null, new object[] { "validate_data", (Action<string[]>)OnValidateDataCommand });
+                registerCommand.Invoke("validate_data", OnValidateDataCommand);
+                isRegistered = true;
                 return true;
             }
             catch (Exception exception)

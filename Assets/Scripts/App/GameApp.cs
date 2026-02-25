@@ -1,6 +1,7 @@
 using Game.Audio;
 using Game.Data;
 using Game.Dev;
+using Game.Infrastructure.Data;
 using Game.Particles;
 using Game.Save;
 using Game.UI;
@@ -97,6 +98,20 @@ public sealed class GameApp : MonoBehaviour
     {
         var ui = new UIService(tooltip, modal, option, floatingText, toast);
         App = new AppServices(ui, audioService, bgm, input, gameSpeed, particle, save, staticData, devCommand);
+        RegisterDataDevCommands();
+    }
+
+    void RegisterDataDevCommands()
+    {
+        if (App?.DevCommand == null)
+        {
+            return;
+        }
+
+        GameDataDevCommands.TryRegister((command, handler) =>
+        {
+            App.DevCommand.RegisterCommand(command, handler);
+        });
     }
 
     bool ValidateAppWiring()
