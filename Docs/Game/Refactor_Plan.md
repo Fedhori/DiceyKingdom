@@ -20,8 +20,8 @@ Before doing any of the work below, an automated agent must follow `Docs/General
    - many files under `Assets/Scripts/*` are still in global namespace (App/UI/Save/Tooltip/etc).
 4. **Battle presentation concentration risk** remains:
    - `Assets/Scripts/Game/Presentation/Battle/BattleScreenController.cs` holds orchestration + rendering + animation + selection/deploy logic.
-5. **Presentation logic duplication** exists:
-   - movement/selection/deploy rules are duplicated in `BattleScreenController` and `DuelDebugPanel`.
+5. **Presentation logic duplication** risk:
+   - movement/selection/deploy rules must stay centralized in shared state/flow classes (`BattleSelectionState`, `BattleSessionRunner`).
 6. **Assembly boundary leak** exists:
    - `Assets/Scripts/Game/Infrastructure/Data/GameDataDevCommands.cs` uses reflection bridge (`Type.GetType("GameApp, Assembly-CSharp")`) to reach app-layer services.
 
@@ -171,7 +171,7 @@ Requirements:
    - wires orchestrator and view
    - forwards button events to orchestrator
 4) Extract selection/deploy state logic into `BattleSelectionState`.
-5) Reuse orchestrator/state in `DuelDebugPanel` where possible to remove duplicated rule logic.
+5) Remove duplicated movement/selection/deploy logic by centralizing it in `BattleSelectionState` and `BattleSessionRunner`.
 6) Preserve behavior (no feature removal).
 7) Add at least one EditMode test for orchestrator behavior (success/failure + at least 3 minimal cases).
 
