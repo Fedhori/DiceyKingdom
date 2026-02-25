@@ -55,10 +55,17 @@ Split when any of the following happens:
 ## 7) Change discipline
 
 - Update docs in the same change set as the code/data change.
+- Whenever a change is made, determine whether docs should be updated and notify the user.
 - If a refactor changes names/paths, update all doc links.
 - If something is not implemented yet, label it clearly as **Target** or **Planned** (never present it as current reality).
 
-## 8) Recommended template
+## 8) Decision logging discipline
+
+- Record decisions **only when the user explicitly asks for it**.
+- Without explicit instruction, do not add or update decision logs such as `Docs/BRAINSTORMING.md`, `Docs/GAME_STRUCTURE.md`, or similar files.
+- When decision logging is requested, confirm the target document and scope first (summary/rationale/conclusion).
+
+## 9) Recommended template
 
 ```md
 # <TITLE>
