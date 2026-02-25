@@ -39,6 +39,7 @@ namespace Game.Presentation.Battle
         static readonly Color defaultCardBackground = Colors.Semantic.SurfaceParchment;
         static readonly Color defaultCardBackgroundSelected = Colors.Primitive.Bone200;
         static readonly Color defaultIconBackground = Colors.Semantic.SurfaceParchmentMuted;
+        static readonly Color defaultIconFill = Colors.Primitive.Bone300;
         static readonly Color defaultPowerBadgeBackground = Colors.Semantic.SurfaceSecondary;
         static readonly Color defaultPowerText = Colors.Semantic.TextPrimary;
         static readonly Color defaultTitleText = Colors.Semantic.TextOnLightPrimary;
@@ -102,7 +103,7 @@ namespace Game.Presentation.Battle
 
             if (iconImage != null)
             {
-                iconImage.color = defaultIconBackground;
+                iconImage.color = defaultIconFill;
             }
 
             Color borderColor = ResolveBorderColor(bindData.abilityType);

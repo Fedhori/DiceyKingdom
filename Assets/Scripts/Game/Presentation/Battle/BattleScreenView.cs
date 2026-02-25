@@ -14,8 +14,9 @@ namespace Game.Presentation.Battle
 {
     public sealed class BattleScreenView
     {
-        static readonly Color defaultBackgroundColor = Colors.Primitive.Bone300;
-        static readonly Color defaultTopBarColor = Colors.Primitive.Slate500;
+        const int expectedCombatCount = 3;
+        const int maxLoadoutCardCount = 12;
+
         static readonly Color defaultCombatStartButtonColor = Colors.Semantic.StateInfo;
         static readonly Color defaultSurrenderButtonColor = Colors.Semantic.StateDanger;
         static readonly Color defaultButtonDisabledColor = Colors.Semantic.ActionSecondaryBgDisabled;
@@ -32,11 +33,12 @@ namespace Game.Presentation.Battle
         readonly RectTransform enemyLoadoutRow;
         readonly RectTransform playerLoadoutRow;
         readonly BattleCombatZoneView[] combatZones;
-        readonly BattleAbilityCardView abilityCardPrefab;
         readonly TMP_Text tooltipText;
         readonly Image tooltipBackgroundImage;
 
-        readonly List<BattleAbilityCardView> spawnedCards = new();
+        readonly List<BattleAbilityCardView> pooledCardViews = new();
+        readonly List<BattleAbilityCardView> enemyLoadoutCardViews = new();
+        readonly List<BattleAbilityCardView> playerLoadoutCardViews = new();
 
         public BattleScreenView(
             Image backgroundImage,
@@ -49,7 +51,7 @@ namespace Game.Presentation.Battle
             RectTransform enemyLoadoutRow,
             RectTransform playerLoadoutRow,
             BattleCombatZoneView[] combatZones,
-            BattleAbilityCardView abilityCardPrefab,
+            BattleAbilityCardView _,
             TMP_Text tooltipText,
             Image tooltipBackgroundImage)
         {
@@ -63,7 +65,6 @@ namespace Game.Presentation.Battle
             this.enemyLoadoutRow = enemyLoadoutRow;
             this.playerLoadoutRow = playerLoadoutRow;
             this.combatZones = combatZones ?? Array.Empty<BattleCombatZoneView>();
-            this.abilityCardPrefab = abilityCardPrefab;
             this.tooltipText = tooltipText;
             this.tooltipBackgroundImage = tooltipBackgroundImage;
         }
@@ -116,14 +117,9 @@ namespace Game.Presentation.Battle
                 missing.Add(nameof(playerLoadoutRow));
             }
 
-            if (combatZones == null || combatZones.Length != 3 || combatZones.Any(zone => zone == null))
+            if (combatZones == null || combatZones.Length != expectedCombatCount || combatZones.Any(zone => zone == null))
             {
                 missing.Add(nameof(combatZones));
-            }
-
-            if (abilityCardPrefab == null)
-            {
-                missing.Add(nameof(abilityCardPrefab));
             }
 
             if (tooltipText == null)
@@ -134,6 +130,36 @@ namespace Game.Presentation.Battle
             if (tooltipBackgroundImage == null)
             {
                 missing.Add(nameof(tooltipBackgroundImage));
+            }
+
+            CacheCardPools();
+            if (enemyLoadoutCardViews.Count < maxLoadoutCardCount)
+            {
+                missing.Add($"{nameof(enemyLoadoutRow)}(cards<{maxLoadoutCardCount})");
+            }
+
+            if (playerLoadoutCardViews.Count < maxLoadoutCardCount)
+            {
+                missing.Add($"{nameof(playerLoadoutRow)}(cards<{maxLoadoutCardCount})");
+            }
+
+            for (int zoneIndex = 0; zoneIndex < combatZones.Length; zoneIndex++)
+            {
+                BattleCombatZoneView zone = combatZones[zoneIndex];
+                if (zone == null)
+                {
+                    continue;
+                }
+
+                if (!HasCardInEverySlot(zone.EnemySlots))
+                {
+                    missing.Add($"combatZones[{zoneIndex}].EnemySlots(cards missing)");
+                }
+
+                if (!HasCardInEverySlot(zone.PlayerSlots))
+                {
+                    missing.Add($"combatZones[{zoneIndex}].PlayerSlots(cards missing)");
+                }
             }
 
             missingReferences = string.Join(", ", missing);
@@ -154,6 +180,8 @@ namespace Game.Presentation.Battle
                 zone.SetClickHandler(onZoneClicked);
                 zone.EnsureRowsAndSlots();
             }
+
+            CacheCardPools();
         }
 
         public void UnwireZoneCallbacks()
@@ -171,23 +199,6 @@ namespace Game.Presentation.Battle
 
         public void ApplyStaticVisuals()
         {
-            if (backgroundImage != null)
-            {
-                backgroundImage.color = defaultBackgroundColor;
-            }
-
-            if (topBarImage != null)
-            {
-                topBarImage.color = defaultTopBarColor;
-            }
-
-            if (turnText != null)
-            {
-                turnText.color = defaultTooltipTextColor;
-            }
-
-            ApplyButtonVisual(combatStartButton, defaultCombatStartButtonColor);
-            ApplyButtonVisual(surrenderButton, defaultSurrenderButtonColor);
             HideTooltip();
         }
 
@@ -197,7 +208,8 @@ namespace Game.Presentation.Battle
             bool isFlowRunning,
             Action<string> onPlayerAbilityClicked)
         {
-            ClearSpawnedCards();
+            CacheCardPools();
+            HideAllCardViews();
             HideTooltip();
 
             DuelState duelState = sessionRunner == null ? null : sessionRunner.DuelState;
@@ -248,14 +260,15 @@ namespace Game.Presentation.Battle
                     zone?.SetRollPulse(normalized);
                 }
 
-                for (int i = 0; i < spawnedCards.Count; i++)
+                for (int i = 0; i < pooledCardViews.Count; i++)
                 {
-                    if (spawnedCards[i] == null)
+                    BattleAbilityCardView card = pooledCardViews[i];
+                    if (card == null || !card.gameObject.activeInHierarchy)
                     {
                         continue;
                     }
 
-                    spawnedCards[i].SetRollPulse(normalized);
+                    card.SetRollPulse(normalized);
                 }
 
                 elapsed += Time.unscaledDeltaTime;
@@ -268,14 +281,15 @@ namespace Game.Presentation.Battle
                 zone?.RestoreBaseVisual();
             }
 
-            for (int i = 0; i < spawnedCards.Count; i++)
+            for (int i = 0; i < pooledCardViews.Count; i++)
             {
-                if (spawnedCards[i] == null)
+                BattleAbilityCardView card = pooledCardViews[i];
+                if (card == null || !card.gameObject.activeInHierarchy)
                 {
                     continue;
                 }
 
-                spawnedCards[i].RestoreVisual();
+                card.RestoreVisual();
             }
         }
 
@@ -337,7 +351,7 @@ namespace Game.Presentation.Battle
                 yield break;
             }
 
-            Color baseColor = defaultTopBarColor;
+            Color baseColor = topBarImage.color;
             Color pulseColor = Colors.Semantic.ActionSecondaryBgHover;
 
             float elapsed = 0f;
@@ -362,7 +376,6 @@ namespace Game.Presentation.Battle
 
             int turnIndex = duelState == null ? 0 : duelState.turnIndex;
             turnText.text = $"Turn: {turnIndex}";
-            turnText.color = Colors.Semantic.TextPrimary;
         }
 
         void RenderHealth(DuelState duelState, int maxPlayerHealth, int maxOpponentHealth)
@@ -396,14 +409,29 @@ namespace Game.Presentation.Battle
             }
 
             List<BattleAbilityCardView.BindData> enemyCards = ExpandOpponentLoadoutCards(duelState, database);
-            for (int i = 0; i < enemyCards.Count; i++)
+            if (enemyCards.Count > maxLoadoutCardCount)
             {
-                CreateCardInLoadoutRow(
-                    enemyLoadoutRow,
-                    enemyCards[i],
-                    isSelected: false,
-                    isInteractable: false,
-                    onClick: null);
+                UnityEngine.Debug.LogWarning(
+                    $"[BattleScreenView] Enemy loadout overflow: cardCount={enemyCards.Count}, max={maxLoadoutCardCount}");
+            }
+
+            int enemyVisibleCount = Mathf.Min(maxLoadoutCardCount, enemyCards.Count);
+            for (int i = 0; i < enemyLoadoutCardViews.Count; i++)
+            {
+                BattleAbilityCardView card = enemyLoadoutCardViews[i];
+                if (card == null)
+                {
+                    continue;
+                }
+
+                bool visible = i < enemyVisibleCount;
+                card.gameObject.SetActive(visible);
+                if (!visible)
+                {
+                    continue;
+                }
+
+                card.Bind(enemyCards[i], false, false, null, null, null);
             }
 
             List<string> playerLoadoutAbilityIds = duelState.loadoutAbilityIds == null
@@ -412,12 +440,32 @@ namespace Game.Presentation.Battle
                     .OrderBy(id => ResolveSortPriority(duelState, id))
                     .ThenBy(id => id, StringComparer.Ordinal)
                     .ToList();
-
-            for (int i = 0; i < playerLoadoutAbilityIds.Count; i++)
+            if (playerLoadoutAbilityIds.Count > maxLoadoutCardCount)
             {
+                UnityEngine.Debug.LogWarning(
+                    $"[BattleScreenView] Player loadout overflow: cardCount={playerLoadoutAbilityIds.Count}, max={maxLoadoutCardCount}");
+            }
+
+            int playerVisibleCount = Mathf.Min(maxLoadoutCardCount, playerLoadoutAbilityIds.Count);
+            for (int i = 0; i < playerLoadoutCardViews.Count; i++)
+            {
+                BattleAbilityCardView card = playerLoadoutCardViews[i];
+                if (card == null)
+                {
+                    continue;
+                }
+
+                bool visible = i < playerVisibleCount;
+                card.gameObject.SetActive(visible);
+                if (!visible)
+                {
+                    continue;
+                }
+
                 string abilityId = playerLoadoutAbilityIds[i];
                 if (!TryResolveAbilityAndDef(duelState, database, abilityId, out AbilityInstance ability, out AbilityDef def))
                 {
+                    card.gameObject.SetActive(false);
                     continue;
                 }
 
@@ -426,15 +474,10 @@ namespace Game.Presentation.Battle
                     phaseRunner != null &&
                     phaseRunner.currentPhase == DuelPhase.PlayerSetup &&
                     ability.abilityType == AbilityType.Attack;
-
                 bool isSelected = string.Equals(selectedAbilityId, abilityId, StringComparison.Ordinal);
                 BattleAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def, phaseRunner);
-                CreateCardInLoadoutRow(
-                    playerLoadoutRow,
-                    bindData,
-                    isSelected,
-                    isInteractable,
-                    onPlayerAbilityClicked);
+
+                card.Bind(bindData, isSelected, isInteractable, onPlayerAbilityClicked, ShowTooltip, HideTooltip);
             }
         }
 
@@ -475,9 +518,6 @@ namespace Game.Presentation.Battle
                     enemyTotal = DuelSimulator.ComputeTotalPower(combat, duelState.abilitiesById, false);
                     playerTotal = DuelSimulator.ComputeTotalPower(combat, duelState.abilitiesById, true);
 
-                    ClearSlotCards(zone.EnemySlots);
-                    ClearSlotCards(zone.PlayerSlots);
-
                     RenderCombatSideCards(
                         duelState,
                         phaseRunner,
@@ -501,8 +541,8 @@ namespace Game.Presentation.Battle
                 }
                 else
                 {
-                    ClearSlotCards(zone.EnemySlots);
-                    ClearSlotCards(zone.PlayerSlots);
+                    HideSlotCards(zone.EnemySlots);
+                    HideSlotCards(zone.PlayerSlots);
                 }
 
                 bool canDeployToZone = !isFlowRunning &&
@@ -528,23 +568,38 @@ namespace Game.Presentation.Battle
             bool isPlayerSide,
             Action<string> onClick)
         {
-            if (slots == null || abilityIds == null)
+            if (slots == null)
             {
                 return;
             }
 
-            int visibleCount = Mathf.Min(slots.Count, abilityIds.Count);
-            if (abilityIds.Count > slots.Count)
+            int abilityCount = abilityIds == null ? 0 : abilityIds.Count;
+            if (abilityCount > slots.Count)
             {
                 UnityEngine.Debug.LogWarning(
-                    $"[BattleScreenView] Slot overflow: abilityCount={abilityIds.Count}, slotCount={slots.Count}");
+                    $"[BattleScreenView] Slot overflow: abilityCount={abilityCount}, slotCount={slots.Count}");
             }
 
-            for (int i = 0; i < visibleCount; i++)
+            for (int slotIndex = 0; slotIndex < slots.Count; slotIndex++)
             {
-                string abilityId = abilityIds[i];
+                RectTransform slot = slots[slotIndex];
+                BattleAbilityCardView card = ResolveCardInSlot(slot);
+                if (card == null)
+                {
+                    continue;
+                }
+
+                bool visible = slotIndex < abilityCount;
+                card.gameObject.SetActive(visible);
+                if (!visible)
+                {
+                    continue;
+                }
+
+                string abilityId = abilityIds[slotIndex];
                 if (!TryResolveAbilityAndDef(duelState, database, abilityId, out AbilityInstance ability, out AbilityDef def))
                 {
+                    card.gameObject.SetActive(false);
                     continue;
                 }
 
@@ -556,14 +611,9 @@ namespace Game.Presentation.Battle
                     phaseRunner != null &&
                     phaseRunner.currentPhase == DuelPhase.PlayerSetup &&
                     ability.abilityType == AbilityType.Attack;
-
                 BattleAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def, phaseRunner);
-                CreateCardInSlot(
-                    slots[i],
-                    bindData,
-                    isSelected,
-                    isInteractable,
-                    onClick);
+
+                card.Bind(bindData, isSelected, isInteractable, onClick, ShowTooltip, HideTooltip);
             }
         }
 
@@ -609,22 +659,6 @@ namespace Game.Presentation.Battle
             }
         }
 
-        void ClearSpawnedCards()
-        {
-            for (int i = 0; i < spawnedCards.Count; i++)
-            {
-                BattleAbilityCardView card = spawnedCards[i];
-                if (card == null)
-                {
-                    continue;
-                }
-
-                UnityEngine.Object.Destroy(card.gameObject);
-            }
-
-            spawnedCards.Clear();
-        }
-
         void ShowTooltip(string message)
         {
             if (tooltipText == null || tooltipBackgroundImage == null)
@@ -652,6 +686,154 @@ namespace Game.Presentation.Battle
             {
                 tooltipBackgroundImage.gameObject.SetActive(false);
             }
+        }
+
+        void CacheCardPools()
+        {
+            enemyLoadoutCardViews.Clear();
+            playerLoadoutCardViews.Clear();
+            pooledCardViews.Clear();
+
+            CollectCardViews(enemyLoadoutRow, enemyLoadoutCardViews);
+            CollectCardViews(playerLoadoutRow, playerLoadoutCardViews);
+
+            AddCardsToPool(enemyLoadoutCardViews);
+            AddCardsToPool(playerLoadoutCardViews);
+
+            for (int zoneIndex = 0; zoneIndex < combatZones.Length; zoneIndex++)
+            {
+                BattleCombatZoneView zone = combatZones[zoneIndex];
+                if (zone == null)
+                {
+                    continue;
+                }
+
+                zone.EnsureRowsAndSlots();
+
+                AddSlotCardsToPool(zone.EnemySlots);
+                AddSlotCardsToPool(zone.PlayerSlots);
+            }
+        }
+
+        void HideAllCardViews()
+        {
+            for (int i = 0; i < pooledCardViews.Count; i++)
+            {
+                BattleAbilityCardView card = pooledCardViews[i];
+                if (card == null)
+                {
+                    continue;
+                }
+
+                card.gameObject.SetActive(false);
+            }
+        }
+
+        static void CollectCardViews(RectTransform root, List<BattleAbilityCardView> buffer)
+        {
+            buffer.Clear();
+            if (root == null)
+            {
+                return;
+            }
+
+            IEnumerable<BattleAbilityCardView> cards = root
+                .GetComponentsInChildren<BattleAbilityCardView>(true)
+                .OrderBy(card => card == null || card.transform.parent == null
+                    ? int.MaxValue
+                    : card.transform.parent.GetSiblingIndex())
+                .ThenBy(card => card == null ? int.MaxValue : card.transform.GetSiblingIndex());
+
+            foreach (BattleAbilityCardView card in cards)
+            {
+                if (card == null)
+                {
+                    continue;
+                }
+
+                buffer.Add(card);
+            }
+        }
+
+        void AddCardsToPool(IReadOnlyList<BattleAbilityCardView> cards)
+        {
+            if (cards == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < cards.Count; i++)
+            {
+                AddCardToPool(cards[i]);
+            }
+        }
+
+        void AddSlotCardsToPool(IReadOnlyList<RectTransform> slots)
+        {
+            if (slots == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < slots.Count; i++)
+            {
+                AddCardToPool(ResolveCardInSlot(slots[i]));
+            }
+        }
+
+        void AddCardToPool(BattleAbilityCardView card)
+        {
+            if (card == null || pooledCardViews.Contains(card))
+            {
+                return;
+            }
+
+            pooledCardViews.Add(card);
+        }
+
+        static void HideSlotCards(IReadOnlyList<RectTransform> slots)
+        {
+            if (slots == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < slots.Count; i++)
+            {
+                BattleAbilityCardView card = ResolveCardInSlot(slots[i]);
+                if (card != null)
+                {
+                    card.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        static bool HasCardInEverySlot(IReadOnlyList<RectTransform> slots)
+        {
+            if (slots == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < slots.Count; i++)
+            {
+                if (ResolveCardInSlot(slots[i]) == null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        static BattleAbilityCardView ResolveCardInSlot(RectTransform slot)
+        {
+            if (slot == null)
+            {
+                return null;
+            }
+
+            return slot.GetComponentInChildren<BattleAbilityCardView>(true);
         }
 
         static string BuildHeartText(int currentHealth, int maxHealth)
@@ -784,73 +966,6 @@ namespace Game.Presentation.Battle
                 ability.abilityType,
                 displayPower,
                 ability.abilityType == AbilityType.Attack);
-        }
-
-        BattleAbilityCardView CreateCardInLoadoutRow(
-            RectTransform row,
-            BattleAbilityCardView.BindData bindData,
-            bool isSelected,
-            bool isInteractable,
-            Action<string> onClick)
-        {
-            if (row == null || abilityCardPrefab == null)
-            {
-                return null;
-            }
-
-            BattleAbilityCardView card = UnityEngine.Object.Instantiate(abilityCardPrefab, row);
-            card.gameObject.SetActive(true);
-            card.Bind(bindData, isSelected, isInteractable, onClick, ShowTooltip, HideTooltip);
-            spawnedCards.Add(card);
-            return card;
-        }
-
-        static void ClearSlotCards(IReadOnlyList<RectTransform> slots)
-        {
-            if (slots == null)
-            {
-                return;
-            }
-
-            for (int slotIndex = 0; slotIndex < slots.Count; slotIndex++)
-            {
-                RectTransform slot = slots[slotIndex];
-                if (slot == null)
-                {
-                    continue;
-                }
-
-                int childCount = slot.childCount;
-                for (int childIndex = childCount - 1; childIndex >= 0; childIndex--)
-                {
-                    Transform child = slot.GetChild(childIndex);
-                    if (child == null)
-                    {
-                        continue;
-                    }
-
-                    UnityEngine.Object.Destroy(child.gameObject);
-                }
-            }
-        }
-
-        BattleAbilityCardView CreateCardInSlot(
-            RectTransform slot,
-            BattleAbilityCardView.BindData bindData,
-            bool isSelected,
-            bool isInteractable,
-            Action<string> onClick)
-        {
-            if (slot == null || abilityCardPrefab == null)
-            {
-                return null;
-            }
-
-            BattleAbilityCardView card = UnityEngine.Object.Instantiate(abilityCardPrefab, slot);
-            card.gameObject.SetActive(true);
-            card.Bind(bindData, isSelected, isInteractable, onClick, ShowTooltip, HideTooltip);
-            spawnedCards.Add(card);
-            return card;
         }
 
         static string BuildAbilityTooltip(AbilityDef def)

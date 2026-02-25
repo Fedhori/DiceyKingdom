@@ -14,8 +14,6 @@ namespace Game.Presentation.Battle
         static readonly Color defaultZoneBackground = Colors.Semantic.SurfaceParchment;
         static readonly Color defaultZoneBorder = Colors.Semantic.BorderParchment;
         static readonly Color defaultDividerColor = Colors.Semantic.DividerParchment;
-        static readonly Color defaultTotalPanelBackground = Colors.Semantic.SurfaceSecondary;
-        static readonly Color defaultTotalPanelBorder = Colors.Semantic.BorderStrong;
         static readonly Color defaultEnemyTotalColor = Colors.Semantic.StateDanger;
         static readonly Color defaultPlayerTotalColor = Colors.Semantic.StateInfo;
         static readonly Color rollPulseOverlay = Colors.Semantic.HighlightSheen;
@@ -234,24 +232,6 @@ namespace Game.Presentation.Battle
             if (dividerImage != null)
             {
                 dividerImage.color = defaultDividerColor;
-            }
-
-            ApplyTotalPanelVisual(enemyTotalPanelImage);
-            ApplyTotalPanelVisual(playerTotalPanelImage);
-        }
-
-        static void ApplyTotalPanelVisual(Image panelImage)
-        {
-            if (panelImage == null)
-            {
-                return;
-            }
-
-            panelImage.color = defaultTotalPanelBackground;
-            if (panelImage.TryGetComponent(out Outline outline))
-            {
-                outline.effectColor = defaultTotalPanelBorder;
-                outline.effectDistance = new Vector2(1f, -1f);
             }
         }
 
