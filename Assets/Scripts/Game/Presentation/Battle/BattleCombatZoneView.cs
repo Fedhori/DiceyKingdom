@@ -27,8 +27,6 @@ namespace Game.Presentation.Battle
         [SerializeField] Image dividerImage;
         [SerializeField] RectTransform enemySlotsRow;
         [SerializeField] RectTransform playerSlotsRow;
-        [SerializeField] Image enemyTotalPanelImage;
-        [SerializeField] Image playerTotalPanelImage;
         [SerializeField] TMP_Text enemyTotalText;
         [SerializeField] TMP_Text playerTotalText;
 
@@ -95,16 +93,6 @@ namespace Game.Presentation.Battle
             if (playerSlotsRow == null)
             {
                 playerSlotsRow = ResolveRect("PlayerSlotsRow");
-            }
-
-            if (enemyTotalPanelImage == null)
-            {
-                enemyTotalPanelImage = ResolveImage("EnemyTotalPanel");
-            }
-
-            if (playerTotalPanelImage == null)
-            {
-                playerTotalPanelImage = ResolveImage("PlayerTotalPanel");
             }
 
             if (enemyTotalText == null)

@@ -46,20 +46,6 @@ namespace Game.Presentation.Battle
             CollectCombatZonesIfNeeded();
             RebuildView();
             view.ApplyStaticVisuals();
-
-            if (!UnityEngine.Application.isPlaying)
-            {
-                return;
-            }
-
-            if (!view.ValidateSceneReferencesForRuntime(out string missingReferences))
-            {
-                UnityEngine.Debug.LogWarning(
-                    $"[BattleScreenController] Missing required scene references: {missingReferences}. Configure in editor.");
-                enabled = false;
-                return;
-            }
-
             WireCallbacks();
             InitializeDuelOrWarn();
             RefreshView();

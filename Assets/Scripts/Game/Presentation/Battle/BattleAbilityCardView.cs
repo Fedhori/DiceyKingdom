@@ -38,11 +38,9 @@ namespace Game.Presentation.Battle
 
         static readonly Color defaultCardBackground = Colors.Semantic.SurfaceParchment;
         static readonly Color defaultCardBackgroundSelected = Colors.Primitive.Bone200;
-        static readonly Color defaultIconBackground = Colors.Semantic.SurfaceParchmentMuted;
         static readonly Color defaultIconFill = Colors.Primitive.Bone300;
         static readonly Color defaultPowerBadgeBackground = Colors.Semantic.SurfaceSecondary;
         static readonly Color defaultPowerText = Colors.Semantic.TextPrimary;
-        static readonly Color defaultTitleText = Colors.Semantic.TextOnLightPrimary;
         static readonly Color defaultAttackBorder = Colors.Semantic.StateDanger;
         static readonly Color defaultSkillBorder = Colors.Semantic.StateInfo;
         static readonly Color defaultDisabledOverlay = Colors.Semantic.DisabledTint;
@@ -50,11 +48,9 @@ namespace Game.Presentation.Battle
         [Header("References")]
         [SerializeField] Button clickButton;
         [SerializeField] Image cardBackgroundImage;
-        [SerializeField] Image iconBackgroundImage;
         [SerializeField] Image iconImage;
         [SerializeField] Image powerBadgeImage;
         [SerializeField] TMP_Text powerBadgeText;
-        [SerializeField] TMP_Text titleText;
         [SerializeField] Outline borderOutline;
         [SerializeField] Image disabledOverlayImage;
 
@@ -83,22 +79,11 @@ namespace Game.Presentation.Battle
             tooltipExitHandler = onTooltipExit;
             isHoverable = !string.IsNullOrWhiteSpace(tooltipText);
 
-            if (titleText != null)
-            {
-                titleText.text = bindData.title;
-                titleText.color = defaultTitleText;
-            }
-
             if (cardBackgroundImage != null)
             {
                 cardBackgroundImage.color = isSelected
                     ? defaultCardBackgroundSelected
                     : defaultCardBackground;
-            }
-
-            if (iconBackgroundImage != null)
-            {
-                iconBackgroundImage.color = defaultIconBackground;
             }
 
             if (iconImage != null)
@@ -209,11 +194,6 @@ namespace Game.Presentation.Battle
                 borderOutline = GetComponent<Outline>();
             }
 
-            if (iconBackgroundImage == null)
-            {
-                iconBackgroundImage = ResolveImage("IconBackground");
-            }
-
             if (iconImage == null)
             {
                 iconImage = ResolveImage("IconImage");
@@ -227,11 +207,6 @@ namespace Game.Presentation.Battle
             if (powerBadgeText == null)
             {
                 powerBadgeText = ResolveText("PowerText");
-            }
-
-            if (titleText == null)
-            {
-                titleText = ResolveText("TitleText");
             }
 
             if (disabledOverlayImage == null)

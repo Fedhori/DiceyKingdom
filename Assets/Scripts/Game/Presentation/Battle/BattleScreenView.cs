@@ -69,103 +69,6 @@ namespace Game.Presentation.Battle
             this.tooltipBackgroundImage = tooltipBackgroundImage;
         }
 
-        public bool ValidateSceneReferencesForRuntime(out string missingReferences)
-        {
-            var missing = new List<string>();
-            if (backgroundImage == null)
-            {
-                missing.Add(nameof(backgroundImage));
-            }
-
-            if (topBarImage == null)
-            {
-                missing.Add(nameof(topBarImage));
-            }
-
-            if (turnText == null)
-            {
-                missing.Add(nameof(turnText));
-            }
-
-            if (enemyHealthText == null)
-            {
-                missing.Add(nameof(enemyHealthText));
-            }
-
-            if (playerHealthText == null)
-            {
-                missing.Add(nameof(playerHealthText));
-            }
-
-            if (combatStartButton == null)
-            {
-                missing.Add(nameof(combatStartButton));
-            }
-
-            if (surrenderButton == null)
-            {
-                missing.Add(nameof(surrenderButton));
-            }
-
-            if (enemyLoadoutRow == null)
-            {
-                missing.Add(nameof(enemyLoadoutRow));
-            }
-
-            if (playerLoadoutRow == null)
-            {
-                missing.Add(nameof(playerLoadoutRow));
-            }
-
-            if (combatZones == null || combatZones.Length != expectedCombatCount || combatZones.Any(zone => zone == null))
-            {
-                missing.Add(nameof(combatZones));
-            }
-
-            if (tooltipText == null)
-            {
-                missing.Add(nameof(tooltipText));
-            }
-
-            if (tooltipBackgroundImage == null)
-            {
-                missing.Add(nameof(tooltipBackgroundImage));
-            }
-
-            CacheCardPools();
-            if (enemyLoadoutCardViews.Count < maxLoadoutCardCount)
-            {
-                missing.Add($"{nameof(enemyLoadoutRow)}(cards<{maxLoadoutCardCount})");
-            }
-
-            if (playerLoadoutCardViews.Count < maxLoadoutCardCount)
-            {
-                missing.Add($"{nameof(playerLoadoutRow)}(cards<{maxLoadoutCardCount})");
-            }
-
-            for (int zoneIndex = 0; zoneIndex < combatZones.Length; zoneIndex++)
-            {
-                BattleCombatZoneView zone = combatZones[zoneIndex];
-                if (zone == null)
-                {
-                    continue;
-                }
-
-                if (!HasCardInEverySlot(zone.EnemySlots))
-                {
-                    missing.Add($"combatZones[{zoneIndex}].EnemySlots(cards missing)");
-                }
-
-                if (!HasCardInEverySlot(zone.PlayerSlots))
-                {
-                    missing.Add($"combatZones[{zoneIndex}].PlayerSlots(cards missing)");
-                }
-            }
-
-            missingReferences = string.Join(", ", missing);
-            return missing.Count <= 0;
-        }
-
         public void WireZoneCallbacks(Action<int> onZoneClicked)
         {
             for (int i = 0; i < combatZones.Length; i++)
@@ -199,6 +102,10 @@ namespace Game.Presentation.Battle
 
         public void ApplyStaticVisuals()
         {
+            HideDirectChildren(enemyLoadoutRow);
+            HideDirectChildren(playerLoadoutRow);
+            CacheCardPools();
+            HideAllCardViews();
             HideTooltip();
         }
 
@@ -752,6 +659,25 @@ namespace Game.Presentation.Battle
                 }
 
                 buffer.Add(card);
+            }
+        }
+
+        static void HideDirectChildren(RectTransform root)
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < root.childCount; i++)
+            {
+                Transform child = root.GetChild(i);
+                if (child == null)
+                {
+                    continue;
+                }
+
+                child.gameObject.SetActive(false);
             }
         }
 
