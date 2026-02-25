@@ -113,7 +113,11 @@ namespace Game.Presentation.Battle
             BattleSessionRunner sessionRunner,
             BattleSelectionState selectionState,
             bool isFlowRunning,
-            Action<string> onPlayerAbilityClicked)
+            Action<string> onPlayerAbilityClicked,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragStart,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragMove,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragEnd,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext> onCardRightClick)
         {
             CacheCardPools();
             HideAllCardViews();
@@ -137,14 +141,22 @@ namespace Game.Presentation.Battle
                 database,
                 selectedAbilityId,
                 isFlowRunning,
-                onPlayerAbilityClicked);
+                onPlayerAbilityClicked,
+                onCardDragStart,
+                onCardDragMove,
+                onCardDragEnd,
+                onCardRightClick);
             RenderCombatZones(
                 duelState,
                 phaseRunner,
                 database,
                 selectedAbilityId,
                 isFlowRunning,
-                onPlayerAbilityClicked);
+                onPlayerAbilityClicked,
+                onCardDragStart,
+                onCardDragMove,
+                onCardDragEnd,
+                onCardRightClick);
             UpdateButtonState(duelState, phaseRunner, isFlowRunning);
         }
 
@@ -308,7 +320,11 @@ namespace Game.Presentation.Battle
             GameDatabase database,
             string selectedAbilityId,
             bool isFlowRunning,
-            Action<string> onPlayerAbilityClicked)
+            Action<string> onPlayerAbilityClicked,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragStart,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragMove,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragEnd,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext> onCardRightClick)
         {
             if (duelState == null || database == null)
             {
@@ -338,15 +354,23 @@ namespace Game.Presentation.Battle
                     continue;
                 }
 
-                card.Bind(enemyCards[i], false, false, null, null, null);
+                card.Bind(
+                    enemyCards[i],
+                    false,
+                    false,
+                    null,
+                    null,
+                    null,
+                    BattleAbilityCardView.InteractionContext.None,
+                    null,
+                    null,
+                    null,
+                    null);
             }
 
             List<string> playerLoadoutAbilityIds = duelState.loadoutAbilityIds == null
                 ? new List<string>()
-                : duelState.loadoutAbilityIds
-                    .OrderBy(id => ResolveSortPriority(duelState, id))
-                    .ThenBy(id => id, StringComparer.Ordinal)
-                    .ToList();
+                : new List<string>(duelState.loadoutAbilityIds);
             if (playerLoadoutAbilityIds.Count > maxLoadoutCardCount)
             {
                 UnityEngine.Debug.LogWarning(
@@ -384,7 +408,18 @@ namespace Game.Presentation.Battle
                 bool isSelected = string.Equals(selectedAbilityId, abilityId, StringComparison.Ordinal);
                 BattleAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def, phaseRunner);
 
-                card.Bind(bindData, isSelected, isInteractable, onPlayerAbilityClicked, ShowTooltip, HideTooltip);
+                card.Bind(
+                    bindData,
+                    isSelected,
+                    isInteractable,
+                    onPlayerAbilityClicked,
+                    ShowTooltip,
+                    HideTooltip,
+                    BattleAbilityCardView.InteractionContext.Loadout,
+                    onCardDragStart,
+                    onCardDragMove,
+                    onCardDragEnd,
+                    onCardRightClick);
             }
         }
 
@@ -394,7 +429,11 @@ namespace Game.Presentation.Battle
             GameDatabase database,
             string selectedAbilityId,
             bool isFlowRunning,
-            Action<string> onPlayerAbilityClicked)
+            Action<string> onPlayerAbilityClicked,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragStart,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragMove,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragEnd,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext> onCardRightClick)
         {
             if (combatZones == null || combatZones.Length <= 0)
             {
@@ -434,7 +473,12 @@ namespace Game.Presentation.Battle
                         zone.EnemySlots,
                         combat.opponentAbilityIds,
                         isPlayerSide: false,
-                        onClick: null);
+                        combatIndex: zoneIndex,
+                        onClick: null,
+                        onCardDragStart,
+                        onCardDragMove,
+                        onCardDragEnd,
+                        onCardRightClick);
                     RenderCombatSideCards(
                         duelState,
                         phaseRunner,
@@ -444,7 +488,12 @@ namespace Game.Presentation.Battle
                         zone.PlayerSlots,
                         combat.playerAbilityIds,
                         isPlayerSide: true,
-                        onClick: onPlayerAbilityClicked);
+                        combatIndex: zoneIndex,
+                        onClick: onPlayerAbilityClicked,
+                        onCardDragStart,
+                        onCardDragMove,
+                        onCardDragEnd,
+                        onCardRightClick);
                 }
                 else
                 {
@@ -473,7 +522,12 @@ namespace Game.Presentation.Battle
             IReadOnlyList<RectTransform> slots,
             List<string> abilityIds,
             bool isPlayerSide,
-            Action<string> onClick)
+            int combatIndex,
+            Action<string> onClick,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragStart,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragMove,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragEnd,
+            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext> onCardRightClick)
         {
             if (slots == null)
             {
@@ -520,20 +574,22 @@ namespace Game.Presentation.Battle
                     ability.abilityType == AbilityType.Attack;
                 BattleAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def, phaseRunner);
 
-                card.Bind(bindData, isSelected, isInteractable, onClick, ShowTooltip, HideTooltip);
+                BattleAbilityCardView.InteractionContext context = isPlayerSide
+                    ? BattleAbilityCardView.InteractionContext.Combat(combatIndex)
+                    : BattleAbilityCardView.InteractionContext.None;
+                card.Bind(
+                    bindData,
+                    isSelected,
+                    isInteractable,
+                    onClick,
+                    ShowTooltip,
+                    HideTooltip,
+                    context,
+                    onCardDragStart,
+                    onCardDragMove,
+                    onCardDragEnd,
+                    onCardRightClick);
             }
-        }
-
-        int ResolveSortPriority(DuelState duelState, string abilityId)
-        {
-            if (duelState == null ||
-                !duelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) ||
-                ability == null)
-            {
-                return 999;
-            }
-
-            return ability.abilityType == AbilityType.Attack ? 0 : 1;
         }
 
         void UpdateButtonState(DuelState duelState, DuelPhaseRunner phaseRunner, bool isFlowRunning)

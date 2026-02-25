@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Game.Infrastructure.Data;
 using TMPro;
 using UnityEngine;
@@ -7,8 +8,44 @@ using UnityEngine.UI;
 
 namespace Game.Presentation.Battle
 {
-    public sealed class BattleAbilityCardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public sealed class BattleAbilityCardView :
+        MonoBehaviour,
+        IPointerEnterHandler,
+        IPointerExitHandler,
+        IPointerDownHandler,
+        IPointerUpHandler,
+        IBeginDragHandler,
+        IDragHandler,
+        IEndDragHandler
     {
+        public enum InteractionArea
+        {
+            None = 0,
+            Loadout = 1,
+            Combat = 2
+        }
+
+        [Serializable]
+        public readonly struct InteractionContext
+        {
+            public static InteractionContext None => new(InteractionArea.None, -1);
+            public static InteractionContext Loadout => new(InteractionArea.Loadout, -1);
+            public static InteractionContext Combat(int combatIndex)
+            {
+                return new InteractionContext(InteractionArea.Combat, combatIndex);
+            }
+
+            public InteractionArea area { get; }
+            public int combatIndex { get; }
+            public bool isCombat => area == InteractionArea.Combat;
+
+            public InteractionContext(InteractionArea area, int combatIndex)
+            {
+                this.area = area;
+                this.combatIndex = combatIndex;
+            }
+        }
+
         [Serializable]
         public readonly struct BindData
         {
@@ -44,6 +81,9 @@ namespace Game.Presentation.Battle
         static readonly Color defaultAttackBorder = Colors.Semantic.StateDanger;
         static readonly Color defaultSkillBorder = Colors.Semantic.StateInfo;
         static readonly Color defaultDisabledOverlay = Colors.Semantic.DisabledTint;
+        const float dragVisualAlpha = 0.5f;
+        const float invalidFeedbackDuration = 0.12f;
+        const float invalidFeedbackScaleUp = 1.05f;
 
         [Header("References")]
         [SerializeField] Button clickButton;
@@ -57,10 +97,20 @@ namespace Game.Presentation.Battle
         Action<string> clickHandler;
         Action<string> tooltipEnterHandler;
         Action tooltipExitHandler;
+        Action<BattleAbilityCardView, string, InteractionContext, Vector2, Camera> dragStartHandler;
+        Action<BattleAbilityCardView, string, InteractionContext, Vector2, Camera> dragMoveHandler;
+        Action<BattleAbilityCardView, string, InteractionContext, Vector2, Camera> dragEndHandler;
+        Action<BattleAbilityCardView, string, InteractionContext> rightClickHandler;
 
         string instanceId = string.Empty;
         string tooltipText = string.Empty;
         bool isHoverable;
+        bool isInteractable;
+        bool isDragging;
+        bool isLeftPointerDown;
+        InteractionContext interactionContext = InteractionContext.None;
+        Color currentBackgroundColor = defaultCardBackground;
+        Coroutine invalidFeedbackRoutine;
 
         public void Bind(
             BindData bindData,
@@ -68,23 +118,32 @@ namespace Game.Presentation.Battle
             bool isInteractable,
             Action<string> onClick,
             Action<string> onTooltipEnter,
-            Action onTooltipExit)
+            Action onTooltipExit,
+            InteractionContext context,
+            Action<BattleAbilityCardView, string, InteractionContext, Vector2, Camera> onDragStart,
+            Action<BattleAbilityCardView, string, InteractionContext, Vector2, Camera> onDragMove,
+            Action<BattleAbilityCardView, string, InteractionContext, Vector2, Camera> onDragEnd,
+            Action<BattleAbilityCardView, string, InteractionContext> onRightClick)
         {
             CacheReferencesIfNeeded();
 
             instanceId = bindData.instanceId;
             tooltipText = bindData.tooltipText;
+            this.isInteractable = isInteractable;
+            interactionContext = context;
             clickHandler = onClick;
             tooltipEnterHandler = onTooltipEnter;
             tooltipExitHandler = onTooltipExit;
+            dragStartHandler = onDragStart;
+            dragMoveHandler = onDragMove;
+            dragEndHandler = onDragEnd;
+            rightClickHandler = onRightClick;
             isHoverable = !string.IsNullOrWhiteSpace(tooltipText);
 
-            if (cardBackgroundImage != null)
-            {
-                cardBackgroundImage.color = isSelected
-                    ? defaultCardBackgroundSelected
-                    : defaultCardBackground;
-            }
+            currentBackgroundColor = isSelected
+                ? defaultCardBackgroundSelected
+                : defaultCardBackground;
+            ApplyBackgroundColorForCurrentState();
 
             if (iconImage != null)
             {
@@ -114,7 +173,7 @@ namespace Game.Presentation.Battle
             {
                 clickButton.onClick.RemoveListener(HandleClick);
                 clickButton.onClick.AddListener(HandleClick);
-                clickButton.interactable = isInteractable;
+                clickButton.interactable = isInteractable && !isDragging;
             }
 
             if (disabledOverlayImage != null)
@@ -122,6 +181,21 @@ namespace Game.Presentation.Battle
                 disabledOverlayImage.gameObject.SetActive(!isInteractable);
                 disabledOverlayImage.color = defaultDisabledOverlay;
             }
+        }
+
+        public void PlayInvalidDropFeedback()
+        {
+            if (!gameObject.activeInHierarchy)
+            {
+                return;
+            }
+
+            if (invalidFeedbackRoutine != null)
+            {
+                StopCoroutine(invalidFeedbackRoutine);
+            }
+
+            invalidFeedbackRoutine = StartCoroutine(PlayInvalidDropFeedbackRoutine());
         }
 
         public void SetRollPulse(float normalized)
@@ -164,8 +238,97 @@ namespace Game.Presentation.Battle
             tooltipExitHandler?.Invoke();
         }
 
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            if (eventData == null)
+            {
+                return;
+            }
+
+            if (eventData.button == PointerEventData.InputButton.Right)
+            {
+                if (!isInteractable ||
+                    !interactionContext.isCombat ||
+                    string.IsNullOrWhiteSpace(instanceId))
+                {
+                    return;
+                }
+
+                rightClickHandler?.Invoke(this, instanceId, interactionContext);
+                return;
+            }
+
+            if (eventData.button == PointerEventData.InputButton.Left)
+            {
+                isLeftPointerDown = true;
+            }
+        }
+
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            if (!CanStartDrag(eventData))
+            {
+                return;
+            }
+
+            isDragging = true;
+            ApplyBackgroundColorForCurrentState();
+
+            if (clickButton != null)
+            {
+                clickButton.interactable = false;
+            }
+
+            dragStartHandler?.Invoke(this, instanceId, interactionContext, eventData.position, eventData.pressEventCamera);
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            if (eventData != null && eventData.button == PointerEventData.InputButton.Left)
+            {
+                isLeftPointerDown = false;
+            }
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            if (!isDragging || eventData == null)
+            {
+                return;
+            }
+
+            dragMoveHandler?.Invoke(this, instanceId, interactionContext, eventData.position, eventData.pressEventCamera);
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            bool shouldDispatch = isDragging && eventData != null;
+
+            isDragging = false;
+            isLeftPointerDown = false;
+            ApplyBackgroundColorForCurrentState();
+
+            if (clickButton != null)
+            {
+                clickButton.interactable = isInteractable;
+            }
+
+            if (!shouldDispatch)
+            {
+                return;
+            }
+
+            dragEndHandler?.Invoke(this, instanceId, interactionContext, eventData.position, eventData.pressEventCamera);
+        }
+
         void OnDestroy()
         {
+            if (invalidFeedbackRoutine != null)
+            {
+                StopCoroutine(invalidFeedbackRoutine);
+                invalidFeedbackRoutine = null;
+            }
+
             if (clickButton != null)
             {
                 clickButton.onClick.RemoveListener(HandleClick);
@@ -217,6 +380,11 @@ namespace Game.Presentation.Battle
 
         void HandleClick()
         {
+            if (isDragging)
+            {
+                return;
+            }
+
             if (string.IsNullOrWhiteSpace(instanceId))
             {
                 return;
@@ -255,6 +423,75 @@ namespace Game.Presentation.Battle
             }
 
             return null;
+        }
+
+        bool CanStartDrag(PointerEventData eventData)
+        {
+            if (eventData == null ||
+                eventData.button != PointerEventData.InputButton.Left ||
+                !isLeftPointerDown ||
+                isDragging)
+            {
+                return false;
+            }
+
+            if (!isInteractable || string.IsNullOrWhiteSpace(instanceId))
+            {
+                return false;
+            }
+
+            if (interactionContext.area != InteractionArea.Loadout &&
+                interactionContext.area != InteractionArea.Combat)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        void ApplyBackgroundColorForCurrentState()
+        {
+            if (cardBackgroundImage == null)
+            {
+                return;
+            }
+
+            Color applied = currentBackgroundColor;
+            if (isDragging)
+            {
+                applied.a = dragVisualAlpha;
+            }
+
+            cardBackgroundImage.color = applied;
+        }
+
+        IEnumerator PlayInvalidDropFeedbackRoutine()
+        {
+            Transform root = transform;
+            Vector3 baseScale = root.localScale;
+            Vector3 expandedScale = baseScale * invalidFeedbackScaleUp;
+
+            float halfDuration = invalidFeedbackDuration * 0.5f;
+            float elapsed = 0f;
+            while (elapsed < halfDuration)
+            {
+                float t = halfDuration <= 0f ? 1f : elapsed / halfDuration;
+                root.localScale = Vector3.Lerp(baseScale, expandedScale, t);
+                elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            elapsed = 0f;
+            while (elapsed < halfDuration)
+            {
+                float t = halfDuration <= 0f ? 1f : elapsed / halfDuration;
+                root.localScale = Vector3.Lerp(expandedScale, baseScale, t);
+                elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            root.localScale = baseScale;
+            invalidFeedbackRoutine = null;
         }
 
         static Color ResolveBorderColor(AbilityType abilityType)

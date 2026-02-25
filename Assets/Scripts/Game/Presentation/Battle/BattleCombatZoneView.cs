@@ -19,6 +19,7 @@ namespace Game.Presentation.Battle
         static readonly Color rollPulseOverlay = Colors.Semantic.HighlightSheen;
         static readonly Color resolveVictoryTint = Colors.Semantic.StatePositiveTint;
         static readonly Color resolveDefeatTint = Colors.Semantic.StateDangerTint;
+        static readonly Color dragHoverTint = Colors.Semantic.HighlightSheen;
 
         [Header("References")]
         [SerializeField] Button zoneButton;
@@ -37,6 +38,7 @@ namespace Game.Presentation.Battle
         readonly List<RectTransform> playerSlots = new();
         Action<int> clickHandler;
         Color zoneBaseColor = defaultZoneBackground;
+        bool isDragHovering;
 
         public int CombatIndex => combatIndex;
         public IReadOnlyList<RectTransform> EnemySlots => enemySlots;
@@ -144,6 +146,27 @@ namespace Game.Presentation.Battle
             }
         }
 
+        public bool ContainsScreenPoint(Vector2 screenPoint, Camera eventCamera)
+        {
+            if (!(transform is RectTransform rectTransform))
+            {
+                return false;
+            }
+
+            return RectTransformUtility.RectangleContainsScreenPoint(rectTransform, screenPoint, eventCamera);
+        }
+
+        public void SetDragHover(bool isHovering)
+        {
+            if (isDragHovering == isHovering)
+            {
+                return;
+            }
+
+            isDragHovering = isHovering;
+            ApplyBaseOrHoverVisual();
+        }
+
         public void SetRollPulse(float normalized)
         {
             if (zoneBackgroundImage == null)
@@ -180,10 +203,7 @@ namespace Game.Presentation.Battle
 
         public void RestoreBaseVisual()
         {
-            if (zoneBackgroundImage != null)
-            {
-                zoneBackgroundImage.color = zoneBaseColor;
-            }
+            ApplyBaseOrHoverVisual();
         }
 
         public void EnsureRowsAndSlots()
@@ -221,6 +241,22 @@ namespace Game.Presentation.Battle
             {
                 dividerImage.color = defaultDividerColor;
             }
+        }
+
+        void ApplyBaseOrHoverVisual()
+        {
+            if (zoneBackgroundImage == null)
+            {
+                return;
+            }
+
+            if (isDragHovering)
+            {
+                zoneBackgroundImage.color = Color.Lerp(zoneBaseColor, dragHoverTint, 0.35f);
+                return;
+            }
+
+            zoneBackgroundImage.color = zoneBaseColor;
         }
 
         static void CollectSlots(RectTransform row, List<RectTransform> buffer, int maxCount)

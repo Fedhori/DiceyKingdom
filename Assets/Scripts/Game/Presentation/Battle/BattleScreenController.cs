@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using Game.Application.Duel;
+using Game.Domain.Duel;
 using Game.Infrastructure.Data;
 using TMPro;
 using UnityEngine;
@@ -39,6 +40,9 @@ namespace Game.Presentation.Battle
         BattleScreenView view;
         bool isFlowRunning;
         BattleAnimationConfig runtimeAnimationConfig;
+        bool isCardDragActive;
+        string dragAbilityId = string.Empty;
+        BattleCombatZoneView hoveredDropZone;
 
         void Awake()
         {
@@ -81,6 +85,7 @@ namespace Game.Presentation.Battle
                 surrenderButton.onClick.RemoveListener(HandleSurrenderClicked);
             }
 
+            ClearDragState();
             view?.UnwireZoneCallbacks();
         }
 
@@ -167,7 +172,15 @@ namespace Game.Presentation.Battle
 
         void RefreshView()
         {
-            view.Refresh(sessionRunner, selectionState, isFlowRunning, HandlePlayerAbilityCardClicked);
+            view.Refresh(
+                sessionRunner,
+                selectionState,
+                isFlowRunning,
+                HandlePlayerAbilityCardClicked,
+                HandleCardDragStarted,
+                HandleCardDragMoved,
+                HandleCardDragEnded,
+                HandleCardRightClicked);
         }
 
         void HandleCombatStartClicked()
@@ -199,7 +212,7 @@ namespace Game.Presentation.Battle
 
         void HandlePlayerAbilityCardClicked(string abilityId)
         {
-            if (isFlowRunning || !sessionRunner.IsInitialized)
+            if (isFlowRunning || !sessionRunner.IsInitialized || isCardDragActive)
             {
                 return;
             }
@@ -210,6 +223,121 @@ namespace Game.Presentation.Battle
                     abilityId,
                     out _))
             {
+                return;
+            }
+
+            RefreshView();
+        }
+
+        void HandleCardDragStarted(
+            BattleAbilityCardView cardView,
+            string abilityId,
+            BattleAbilityCardView.InteractionContext context,
+            Vector2 screenPosition,
+            Camera eventCamera)
+        {
+            if (!CanUseCardInteractions(abilityId))
+            {
+                return;
+            }
+
+            if (cardView == null)
+            {
+                return;
+            }
+
+            isCardDragActive = true;
+            dragAbilityId = abilityId;
+
+            UpdateDropZoneHover(screenPosition, eventCamera);
+        }
+
+        void HandleCardDragMoved(
+            BattleAbilityCardView cardView,
+            string abilityId,
+            BattleAbilityCardView.InteractionContext context,
+            Vector2 screenPosition,
+            Camera eventCamera)
+        {
+            if (!isCardDragActive || !string.Equals(dragAbilityId, abilityId, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            UpdateDropZoneHover(screenPosition, eventCamera);
+        }
+
+        void HandleCardDragEnded(
+            BattleAbilityCardView cardView,
+            string abilityId,
+            BattleAbilityCardView.InteractionContext context,
+            Vector2 screenPosition,
+            Camera eventCamera)
+        {
+            if (!isCardDragActive || !string.Equals(dragAbilityId, abilityId, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            bool shouldRefresh = false;
+            bool isDropFailure = false;
+            if (CanUseCardInteractions(abilityId) &&
+                TryFindDropCombatIndex(screenPosition, eventCamera, out int targetCombatIndex))
+            {
+                bool isNoOp = context.isCombat && context.combatIndex == targetCombatIndex;
+                if (!isNoOp)
+                {
+                    if (selectionState.TryMovePlayerAbilityToCombat(
+                            sessionRunner.DuelState,
+                            sessionRunner.PhaseRunner,
+                            abilityId,
+                            targetCombatIndex,
+                            out string failureMessage))
+                    {
+                        shouldRefresh = true;
+                    }
+                    else
+                    {
+                        isDropFailure = true;
+                        Debug.LogWarning($"[BattleScreenController] Drag move rejected: {failureMessage}");
+                    }
+                }
+            }
+            else
+            {
+                isDropFailure = true;
+            }
+
+            if (isDropFailure && cardView != null)
+            {
+                cardView.PlayInvalidDropFeedback();
+            }
+
+            ClearDragState();
+
+            if (shouldRefresh)
+            {
+                RefreshView();
+            }
+        }
+
+        void HandleCardRightClicked(
+            BattleAbilityCardView cardView,
+            string abilityId,
+            BattleAbilityCardView.InteractionContext context)
+        {
+            if (!context.isCombat || !CanUseCardInteractions(abilityId))
+            {
+                return;
+            }
+
+            if (!selectionState.TryReturnPlayerAbilityToLoadout(
+                    sessionRunner.DuelState,
+                    sessionRunner.PhaseRunner,
+                    abilityId,
+                    out string failureMessage))
+            {
+                Debug.LogWarning($"[BattleScreenController] Return to loadout rejected: {failureMessage}");
                 return;
             }
 
@@ -307,6 +435,96 @@ namespace Game.Presentation.Battle
             }
 
             return runtimeAnimationConfig;
+        }
+
+        bool CanUseCardInteractions(string abilityId)
+        {
+            if (isFlowRunning ||
+                !sessionRunner.IsInitialized ||
+                sessionRunner.DuelState == null ||
+                sessionRunner.PhaseRunner == null ||
+                sessionRunner.DuelState.isDuelEnded ||
+                sessionRunner.PhaseRunner.currentPhase != DuelPhase.PlayerSetup ||
+                string.IsNullOrWhiteSpace(abilityId))
+            {
+                return false;
+            }
+
+            if (!sessionRunner.DuelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) ||
+                ability == null)
+            {
+                return false;
+            }
+
+            return ability.abilityType == AbilityType.Attack;
+        }
+
+        bool TryFindDropCombatIndex(Vector2 screenPosition, Camera eventCamera, out int combatIndex)
+        {
+            combatIndex = -1;
+            if (combatZones == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < combatZones.Length; i++)
+            {
+                BattleCombatZoneView zone = combatZones[i];
+                if (zone == null || !zone.ContainsScreenPoint(screenPosition, eventCamera))
+                {
+                    continue;
+                }
+
+                combatIndex = i;
+                return true;
+            }
+
+            return false;
+        }
+
+        void UpdateDropZoneHover(Vector2 screenPosition, Camera eventCamera)
+        {
+            BattleCombatZoneView nextHovered = null;
+            if (combatZones != null)
+            {
+                for (int i = 0; i < combatZones.Length; i++)
+                {
+                    BattleCombatZoneView zone = combatZones[i];
+                    if (zone != null && zone.ContainsScreenPoint(screenPosition, eventCamera))
+                    {
+                        nextHovered = zone;
+                        break;
+                    }
+                }
+            }
+
+            if (hoveredDropZone == nextHovered)
+            {
+                return;
+            }
+
+            if (hoveredDropZone != null)
+            {
+                hoveredDropZone.SetDragHover(false);
+            }
+
+            hoveredDropZone = nextHovered;
+            if (hoveredDropZone != null)
+            {
+                hoveredDropZone.SetDragHover(true);
+            }
+        }
+
+        void ClearDragState()
+        {
+            if (hoveredDropZone != null)
+            {
+                hoveredDropZone.SetDragHover(false);
+                hoveredDropZone = null;
+            }
+
+            isCardDragActive = false;
+            dragAbilityId = string.Empty;
         }
     }
 }

@@ -169,6 +169,91 @@ namespace Game.Presentation.Battle
                 out failureMessage);
         }
 
+        public bool TryReturnPlayerAbilityToLoadout(
+            DuelState duelState,
+            DuelPhaseRunner phaseRunner,
+            string abilityId,
+            out string failureMessage)
+        {
+            failureMessage = string.Empty;
+
+            if (phaseRunner == null)
+            {
+                failureMessage = "phase runner is null.";
+                return false;
+            }
+
+            if (phaseRunner.currentPhase != DuelPhase.PlayerSetup)
+            {
+                failureMessage = $"current phase is {phaseRunner.currentPhase}, required phase is {DuelPhase.PlayerSetup}.";
+                return false;
+            }
+
+            if (duelState == null)
+            {
+                failureMessage = "duel state is null.";
+                return false;
+            }
+
+            duelState.EnsureInitialized();
+
+            if (string.IsNullOrWhiteSpace(abilityId))
+            {
+                failureMessage = "abilityId is empty.";
+                return false;
+            }
+
+            if (!duelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) || ability == null)
+            {
+                failureMessage = $"ability({abilityId}) does not exist.";
+                return false;
+            }
+
+            if (ability.abilityType != AbilityType.Attack)
+            {
+                failureMessage = $"only Attack type ability can be returned to loadout (current: {ability.abilityType}).";
+                return false;
+            }
+
+            if (!TryFindPlayerAbilityLocation(duelState, abilityId, out AbilityLocationType sourceType, out int sourceCombatIndex))
+            {
+                failureMessage = $"ability({abilityId}) is not in player controllable zones.";
+                return false;
+            }
+
+            if (sourceType != AbilityLocationType.Combat)
+            {
+                failureMessage = $"ability({abilityId}) is not deployed in combat.";
+                return false;
+            }
+
+            if (duelState.combats == null || sourceCombatIndex < 0 || sourceCombatIndex >= duelState.combats.Count)
+            {
+                failureMessage = $"source combat({sourceCombatIndex}) is out of range.";
+                return false;
+            }
+
+            CombatState sourceCombat = duelState.combats[sourceCombatIndex];
+            if (sourceCombat == null)
+            {
+                failureMessage = $"source combat({sourceCombatIndex}) is null.";
+                return false;
+            }
+
+            sourceCombat.EnsureInitialized();
+            sourceCombat.playerAbilityIds.Remove(abilityId);
+
+            if (duelState.loadoutAbilityIds == null)
+            {
+                duelState.loadoutAbilityIds = new System.Collections.Generic.List<string>();
+            }
+
+            duelState.loadoutAbilityIds.Add(abilityId);
+            SelectedAbilityId = string.Empty;
+            SelectedCombatIndex = -1;
+            return true;
+        }
+
         bool TryMovePlayerAbilityToCombatInternal(
             DuelState duelState,
             string abilityId,
