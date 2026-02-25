@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 
 
 
+namespace Game.App
+{
 public class InputService : MonoBehaviour
 {
     [SerializeField] private PlayerInput playerInput;
@@ -22,3 +24,4 @@ public class InputService : MonoBehaviour
 }
 
 
+}

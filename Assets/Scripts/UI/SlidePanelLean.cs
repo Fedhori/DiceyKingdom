@@ -4,6 +4,8 @@ using UnityEngine;
 
 
 
+namespace Game.UI
+{
 public class SlidePanelLean : MonoBehaviour
 {
     [Header("Hide Movement")]
@@ -115,3 +117,4 @@ public class SlidePanelLean : MonoBehaviour
     }
 }
 
+}

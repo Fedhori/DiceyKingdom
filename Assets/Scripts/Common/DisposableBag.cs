@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 
 
+namespace Game.Common
+{
 public sealed class DisposableBag : IDisposable
 {
     readonly List<IDisposable> tokens = new();
@@ -32,3 +34,4 @@ public sealed class DisposableBag : IDisposable
     }
 }
 
+}

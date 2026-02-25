@@ -1,6 +1,10 @@
 using TMPro;
+using Game.App;
+using Game.Common;
 using UnityEngine;
 
+namespace Game.UI
+{
 public sealed class RunCoreStatsBinder : MonoBehaviour
 {
     [Header("Texts")]
@@ -82,3 +86,4 @@ public sealed class RunCoreStatsBinder : MonoBehaviour
     }
 }
 
+}

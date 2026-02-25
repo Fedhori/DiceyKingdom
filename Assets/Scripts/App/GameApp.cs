@@ -1,6 +1,14 @@
-using UI;
+using Game.Audio;
+using Game.Data;
+using Game.Dev;
+using Game.Particles;
+using Game.Save;
+using Game.UI;
+using Game.UI.Tooltip;
 using UnityEngine;
 
+namespace Game.App
+{
 [DefaultExecutionOrder(-10000)]
 
 
@@ -150,3 +158,4 @@ public sealed class GameApp : MonoBehaviour
 }
 
 
+}

@@ -8,6 +8,8 @@ using Newtonsoft.Json.Linq;
 
 
 
+namespace Game.Save
+{
 public static class SaveJson
 {
     static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
@@ -95,3 +97,4 @@ public static class SaveJson
     }
 }
 
+}

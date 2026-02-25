@@ -2,6 +2,7 @@
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using Game.App;
 
 [InitializeOnLoad]
 public static class AutoStartFromBootstrap

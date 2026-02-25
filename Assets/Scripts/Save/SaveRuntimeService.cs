@@ -4,6 +4,8 @@ using UnityEngine;
 
 
 
+namespace Game.Save
+{
 public sealed class SaveRuntimeService : MonoBehaviour
 {
     public bool Save(string payloadJson)
@@ -38,3 +40,4 @@ public sealed class SaveRuntimeService : MonoBehaviour
 }
 
 
+}

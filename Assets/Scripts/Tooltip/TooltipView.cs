@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using Game.Common;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Serialization;
@@ -9,6 +10,8 @@ using UnityEngine.UI;
 
 
 
+namespace Game.UI.Tooltip
+{
 public sealed class TooltipView : MonoBehaviour
 {
     [SerializeField] TMP_Text typeText;
@@ -209,3 +212,4 @@ public sealed class TooltipView : MonoBehaviour
     }
 }
 
+}

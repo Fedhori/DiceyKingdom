@@ -6,6 +6,8 @@ using System.Collections.Generic;
 
 
 
+namespace Game.Audio
+{
 public class AudioService : MonoBehaviour
 {
     [Serializable] public struct SfxEntry {
@@ -114,3 +116,4 @@ public class AudioService : MonoBehaviour
 }
 
 
+}

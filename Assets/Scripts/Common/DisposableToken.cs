@@ -3,6 +3,8 @@ using System;
 
 
 
+namespace Game.Common
+{
 public static class DisposableToken
 {
     
@@ -51,3 +53,4 @@ public static class DisposableToken
     }
 }
 
+}

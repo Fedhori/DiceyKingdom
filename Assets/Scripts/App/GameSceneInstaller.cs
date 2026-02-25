@@ -1,5 +1,7 @@
 using UnityEngine;
 
+namespace Game.App
+{
 [DefaultExecutionOrder(-9000)]
 
 
@@ -52,3 +54,4 @@ public sealed class GameSceneInstaller : MonoBehaviour
     }
 }
 
+}

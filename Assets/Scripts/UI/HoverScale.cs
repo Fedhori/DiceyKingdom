@@ -2,6 +2,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+namespace Game.UI
+{
 [DisallowMultipleComponent]
 
 
@@ -85,3 +87,4 @@ public sealed class HoverScale : MonoBehaviour, IPointerEnterHandler, IPointerEx
     }
 }
 
+}

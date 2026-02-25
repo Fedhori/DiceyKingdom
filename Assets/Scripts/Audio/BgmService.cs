@@ -3,6 +3,8 @@ using UnityEngine;
 
 
 
+namespace Game.Audio
+{
 public sealed class BgmService : MonoBehaviour
 {
     const string PrefsKeyBaseVolume = "bgm.baseVolume";
@@ -111,3 +113,4 @@ public sealed class BgmService : MonoBehaviour
 }
 
 
+}

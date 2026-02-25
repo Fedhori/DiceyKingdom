@@ -1,5 +1,7 @@
 using System;
 
+namespace Game.Save
+{
 [Serializable]
 
 
@@ -24,3 +26,4 @@ public sealed class SaveMeta
     public string checksum = string.Empty;
 }
 
+}

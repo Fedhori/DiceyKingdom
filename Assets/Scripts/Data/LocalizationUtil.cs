@@ -4,6 +4,8 @@ using UnityEngine.Localization;
 
 
 
+namespace Game.Data
+{
 public static class LocalizationUtil
 {
     public static string Get(string table, string key, Dictionary<string, object> args = null)
@@ -26,3 +28,4 @@ public static class LocalizationUtil
     }
 }
 
+}

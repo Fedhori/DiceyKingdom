@@ -6,6 +6,8 @@ using UnityEngine;
 
 
 
+namespace Game.Save
+{
 public sealed class SaveServiceResult
 {
     public bool IsSuccess { get; private set; }
@@ -29,7 +31,7 @@ public static class SaveService
 
         data.meta ??= new SaveMeta();
         data.meta.schemaVersion = SaveMeta.CurrentSchemaVersion;
-        data.meta.appVersion = Application.version;
+        data.meta.appVersion = UnityEngine.Application.version;
         data.meta.timestampUtc = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         data.meta.checksum = string.Empty;
 
@@ -280,3 +282,4 @@ public static class SaveService
     }
 }
 
+}

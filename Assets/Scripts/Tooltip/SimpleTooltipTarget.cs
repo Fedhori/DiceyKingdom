@@ -1,9 +1,13 @@
 using UnityEngine;
+using Game.App;
+using Game.Data;
 using UnityEngine.EventSystems;
 
 
 
 
+namespace Game.UI.Tooltip
+{
 public sealed class SimpleTooltipTarget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("Tooltip Text (Localization)")]
@@ -79,3 +83,4 @@ public sealed class SimpleTooltipTarget : MonoBehaviour, IPointerEnterHandler, I
     }
 }
 
+}

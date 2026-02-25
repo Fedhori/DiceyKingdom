@@ -8,10 +8,12 @@ using UnityEngine;
 
 
 
+namespace Game.Save
+{
 public static class SaveLogger
 {
     public static string LogFilePath =>
-        System.IO.Path.Combine(Application.persistentDataPath, "saves", "save_log.txt");
+        System.IO.Path.Combine(UnityEngine.Application.persistentDataPath, "saves", "save_log.txt");
 
     public static void LogInfo(string message)
     {
@@ -82,3 +84,4 @@ public static class SaveLogger
     }
 }
 
+}

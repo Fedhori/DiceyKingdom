@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 
 
+namespace Game.App
+{
 public class GameSpeedService : MonoBehaviour
 {
     [Header("UI")]
@@ -145,3 +147,4 @@ public class GameSpeedService : MonoBehaviour
 }
 
 
+}

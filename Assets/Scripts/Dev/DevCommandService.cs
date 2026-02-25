@@ -1,9 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Game.App;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+namespace Game.Dev
+{
 [DefaultExecutionOrder(-10000)]
 
 
@@ -232,3 +235,4 @@ public sealed class DevCommandService : MonoBehaviour
 }
 
 
+}

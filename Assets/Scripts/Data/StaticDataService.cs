@@ -6,6 +6,8 @@ using UnityEngine;
 
 
 
+namespace Game.Data
+{
 public sealed class StaticDataService : MonoBehaviour
 {
     [Serializable]
@@ -77,3 +79,4 @@ public sealed class StaticDataService : MonoBehaviour
 }
 
 
+}

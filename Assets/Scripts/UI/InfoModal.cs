@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using Game.Common;
 using UnityEngine.Localization.Components;
 
 
@@ -8,6 +9,8 @@ using UnityEngine.Localization.Components;
 
 
 
+namespace Game.UI
+{
 public class InfoModal : MonoBehaviour
 {
     
@@ -51,3 +54,4 @@ public class InfoModal : MonoBehaviour
 }
 
 
+}

@@ -1,6 +1,8 @@
 
 
 
+namespace Game.App
+{
 public static class SceneIds
 {
     public const string Bootstrap = "Bootstrap";
@@ -9,3 +11,4 @@ public static class SceneIds
     public const string TemplateStartScene = GameScene;
 }
 
+}

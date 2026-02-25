@@ -5,6 +5,8 @@ using UnityEngine;
 
 
 
+namespace Game.Particles
+{
 public sealed class ParticleService : MonoBehaviour
 {
     [Serializable]
@@ -178,3 +180,4 @@ public sealed class ParticleService : MonoBehaviour
 }
 
 
+}

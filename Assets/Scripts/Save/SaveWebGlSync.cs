@@ -3,9 +3,8 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 #endif
 
-
-
-
+namespace Game.Save
+{
 public static class SaveWebGlSync
 {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -48,4 +47,4 @@ public static class SaveWebGlSync
 #endif
     }
 }
-
+}

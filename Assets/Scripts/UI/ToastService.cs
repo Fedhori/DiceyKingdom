@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Localization.Components;
 
-namespace UI
+namespace Game.UI
 {
     
     

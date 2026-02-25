@@ -1,11 +1,16 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Game.App;
+using Game.Audio;
+using Game.Common;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 
 
 
+namespace Game.UI
+{
 public class OptionService : MonoBehaviour
 {
     public GameObject optionOverlay;
@@ -182,7 +187,7 @@ public class OptionService : MonoBehaviour
     public void QuitGame()
     {
         ToggleOption(false);
-        Application.Quit();
+        UnityEngine.Application.Quit();
     }
 
     void UpdatePauseState(bool isOptionOpen)
@@ -241,3 +246,4 @@ public class OptionService : MonoBehaviour
 }
 
 
+}

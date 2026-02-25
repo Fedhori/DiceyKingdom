@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 
 
+namespace Game.UI
+{
 public class ModalService : MonoBehaviour
 {
     [SerializeField] private ConfirmationModal confirmationModalPrefab;
@@ -126,3 +128,4 @@ public class ModalService : MonoBehaviour
 }
 
 
+}

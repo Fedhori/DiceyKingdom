@@ -1,5 +1,7 @@
 using System;
 
+namespace Game.Data
+{
 [Serializable]
 public sealed class GameConfigData
 {
@@ -10,3 +12,4 @@ public sealed class GameConfigData
     public int ticksPerAutoSave = 5;
 }
 
+}

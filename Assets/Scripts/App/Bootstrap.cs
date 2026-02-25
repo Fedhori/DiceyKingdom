@@ -1,8 +1,12 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
+using Game.Data;
 using Game.Infrastructure.Data;
+using Game.Save;
 
+namespace Game.App
+{
 [DefaultExecutionOrder(-20000)]
 public class Bootstrap : MonoBehaviour
 {
@@ -12,7 +16,7 @@ public class Bootstrap : MonoBehaviour
     {
         try
         {
-            Application.targetFrameRate = 60;
+            UnityEngine.Application.targetFrameRate = 60;
 
             
             if (managersRoot && managersRoot.activeSelf)
@@ -87,3 +91,4 @@ public static class AsyncOperationExt
     }
 }
 
+}

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 
+namespace Game.Common
+{
 public interface IReadOnlyObservableValue<T>
 {
     T Value { get; }
@@ -76,3 +78,4 @@ public sealed class ObservableValue<T> : IReadOnlyObservableValue<T>
     }
 }
 
+}

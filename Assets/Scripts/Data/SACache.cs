@@ -11,6 +11,8 @@ using System.Security.Cryptography;
 
 
 
+namespace Game.Data
+{
 public class SaOptions
 {
     public bool forceRefresh = false;            
@@ -67,10 +69,10 @@ public static class SaCache
     public static string Path(string relativePath)
     {
         string path = "";
-        if (Application.isEditor)
-            path = System.IO.Path.Combine(Application.streamingAssetsPath, relativePath);
+        if (UnityEngine.Application.isEditor)
+            path = System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, relativePath);
         else
-            path = System.IO.Path.Combine(Application.persistentDataPath, relativePath);
+            path = System.IO.Path.Combine(UnityEngine.Application.persistentDataPath, relativePath);
         var dir = System.IO.Path.GetDirectoryName(path);
         if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
         return path;
@@ -135,7 +137,7 @@ public static class SaCache
             var state = LoadState();
             var manifestHash = MD5String(manifestJson);
             bool needRefresh = opt.forceRefresh
-                || (opt.refreshIfAppVersionChanged && state?.appVersion != Application.version)
+                || (opt.refreshIfAppVersionChanged && state?.appVersion != UnityEngine.Application.version)
                 || (state?.manifestHash != manifestHash);
 
             
@@ -164,7 +166,7 @@ public static class SaCache
             if (opt.cleanStale) CleanStaleFiles();
 
             
-            SaveState(new SaState { appVersion = Application.version, manifestHash = manifestHash });
+            SaveState(new SaState { appVersion = UnityEngine.Application.version, manifestHash = manifestHash });
 
             inited = true;
             onProgress?.Invoke(1f);
@@ -207,7 +209,7 @@ public static class SaCache
 
     static void CleanStaleFiles()
     {
-        var root = Application.persistentDataPath.Replace("\\", "/");
+        var root = UnityEngine.Application.persistentDataPath.Replace("\\", "/");
         var white = manifest.files.Select(f => (root + "/" + f.path).Replace("//", "/")).ToHashSet(StringComparer.OrdinalIgnoreCase);
         foreach (var f in Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
         {
@@ -227,7 +229,7 @@ public static class SaCache
 
     static async Task<string> LoadSaAsync(string relativePath)
     {
-        var sa = System.IO.Path.Combine(Application.streamingAssetsPath, relativePath).Replace("\\", "/");
+        var sa = System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, relativePath).Replace("\\", "/");
         if (sa.Contains("://") || sa.Contains("jar:"))
         {
             using var req = UnityWebRequest.Get(sa);
@@ -242,7 +244,7 @@ public static class SaCache
 
     static async Task<byte[]> LoadSaBytesAsync(string relativePath)
     {
-        var sa = System.IO.Path.Combine(Application.streamingAssetsPath, relativePath).Replace("\\", "/");
+        var sa = System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, relativePath).Replace("\\", "/");
         if (sa.Contains("://") || sa.Contains("jar:"))
         {
             using var req = UnityWebRequest.Get(sa);
@@ -272,3 +274,4 @@ public static class SaCache
     }
 }
 
+}

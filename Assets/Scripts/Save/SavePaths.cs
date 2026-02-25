@@ -4,6 +4,8 @@ using UnityEngine;
 
 
 
+namespace Game.Save
+{
 public static class SavePaths
 {
     public const string SaveDirectoryName = "saves";
@@ -13,7 +15,7 @@ public static class SavePaths
     public const string TempFileName = "save.tmp";
 
     public static string SaveDirectoryPath =>
-        System.IO.Path.Combine(Application.persistentDataPath, SaveDirectoryName);
+        System.IO.Path.Combine(UnityEngine.Application.persistentDataPath, SaveDirectoryName);
 
     public static string SaveFilePath => Path.Combine(SaveDirectoryPath, SaveFileName);
     public static string BackupFilePath => Path.Combine(SaveDirectoryPath, BackupFileName);
@@ -27,3 +29,4 @@ public static class SavePaths
     }
 }
 
+}

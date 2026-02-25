@@ -1,6 +1,10 @@
 using System;
+using Game.Common;
+using Game.Data;
 using Newtonsoft.Json;
 
+namespace Game.App
+{
 [Serializable]
 public sealed class RunState
 {
@@ -162,3 +166,4 @@ public sealed class RunServices : IDisposable
     }
 }
 
+}

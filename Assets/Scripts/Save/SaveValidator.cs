@@ -5,6 +5,8 @@ using System.Globalization;
 
 
 
+namespace Game.Save
+{
 public sealed class SaveValidationError
 {
     public string FieldPath { get; }
@@ -95,3 +97,4 @@ public static class SaveValidator
     }
 }
 
+}

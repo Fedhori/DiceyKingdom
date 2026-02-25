@@ -5,6 +5,8 @@ using UnityEngine;
 
 
 
+namespace Game.UI
+{
 public class FloatingTextService : MonoBehaviour
 {
     [Header("Prefab & Parents")]
@@ -155,3 +157,4 @@ public class FloatingTextService : MonoBehaviour
 }
 
 
+}

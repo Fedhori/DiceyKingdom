@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace Game.UI.Tooltip
+{
 public enum TooltipKind
 {
     Simple
@@ -63,3 +65,4 @@ public readonly struct TooltipModel
     }
 }
 
+}

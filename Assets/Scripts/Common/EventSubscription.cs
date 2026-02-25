@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 
 
+namespace Game.Common
+{
 public static class EventSubscription
 {
     public static IDisposable Create(Action subscribe, Action unsubscribe)
@@ -34,3 +36,4 @@ public static class EventSubscription
     }
 }
 
+}

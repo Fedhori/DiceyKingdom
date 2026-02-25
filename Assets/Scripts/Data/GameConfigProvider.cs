@@ -8,6 +8,8 @@ using UnityEngine.Networking;
 
 
 
+namespace Game.Data
+{
 public static class GameConfigProvider
 {
     public const string RelativePath = "Data/GameConfig.json";
@@ -67,7 +69,7 @@ public static class GameConfigProvider
 
     static async Task<string> ReadStreamingAssetTextAsync(string relativePath)
     {
-        string sourcePath = Path.Combine(Application.streamingAssetsPath, relativePath).Replace("\\", "/");
+        string sourcePath = Path.Combine(UnityEngine.Application.streamingAssetsPath, relativePath).Replace("\\", "/");
         if (sourcePath.Contains("://") || sourcePath.Contains("jar:"))
         {
             using var request = UnityWebRequest.Get(sourcePath);
@@ -85,3 +87,4 @@ public static class GameConfigProvider
     }
 }
 
+}

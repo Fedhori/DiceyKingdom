@@ -1,7 +1,11 @@
 using UnityEngine;
 using UnityEngine.Serialization;
+using Game.App;
+using Game.Common;
 using UnityEngine.UI;
 
+namespace Game.UI
+{
 [RequireComponent(typeof(Button))]
 
 
@@ -47,3 +51,4 @@ public class OptionOpener : MonoBehaviour
 }
 
 
+}

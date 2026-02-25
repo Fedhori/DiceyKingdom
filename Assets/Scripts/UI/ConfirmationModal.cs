@@ -1,11 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using Game.Common;
 using UnityEngine.Localization.Components;
 
 
 
 
+namespace Game.UI
+{
 public class ConfirmationModal : MonoBehaviour
 {
     [SerializeField] public LocalizeStringEvent titleTextEvent;
@@ -57,3 +60,4 @@ public class ConfirmationModal : MonoBehaviour
     }
 }
 
+}

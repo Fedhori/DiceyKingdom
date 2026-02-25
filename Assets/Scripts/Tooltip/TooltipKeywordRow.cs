@@ -6,6 +6,8 @@ using UnityEngine.Localization;
 
 
 
+namespace Game.UI.Tooltip
+{
 public sealed class TooltipKeywordRow : MonoBehaviour
 {
     [SerializeField] private TMP_Text titleText;
@@ -33,3 +35,4 @@ public sealed class TooltipKeywordRow : MonoBehaviour
     }
 }
 
+}

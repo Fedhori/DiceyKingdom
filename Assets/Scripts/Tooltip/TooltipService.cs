@@ -1,4 +1,6 @@
 using System.Collections;
+using Game.App;
+using Game.Common;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -6,6 +8,8 @@ using UnityEngine.UI;
 
 
 
+namespace Game.UI.Tooltip
+{
 public sealed class TooltipService : MonoBehaviour
 {
     [SerializeField] Canvas tooltipCanvas;      
@@ -474,3 +478,4 @@ public sealed class TooltipService : MonoBehaviour
 }
 
 
+}

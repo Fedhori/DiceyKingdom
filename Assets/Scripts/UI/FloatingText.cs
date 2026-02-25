@@ -5,6 +5,8 @@ using TMPro;
 
 
 
+namespace Game.UI
+{
 public class FloatingText : MonoBehaviour
 {
     [SerializeField] float moveHeight = 50f;
@@ -93,3 +95,4 @@ public class FloatingText : MonoBehaviour
     }
 }
 
+}

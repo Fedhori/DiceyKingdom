@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 
 
+namespace Game.UI
+{
 public sealed class OverlayFader : MonoBehaviour
 {
     [SerializeField] private float fadeSeconds = 0.5f;
@@ -115,3 +117,4 @@ public sealed class OverlayFader : MonoBehaviour
     }
 }
 
+}

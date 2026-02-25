@@ -1,8 +1,11 @@
-using UI;
+using Game.UI;
+using Game.UI.Tooltip;
 
 
 
 
+namespace Game.App
+{
 public sealed class UIService
 {
     public TooltipService Tooltip { get; }
@@ -27,3 +30,4 @@ public sealed class UIService
 }
 
 
+}

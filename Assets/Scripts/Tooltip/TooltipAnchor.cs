@@ -1,5 +1,7 @@
 using UnityEngine;
 
+namespace Game.UI.Tooltip
+{
 public enum TooltipAnchorType
 {
     World,
@@ -37,4 +39,5 @@ public readonly struct TooltipAnchor
     {
         return new TooltipAnchor(TooltipAnchorType.Screen, default, screenRightTop, screenLeftTop);
     }
+}
 }

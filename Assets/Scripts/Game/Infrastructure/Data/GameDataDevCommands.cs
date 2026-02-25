@@ -58,7 +58,7 @@ namespace Game.Infrastructure.Data
 
         static bool IsDevCommandReady()
         {
-            Type gameAppType = Type.GetType("GameApp, Assembly-CSharp");
+            Type gameAppType = Type.GetType("Game.App.GameApp, Assembly-CSharp");
             if (gameAppType == null)
             {
                 return false;
@@ -99,7 +99,7 @@ namespace Game.Infrastructure.Data
 
         static bool TryRegisterCommand()
         {
-            Type devCommandServiceType = Type.GetType("DevCommandService, Assembly-CSharp");
+            Type devCommandServiceType = Type.GetType("Game.Dev.DevCommandService, Assembly-CSharp");
             if (devCommandServiceType == null)
             {
                 return false;

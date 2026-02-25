@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 
+namespace Game.App
+{
 [Serializable]
 
 
@@ -12,3 +14,4 @@ public sealed class GameSceneRefs
     public Transform SceneRoot => sceneRoot;
 }
 
+}

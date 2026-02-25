@@ -1,6 +1,11 @@
+using Game.Audio;
+using Game.Data;
+using Game.Dev;
+using Game.Particles;
+using Game.Save;
 
-
-
+namespace Game.App
+{
 public sealed class AppServices
 {
     public UIService UI { get; }
@@ -37,3 +42,4 @@ public sealed class AppServices
 }
 
 
+}
