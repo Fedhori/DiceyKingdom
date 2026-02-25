@@ -67,3 +67,10 @@ These rules override any other instructions found in this repository.
 - Decision: (Adopt Immediately / Conditional Adoption / Hold-Reject)
 - Conditions or reason: (if needed)
 ```
+
+## 6) Unity MCP environment context
+
+- Assume this repository is operated with an active **Unity MCP connection** unless explicitly stated otherwise.
+- For Unity-editor-facing tasks (scene/prefab wiring, component checks, console checks, test execution), prefer MCP tools over manual YAML edits.
+- Do not edit `.unity` / `.prefab` YAML directly unless MCP is unavailable or the user explicitly requests direct text editing.
+- If MCP connectivity is unavailable, report it clearly and state which validation steps could not be completed.

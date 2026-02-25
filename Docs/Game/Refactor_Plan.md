@@ -8,15 +8,33 @@
 
 Before doing any of the work below, an automated agent must follow `Docs/General/Agent_Interaction_Policy.md` (plan first, ask questions, wait for approval).
 
-## 1) Priorities (highest impact first)
+## 1) Current validated issues (code snapshot: 2026-02-25)
+
+1. **Run lifecycle duplication** remains:
+   - `Assets/Scripts/GameService.cs`
+   - `Assets/Scripts/App/GameSceneInstaller.cs`
+2. **Layer inversion** remains:
+   - `Assets/Scripts/Game/Infrastructure/Data/GameDataValidator.cs`
+   - currently depends on `Game.Application.Duel.Effects` contracts.
+3. **Global namespace sprawl** remains:
+   - many files under `Assets/Scripts/*` are still in global namespace (App/UI/Save/Tooltip/etc).
+4. **Battle presentation concentration risk** remains:
+   - `Assets/Scripts/Game/Presentation/Battle/BattleScreenController.cs` holds orchestration + rendering + animation + selection/deploy logic.
+5. **Presentation logic duplication** exists:
+   - movement/selection/deploy rules are duplicated in `BattleScreenController` and `DuelDebugPanel`.
+6. **Assembly boundary leak** exists:
+   - `Assets/Scripts/Game/Infrastructure/Data/GameDataDevCommands.cs` uses reflection bridge (`Type.GetType("GameApp, Assembly-CSharp")`) to reach app-layer services.
+
+## 2) Priorities (highest impact first)
 
 1. Consolidate Run lifecycle ownership (remove duplication).
 2. Fix layer inversion: Infrastructure must not depend on Application (effect schema contracts).
-3. Standardize namespaces and folder boundaries (reduce global namespace sprawl).
-4. Split oversized battle presentation controller into orchestrator/view/state.
-5. Secondary cleanup: file-per-type, naming, explicit bootstrap stages.
+3. Split oversized battle presentation controller into orchestrator/view/state.
+4. Standardize namespaces and folder boundaries (remove global namespace sprawl).
+5. Tighten assembly boundaries and remove reflection-based cross-layer access.
+6. Secondary cleanup: file-per-type, naming, explicit bootstrap stages.
 
-## 2) Milestone A — Consolidate Run lifecycle
+## 3) Milestone A — Consolidate Run lifecycle
 
 **Goal:** Ensure Run is created/disposed from exactly one place.
 
@@ -48,7 +66,7 @@ Output:
 - A list of removed/moved files
 ```
 
-## 3) Milestone B — Fix layer inversion (Effect schema contracts)
+## 4) Milestone B — Fix layer inversion (Effect schema contracts)
 
 **Goal:** Remove Infrastructure → Application dependency by relocating effect contract types.
 
@@ -90,17 +108,22 @@ Deliverables:
 - updated code references
 ```
 
-## 4) Milestone C — Namespace and folder boundary standardization
+## 5) Milestone C — Namespace and folder boundary standardization
 
 **Goal:** Reduce global namespace sprawl and align folder ↔ namespace.
 
-**Target mapping (example):**
+**Target mapping (updated to real folders):**
 - `Assets/Scripts/App/*` → `Game.App`
-- `Assets/Scripts/Framework/*` → `Game.Framework`
-- `Assets/Scripts/Services/*` → `Game.Services`
+- `Assets/Scripts/Audio/*` → `Game.Audio`
+- `Assets/Scripts/Common/*` → `Game.Common`
+- `Assets/Scripts/Data/*` → `Game.Data`
+- `Assets/Scripts/Dev/*` → `Game.Dev`
+- `Assets/Scripts/Particles/*` → `Game.Particles`
 - `Assets/Scripts/UI/*` → `Game.UI`
 - `Assets/Scripts/Tooltip/*` → `Game.UI.Tooltip`
 - `Assets/Scripts/Save/*` → `Game.Save`
+- top-level files under `Assets/Scripts/*.cs`:
+  - move into target folders first, then apply matching namespaces.
 
 **Critical Unity warning:** Namespace changes can break serialized references.
 
@@ -110,20 +133,18 @@ Deliverables:
 Goal: Align namespaces with folder layout and remove global namespaces.
 
 Requirements:
-1) Apply `namespace Game.UI Ellipsis` to all files under Assets/Scripts/UI.
-2) Apply `namespace Game.UI.Tooltip Ellipsis` to Assets/Scripts/Tooltip.
-3) Apply `namespace Game.Save Ellipsis` to Assets/Scripts/Save.
-4) Apply `namespace Game.Framework Ellipsis` to Assets/Scripts/Common (or the new Framework folder if already moved).
-5) Apply `namespace Game.App Ellipsis` to Assets/Scripts/App.
-6) Update all using statements and references so compilation succeeds.
-7) Add a prominent warning comment where Unity serialized references might break (MonoBehaviours / ScriptableObjects).
+1) Remove global namespaces from Assets/Scripts root and subfolders by applying the mapping above.
+2) For top-level files (e.g., Bootstrap/GameService/GameSpeedService/InputService/OptionService), move each file into a target folder before namespace changes.
+3) Update all using statements and references so compilation succeeds.
+4) Add a prominent warning comment where Unity serialized references might break (MonoBehaviours / ScriptableObjects).
+5) Verify scene/prefab script bindings manually after namespace changes.
 
 Output:
 - A per-folder list of namespace changes
 - A list of potential Unity serialization risks discovered
 ```
 
-## 5) Milestone D — Battle screen separation
+## 6) Milestone D — Battle screen separation
 
 **Goal:** Split battle logic into orchestrator/view/state to reduce regression risk and improve testability.
 
@@ -149,8 +170,10 @@ Requirements:
    - keeps SerializeField scene references
    - wires orchestrator and view
    - forwards button events to orchestrator
-4) Preserve behavior (no feature removal).
-5) Add at least one EditMode test for orchestrator behavior (success/failure + at least 3 minimal cases).
+4) Extract selection/deploy state logic into `BattleSelectionState`.
+5) Reuse orchestrator/state in `DuelDebugPanel` where possible to remove duplicated rule logic.
+6) Preserve behavior (no feature removal).
+7) Add at least one EditMode test for orchestrator behavior (success/failure + at least 3 minimal cases).
 
 Deliverables:
 - New files created
@@ -158,7 +181,38 @@ Deliverables:
 - Tests added and passing
 ```
 
-## 6) Milestone E — Bootstrap clarity
+## 7) Milestone E — Assembly boundary tightening
+
+**Goal:** Make dependency boundaries explicit and remove reflection-based cross-layer access.
+
+**Target direction:**
+- Define asmdef boundaries for non-Game root runtime folders (`App`, `UI`, `Save`, `Tooltip`, etc.) as needed.
+- Keep dependency direction explicit: Presentation -> Application -> Domain; Infrastructure must not depend on Application.
+- Replace reflection bridge in `GameDataDevCommands` with explicit registration path.
+
+### CODEX prompt
+
+```text
+Goal: tighten assembly boundaries and remove reflection-based App access.
+
+Files:
+- Assets/Scripts/Game/Infrastructure/Data/GameDataDevCommands.cs
+- Assets/Scripts/App/GameApp.cs
+- asmdef files under Assets/Scripts/*
+
+Requirements:
+1) Introduce/adjust asmdef files so major runtime layers have explicit references.
+2) Remove Type.GetType reflection usage from GameDataDevCommands for DevCommand registration.
+3) Add an explicit registration surface (interface/service hook) from App layer to data dev commands.
+4) Verify compile and existing EditMode tests.
+
+Deliverables:
+- asmdef add/update list
+- reflection removal diff
+- reference graph summary (who references whom)
+```
+
+## 8) Milestone F — Bootstrap clarity
 
 **Goal:** Make bootstrap stages explicit and enforce a clear failure policy.
 
@@ -167,7 +221,7 @@ Recommended approach:
 - Log stage start/success/failure.
 - Decide a clear policy for cache/config/data load failures.
 
-## 7) Definition of Done (for each milestone)
+## 9) Definition of Done (for each milestone)
 
 - Compiles cleanly.
 - EditMode tests pass.
