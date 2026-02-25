@@ -18,8 +18,6 @@ namespace Game.Presentation.Battle
         static readonly Color defaultTotalPanelBorder = Colors.Semantic.BorderStrong;
         static readonly Color defaultEnemyTotalColor = Colors.Semantic.StateDanger;
         static readonly Color defaultPlayerTotalColor = Colors.Semantic.StateInfo;
-        static readonly Color defaultSlotBackground = Colors.Semantic.SurfaceParchmentAlt;
-        static readonly Color defaultSlotBorder = Colors.Semantic.BorderParchment;
         static readonly Color rollPulseOverlay = Colors.Semantic.HighlightSheen;
         static readonly Color resolveVictoryTint = Colors.Semantic.StatePositiveTint;
         static readonly Color resolveDefeatTint = Colors.Semantic.StateDangerTint;
@@ -204,73 +202,17 @@ namespace Game.Presentation.Battle
 
         public void EnsureRowsAndSlots()
         {
-            EnsureRow(enemySlotsRow, "EnemySlot");
-            EnsureRow(playerSlotsRow, "PlayerSlot");
-
             enemySlots.Clear();
             playerSlots.Clear();
 
             CollectSlots(enemySlotsRow, enemySlots, slotCountPerSide);
             CollectSlots(playerSlotsRow, playerSlots, slotCountPerSide);
-        }
 
-        void EnsureRow(RectTransform row, string slotNamePrefix)
-        {
-            if (row == null)
+            if (enemySlots.Count != slotCountPerSide || playerSlots.Count != slotCountPerSide)
             {
-                return;
-            }
-
-            if (!row.TryGetComponent(out HorizontalLayoutGroup layoutGroup))
-            {
-                layoutGroup = row.gameObject.AddComponent<HorizontalLayoutGroup>();
-            }
-
-            layoutGroup.childAlignment = TextAnchor.MiddleCenter;
-            layoutGroup.spacing = 6f;
-            layoutGroup.childControlWidth = false;
-            layoutGroup.childControlHeight = false;
-            layoutGroup.childForceExpandWidth = false;
-            layoutGroup.childForceExpandHeight = false;
-
-            if (!row.TryGetComponent(out ContentSizeFitter contentSizeFitter))
-            {
-                contentSizeFitter = row.gameObject.AddComponent<ContentSizeFitter>();
-            }
-
-            contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
-            int existingChildCount = row.childCount;
-            for (int i = existingChildCount; i < slotCountPerSide; i++)
-            {
-                GameObject slot = new GameObject($"{slotNamePrefix}_{i}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-                slot.transform.SetParent(row, false);
-
-                if (!slot.TryGetComponent(out LayoutElement layoutElement))
-                {
-                    layoutElement = slot.AddComponent<LayoutElement>();
-                }
-
-                layoutElement.preferredWidth = 52f;
-                layoutElement.preferredHeight = 76f;
-                layoutElement.minWidth = 52f;
-                layoutElement.minHeight = 76f;
-                layoutElement.flexibleWidth = 0f;
-                layoutElement.flexibleHeight = 0f;
-
-                if (slot.TryGetComponent(out Image slotImage))
-                {
-                    slotImage.color = defaultSlotBackground;
-                }
-
-                if (!slot.TryGetComponent(out Outline outline))
-                {
-                    outline = slot.AddComponent<Outline>();
-                }
-
-                outline.effectColor = defaultSlotBorder;
-                outline.effectDistance = new Vector2(1f, -1f);
+                UnityEngine.Debug.LogWarning(
+                    $"[BattleCombatZoneView] Slot count mismatch at combat({combatIndex}). " +
+                    $"enemySlots={enemySlots.Count}, playerSlots={playerSlots.Count}, expected={slotCountPerSide}");
             }
         }
 
@@ -306,13 +248,11 @@ namespace Game.Presentation.Battle
             }
 
             panelImage.color = defaultTotalPanelBackground;
-            if (!panelImage.TryGetComponent(out Outline outline))
+            if (panelImage.TryGetComponent(out Outline outline))
             {
-                outline = panelImage.gameObject.AddComponent<Outline>();
+                outline.effectColor = defaultTotalPanelBorder;
+                outline.effectDistance = new Vector2(1f, -1f);
             }
-
-            outline.effectColor = defaultTotalPanelBorder;
-            outline.effectDistance = new Vector2(1f, -1f);
         }
 
         static void CollectSlots(RectTransform row, List<RectTransform> buffer, int maxCount)

@@ -15,7 +15,6 @@ namespace Game.Presentation.Battle
     [ExecuteAlways]
     public sealed class BattleScreenController : MonoBehaviour
     {
-        const int expectedRuntimeLayoutVersion = 27;
         const string defaultEnemyId = "enemy.northern.footman";
 
         static readonly Color defaultBackgroundColor = Colors.Primitive.Bone300;
@@ -44,7 +43,6 @@ namespace Game.Presentation.Battle
         [SerializeField] TMP_Text tooltipText;
         [SerializeField] Image tooltipBackgroundImage;
         [SerializeField] BattleAnimationConfig animationConfig;
-        [SerializeField, HideInInspector] int runtimeLayoutVersion;
 
         DuelState duelState;
         DuelPhaseRunner phaseRunner;
@@ -69,17 +67,22 @@ namespace Game.Presentation.Battle
 
         void Awake()
         {
+            CollectCombatZonesIfNeeded();
+            ApplyStaticVisuals();
+
             if (!UnityEngine.Application.isPlaying)
             {
-                EnsureRuntimeLayoutIfNeeded();
-                ApplyStaticVisuals();
                 return;
             }
 
-            EnsureRuntimeLayoutIfNeeded();
-            ApplyStaticVisuals();
-            EnsureLoadoutLayout(enemyLoadoutRow);
-            EnsureLoadoutLayout(playerLoadoutRow);
+            if (!ValidateSceneReferencesForRuntime(out string missingReferences))
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[BattleScreenController] Missing required scene references: {missingReferences}. Configure in editor.");
+                enabled = false;
+                return;
+            }
+
             WireCallbacks();
             InitializeDuelOrWarn();
             RefreshView();
@@ -92,207 +95,114 @@ namespace Game.Presentation.Battle
                 return;
             }
 
-            EnsureRuntimeLayoutIfNeeded();
+            CollectCombatZonesIfNeeded();
             ApplyStaticVisuals();
         }
 
-        void EnsureRuntimeLayoutIfNeeded()
+        void OnValidate()
+        {
+            CollectCombatZonesIfNeeded();
+            ApplyStaticVisuals();
+        }
+
+        void CollectCombatZonesIfNeeded()
         {
             bool hasValidZones = combatZones != null &&
                 combatZones.Length == 3 &&
-                combatZones[0] != null &&
-                combatZones[1] != null &&
-                combatZones[2] != null;
-            bool hasCoreReferences = backgroundImage != null &&
-                topBarImage != null &&
-                turnText != null &&
-                enemyHealthText != null &&
-                playerHealthText != null &&
-                combatStartButton != null &&
-                surrenderButton != null &&
-                enemyLoadoutRow != null &&
-                playerLoadoutRow != null &&
-                hasValidZones &&
-                abilityCardPrefab != null &&
-                tooltipText != null &&
-                tooltipBackgroundImage != null;
-            bool hasExpectedLayoutVersion = runtimeLayoutVersion == expectedRuntimeLayoutVersion;
-
-            if (hasCoreReferences && hasExpectedLayoutVersion && !HasLegacyDebugLayoutMarkers())
+                combatZones.All(zone => zone != null);
+            if (hasValidZones)
             {
                 return;
             }
 
-            BuildRuntimeLayout();
+            BattleCombatZoneView[] found = GetComponentsInChildren<BattleCombatZoneView>(true)
+                .OrderBy(zone =>
+                {
+                    if (zone == null || zone.transform == null)
+                    {
+                        return int.MaxValue;
+                    }
+
+                    Transform parent = zone.transform.parent;
+                    return parent == null ? int.MaxValue : parent.GetSiblingIndex();
+                })
+                .ThenBy(zone => zone == null || zone.transform == null ? int.MaxValue : zone.transform.GetSiblingIndex())
+                .Take(3)
+                .ToArray();
+
+            combatZones = found;
         }
 
-        bool HasLegacyDebugLayoutMarkers()
+        bool ValidateSceneReferencesForRuntime(out string missingReferences)
         {
-            return transform.Find("TopHeader") != null ||
-                transform.Find("StatusBar") != null ||
-                transform.Find("BodyRow") != null ||
-                transform.Find("ActionHolderColumn") != null ||
-                transform.Find("BattlefieldsColumn") != null ||
-                transform.Find("ActionsColumn") != null ||
-                transform.Find("ActionsLogColumn") != null;
-        }
-
-        void BuildRuntimeLayout()
-        {
-            for (int i = transform.childCount - 1; i >= 0; i--)
-            {
-                Transform child = transform.GetChild(i);
-                if (child == null)
-                {
-                    continue;
-                }
-
-                if (UnityEngine.Application.isPlaying)
-                {
-                    Destroy(child.gameObject);
-                }
-                else
-                {
-                    DestroyImmediate(child.gameObject);
-                }
-            }
-
-            if (transform is RectTransform rootRect)
-            {
-                rootRect.anchorMin = Vector2.zero;
-                rootRect.anchorMax = Vector2.one;
-                rootRect.pivot = new Vector2(0.5f, 0.5f);
-                rootRect.anchoredPosition = Vector2.zero;
-                rootRect.sizeDelta = Vector2.zero;
-            }
-
-            backgroundImage = gameObject.GetComponent<Image>();
+            var missing = new List<string>();
             if (backgroundImage == null)
             {
-                backgroundImage = gameObject.AddComponent<Image>();
+                missing.Add(nameof(backgroundImage));
             }
 
-            RectTransform topBarRect = CreateRectTransform(
-                "TopBar",
-                transform,
-                new Vector2(0f, 1f),
-                new Vector2(1f, 1f),
-                new Vector2(0.5f, 1f),
-                Vector2.zero,
-                new Vector2(0f, 44f));
-            topBarImage = EnsureImage(topBarRect.gameObject, defaultTopBarColor);
-            turnText = CreateText(
-                "TurnText",
-                topBarRect,
-                new Vector2(0f, 0f),
-                new Vector2(1f, 1f),
-                new Vector2(0f, 0.5f),
-                new Vector2(18f, 0f),
-                new Vector2(-36f, 0f),
-                "Turn: 0",
-                defaultTooltipTextColor,
-                30f,
-                FontStyles.Normal,
-                TextAlignmentOptions.MidlineLeft);
+            if (topBarImage == null)
+            {
+                missing.Add(nameof(topBarImage));
+            }
 
-            surrenderButton = CreateButton(
-                "SurrenderButton",
-                transform,
-                "SURRENDER",
-                new Vector2(0f, 1f),
-                new Vector2(0f, 1f),
-                new Vector2(0f, 1f),
-                new Vector2(16f, -56f),
-                new Vector2(156f, 40f),
-                defaultSurrenderButtonColor,
-                Colors.Semantic.TextOnAccentLight);
+            if (turnText == null)
+            {
+                missing.Add(nameof(turnText));
+            }
 
-            enemyLoadoutRow = CreateLoadoutRow(
-                "EnemyLoadoutRow",
-                transform,
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0f, -130f),
-                new Vector2(560f, 92f));
+            if (enemyHealthText == null)
+            {
+                missing.Add(nameof(enemyHealthText));
+            }
 
-            enemyHealthText = CreateText(
-                "EnemyHealthText",
-                transform as RectTransform,
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0f, -208f),
-                new Vector2(340f, 34f),
-                string.Empty,
-                defaultTooltipTextColor,
-                36f,
-                FontStyles.Normal,
-                TextAlignmentOptions.Center);
+            if (playerHealthText == null)
+            {
+                missing.Add(nameof(playerHealthText));
+            }
 
-            combatZones = CreateCombatZoneRow(transform);
+            if (combatStartButton == null)
+            {
+                missing.Add(nameof(combatStartButton));
+            }
 
-            playerHealthText = CreateText(
-                "PlayerHealthText",
-                transform as RectTransform,
-                new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0f),
-                new Vector2(0f, 204f),
-                new Vector2(340f, 34f),
-                string.Empty,
-                defaultTooltipTextColor,
-                36f,
-                FontStyles.Normal,
-                TextAlignmentOptions.Center);
+            if (surrenderButton == null)
+            {
+                missing.Add(nameof(surrenderButton));
+            }
 
-            playerLoadoutRow = CreateLoadoutRow(
-                "PlayerLoadoutRow",
-                transform,
-                new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0f),
-                new Vector2(0.5f, 0f),
-                new Vector2(0f, 124f),
-                new Vector2(640f, 92f));
+            if (enemyLoadoutRow == null)
+            {
+                missing.Add(nameof(enemyLoadoutRow));
+            }
 
-            combatStartButton = CreateButton(
-                "CombatStartButton",
-                transform,
-                "COMBAT START",
-                new Vector2(1f, 0f),
-                new Vector2(1f, 0f),
-                new Vector2(1f, 0f),
-                new Vector2(-16f, 16f),
-                new Vector2(228f, 72f),
-                defaultCombatStartButtonColor,
-                Colors.Semantic.TextOnAccentLight);
+            if (playerLoadoutRow == null)
+            {
+                missing.Add(nameof(playerLoadoutRow));
+            }
 
-            RectTransform tooltipPanelRect = CreateRectTransform(
-                "TooltipPanel",
-                transform,
-                new Vector2(0f, 0f),
-                new Vector2(0f, 0f),
-                new Vector2(0f, 0f),
-                new Vector2(16f, 16f),
-                new Vector2(480f, 84f));
-            tooltipBackgroundImage = EnsureImage(tooltipPanelRect.gameObject, defaultTooltipBackgroundColor);
-            tooltipText = CreateText(
-                "TooltipText",
-                tooltipPanelRect,
-                new Vector2(0f, 0f),
-                new Vector2(1f, 1f),
-                new Vector2(0.5f, 0.5f),
-                Vector2.zero,
-                new Vector2(-16f, -8f),
-                string.Empty,
-                defaultTooltipTextColor,
-                24f,
-                FontStyles.Normal,
-                TextAlignmentOptions.TopLeft);
-            tooltipPanelRect.gameObject.SetActive(false);
+            if (combatZones == null || combatZones.Length != 3 || combatZones.Any(zone => zone == null))
+            {
+                missing.Add(nameof(combatZones));
+            }
 
-            abilityCardPrefab = CreateAbilityCardTemplate(transform);
-            runtimeLayoutVersion = expectedRuntimeLayoutVersion;
+            if (abilityCardPrefab == null)
+            {
+                missing.Add(nameof(abilityCardPrefab));
+            }
+
+            if (tooltipText == null)
+            {
+                missing.Add(nameof(tooltipText));
+            }
+
+            if (tooltipBackgroundImage == null)
+            {
+                missing.Add(nameof(tooltipBackgroundImage));
+            }
+
+            missingReferences = string.Join(", ", missing);
+            return missing.Count <= 0;
         }
 
         void OnDestroy()
@@ -315,69 +225,6 @@ namespace Game.Presentation.Battle
                 }
 
                 combatZones[i].SetClickHandler(null);
-            }
-        }
-
-        void OnValidate()
-        {
-            if (backgroundImage == null)
-            {
-                backgroundImage = ResolveImage("Background");
-            }
-
-            if (topBarImage == null)
-            {
-                topBarImage = ResolveImage("TopBar");
-            }
-
-            if (turnText == null)
-            {
-                turnText = ResolveText("TurnText");
-            }
-
-            if (enemyHealthText == null)
-            {
-                enemyHealthText = ResolveText("EnemyHealthText");
-            }
-
-            if (playerHealthText == null)
-            {
-                playerHealthText = ResolveText("PlayerHealthText");
-            }
-
-            if (combatStartButton == null)
-            {
-                combatStartButton = ResolveButton("CombatStartButton");
-            }
-
-            if (surrenderButton == null)
-            {
-                surrenderButton = ResolveButton("SurrenderButton");
-            }
-
-            if (enemyLoadoutRow == null)
-            {
-                enemyLoadoutRow = ResolveRect("EnemyLoadoutRow");
-            }
-
-            if (playerLoadoutRow == null)
-            {
-                playerLoadoutRow = ResolveRect("PlayerLoadoutRow");
-            }
-
-            if (tooltipText == null)
-            {
-                tooltipText = ResolveText("TooltipText");
-            }
-
-            if (tooltipBackgroundImage == null)
-            {
-                tooltipBackgroundImage = ResolveImage("TooltipPanel");
-            }
-
-            if (combatZones == null || combatZones.Length <= 0)
-            {
-                combatZones = GetComponentsInChildren<BattleCombatZoneView>(true);
             }
         }
 
@@ -1076,373 +923,6 @@ namespace Game.Presentation.Battle
             return true;
         }
 
-        static Image EnsureImage(GameObject target, Color color)
-        {
-            if (target == null)
-            {
-                return null;
-            }
-
-            Image image = target.GetComponent<Image>();
-            if (image == null)
-            {
-                image = target.AddComponent<Image>();
-            }
-
-            image.color = color;
-            image.raycastTarget = true;
-            return image;
-        }
-
-        RectTransform CreateRectTransform(
-            string name,
-            Transform parent,
-            Vector2 anchorMin,
-            Vector2 anchorMax,
-            Vector2 pivot,
-            Vector2 anchoredPosition,
-            Vector2 sizeDelta)
-        {
-            var target = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer));
-            target.transform.SetParent(parent, false);
-
-            RectTransform rect = target.GetComponent<RectTransform>();
-            rect.anchorMin = anchorMin;
-            rect.anchorMax = anchorMax;
-            rect.pivot = pivot;
-            rect.anchoredPosition = anchoredPosition;
-            rect.sizeDelta = sizeDelta;
-            return rect;
-        }
-
-        TMP_Text CreateText(
-            string name,
-            RectTransform parent,
-            Vector2 anchorMin,
-            Vector2 anchorMax,
-            Vector2 pivot,
-            Vector2 anchoredPosition,
-            Vector2 sizeDelta,
-            string content,
-            Color color,
-            float fontSize,
-            FontStyles style,
-            TextAlignmentOptions alignment)
-        {
-            RectTransform rect = CreateRectTransform(
-                name,
-                parent,
-                anchorMin,
-                anchorMax,
-                pivot,
-                anchoredPosition,
-                sizeDelta);
-
-            TMP_Text text = rect.gameObject.AddComponent<TextMeshProUGUI>();
-            text.text = content ?? string.Empty;
-            text.color = color;
-            text.fontSize = fontSize;
-            text.fontStyle = style;
-            text.alignment = alignment;
-            text.textWrappingMode = TextWrappingModes.NoWrap;
-            return text;
-        }
-
-        Button CreateButton(
-            string name,
-            Transform parent,
-            string label,
-            Vector2 anchorMin,
-            Vector2 anchorMax,
-            Vector2 pivot,
-            Vector2 anchoredPosition,
-            Vector2 sizeDelta,
-            Color backgroundColor,
-            Color textColor)
-        {
-            RectTransform rect = CreateRectTransform(
-                name,
-                parent,
-                anchorMin,
-                anchorMax,
-                pivot,
-                anchoredPosition,
-                sizeDelta);
-            Image image = EnsureImage(rect.gameObject, backgroundColor);
-
-            Button button = rect.gameObject.AddComponent<Button>();
-            button.transition = Selectable.Transition.None;
-            button.targetGraphic = image;
-
-            CreateText(
-                "Label",
-                rect,
-                Vector2.zero,
-                Vector2.one,
-                new Vector2(0.5f, 0.5f),
-                Vector2.zero,
-                Vector2.zero,
-                label,
-                textColor,
-                34f,
-                FontStyles.Bold,
-                TextAlignmentOptions.Center);
-            return button;
-        }
-
-        RectTransform CreateLoadoutRow(
-            string name,
-            Transform parent,
-            Vector2 anchorMin,
-            Vector2 anchorMax,
-            Vector2 pivot,
-            Vector2 anchoredPosition,
-            Vector2 sizeDelta)
-        {
-            RectTransform rect = CreateRectTransform(
-                name,
-                parent,
-                anchorMin,
-                anchorMax,
-                pivot,
-                anchoredPosition,
-                sizeDelta);
-            EnsureLoadoutLayout(rect);
-            return rect;
-        }
-
-        BattleCombatZoneView[] CreateCombatZoneRow(Transform parent)
-        {
-            RectTransform rowRect = CreateRectTransform(
-                "CombatZoneRow",
-                parent,
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0f, -6f),
-                new Vector2(1828f, 360f));
-
-            HorizontalLayoutGroup layout = rowRect.gameObject.AddComponent<HorizontalLayoutGroup>();
-            layout.spacing = 12f;
-            layout.childAlignment = TextAnchor.MiddleCenter;
-            layout.childControlWidth = true;
-            layout.childControlHeight = true;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = true;
-
-            var zones = new BattleCombatZoneView[3];
-            for (int i = 0; i < zones.Length; i++)
-            {
-                zones[i] = CreateCombatZone(rowRect, i);
-            }
-
-            return zones;
-        }
-
-        BattleCombatZoneView CreateCombatZone(RectTransform parent, int index)
-        {
-            RectTransform zoneRect = CreateRectTransform(
-                $"CombatZone_{index}",
-                parent,
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                Vector2.zero,
-                new Vector2(600f, 360f));
-
-            LayoutElement layoutElement = zoneRect.gameObject.AddComponent<LayoutElement>();
-            layoutElement.preferredWidth = 600f;
-            layoutElement.preferredHeight = 360f;
-
-            Image zoneImage = EnsureImage(zoneRect.gameObject, Colors.Semantic.SurfaceParchment);
-            Outline zoneOutline = zoneRect.gameObject.AddComponent<Outline>();
-            zoneOutline.effectColor = Colors.Semantic.BorderParchment;
-            zoneOutline.effectDistance = new Vector2(1f, -1f);
-
-            Button zoneButton = zoneRect.gameObject.AddComponent<Button>();
-            zoneButton.transition = Selectable.Transition.None;
-            zoneButton.targetGraphic = zoneImage;
-
-            RectTransform enemyRow = CreateRectTransform(
-                "EnemySlotsRow",
-                zoneRect,
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0f, 86f),
-                new Vector2(400f, 84f));
-            RectTransform playerRow = CreateRectTransform(
-                "PlayerSlotsRow",
-                zoneRect,
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0f, -86f),
-                new Vector2(400f, 84f));
-
-            RectTransform enemyTotalPanel = CreateRectTransform(
-                "EnemyTotalPanel",
-                zoneRect,
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0f, 26f),
-                new Vector2(162f, 40f));
-            EnsureImage(enemyTotalPanel.gameObject, Colors.Semantic.SurfaceSecondary);
-
-            CreateText(
-                "EnemyTotalText",
-                enemyTotalPanel,
-                Vector2.zero,
-                Vector2.one,
-                new Vector2(0.5f, 0.5f),
-                Vector2.zero,
-                Vector2.zero,
-                "0",
-                Colors.Semantic.StateDanger,
-                38f,
-                FontStyles.Bold,
-                TextAlignmentOptions.Center);
-
-            RectTransform playerTotalPanel = CreateRectTransform(
-                "PlayerTotalPanel",
-                zoneRect,
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0f, -26f),
-                new Vector2(162f, 40f));
-            EnsureImage(playerTotalPanel.gameObject, Colors.Semantic.SurfaceSecondary);
-
-            CreateText(
-                "PlayerTotalText",
-                playerTotalPanel,
-                Vector2.zero,
-                Vector2.one,
-                new Vector2(0.5f, 0.5f),
-                Vector2.zero,
-                Vector2.zero,
-                "0",
-                Colors.Semantic.StateInfo,
-                38f,
-                FontStyles.Bold,
-                TextAlignmentOptions.Center);
-
-            RectTransform dividerRect = CreateRectTransform(
-                "MiddleDivider",
-                zoneRect,
-                new Vector2(0.02f, 0.5f),
-                new Vector2(0.98f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                Vector2.zero,
-                new Vector2(0f, 2f));
-            EnsureImage(dividerRect.gameObject, Colors.Semantic.DividerParchment);
-
-            BattleCombatZoneView zoneView = zoneRect.gameObject.AddComponent<BattleCombatZoneView>();
-            zoneView.SetCombatIndex(index);
-            zoneView.EnsureRowsAndSlots();
-            return zoneView;
-        }
-
-        BattleAbilityCardView CreateAbilityCardTemplate(Transform parent)
-        {
-            RectTransform templateRoot = CreateRectTransform(
-                "TemplateRoot",
-                parent,
-                new Vector2(0f, 0f),
-                new Vector2(0f, 0f),
-                new Vector2(0f, 0f),
-                new Vector2(-1000f, -1000f),
-                Vector2.zero);
-
-            RectTransform cardRect = CreateRectTransform(
-                "AbilityCardTemplate",
-                templateRoot,
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                Vector2.zero,
-                new Vector2(52f, 76f));
-            EnsureImage(cardRect.gameObject, Colors.Semantic.SurfaceParchment);
-            cardRect.gameObject.AddComponent<Button>().transition = Selectable.Transition.None;
-
-            Outline outline = cardRect.gameObject.AddComponent<Outline>();
-            outline.effectColor = Colors.Semantic.StateDanger;
-            outline.effectDistance = new Vector2(2f, -2f);
-
-            CreateRectTransform(
-                "IconBackground",
-                cardRect,
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0f, 4f),
-                new Vector2(34f, 46f));
-            EnsureImage(cardRect.Find("IconBackground").gameObject, Colors.Semantic.SurfaceParchmentMuted);
-
-            CreateRectTransform(
-                "IconImage",
-                cardRect,
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(0f, 4f),
-                new Vector2(28f, 40f));
-            EnsureImage(cardRect.Find("IconImage").gameObject, Colors.Semantic.SurfaceParchmentMuted);
-
-            RectTransform badgeRect = CreateRectTransform(
-                "PowerBadge",
-                cardRect,
-                new Vector2(1f, 0f),
-                new Vector2(1f, 0f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(-2f, 2f),
-                new Vector2(22f, 22f));
-            EnsureImage(badgeRect.gameObject, Colors.Semantic.SurfaceSecondary);
-
-            CreateText(
-                "PowerText",
-                badgeRect,
-                Vector2.zero,
-                Vector2.one,
-                new Vector2(0.5f, 0.5f),
-                Vector2.zero,
-                Vector2.zero,
-                "0",
-                Colors.Semantic.TextPrimary,
-                18f,
-                FontStyles.Bold,
-                TextAlignmentOptions.Center);
-
-            CreateText(
-                "TitleText",
-                cardRect,
-                new Vector2(0f, 1f),
-                new Vector2(1f, 1f),
-                new Vector2(0.5f, 1f),
-                new Vector2(0f, -2f),
-                new Vector2(-6f, 14f),
-                string.Empty,
-                Colors.Semantic.TextOnLightPrimary,
-                9f,
-                FontStyles.Bold,
-                TextAlignmentOptions.Center);
-
-            RectTransform disabledOverlayRect = CreateRectTransform(
-                "DisabledOverlay",
-                cardRect,
-                Vector2.zero,
-                Vector2.one,
-                new Vector2(0.5f, 0.5f),
-                Vector2.zero,
-                Vector2.zero);
-            EnsureImage(disabledOverlayRect.gameObject, Colors.Semantic.DisabledTint);
-
-            BattleAbilityCardView templateView = cardRect.gameObject.AddComponent<BattleAbilityCardView>();
-            cardRect.gameObject.SetActive(false);
-            return templateView;
-        }
-
         void ApplyStaticVisuals()
         {
             if (backgroundImage != null)
@@ -1463,34 +943,6 @@ namespace Game.Presentation.Battle
             ApplyButtonVisual(combatStartButton, defaultCombatStartButtonColor);
             ApplyButtonVisual(surrenderButton, defaultSurrenderButtonColor);
             HideTooltip();
-        }
-
-        static void EnsureLoadoutLayout(RectTransform row)
-        {
-            if (row == null)
-            {
-                return;
-            }
-
-            if (!row.TryGetComponent(out HorizontalLayoutGroup layoutGroup))
-            {
-                layoutGroup = row.gameObject.AddComponent<HorizontalLayoutGroup>();
-            }
-
-            layoutGroup.childAlignment = TextAnchor.MiddleCenter;
-            layoutGroup.spacing = 10f;
-            layoutGroup.childControlWidth = false;
-            layoutGroup.childControlHeight = false;
-            layoutGroup.childForceExpandWidth = false;
-            layoutGroup.childForceExpandHeight = false;
-
-            if (!row.TryGetComponent(out ContentSizeFitter contentSizeFitter))
-            {
-                contentSizeFitter = row.gameObject.AddComponent<ContentSizeFitter>();
-            }
-
-            contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-            contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         }
 
         void ClearSpawnedCards()
@@ -1673,7 +1125,6 @@ namespace Game.Presentation.Battle
 
             BattleAbilityCardView card = Instantiate(abilityCardPrefab, row);
             card.gameObject.SetActive(true);
-            EnsureCardLayout(card);
             card.Bind(bindData, isSelected, isInteractable, onClick, ShowTooltip, HideTooltip);
             spawnedCards.Add(card);
             return card;
@@ -1722,40 +1173,9 @@ namespace Game.Presentation.Battle
 
             BattleAbilityCardView card = Instantiate(abilityCardPrefab, slot);
             card.gameObject.SetActive(true);
-            EnsureCardLayout(card);
-
-            RectTransform cardRect = card.transform as RectTransform;
-            if (cardRect != null)
-            {
-                cardRect.anchorMin = new Vector2(0.5f, 0.5f);
-                cardRect.anchorMax = new Vector2(0.5f, 0.5f);
-                cardRect.pivot = new Vector2(0.5f, 0.5f);
-                cardRect.anchoredPosition = Vector2.zero;
-            }
-
             card.Bind(bindData, isSelected, isInteractable, onClick, ShowTooltip, HideTooltip);
             spawnedCards.Add(card);
             return card;
-        }
-
-        static void EnsureCardLayout(BattleAbilityCardView card)
-        {
-            if (card == null)
-            {
-                return;
-            }
-
-            if (!card.TryGetComponent(out LayoutElement layoutElement))
-            {
-                layoutElement = card.gameObject.AddComponent<LayoutElement>();
-            }
-
-            layoutElement.preferredWidth = 52f;
-            layoutElement.preferredHeight = 76f;
-            layoutElement.minWidth = 52f;
-            layoutElement.minHeight = 76f;
-            layoutElement.flexibleWidth = 0f;
-            layoutElement.flexibleHeight = 0f;
         }
 
         static string BuildAbilityTooltip(AbilityDef def)
@@ -1850,47 +1270,5 @@ namespace Game.Presentation.Battle
             return false;
         }
 
-        Image ResolveImage(string objectName)
-        {
-            return ResolveComponentByName<Image>(objectName);
-        }
-
-        TMP_Text ResolveText(string objectName)
-        {
-            return ResolveComponentByName<TMP_Text>(objectName);
-        }
-
-        Button ResolveButton(string objectName)
-        {
-            return ResolveComponentByName<Button>(objectName);
-        }
-
-        RectTransform ResolveRect(string objectName)
-        {
-            return ResolveComponentByName<RectTransform>(objectName);
-        }
-
-        T ResolveComponentByName<T>(string objectName)
-            where T : Component
-        {
-            if (string.IsNullOrWhiteSpace(objectName))
-            {
-                return null;
-            }
-
-            T[] components = GetComponentsInChildren<T>(true);
-            for (int i = 0; i < components.Length; i++)
-            {
-                T component = components[i];
-                if (component == null || !string.Equals(component.name, objectName, StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                return component;
-            }
-
-            return null;
-        }
     }
 }
