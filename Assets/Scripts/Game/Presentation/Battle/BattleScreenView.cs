@@ -146,6 +146,7 @@ namespace Game.Presentation.Battle
                 onCardDragMove,
                 onCardDragEnd,
                 onCardRightClick);
+            ForceRebuildLoadoutLayouts();
             RenderCombatZones(
                 duelState,
                 phaseRunner,
@@ -461,8 +462,16 @@ namespace Game.Presentation.Battle
                 {
                     CombatState combat = duelState.combats[zoneIndex];
                     combat.EnsureInitialized();
-                    enemyTotal = DuelSimulator.ComputeTotalPower(combat, duelState.abilitiesById, false);
-                    playerTotal = DuelSimulator.ComputeTotalPower(combat, duelState.abilitiesById, true);
+                    enemyTotal = ComputeDisplayedTotalPower(
+                        combat,
+                        duelState.abilitiesById,
+                        isPlayerSide: false,
+                        phaseRunner);
+                    playerTotal = ComputeDisplayedTotalPower(
+                        combat,
+                        duelState.abilitiesById,
+                        isPlayerSide: true,
+                        phaseRunner);
 
                     RenderCombatSideCards(
                         duelState,
@@ -851,6 +860,8 @@ namespace Game.Presentation.Battle
                 return cards;
             }
 
+            Dictionary<string, int> deployedCountsByDefId = BuildOpponentDeployedCountsByDefId(duelState);
+
             for (int i = 0; i < duelState.opponentLoadoutEntries.Count; i++)
             {
                 OpponentLoadoutEntry entry = duelState.opponentLoadoutEntries[i];
@@ -871,7 +882,10 @@ namespace Game.Presentation.Battle
                     abilityType = AbilityType.Attack;
                 }
 
-                int count = Mathf.Max(0, entry.count);
+                int deployedCount = deployedCountsByDefId.TryGetValue(entry.abilityDefId, out int value)
+                    ? value
+                    : 0;
+                int count = Mathf.Max(0, entry.count - deployedCount);
                 for (int copyIndex = 0; copyIndex < count; copyIndex++)
                 {
                     string pseudoInstanceId = $"{entry.abilityDefId}#{copyIndex}";
@@ -889,6 +903,50 @@ namespace Game.Presentation.Battle
                 .OrderBy(bindData => bindData.abilityType == AbilityType.Attack ? 0 : 1)
                 .ThenBy(bindData => bindData.title, StringComparer.Ordinal)
                 .ToList();
+        }
+
+        static Dictionary<string, int> BuildOpponentDeployedCountsByDefId(DuelState duelState)
+        {
+            var counts = new Dictionary<string, int>(StringComparer.Ordinal);
+            if (duelState?.combats == null || duelState.abilitiesById == null)
+            {
+                return counts;
+            }
+
+            for (int combatIndex = 0; combatIndex < duelState.combats.Count; combatIndex++)
+            {
+                CombatState combat = duelState.combats[combatIndex];
+                if (combat == null)
+                {
+                    continue;
+                }
+
+                combat.EnsureInitialized();
+                for (int i = 0; i < combat.opponentAbilityIds.Count; i++)
+                {
+                    string abilityInstanceId = combat.opponentAbilityIds[i];
+                    if (string.IsNullOrWhiteSpace(abilityInstanceId))
+                    {
+                        continue;
+                    }
+
+                    if (!duelState.abilitiesById.TryGetValue(abilityInstanceId, out AbilityInstance ability) ||
+                        ability == null ||
+                        string.IsNullOrWhiteSpace(ability.abilityDefId))
+                    {
+                        continue;
+                    }
+
+                    if (!counts.ContainsKey(ability.abilityDefId))
+                    {
+                        counts[ability.abilityDefId] = 0;
+                    }
+
+                    counts[ability.abilityDefId] += 1;
+                }
+            }
+
+            return counts;
         }
 
         static bool TryResolveAbilityAndDef(
@@ -933,13 +991,6 @@ namespace Game.Presentation.Battle
             DuelPhaseRunner phaseRunner)
         {
             int displayPower = Mathf.Max(0, ability.power);
-            if (ability.abilityType == AbilityType.Attack &&
-                phaseRunner != null &&
-                phaseRunner.currentPhase != DuelPhase.PlayerSetup &&
-                ability.powerResult > 0)
-            {
-                displayPower = ability.powerResult;
-            }
 
             return new BattleAbilityCardView.BindData(
                 abilityId,
@@ -976,6 +1027,68 @@ namespace Game.Presentation.Battle
             if (button.TryGetComponent(out Image image))
             {
                 image.color = backgroundColor;
+            }
+        }
+
+        static int ComputeDisplayedTotalPower(
+            CombatState combat,
+            IReadOnlyDictionary<string, AbilityInstance> abilitiesById,
+            bool isPlayerSide,
+            DuelPhaseRunner phaseRunner)
+        {
+            if (combat == null || abilitiesById == null)
+            {
+                return 0;
+            }
+
+            combat.EnsureInitialized();
+
+            int total = isPlayerSide
+                ? combat.totalPowerBonusPlayer
+                : combat.totalPowerBonusOpponent;
+            List<string> abilityIds = isPlayerSide
+                ? combat.playerAbilityIds
+                : combat.opponentAbilityIds;
+            bool usePowerResult = phaseRunner != null &&
+                (phaseRunner.currentPhase == DuelPhase.Roll || phaseRunner.currentPhase == DuelPhase.Resolve);
+
+            for (int i = 0; i < abilityIds.Count; i++)
+            {
+                string abilityId = abilityIds[i];
+                if (string.IsNullOrWhiteSpace(abilityId))
+                {
+                    continue;
+                }
+
+                if (!abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) || ability == null)
+                {
+                    continue;
+                }
+
+                if (ability.abilityType != AbilityType.Attack)
+                {
+                    continue;
+                }
+
+                int value = usePowerResult && ability.powerResult > 0
+                    ? ability.powerResult
+                    : ability.power;
+                total += Mathf.Max(0, value);
+            }
+
+            return total;
+        }
+
+        void ForceRebuildLoadoutLayouts()
+        {
+            if (enemyLoadoutRow != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(enemyLoadoutRow);
+            }
+
+            if (playerLoadoutRow != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(playerLoadoutRow);
             }
         }
     }

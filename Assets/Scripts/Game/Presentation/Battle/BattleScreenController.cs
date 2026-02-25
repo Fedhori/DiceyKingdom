@@ -14,6 +14,7 @@ namespace Game.Presentation.Battle
     public sealed class BattleScreenController : MonoBehaviour
     {
         const string DefaultEnemyId = "enemy.northern.footman";
+        const float dragGhostAlpha = 0.85f;
 
         [Header("Battle Data")]
         [SerializeField] string enemyId = DefaultEnemyId;
@@ -42,6 +43,7 @@ namespace Game.Presentation.Battle
         BattleAnimationConfig runtimeAnimationConfig;
         bool isCardDragActive;
         string dragAbilityId = string.Empty;
+        RectTransform dragGhostRect;
         BattleCombatZoneView hoveredDropZone;
 
         void Awake()
@@ -249,6 +251,7 @@ namespace Game.Presentation.Battle
             isCardDragActive = true;
             dragAbilityId = abilityId;
 
+            CreateDragGhost(cardView, screenPosition, eventCamera);
             UpdateDropZoneHover(screenPosition, eventCamera);
         }
 
@@ -264,6 +267,7 @@ namespace Game.Presentation.Battle
                 return;
             }
 
+            UpdateDragGhostPosition(screenPosition, eventCamera);
             UpdateDropZoneHover(screenPosition, eventCamera);
         }
 
@@ -515,6 +519,104 @@ namespace Game.Presentation.Battle
             }
         }
 
+        void CreateDragGhost(BattleAbilityCardView sourceCard, Vector2 screenPosition, Camera eventCamera)
+        {
+            DestroyDragGhost();
+
+            if (sourceCard == null)
+            {
+                return;
+            }
+
+            Canvas canvas = backgroundImage == null ? GetComponentInParent<Canvas>() : backgroundImage.canvas;
+            RectTransform canvasRect = canvas == null ? null : canvas.transform as RectTransform;
+            if (canvasRect == null)
+            {
+                return;
+            }
+
+            GameObject ghostObject = Instantiate(sourceCard.gameObject, canvasRect, false);
+            ghostObject.name = "CardDragGhost";
+
+            if (ghostObject.TryGetComponent(out BattleAbilityCardView ghostCard))
+            {
+                ghostCard.enabled = false;
+            }
+
+            if (ghostObject.TryGetComponent(out Button ghostButton))
+            {
+                ghostButton.interactable = false;
+                ghostButton.enabled = false;
+            }
+
+            Graphic[] graphics = ghostObject.GetComponentsInChildren<Graphic>(true);
+            for (int i = 0; i < graphics.Length; i++)
+            {
+                Graphic graphic = graphics[i];
+                if (graphic == null)
+                {
+                    continue;
+                }
+
+                Color color = graphic.color;
+                color.a *= dragGhostAlpha;
+                graphic.color = color;
+                graphic.raycastTarget = false;
+            }
+
+            dragGhostRect = ghostObject.transform as RectTransform;
+            if (dragGhostRect == null)
+            {
+                if (UnityEngine.Application.isPlaying)
+                {
+                    Destroy(ghostObject);
+                }
+                else
+                {
+                    DestroyImmediate(ghostObject);
+                }
+
+                return;
+            }
+
+            RectTransform sourceRect = sourceCard.transform as RectTransform;
+            if (sourceRect != null)
+            {
+                dragGhostRect.anchorMin = new Vector2(0.5f, 0.5f);
+                dragGhostRect.anchorMax = new Vector2(0.5f, 0.5f);
+                dragGhostRect.pivot = new Vector2(0.5f, 0.5f);
+                dragGhostRect.sizeDelta = sourceRect.rect.size;
+            }
+
+            dragGhostRect.SetAsLastSibling();
+            UpdateDragGhostPosition(screenPosition, eventCamera);
+        }
+
+        void UpdateDragGhostPosition(Vector2 screenPosition, Camera eventCamera)
+        {
+            if (dragGhostRect == null)
+            {
+                return;
+            }
+
+            RectTransform canvasRect = dragGhostRect.parent as RectTransform;
+            if (canvasRect == null)
+            {
+                return;
+            }
+
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    canvasRect,
+                    screenPosition,
+                    eventCamera,
+                    out Vector2 localPoint))
+            {
+                return;
+            }
+
+            dragGhostRect.anchoredPosition = localPoint;
+        }
+
         void ClearDragState()
         {
             if (hoveredDropZone != null)
@@ -523,8 +625,29 @@ namespace Game.Presentation.Battle
                 hoveredDropZone = null;
             }
 
+            DestroyDragGhost();
+
             isCardDragActive = false;
             dragAbilityId = string.Empty;
+        }
+
+        void DestroyDragGhost()
+        {
+            if (dragGhostRect == null)
+            {
+                return;
+            }
+
+            if (UnityEngine.Application.isPlaying)
+            {
+                Destroy(dragGhostRect.gameObject);
+            }
+            else
+            {
+                DestroyImmediate(dragGhostRect.gameObject);
+            }
+
+            dragGhostRect = null;
         }
     }
 }
