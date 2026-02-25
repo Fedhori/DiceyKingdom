@@ -125,8 +125,6 @@ namespace Game.Presentation.Battle
             Action<BattleAbilityCardView, string, InteractionContext, Vector2, Camera> onDragEnd,
             Action<BattleAbilityCardView, string, InteractionContext> onRightClick)
         {
-            CacheReferencesIfNeeded();
-
             instanceId = bindData.instanceId;
             tooltipText = bindData.tooltipText;
             this.isInteractable = isInteractable;
@@ -332,49 +330,6 @@ namespace Game.Presentation.Battle
             if (clickButton != null)
             {
                 clickButton.onClick.RemoveListener(HandleClick);
-            }
-        }
-
-        void OnValidate()
-        {
-            CacheReferencesIfNeeded();
-        }
-
-        void CacheReferencesIfNeeded()
-        {
-            if (clickButton == null)
-            {
-                clickButton = GetComponent<Button>();
-            }
-
-            if (cardBackgroundImage == null)
-            {
-                cardBackgroundImage = GetComponent<Image>();
-            }
-
-            if (borderOutline == null)
-            {
-                borderOutline = GetComponent<Outline>();
-            }
-
-            if (iconImage == null)
-            {
-                iconImage = ResolveImage("IconImage");
-            }
-
-            if (powerBadgeImage == null)
-            {
-                powerBadgeImage = ResolveImage("PowerBadge");
-            }
-
-            if (powerBadgeText == null)
-            {
-                powerBadgeText = ResolveText("PowerText");
-            }
-
-            if (disabledOverlayImage == null)
-            {
-                disabledOverlayImage = ResolveImage("DisabledOverlay");
             }
         }
 
