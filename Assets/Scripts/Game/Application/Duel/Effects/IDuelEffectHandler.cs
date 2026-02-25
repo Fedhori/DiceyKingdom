@@ -1,4 +1,5 @@
 using Game.Domain.Duel;
+using Game.Infrastructure.Data.Effects;
 
 namespace Game.Application.Duel.Effects
 {

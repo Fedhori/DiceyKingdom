@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Game.Domain.Duel;
 using Game.Domain.Modifiers;
+using Game.Infrastructure.Data.Effects;
 using UnityEngine;
 
 namespace Game.Application.Duel.Effects

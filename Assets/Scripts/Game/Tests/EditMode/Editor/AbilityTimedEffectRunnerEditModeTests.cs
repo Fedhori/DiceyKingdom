@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Game.Application.Duel.Effects;
 using Game.Domain.Duel;
 using Game.Infrastructure.Data;
+using Game.Infrastructure.Data.Effects;
 using NUnit.Framework;
 
 namespace Game.Tests.EditMode

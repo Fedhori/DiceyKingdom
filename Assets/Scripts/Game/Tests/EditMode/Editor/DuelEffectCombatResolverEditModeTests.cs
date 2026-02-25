@@ -3,6 +3,7 @@ using Game.Application.Duel.Effects;
 using Game.Domain.Duel;
 using Game.Domain.Modifiers;
 using Game.Infrastructure.Data;
+using Game.Infrastructure.Data.Effects;
 using NUnit.Framework;
 
 namespace Game.Tests.EditMode

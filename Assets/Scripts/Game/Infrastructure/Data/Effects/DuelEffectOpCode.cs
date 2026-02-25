@@ -1,4 +1,4 @@
-namespace Game.Application.Duel.Effects
+namespace Game.Infrastructure.Data.Effects
 {
     public enum DuelEffectOpCode
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Game.Application.Duel.Effects;
+using Game.Infrastructure.Data.Effects;
 
 namespace Game.Infrastructure.Data
 {
