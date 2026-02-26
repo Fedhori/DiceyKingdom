@@ -18,7 +18,7 @@ namespace Game.Presentation.Battle
         const float dragGhostAlpha = 0.85f;
         const float defaultCardRollDuration = 0.5f;
 
-        [Header("Battle Data")]
+        [Header("Duel Data")]
         [SerializeField] string enemyId = DefaultEnemyId;
 
         [Header("Scene References")]
@@ -144,7 +144,7 @@ namespace Game.Presentation.Battle
 
             int length = combatZones == null ? 0 : combatZones.Length;
             Debug.LogError(
-                $"[BattleScreenController] Invalid combatZones at {stage}. " +
+                $"[DuelScreenController] Invalid combatZones at {stage}. " +
                 $"Expected 3 assigned zones, actual length={length}. Auto-assignment is disabled.",
                 this);
             return false;
@@ -172,7 +172,7 @@ namespace Game.Presentation.Battle
             GameDatabase database = GameDataRuntime.CurrentDatabase;
             if (database == null)
             {
-                Debug.LogWarning("[BattleScreenController] GameDataRuntime.CurrentDatabase is null.");
+                Debug.LogWarning("[DuelScreenController] GameDataRuntime.CurrentDatabase is null.");
                 return;
             }
 
@@ -180,7 +180,7 @@ namespace Game.Presentation.Battle
 
             if (!sessionRunner.TryInitialize(database, enemyId, advanceToPlayerSetup: true, out string failureMessage))
             {
-                Debug.LogWarning($"[BattleScreenController] Failed to initialize duel: {failureMessage}");
+                Debug.LogWarning($"[DuelScreenController] Failed to initialize duel: {failureMessage}");
                 return;
             }
 
@@ -253,7 +253,7 @@ namespace Game.Presentation.Battle
 
             if (!sessionRunner.TrySurrender(out string failureMessage))
             {
-                Debug.LogWarning($"[BattleScreenController] Surrender rejected: {failureMessage}");
+                Debug.LogWarning($"[DuelScreenController] Surrender rejected: {failureMessage}");
                 return;
             }
 
@@ -352,7 +352,7 @@ namespace Game.Presentation.Battle
                     else
                     {
                         isDropFailure = true;
-                        Debug.LogWarning($"[BattleScreenController] Drag move rejected: {failureMessage}");
+                        Debug.LogWarning($"[DuelScreenController] Drag move rejected: {failureMessage}");
                     }
                 }
             }
@@ -390,7 +390,7 @@ namespace Game.Presentation.Battle
                     abilityId,
                     out string failureMessage))
             {
-                Debug.LogWarning($"[BattleScreenController] Return to loadout rejected: {failureMessage}");
+                Debug.LogWarning($"[DuelScreenController] Return to loadout rejected: {failureMessage}");
                 return;
             }
 
@@ -414,7 +414,7 @@ namespace Game.Presentation.Battle
                     combatIndex,
                     out string failureMessage))
             {
-                Debug.LogWarning($"[BattleScreenController] Ability move rejected: {failureMessage}");
+                Debug.LogWarning($"[DuelScreenController] Ability move rejected: {failureMessage}");
                 return;
             }
 
@@ -425,7 +425,7 @@ namespace Game.Presentation.Battle
         {
             if (!sessionRunner.TryEnsureReadyForCombatStart(out string ensureFailure))
             {
-                Debug.LogWarning($"[BattleScreenController] Combat start rejected: {ensureFailure}");
+                Debug.LogWarning($"[DuelScreenController] Combat start rejected: {ensureFailure}");
                 yield break;
             }
 
@@ -435,7 +435,7 @@ namespace Game.Presentation.Battle
 
             if (!sessionRunner.TryRoll(out DuelRollResult _, out string rollFailure))
             {
-                Debug.LogWarning($"[BattleScreenController] Roll failed: {rollFailure}");
+                Debug.LogWarning($"[DuelScreenController] Roll failed: {rollFailure}");
                 isFlowRunning = false;
                 observableState.ClearReveal();
                 PublishObservableState();
@@ -448,7 +448,7 @@ namespace Game.Presentation.Battle
 
             if (!sessionRunner.TryResolve(out DuelCombatResolveResult resolveResult, out string resolveFailure))
             {
-                Debug.LogWarning($"[BattleScreenController] Resolve failed: {resolveFailure}");
+                Debug.LogWarning($"[DuelScreenController] Resolve failed: {resolveFailure}");
                 isFlowRunning = false;
                 observableState.ClearReveal();
                 PublishObservableState();
@@ -467,7 +467,7 @@ namespace Game.Presentation.Battle
                 if (!sessionRunner.TryAdvanceToPlayerSetupForCurrentTurn(out string advanceFailure))
                 {
                     Debug.LogWarning(
-                        $"[BattleScreenController] Failed to advance to PlayerSetup after resolve: {advanceFailure}");
+                        $"[DuelScreenController] Failed to advance to PlayerSetup after resolve: {advanceFailure}");
                 }
             }
 

@@ -492,7 +492,7 @@ namespace Game.Presentation.Battle
             }
 
             Debug.LogError(
-                $"[BattleAbilityCardView] Missing serialized references at {stage} on '{name}': {string.Join(", ", missing)}",
+                $"[DuelAbilityCardView] Missing serialized references at {stage} on '{name}': {string.Join(", ", missing)}",
                 this);
             return false;
         }

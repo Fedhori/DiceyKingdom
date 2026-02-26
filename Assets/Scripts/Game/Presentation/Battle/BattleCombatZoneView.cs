@@ -124,7 +124,7 @@ namespace Game.Presentation.Battle
             }
 
             Debug.LogError(
-                $"[BattleCombatZoneView] Missing serialized references at {stage} on '{name}': {string.Join(", ", missing)}",
+                $"[DuelCombatZoneView] Missing serialized references at {stage} on '{name}': {string.Join(", ", missing)}",
                 this);
             return false;
         }
@@ -233,7 +233,7 @@ namespace Game.Presentation.Battle
             if (enemySlots.Count != slotCountPerSide || playerSlots.Count != slotCountPerSide)
             {
                 UnityEngine.Debug.LogWarning(
-                    $"[BattleCombatZoneView] Slot count mismatch at combat({combatIndex}). " +
+                    $"[DuelCombatZoneView] Slot count mismatch at combat({combatIndex}). " +
                     $"enemySlots={enemySlots.Count}, playerSlots={playerSlots.Count}, expected={slotCountPerSide}");
             }
         }

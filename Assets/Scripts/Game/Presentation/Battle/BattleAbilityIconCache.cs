@@ -23,7 +23,7 @@ namespace Game.Presentation.Battle
             if (defaultSprite == null)
             {
                 Debug.LogError(
-                    $"[BattleAbilityIconCache] Missing default icon file: {AbilityIconPathPolicy.DefaultIconPath}. Fallback texture will be used.");
+                    $"[DuelAbilityIconCache] Missing default icon file: {AbilityIconPathPolicy.DefaultIconPath}. Fallback texture will be used.");
                 defaultSprite = CreateGeneratedFallbackSprite();
             }
 
@@ -50,7 +50,7 @@ namespace Game.Presentation.Battle
                 if (!AbilityIconPathPolicy.TryBuildPath(abilityDef.iconId, out string iconPath))
                 {
                     Debug.LogError(
-                        $"[BattleAbilityIconCache] Invalid iconId('{abilityDef.iconId}') on ability('{pair.Key}').");
+                        $"[DuelAbilityIconCache] Invalid iconId('{abilityDef.iconId}') on ability('{pair.Key}').");
                     spritesByIconId[abilityDef.iconId] = defaultSprite;
                     continue;
                 }
@@ -59,7 +59,7 @@ namespace Game.Presentation.Battle
                 if (sprite == null)
                 {
                     Debug.LogError(
-                        $"[BattleAbilityIconCache] Failed to load icon file for iconId('{abilityDef.iconId}') path('{iconPath}'). Default icon will be used.");
+                        $"[DuelAbilityIconCache] Failed to load icon file for iconId('{abilityDef.iconId}') path('{iconPath}'). Default icon will be used.");
                     sprite = defaultSprite;
                 }
 
@@ -81,7 +81,7 @@ namespace Game.Presentation.Battle
             {
                 missingLogGuard.Add(safeIconId);
                 Debug.LogError(
-                    $"[BattleAbilityIconCache] Icon cache miss for iconId('{safeIconId}'). Default icon will be used.");
+                    $"[DuelAbilityIconCache] Icon cache miss for iconId('{safeIconId}'). Default icon will be used.");
             }
 
             return defaultSprite;
@@ -137,7 +137,7 @@ namespace Game.Presentation.Battle
             catch (Exception exception)
             {
                 Debug.LogError(
-                    $"[BattleAbilityIconCache] Failed to read icon file for iconId('{iconId}') path('{relativePath}'): {exception.Message}");
+                    $"[DuelAbilityIconCache] Failed to read icon file for iconId('{iconId}') path('{relativePath}'): {exception.Message}");
                 return null;
             }
 

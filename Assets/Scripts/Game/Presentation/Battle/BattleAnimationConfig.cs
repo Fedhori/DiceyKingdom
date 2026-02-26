@@ -3,8 +3,8 @@ using UnityEngine;
 namespace Game.Presentation.Battle
 {
     [CreateAssetMenu(
-        fileName = "BattleAnimationConfig",
-        menuName = "Game/Battle/Battle Animation Config",
+        fileName = "DuelAnimationConfig",
+        menuName = "Game/Duel/Duel Animation Config",
         order = 1000)]
     public sealed class BattleAnimationConfig : ScriptableObject
     {

@@ -183,7 +183,7 @@ namespace Game.Presentation.Battle
                 if (deployResult.skippedCount > 0)
                 {
                     UnityEngine.Debug.LogWarning(
-                        $"[BattleSessionRunner] Opponent deploy skipped abilities: {deployResult.skippedCount}");
+                        $"[DuelSessionRunner] Opponent deploy skipped abilities: {deployResult.skippedCount}");
                 }
 
                 if (!PhaseRunner.AdvanceToNextPhase())

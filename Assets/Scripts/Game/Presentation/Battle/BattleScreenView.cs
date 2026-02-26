@@ -349,7 +349,7 @@ namespace Game.Presentation.Battle
             if (enemyCards.Count > maxLoadoutCardCount)
             {
                 UnityEngine.Debug.LogWarning(
-                    $"[BattleScreenView] Enemy loadout overflow: cardCount={enemyCards.Count}, max={maxLoadoutCardCount}");
+                    $"[DuelScreenView] Enemy loadout overflow: cardCount={enemyCards.Count}, max={maxLoadoutCardCount}");
             }
 
             int enemyVisibleCount = Mathf.Min(maxLoadoutCardCount, enemyCards.Count);
@@ -388,7 +388,7 @@ namespace Game.Presentation.Battle
             if (playerLoadoutAbilityIds.Count > maxLoadoutCardCount)
             {
                 UnityEngine.Debug.LogWarning(
-                    $"[BattleScreenView] Player loadout overflow: cardCount={playerLoadoutAbilityIds.Count}, max={maxLoadoutCardCount}");
+                    $"[DuelScreenView] Player loadout overflow: cardCount={playerLoadoutAbilityIds.Count}, max={maxLoadoutCardCount}");
             }
 
             int playerVisibleCount = Mathf.Min(maxLoadoutCardCount, playerLoadoutAbilityIds.Count);
@@ -561,7 +561,7 @@ namespace Game.Presentation.Battle
             if (abilityCount > slots.Count)
             {
                 UnityEngine.Debug.LogWarning(
-                    $"[BattleScreenView] Slot overflow: abilityCount={abilityCount}, slotCount={slots.Count}");
+                    $"[DuelScreenView] Slot overflow: abilityCount={abilityCount}, slotCount={slots.Count}");
             }
 
             for (int slotIndex = 0; slotIndex < slots.Count; slotIndex++)
@@ -1004,7 +1004,7 @@ namespace Game.Presentation.Battle
                 !duelState.abilitiesById.TryGetValue(abilityId, out ability) ||
                 ability == null)
             {
-                UnityEngine.Debug.LogWarning($"[BattleScreenView] Missing ability instance: {abilityId}");
+                UnityEngine.Debug.LogWarning($"[DuelScreenView] Missing ability instance: {abilityId}");
                 return false;
             }
 
@@ -1013,7 +1013,7 @@ namespace Game.Presentation.Battle
                 def == null)
             {
                 UnityEngine.Debug.LogWarning(
-                    $"[BattleScreenView] Missing ability def for instance({abilityId}) defId({ability.abilityDefId}).");
+                    $"[DuelScreenView] Missing ability def for instance({abilityId}) defId({ability.abilityDefId}).");
                 return false;
             }
 
