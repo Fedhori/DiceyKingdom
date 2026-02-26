@@ -3,7 +3,7 @@ using Game.Application.Duel;
 using Game.Domain.Duel;
 using Game.Infrastructure.Data;
 
-namespace Game.Presentation.Battle
+namespace Game.Presentation.Duel
 {
     public class DuelSelectionState
     {
@@ -221,3 +221,4 @@ namespace Game.Presentation.Battle
         }
     }
 }
+

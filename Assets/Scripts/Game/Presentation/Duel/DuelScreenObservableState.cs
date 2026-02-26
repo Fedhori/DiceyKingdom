@@ -5,7 +5,7 @@ using Game.Common;
 using Game.Domain.Duel;
 using Game.Infrastructure.Data;
 
-namespace Game.Presentation.Battle
+namespace Game.Presentation.Duel
 {
     public readonly struct DuelTopBarState
     {
@@ -270,4 +270,5 @@ namespace Game.Presentation.Battle
         }
     }
 }
+
 

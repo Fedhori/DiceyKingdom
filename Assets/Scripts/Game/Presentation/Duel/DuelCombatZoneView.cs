@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Game.Presentation.Battle
+namespace Game.Presentation.Duel
 {
     public class DuelCombatZoneView : MonoBehaviour
     {
@@ -300,4 +300,5 @@ namespace Game.Presentation.Battle
 
     }
 }
+
 

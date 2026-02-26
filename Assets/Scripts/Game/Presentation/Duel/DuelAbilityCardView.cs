@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Game.Presentation.Battle
+namespace Game.Presentation.Duel
 {
     public class DuelAbilityCardView :
         MonoBehaviour,
@@ -582,4 +582,5 @@ namespace Game.Presentation.Battle
         }
     }
 }
+
 

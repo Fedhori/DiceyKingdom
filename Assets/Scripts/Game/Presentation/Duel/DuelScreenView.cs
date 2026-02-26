@@ -10,7 +10,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Game.Presentation.Battle
+namespace Game.Presentation.Duel
 {
     public class DuelScreenView
     {
@@ -1134,5 +1134,6 @@ namespace Game.Presentation.Battle
         }
     }
 }
+
 
 

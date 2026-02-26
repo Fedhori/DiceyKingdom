@@ -174,7 +174,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0fd608b332960d647b0d9dfc4637e338, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Game.Runtime::Game.Presentation.Battle.BattleCombatZoneView
+  m_EditorClassIdentifier: Game.Runtime::Game.Presentation.Duel.DuelCombatZoneView
   zoneButton: {fileID: 7260794228360823960}
   zoneBackgroundImage: {fileID: 4730590120607747468}
   zoneBorderOutline: {fileID: 6758789809166228165}
@@ -3343,3 +3343,4 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 6949237785412574697, guid: ac701890c51bbcb429597f85132b2698, type: 3}
   m_PrefabInstance: {fileID: 8782445635582433235}
   m_PrefabAsset: {fileID: 0}
+

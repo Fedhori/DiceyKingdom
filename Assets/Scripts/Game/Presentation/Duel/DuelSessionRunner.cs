@@ -3,7 +3,7 @@ using Game.Domain.Duel;
 using Game.Infrastructure.Data;
 using UnityEngine;
 
-namespace Game.Presentation.Battle
+namespace Game.Presentation.Duel
 {
     public class DuelSessionRunner
     {
@@ -274,3 +274,4 @@ namespace Game.Presentation.Battle
         }
     }
 }
+

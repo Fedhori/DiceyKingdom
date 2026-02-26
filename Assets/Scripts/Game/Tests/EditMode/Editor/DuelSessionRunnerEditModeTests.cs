@@ -3,7 +3,7 @@ using System.Linq;
 using Game.Application.Duel;
 using Game.Domain.Duel;
 using Game.Infrastructure.Data;
-using Game.Presentation.Battle;
+using Game.Presentation.Duel;
 using NUnit.Framework;
 
 namespace Game.Tests.EditMode
@@ -161,4 +161,5 @@ namespace Game.Tests.EditMode
         }
     }
 }
+
 

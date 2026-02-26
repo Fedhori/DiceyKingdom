@@ -4,7 +4,7 @@ using System.IO;
 using Game.Infrastructure.Data;
 using UnityEngine;
 
-namespace Game.Presentation.Battle
+namespace Game.Presentation.Duel
 {
     public class DuelAbilityIconCache : IDisposable
     {
@@ -220,3 +220,4 @@ namespace Game.Presentation.Battle
         }
     }
 }
+

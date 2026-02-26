@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Presentation.Battle
+namespace Game.Presentation.Duel
 {
     [CreateAssetMenu(
         fileName = "DuelAnimationConfig",
@@ -21,4 +21,5 @@ namespace Game.Presentation.Battle
         public float resolveCombatGap = 0.15f;
     }
 }
+
 

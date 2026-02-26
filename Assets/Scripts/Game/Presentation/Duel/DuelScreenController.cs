@@ -9,7 +9,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Game.Presentation.Battle
+namespace Game.Presentation.Duel
 {
     [ExecuteAlways]
     public class DuelScreenController : MonoBehaviour
@@ -999,6 +999,7 @@ namespace Game.Presentation.Battle
         }
     }
 }
+
 
 
 
