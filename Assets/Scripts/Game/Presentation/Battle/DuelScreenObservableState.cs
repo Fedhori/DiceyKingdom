@@ -7,24 +7,24 @@ using Game.Infrastructure.Data;
 
 namespace Game.Presentation.Battle
 {
-    public readonly struct BattleTopBarState
+    public readonly struct DuelTopBarState
     {
         public int turnIndex { get; }
 
-        public BattleTopBarState(int turnIndex)
+        public DuelTopBarState(int turnIndex)
         {
             this.turnIndex = turnIndex;
         }
     }
 
-    public readonly struct BattleHealthState
+    public readonly struct DuelHealthState
     {
         public int playerHealth { get; }
         public int maxPlayerHealth { get; }
         public int opponentHealth { get; }
         public int maxOpponentHealth { get; }
 
-        public BattleHealthState(
+        public DuelHealthState(
             int playerHealth,
             int maxPlayerHealth,
             int opponentHealth,
@@ -37,19 +37,19 @@ namespace Game.Presentation.Battle
         }
     }
 
-    public readonly struct BattleButtonState
+    public readonly struct DuelButtonState
     {
         public bool canCombatStart { get; }
         public bool canSurrender { get; }
 
-        public BattleButtonState(bool canCombatStart, bool canSurrender)
+        public DuelButtonState(bool canCombatStart, bool canSurrender)
         {
             this.canCombatStart = canCombatStart;
             this.canSurrender = canSurrender;
         }
     }
 
-    public readonly struct BattleBoardState
+    public readonly struct DuelBoardState
     {
         public DuelState duelState { get; }
         public DuelPhaseRunner phaseRunner { get; }
@@ -58,7 +58,7 @@ namespace Game.Presentation.Battle
         public bool isFlowRunning { get; }
         public int revision { get; }
 
-        public BattleBoardState(
+        public DuelBoardState(
             DuelState duelState,
             DuelPhaseRunner phaseRunner,
             GameDatabase database,
@@ -75,13 +75,13 @@ namespace Game.Presentation.Battle
         }
     }
 
-    public readonly struct BattleRollOverlayValue
+    public readonly struct DuelRollOverlayValue
     {
         public bool isVisible { get; }
         public int value { get; }
         public bool isFinal { get; }
 
-        public BattleRollOverlayValue(bool isVisible, int value, bool isFinal)
+        public DuelRollOverlayValue(bool isVisible, int value, bool isFinal)
         {
             this.isVisible = isVisible;
             this.value = value;
@@ -89,18 +89,18 @@ namespace Game.Presentation.Battle
         }
     }
 
-    public readonly struct BattleRevealState
+    public readonly struct DuelRevealState
     {
         readonly int[] opponentTotals;
         readonly int[] playerTotals;
-        readonly IReadOnlyDictionary<string, BattleRollOverlayValue> rollOverlayLookup;
+        readonly IReadOnlyDictionary<string, DuelRollOverlayValue> rollOverlayLookup;
 
         public bool isRunning { get; }
         public int displayOpponentHealth { get; }
         public int displayPlayerHealth { get; }
         public int revision { get; }
 
-        public static BattleRevealState Empty =>
+        public static DuelRevealState Empty =>
             new(
                 false,
                 Array.Empty<int>(),
@@ -110,13 +110,13 @@ namespace Game.Presentation.Battle
                 null,
                 0);
 
-        public BattleRevealState(
+        public DuelRevealState(
             bool isRunning,
             int[] opponentTotals,
             int[] playerTotals,
             int displayOpponentHealth,
             int displayPlayerHealth,
-            IReadOnlyDictionary<string, BattleRollOverlayValue> rollOverlayByAbilityId,
+            IReadOnlyDictionary<string, DuelRollOverlayValue> rollOverlayByAbilityId,
             int revision)
         {
             this.isRunning = isRunning;
@@ -129,8 +129,8 @@ namespace Game.Presentation.Battle
             this.displayOpponentHealth = displayOpponentHealth;
             this.displayPlayerHealth = displayPlayerHealth;
             rollOverlayLookup = rollOverlayByAbilityId == null
-                ? new Dictionary<string, BattleRollOverlayValue>(StringComparer.Ordinal)
-                : new Dictionary<string, BattleRollOverlayValue>(rollOverlayByAbilityId, StringComparer.Ordinal);
+                ? new Dictionary<string, DuelRollOverlayValue>(StringComparer.Ordinal)
+                : new Dictionary<string, DuelRollOverlayValue>(rollOverlayByAbilityId, StringComparer.Ordinal);
             this.revision = revision;
         }
 
@@ -151,7 +151,7 @@ namespace Game.Presentation.Battle
             return true;
         }
 
-        public bool TryGetOverlay(string abilityId, out BattleRollOverlayValue overlay)
+        public bool TryGetOverlay(string abilityId, out DuelRollOverlayValue overlay)
         {
             overlay = default;
             if (string.IsNullOrWhiteSpace(abilityId) || rollOverlayLookup == null)
@@ -165,27 +165,27 @@ namespace Game.Presentation.Battle
 
     public class DuelScreenObservableState
     {
-        readonly ObservableValue<BattleTopBarState> topBarState = new(new BattleTopBarState(0));
-        readonly ObservableValue<BattleHealthState> healthState = new(new BattleHealthState(0, 1, 0, 1));
-        readonly ObservableValue<BattleButtonState> buttonState = new(new BattleButtonState(false, false));
-        readonly ObservableValue<BattleBoardState> boardState = new(
-            new BattleBoardState(
+        readonly ObservableValue<DuelTopBarState> topBarState = new(new DuelTopBarState(0));
+        readonly ObservableValue<DuelHealthState> healthState = new(new DuelHealthState(0, 1, 0, 1));
+        readonly ObservableValue<DuelButtonState> buttonState = new(new DuelButtonState(false, false));
+        readonly ObservableValue<DuelBoardState> boardState = new(
+            new DuelBoardState(
                 null,
                 null,
                 null,
                 string.Empty,
                 false,
                 0));
-        readonly ObservableValue<BattleRevealState> revealState = new(BattleRevealState.Empty);
+        readonly ObservableValue<DuelRevealState> revealState = new(DuelRevealState.Empty);
 
         int boardRevision;
         int revealRevision;
 
-        public IReadOnlyObservableValue<BattleTopBarState> TopBarState => topBarState;
-        public IReadOnlyObservableValue<BattleHealthState> HealthState => healthState;
-        public IReadOnlyObservableValue<BattleButtonState> ButtonState => buttonState;
-        public IReadOnlyObservableValue<BattleBoardState> BoardState => boardState;
-        public IReadOnlyObservableValue<BattleRevealState> RevealState => revealState;
+        public IReadOnlyObservableValue<DuelTopBarState> TopBarState => topBarState;
+        public IReadOnlyObservableValue<DuelHealthState> HealthState => healthState;
+        public IReadOnlyObservableValue<DuelButtonState> ButtonState => buttonState;
+        public IReadOnlyObservableValue<DuelBoardState> BoardState => boardState;
+        public IReadOnlyObservableValue<DuelRevealState> RevealState => revealState;
 
         public void Publish(
             DuelSessionRunner sessionRunner,
@@ -198,13 +198,13 @@ namespace Game.Presentation.Battle
             GameDatabase database = sessionRunner == null ? null : sessionRunner.Database;
 
             int turnIndex = duelState == null ? 0 : duelState.turnIndex;
-            topBarState.Value = new BattleTopBarState(turnIndex);
+            topBarState.Value = new DuelTopBarState(turnIndex);
 
             int maxPlayerHealth = sessionRunner == null ? 1 : sessionRunner.MaxPlayerHealth;
             int maxOpponentHealth = sessionRunner == null ? 1 : sessionRunner.MaxOpponentHealth;
             int playerHealth = duelState == null ? 0 : duelState.playerHealth;
             int opponentHealth = duelState == null ? 0 : duelState.opponentHealth;
-            healthState.Value = new BattleHealthState(
+            healthState.Value = new DuelHealthState(
                 playerHealth,
                 maxPlayerHealth,
                 opponentHealth,
@@ -220,7 +220,7 @@ namespace Game.Presentation.Battle
                 !duelState.isDuelEnded &&
                 phaseRunner.currentPhase == DuelPhase.PlayerSetup &&
                 duelState.honor > 0;
-            buttonState.Value = new BattleButtonState(canCombatStart, canSurrender);
+            buttonState.Value = new DuelButtonState(canCombatStart, canSurrender);
 
             if (!publishBoard)
             {
@@ -228,7 +228,7 @@ namespace Game.Presentation.Battle
             }
 
             boardRevision += 1;
-            boardState.Value = new BattleBoardState(
+            boardState.Value = new DuelBoardState(
                 duelState,
                 phaseRunner,
                 database,
@@ -243,10 +243,10 @@ namespace Game.Presentation.Battle
             int[] playerTotals,
             int displayOpponentHealth,
             int displayPlayerHealth,
-            IReadOnlyDictionary<string, BattleRollOverlayValue> rollOverlayByAbilityId)
+            IReadOnlyDictionary<string, DuelRollOverlayValue> rollOverlayByAbilityId)
         {
             revealRevision += 1;
-            revealState.Value = new BattleRevealState(
+            revealState.Value = new DuelRevealState(
                 isRunning,
                 opponentTotals,
                 playerTotals,
@@ -259,7 +259,7 @@ namespace Game.Presentation.Battle
         public void ClearReveal()
         {
             revealRevision += 1;
-            revealState.Value = new BattleRevealState(
+            revealState.Value = new DuelRevealState(
                 false,
                 Array.Empty<int>(),
                 Array.Empty<int>(),
@@ -270,3 +270,4 @@ namespace Game.Presentation.Battle
         }
     }
 }
+

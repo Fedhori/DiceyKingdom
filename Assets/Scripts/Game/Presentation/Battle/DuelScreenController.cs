@@ -213,7 +213,7 @@ namespace Game.Presentation.Battle
             uiSubscriptions.Clear();
         }
 
-        void HandleBoardStateChanged(BattleBoardState boardState)
+        void HandleBoardStateChanged(DuelBoardState boardState)
         {
             view.RenderBoard(
                 boardState,
@@ -224,7 +224,7 @@ namespace Game.Presentation.Battle
                 HandleCardRightClicked);
         }
 
-        void HandleRevealStateChanged(BattleRevealState revealState)
+        void HandleRevealStateChanged(DuelRevealState revealState)
         {
             view.RenderReveal(revealState);
         }
@@ -492,7 +492,7 @@ namespace Game.Presentation.Battle
             int combatCount = combatZones == null ? 3 : combatZones.Length;
             int[] opponentTotals = new int[combatCount];
             int[] playerTotals = new int[combatCount];
-            var overlayByAbilityId = new Dictionary<string, BattleRollOverlayValue>(StringComparer.Ordinal);
+            var overlayByAbilityId = new Dictionary<string, DuelRollOverlayValue>(StringComparer.Ordinal);
 
             for (int i = 0; i < revealSnapshots.Count; i++)
             {
@@ -596,7 +596,7 @@ namespace Game.Presentation.Battle
             int rouletteMax,
             int finalValue,
             DuelAnimationConfig config,
-            IDictionary<string, BattleRollOverlayValue> overlayByAbilityId,
+            IDictionary<string, DuelRollOverlayValue> overlayByAbilityId,
             Action onFrameChanged)
         {
             if (string.IsNullOrWhiteSpace(abilityId) || overlayByAbilityId == null)
@@ -618,14 +618,14 @@ namespace Game.Presentation.Battle
                 while (elapsed < duration)
                 {
                     int rouletteValue = revealRandom.Next(1, Mathf.Max(2, rouletteMax + 1));
-                    overlayByAbilityId[abilityId] = new BattleRollOverlayValue(true, rouletteValue, false);
+                    overlayByAbilityId[abilityId] = new DuelRollOverlayValue(true, rouletteValue, false);
                     onFrameChanged?.Invoke();
                     elapsed += Time.unscaledDeltaTime;
                     yield return null;
                 }
             }
 
-            overlayByAbilityId[abilityId] = new BattleRollOverlayValue(true, Mathf.Max(0, finalValue), true);
+            overlayByAbilityId[abilityId] = new DuelRollOverlayValue(true, Mathf.Max(0, finalValue), true);
             onFrameChanged?.Invoke();
         }
 
@@ -999,5 +999,6 @@ namespace Game.Presentation.Battle
         }
     }
 }
+
 
 

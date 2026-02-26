@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace Game.Tests.EditMode
 {
-    public sealed class BattleSessionRunnerEditModeTests
+    public sealed class DuelSessionRunnerEditModeTests
     {
         [Test]
         public void TryInitialize_WithAdvanceToPlayerSetup_EntersPlayerSetupAndDeploysOpponent()
@@ -161,3 +161,4 @@ namespace Game.Tests.EditMode
         }
     }
 }
+

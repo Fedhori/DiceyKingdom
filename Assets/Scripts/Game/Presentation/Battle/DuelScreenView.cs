@@ -42,7 +42,7 @@ namespace Game.Presentation.Battle
         readonly List<DuelAbilityCardView> playerLoadoutCardViews = new();
         readonly Dictionary<string, DuelAbilityCardView> visibleCardsByInstanceId =
             new(StringComparer.Ordinal);
-        BattleRevealState currentRevealState = BattleRevealState.Empty;
+        DuelRevealState currentRevealState = DuelRevealState.Empty;
         int cachedMaxPlayerHealth = 1;
         int cachedMaxOpponentHealth = 1;
 
@@ -117,12 +117,12 @@ namespace Game.Presentation.Battle
             HideTooltip();
         }
 
-        public void RenderTopBar(BattleTopBarState state)
+        public void RenderTopBar(DuelTopBarState state)
         {
             UpdateTopBar(state.turnIndex);
         }
 
-        public void RenderHealth(BattleHealthState state)
+        public void RenderHealth(DuelHealthState state)
         {
             RenderHealth(
                 state.playerHealth,
@@ -131,13 +131,13 @@ namespace Game.Presentation.Battle
                 state.maxOpponentHealth);
         }
 
-        public void RenderButtons(BattleButtonState state)
+        public void RenderButtons(DuelButtonState state)
         {
             UpdateButtonState(state.canCombatStart, state.canSurrender);
         }
 
         public void RenderBoard(
-            BattleBoardState state,
+            DuelBoardState state,
             Action<string> onPlayerAbilityClicked,
             Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragStart,
             Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragMove,
@@ -175,7 +175,7 @@ namespace Game.Presentation.Battle
             ApplyRevealState(currentRevealState);
         }
 
-        public void RenderReveal(BattleRevealState revealState)
+        public void RenderReveal(DuelRevealState revealState)
         {
             currentRevealState = revealState;
             CacheVisibleCardsByInstanceId();
@@ -689,7 +689,7 @@ namespace Game.Presentation.Battle
             }
         }
 
-        void ApplyRevealState(BattleRevealState revealState)
+        void ApplyRevealState(DuelRevealState revealState)
         {
             ApplyRollOverlayState(revealState);
             if (!revealState.isRunning)
@@ -701,7 +701,7 @@ namespace Game.Presentation.Battle
             ApplyRevealZoneTotals(revealState);
         }
 
-        void ApplyRollOverlayState(BattleRevealState revealState)
+        void ApplyRollOverlayState(DuelRevealState revealState)
         {
             foreach (KeyValuePair<string, DuelAbilityCardView> pair in visibleCardsByInstanceId)
             {
@@ -720,7 +720,7 @@ namespace Game.Presentation.Battle
                     continue;
                 }
 
-                if (!revealState.TryGetOverlay(pair.Key, out BattleRollOverlayValue overlay) || !overlay.isVisible)
+                if (!revealState.TryGetOverlay(pair.Key, out DuelRollOverlayValue overlay) || !overlay.isVisible)
                 {
                     continue;
                 }
@@ -729,7 +729,7 @@ namespace Game.Presentation.Battle
             }
         }
 
-        void ApplyRevealHealthState(BattleRevealState revealState)
+        void ApplyRevealHealthState(DuelRevealState revealState)
         {
             if (revealState.displayOpponentHealth >= 0 && enemyHealthText != null)
             {
@@ -742,7 +742,7 @@ namespace Game.Presentation.Battle
             }
         }
 
-        void ApplyRevealZoneTotals(BattleRevealState revealState)
+        void ApplyRevealZoneTotals(DuelRevealState revealState)
         {
             if (combatZones == null)
             {
@@ -1134,4 +1134,5 @@ namespace Game.Presentation.Battle
         }
     }
 }
+
 
