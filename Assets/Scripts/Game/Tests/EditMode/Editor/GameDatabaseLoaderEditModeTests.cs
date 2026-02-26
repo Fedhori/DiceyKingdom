@@ -152,7 +152,7 @@ namespace Game.Tests.EditMode
   ""startingLoadoutAbilityIds"": [
     ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"",
     ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"",
-    ""ability.1""
+    ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1""
   ]
 }";
 
@@ -185,7 +185,7 @@ namespace Game.Tests.EditMode
   ""id"": ""enemy.1"",
   ""health"": 10,
   ""abilityLoadout"": [
-    { ""abilityId"": ""ability.1"", ""count"": 13 }
+    { ""abilityId"": ""ability.1"", ""count"": 17 }
   ]
 }";
 

@@ -6,7 +6,7 @@ namespace Game.Infrastructure.Data
 {
     public sealed class GameDataValidator
     {
-        const int maxLoadoutAbilityCount = 12;
+        const int maxLoadoutAbilityCount = 16;
 
         static readonly HashSet<string> allowedOpCodes = new(StringComparer.Ordinal)
         {

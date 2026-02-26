@@ -51,7 +51,7 @@ namespace Game.Application.Duel
 
     public sealed class DuelAbilityPlacementService
     {
-        public const int MaxLoadoutAbilityCount = 12;
+        public const int MaxLoadoutAbilityCount = 16;
 
         public bool TryMoveAbilityToCombat(
             DuelState state,

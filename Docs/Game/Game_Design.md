@@ -151,5 +151,5 @@ Effects:
 - `combatIndex` is the only way to reference slots.
 - Enemy deployment is loadout-based random assignment.
 - Player and enemy ability interaction rules are symmetric (AI random assignment is the only behavior difference).
-- Per-side loadout max count is **12**.
+- Per-side loadout max count is **16**.
 - Invalid data is not silently fixed (validation must be visible).

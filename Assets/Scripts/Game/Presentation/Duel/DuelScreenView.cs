@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Game.Application.Duel;
 using Game.Domain.Duel;
@@ -14,10 +13,6 @@ namespace Game.Presentation.Duel
 {
     public class DuelScreenView
     {
-        const int expectedCombatCount = 3;
-        const int maxLoadoutCardCount = 12;
-        const int maxPassiveCardCount = 12;
-
         static readonly Color defaultCombatStartButtonColor = Colors.Semantic.StateInfo;
         static readonly Color defaultSurrenderButtonColor = Colors.Semantic.StateDanger;
         static readonly Color defaultButtonDisabledColor = Colors.Semantic.ActionSecondaryBgDisabled;
@@ -38,13 +33,13 @@ namespace Game.Presentation.Duel
         readonly DuelCombatZoneView[] combatZones;
         readonly TMP_Text tooltipText;
         readonly Image tooltipBackgroundImage;
+        readonly DuelAbilityCardView abilityCardPrefab;
         readonly Func<string, Sprite> resolveAbilityIcon;
 
-        readonly List<DuelAbilityCardView> pooledCardViews = new();
-        readonly List<DuelAbilityCardView> enemyLoadoutCardViews = new();
-        readonly List<DuelAbilityCardView> playerLoadoutCardViews = new();
-        readonly List<DuelAbilityCardView> enemyPassiveCardViews = new();
-        readonly List<DuelAbilityCardView> playerPassiveCardViews = new();
+        readonly List<DuelAbilityCardView> reusableCardViews = new();
+        readonly List<DuelAbilityCardView> activeCardViews = new();
+        readonly Dictionary<string, DuelAbilityCardView> cardViewsByInstanceId =
+            new(StringComparer.Ordinal);
         readonly Dictionary<string, DuelAbilityCardView> visibleCardsByInstanceId =
             new(StringComparer.Ordinal);
         DuelRevealState currentRevealState = DuelRevealState.Empty;
@@ -64,7 +59,7 @@ namespace Game.Presentation.Duel
             RectTransform enemyPassiveRow,
             RectTransform playerPassiveRow,
             DuelCombatZoneView[] combatZones,
-            DuelAbilityCardView _,
+            DuelAbilityCardView abilityCardPrefab,
             TMP_Text tooltipText,
             Image tooltipBackgroundImage,
             Func<string, Sprite> resolveAbilityIcon)
@@ -81,6 +76,7 @@ namespace Game.Presentation.Duel
             this.enemyPassiveRow = enemyPassiveRow;
             this.playerPassiveRow = playerPassiveRow;
             this.combatZones = combatZones ?? Array.Empty<DuelCombatZoneView>();
+            this.abilityCardPrefab = abilityCardPrefab;
             this.tooltipText = tooltipText;
             this.tooltipBackgroundImage = tooltipBackgroundImage;
             this.resolveAbilityIcon = resolveAbilityIcon;
@@ -100,8 +96,6 @@ namespace Game.Presentation.Duel
                 zone.SetClickHandler(onZoneClicked);
                 zone.EnsureRowsAndSlots();
             }
-
-            CacheCardPools();
         }
 
         public void UnwireZoneCallbacks()
@@ -123,8 +117,7 @@ namespace Game.Presentation.Duel
             HideDirectChildren(playerLoadoutRow);
             HideDirectChildren(enemyPassiveRow);
             HideDirectChildren(playerPassiveRow);
-            CacheCardPools();
-            HideAllCardViews();
+            ReleaseAllActiveCards();
             HideTooltip();
         }
 
@@ -155,8 +148,7 @@ namespace Game.Presentation.Duel
             Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragEnd,
             Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext> onCardRightClick)
         {
-            CacheCardPools();
-            HideAllCardViews();
+            ReleaseAllActiveCards();
             HideTooltip();
 
             RenderLoadoutRows(
@@ -215,9 +207,9 @@ namespace Game.Presentation.Duel
                     zone?.SetRollPulse(normalized);
                 }
 
-                for (int i = 0; i < pooledCardViews.Count; i++)
+                for (int i = 0; i < activeCardViews.Count; i++)
                 {
-                    DuelAbilityCardView card = pooledCardViews[i];
+                    DuelAbilityCardView card = activeCardViews[i];
                     if (card == null || !card.gameObject.activeInHierarchy)
                     {
                         continue;
@@ -236,9 +228,9 @@ namespace Game.Presentation.Duel
                 zone?.RestoreBaseVisual();
             }
 
-            for (int i = 0; i < pooledCardViews.Count; i++)
+            for (int i = 0; i < activeCardViews.Count; i++)
             {
-                DuelAbilityCardView card = pooledCardViews[i];
+                DuelAbilityCardView card = activeCardViews[i];
                 if (card == null || !card.gameObject.activeInHierarchy)
                 {
                     continue;
@@ -363,30 +355,17 @@ namespace Game.Presentation.Duel
                 duelState,
                 database,
                 abilityType => abilityType != AbilityType.Passive);
-            if (enemyCards.Count > maxLoadoutCardCount)
+            for (int i = 0; i < enemyCards.Count; i++)
             {
-                UnityEngine.Debug.LogWarning(
-                    $"[DuelScreenView] Enemy loadout overflow: cardCount={enemyCards.Count}, max={maxLoadoutCardCount}");
-            }
-
-            int enemyVisibleCount = Mathf.Min(maxLoadoutCardCount, enemyCards.Count);
-            for (int i = 0; i < enemyLoadoutCardViews.Count; i++)
-            {
-                DuelAbilityCardView card = enemyLoadoutCardViews[i];
+                DuelAbilityCardView.BindData bindData = enemyCards[i];
+                DuelAbilityCardView card = AcquireCardForAbility(bindData.instanceId, enemyLoadoutRow);
                 if (card == null)
                 {
                     continue;
                 }
 
-                bool visible = i < enemyVisibleCount;
-                card.gameObject.SetActive(visible);
-                if (!visible)
-                {
-                    continue;
-                }
-
                 card.Bind(
-                    enemyCards[i],
+                    bindData,
                     false,
                     false,
                     null,
@@ -403,32 +382,11 @@ namespace Game.Presentation.Duel
                 duelState,
                 DuelSide.Player,
                 abilityType => abilityType != AbilityType.Passive);
-            if (playerLoadoutAbilityIds.Count > maxLoadoutCardCount)
+            for (int i = 0; i < playerLoadoutAbilityIds.Count; i++)
             {
-                UnityEngine.Debug.LogWarning(
-                    $"[DuelScreenView] Player loadout overflow: cardCount={playerLoadoutAbilityIds.Count}, max={maxLoadoutCardCount}");
-            }
-
-            int playerVisibleCount = Mathf.Min(maxLoadoutCardCount, playerLoadoutAbilityIds.Count);
-            for (int i = 0; i < playerLoadoutCardViews.Count; i++)
-            {
-                DuelAbilityCardView card = playerLoadoutCardViews[i];
-                if (card == null)
-                {
-                    continue;
-                }
-
-                bool visible = i < playerVisibleCount;
-                card.gameObject.SetActive(visible);
-                if (!visible)
-                {
-                    continue;
-                }
-
                 string abilityId = playerLoadoutAbilityIds[i];
                 if (!TryResolveAbilityAndDef(duelState, database, abilityId, out AbilityInstance ability, out AbilityDef def))
                 {
-                    card.gameObject.SetActive(false);
                     continue;
                 }
 
@@ -440,6 +398,11 @@ namespace Game.Presentation.Duel
                     ability.cooldownRemaining <= 0;
                 bool isSelected = string.Equals(selectedAbilityId, abilityId, StringComparison.Ordinal);
                 DuelAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def);
+                DuelAbilityCardView card = AcquireCardForAbility(abilityId, playerLoadoutRow);
+                if (card == null)
+                {
+                    continue;
+                }
 
                 card.Bind(
                     bindData,
@@ -538,8 +501,6 @@ namespace Game.Presentation.Duel
                 }
                 else
                 {
-                    HideSlotCards(zone.EnemySlots);
-                    HideSlotCards(zone.PlayerSlots);
                 }
 
                 bool canDeployToZone = !isFlowRunning &&
@@ -567,36 +528,17 @@ namespace Game.Presentation.Duel
                 duelState,
                 database,
                 abilityType => abilityType == AbilityType.Passive);
-            if (enemyPassiveCards.Count > 0 && enemyPassiveCardViews.Count == 0)
+            for (int i = 0; i < enemyPassiveCards.Count; i++)
             {
-                UnityEngine.Debug.LogWarning(
-                    "[DuelScreenView] Enemy passive cards exist but enemyPassiveRow has no DuelAbilityCardView slots.");
-            }
-
-            if (enemyPassiveCards.Count > maxPassiveCardCount)
-            {
-                UnityEngine.Debug.LogWarning(
-                    $"[DuelScreenView] Enemy passive overflow: cardCount={enemyPassiveCards.Count}, max={maxPassiveCardCount}");
-            }
-
-            int enemyVisibleCount = Mathf.Min(maxPassiveCardCount, enemyPassiveCards.Count);
-            for (int i = 0; i < enemyPassiveCardViews.Count; i++)
-            {
-                DuelAbilityCardView card = enemyPassiveCardViews[i];
+                DuelAbilityCardView.BindData bindData = enemyPassiveCards[i];
+                DuelAbilityCardView card = AcquireCardForAbility(bindData.instanceId, enemyPassiveRow);
                 if (card == null)
                 {
                     continue;
                 }
 
-                bool visible = i < enemyVisibleCount;
-                card.gameObject.SetActive(visible);
-                if (!visible)
-                {
-                    continue;
-                }
-
                 card.Bind(
-                    enemyPassiveCards[i],
+                    bindData,
                     false,
                     false,
                     null,
@@ -613,42 +555,21 @@ namespace Game.Presentation.Duel
                 duelState,
                 DuelSide.Player,
                 abilityType => abilityType == AbilityType.Passive);
-            if (playerPassiveAbilityIds.Count > 0 && playerPassiveCardViews.Count == 0)
+            for (int i = 0; i < playerPassiveAbilityIds.Count; i++)
             {
-                UnityEngine.Debug.LogWarning(
-                    "[DuelScreenView] Player passive cards exist but playerPassiveRow has no DuelAbilityCardView slots.");
-            }
+                string abilityId = playerPassiveAbilityIds[i];
+                if (!TryResolveAbilityAndDef(duelState, database, abilityId, out AbilityInstance ability, out AbilityDef def))
+                {
+                    continue;
+                }
 
-            if (playerPassiveAbilityIds.Count > maxPassiveCardCount)
-            {
-                UnityEngine.Debug.LogWarning(
-                    $"[DuelScreenView] Player passive overflow: cardCount={playerPassiveAbilityIds.Count}, max={maxPassiveCardCount}");
-            }
-
-            int playerVisibleCount = Mathf.Min(maxPassiveCardCount, playerPassiveAbilityIds.Count);
-            for (int i = 0; i < playerPassiveCardViews.Count; i++)
-            {
-                DuelAbilityCardView card = playerPassiveCardViews[i];
+                DuelAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def);
+                DuelAbilityCardView card = AcquireCardForAbility(abilityId, playerPassiveRow);
                 if (card == null)
                 {
                     continue;
                 }
 
-                bool visible = i < playerVisibleCount;
-                card.gameObject.SetActive(visible);
-                if (!visible)
-                {
-                    continue;
-                }
-
-                string abilityId = playerPassiveAbilityIds[i];
-                if (!TryResolveAbilityAndDef(duelState, database, abilityId, out AbilityInstance ability, out AbilityDef def))
-                {
-                    card.gameObject.SetActive(false);
-                    continue;
-                }
-
-                DuelAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def);
                 card.Bind(
                     bindData,
                     false,
@@ -692,18 +613,11 @@ namespace Game.Presentation.Duel
                     $"[DuelScreenView] Slot overflow: abilityCount={abilityCount}, slotCount={slots.Count}");
             }
 
-            for (int slotIndex = 0; slotIndex < slots.Count; slotIndex++)
+            int renderCount = Mathf.Min(abilityCount, slots.Count);
+            for (int slotIndex = 0; slotIndex < renderCount; slotIndex++)
             {
                 RectTransform slot = slots[slotIndex];
-                DuelAbilityCardView card = ResolveCardInSlot(slot);
-                if (card == null)
-                {
-                    continue;
-                }
-
-                bool visible = slotIndex < abilityCount;
-                card.gameObject.SetActive(visible);
-                if (!visible)
+                if (slot == null)
                 {
                     continue;
                 }
@@ -711,7 +625,6 @@ namespace Game.Presentation.Duel
                 string abilityId = abilityIds[slotIndex];
                 if (!TryResolveAbilityAndDef(duelState, database, abilityId, out AbilityInstance ability, out AbilityDef def))
                 {
-                    card.gameObject.SetActive(false);
                     continue;
                 }
 
@@ -725,6 +638,11 @@ namespace Game.Presentation.Duel
                     ability.abilityType == AbilityType.Attack &&
                     ability.cooldownRemaining <= 0;
                 DuelAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def);
+                DuelAbilityCardView card = AcquireCardForAbility(abilityId, slot);
+                if (card == null)
+                {
+                    continue;
+                }
 
                 DuelAbilityCardView.InteractionContext context = isPlayerSide
                     ? DuelAbilityCardView.InteractionContext.Combat(combatIndex)
@@ -799,9 +717,9 @@ namespace Game.Presentation.Duel
         void CacheVisibleCardsByInstanceId()
         {
             visibleCardsByInstanceId.Clear();
-            for (int i = 0; i < pooledCardViews.Count; i++)
+            for (int i = 0; i < activeCardViews.Count; i++)
             {
-                DuelAbilityCardView card = pooledCardViews[i];
+                DuelAbilityCardView card = activeCardViews[i];
                 if (card == null || !card.gameObject.activeInHierarchy)
                 {
                     continue;
@@ -894,77 +812,137 @@ namespace Game.Presentation.Duel
             }
         }
 
-        void CacheCardPools()
+        void ReleaseAllActiveCards()
         {
-            enemyLoadoutCardViews.Clear();
-            playerLoadoutCardViews.Clear();
-            enemyPassiveCardViews.Clear();
-            playerPassiveCardViews.Clear();
-            pooledCardViews.Clear();
-
-            CollectCardViews(enemyLoadoutRow, enemyLoadoutCardViews);
-            CollectCardViews(playerLoadoutRow, playerLoadoutCardViews);
-            CollectCardViews(enemyPassiveRow, enemyPassiveCardViews);
-            CollectCardViews(playerPassiveRow, playerPassiveCardViews);
-
-            AddCardsToPool(enemyLoadoutCardViews);
-            AddCardsToPool(playerLoadoutCardViews);
-            AddCardsToPool(enemyPassiveCardViews);
-            AddCardsToPool(playerPassiveCardViews);
-
-            for (int zoneIndex = 0; zoneIndex < combatZones.Length; zoneIndex++)
+            for (int i = 0; i < activeCardViews.Count; i++)
             {
-                DuelCombatZoneView zone = combatZones[zoneIndex];
-                if (zone == null)
-                {
-                    continue;
-                }
-
-                zone.EnsureRowsAndSlots();
-
-                AddSlotCardsToPool(zone.EnemySlots);
-                AddSlotCardsToPool(zone.PlayerSlots);
-            }
-        }
-
-        void HideAllCardViews()
-        {
-            for (int i = 0; i < pooledCardViews.Count; i++)
-            {
-                DuelAbilityCardView card = pooledCardViews[i];
+                DuelAbilityCardView card = activeCardViews[i];
                 if (card == null)
                 {
                     continue;
                 }
 
                 card.gameObject.SetActive(false);
+                card.transform.SetParent(null, false);
+                if (!reusableCardViews.Contains(card))
+                {
+                    reusableCardViews.Add(card);
+                }
             }
+
+            activeCardViews.Clear();
+            visibleCardsByInstanceId.Clear();
         }
 
-        static void CollectCardViews(RectTransform root, List<DuelAbilityCardView> buffer)
+        DuelAbilityCardView AcquireCardForAbility(string abilityId, RectTransform parent)
         {
-            buffer.Clear();
-            if (root == null)
+            if (string.IsNullOrWhiteSpace(abilityId) || parent == null)
             {
-                return;
+                return null;
             }
 
-            IEnumerable<DuelAbilityCardView> cards = root
-                .GetComponentsInChildren<DuelAbilityCardView>(true)
-                .OrderBy(card => card == null || card.transform.parent == null
-                    ? int.MaxValue
-                    : card.transform.parent.GetSiblingIndex())
-                .ThenBy(card => card == null ? int.MaxValue : card.transform.GetSiblingIndex());
-
-            foreach (DuelAbilityCardView card in cards)
+            DuelAbilityCardView card = null;
+            if (cardViewsByInstanceId.TryGetValue(abilityId, out DuelAbilityCardView mappedCard))
             {
+                if (mappedCard == null)
+                {
+                    cardViewsByInstanceId.Remove(abilityId);
+                }
+                else
+                {
+                    card = mappedCard;
+                    reusableCardViews.Remove(card);
+                }
+            }
+
+            if (card == null)
+            {
+                card = TakeReusableCard();
+            }
+
+            if (card == null)
+            {
+                card = CreateCardInstance(parent);
+                if (card == null)
+                {
+                    return null;
+                }
+            }
+
+            cardViewsByInstanceId[abilityId] = card;
+            if (!activeCardViews.Contains(card))
+            {
+                activeCardViews.Add(card);
+            }
+
+            Transform transform = card.transform;
+            transform.SetParent(parent, false);
+            if (transform is RectTransform cardRect)
+            {
+                ConfigureCardRectForParent(cardRect, parent);
+            }
+
+            card.gameObject.SetActive(true);
+            return card;
+        }
+
+        DuelAbilityCardView TakeReusableCard()
+        {
+            for (int i = reusableCardViews.Count - 1; i >= 0; i--)
+            {
+                DuelAbilityCardView card = reusableCardViews[i];
+                reusableCardViews.RemoveAt(i);
                 if (card == null)
                 {
                     continue;
                 }
 
-                buffer.Add(card);
+                return card;
             }
+
+            return null;
+        }
+
+        DuelAbilityCardView CreateCardInstance(RectTransform parent)
+        {
+            if (!UnityEngine.Application.isPlaying)
+            {
+                return null;
+            }
+
+            if (abilityCardPrefab == null)
+            {
+                Debug.LogError("[DuelScreenView] abilityCardPrefab is null. Cannot create on-demand cards.");
+                return null;
+            }
+
+            DuelAbilityCardView card = UnityEngine.Object.Instantiate(abilityCardPrefab, parent, false);
+            if (card == null)
+            {
+                return null;
+            }
+
+            card.gameObject.SetActive(false);
+            return card;
+        }
+
+        static void ConfigureCardRectForParent(RectTransform cardRect, RectTransform parent)
+        {
+            if (cardRect == null || parent == null)
+            {
+                return;
+            }
+
+            cardRect.localScale = Vector3.one;
+            if (parent.TryGetComponent(out LayoutGroup _))
+            {
+                return;
+            }
+
+            cardRect.anchorMin = new Vector2(0.5f, 0.5f);
+            cardRect.anchorMax = new Vector2(0.5f, 0.5f);
+            cardRect.pivot = new Vector2(0.5f, 0.5f);
+            cardRect.anchoredPosition = Vector2.zero;
         }
 
         static void HideDirectChildren(RectTransform root)
@@ -984,87 +962,6 @@ namespace Game.Presentation.Duel
 
                 child.gameObject.SetActive(false);
             }
-        }
-
-        void AddCardsToPool(IReadOnlyList<DuelAbilityCardView> cards)
-        {
-            if (cards == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < cards.Count; i++)
-            {
-                AddCardToPool(cards[i]);
-            }
-        }
-
-        void AddSlotCardsToPool(IReadOnlyList<RectTransform> slots)
-        {
-            if (slots == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < slots.Count; i++)
-            {
-                AddCardToPool(ResolveCardInSlot(slots[i]));
-            }
-        }
-
-        void AddCardToPool(DuelAbilityCardView card)
-        {
-            if (card == null || pooledCardViews.Contains(card))
-            {
-                return;
-            }
-
-            pooledCardViews.Add(card);
-        }
-
-        static void HideSlotCards(IReadOnlyList<RectTransform> slots)
-        {
-            if (slots == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < slots.Count; i++)
-            {
-                DuelAbilityCardView card = ResolveCardInSlot(slots[i]);
-                if (card != null)
-                {
-                    card.gameObject.SetActive(false);
-                }
-            }
-        }
-
-        static bool HasCardInEverySlot(IReadOnlyList<RectTransform> slots)
-        {
-            if (slots == null)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < slots.Count; i++)
-            {
-                if (ResolveCardInSlot(slots[i]) == null)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        static DuelAbilityCardView ResolveCardInSlot(RectTransform slot)
-        {
-            if (slot == null)
-            {
-                return null;
-            }
-
-            return slot.GetComponentInChildren<DuelAbilityCardView>(true);
         }
 
         static string BuildHeartText(int currentHealth, int maxHealth)

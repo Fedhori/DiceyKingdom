@@ -141,15 +141,17 @@ namespace Game.Presentation.Duel
             bool hasValidZones = combatZones != null &&
                 combatZones.Length == 3 &&
                 combatZones.All(zone => zone != null);
-            if (hasValidZones)
+            bool hasCardPrefab = abilityCardPrefab != null;
+            if (hasValidZones && hasCardPrefab)
             {
                 return true;
             }
 
             int length = combatZones == null ? 0 : combatZones.Length;
             Debug.LogError(
-                $"[DuelScreenController] Invalid combatZones at {stage}. " +
-                $"Expected 3 assigned zones, actual length={length}. Auto-assignment is disabled.",
+                $"[DuelScreenController] Invalid serialized references at {stage}. " +
+                $"combatZonesLength={length}, combatZonesAllAssigned={hasValidZones}, abilityCardPrefabAssigned={hasCardPrefab}. " +
+                "Auto-assignment is disabled.",
                 this);
             return false;
         }
