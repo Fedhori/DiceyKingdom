@@ -2,7 +2,7 @@
 
 **Role:** Canonical terminology for docs, code, and data. Use these terms consistently.
 
-**Last updated:** 2026-02-25
+**Last updated:** 2026-02-26
 
 ## Usage rules
 
@@ -26,6 +26,7 @@
 | Meta | Loadout | 로드아웃 | Un-deployed ability storage during a duel |
 | State | Health | 체력 | Duel ends when Health <= 0 |
 | State | Honor | 명예 | Determines whether Surrender is allowed |
+| Enemy | Tier | 등급 | Enemy grade: Normal / Elite / Boss |
 | Meta | Capacity | 용량 | Build-time capacity limit (pre-duel) |
 | Action | Surrender | 항복 | Immediate duel end; no reward; consumes 1 Honor |
 

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.swordmaster.skilled.thrust",
+  "type": "Attack",
+  "buildCost": 1,
+  "cooldown": 1,
+  "power": 10,
+  "nameLocKey": "ability.swordmaster.skilled.thrust_name",
+  "descLocKey": "ability.swordmaster.skilled.thrust_desc",
+  "isPlayerObtainable": false,
+  "iconId": "icon.default",
+  "effects": [
+    {
+      "timing": "AfterCombat",
+      "condition": {
+        "type": "OutcomeIsVictory"
+      },
+      "ops": [
+        {
+          "op": "ModifyOutgoingDamageOnWin",
+          "scope": "Self",
+          "value": 1
+        }
+      ]
+    }
+  ]
+}

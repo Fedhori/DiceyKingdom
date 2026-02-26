@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using Newtonsoft.Json;
 
 namespace Game.Infrastructure.Data
@@ -15,7 +16,15 @@ namespace Game.Infrastructure.Data
         [JsonProperty("health", Required = Required.Always)]
         public int health;
 
+        [JsonProperty("tier", Required = Required.Always)]
+        public string tier = EnemyTier.Normal.ToString();
+
         [JsonProperty("abilityLoadout", Required = Required.Always)]
         public List<SummonAbilityRefDef> abilityLoadout = new();
+
+        public bool TryGetTier(out EnemyTier enemyTier)
+        {
+            return Enum.TryParse(tier, false, out enemyTier);
+        }
     }
 }

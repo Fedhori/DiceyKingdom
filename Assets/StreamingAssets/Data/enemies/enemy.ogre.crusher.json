@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 2,
+  "id": "enemy.ogre.crusher",
+  "health": 8,
+  "tier": "Elite",
+  "abilityLoadout": [
+    {
+      "abilityId": "ability.ogre.crush",
+      "count": 1
+    },
+    {
+      "abilityId": "ability.ogre.swing",
+      "count": 2
+    }
+  ]
+}

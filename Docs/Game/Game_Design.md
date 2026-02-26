@@ -90,7 +90,14 @@ Damage:
 
 - If Victory occurs, the winner deals **Damage = 1** to the loser.
 - Draw deals **no damage**.
-- Effects may override damage rules (e.g., “PreventOutgoingDamageOnWin” sets outgoing damage to 0).
+- Effects may override damage rules:
+  - `PreventOutgoingDamageOnWin`: sets outgoing damage to 0
+  - `ModifyOutgoingDamageOnWin`: adds to winner outgoing damage for that combat (`base 1 + bonus`, minimum 0)
+
+### 3.6.1 AfterCombat timing
+
+- `AfterCombat` is an effect timing executed per combat, after outcome calculation and before damage application.
+- It is outcome-aware (`OutcomeIsVictory`, `OutcomeIsDefeat`, `OutcomeIsDraw`) and supports source-relative evaluation for both sides.
 
 ### 3.7 Surrender
 
@@ -139,13 +146,29 @@ Effects:
 - In Development mode, missing icon files must fail validation visibly.
 - In runtime rendering, if icon lookup/load fails unexpectedly, use default icon and emit error logs.
 
-### 4.3 Effect op side semantics
+### 4.3 Ability obtainability field
+
+- Every ability definition must include `isPlayerObtainable`.
+- `player.start.startingLoadoutAbilityIds` must reference only abilities with `isPlayerObtainable = true`.
+- Enemy loadout may reference abilities regardless of `isPlayerObtainable`.
+
+### 4.4 Effect op side semantics
 
 - For `ModifyHealth` and `ModifyTotalPower`, `ops[].side` is optional.
 - If `ops[].side` is omitted, the op is resolved from the source ability owner side (self-side).
 - If `ops[].side` is present, only `Player` or `Opponent` is valid (case-sensitive).
 
-## 5) Key invariants (must remain true unless explicitly changed)
+### 4.5 Health cap semantics
+
+- `ModifyHealth` is capped by `maxPlayerHealth` / `maxOpponentHealth` stored in `DuelState`.
+- This cap applies equally to player and opponent.
+
+## 5) Enemy data
+
+- `EnemyDef.tier` is required.
+- Allowed values: `Normal`, `Elite`, `Boss`.
+
+## 6) Key invariants (must remain true unless explicitly changed)
 
 - Combat slots are always exactly 3.
 - `combatIndex` is the only way to reference slots.

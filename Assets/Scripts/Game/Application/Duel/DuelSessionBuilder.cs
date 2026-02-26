@@ -206,6 +206,8 @@ namespace Game.Application.Duel
                 honor = database.playerStart.startingHonor,
                 playerHealth = Mathf.Max(1, database.playerStart.startingPlayerHealth),
                 opponentHealth = Mathf.Max(1, enemyDef.health),
+                maxPlayerHealth = Mathf.Max(1, database.playerStart.startingPlayerHealth),
+                maxOpponentHealth = Mathf.Max(1, enemyDef.health),
                 enemyId = enemyDef.id
             };
 
@@ -292,6 +294,13 @@ namespace Game.Application.Duel
                 {
                     Debug.LogWarning(
                         $"[DuelSessionBuilder] startingLoadoutAbilityIds[{abilityIndex}] '{abilityDefId}' is missing.");
+                    continue;
+                }
+
+                if (!abilityDef.isPlayerObtainable)
+                {
+                    Debug.LogError(
+                        $"[DuelSessionBuilder] startingLoadoutAbilityIds[{abilityIndex}] '{abilityDefId}' must be isPlayerObtainable=true.");
                     continue;
                 }
 

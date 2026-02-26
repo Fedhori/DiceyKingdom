@@ -16,14 +16,19 @@ namespace Game.Infrastructure.Data
             nameof(DuelEffectOpCode.ModifyTotalPower),
             nameof(DuelEffectOpCode.ModifyHealth),
             nameof(DuelEffectOpCode.AddPowerModifier),
-            nameof(DuelEffectOpCode.PreventOutgoingDamageOnWin)
+            nameof(DuelEffectOpCode.PreventOutgoingDamageOnWin),
+            nameof(DuelEffectOpCode.DestroyAbility),
+            nameof(DuelEffectOpCode.ModifyOutgoingDamageOnWin)
         };
 
         static readonly HashSet<string> allowedConditionTypes = new(StringComparer.Ordinal)
         {
             "Always",
             "IsInLoadout",
-            "OpponentCountEquals"
+            "OpponentCountEquals",
+            "OutcomeIsVictory",
+            "OutcomeIsDefeat",
+            "OutcomeIsDraw"
         };
 
         static readonly HashSet<string> allowedTimedEffectTimings = new(StringComparer.Ordinal)
@@ -33,6 +38,7 @@ namespace Game.Infrastructure.Data
             nameof(DuelEffectTiming.Roll),
             nameof(DuelEffectTiming.Skill),
             nameof(DuelEffectTiming.Resolve),
+            nameof(DuelEffectTiming.AfterCombat),
             nameof(DuelEffectTiming.TurnEnd)
         };
 
@@ -194,6 +200,17 @@ namespace Game.Infrastructure.Data
                                 database.playerStartSourcePath,
                                 database.playerStart.id,
                                 $"startingLoadoutAbilityIds[{i}]('{abilityId}') does not exist.");
+                            continue;
+                        }
+
+                        AbilityDef abilityDef = database.abilitiesById[abilityId];
+                        if (abilityDef != null && !abilityDef.isPlayerObtainable)
+                        {
+                            report.AddError(
+                                GameDataErrorCode.InvalidValue,
+                                database.playerStartSourcePath,
+                                database.playerStart.id,
+                                $"startingLoadoutAbilityIds[{i}]('{abilityId}') must be isPlayerObtainable=true.");
                         }
                     }
                 }
@@ -345,6 +362,15 @@ namespace Game.Infrastructure.Data
                         path,
                         id,
                         "health must be greater than zero.");
+                }
+
+                if (!enemyDef.TryGetTier(out _))
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidEnum,
+                        path,
+                        id,
+                        $"tier '{enemyDef.tier}' is invalid. Allowed: {EnemyTier.Normal}, {EnemyTier.Elite}, {EnemyTier.Boss}.");
                 }
 
                 if (enemyDef.abilityLoadout == null || enemyDef.abilityLoadout.Count <= 0)
@@ -512,6 +538,12 @@ namespace Game.Infrastructure.Data
                     ValidateModeAndAmount(opDef, path, ownerId, context, report);
                     break;
                 case nameof(DuelEffectOpCode.PreventOutgoingDamageOnWin):
+                    break;
+                case nameof(DuelEffectOpCode.DestroyAbility):
+                    break;
+                case nameof(DuelEffectOpCode.ModifyOutgoingDamageOnWin):
+                    ValidateOptionalSide(opDef, path, ownerId, context, report);
+                    ValidateAmount(opDef, path, ownerId, context, report);
                     break;
             }
         }

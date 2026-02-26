@@ -58,8 +58,8 @@ namespace Game.Presentation.Duel
                 return false;
             }
 
-            MaxPlayerHealth = Mathf.Max(1, DuelState.playerHealth);
-            MaxOpponentHealth = Mathf.Max(1, DuelState.opponentHealth);
+            MaxPlayerHealth = Mathf.Max(1, DuelState.maxPlayerHealth);
+            MaxOpponentHealth = Mathf.Max(1, DuelState.maxOpponentHealth);
             turnProcessor.ApplyTimedEffects(DuelState, DuelEffectTiming.DuelStart);
 
             if (!advanceToPlayerSetup)

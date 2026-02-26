@@ -7,6 +7,7 @@ namespace Game.Infrastructure.Data.Effects
         Roll = 2,
         Skill = 3,
         Resolve = 4,
-        TurnEnd = 5
+        AfterCombat = 5,
+        TurnEnd = 6
     }
 }

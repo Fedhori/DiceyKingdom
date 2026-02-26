@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.wolf.bite",
+  "type": "Attack",
+  "buildCost": 1,
+  "cooldown": 1,
+  "power": 3,
+  "nameLocKey": "ability.wolf.bite_name",
+  "descLocKey": "ability.wolf.bite_desc",
+  "isPlayerObtainable": false,
+  "iconId": "icon.default",
+  "effects": []
+}

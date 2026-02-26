@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.ogre.crush",
+  "type": "Attack",
+  "buildCost": 1,
+  "cooldown": 3,
+  "power": 30,
+  "nameLocKey": "ability.ogre.crush_name",
+  "descLocKey": "ability.ogre.crush_desc",
+  "isPlayerObtainable": false,
+  "iconId": "icon.default",
+  "effects": []
+}

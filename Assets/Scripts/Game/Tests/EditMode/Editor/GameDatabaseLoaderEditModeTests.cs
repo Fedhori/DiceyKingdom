@@ -32,6 +32,7 @@ namespace Game.Tests.EditMode
   ""schemaVersion"": 2,
   ""id"": ""enemy.1"",
   ""health"": 10,
+  ""tier"": ""Normal"",
   ""abilityLoadout"": [
     { ""abilityId"": ""ability.missing"", ""count"": 1 }
   ]
@@ -70,6 +71,7 @@ namespace Game.Tests.EditMode
   ""power"": 2,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
+  ""isPlayerObtainable"": true,
   ""iconId"": ""ability.1"",
   ""effects"": [],
   ""unknownField"": 999
@@ -108,6 +110,7 @@ namespace Game.Tests.EditMode
   ""power"": 2,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
+  ""isPlayerObtainable"": true,
   ""iconId"": ""ability.1"",
   ""effects"": [
     {
@@ -184,6 +187,7 @@ namespace Game.Tests.EditMode
   ""schemaVersion"": 2,
   ""id"": ""enemy.1"",
   ""health"": 10,
+  ""tier"": ""Normal"",
   ""abilityLoadout"": [
     { ""abilityId"": ""ability.1"", ""count"": 17 }
   ]
@@ -247,6 +251,7 @@ namespace Game.Tests.EditMode
   ""power"": 2,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
+  ""isPlayerObtainable"": true,
   ""effects"": []
 }";
 
@@ -282,6 +287,7 @@ namespace Game.Tests.EditMode
   ""power"": 0,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
+  ""isPlayerObtainable"": true,
   ""iconId"": ""ability.1"",
   ""effects"": []
 }";
@@ -310,6 +316,7 @@ namespace Game.Tests.EditMode
   ""power"": 3,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
+  ""isPlayerObtainable"": true,
   ""iconId"": ""ability.1"",
   ""effects"": []
 }";
@@ -347,6 +354,7 @@ namespace Game.Tests.EditMode
   ""power"": 0,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
+  ""isPlayerObtainable"": true,
   ""iconId"": ""ability.1"",
   ""effects"": [
     {
@@ -384,6 +392,7 @@ namespace Game.Tests.EditMode
   ""power"": 0,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
+  ""isPlayerObtainable"": true,
   ""iconId"": ""ability.1"",
   ""effects"": [
     {
@@ -462,6 +471,7 @@ namespace Game.Tests.EditMode
   ""power"": 2,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
+  ""isPlayerObtainable"": true,
   ""iconId"": ""ability.1"",
   ""effects"": []
 }",
@@ -472,6 +482,7 @@ namespace Game.Tests.EditMode
   ""schemaVersion"": 2,
   ""id"": ""enemy.1"",
   ""health"": 10,
+  ""tier"": ""Normal"",
   ""abilityLoadout"": [
     { ""abilityId"": ""ability.1"", ""count"": 1 }
   ]

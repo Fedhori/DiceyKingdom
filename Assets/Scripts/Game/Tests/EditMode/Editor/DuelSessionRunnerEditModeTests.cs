@@ -152,6 +152,7 @@ namespace Game.Tests.EditMode
                 buildCost = 0,
                 cooldown = 0,
                 power = 0,
+                isPlayerObtainable = true,
                 effects = new List<TimedEffectDef>
                 {
                     new TimedEffectDef
@@ -183,7 +184,7 @@ namespace Game.Tests.EditMode
                 out string failureMessage);
 
             Assert.IsTrue(success, failureMessage);
-            Assert.AreEqual(11, sessionRunner.DuelState.playerHealth);
+            Assert.AreEqual(10, sessionRunner.DuelState.playerHealth);
         }
 
         [Test]
@@ -272,7 +273,8 @@ namespace Game.Tests.EditMode
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
                 cooldown = 1,
-                power = 3
+                power = 3,
+                isPlayerObtainable = true
             };
 
             database.abilitiesById["ability.enemy"] = new AbilityDef

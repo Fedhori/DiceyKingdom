@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.slime.sticky.mucus",
+  "type": "Attack",
+  "buildCost": 1,
+  "cooldown": 1,
+  "power": 5,
+  "nameLocKey": "ability.slime.sticky.mucus_name",
+  "descLocKey": "ability.slime.sticky.mucus_desc",
+  "isPlayerObtainable": false,
+  "iconId": "icon.default",
+  "effects": []
+}

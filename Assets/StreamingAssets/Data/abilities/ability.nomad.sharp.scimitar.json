@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.nomad.sharp.scimitar",
+  "type": "Attack",
+  "buildCost": 1,
+  "cooldown": 1,
+  "power": 4,
+  "nameLocKey": "ability.nomad.sharp.scimitar_name",
+  "descLocKey": "ability.nomad.sharp.scimitar_desc",
+  "isPlayerObtainable": false,
+  "iconId": "icon.default",
+  "effects": [
+    {
+      "timing": "TurnEnd",
+      "condition": {
+        "type": "Always"
+      },
+      "ops": [
+        {
+          "op": "AddPowerModifier",
+          "scope": "Self",
+          "target": "Power",
+          "layer": "Permanent",
+          "mode": "Add",
+          "value": 1
+        }
+      ]
+    }
+  ]
+}

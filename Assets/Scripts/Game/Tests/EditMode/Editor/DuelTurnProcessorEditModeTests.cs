@@ -16,7 +16,9 @@ namespace Game.Tests.EditMode
             var state = new DuelState
             {
                 playerHealth = 10,
-                opponentHealth = 10
+                opponentHealth = 10,
+                maxPlayerHealth = 10,
+                maxOpponentHealth = 10
             };
             AddCombats(state, 1);
 
@@ -55,7 +57,9 @@ namespace Game.Tests.EditMode
             var state = new DuelState
             {
                 playerHealth = 5,
-                opponentHealth = 5
+                opponentHealth = 5,
+                maxPlayerHealth = 10,
+                maxOpponentHealth = 10
             };
             AddCombats(state, 1);
 
@@ -90,7 +94,9 @@ namespace Game.Tests.EditMode
             var state = new DuelState
             {
                 playerHealth = 5,
-                opponentHealth = 5
+                opponentHealth = 5,
+                maxPlayerHealth = 10,
+                maxOpponentHealth = 10
             };
             AddCombats(state, 1);
 
@@ -130,7 +136,9 @@ namespace Game.Tests.EditMode
             var state = new DuelState
             {
                 playerHealth = 5,
-                opponentHealth = 5
+                opponentHealth = 5,
+                maxPlayerHealth = 10,
+                maxOpponentHealth = 10
             };
             AddCombats(state, 1);
 
@@ -165,7 +173,9 @@ namespace Game.Tests.EditMode
             var state = new DuelState
             {
                 playerHealth = 5,
-                opponentHealth = 5
+                opponentHealth = 5,
+                maxPlayerHealth = 10,
+                maxOpponentHealth = 10
             };
             AddCombats(state, 1);
             state.abilitiesById["passive0"] = new AbilityInstance
@@ -206,7 +216,9 @@ namespace Game.Tests.EditMode
             var state = new DuelState
             {
                 playerHealth = 10,
-                opponentHealth = 10
+                opponentHealth = 10,
+                maxPlayerHealth = 10,
+                maxOpponentHealth = 10
             };
             AddCombats(state, 1);
 
@@ -234,13 +246,85 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
+        public void TryResolveAllCombats_AfterCombatWinBonus_IncreasesAppliedDamage()
+        {
+            GameDatabase database = CreateDatabase();
+            database.abilitiesById["ability.win.damage.plus"] = CreateWinDamagePlusEffectAbilityDef();
+
+            var state = new DuelState
+            {
+                playerHealth = 10,
+                opponentHealth = 10,
+                maxPlayerHealth = 10,
+                maxOpponentHealth = 10
+            };
+            AddCombats(state, 1);
+
+            state.abilitiesById["p0"] = CreateAbility("ability.win.damage.plus", 8);
+            state.abilitiesById["e0"] = CreateAbility("ability.opponent", 1);
+            state.combats[0].playerAbilityIds.Add("p0");
+            state.combats[0].opponentAbilityIds.Add("e0");
+
+            var runner = new DuelPhaseRunner(state);
+            var processor = new DuelTurnProcessor(database);
+            AdvanceToResolve(runner);
+
+            bool success = processor.TryResolveAllCombats(
+                state,
+                runner,
+                out DuelCombatResolveResult result,
+                out string failureMessage);
+
+            Assert.IsTrue(success, failureMessage);
+            Assert.AreEqual(8, state.opponentHealth);
+            Assert.AreEqual(2, result.steps[0].appliedDamage);
+        }
+
+        [Test]
+        public void TryResolveAllCombats_AfterCombatDefeatDestroy_RemovesAbilityInstance()
+        {
+            GameDatabase database = CreateDatabase();
+            database.abilitiesById["ability.lose.destroy"] = CreateLoseDestroyEffectAbilityDef();
+
+            var state = new DuelState
+            {
+                playerHealth = 10,
+                opponentHealth = 10,
+                maxPlayerHealth = 10,
+                maxOpponentHealth = 10
+            };
+            AddCombats(state, 1);
+
+            state.abilitiesById["p0"] = CreateAbility("ability.player", 9);
+            state.abilitiesById["e0"] = CreateAbility("ability.lose.destroy", 1);
+            state.combats[0].playerAbilityIds.Add("p0");
+            state.combats[0].opponentAbilityIds.Add("e0");
+
+            var runner = new DuelPhaseRunner(state);
+            var processor = new DuelTurnProcessor(database);
+            AdvanceToResolve(runner);
+
+            bool success = processor.TryResolveAllCombats(
+                state,
+                runner,
+                out DuelCombatResolveResult _,
+                out string failureMessage);
+
+            Assert.IsTrue(success, failureMessage);
+            Assert.IsFalse(state.abilitiesById.ContainsKey("e0"));
+            Assert.IsFalse(state.opponentLoadoutAbilityIds.Contains("e0"));
+        }
+
+        [Test]
         public void TryResolveAllCombats_FailsWhenNoCombatsExist()
         {
             GameDatabase database = CreateDatabase();
             var state = new DuelState
             {
                 playerHealth = 10,
-                opponentHealth = 10
+                opponentHealth = 10,
+                maxPlayerHealth = 10,
+                maxOpponentHealth = 10
             };
 
             var runner = new DuelPhaseRunner(state);
@@ -267,7 +351,9 @@ namespace Game.Tests.EditMode
             var state = new DuelState
             {
                 playerHealth = 5,
-                opponentHealth = 5
+                opponentHealth = 5,
+                maxPlayerHealth = 10,
+                maxOpponentHealth = 10
             };
             AddCombats(state, 1);
 
@@ -424,6 +510,67 @@ namespace Game.Tests.EditMode
                                 op = "ModifyHealth",
                                 side = "Player",
                                 value = healAmount
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        static AbilityDef CreateWinDamagePlusEffectAbilityDef()
+        {
+            return new AbilityDef
+            {
+                type = AbilityType.Attack.ToString(),
+                buildCost = 1,
+                cooldown = 1,
+                power = 10,
+                effects = new List<TimedEffectDef>
+                {
+                    new TimedEffectDef
+                    {
+                        timing = "AfterCombat",
+                        condition = new ConditionDef
+                        {
+                            type = "OutcomeIsVictory"
+                        },
+                        ops = new List<EffectOpDef>
+                        {
+                            new EffectOpDef
+                            {
+                                op = "ModifyOutgoingDamageOnWin",
+                                scope = "Self",
+                                value = 1
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        static AbilityDef CreateLoseDestroyEffectAbilityDef()
+        {
+            return new AbilityDef
+            {
+                type = AbilityType.Attack.ToString(),
+                buildCost = 1,
+                cooldown = 1,
+                power = 4,
+                effects = new List<TimedEffectDef>
+                {
+                    new TimedEffectDef
+                    {
+                        timing = "AfterCombat",
+                        condition = new ConditionDef
+                        {
+                            type = "OutcomeIsDefeat"
+                        },
+                        ops = new List<EffectOpDef>
+                        {
+                            new EffectOpDef
+                            {
+                                op = "DestroyAbility",
+                                scope = "Self"
                             }
                         }
                     }

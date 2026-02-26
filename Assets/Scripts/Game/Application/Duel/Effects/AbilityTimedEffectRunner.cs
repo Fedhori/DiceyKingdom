@@ -24,13 +24,22 @@ namespace Game.Application.Duel.Effects
 
         public AbilityTimedEffectRunResult ApplyForTiming(DuelState state, DuelEffectTiming timing)
         {
-            return ApplyForTiming(state, timing, null);
+            return ApplyForTiming(state, timing, null, null);
         }
 
         public AbilityTimedEffectRunResult ApplyForTiming(
             DuelState state,
             DuelEffectTiming timing,
             IReadOnlyCollection<string> sourceAbilityIds)
+        {
+            return ApplyForTiming(state, timing, sourceAbilityIds, null);
+        }
+
+        public AbilityTimedEffectRunResult ApplyForTiming(
+            DuelState state,
+            DuelEffectTiming timing,
+            IReadOnlyCollection<string> sourceAbilityIds,
+            DuelEffectContext effectContext)
         {
             if (state == null)
             {
@@ -46,6 +55,7 @@ namespace Game.Application.Duel.Effects
 
             List<AbilityRuntimeContext> contexts = BuildAbilityContexts(state);
             HashSet<string> sourceFilter = BuildSourceFilter(sourceAbilityIds);
+            DuelEffectContext resolvedEffectContext = effectContext ?? new DuelEffectContext();
             int appliedCount = 0;
             int failedCount = 0;
             int skippedCount = 0;
@@ -79,7 +89,7 @@ namespace Game.Application.Duel.Effects
                         continue;
                     }
 
-                    if (!EvaluateCondition(state, sourceContext, timedEffect.condition, contexts))
+                    if (!EvaluateCondition(state, sourceContext, timedEffect.condition, contexts, resolvedEffectContext))
                     {
                         skippedCount += 1;
                         continue;
@@ -125,7 +135,7 @@ namespace Game.Application.Duel.Effects
                                 continue;
                             }
 
-                            DuelEffectResult result = resolver.Apply(state, command);
+                            DuelEffectResult result = resolver.Apply(state, command, resolvedEffectContext);
                             if (result.isSuccess)
                             {
                                 appliedCount += 1;
@@ -183,7 +193,7 @@ namespace Game.Application.Duel.Effects
                 return false;
             }
 
-            if (timing == DuelEffectTiming.Deploy)
+            if (timing == DuelEffectTiming.Deploy || timing == DuelEffectTiming.AfterCombat)
             {
                 return sourceContext.combatIndex >= 0;
             }
@@ -218,7 +228,8 @@ namespace Game.Application.Duel.Effects
             DuelState state,
             AbilityRuntimeContext sourceContext,
             ConditionDef condition,
-            List<AbilityRuntimeContext> allContexts)
+            List<AbilityRuntimeContext> allContexts,
+            DuelEffectContext effectContext)
         {
             if (condition == null || string.IsNullOrWhiteSpace(condition.type))
             {
@@ -258,10 +269,47 @@ namespace Game.Application.Duel.Effects
 
                     return opponentCount == expectedCount;
                 }
+                case "OutcomeIsVictory":
+                    return IsOutcomeMatch(effectContext, sourceContext.isPlayerSide, DuelOutcome.Victory);
+                case "OutcomeIsDefeat":
+                    return IsOutcomeMatch(effectContext, sourceContext.isPlayerSide, DuelOutcome.Defeat);
+                case "OutcomeIsDraw":
+                    return IsOutcomeMatch(effectContext, sourceContext.isPlayerSide, DuelOutcome.Draw);
                 default:
                     Debug.LogWarning($"[AbilityTimedEffectRunner] Unsupported condition type '{condition.type}'.");
                     return false;
             }
+        }
+
+        static bool IsOutcomeMatch(DuelEffectContext effectContext, bool isPlayerSide, DuelOutcome expected)
+        {
+            if (effectContext == null || !effectContext.hasOutcome)
+            {
+                return false;
+            }
+
+            DuelOutcome sourceRelativeOutcome = ToSourceRelativeOutcome(effectContext.outcome, isPlayerSide);
+            return sourceRelativeOutcome == expected;
+        }
+
+        static DuelOutcome ToSourceRelativeOutcome(DuelOutcome playerPerspectiveOutcome, bool isPlayerSide)
+        {
+            if (isPlayerSide)
+            {
+                return playerPerspectiveOutcome;
+            }
+
+            if (playerPerspectiveOutcome == DuelOutcome.Victory)
+            {
+                return DuelOutcome.Defeat;
+            }
+
+            if (playerPerspectiveOutcome == DuelOutcome.Defeat)
+            {
+                return DuelOutcome.Victory;
+            }
+
+            return DuelOutcome.Draw;
         }
 
         static List<AbilityRuntimeContext> ResolveTargets(
@@ -434,6 +482,25 @@ namespace Game.Application.Duel.Effects
                     return false;
                 }
 
+                command.combatIndex = targetContext.combatIndex;
+            }
+
+            if (opCode == DuelEffectOpCode.ModifyOutgoingDamageOnWin)
+            {
+                if (!opDef.TryGetAmount(out int amount))
+                {
+                    warningMessage = $"Missing amount for op '{opDef.op}'.";
+                    return false;
+                }
+
+                if (targetContext.combatIndex < 0)
+                {
+                    warningMessage =
+                        $"ModifyOutgoingDamageOnWin requires a combat target, but target ability({targetContext.abilityId}) is not in combat.";
+                    return false;
+                }
+
+                command.amount = amount;
                 command.combatIndex = targetContext.combatIndex;
             }
 

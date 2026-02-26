@@ -455,7 +455,9 @@ namespace Game.Tests.EditMode
             var state = new DuelState
             {
                 playerHealth = 10,
-                opponentHealth = 10
+                opponentHealth = 10,
+                maxPlayerHealth = 10,
+                maxOpponentHealth = 10
             };
 
             AddCombats(state, 3);

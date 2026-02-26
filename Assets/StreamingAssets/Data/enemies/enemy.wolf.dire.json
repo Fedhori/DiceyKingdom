@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 2,
+  "id": "enemy.wolf.dire",
+  "health": 5,
+  "tier": "Normal",
+  "abilityLoadout": [
+    {
+      "abilityId": "ability.wolf.bite",
+      "count": 8
+    }
+  ]
+}

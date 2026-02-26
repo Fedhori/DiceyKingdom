@@ -193,6 +193,7 @@ namespace Game.Tests.EditMode
         {
             var state = CreateDuelState();
             state.playerHealth = 1;
+            state.maxPlayerHealth = 10;
             state.abilitiesById["p1"] = new AbilityInstance
             {
                 abilityDefId = "p1",
@@ -230,6 +231,80 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(-1, state.playerHealth);
             Assert.AreEqual(1, state.abilitiesById["p1"].powerModifiers.Count);
             Assert.AreEqual(ModifierLayer.Permanent, state.abilitiesById["p1"].powerModifiers[0].layer);
+        }
+
+        [Test]
+        public void ModifyHealth_HealingIsClampedToMaxHealth()
+        {
+            var state = CreateDuelState();
+            state.playerHealth = 9;
+            state.maxPlayerHealth = 10;
+
+            var resolver = new DuelEffectCombatResolver();
+            DuelEffectResult result = resolver.Apply(
+                state,
+                new DuelEffectCommand
+                {
+                    opCode = DuelEffectOpCode.ModifyHealth,
+                    isPlayerSide = true,
+                    amount = 5
+                });
+
+            Assert.IsTrue(result.isSuccess);
+            Assert.AreEqual(10, state.playerHealth);
+        }
+
+        [Test]
+        public void DestroyAbility_RemovesAbilityFromStateAndCollections()
+        {
+            var state = CreateDuelState();
+            state.abilitiesById["p1"] = CreateAbility("p1", 2);
+            state.loadoutAbilityIds.Add("p1");
+
+            var resolver = new DuelEffectCombatResolver();
+            DuelEffectResult result = resolver.Apply(
+                state,
+                new DuelEffectCommand
+                {
+                    opCode = DuelEffectOpCode.DestroyAbility,
+                    abilityId = "p1"
+                });
+
+            Assert.IsTrue(result.isSuccess);
+            Assert.IsFalse(state.abilitiesById.ContainsKey("p1"));
+            Assert.IsFalse(state.loadoutAbilityIds.Contains("p1"));
+        }
+
+        [Test]
+        public void ModifyOutgoingDamageOnWin_UpdatesRequestedSide()
+        {
+            var state = CreateDuelState();
+            var resolver = new DuelEffectCombatResolver();
+
+            DuelEffectResult playerResult = resolver.Apply(
+                state,
+                new DuelEffectCommand
+                {
+                    opCode = DuelEffectOpCode.ModifyOutgoingDamageOnWin,
+                    combatIndex = 0,
+                    isPlayerSide = true,
+                    amount = 2
+                });
+
+            DuelEffectResult opponentResult = resolver.Apply(
+                state,
+                new DuelEffectCommand
+                {
+                    opCode = DuelEffectOpCode.ModifyOutgoingDamageOnWin,
+                    combatIndex = 0,
+                    isPlayerSide = false,
+                    amount = 1
+                });
+
+            Assert.IsTrue(playerResult.isSuccess);
+            Assert.IsTrue(opponentResult.isSuccess);
+            Assert.AreEqual(2, state.combats[0].outgoingDamageBonusOnWinPlayer);
+            Assert.AreEqual(1, state.combats[0].outgoingDamageBonusOnWinOpponent);
         }
 
         [Test]
@@ -286,7 +361,9 @@ namespace Game.Tests.EditMode
             var state = new DuelState
             {
                 playerHealth = 10,
-                opponentHealth = 10
+                opponentHealth = 10,
+                maxPlayerHealth = 10,
+                maxOpponentHealth = 10
             };
 
             AddCombats(state, 3);

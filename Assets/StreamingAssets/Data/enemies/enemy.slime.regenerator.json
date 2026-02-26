@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 2,
+  "id": "enemy.slime.regenerator",
+  "health": 3,
+  "tier": "Normal",
+  "abilityLoadout": [
+    {
+      "abilityId": "ability.passive.slime.regeneration",
+      "count": 1
+    },
+    {
+      "abilityId": "ability.slime.sticky.mucus",
+      "count": 3
+    }
+  ]
+}

@@ -8,6 +8,8 @@ namespace Game.Infrastructure.Data.Effects
         ModifyTotalPower = 3,
         ModifyHealth = 4,
         AddPowerModifier = 5,
-        PreventOutgoingDamageOnWin = 6
+        PreventOutgoingDamageOnWin = 6,
+        DestroyAbility = 7,
+        ModifyOutgoingDamageOnWin = 8
     }
 }

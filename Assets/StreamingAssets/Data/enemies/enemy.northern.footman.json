@@ -1,19 +1,16 @@
 {
-  "schemaVersion": 2,
-  "id": "enemy.northern.footman",
-  "health": 10,
-  "abilityLoadout": [
-    {
-      "abilityId": "ability.slash.sword",
-      "count": 3
-    },
-    {
-      "abilityId": "ability.crossbow",
-      "count": 1
-    },
-    {
-      "abilityId": "ability.passive.regen",
-      "count": 1
-    }
-  ]
+	"schemaVersion": 2,
+	"id": "enemy.northern.footman",
+	"health": 10,
+	"tier": "Normal",
+	"abilityLoadout": [
+		{
+			"abilityId": "ability.slash.sword",
+			"count": 3
+		},
+		{
+			"abilityId": "ability.crossbow",
+			"count": 1
+		}
+	]
 }

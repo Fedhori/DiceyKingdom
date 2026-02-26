@@ -20,6 +20,8 @@ namespace Game.Application.Duel.Effects
             Register(new ModifyTotalPowerEffectHandler());
             Register(new ModifyHealthEffectHandler());
             Register(new PreventOutgoingDamageOnWinEffectHandler());
+            Register(new DestroyAbilityEffectHandler());
+            Register(new ModifyOutgoingDamageOnWinEffectHandler());
         }
 
         public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context = null)
@@ -396,16 +398,79 @@ namespace Game.Application.Duel.Effects
                 if (command.isPlayerSide)
                 {
                     state.playerHealth += command.amount;
+                    state.playerHealth = Mathf.Min(state.playerHealth, Mathf.Max(1, state.maxPlayerHealth));
                 }
                 else
                 {
                     state.opponentHealth += command.amount;
+                    state.opponentHealth = Mathf.Min(state.opponentHealth, Mathf.Max(1, state.maxOpponentHealth));
                 }
 
                 if (state.playerHealth <= 0 || state.opponentHealth <= 0)
                 {
                     state.isDuelEnded = true;
                     DuelSimulator.ClearModifierLayer(state, ModifierLayer.Duel);
+                }
+
+                return DuelEffectResult.Success();
+            }
+        }
+
+        sealed class DestroyAbilityEffectHandler : IDuelEffectHandler
+        {
+            public DuelEffectOpCode opCode => DuelEffectOpCode.DestroyAbility;
+
+            public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context)
+            {
+                if (string.IsNullOrWhiteSpace(command.abilityId))
+                {
+                    return DuelEffectResult.Fail(
+                        DuelEffectFailureReason.MissingField,
+                        "abilityId is required.");
+                }
+
+                if (!state.abilitiesById.ContainsKey(command.abilityId))
+                {
+                    return DuelEffectResult.Fail(
+                        DuelEffectFailureReason.InvalidTarget,
+                        $"abilityId({command.abilityId}) does not exist.");
+                }
+
+                RemoveAbilityFromAllCollections(state, command.abilityId);
+                state.abilitiesById.Remove(command.abilityId);
+                return DuelEffectResult.Success();
+            }
+        }
+
+        sealed class ModifyOutgoingDamageOnWinEffectHandler : IDuelEffectHandler
+        {
+            public DuelEffectOpCode opCode => DuelEffectOpCode.ModifyOutgoingDamageOnWin;
+
+            public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context)
+            {
+                if (!TryGetCombatIndex(state, command.combatIndex, out int combatIndex))
+                {
+                    return DuelEffectResult.Fail(
+                        DuelEffectFailureReason.InvalidIndex,
+                        $"combatIndex({command.combatIndex}) is out of range.");
+                }
+
+                CombatState combat = state.combats[combatIndex];
+                if (combat == null)
+                {
+                    return DuelEffectResult.Fail(
+                        DuelEffectFailureReason.InvalidTarget,
+                        $"combat({combatIndex}) is null.");
+                }
+
+                combat.EnsureInitialized();
+                if (command.isPlayerSide)
+                {
+                    combat.outgoingDamageBonusOnWinPlayer += command.amount;
+                }
+                else
+                {
+                    combat.outgoingDamageBonusOnWinOpponent += command.amount;
                 }
 
                 return DuelEffectResult.Success();
@@ -449,6 +514,45 @@ namespace Game.Application.Duel.Effects
                 }
 
                 return DuelEffectResult.Success();
+            }
+        }
+
+        static void RemoveAbilityFromAllCollections(DuelState state, string abilityId)
+        {
+            if (state == null || string.IsNullOrWhiteSpace(abilityId))
+            {
+                return;
+            }
+
+            while (state.loadoutAbilityIds != null && state.loadoutAbilityIds.Remove(abilityId))
+            {
+            }
+
+            while (state.opponentLoadoutAbilityIds != null && state.opponentLoadoutAbilityIds.Remove(abilityId))
+            {
+            }
+
+            if (state.combats == null)
+            {
+                return;
+            }
+
+            for (int combatIndex = 0; combatIndex < state.combats.Count; combatIndex++)
+            {
+                CombatState combat = state.combats[combatIndex];
+                if (combat == null)
+                {
+                    continue;
+                }
+
+                combat.EnsureInitialized();
+                while (combat.playerAbilityIds.Remove(abilityId))
+                {
+                }
+
+                while (combat.opponentAbilityIds.Remove(abilityId))
+                {
+                }
             }
         }
     }

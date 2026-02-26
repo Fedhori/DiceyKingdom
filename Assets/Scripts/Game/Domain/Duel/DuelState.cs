@@ -10,6 +10,8 @@ namespace Game.Domain.Duel
         public int turnIndex;
         public int playerHealth;
         public int opponentHealth;
+        public int maxPlayerHealth = 1;
+        public int maxOpponentHealth = 1;
         public int honor;
         public bool isDuelEnded;
         public string enemyId = string.Empty;
@@ -30,6 +32,16 @@ namespace Game.Domain.Duel
             if (combats == null)
             {
                 errors.Add("combats is null.");
+            }
+
+            if (maxPlayerHealth <= 0)
+            {
+                errors.Add($"maxPlayerHealth({maxPlayerHealth}) must be greater than zero.");
+            }
+
+            if (maxOpponentHealth <= 0)
+            {
+                errors.Add($"maxOpponentHealth({maxOpponentHealth}) must be greater than zero.");
             }
 
             if (abilitiesById == null)

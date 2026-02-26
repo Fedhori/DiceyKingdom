@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.ogre.swing",
+  "type": "Attack",
+  "buildCost": 1,
+  "cooldown": 1,
+  "power": 10,
+  "nameLocKey": "ability.ogre.swing_name",
+  "descLocKey": "ability.ogre.swing_desc",
+  "isPlayerObtainable": false,
+  "iconId": "icon.default",
+  "effects": []
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 2,
+  "id": "enemy.goblin.horde",
+  "health": 5,
+  "tier": "Normal",
+  "abilityLoadout": [
+    {
+      "abilityId": "ability.goblin.sneaky.strike",
+      "count": 8
+    }
+  ]
+}

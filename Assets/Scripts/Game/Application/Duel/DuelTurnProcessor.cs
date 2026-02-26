@@ -269,7 +269,19 @@ namespace Game.Application.Duel
                     state.abilitiesById,
                     false);
                 DuelOutcome outcome = DuelSimulator.ComputeOutcome(playerTotalPower, opponentTotalPower);
-                int appliedDamage = ApplyCombatOutcomeDamage(state, combat, playerTotalPower, opponentTotalPower);
+                IReadOnlyCollection<string> combatAbilityIds = CollectCombatAbilityIds(combat);
+                timedEffectRunner.ApplyForTiming(
+                    state,
+                    DuelEffectTiming.AfterCombat,
+                    combatAbilityIds,
+                    new DuelEffectContext
+                    {
+                        hasOutcome = true,
+                        outcome = outcome
+                    });
+                int appliedDamage = state.isDuelEnded
+                    ? 0
+                    : ApplyCombatOutcomeDamage(state, combat, playerTotalPower, opponentTotalPower);
 
                 if (state.playerHealth <= 0 || state.opponentHealth <= 0)
                 {
@@ -419,7 +431,13 @@ namespace Game.Application.Duel
                 return 0;
             }
 
-            const int damage = 1;
+            int damage = 1 + GetOutgoingDamageBonusOnWin(combat, isPlayerWinner);
+            damage = Mathf.Max(0, damage);
+            if (damage <= 0)
+            {
+                return 0;
+            }
+
             if (isPlayerWinner)
             {
                 state.opponentHealth -= damage;
@@ -444,6 +462,18 @@ namespace Game.Application.Duel
                 : combat.preventOutgoingDamageOnWinOpponent;
         }
 
+        static int GetOutgoingDamageBonusOnWin(CombatState combat, bool isPlayerSide)
+        {
+            if (combat == null)
+            {
+                return 0;
+            }
+
+            return isPlayerSide
+                ? combat.outgoingDamageBonusOnWinPlayer
+                : combat.outgoingDamageBonusOnWinOpponent;
+        }
+
         static void ClearResolveCombatFlags(DuelState state)
         {
             if (state?.combats == null)
@@ -461,7 +491,50 @@ namespace Game.Application.Duel
 
                 combat.preventOutgoingDamageOnWinPlayer = false;
                 combat.preventOutgoingDamageOnWinOpponent = false;
+                combat.outgoingDamageBonusOnWinPlayer = 0;
+                combat.outgoingDamageBonusOnWinOpponent = 0;
             }
+        }
+
+        static IReadOnlyCollection<string> CollectCombatAbilityIds(CombatState combat)
+        {
+            var abilityIds = new List<string>();
+            if (combat == null)
+            {
+                return abilityIds;
+            }
+
+            if (combat.playerAbilityIds != null)
+            {
+                for (int i = 0; i < combat.playerAbilityIds.Count; i++)
+                {
+                    string abilityId = combat.playerAbilityIds[i];
+                    if (string.IsNullOrWhiteSpace(abilityId))
+                    {
+                        continue;
+                    }
+
+                    abilityIds.Add(abilityId);
+                }
+            }
+
+            if (combat.opponentAbilityIds == null)
+            {
+                return abilityIds;
+            }
+
+            for (int i = 0; i < combat.opponentAbilityIds.Count; i++)
+            {
+                string abilityId = combat.opponentAbilityIds[i];
+                if (string.IsNullOrWhiteSpace(abilityId))
+                {
+                    continue;
+                }
+
+                abilityIds.Add(abilityId);
+            }
+
+            return abilityIds;
         }
 
         static HashSet<string> CollectDeployedAbilityIds(DuelState state)

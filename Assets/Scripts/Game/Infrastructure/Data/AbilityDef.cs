@@ -31,6 +31,9 @@ namespace Game.Infrastructure.Data
         [JsonProperty("descLocKey", Required = Required.Always)]
         public string descLocKey = string.Empty;
 
+        [JsonProperty("isPlayerObtainable", Required = Required.Always)]
+        public bool isPlayerObtainable;
+
         [JsonProperty("iconId", Required = Required.Default)]
         public string iconId = string.Empty;
 

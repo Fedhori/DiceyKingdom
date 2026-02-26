@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.goblin.sneaky.strike",
+  "type": "Attack",
+  "buildCost": 1,
+  "cooldown": 1,
+  "power": 4,
+  "nameLocKey": "ability.goblin.sneaky.strike_name",
+  "descLocKey": "ability.goblin.sneaky.strike_desc",
+  "isPlayerObtainable": false,
+  "iconId": "icon.default",
+  "effects": [
+    {
+      "timing": "AfterCombat",
+      "condition": {
+        "type": "OutcomeIsDefeat"
+      },
+      "ops": [
+        {
+          "op": "DestroyAbility",
+          "scope": "Self"
+        }
+      ]
+    }
+  ]
+}
