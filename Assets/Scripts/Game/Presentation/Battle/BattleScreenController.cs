@@ -40,6 +40,7 @@ namespace Game.Presentation.Battle
         readonly BattleSessionRunner sessionRunner = new();
         readonly BattleSelectionState selectionState = new();
         readonly BattleScreenObservableState observableState = new();
+        readonly BattleAbilityIconCache abilityIconCache = new();
         readonly List<IDisposable> uiSubscriptions = new();
         readonly System.Random revealRandom = new();
 
@@ -109,6 +110,7 @@ namespace Game.Presentation.Battle
             ClearDragState();
             UnwireObservableBindings();
             view?.UnwireZoneCallbacks();
+            abilityIconCache.Dispose();
         }
 
         void RebuildView()
@@ -126,7 +128,8 @@ namespace Game.Presentation.Battle
                 combatZones,
                 abilityCardPrefab,
                 tooltipText,
-                tooltipBackgroundImage);
+                tooltipBackgroundImage,
+                abilityIconCache.ResolveOrDefault);
         }
 
         bool ValidateCombatZonesSerialized(string stage)
@@ -172,6 +175,8 @@ namespace Game.Presentation.Battle
                 Debug.LogWarning("[BattleScreenController] GameDataRuntime.CurrentDatabase is null.");
                 return;
             }
+
+            abilityIconCache.Rebuild(database);
 
             if (!sessionRunner.TryInitialize(database, enemyId, advanceToPlayerSetup: true, out string failureMessage))
             {

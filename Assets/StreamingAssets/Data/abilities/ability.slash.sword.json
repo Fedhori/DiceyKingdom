@@ -7,5 +7,6 @@
   "power": 5,
   "nameLocKey": "ability.slash.sword_name",
   "descLocKey": "ability.slash.sword_desc",
+  "iconId": "ability.slash.sword",
   "effects": []
 }

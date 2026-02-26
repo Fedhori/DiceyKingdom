@@ -2,7 +2,7 @@
 
 **Role:** The single source of truth for implemented gameplay rules and the intended near-term design.
 
-**Last updated:** 2026-02-25
+**Last updated:** 2026-02-26
 
 **Terminology:** See `Docs/Game/Glossary.md`.
 
@@ -120,6 +120,14 @@ Effects:
 
 - Talent is a separate concept intended to replace “Passive Ability”.
 - This is not implemented and is not a source of truth yet.
+
+### 4.2 Ability icon data
+
+- Every ability definition must include `iconId`.
+- Icon files are resolved by policy: `Data/icons/{iconId}.png`.
+- Default icon file must exist at `Data/icons/icon.default.png`.
+- In Development mode, missing icon files must fail validation visibly.
+- In runtime rendering, if icon lookup/load fails unexpectedly, use default icon and emit error logs.
 
 ## 5) Key invariants (must remain true unless explicitly changed)
 

@@ -54,6 +54,7 @@ namespace Game.Presentation.Battle
             public string title { get; }
             public string tooltipText { get; }
             public AbilityType abilityType { get; }
+            public Sprite iconSprite { get; }
             public int power { get; }
             public bool showPower { get; }
             public int cooldownTurns { get; }
@@ -64,6 +65,7 @@ namespace Game.Presentation.Battle
                 string title,
                 string tooltipText,
                 AbilityType abilityType,
+                Sprite iconSprite,
                 int power,
                 bool showPower,
                 int cooldownTurns,
@@ -73,6 +75,7 @@ namespace Game.Presentation.Battle
                 this.title = title ?? string.Empty;
                 this.tooltipText = tooltipText ?? string.Empty;
                 this.abilityType = abilityType;
+                this.iconSprite = iconSprite;
                 this.power = power;
                 this.showPower = showPower;
                 this.cooldownTurns = Mathf.Max(0, cooldownTurns);
@@ -82,7 +85,7 @@ namespace Game.Presentation.Battle
 
         static readonly Color defaultCardBackground = Colors.Semantic.SurfaceParchment;
         static readonly Color defaultCardBackgroundSelected = Colors.Primitive.Bone200;
-        static readonly Color defaultIconFill = Colors.Primitive.Bone300;
+        static readonly Color defaultIconTint = Colors.Primitive.Bone050;
         static readonly Color defaultPowerBadgeBackground = Colors.Semantic.SurfaceSecondary;
         static readonly Color defaultPowerText = Colors.Semantic.TextPrimary;
         static readonly Color defaultAttackBorder = Colors.Semantic.StateDanger;
@@ -184,7 +187,8 @@ namespace Game.Presentation.Battle
 
             if (iconImage != null)
             {
-                iconImage.color = defaultIconFill;
+                iconImage.sprite = bindData.iconSprite;
+                iconImage.color = defaultIconTint;
             }
 
             Color borderColor = ResolveBorderColor(bindData.abilityType);

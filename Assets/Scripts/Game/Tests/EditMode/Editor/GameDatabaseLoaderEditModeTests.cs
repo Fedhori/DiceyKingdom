@@ -70,6 +70,7 @@ namespace Game.Tests.EditMode
   ""power"": 2,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
+  ""iconId"": ""ability.1"",
   ""effects"": [],
   ""unknownField"": 999
 }";
@@ -107,6 +108,7 @@ namespace Game.Tests.EditMode
   ""power"": 2,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
+  ""iconId"": ""ability.1"",
   ""effects"": [
     {
       ""timing"": ""TurnEnd"",
@@ -206,6 +208,67 @@ namespace Game.Tests.EditMode
             }
         }
 
+        [Test]
+        public void Load_FailsWhenAbilityIconFileIsMissing()
+        {
+            Dictionary<string, string> files = CreateValidDataSet();
+            files.Remove("Data/icons/ability.1.png");
+
+            var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
+            LogAssert.ignoreFailingMessages = true;
+            try
+            {
+                GameDataBuildResult result = loader.Load(new GameDataLoadOptions
+                {
+                    dataIndexPath = "Data/DataIndex.json",
+                    mode = GameDataBuildMode.Development
+                });
+
+                Assert.IsFalse(result.isSuccess);
+                Assert.IsTrue(result.report.Errors.Any(e => e.code == GameDataErrorCode.MissingFile));
+            }
+            finally
+            {
+                LogAssert.ignoreFailingMessages = false;
+            }
+        }
+
+        [Test]
+        public void Load_FailsWhenAbilityIconIdIsMissing()
+        {
+            Dictionary<string, string> files = CreateValidDataSet();
+            files["Data/abilities/ability.1.json"] =
+@"{
+  ""schemaVersion"": 2,
+  ""id"": ""ability.1"",
+  ""type"": ""Attack"",
+  ""buildCost"": 0,
+  ""cooldown"": 1,
+  ""power"": 2,
+  ""nameLocKey"": ""ability.1_name"",
+  ""descLocKey"": ""ability.1_desc"",
+  ""effects"": []
+}";
+
+            var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
+            LogAssert.ignoreFailingMessages = true;
+            try
+            {
+                GameDataBuildResult result = loader.Load(new GameDataLoadOptions
+                {
+                    dataIndexPath = "Data/DataIndex.json",
+                    mode = GameDataBuildMode.Development
+                });
+
+                Assert.IsFalse(result.isSuccess);
+                Assert.IsTrue(result.report.Errors.Any(e => e.code == GameDataErrorCode.InvalidValue));
+            }
+            finally
+            {
+                LogAssert.ignoreFailingMessages = false;
+            }
+        }
+
         static Dictionary<string, string> CreateValidDataSet()
         {
             return new Dictionary<string, string>
@@ -253,8 +316,11 @@ namespace Game.Tests.EditMode
   ""power"": 2,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
+  ""iconId"": ""ability.1"",
   ""effects"": []
 }",
+                ["Data/icons/icon.default.png"] = "png",
+                ["Data/icons/ability.1.png"] = "png",
                 ["Data/enemies/enemy.1.json"] =
 @"{
   ""schemaVersion"": 2,

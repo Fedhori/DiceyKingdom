@@ -35,6 +35,7 @@ namespace Game.Presentation.Battle
         readonly BattleCombatZoneView[] combatZones;
         readonly TMP_Text tooltipText;
         readonly Image tooltipBackgroundImage;
+        readonly Func<string, Sprite> resolveAbilityIcon;
 
         readonly List<BattleAbilityCardView> pooledCardViews = new();
         readonly List<BattleAbilityCardView> enemyLoadoutCardViews = new();
@@ -58,7 +59,8 @@ namespace Game.Presentation.Battle
             BattleCombatZoneView[] combatZones,
             BattleAbilityCardView _,
             TMP_Text tooltipText,
-            Image tooltipBackgroundImage)
+            Image tooltipBackgroundImage,
+            Func<string, Sprite> resolveAbilityIcon)
         {
             this.backgroundImage = backgroundImage;
             this.topBarImage = topBarImage;
@@ -72,6 +74,7 @@ namespace Game.Presentation.Battle
             this.combatZones = combatZones ?? Array.Empty<BattleCombatZoneView>();
             this.tooltipText = tooltipText;
             this.tooltipBackgroundImage = tooltipBackgroundImage;
+            this.resolveAbilityIcon = resolveAbilityIcon;
         }
 
         public void WireZoneCallbacks(Action<int> onZoneClicked)
@@ -952,7 +955,7 @@ namespace Game.Presentation.Battle
             return builder.ToString();
         }
 
-        static List<BattleAbilityCardView.BindData> ExpandOpponentLoadoutCards(
+        List<BattleAbilityCardView.BindData> ExpandOpponentLoadoutCards(
             DuelState duelState,
             GameDatabase database)
         {
@@ -1017,18 +1020,22 @@ namespace Game.Presentation.Battle
             return true;
         }
 
-        static BattleAbilityCardView.BindData CreateBindData(
+        BattleAbilityCardView.BindData CreateBindData(
             string abilityId,
             AbilityInstance ability,
             AbilityDef def)
         {
             int displayPower = Mathf.Max(0, ability.power);
+            Sprite iconSprite = resolveAbilityIcon == null
+                ? null
+                : resolveAbilityIcon.Invoke(def.iconId);
 
             return new BattleAbilityCardView.BindData(
                 abilityId,
                 def.id,
                 BuildAbilityTooltip(def),
                 ability.abilityType,
+                iconSprite,
                 displayPower,
                 ability.abilityType == AbilityType.Attack,
                 ability.cooldownTurns,

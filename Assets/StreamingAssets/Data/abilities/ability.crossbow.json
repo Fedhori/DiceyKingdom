@@ -7,5 +7,6 @@
   "power": 12,
   "nameLocKey": "ability.crossbow_name",
   "descLocKey": "ability.crossbow_desc",
+  "iconId": "ability.crossbow",
   "effects": []
 }

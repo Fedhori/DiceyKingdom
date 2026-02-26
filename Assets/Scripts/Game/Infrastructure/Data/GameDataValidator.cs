@@ -219,6 +219,23 @@ namespace Game.Infrastructure.Data
                         "buildCost must be greater than or equal to 0.");
                 }
 
+                if (string.IsNullOrWhiteSpace(def.iconId))
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        path,
+                        id,
+                        "iconId must not be empty.");
+                }
+                else if (!AbilityIconPathPolicy.TryBuildPath(def.iconId, out _))
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        path,
+                        id,
+                        $"iconId('{def.iconId}') contains invalid characters.");
+                }
+
                 if (def.cooldown < 1)
                 {
                     report.AddError(

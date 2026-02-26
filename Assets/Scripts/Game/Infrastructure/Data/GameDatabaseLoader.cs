@@ -56,6 +56,7 @@ namespace Game.Infrastructure.Data
             ParseConfigs(database, dataIndex.configs, report);
             ParseDefCollection(dataIndex.abilities, database.abilitiesById, database.abilitySourcePathById, report);
             ParseDefCollection(dataIndex.enemies, database.enemiesById, database.enemySourcePathById, report);
+            ValidateAbilityIconAssets(database, report);
 
             validator.Validate(database, dataIndex, report);
 
@@ -216,6 +217,49 @@ namespace Game.Infrastructure.Data
 
                 defsById.Add(def.id, def);
                 sourcePathById[def.id] = path;
+            }
+        }
+
+        void ValidateAbilityIconAssets(GameDatabase database, GameDataValidationReport report)
+        {
+            if (database == null || report == null)
+            {
+                return;
+            }
+
+            if (!dataSource.Exists(AbilityIconPathPolicy.DefaultIconPath))
+            {
+                report.AddError(
+                    GameDataErrorCode.MissingFile,
+                    AbilityIconPathPolicy.DefaultIconPath,
+                    AbilityIconPathPolicy.DefaultIconId,
+                    $"Default ability icon file is missing: {AbilityIconPathPolicy.DefaultIconPath}");
+            }
+
+            foreach (KeyValuePair<string, AbilityDef> pair in database.abilitiesById)
+            {
+                string abilityId = pair.Key;
+                AbilityDef abilityDef = pair.Value;
+                if (abilityDef == null ||
+                    string.IsNullOrWhiteSpace(abilityDef.iconId) ||
+                    !AbilityIconPathPolicy.TryBuildPath(abilityDef.iconId, out string iconPath))
+                {
+                    continue;
+                }
+
+                if (dataSource.Exists(iconPath))
+                {
+                    continue;
+                }
+
+                string sourcePath = database.abilitySourcePathById.TryGetValue(abilityId, out string foundPath)
+                    ? foundPath
+                    : iconPath;
+                report.AddError(
+                    GameDataErrorCode.MissingFile,
+                    sourcePath,
+                    abilityId,
+                    $"iconId('{abilityDef.iconId}') maps to missing icon file: {iconPath}");
             }
         }
 

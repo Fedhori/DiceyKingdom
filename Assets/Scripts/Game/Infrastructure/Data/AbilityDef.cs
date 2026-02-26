@@ -31,6 +31,9 @@ namespace Game.Infrastructure.Data
         [JsonProperty("descLocKey", Required = Required.Always)]
         public string descLocKey = string.Empty;
 
+        [JsonProperty("iconId", Required = Required.Default)]
+        public string iconId = string.Empty;
+
         [JsonProperty("effects", Required = Required.Default)]
         public List<TimedEffectDef> effects = new();
 
