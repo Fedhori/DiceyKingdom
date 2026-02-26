@@ -10,11 +10,16 @@ namespace Game.Application.Duel
     {
         public int deployedCount { get; }
         public int skippedCount { get; }
+        public IReadOnlyList<string> deployedAbilityIds { get; }
 
-        public OpponentSetupBuildResult(int deployedCount, int skippedCount)
+        public OpponentSetupBuildResult(
+            int deployedCount,
+            int skippedCount,
+            IReadOnlyList<string> deployedAbilityIds = null)
         {
             this.deployedCount = deployedCount;
             this.skippedCount = skippedCount;
+            this.deployedAbilityIds = deployedAbilityIds ?? Array.Empty<string>();
         }
     }
 
@@ -127,7 +132,10 @@ namespace Game.Application.Duel
                 state,
                 DuelSide.Opponent,
                 random);
-            return new OpponentSetupBuildResult(result.deployedCount, result.skippedCount);
+            return new OpponentSetupBuildResult(
+                result.deployedCount,
+                result.skippedCount,
+                result.deployedAbilityIds);
         }
 
         DuelState CreateInitialDuelState(EnemyDef enemyDef)
@@ -206,7 +214,7 @@ namespace Game.Application.Duel
                 int requestedCount = Mathf.Max(0, abilityRef.count);
                 for (int copyIndex = 0; copyIndex < requestedCount; copyIndex++)
                 {
-                    AbilityInstance abilityInstance = CreateAbilityInstance(abilityDef);
+                    AbilityInstance abilityInstance = CreateAbilityInstance(abilityRef.abilityId, abilityDef);
                     state.abilitiesById[abilityInstance.instanceId] = abilityInstance;
                     state.opponentLoadoutAbilityIds.Add(abilityInstance.instanceId);
                 }
@@ -237,13 +245,13 @@ namespace Game.Application.Duel
                     continue;
                 }
 
-                AbilityInstance abilityInstance = CreateAbilityInstance(abilityDef);
+                AbilityInstance abilityInstance = CreateAbilityInstance(abilityDefId, abilityDef);
                 state.abilitiesById[abilityInstance.instanceId] = abilityInstance;
                 state.loadoutAbilityIds.Add(abilityInstance.instanceId);
             }
         }
 
-        static AbilityInstance CreateAbilityInstance(AbilityDef abilityDef)
+        static AbilityInstance CreateAbilityInstance(string abilityDefId, AbilityDef abilityDef)
         {
             AbilityType abilityType = AbilityType.Attack;
             if (!abilityDef.TryGetAbilityType(out abilityType))
@@ -254,11 +262,21 @@ namespace Game.Application.Duel
             }
 
             int resolvedPower = Mathf.Max(0, abilityDef.ResolvePower());
+            int cooldownTurns = abilityDef.ResolveCooldownTurns(abilityType);
+            int minCooldown = AbilityDef.GetMinimumCooldownTurns(abilityType);
+            if (cooldownTurns < minCooldown)
+            {
+                string message =
+                    $"[DuelSessionBuilder] Invalid cooldown({cooldownTurns}) for '{abilityDefId}' type({abilityType}).";
+                Debug.LogError(message);
+                throw new InvalidOperationException(message);
+            }
+
             var abilityInstance = new AbilityInstance
             {
-                abilityDefId = abilityDef.id,
+                abilityDefId = abilityDefId,
                 abilityType = abilityType,
-                cooldownTurns = Mathf.Max(1, abilityDef.cooldown),
+                cooldownTurns = cooldownTurns,
                 cooldownRemaining = 0,
                 power = resolvedPower,
                 baseRoll = 0,

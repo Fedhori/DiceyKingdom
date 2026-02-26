@@ -19,9 +19,10 @@
 | Combat | Phase | 페이즈 | A step within a turn (e.g., Setup, Roll, Resolve) |
 | Combat | Combat (slot) | 전투 지점 | One of 3 fixed combat slots |
 | Combat | combatIndex | 전투 인덱스 | Slot index: 0, 1, 2 |
-| Abilities | Ability | 어빌리티 | The unified concept (attacks + skills) |
+| Abilities | Ability | 어빌리티 | The unified concept (attacks + skills + passives) |
 | Abilities | Attack | 공격 | An ability that rolls and contributes to combat resolution |
 | Abilities | Skill | 스킬 | An ability that triggers by timing (design supported) |
+| Abilities | Passive | 패시브 | A non-deployable ability that triggers by timing/condition |
 | Meta | Loadout | 로드아웃 | Un-deployed ability storage during a duel |
 | State | Health | 체력 | Duel ends when Health <= 0 |
 | State | Honor | 명예 | Determines whether Surrender is allowed |
@@ -34,4 +35,3 @@
 - Intent → not used
 - Pattern → not used (enemy placement is based on enemy loadout)
 - Bag → Loadout
-- Passive (Ability type) → Talent (separate system concept; not implemented)

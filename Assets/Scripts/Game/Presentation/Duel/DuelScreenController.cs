@@ -31,6 +31,8 @@ namespace Game.Presentation.Duel
         [SerializeField] Button surrenderButton;
         [SerializeField] RectTransform enemyLoadoutRow;
         [SerializeField] RectTransform playerLoadoutRow;
+        [SerializeField] RectTransform enemyPassiveRow;
+        [SerializeField] RectTransform playerPassiveRow;
         [SerializeField] DuelCombatZoneView[] combatZones = Array.Empty<DuelCombatZoneView>();
         [SerializeField] DuelAbilityCardView abilityCardPrefab;
         [SerializeField] TMP_Text tooltipText;
@@ -125,6 +127,8 @@ namespace Game.Presentation.Duel
                 surrenderButton,
                 enemyLoadoutRow,
                 playerLoadoutRow,
+                enemyPassiveRow,
+                playerPassiveRow,
                 combatZones,
                 abilityCardPrefab,
                 tooltipText,
@@ -347,6 +351,7 @@ namespace Game.Presentation.Duel
                             targetCombatIndex,
                             out string failureMessage))
                     {
+                        sessionRunner.NotifyPlayerAbilityDeployed(abilityId);
                         shouldPublishState = true;
                     }
                     else
@@ -418,6 +423,7 @@ namespace Game.Presentation.Duel
                 return;
             }
 
+            sessionRunner.NotifyPlayerAbilityDeployed(selectionState.SelectedAbilityId);
             PublishObservableState();
         }
 

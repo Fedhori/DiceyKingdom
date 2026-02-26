@@ -269,6 +269,152 @@ namespace Game.Tests.EditMode
             }
         }
 
+        [Test]
+        public void Load_SucceedsWhenPassiveCooldownIsOmitted()
+        {
+            Dictionary<string, string> files = CreateValidDataSet();
+            files["Data/abilities/ability.1.json"] =
+@"{
+  ""schemaVersion"": 2,
+  ""id"": ""ability.1"",
+  ""type"": ""Passive"",
+  ""buildCost"": 0,
+  ""power"": 0,
+  ""nameLocKey"": ""ability.1_name"",
+  ""descLocKey"": ""ability.1_desc"",
+  ""iconId"": ""ability.1"",
+  ""effects"": []
+}";
+
+            var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
+            GameDataBuildResult result = loader.Load(new GameDataLoadOptions
+            {
+                dataIndexPath = "Data/DataIndex.json",
+                mode = GameDataBuildMode.Development
+            });
+
+            Assert.IsTrue(result.isSuccess);
+            Assert.AreEqual(0, result.report.ErrorCount);
+        }
+
+        [Test]
+        public void Load_FailsWhenPassiveDefinesPositivePower()
+        {
+            Dictionary<string, string> files = CreateValidDataSet();
+            files["Data/abilities/ability.1.json"] =
+@"{
+  ""schemaVersion"": 2,
+  ""id"": ""ability.1"",
+  ""type"": ""Passive"",
+  ""buildCost"": 0,
+  ""power"": 3,
+  ""nameLocKey"": ""ability.1_name"",
+  ""descLocKey"": ""ability.1_desc"",
+  ""iconId"": ""ability.1"",
+  ""effects"": []
+}";
+
+            var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
+            LogAssert.ignoreFailingMessages = true;
+            try
+            {
+                GameDataBuildResult result = loader.Load(new GameDataLoadOptions
+                {
+                    dataIndexPath = "Data/DataIndex.json",
+                    mode = GameDataBuildMode.Development
+                });
+
+                Assert.IsFalse(result.isSuccess);
+                Assert.IsTrue(result.report.Errors.Any(e => e.code == GameDataErrorCode.InvalidValue));
+            }
+            finally
+            {
+                LogAssert.ignoreFailingMessages = false;
+            }
+        }
+
+        [Test]
+        public void Load_SucceedsWhenModifyHealthSideIsOmitted()
+        {
+            Dictionary<string, string> files = CreateValidDataSet();
+            files["Data/abilities/ability.1.json"] =
+@"{
+  ""schemaVersion"": 2,
+  ""id"": ""ability.1"",
+  ""type"": ""Passive"",
+  ""buildCost"": 0,
+  ""cooldown"": 0,
+  ""power"": 0,
+  ""nameLocKey"": ""ability.1_name"",
+  ""descLocKey"": ""ability.1_desc"",
+  ""iconId"": ""ability.1"",
+  ""effects"": [
+    {
+      ""timing"": ""TurnEnd"",
+      ""condition"": { ""type"": ""Always"" },
+      ""ops"": [
+        { ""op"": ""ModifyHealth"", ""scope"": ""Self"", ""value"": 1 }
+      ]
+    }
+  ]
+}";
+
+            var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
+            GameDataBuildResult result = loader.Load(new GameDataLoadOptions
+            {
+                dataIndexPath = "Data/DataIndex.json",
+                mode = GameDataBuildMode.Development
+            });
+
+            Assert.IsTrue(result.isSuccess);
+            Assert.AreEqual(0, result.report.ErrorCount);
+        }
+
+        [Test]
+        public void Load_FailsWhenModifyHealthSideIsInvalidEnum()
+        {
+            Dictionary<string, string> files = CreateValidDataSet();
+            files["Data/abilities/ability.1.json"] =
+@"{
+  ""schemaVersion"": 2,
+  ""id"": ""ability.1"",
+  ""type"": ""Passive"",
+  ""buildCost"": 0,
+  ""cooldown"": 0,
+  ""power"": 0,
+  ""nameLocKey"": ""ability.1_name"",
+  ""descLocKey"": ""ability.1_desc"",
+  ""iconId"": ""ability.1"",
+  ""effects"": [
+    {
+      ""timing"": ""TurnEnd"",
+      ""condition"": { ""type"": ""Always"" },
+      ""ops"": [
+        { ""op"": ""ModifyHealth"", ""scope"": ""Self"", ""side"": ""Self"", ""value"": 1 }
+      ]
+    }
+  ]
+}";
+
+            var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
+            LogAssert.ignoreFailingMessages = true;
+            try
+            {
+                GameDataBuildResult result = loader.Load(new GameDataLoadOptions
+                {
+                    dataIndexPath = "Data/DataIndex.json",
+                    mode = GameDataBuildMode.Development
+                });
+
+                Assert.IsFalse(result.isSuccess);
+                Assert.IsTrue(result.report.Errors.Any(e => e.code == GameDataErrorCode.InvalidEnum));
+            }
+            finally
+            {
+                LogAssert.ignoreFailingMessages = false;
+            }
+        }
+
         static Dictionary<string, string> CreateValidDataSet()
         {
             return new Dictionary<string, string>

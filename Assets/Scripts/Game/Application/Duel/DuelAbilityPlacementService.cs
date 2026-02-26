@@ -36,11 +36,16 @@ namespace Game.Application.Duel
     {
         public int deployedCount { get; }
         public int skippedCount { get; }
+        public IReadOnlyList<string> deployedAbilityIds { get; }
 
-        public DuelAutoDeployResult(int deployedCount, int skippedCount)
+        public DuelAutoDeployResult(
+            int deployedCount,
+            int skippedCount,
+            IReadOnlyList<string> deployedAbilityIds = null)
         {
             this.deployedCount = deployedCount;
             this.skippedCount = skippedCount;
+            this.deployedAbilityIds = deployedAbilityIds ?? Array.Empty<string>();
         }
     }
 
@@ -166,6 +171,7 @@ namespace Game.Application.Duel
 
             int deployedCount = 0;
             int skippedCount = 0;
+            var deployedAbilityIds = new List<string>();
             var pendingAbilityIds = new List<string>(loadout);
             for (int i = 0; i < pendingAbilityIds.Count; i++)
             {
@@ -205,9 +211,10 @@ namespace Game.Application.Duel
                 }
 
                 deployedCount += 1;
+                deployedAbilityIds.Add(abilityId);
             }
 
-            return new DuelAutoDeployResult(deployedCount, skippedCount);
+            return new DuelAutoDeployResult(deployedCount, skippedCount, deployedAbilityIds);
         }
 
         public int ReturnAllDeployedAbilitiesToLoadout(DuelState state)

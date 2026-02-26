@@ -1,6 +1,9 @@
+using System.Collections.Generic;
 using Game.Application.Duel;
+using Game.Application.Duel.Effects;
 using Game.Domain.Duel;
 using Game.Infrastructure.Data;
+using Game.Infrastructure.Data.Effects;
 using UnityEngine;
 
 namespace Game.Presentation.Duel
@@ -9,6 +12,7 @@ namespace Game.Presentation.Duel
     {
         DuelSessionBuilder sessionBuilder;
         DuelTurnProcessor turnProcessor;
+        readonly List<string> singleAbilityBuffer = new(1);
 
         public DuelState DuelState { get; private set; }
         public DuelPhaseRunner PhaseRunner { get; private set; }
@@ -56,6 +60,7 @@ namespace Game.Presentation.Duel
 
             MaxPlayerHealth = Mathf.Max(1, DuelState.playerHealth);
             MaxOpponentHealth = Mathf.Max(1, DuelState.opponentHealth);
+            turnProcessor.ApplyTimedEffects(DuelState, DuelEffectTiming.DuelStart);
 
             if (!advanceToPlayerSetup)
             {
@@ -76,6 +81,7 @@ namespace Game.Presentation.Duel
             }
 
             deployResult = sessionBuilder.AutoDeployOpponentCombat(DuelState);
+            ApplyDeployTimedEffects(deployResult.deployedAbilityIds);
             return true;
         }
 
@@ -102,6 +108,7 @@ namespace Game.Presentation.Duel
             }
 
             deployResult = sessionBuilder.AutoDeployOpponentCombat(DuelState);
+            ApplyDeployTimedEffects(deployResult.deployedAbilityIds);
             return true;
         }
 
@@ -180,6 +187,7 @@ namespace Game.Presentation.Duel
             if (PhaseRunner.currentPhase == DuelPhase.OpponentSetup)
             {
                 OpponentSetupBuildResult deployResult = sessionBuilder.AutoDeployOpponentCombat(DuelState);
+                ApplyDeployTimedEffects(deployResult.deployedAbilityIds);
                 if (deployResult.skippedCount > 0)
                 {
                     UnityEngine.Debug.LogWarning(
@@ -254,6 +262,32 @@ namespace Game.Presentation.Duel
             return false;
         }
 
+        public void NotifyPlayerAbilityDeployed(string abilityId)
+        {
+            if (!IsInitialized || string.IsNullOrWhiteSpace(abilityId))
+            {
+                return;
+            }
+
+            singleAbilityBuffer.Clear();
+            singleAbilityBuffer.Add(abilityId);
+            ApplyDeployTimedEffects(singleAbilityBuffer);
+            singleAbilityBuffer.Clear();
+        }
+
+        public AbilityTimedEffectRunResult TriggerSkillTiming(IReadOnlyCollection<string> sourceAbilityIds = null)
+        {
+            if (!IsInitialized || DuelState.isDuelEnded)
+            {
+                return new AbilityTimedEffectRunResult(0, 0, 0);
+            }
+
+            return turnProcessor.ApplyTimedEffects(
+                DuelState,
+                DuelEffectTiming.Skill,
+                sourceAbilityIds);
+        }
+
         bool TryValidateStarted(out string failureMessage)
         {
             failureMessage = string.Empty;
@@ -271,6 +305,19 @@ namespace Game.Presentation.Duel
             }
 
             return true;
+        }
+
+        void ApplyDeployTimedEffects(IReadOnlyCollection<string> deployedAbilityIds)
+        {
+            if (!IsInitialized || deployedAbilityIds == null || deployedAbilityIds.Count <= 0)
+            {
+                return;
+            }
+
+            turnProcessor.ApplyTimedEffects(
+                DuelState,
+                DuelEffectTiming.Deploy,
+                deployedAbilityIds);
         }
     }
 }

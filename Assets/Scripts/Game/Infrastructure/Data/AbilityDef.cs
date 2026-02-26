@@ -20,7 +20,7 @@ namespace Game.Infrastructure.Data
         public int buildCost;
 
         [JsonProperty("cooldown", Required = Required.Default)]
-        public int cooldown = 1;
+        public int? cooldown;
 
         [JsonProperty("power", Required = Required.Always)]
         public int power;
@@ -45,6 +45,25 @@ namespace Game.Infrastructure.Data
         public int ResolvePower()
         {
             return power;
+        }
+
+        public static int GetDefaultCooldownTurns(AbilityType abilityType)
+        {
+            return abilityType == AbilityType.Passive
+                ? 0
+                : 1;
+        }
+
+        public static int GetMinimumCooldownTurns(AbilityType abilityType)
+        {
+            return abilityType == AbilityType.Passive
+                ? 0
+                : 1;
+        }
+
+        public int ResolveCooldownTurns(AbilityType abilityType)
+        {
+            return cooldown ?? GetDefaultCooldownTurns(abilityType);
         }
     }
 }

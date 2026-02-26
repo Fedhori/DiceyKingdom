@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.passive.regen",
+  "type": "Passive",
+  "buildCost": 0,
+  "cooldown": 0,
+  "power": 0,
+  "nameLocKey": "ability.passive.regen_name",
+  "descLocKey": "ability.passive.regen_desc",
+  "iconId": "icon.default",
+  "effects": [
+    {
+      "timing": "TurnEnd",
+      "condition": {
+        "type": "Always"
+      },
+      "ops": [
+        {
+          "op": "ModifyHealth",
+          "scope": "Self",
+          "value": 1
+        }
+      ]
+    }
+  ]
+}

@@ -150,6 +150,115 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(2, state.abilitiesById["p_loadout"].powerModifiers[0].value);
         }
 
+        [Test]
+        public void ApplyForTiming_Deploy_WithSourceFilter_TriggersOnlyRequestedAbility()
+        {
+            GameDatabase database = CreateDatabase();
+            DuelState state = CreateDuelState();
+
+            state.abilitiesById["p_deploy"] = new AbilityInstance
+            {
+                instanceId = "p_deploy",
+                abilityDefId = "ability.deploy.banner",
+                abilityType = AbilityType.Attack,
+                power = 2,
+                baseRoll = 0,
+                powerResult = 0
+            };
+            state.abilitiesById["p_other"] = new AbilityInstance
+            {
+                instanceId = "p_other",
+                abilityDefId = "ability.deploy.banner",
+                abilityType = AbilityType.Attack,
+                power = 2,
+                baseRoll = 0,
+                powerResult = 0
+            };
+
+            state.combats[0].playerAbilityIds.Add("p_deploy");
+            state.combats[1].playerAbilityIds.Add("p_other");
+
+            var runner = new AbilityTimedEffectRunner(database);
+            AbilityTimedEffectRunResult result = runner.ApplyForTiming(
+                state,
+                DuelEffectTiming.Deploy,
+                new[] { "p_deploy" });
+
+            Assert.AreEqual(1, result.appliedCount);
+            Assert.AreEqual(0, result.failedCount);
+            Assert.AreEqual(2, state.combats[0].totalPowerBonusPlayer);
+            Assert.AreEqual(0, state.combats[1].totalPowerBonusPlayer);
+        }
+
+        [Test]
+        public void ApplyForTiming_TurnEnd_ModifyTotalPowerOnLoadoutTarget_FailsAndSkipsCombatMutation()
+        {
+            GameDatabase database = CreateDatabase();
+            DuelState state = CreateDuelState();
+
+            state.abilitiesById["p_loadout"] = new AbilityInstance
+            {
+                instanceId = "p_loadout",
+                abilityDefId = "ability.loadout.totalpower.invalid",
+                abilityType = AbilityType.Passive,
+                cooldownTurns = 0,
+                cooldownRemaining = 0,
+                power = 0,
+                baseRoll = 0,
+                powerResult = 0
+            };
+            state.loadoutAbilityIds.Add("p_loadout");
+
+            var runner = new AbilityTimedEffectRunner(database);
+            AbilityTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.TurnEnd);
+
+            Assert.AreEqual(0, result.appliedCount);
+            Assert.AreEqual(1, result.failedCount);
+            Assert.AreEqual(0, state.combats[0].totalPowerBonusPlayer);
+        }
+
+        [Test]
+        public void ApplyForTiming_TurnEnd_ModifyHealthWithoutSide_UsesSelfSideForPlayerAndOpponent()
+        {
+            GameDatabase database = CreateDatabase();
+            DuelState state = CreateDuelState();
+
+            state.playerHealth = 5;
+            state.opponentHealth = 7;
+            state.abilitiesById["p_passive"] = new AbilityInstance
+            {
+                instanceId = "p_passive",
+                abilityDefId = "ability.passive.self.heal",
+                abilityType = AbilityType.Passive,
+                cooldownTurns = 0,
+                cooldownRemaining = 0,
+                power = 0,
+                baseRoll = 0,
+                powerResult = 0
+            };
+            state.abilitiesById["e_passive"] = new AbilityInstance
+            {
+                instanceId = "e_passive",
+                abilityDefId = "ability.passive.self.heal",
+                abilityType = AbilityType.Passive,
+                cooldownTurns = 0,
+                cooldownRemaining = 0,
+                power = 0,
+                baseRoll = 0,
+                powerResult = 0
+            };
+            state.loadoutAbilityIds.Add("p_passive");
+            state.opponentLoadoutAbilityIds.Add("e_passive");
+
+            var runner = new AbilityTimedEffectRunner(database);
+            AbilityTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.TurnEnd);
+
+            Assert.AreEqual(2, result.appliedCount);
+            Assert.AreEqual(0, result.failedCount);
+            Assert.AreEqual(6, state.playerHealth);
+            Assert.AreEqual(8, state.opponentHealth);
+        }
+
         static GameDatabase CreateDatabase()
         {
             var database = new GameDatabase();
@@ -251,6 +360,93 @@ namespace Game.Tests.EditMode
                 power = 2,
                 effects = new List<TimedEffectDef>()
             };
+
+            database.abilitiesById["ability.deploy.banner"] = new AbilityDef
+            {
+                type = AbilityType.Attack.ToString(),
+                buildCost = 0,
+                cooldown = 1,
+                power = 2,
+                effects = new List<TimedEffectDef>
+                {
+                    new TimedEffectDef
+                    {
+                        timing = "Deploy",
+                        condition = new ConditionDef
+                        {
+                            type = "Always"
+                        },
+                        ops = new List<EffectOpDef>
+                        {
+                            new EffectOpDef
+                            {
+                                op = "ModifyTotalPower",
+                                scope = "Self",
+                                side = "Player",
+                                value = 2
+                            }
+                        }
+                    }
+                }
+            };
+
+            database.abilitiesById["ability.loadout.totalpower.invalid"] = new AbilityDef
+            {
+                type = AbilityType.Passive.ToString(),
+                buildCost = 0,
+                cooldown = 0,
+                power = 0,
+                effects = new List<TimedEffectDef>
+                {
+                    new TimedEffectDef
+                    {
+                        timing = "TurnEnd",
+                        condition = new ConditionDef
+                        {
+                            type = "Always"
+                        },
+                        ops = new List<EffectOpDef>
+                        {
+                            new EffectOpDef
+                            {
+                                op = "ModifyTotalPower",
+                                scope = "Self",
+                                side = "Player",
+                                value = 2
+                            }
+                        }
+                    }
+                }
+            };
+
+            database.abilitiesById["ability.passive.self.heal"] = new AbilityDef
+            {
+                type = AbilityType.Passive.ToString(),
+                buildCost = 0,
+                cooldown = 0,
+                power = 0,
+                effects = new List<TimedEffectDef>
+                {
+                    new TimedEffectDef
+                    {
+                        timing = "TurnEnd",
+                        condition = new ConditionDef
+                        {
+                            type = "Always"
+                        },
+                        ops = new List<EffectOpDef>
+                        {
+                            new EffectOpDef
+                            {
+                                op = "ModifyHealth",
+                                scope = "Self",
+                                value = 1
+                            }
+                        }
+                    }
+                }
+            };
+
             return database;
         }
 

@@ -3,6 +3,7 @@ using System.Linq;
 using Game.Application.Duel;
 using Game.Domain.Duel;
 using Game.Infrastructure.Data;
+using Game.Infrastructure.Data.Effects;
 using Game.Presentation.Duel;
 using NUnit.Framework;
 
@@ -100,6 +101,105 @@ namespace Game.Tests.EditMode
             Assert.IsTrue(success, failureMessage);
             Assert.IsTrue(sessionRunner.DuelState.isDuelEnded);
             Assert.AreEqual(0, sessionRunner.DuelState.honor);
+        }
+
+        [Test]
+        public void TryInitialize_AppliesDuelStartTimedEffects()
+        {
+            GameDatabase database = CreateDatabase(startingHonor: 1);
+            database.abilitiesById["ability.passive.duelstart.heal"] = new AbilityDef
+            {
+                type = AbilityType.Passive.ToString(),
+                buildCost = 0,
+                cooldown = 0,
+                power = 0,
+                effects = new List<TimedEffectDef>
+                {
+                    new TimedEffectDef
+                    {
+                        timing = nameof(DuelEffectTiming.DuelStart),
+                        condition = new ConditionDef
+                        {
+                            type = "Always"
+                        },
+                        ops = new List<EffectOpDef>
+                        {
+                            new EffectOpDef
+                            {
+                                op = nameof(DuelEffectOpCode.ModifyHealth),
+                                side = "Player",
+                                value = 1
+                            }
+                        }
+                    }
+                }
+            };
+            database.playerStart.startingLoadoutAbilityIds.Add("ability.passive.duelstart.heal");
+
+            var sessionRunner = new DuelSessionRunner();
+            bool success = sessionRunner.TryInitialize(
+                database,
+                "enemy.test",
+                advanceToPlayerSetup: true,
+                out string failureMessage);
+
+            Assert.IsTrue(success, failureMessage);
+            Assert.AreEqual(11, sessionRunner.DuelState.playerHealth);
+        }
+
+        [Test]
+        public void TryInitialize_AppliesDeployTimedEffectsForAutoDeployedOpponent()
+        {
+            GameDatabase database = CreateDatabase(startingHonor: 1);
+            database.abilitiesById["ability.enemy"] = new AbilityDef
+            {
+                type = AbilityType.Attack.ToString(),
+                buildCost = 0,
+                cooldown = 1,
+                power = 2,
+                effects = new List<TimedEffectDef>
+                {
+                    new TimedEffectDef
+                    {
+                        timing = nameof(DuelEffectTiming.Deploy),
+                        condition = new ConditionDef
+                        {
+                            type = "Always"
+                        },
+                        ops = new List<EffectOpDef>
+                        {
+                            new EffectOpDef
+                            {
+                                op = nameof(DuelEffectOpCode.ModifyTotalPower),
+                                scope = "Self",
+                                side = "Opponent",
+                                value = 1
+                            }
+                        }
+                    }
+                }
+            };
+
+            var sessionRunner = new DuelSessionRunner();
+            bool success = sessionRunner.TryInitialize(
+                database,
+                "enemy.test",
+                advanceToPlayerSetup: true,
+                out string failureMessage);
+
+            Assert.IsTrue(success, failureMessage);
+
+            int totalBonus = sessionRunner.DuelState.combats.Sum(combat =>
+            {
+                if (combat == null)
+                {
+                    return 0;
+                }
+
+                return combat.totalPowerBonusOpponent;
+            });
+
+            Assert.AreEqual(1, totalBonus);
         }
 
         static GameDatabase CreateDatabase(int startingHonor)

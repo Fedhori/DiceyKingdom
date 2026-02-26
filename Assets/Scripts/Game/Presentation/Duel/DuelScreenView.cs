@@ -16,6 +16,7 @@ namespace Game.Presentation.Duel
     {
         const int expectedCombatCount = 3;
         const int maxLoadoutCardCount = 12;
+        const int maxPassiveCardCount = 12;
 
         static readonly Color defaultCombatStartButtonColor = Colors.Semantic.StateInfo;
         static readonly Color defaultSurrenderButtonColor = Colors.Semantic.StateDanger;
@@ -32,6 +33,8 @@ namespace Game.Presentation.Duel
         readonly Button surrenderButton;
         readonly RectTransform enemyLoadoutRow;
         readonly RectTransform playerLoadoutRow;
+        readonly RectTransform enemyPassiveRow;
+        readonly RectTransform playerPassiveRow;
         readonly DuelCombatZoneView[] combatZones;
         readonly TMP_Text tooltipText;
         readonly Image tooltipBackgroundImage;
@@ -40,6 +43,8 @@ namespace Game.Presentation.Duel
         readonly List<DuelAbilityCardView> pooledCardViews = new();
         readonly List<DuelAbilityCardView> enemyLoadoutCardViews = new();
         readonly List<DuelAbilityCardView> playerLoadoutCardViews = new();
+        readonly List<DuelAbilityCardView> enemyPassiveCardViews = new();
+        readonly List<DuelAbilityCardView> playerPassiveCardViews = new();
         readonly Dictionary<string, DuelAbilityCardView> visibleCardsByInstanceId =
             new(StringComparer.Ordinal);
         DuelRevealState currentRevealState = DuelRevealState.Empty;
@@ -56,6 +61,8 @@ namespace Game.Presentation.Duel
             Button surrenderButton,
             RectTransform enemyLoadoutRow,
             RectTransform playerLoadoutRow,
+            RectTransform enemyPassiveRow,
+            RectTransform playerPassiveRow,
             DuelCombatZoneView[] combatZones,
             DuelAbilityCardView _,
             TMP_Text tooltipText,
@@ -71,6 +78,8 @@ namespace Game.Presentation.Duel
             this.surrenderButton = surrenderButton;
             this.enemyLoadoutRow = enemyLoadoutRow;
             this.playerLoadoutRow = playerLoadoutRow;
+            this.enemyPassiveRow = enemyPassiveRow;
+            this.playerPassiveRow = playerPassiveRow;
             this.combatZones = combatZones ?? Array.Empty<DuelCombatZoneView>();
             this.tooltipText = tooltipText;
             this.tooltipBackgroundImage = tooltipBackgroundImage;
@@ -112,6 +121,8 @@ namespace Game.Presentation.Duel
         {
             HideDirectChildren(enemyLoadoutRow);
             HideDirectChildren(playerLoadoutRow);
+            HideDirectChildren(enemyPassiveRow);
+            HideDirectChildren(playerPassiveRow);
             CacheCardPools();
             HideAllCardViews();
             HideTooltip();
@@ -159,6 +170,9 @@ namespace Game.Presentation.Duel
                 onCardDragMove,
                 onCardDragEnd,
                 onCardRightClick);
+            RenderPassiveRows(
+                state.duelState,
+                state.database);
             ForceRebuildLoadoutLayouts();
             RenderCombatZones(
                 state.duelState,
@@ -345,7 +359,10 @@ namespace Game.Presentation.Duel
                 return;
             }
 
-            List<DuelAbilityCardView.BindData> enemyCards = ExpandOpponentLoadoutCards(duelState, database);
+            List<DuelAbilityCardView.BindData> enemyCards = ExpandOpponentLoadoutCards(
+                duelState,
+                database,
+                abilityType => abilityType != AbilityType.Passive);
             if (enemyCards.Count > maxLoadoutCardCount)
             {
                 UnityEngine.Debug.LogWarning(
@@ -382,9 +399,10 @@ namespace Game.Presentation.Duel
                     null);
             }
 
-            List<string> playerLoadoutAbilityIds = duelState.loadoutAbilityIds == null
-                ? new List<string>()
-                : new List<string>(duelState.loadoutAbilityIds);
+            List<string> playerLoadoutAbilityIds = CollectLoadoutAbilityIdsByType(
+                duelState,
+                DuelSide.Player,
+                abilityType => abilityType != AbilityType.Passive);
             if (playerLoadoutAbilityIds.Count > maxLoadoutCardCount)
             {
                 UnityEngine.Debug.LogWarning(
@@ -533,6 +551,116 @@ namespace Game.Presentation.Duel
 
                 zone.SetInteractable(canDeployToZone);
                 zone.SetTotals(enemyTotal, playerTotal);
+            }
+        }
+
+        void RenderPassiveRows(
+            DuelState duelState,
+            GameDatabase database)
+        {
+            if (duelState == null || database == null)
+            {
+                return;
+            }
+
+            List<DuelAbilityCardView.BindData> enemyPassiveCards = ExpandOpponentLoadoutCards(
+                duelState,
+                database,
+                abilityType => abilityType == AbilityType.Passive);
+            if (enemyPassiveCards.Count > 0 && enemyPassiveCardViews.Count == 0)
+            {
+                UnityEngine.Debug.LogWarning(
+                    "[DuelScreenView] Enemy passive cards exist but enemyPassiveRow has no DuelAbilityCardView slots.");
+            }
+
+            if (enemyPassiveCards.Count > maxPassiveCardCount)
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[DuelScreenView] Enemy passive overflow: cardCount={enemyPassiveCards.Count}, max={maxPassiveCardCount}");
+            }
+
+            int enemyVisibleCount = Mathf.Min(maxPassiveCardCount, enemyPassiveCards.Count);
+            for (int i = 0; i < enemyPassiveCardViews.Count; i++)
+            {
+                DuelAbilityCardView card = enemyPassiveCardViews[i];
+                if (card == null)
+                {
+                    continue;
+                }
+
+                bool visible = i < enemyVisibleCount;
+                card.gameObject.SetActive(visible);
+                if (!visible)
+                {
+                    continue;
+                }
+
+                card.Bind(
+                    enemyPassiveCards[i],
+                    false,
+                    false,
+                    null,
+                    ShowTooltip,
+                    HideTooltip,
+                    DuelAbilityCardView.InteractionContext.None,
+                    null,
+                    null,
+                    null,
+                    null);
+            }
+
+            List<string> playerPassiveAbilityIds = CollectLoadoutAbilityIdsByType(
+                duelState,
+                DuelSide.Player,
+                abilityType => abilityType == AbilityType.Passive);
+            if (playerPassiveAbilityIds.Count > 0 && playerPassiveCardViews.Count == 0)
+            {
+                UnityEngine.Debug.LogWarning(
+                    "[DuelScreenView] Player passive cards exist but playerPassiveRow has no DuelAbilityCardView slots.");
+            }
+
+            if (playerPassiveAbilityIds.Count > maxPassiveCardCount)
+            {
+                UnityEngine.Debug.LogWarning(
+                    $"[DuelScreenView] Player passive overflow: cardCount={playerPassiveAbilityIds.Count}, max={maxPassiveCardCount}");
+            }
+
+            int playerVisibleCount = Mathf.Min(maxPassiveCardCount, playerPassiveAbilityIds.Count);
+            for (int i = 0; i < playerPassiveCardViews.Count; i++)
+            {
+                DuelAbilityCardView card = playerPassiveCardViews[i];
+                if (card == null)
+                {
+                    continue;
+                }
+
+                bool visible = i < playerVisibleCount;
+                card.gameObject.SetActive(visible);
+                if (!visible)
+                {
+                    continue;
+                }
+
+                string abilityId = playerPassiveAbilityIds[i];
+                if (!TryResolveAbilityAndDef(duelState, database, abilityId, out AbilityInstance ability, out AbilityDef def))
+                {
+                    card.gameObject.SetActive(false);
+                    continue;
+                }
+
+                DuelAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def);
+                card.Bind(
+                    bindData,
+                    false,
+                    false,
+                    null,
+                    ShowTooltip,
+                    HideTooltip,
+                    DuelAbilityCardView.InteractionContext.None,
+                    null,
+                    null,
+                    null,
+                    null);
             }
         }
 
@@ -770,13 +898,19 @@ namespace Game.Presentation.Duel
         {
             enemyLoadoutCardViews.Clear();
             playerLoadoutCardViews.Clear();
+            enemyPassiveCardViews.Clear();
+            playerPassiveCardViews.Clear();
             pooledCardViews.Clear();
 
             CollectCardViews(enemyLoadoutRow, enemyLoadoutCardViews);
             CollectCardViews(playerLoadoutRow, playerLoadoutCardViews);
+            CollectCardViews(enemyPassiveRow, enemyPassiveCardViews);
+            CollectCardViews(playerPassiveRow, playerPassiveCardViews);
 
             AddCardsToPool(enemyLoadoutCardViews);
             AddCardsToPool(playerLoadoutCardViews);
+            AddCardsToPool(enemyPassiveCardViews);
+            AddCardsToPool(playerPassiveCardViews);
 
             for (int zoneIndex = 0; zoneIndex < combatZones.Length; zoneIndex++)
             {
@@ -957,7 +1091,8 @@ namespace Game.Presentation.Duel
 
         List<DuelAbilityCardView.BindData> ExpandOpponentLoadoutCards(
             DuelState duelState,
-            GameDatabase database)
+            GameDatabase database,
+            Func<AbilityType, bool> includePredicate)
         {
             var cards = new List<DuelAbilityCardView.BindData>();
 
@@ -979,10 +1114,59 @@ namespace Game.Presentation.Duel
                     continue;
                 }
 
+                if (includePredicate != null && !includePredicate(ability.abilityType))
+                {
+                    continue;
+                }
+
                 cards.Add(CreateBindData(abilityId, ability, def));
             }
 
             return cards;
+        }
+
+        static List<string> CollectLoadoutAbilityIdsByType(
+            DuelState duelState,
+            DuelSide side,
+            Func<AbilityType, bool> includePredicate)
+        {
+            var filteredIds = new List<string>();
+            if (duelState?.abilitiesById == null)
+            {
+                return filteredIds;
+            }
+
+            List<string> sourceIds = side == DuelSide.Player
+                ? duelState.loadoutAbilityIds
+                : duelState.opponentLoadoutAbilityIds;
+            if (sourceIds == null)
+            {
+                return filteredIds;
+            }
+
+            for (int i = 0; i < sourceIds.Count; i++)
+            {
+                string abilityId = sourceIds[i];
+                if (string.IsNullOrWhiteSpace(abilityId))
+                {
+                    continue;
+                }
+
+                if (!duelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) || ability == null)
+                {
+                    continue;
+                }
+
+                ability.EnsureInitialized();
+                if (includePredicate != null && !includePredicate(ability.abilityType))
+                {
+                    continue;
+                }
+
+                filteredIds.Add(abilityId);
+            }
+
+            return filteredIds;
         }
 
         static bool TryResolveAbilityAndDef(
@@ -1130,6 +1314,16 @@ namespace Game.Presentation.Duel
             if (playerLoadoutRow != null)
             {
                 LayoutRebuilder.ForceRebuildLayoutImmediate(playerLoadoutRow);
+            }
+
+            if (enemyPassiveRow != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(enemyPassiveRow);
+            }
+
+            if (playerPassiveRow != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(playerPassiveRow);
             }
         }
     }

@@ -24,6 +24,14 @@ namespace Game.Application.Duel.Effects
 
         public AbilityTimedEffectRunResult ApplyForTiming(DuelState state, DuelEffectTiming timing)
         {
+            return ApplyForTiming(state, timing, null);
+        }
+
+        public AbilityTimedEffectRunResult ApplyForTiming(
+            DuelState state,
+            DuelEffectTiming timing,
+            IReadOnlyCollection<string> sourceAbilityIds)
+        {
             if (state == null)
             {
                 throw new ArgumentNullException(nameof(state));
@@ -37,6 +45,7 @@ namespace Game.Application.Duel.Effects
             }
 
             List<AbilityRuntimeContext> contexts = BuildAbilityContexts(state);
+            HashSet<string> sourceFilter = BuildSourceFilter(sourceAbilityIds);
             int appliedCount = 0;
             int failedCount = 0;
             int skippedCount = 0;
@@ -44,11 +53,24 @@ namespace Game.Application.Duel.Effects
             for (int contextIndex = 0; contextIndex < contexts.Count; contextIndex++)
             {
                 AbilityRuntimeContext sourceContext = contexts[contextIndex];
+                if (sourceFilter != null &&
+                    !sourceFilter.Contains(sourceContext.abilityId))
+                {
+                    continue;
+                }
+
+                if (!CanRunForTiming(sourceContext, timing))
+                {
+                    skippedCount += 1;
+                    continue;
+                }
+
                 if (sourceContext.abilityDef == null || sourceContext.abilityDef.effects == null)
                 {
                     continue;
                 }
 
+                int sourceAppliedCountBefore = appliedCount;
                 for (int effectIndex = 0; effectIndex < sourceContext.abilityDef.effects.Count; effectIndex++)
                 {
                     TimedEffectDef timedEffect = sourceContext.abilityDef.effects[effectIndex];
@@ -115,6 +137,12 @@ namespace Game.Application.Duel.Effects
                         }
                     }
                 }
+
+                if (appliedCount > sourceAppliedCountBefore &&
+                    ShouldConsumeSourceCooldown(sourceContext))
+                {
+                    TryConsumeSourceCooldown(sourceContext.ability);
+                }
             }
 
             return new AbilityTimedEffectRunResult(appliedCount, failedCount, skippedCount);
@@ -129,6 +157,61 @@ namespace Game.Application.Duel.Effects
 
             return Enum.TryParse(timedEffect.timing, false, out DuelEffectTiming parsedTiming) &&
                    parsedTiming == timing;
+        }
+
+        static HashSet<string> BuildSourceFilter(IReadOnlyCollection<string> sourceAbilityIds)
+        {
+            if (sourceAbilityIds == null || sourceAbilityIds.Count <= 0)
+            {
+                return null;
+            }
+
+            return new HashSet<string>(sourceAbilityIds, StringComparer.Ordinal);
+        }
+
+        static bool CanRunForTiming(AbilityRuntimeContext sourceContext, DuelEffectTiming timing)
+        {
+            AbilityInstance ability = sourceContext.ability;
+            if (ability == null)
+            {
+                return false;
+            }
+
+            ability.EnsureInitialized();
+            if (ability.cooldownRemaining > 0)
+            {
+                return false;
+            }
+
+            if (timing == DuelEffectTiming.Deploy)
+            {
+                return sourceContext.combatIndex >= 0;
+            }
+
+            return true;
+        }
+
+        static bool ShouldConsumeSourceCooldown(AbilityRuntimeContext sourceContext)
+        {
+            return sourceContext.ability != null &&
+                   (sourceContext.ability.abilityType == AbilityType.Skill ||
+                    sourceContext.ability.abilityType == AbilityType.Passive);
+        }
+
+        static void TryConsumeSourceCooldown(AbilityInstance ability)
+        {
+            if (ability == null)
+            {
+                return;
+            }
+
+            int cooldownTurns = Mathf.Max(0, ability.cooldownTurns);
+            if (cooldownTurns <= 0)
+            {
+                return;
+            }
+
+            ability.cooldownRemaining = cooldownTurns;
         }
 
         static bool EvaluateCondition(
@@ -340,7 +423,18 @@ namespace Game.Application.Duel.Effects
                 }
 
                 command.amount = amount;
-                command.combatIndex = sourceContext.combatIndex;
+            }
+
+            if (opCode == DuelEffectOpCode.ModifyTotalPower)
+            {
+                if (targetContext.combatIndex < 0)
+                {
+                    warningMessage =
+                        $"ModifyTotalPower requires a combat target, but target ability({targetContext.abilityId}) is not in combat.";
+                    return false;
+                }
+
+                command.combatIndex = targetContext.combatIndex;
             }
 
             return true;

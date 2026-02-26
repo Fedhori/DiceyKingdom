@@ -31,9 +31,11 @@ namespace Game.Domain.Duel
                 errors.Add("instanceId is empty.");
             }
 
-            if (cooldownTurns < 1)
+            int minimumCooldownTurns = AbilityDef.GetMinimumCooldownTurns(abilityType);
+            if (cooldownTurns < minimumCooldownTurns)
             {
-                errors.Add($"cooldownTurns({cooldownTurns}) must be greater than or equal to 1.");
+                errors.Add(
+                    $"cooldownTurns({cooldownTurns}) must be greater than or equal to {minimumCooldownTurns} for type({abilityType}).");
             }
 
             if (cooldownRemaining < 0)

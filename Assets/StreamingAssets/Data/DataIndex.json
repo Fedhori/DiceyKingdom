@@ -8,7 +8,8 @@
   "abilities": [
     "Data/abilities/ability.slash.sword.json",
     "Data/abilities/ability.shield.up.json",
-    "Data/abilities/ability.crossbow.json"
+    "Data/abilities/ability.crossbow.json",
+    "Data/abilities/ability.passive.regen.json"
   ],
   "enemies": [
     "Data/enemies/enemy.northern.footman.json"

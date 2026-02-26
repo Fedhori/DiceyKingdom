@@ -10,6 +10,10 @@
     {
       "abilityId": "ability.crossbow",
       "count": 1
+    },
+    {
+      "abilityId": "ability.passive.regen",
+      "count": 1
     }
   ]
 }

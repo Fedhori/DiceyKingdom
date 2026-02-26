@@ -8,6 +8,7 @@
 		"ability.slash.sword",
 		"ability.slash.sword",
 		"ability.shield.up",
-		"ability.crossbow"
+		"ability.crossbow",
+		"ability.passive.regen"
 	]
 }

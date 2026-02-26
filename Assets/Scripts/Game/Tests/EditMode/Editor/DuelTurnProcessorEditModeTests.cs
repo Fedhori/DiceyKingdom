@@ -157,6 +157,48 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
+        public void TryResolveAllCombats_TurnEndPassiveCooldownTwo_TriggersEveryOtherTurn()
+        {
+            GameDatabase database = CreateDatabase();
+            database.abilitiesById["ability.passive.regen"] = CreatePassiveRegenAbilityDef(cooldown: 2, healAmount: 1);
+
+            var state = new DuelState
+            {
+                playerHealth = 5,
+                opponentHealth = 5
+            };
+            AddCombats(state, 1);
+            state.abilitiesById["passive0"] = new AbilityInstance
+            {
+                abilityDefId = "ability.passive.regen",
+                abilityType = AbilityType.Passive,
+                cooldownTurns = 2,
+                cooldownRemaining = 0,
+                power = 0
+            };
+            state.loadoutAbilityIds.Add("passive0");
+
+            var runner = new DuelPhaseRunner(state);
+            var processor = new DuelTurnProcessor(database);
+            Assert.IsTrue(runner.StartDuel());
+
+            RunTurnToResolve(processor, state, runner, out string firstFailure);
+            Assert.AreEqual(string.Empty, firstFailure);
+            Assert.AreEqual(6, state.playerHealth);
+            Assert.AreEqual(1, state.abilitiesById["passive0"].cooldownRemaining);
+
+            RunTurnToResolve(processor, state, runner, out string secondFailure);
+            Assert.AreEqual(string.Empty, secondFailure);
+            Assert.AreEqual(6, state.playerHealth);
+            Assert.AreEqual(0, state.abilitiesById["passive0"].cooldownRemaining);
+
+            RunTurnToResolve(processor, state, runner, out string thirdFailure);
+            Assert.AreEqual(string.Empty, thirdFailure);
+            Assert.AreEqual(7, state.playerHealth);
+            Assert.AreEqual(1, state.abilitiesById["passive0"].cooldownRemaining);
+        }
+
+        [Test]
         public void TryResolveAllCombats_ShieldUpEffect_BlocksWinnerOutgoingDamage()
         {
             GameDatabase database = CreateDatabase();
@@ -358,6 +400,37 @@ namespace Game.Tests.EditMode
             };
         }
 
+        static AbilityDef CreatePassiveRegenAbilityDef(int cooldown, int healAmount)
+        {
+            return new AbilityDef
+            {
+                type = AbilityType.Passive.ToString(),
+                buildCost = 0,
+                cooldown = cooldown,
+                power = 0,
+                effects = new List<TimedEffectDef>
+                {
+                    new TimedEffectDef
+                    {
+                        timing = "TurnEnd",
+                        condition = new ConditionDef
+                        {
+                            type = "Always"
+                        },
+                        ops = new List<EffectOpDef>
+                        {
+                            new EffectOpDef
+                            {
+                                op = "ModifyHealth",
+                                side = "Player",
+                                value = healAmount
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
         static AbilityInstance CreateAbility(
             string abilityDefId,
             int powerResult)
@@ -381,6 +454,27 @@ namespace Game.Tests.EditMode
             {
                 state.combats.Add(new CombatState());
             }
+        }
+
+        static void RunTurnToResolve(
+            DuelTurnProcessor processor,
+            DuelState state,
+            DuelPhaseRunner runner,
+            out string failureMessage)
+        {
+            failureMessage = string.Empty;
+            Assert.AreEqual(DuelPhase.Reset, runner.currentPhase);
+            Assert.IsTrue(runner.AdvanceToNextPhase());
+            Assert.IsTrue(runner.AdvanceToNextPhase());
+            Assert.IsTrue(runner.AdvanceToNextPhase());
+            Assert.IsTrue(runner.AdvanceToNextPhase());
+
+            bool success = processor.TryResolveAllCombats(
+                state,
+                runner,
+                out DuelCombatResolveResult _,
+                out failureMessage);
+            Assert.IsTrue(success, failureMessage);
         }
     }
 }

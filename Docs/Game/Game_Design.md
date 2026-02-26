@@ -68,7 +68,10 @@ Rules:
 ### 3.5.1 Cooldown
 
 - Abilities have cooldown turns.
-- Baseline cooldown value is **1** unless a specific ability defines another value.
+- Baseline cooldown by type:
+  - Attack: **1**
+  - Skill: **1**
+  - Passive: **0**
 - At TurnEnd:
   1. Existing cooldowns tick down by `1`.
   2. Abilities used in the just-resolved turn set `cooldownRemaining = max(0, cooldownTurns - 1)`.
@@ -106,20 +109,27 @@ Effects:
 
 - Ability types:
   - **Attack**
-  - **Skill** (supported conceptually; detailed triggers may expand)
+  - **Skill**
+  - **Passive**
 
 - Attack:
   - Can be deployed into Combat slots
   - Participates in Roll/Resolve
 
 - Skill:
-  - May trigger on specific timings (e.g., Resolve, TurnEnd)
+  - Cannot be deployed into Combat slots
+  - May trigger on specific timings (e.g., Resolve, Skill, TurnEnd)
   - Exact behavior is driven by effect definitions
 
-### 4.1 Talent (planned, not implemented)
+- Passive:
+  - Cannot be deployed into Combat slots
+  - Stays in passive panel and triggers by timing/condition/ops
+  - Can have cooldown and follows the same cooldown decrement rule
+  - `power` must be `0`
 
-- Talent is a separate concept intended to replace “Passive Ability”.
-- This is not implemented and is not a source of truth yet.
+### 4.1 Talent
+
+- Talent system is removed from current plan and rules.
 
 ### 4.2 Ability icon data
 
@@ -128,6 +138,12 @@ Effects:
 - Default icon file must exist at `Data/icons/icon.default.png`.
 - In Development mode, missing icon files must fail validation visibly.
 - In runtime rendering, if icon lookup/load fails unexpectedly, use default icon and emit error logs.
+
+### 4.3 Effect op side semantics
+
+- For `ModifyHealth` and `ModifyTotalPower`, `ops[].side` is optional.
+- If `ops[].side` is omitted, the op is resolved from the source ability owner side (self-side).
+- If `ops[].side` is present, only `Player` or `Opponent` is valid (case-sensitive).
 
 ## 5) Key invariants (must remain true unless explicitly changed)
 

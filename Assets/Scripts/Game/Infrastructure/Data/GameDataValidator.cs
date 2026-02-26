@@ -26,6 +26,16 @@ namespace Game.Infrastructure.Data
             "OpponentCountEquals"
         };
 
+        static readonly HashSet<string> allowedTimedEffectTimings = new(StringComparer.Ordinal)
+        {
+            nameof(DuelEffectTiming.DuelStart),
+            nameof(DuelEffectTiming.Deploy),
+            nameof(DuelEffectTiming.Roll),
+            nameof(DuelEffectTiming.Skill),
+            nameof(DuelEffectTiming.Resolve),
+            nameof(DuelEffectTiming.TurnEnd)
+        };
+
         public void Validate(GameDatabase database, DataIndexDef dataIndex, GameDataValidationReport report)
         {
             if (database == null)
@@ -206,7 +216,7 @@ namespace Game.Infrastructure.Data
                         GameDataErrorCode.InvalidEnum,
                         path,
                         id,
-                        $"type '{def.type}' is invalid. Allowed: {AbilityType.Attack}, {AbilityType.Skill}.");
+                        $"type '{def.type}' is invalid. Allowed: {AbilityType.Attack}, {AbilityType.Skill}, {AbilityType.Passive}.");
                     continue;
                 }
 
@@ -236,13 +246,15 @@ namespace Game.Infrastructure.Data
                         $"iconId('{def.iconId}') contains invalid characters.");
                 }
 
-                if (def.cooldown < 1)
+                int resolvedCooldown = def.ResolveCooldownTurns(abilityType);
+                int minCooldown = AbilityDef.GetMinimumCooldownTurns(abilityType);
+                if (resolvedCooldown < minCooldown)
                 {
                     report.AddError(
                         GameDataErrorCode.InvalidValue,
                         path,
                         id,
-                        "cooldown must be greater than or equal to 1.");
+                        $"cooldown must be greater than or equal to {minCooldown} for type({abilityType}).");
                 }
 
                 int resolvedPower = def.ResolvePower();
@@ -261,7 +273,7 @@ namespace Game.Infrastructure.Data
                         GameDataErrorCode.InvalidValue,
                         path,
                         id,
-                        "Only Attack type ability can define power.");
+                        "Only Attack type ability can define power greater than 0.");
                 }
 
                 ValidateTimedEffectConditions(def, path, id, report);
@@ -282,7 +294,22 @@ namespace Game.Infrastructure.Data
             for (int effectIndex = 0; effectIndex < abilityDef.effects.Count; effectIndex++)
             {
                 TimedEffectDef timedEffect = abilityDef.effects[effectIndex];
-                if (timedEffect?.condition == null)
+                if (timedEffect == null)
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(timedEffect.timing) ||
+                    !allowedTimedEffectTimings.Contains(timedEffect.timing))
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidEnum,
+                        path,
+                        ownerId,
+                        $"effects[{effectIndex}].timing '{timedEffect.timing}' is invalid.");
+                }
+
+                if (timedEffect.condition == null)
                 {
                     continue;
                 }
@@ -406,6 +433,11 @@ namespace Game.Infrastructure.Data
                 for (int effectIndex = 0; effectIndex < abilityDef.effects.Count; effectIndex++)
                 {
                     TimedEffectDef timedEffect = abilityDef.effects[effectIndex];
+                    if (timedEffect == null || timedEffect.ops == null)
+                    {
+                        continue;
+                    }
+
                     for (int opIndex = 0; opIndex < timedEffect.ops.Count; opIndex++)
                     {
                         ValidateOp(
@@ -449,11 +481,11 @@ namespace Game.Infrastructure.Data
 
                     break;
                 case nameof(DuelEffectOpCode.ModifyTotalPower):
-                    ValidateSide(opDef, path, ownerId, context, report);
+                    ValidateOptionalSide(opDef, path, ownerId, context, report);
                     ValidateAmount(opDef, path, ownerId, context, report);
                     break;
                 case nameof(DuelEffectOpCode.ModifyHealth):
-                    ValidateSide(opDef, path, ownerId, context, report);
+                    ValidateOptionalSide(opDef, path, ownerId, context, report);
                     ValidateAmount(opDef, path, ownerId, context, report);
                     break;
                 case nameof(DuelEffectOpCode.AddPowerModifier):
@@ -504,8 +536,13 @@ namespace Game.Infrastructure.Data
             ValidateAmount(opDef, path, ownerId, context, report);
         }
 
-        void ValidateSide(EffectOpDef opDef, string path, string ownerId, string context, GameDataValidationReport report)
+        void ValidateOptionalSide(EffectOpDef opDef, string path, string ownerId, string context, GameDataValidationReport report)
         {
+            if (string.IsNullOrWhiteSpace(opDef.side))
+            {
+                return;
+            }
+
             if (!string.Equals(opDef.side, "Player", StringComparison.Ordinal) &&
                 !string.Equals(opDef.side, "Opponent", StringComparison.Ordinal))
             {

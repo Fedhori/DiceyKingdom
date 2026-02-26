@@ -79,6 +79,20 @@ namespace Game.Application.Duel
             timedEffectRunner = new AbilityTimedEffectRunner(this.database, this.effectCombatResolver);
         }
 
+        public AbilityTimedEffectRunResult ApplyTimedEffects(
+            DuelState state,
+            DuelEffectTiming timing,
+            IReadOnlyCollection<string> sourceAbilityIds = null)
+        {
+            if (state == null)
+            {
+                throw new ArgumentNullException(nameof(state));
+            }
+
+            state.EnsureInitialized();
+            return timedEffectRunner.ApplyForTiming(state, timing, sourceAbilityIds);
+        }
+
         public bool TryRollAllDeployedAbilities(
             DuelState state,
             DuelPhaseRunner phaseRunner,
@@ -288,9 +302,9 @@ namespace Game.Application.Duel
             if (!state.isDuelEnded)
             {
                 HashSet<string> deployedAbilityIds = CollectDeployedAbilityIds(state);
+                turnEndTimedEffects = timedEffectRunner.ApplyForTiming(state, DuelEffectTiming.TurnEnd);
                 cooldownUpdatedCount = ApplyTurnEndMaintenance(state);
                 cooldownUpdatedCount += ApplyUsedAbilityCooldown(state, deployedAbilityIds);
-                turnEndTimedEffects = timedEffectRunner.ApplyForTiming(state, DuelEffectTiming.TurnEnd);
                 placementService.ReturnAllDeployedAbilitiesToLoadout(state);
             }
 

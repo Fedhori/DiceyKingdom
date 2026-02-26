@@ -90,6 +90,7 @@ namespace Game.Presentation.Duel
         static readonly Color defaultPowerText = Colors.Semantic.TextPrimary;
         static readonly Color defaultAttackBorder = Colors.Semantic.StateDanger;
         static readonly Color defaultSkillBorder = Colors.Semantic.StateInfo;
+        static readonly Color defaultPassiveBorder = Colors.Semantic.StateWarning;
         static readonly Color defaultDisabledOverlay = Colors.Semantic.DisabledTint;
         const float dragVisualAlpha = 0.5f;
         const float invalidFeedbackDuration = 0.12f;
@@ -576,6 +577,8 @@ namespace Game.Presentation.Duel
                     return defaultAttackBorder;
                 case AbilityType.Skill:
                     return defaultSkillBorder;
+                case AbilityType.Passive:
+                    return defaultPassiveBorder;
                 default:
                     return defaultAttackBorder;
             }
