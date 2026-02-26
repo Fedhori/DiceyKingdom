@@ -8,6 +8,7 @@ namespace Game.Domain.Duel
     public sealed class CombatState
     {
         public int? maxPlayerAssignments;
+        public int? maxOpponentAssignments;
 
         public List<string> playerAbilityIds = new();
         public List<string> opponentAbilityIds = new();

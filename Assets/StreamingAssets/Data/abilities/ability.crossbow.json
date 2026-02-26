@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.crossbow",
+  "type": "Attack",
+  "buildCost": 1,
+  "cooldown": 2,
+  "power": 12,
+  "nameLocKey": "ability.crossbow_name",
+  "descLocKey": "ability.crossbow_desc",
+  "effects": []
+}

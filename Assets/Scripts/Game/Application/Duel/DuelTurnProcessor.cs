@@ -68,6 +68,7 @@ namespace Game.Application.Duel
         readonly GameDatabase database;
         readonly DuelEffectCombatResolver effectCombatResolver;
         readonly AbilityTimedEffectRunner timedEffectRunner;
+        readonly DuelAbilityPlacementService placementService = new();
 
         public DuelTurnProcessor(
             GameDatabase database,
@@ -145,6 +146,11 @@ namespace Game.Application.Duel
                 }
 
                 if (ability.abilityType != AbilityType.Attack)
+                {
+                    continue;
+                }
+
+                if (ability.cooldownRemaining > 0)
                 {
                     continue;
                 }
@@ -281,9 +287,11 @@ namespace Game.Application.Duel
 
             if (!state.isDuelEnded)
             {
+                HashSet<string> deployedAbilityIds = CollectDeployedAbilityIds(state);
                 cooldownUpdatedCount = ApplyTurnEndMaintenance(state);
+                cooldownUpdatedCount += ApplyUsedAbilityCooldown(state, deployedAbilityIds);
                 turnEndTimedEffects = timedEffectRunner.ApplyForTiming(state, DuelEffectTiming.TurnEnd);
-                ReturnPlayerAbilitiesToLoadout(state);
+                placementService.ReturnAllDeployedAbilitiesToLoadout(state);
             }
 
             if (!state.isDuelEnded && !phaseRunner.AdvanceToNextPhase())
@@ -315,7 +323,7 @@ namespace Game.Application.Duel
             }
 
             int cooldownUpdatedCount = 0;
-            int cooldownTick = Mathf.Abs(database.duelConfig.cooldownTickPerTurn);
+            const int cooldownTick = 1;
             foreach (KeyValuePair<string, AbilityInstance> pair in state.abilitiesById)
             {
                 AbilityInstance ability = pair.Value;
@@ -341,6 +349,42 @@ namespace Game.Application.Duel
             }
 
             return cooldownUpdatedCount;
+        }
+
+        static int ApplyUsedAbilityCooldown(DuelState state, IReadOnlyCollection<string> deployedAbilityIds)
+        {
+            if (state?.abilitiesById == null || deployedAbilityIds == null || deployedAbilityIds.Count <= 0)
+            {
+                return 0;
+            }
+
+            int updatedCount = 0;
+            foreach (string abilityId in deployedAbilityIds)
+            {
+                if (string.IsNullOrWhiteSpace(abilityId) ||
+                    !state.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) ||
+                    ability == null)
+                {
+                    continue;
+                }
+
+                ability.EnsureInitialized();
+                if (ability.abilityType != AbilityType.Attack)
+                {
+                    continue;
+                }
+
+                int nextCooldown = Mathf.Max(0, ability.cooldownTurns - 1);
+                if (ability.cooldownRemaining == nextCooldown)
+                {
+                    continue;
+                }
+
+                ability.cooldownRemaining = nextCooldown;
+                updatedCount += 1;
+            }
+
+            return updatedCount;
         }
 
         static int ApplyCombatOutcomeDamage(
@@ -403,40 +447,6 @@ namespace Game.Application.Duel
 
                 combat.preventOutgoingDamageOnWinPlayer = false;
                 combat.preventOutgoingDamageOnWinOpponent = false;
-            }
-        }
-
-        static void ReturnPlayerAbilitiesToLoadout(DuelState state)
-        {
-            if (state.combats == null || state.loadoutAbilityIds == null)
-            {
-                return;
-            }
-
-            for (int combatIndex = 0; combatIndex < state.combats.Count; combatIndex++)
-            {
-                CombatState combat = state.combats[combatIndex];
-                if (combat == null)
-                {
-                    continue;
-                }
-
-                combat.EnsureInitialized();
-                for (int i = 0; i < combat.playerAbilityIds.Count; i++)
-                {
-                    string abilityId = combat.playerAbilityIds[i];
-                    if (string.IsNullOrWhiteSpace(abilityId))
-                    {
-                        continue;
-                    }
-
-                    if (!state.loadoutAbilityIds.Contains(abilityId))
-                    {
-                        state.loadoutAbilityIds.Add(abilityId);
-                    }
-                }
-
-                combat.playerAbilityIds.Clear();
             }
         }
 

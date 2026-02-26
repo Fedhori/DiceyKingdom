@@ -66,7 +66,7 @@ namespace Game.Tests.EditMode
   ""id"": ""ability.1"",
   ""type"": ""Attack"",
   ""buildCost"": 0,
-  ""cooldown"": 0,
+  ""cooldown"": 1,
   ""power"": 2,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
@@ -103,7 +103,7 @@ namespace Game.Tests.EditMode
   ""id"": ""ability.1"",
   ""type"": ""Attack"",
   ""buildCost"": 0,
-  ""cooldown"": 0,
+  ""cooldown"": 1,
   ""power"": 2,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",
@@ -137,6 +137,75 @@ namespace Game.Tests.EditMode
             }
         }
 
+        [Test]
+        public void Load_FailsWhenPlayerLoadoutExceedsMaxCount()
+        {
+            Dictionary<string, string> files = CreateValidDataSet();
+            files["Data/player.start.json"] =
+@"{
+  ""schemaVersion"": 2,
+  ""id"": ""player.start"",
+  ""startingHonor"": 3,
+  ""startingPlayerHealth"": 10,
+  ""startingLoadoutAbilityIds"": [
+    ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"",
+    ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"",
+    ""ability.1""
+  ]
+}";
+
+            var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
+            LogAssert.ignoreFailingMessages = true;
+            try
+            {
+                GameDataBuildResult result = loader.Load(new GameDataLoadOptions
+                {
+                    dataIndexPath = "Data/DataIndex.json",
+                    mode = GameDataBuildMode.Development
+                });
+
+                Assert.IsFalse(result.isSuccess);
+                Assert.IsTrue(result.report.Errors.Any(e => e.code == GameDataErrorCode.InvalidValue));
+            }
+            finally
+            {
+                LogAssert.ignoreFailingMessages = false;
+            }
+        }
+
+        [Test]
+        public void Load_FailsWhenEnemyLoadoutExceedsMaxCount()
+        {
+            Dictionary<string, string> files = CreateValidDataSet();
+            files["Data/enemies/enemy.1.json"] =
+@"{
+  ""schemaVersion"": 2,
+  ""id"": ""enemy.1"",
+  ""health"": 10,
+  ""abilityLoadout"": [
+    { ""abilityId"": ""ability.1"", ""count"": 13 }
+  ]
+}";
+
+            var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
+            LogAssert.ignoreFailingMessages = true;
+            try
+            {
+                GameDataBuildResult result = loader.Load(new GameDataLoadOptions
+                {
+                    dataIndexPath = "Data/DataIndex.json",
+                    mode = GameDataBuildMode.Development
+                });
+
+                Assert.IsFalse(result.isSuccess);
+                Assert.IsTrue(result.report.Errors.Any(e => e.code == GameDataErrorCode.InvalidValue));
+            }
+            finally
+            {
+                LogAssert.ignoreFailingMessages = false;
+            }
+        }
+
         static Dictionary<string, string> CreateValidDataSet()
         {
             return new Dictionary<string, string>
@@ -152,7 +221,7 @@ namespace Game.Tests.EditMode
 @"{
   ""schemaVersion"": 2,
   ""id"": ""duel.config"",
-  ""cooldownTickPerTurn"": -1,
+  ""cooldownTickPerTurn"": 1,
   ""powerResultMin"": 1,
   ""p0Rules"": {
     ""disallowBasePowerMutation"": true,
@@ -180,7 +249,7 @@ namespace Game.Tests.EditMode
   ""id"": ""ability.1"",
   ""type"": ""Attack"",
   ""buildCost"": 0,
-  ""cooldown"": 0,
+  ""cooldown"": 1,
   ""power"": 2,
   ""nameLocKey"": ""ability.1_name"",
   ""descLocKey"": ""ability.1_desc"",

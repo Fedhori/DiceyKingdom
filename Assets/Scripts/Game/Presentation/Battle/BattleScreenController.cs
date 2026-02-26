@@ -803,7 +803,7 @@ namespace Game.Presentation.Battle
                 return false;
             }
 
-            return ability.abilityType == AbilityType.Attack;
+            return ability.abilityType == AbilityType.Attack && ability.cooldownRemaining <= 0;
         }
 
         bool TryFindDropCombatIndex(Vector2 screenPosition, Camera eventCamera, out int combatIndex)

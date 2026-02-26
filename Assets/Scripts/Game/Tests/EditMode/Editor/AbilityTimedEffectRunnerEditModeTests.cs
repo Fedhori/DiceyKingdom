@@ -157,7 +157,7 @@ namespace Game.Tests.EditMode
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
-                cooldown = 0,
+                cooldown = 1,
                 power = 4,
                 effects = new List<TimedEffectDef>
                 {
@@ -187,7 +187,7 @@ namespace Game.Tests.EditMode
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
-                cooldown = 0,
+                cooldown = 1,
                 power = 4,
                 effects = new List<TimedEffectDef>
                 {
@@ -217,7 +217,7 @@ namespace Game.Tests.EditMode
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
-                cooldown = 0,
+                cooldown = 1,
                 power = 2,
                 effects = new List<TimedEffectDef>
                 {
@@ -247,7 +247,7 @@ namespace Game.Tests.EditMode
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
-                cooldown = 0,
+                cooldown = 1,
                 power = 2,
                 effects = new List<TimedEffectDef>()
             };

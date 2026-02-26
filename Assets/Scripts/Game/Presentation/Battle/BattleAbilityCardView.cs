@@ -56,6 +56,8 @@ namespace Game.Presentation.Battle
             public AbilityType abilityType { get; }
             public int power { get; }
             public bool showPower { get; }
+            public int cooldownTurns { get; }
+            public int cooldownRemaining { get; }
 
             public BindData(
                 string instanceId,
@@ -63,7 +65,9 @@ namespace Game.Presentation.Battle
                 string tooltipText,
                 AbilityType abilityType,
                 int power,
-                bool showPower)
+                bool showPower,
+                int cooldownTurns,
+                int cooldownRemaining)
             {
                 this.instanceId = instanceId ?? string.Empty;
                 this.title = title ?? string.Empty;
@@ -71,6 +75,8 @@ namespace Game.Presentation.Battle
                 this.abilityType = abilityType;
                 this.power = power;
                 this.showPower = showPower;
+                this.cooldownTurns = Mathf.Max(0, cooldownTurns);
+                this.cooldownRemaining = Mathf.Max(0, cooldownRemaining);
             }
         }
 
@@ -93,6 +99,9 @@ namespace Game.Presentation.Battle
         [SerializeField] Image powerBadgeImage;
         [SerializeField] TMP_Text powerBadgeText;
         [SerializeField] TMP_Text rollOverlayText;
+        [SerializeField] TMP_Text cooldownCornerText;
+        [SerializeField] Image cooldownOverlayImage;
+        [SerializeField] TMP_Text cooldownOverlayText;
         [SerializeField] Outline borderOutline;
         [SerializeField] Image disabledOverlayImage;
 
@@ -133,6 +142,12 @@ namespace Game.Presentation.Battle
             if (rollOverlayText != null && !UnityEngine.Application.isPlaying)
             {
                 rollOverlayText.gameObject.SetActive(false);
+            }
+
+            if (!UnityEngine.Application.isPlaying)
+            {
+                SetCooldownOverlayVisible(false, 0);
+                SetCooldownCornerValue(0);
             }
         }
 
@@ -190,6 +205,9 @@ namespace Game.Presentation.Battle
                 powerBadgeText.text = bindData.showPower ? bindData.power.ToString() : string.Empty;
                 powerBadgeText.color = defaultPowerText;
             }
+
+            SetCooldownCornerValue(bindData.cooldownTurns);
+            SetCooldownOverlayVisible(bindData.cooldownRemaining > 0, bindData.cooldownRemaining);
 
             if (clickButton != null)
             {
@@ -489,6 +507,32 @@ namespace Game.Presentation.Battle
             }
 
             cardBackgroundImage.color = applied;
+        }
+
+        void SetCooldownCornerValue(int cooldownTurns)
+        {
+            if (cooldownCornerText == null)
+            {
+                return;
+            }
+
+            bool shouldShow = cooldownTurns > 0;
+            cooldownCornerText.gameObject.SetActive(shouldShow);
+            cooldownCornerText.text = shouldShow ? cooldownTurns.ToString() : string.Empty;
+        }
+
+        void SetCooldownOverlayVisible(bool isVisible, int remainingTurns)
+        {
+            if (cooldownOverlayImage != null)
+            {
+                cooldownOverlayImage.gameObject.SetActive(isVisible);
+            }
+
+            if (cooldownOverlayText != null)
+            {
+                cooldownOverlayText.gameObject.SetActive(isVisible);
+                cooldownOverlayText.text = isVisible ? Mathf.Max(0, remainingTurns).ToString() : string.Empty;
+            }
         }
 
         IEnumerator PlayInvalidDropFeedbackRoutine()

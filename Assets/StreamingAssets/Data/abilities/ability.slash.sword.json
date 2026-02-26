@@ -3,7 +3,7 @@
   "id": "ability.slash.sword",
   "type": "Attack",
   "buildCost": 1,
-  "cooldown": 0,
+  "cooldown": 1,
   "power": 5,
   "nameLocKey": "ability.slash.sword_name",
   "descLocKey": "ability.slash.sword_desc",

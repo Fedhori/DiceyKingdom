@@ -16,7 +16,7 @@ namespace Game.Infrastructure.Data
 @"{
   ""schemaVersion"": 2,
   ""id"": ""duel.config"",
-  ""cooldownTickPerTurn"": -1,
+  ""cooldownTickPerTurn"": 1,
   ""powerResultMin"": 1,
   ""p0Rules"": {
     ""disallowBasePowerMutation"": true,

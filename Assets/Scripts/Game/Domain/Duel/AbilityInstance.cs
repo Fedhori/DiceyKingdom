@@ -13,7 +13,7 @@ namespace Game.Domain.Duel
         public string abilityDefId = string.Empty;
 
         public AbilityType abilityType;
-        public int cooldownTurns;
+        public int cooldownTurns = 1;
         public int cooldownRemaining;
         public int power;
         public int baseRoll;
@@ -31,9 +31,9 @@ namespace Game.Domain.Duel
                 errors.Add("instanceId is empty.");
             }
 
-            if (cooldownTurns < 0)
+            if (cooldownTurns < 1)
             {
-                errors.Add($"cooldownTurns({cooldownTurns}) is negative.");
+                errors.Add($"cooldownTurns({cooldownTurns}) must be greater than or equal to 1.");
             }
 
             if (cooldownRemaining < 0)

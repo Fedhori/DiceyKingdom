@@ -17,7 +17,7 @@ namespace Game.Domain.Duel
         public List<CombatState> combats = new();
         public Dictionary<string, AbilityInstance> abilitiesById = new();
         public List<string> loadoutAbilityIds = new();
-        public List<OpponentLoadoutEntry> opponentLoadoutEntries = new();
+        public List<string> opponentLoadoutAbilityIds = new();
 
         public DuelState()
         {
@@ -42,9 +42,9 @@ namespace Game.Domain.Duel
                 errors.Add("loadoutAbilityIds is null.");
             }
 
-            if (opponentLoadoutEntries == null)
+            if (opponentLoadoutAbilityIds == null)
             {
-                errors.Add("opponentLoadoutEntries is null.");
+                errors.Add("opponentLoadoutAbilityIds is null.");
             }
 
             if (errors.Count > 0)
@@ -68,10 +68,4 @@ namespace Game.Domain.Duel
         }
     }
 
-    [Serializable]
-    public sealed class OpponentLoadoutEntry
-    {
-        public string abilityDefId = string.Empty;
-        public int count;
-    }
 }

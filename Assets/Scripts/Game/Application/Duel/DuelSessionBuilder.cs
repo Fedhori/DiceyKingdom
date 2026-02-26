@@ -21,9 +21,11 @@ namespace Game.Application.Duel
     public sealed class DuelSessionBuilder
     {
         const int fixedCombatCount = 3;
+        const int defaultCombatSlotLimitPerSide = 6;
 
         readonly GameDatabase database;
         readonly System.Random random;
+        readonly DuelAbilityPlacementService placementService = new();
 
         public DuelSessionBuilder(GameDatabase database, System.Random random = null)
         {
@@ -76,6 +78,24 @@ namespace Game.Application.Duel
                 return false;
             }
 
+            int playerLoadoutCount = database.playerStart.startingLoadoutAbilityIds == null
+                ? 0
+                : database.playerStart.startingLoadoutAbilityIds.Count;
+            if (playerLoadoutCount > DuelAbilityPlacementService.MaxLoadoutAbilityCount)
+            {
+                failureMessage =
+                    $"player.start loadout count({playerLoadoutCount}) exceeds max({DuelAbilityPlacementService.MaxLoadoutAbilityCount}).";
+                return false;
+            }
+
+            int opponentLoadoutCount = CountEnemyLoadoutAbilityInstances(enemyDef);
+            if (opponentLoadoutCount > DuelAbilityPlacementService.MaxLoadoutAbilityCount)
+            {
+                failureMessage =
+                    $"enemy('{enemyDef.id}') loadout count({opponentLoadoutCount}) exceeds max({DuelAbilityPlacementService.MaxLoadoutAbilityCount}).";
+                return false;
+            }
+
             state = CreateInitialDuelState(enemyDef);
             return true;
         }
@@ -91,82 +111,28 @@ namespace Game.Application.Duel
 
             if (database.abilitiesById == null)
             {
-                int skipped = state.opponentLoadoutEntries == null ? 0 : state.opponentLoadoutEntries.Count;
+                int skipped = state.opponentLoadoutAbilityIds == null ? 0 : state.opponentLoadoutAbilityIds.Count;
                 Debug.LogWarning("[DuelSessionBuilder] Opponent deploy skipped: abilities table is missing.");
                 return new OpponentSetupBuildResult(0, skipped);
             }
 
             if (state.combats == null || state.combats.Count <= 0)
             {
-                int skipped = state.opponentLoadoutEntries == null ? 0 : state.opponentLoadoutEntries.Count;
+                int skipped = state.opponentLoadoutAbilityIds == null ? 0 : state.opponentLoadoutAbilityIds.Count;
                 Debug.LogWarning("[DuelSessionBuilder] Opponent deploy skipped: combat slots are missing.");
                 return new OpponentSetupBuildResult(0, skipped);
             }
 
-            RemoveCurrentOpponentAbilityInstances(state);
-
-            int deployedCount = 0;
-            int skippedCount = 0;
-
-            for (int i = 0; i < state.opponentLoadoutEntries.Count; i++)
-            {
-                OpponentLoadoutEntry loadoutEntry = state.opponentLoadoutEntries[i];
-                if (loadoutEntry == null)
-                {
-                    skippedCount += 1;
-                    Debug.LogWarning($"[DuelSessionBuilder] opponentLoadoutEntries[{i}] is null.");
-                    continue;
-                }
-
-                if (!database.abilitiesById.TryGetValue(loadoutEntry.abilityDefId, out AbilityDef abilityDef) ||
-                    abilityDef == null)
-                {
-                    skippedCount += Mathf.Max(1, loadoutEntry.count);
-                    Debug.LogWarning($"[DuelSessionBuilder] abilityDef('{loadoutEntry.abilityDefId}') is missing.");
-                    continue;
-                }
-
-                if (!abilityDef.TryGetAbilityType(out AbilityType abilityType))
-                {
-                    skippedCount += Mathf.Max(1, loadoutEntry.count);
-                    Debug.LogWarning(
-                        $"[DuelSessionBuilder] Invalid ability type '{abilityDef.type}' on '{abilityDef.id}'.");
-                    continue;
-                }
-
-                if (abilityType == AbilityType.Skill)
-                {
-                    skippedCount += Mathf.Max(0, loadoutEntry.count);
-                    continue;
-                }
-
-                int requestedCount = Mathf.Max(0, loadoutEntry.count);
-                for (int copyIndex = 0; copyIndex < requestedCount; copyIndex++)
-                {
-                    AbilityInstance abilityInstance = CreateAbilityInstance(abilityDef);
-                    state.abilitiesById[abilityInstance.instanceId] = abilityInstance;
-
-                    int combatIndex = random.Next(0, state.combats.Count);
-                    CombatState deployCombat = state.combats[combatIndex];
-                    if (deployCombat == null)
-                    {
-                        skippedCount += 1;
-                        Debug.LogWarning($"[DuelSessionBuilder] combats[{combatIndex}] is null.");
-                        continue;
-                    }
-
-                    deployCombat.EnsureInitialized();
-                    deployCombat.opponentAbilityIds.Add(abilityInstance.instanceId);
-                    deployedCount += 1;
-                }
-            }
-
-            return new OpponentSetupBuildResult(deployedCount, skippedCount);
+            DuelAutoDeployResult result = placementService.AutoDeployRandomFromLoadout(
+                state,
+                DuelSide.Opponent,
+                random);
+            return new OpponentSetupBuildResult(result.deployedCount, result.skippedCount);
         }
 
         DuelState CreateInitialDuelState(EnemyDef enemyDef)
         {
-            int? defaultSlotLimit = null;
+            int? defaultSlotLimit = defaultCombatSlotLimitPerSide;
             if (database.duelConfig != null &&
                 database.duelConfig.p0Rules != null &&
                 database.duelConfig.p0Rules.defaultSlotLimit.HasValue &&
@@ -186,12 +152,12 @@ namespace Game.Application.Duel
             };
 
             nextState.loadoutAbilityIds.Clear();
+            nextState.opponentLoadoutAbilityIds.Clear();
             nextState.abilitiesById.Clear();
-            nextState.opponentLoadoutEntries.Clear();
             nextState.combats.Clear();
 
             BuildCombatSlots(nextState, defaultSlotLimit);
-            BuildOpponentLoadoutEntries(nextState, enemyDef);
+            PopulateOpponentLoadoutFromEnemyDef(nextState, enemyDef);
             PopulateLoadoutFromPlayerStart(nextState);
 
             return nextState;
@@ -205,16 +171,17 @@ namespace Game.Application.Duel
             {
                 var combatState = new CombatState
                 {
-                    maxPlayerAssignments = defaultSlotLimit
+                    maxPlayerAssignments = defaultSlotLimit,
+                    maxOpponentAssignments = defaultSlotLimit
                 };
                 combatState.EnsureInitialized();
                 state.combats.Add(combatState);
             }
         }
 
-        static void BuildOpponentLoadoutEntries(DuelState state, EnemyDef enemyDef)
+        void PopulateOpponentLoadoutFromEnemyDef(DuelState state, EnemyDef enemyDef)
         {
-            state.opponentLoadoutEntries.Clear();
+            state.opponentLoadoutAbilityIds.Clear();
 
             if (enemyDef == null || enemyDef.abilityLoadout == null)
             {
@@ -229,11 +196,20 @@ namespace Game.Application.Duel
                     continue;
                 }
 
-                state.opponentLoadoutEntries.Add(new OpponentLoadoutEntry
+                if (!database.abilitiesById.TryGetValue(abilityRef.abilityId, out AbilityDef abilityDef) || abilityDef == null)
                 {
-                    abilityDefId = abilityRef.abilityId,
-                    count = abilityRef.count
-                });
+                    Debug.LogWarning(
+                        $"[DuelSessionBuilder] enemy('{enemyDef.id}') abilityLoadout[{loadoutIndex}] '{abilityRef.abilityId}' is missing.");
+                    continue;
+                }
+
+                int requestedCount = Mathf.Max(0, abilityRef.count);
+                for (int copyIndex = 0; copyIndex < requestedCount; copyIndex++)
+                {
+                    AbilityInstance abilityInstance = CreateAbilityInstance(abilityDef);
+                    state.abilitiesById[abilityInstance.instanceId] = abilityInstance;
+                    state.opponentLoadoutAbilityIds.Add(abilityInstance.instanceId);
+                }
             }
         }
 
@@ -282,7 +258,7 @@ namespace Game.Application.Duel
             {
                 abilityDefId = abilityDef.id,
                 abilityType = abilityType,
-                cooldownTurns = Mathf.Max(0, abilityDef.cooldown),
+                cooldownTurns = Mathf.Max(1, abilityDef.cooldown),
                 cooldownRemaining = 0,
                 power = resolvedPower,
                 baseRoll = 0,
@@ -293,35 +269,26 @@ namespace Game.Application.Duel
             return abilityInstance;
         }
 
-        static void RemoveCurrentOpponentAbilityInstances(DuelState state)
+        static int CountEnemyLoadoutAbilityInstances(EnemyDef enemyDef)
         {
-            if (state.combats == null || state.abilitiesById == null)
+            if (enemyDef == null || enemyDef.abilityLoadout == null)
             {
-                return;
+                return 0;
             }
 
-            for (int combatIndex = 0; combatIndex < state.combats.Count; combatIndex++)
+            int total = 0;
+            for (int i = 0; i < enemyDef.abilityLoadout.Count; i++)
             {
-                CombatState combat = state.combats[combatIndex];
-                if (combat == null)
+                SummonAbilityRefDef entry = enemyDef.abilityLoadout[i];
+                if (entry == null || entry.count <= 0)
                 {
                     continue;
                 }
 
-                combat.EnsureInitialized();
-                for (int i = 0; i < combat.opponentAbilityIds.Count; i++)
-                {
-                    string abilityId = combat.opponentAbilityIds[i];
-                    if (string.IsNullOrWhiteSpace(abilityId))
-                    {
-                        continue;
-                    }
-
-                    state.abilitiesById.Remove(abilityId);
-                }
-
-                combat.opponentAbilityIds.Clear();
+                total += entry.count;
             }
+
+            return total;
         }
     }
 }

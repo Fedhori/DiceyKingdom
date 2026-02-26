@@ -468,6 +468,20 @@ namespace Game.Application.Duel.Effects
                 }
             }
 
+            if (state.opponentLoadoutAbilityIds != null)
+            {
+                for (int i = 0; i < state.opponentLoadoutAbilityIds.Count; i++)
+                {
+                    TryAddContext(
+                        contexts,
+                        visitedAbilityIds,
+                        state,
+                        state.opponentLoadoutAbilityIds[i],
+                        false,
+                        -1);
+                }
+            }
+
             if (state.combats == null)
             {
                 return contexts;

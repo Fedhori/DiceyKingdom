@@ -6,6 +6,8 @@ namespace Game.Infrastructure.Data
 {
     public sealed class GameDataValidator
     {
+        const int maxLoadoutAbilityCount = 12;
+
         static readonly HashSet<string> allowedOpCodes = new(StringComparer.Ordinal)
         {
             nameof(DuelEffectOpCode.ModifyPowerResult),
@@ -82,6 +84,15 @@ namespace Game.Infrastructure.Data
         {
             if (database.duelConfig != null)
             {
+                if (database.duelConfig.cooldownTickPerTurn != 1)
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        database.duelConfigSourcePath,
+                        database.duelConfig.id,
+                        "cooldownTickPerTurn must be exactly 1.");
+                }
+
                 if (database.duelConfig.powerResultMin < 1)
                 {
                     report.AddError(
@@ -144,6 +155,15 @@ namespace Game.Infrastructure.Data
                 }
                 else
                 {
+                    if (startingLoadoutAbilityIds.Count > maxLoadoutAbilityCount)
+                    {
+                        report.AddError(
+                            GameDataErrorCode.InvalidValue,
+                            database.playerStartSourcePath,
+                            database.playerStart.id,
+                            $"startingLoadoutAbilityIds count({startingLoadoutAbilityIds.Count}) exceeds max({maxLoadoutAbilityCount}).");
+                    }
+
                     for (int i = 0; i < startingLoadoutAbilityIds.Count; i++)
                     {
                         string abilityId = startingLoadoutAbilityIds[i];
@@ -199,13 +219,13 @@ namespace Game.Infrastructure.Data
                         "buildCost must be greater than or equal to 0.");
                 }
 
-                if (def.cooldown < 0)
+                if (def.cooldown < 1)
                 {
                     report.AddError(
                         GameDataErrorCode.InvalidValue,
                         path,
                         id,
-                        "cooldown must be greater than or equal to 0.");
+                        "cooldown must be greater than or equal to 1.");
                 }
 
                 int resolvedPower = def.ResolvePower();
@@ -331,6 +351,27 @@ namespace Game.Infrastructure.Data
                             id,
                             $"abilityLoadout[{loadoutIndex}].count must be greater than or equal to 0.");
                     }
+                }
+
+                int totalCount = 0;
+                for (int loadoutIndex = 0; loadoutIndex < enemyDef.abilityLoadout.Count; loadoutIndex++)
+                {
+                    SummonAbilityRefDef abilityRef = enemyDef.abilityLoadout[loadoutIndex];
+                    if (abilityRef == null || abilityRef.count <= 0)
+                    {
+                        continue;
+                    }
+
+                    totalCount += abilityRef.count;
+                }
+
+                if (totalCount > maxLoadoutAbilityCount)
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        path,
+                        id,
+                        $"abilityLoadout total count({totalCount}) exceeds max({maxLoadoutAbilityCount}).");
                 }
             }
         }

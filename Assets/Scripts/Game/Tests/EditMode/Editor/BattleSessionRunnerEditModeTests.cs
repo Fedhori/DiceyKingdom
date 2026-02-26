@@ -132,7 +132,7 @@ namespace Game.Tests.EditMode
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
-                cooldown = 0,
+                cooldown = 1,
                 power = 3
             };
 
@@ -140,7 +140,7 @@ namespace Game.Tests.EditMode
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
-                cooldown = 0,
+                cooldown = 1,
                 power = 2
             };
 

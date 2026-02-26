@@ -14,7 +14,7 @@ namespace Game.Tests.EditMode
             Assert.NotNull(state.combats);
             Assert.NotNull(state.abilitiesById);
             Assert.NotNull(state.loadoutAbilityIds);
-            Assert.NotNull(state.opponentLoadoutEntries);
+            Assert.NotNull(state.opponentLoadoutAbilityIds);
         }
 
         [Test]

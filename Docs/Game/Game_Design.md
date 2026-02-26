@@ -43,13 +43,16 @@ flowchart TD
 ### 3.3 OpponentSetup (enemy deployment)
 
 - The enemy has an `abilityLoadout` (abilityId + count).
-- Each opponent ability instance is assigned to a random `combatIndex` in **0..2**.
-- The initial placement is uniform random (no “pattern” system).
+- Enemy and player abilities use the same runtime interaction rules.
+- Difference: enemy placement is driven by AI random assignment.
+- During OpponentSetup, deployable enemy abilities are assigned to random `combatIndex` in **0..2**.
+- “Deployable” means Attack type and `cooldownRemaining == 0`.
 
 ### 3.4 PlayerSetup (player deployment)
 
 - The player deploys abilities from Loadout into any Combat slot.
-- There is currently **no per-slot capacity limit** unless explicitly introduced later.
+- Each Combat slot has per-side assignment cap equal to visible slot count (currently **6**).
+- The same deployability rule is applied: Attack type and `cooldownRemaining == 0`.
 
 ### 3.5 Roll and resolution
 
@@ -61,6 +64,14 @@ Rules:
 
 - `PowerResultMin` is **1**.
 - There is no explicit upper bound for Power Result (unless introduced later).
+
+### 3.5.1 Cooldown
+
+- Abilities have cooldown turns.
+- Baseline cooldown value is **1** unless a specific ability defines another value.
+- At TurnEnd:
+  1. Existing cooldowns tick down by `1`.
+  2. Abilities used in the just-resolved turn set `cooldownRemaining = max(0, cooldownTurns - 1)`.
 
 ### 3.6 Win/Draw/Lose per slot and damage
 
@@ -115,4 +126,6 @@ Effects:
 - Combat slots are always exactly 3.
 - `combatIndex` is the only way to reference slots.
 - Enemy deployment is loadout-based random assignment.
+- Player and enemy ability interaction rules are symmetric (AI random assignment is the only behavior difference).
+- Per-side loadout max count is **12**.
 - Invalid data is not silently fixed (validation must be visible).

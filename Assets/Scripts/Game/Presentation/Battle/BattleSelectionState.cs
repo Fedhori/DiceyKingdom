@@ -7,12 +7,7 @@ namespace Game.Presentation.Battle
 {
     public sealed class BattleSelectionState
     {
-        enum AbilityLocationType
-        {
-            None = 0,
-            Loadout = 1,
-            Combat = 2
-        }
+        readonly DuelAbilityPlacementService placementService = new();
 
         public string SelectedAbilityId { get; private set; } = string.Empty;
         public int SelectedCombatIndex { get; private set; } = -1;
@@ -73,16 +68,20 @@ namespace Game.Presentation.Battle
                 return false;
             }
 
-            if (!TryFindPlayerAbilityLocation(duelState, abilityId, out AbilityLocationType locationType, out int combatIndex))
+            if (!placementService.TryFindAbilityLocation(
+                    duelState,
+                    abilityId,
+                    DuelSide.Player,
+                    out DuelAbilityLocation location,
+                    out failureMessage))
             {
-                failureMessage = $"abilityId({abilityId}) is not in player controllable zones.";
                 return false;
             }
 
             SelectedAbilityId = abilityId;
-            if (locationType == AbilityLocationType.Combat)
+            if (location.isCombat)
             {
-                SelectedCombatIndex = combatIndex;
+                SelectedCombatIndex = location.combatIndex;
             }
 
             return true;
@@ -123,7 +122,17 @@ namespace Game.Presentation.Battle
                 return false;
             }
 
-            if (!TryFindPlayerAbilityLocation(duelState, abilityId, out AbilityLocationType locationType, out int combatIndex))
+            if (ability.cooldownRemaining > 0)
+            {
+                return false;
+            }
+
+            if (!placementService.TryFindAbilityLocation(
+                    duelState,
+                    abilityId,
+                    DuelSide.Player,
+                    out DuelAbilityLocation location,
+                    out _))
             {
                 return false;
             }
@@ -133,9 +142,9 @@ namespace Game.Presentation.Battle
                 : abilityId;
 
             if (!string.IsNullOrWhiteSpace(SelectedAbilityId) &&
-                locationType == AbilityLocationType.Combat)
+                location.isCombat)
             {
-                SelectedCombatIndex = combatIndex;
+                SelectedCombatIndex = location.combatIndex;
             }
 
             return true;
@@ -162,11 +171,19 @@ namespace Game.Presentation.Battle
                 return false;
             }
 
-            return TryMovePlayerAbilityToCombatInternal(
+            if (!placementService.TryMoveAbilityToCombat(
                 duelState,
                 abilityId,
                 targetCombatIndex,
-                out failureMessage);
+                DuelSide.Player,
+                out failureMessage))
+            {
+                return false;
+            }
+
+            SelectedAbilityId = abilityId;
+            SelectedCombatIndex = targetCombatIndex;
+            return true;
         }
 
         public bool TryReturnPlayerAbilityToLoadout(
@@ -189,201 +206,18 @@ namespace Game.Presentation.Battle
                 return false;
             }
 
-            if (duelState == null)
+            if (!placementService.TryReturnAbilityToLoadout(
+                    duelState,
+                    abilityId,
+                    DuelSide.Player,
+                    out failureMessage))
             {
-                failureMessage = "duel state is null.";
                 return false;
             }
 
-            duelState.EnsureInitialized();
-
-            if (string.IsNullOrWhiteSpace(abilityId))
-            {
-                failureMessage = "abilityId is empty.";
-                return false;
-            }
-
-            if (!duelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) || ability == null)
-            {
-                failureMessage = $"ability({abilityId}) does not exist.";
-                return false;
-            }
-
-            if (ability.abilityType != AbilityType.Attack)
-            {
-                failureMessage = $"only Attack type ability can be returned to loadout (current: {ability.abilityType}).";
-                return false;
-            }
-
-            if (!TryFindPlayerAbilityLocation(duelState, abilityId, out AbilityLocationType sourceType, out int sourceCombatIndex))
-            {
-                failureMessage = $"ability({abilityId}) is not in player controllable zones.";
-                return false;
-            }
-
-            if (sourceType != AbilityLocationType.Combat)
-            {
-                failureMessage = $"ability({abilityId}) is not deployed in combat.";
-                return false;
-            }
-
-            if (duelState.combats == null || sourceCombatIndex < 0 || sourceCombatIndex >= duelState.combats.Count)
-            {
-                failureMessage = $"source combat({sourceCombatIndex}) is out of range.";
-                return false;
-            }
-
-            CombatState sourceCombat = duelState.combats[sourceCombatIndex];
-            if (sourceCombat == null)
-            {
-                failureMessage = $"source combat({sourceCombatIndex}) is null.";
-                return false;
-            }
-
-            sourceCombat.EnsureInitialized();
-            sourceCombat.playerAbilityIds.Remove(abilityId);
-
-            if (duelState.loadoutAbilityIds == null)
-            {
-                duelState.loadoutAbilityIds = new System.Collections.Generic.List<string>();
-            }
-
-            duelState.loadoutAbilityIds.Add(abilityId);
             SelectedAbilityId = string.Empty;
             SelectedCombatIndex = -1;
             return true;
-        }
-
-        bool TryMovePlayerAbilityToCombatInternal(
-            DuelState duelState,
-            string abilityId,
-            int targetCombatIndex,
-            out string failureMessage)
-        {
-            failureMessage = string.Empty;
-
-            if (duelState == null)
-            {
-                failureMessage = "duel state is null.";
-                return false;
-            }
-
-            duelState.EnsureInitialized();
-
-            if (string.IsNullOrWhiteSpace(abilityId))
-            {
-                failureMessage = "abilityId is empty.";
-                return false;
-            }
-
-            if (targetCombatIndex < 0 ||
-                duelState.combats == null ||
-                targetCombatIndex >= duelState.combats.Count)
-            {
-                failureMessage = $"target combat({targetCombatIndex}) is out of range.";
-                return false;
-            }
-
-            if (!duelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) || ability == null)
-            {
-                failureMessage = $"ability({abilityId}) does not exist.";
-                return false;
-            }
-
-            if (ability.abilityType != AbilityType.Attack)
-            {
-                failureMessage = $"only Attack type ability can be deployed to combat (current: {ability.abilityType}).";
-                return false;
-            }
-
-            if (!TryFindPlayerAbilityLocation(duelState, abilityId, out AbilityLocationType sourceType, out int sourceCombatIndex))
-            {
-                failureMessage = $"ability({abilityId}) is not in player controllable zones.";
-                return false;
-            }
-
-            CombatState targetCombat = duelState.combats[targetCombatIndex];
-            if (targetCombat == null)
-            {
-                failureMessage = $"combat({targetCombatIndex}) is null.";
-                return false;
-            }
-
-            targetCombat.EnsureInitialized();
-            if (!targetCombat.playerAbilityIds.Contains(abilityId) &&
-                targetCombat.maxPlayerAssignments.HasValue &&
-                targetCombat.maxPlayerAssignments.Value > 0 &&
-                targetCombat.playerAbilityIds.Count >= targetCombat.maxPlayerAssignments.Value)
-            {
-                failureMessage = $"target combat({targetCombatIndex}) maxPlayerAssignments exceeded.";
-                return false;
-            }
-
-            if (sourceType == AbilityLocationType.Loadout)
-            {
-                duelState.loadoutAbilityIds.Remove(abilityId);
-            }
-            else
-            {
-                CombatState sourceCombat = duelState.combats[sourceCombatIndex];
-                sourceCombat?.playerAbilityIds.Remove(abilityId);
-            }
-
-            if (!targetCombat.playerAbilityIds.Contains(abilityId))
-            {
-                targetCombat.playerAbilityIds.Add(abilityId);
-            }
-
-            SelectedAbilityId = abilityId;
-            SelectedCombatIndex = targetCombatIndex;
-            return true;
-        }
-
-        static bool TryFindPlayerAbilityLocation(
-            DuelState duelState,
-            string abilityId,
-            out AbilityLocationType locationType,
-            out int combatIndex)
-        {
-            locationType = AbilityLocationType.None;
-            combatIndex = -1;
-
-            if (duelState == null || string.IsNullOrWhiteSpace(abilityId))
-            {
-                return false;
-            }
-
-            if (duelState.loadoutAbilityIds != null && duelState.loadoutAbilityIds.Contains(abilityId))
-            {
-                locationType = AbilityLocationType.Loadout;
-                return true;
-            }
-
-            if (duelState.combats == null)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < duelState.combats.Count; i++)
-            {
-                CombatState combat = duelState.combats[i];
-                if (combat == null)
-                {
-                    continue;
-                }
-
-                combat.EnsureInitialized();
-                if (!combat.playerAbilityIds.Contains(abilityId))
-                {
-                    continue;
-                }
-
-                locationType = AbilityLocationType.Combat;
-                combatIndex = i;
-                return true;
-            }
-
-            return false;
         }
     }
 }

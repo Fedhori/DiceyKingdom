@@ -6,6 +6,10 @@
     {
       "abilityId": "ability.slash.sword",
       "count": 3
+    },
+    {
+      "abilityId": "ability.crossbow",
+      "count": 1
     }
   ]
 }

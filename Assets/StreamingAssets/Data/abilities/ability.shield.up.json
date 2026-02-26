@@ -3,7 +3,7 @@
   "id": "ability.shield.up",
   "type": "Attack",
   "buildCost": 1,
-  "cooldown": 0,
+  "cooldown": 1,
   "power": 10,
   "nameLocKey": "ability.shield.up_name",
   "descLocKey": "ability.shield.up_desc",

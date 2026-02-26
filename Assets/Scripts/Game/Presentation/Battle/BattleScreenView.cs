@@ -415,9 +415,10 @@ namespace Game.Presentation.Battle
                     !duelState.isDuelEnded &&
                     phaseRunner != null &&
                     phaseRunner.currentPhase == DuelPhase.PlayerSetup &&
-                    ability.abilityType == AbilityType.Attack;
+                    ability.abilityType == AbilityType.Attack &&
+                    ability.cooldownRemaining <= 0;
                 bool isSelected = string.Equals(selectedAbilityId, abilityId, StringComparison.Ordinal);
-                BattleAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def, phaseRunner);
+                BattleAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def);
 
                 card.Bind(
                     bindData,
@@ -590,8 +591,9 @@ namespace Game.Presentation.Battle
                     !duelState.isDuelEnded &&
                     phaseRunner != null &&
                     phaseRunner.currentPhase == DuelPhase.PlayerSetup &&
-                    ability.abilityType == AbilityType.Attack;
-                BattleAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def, phaseRunner);
+                    ability.abilityType == AbilityType.Attack &&
+                    ability.cooldownRemaining <= 0;
+                BattleAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def);
 
                 BattleAbilityCardView.InteractionContext context = isPlayerSide
                     ? BattleAbilityCardView.InteractionContext.Combat(combatIndex)
@@ -956,98 +958,28 @@ namespace Game.Presentation.Battle
         {
             var cards = new List<BattleAbilityCardView.BindData>();
 
-            if (duelState?.opponentLoadoutEntries == null || database?.abilitiesById == null)
+            if (duelState?.opponentLoadoutAbilityIds == null || database?.abilitiesById == null)
             {
                 return cards;
             }
 
-            Dictionary<string, int> deployedCountsByDefId = BuildOpponentDeployedCountsByDefId(duelState);
-
-            for (int i = 0; i < duelState.opponentLoadoutEntries.Count; i++)
+            for (int i = 0; i < duelState.opponentLoadoutAbilityIds.Count; i++)
             {
-                OpponentLoadoutEntry entry = duelState.opponentLoadoutEntries[i];
-                if (entry == null || string.IsNullOrWhiteSpace(entry.abilityDefId))
+                string abilityId = duelState.opponentLoadoutAbilityIds[i];
+                if (string.IsNullOrWhiteSpace(abilityId))
                 {
                     continue;
                 }
 
-                if (!database.abilitiesById.TryGetValue(entry.abilityDefId, out AbilityDef def) || def == null)
-                {
-                    UnityEngine.Debug.LogWarning($"[BattleScreenView] Missing opponent ability def: {entry.abilityDefId}");
-                    continue;
-                }
-
-                AbilityType abilityType = AbilityType.Attack;
-                if (!def.TryGetAbilityType(out abilityType))
-                {
-                    abilityType = AbilityType.Attack;
-                }
-
-                int deployedCount = deployedCountsByDefId.TryGetValue(entry.abilityDefId, out int value)
-                    ? value
-                    : 0;
-                int count = Mathf.Max(0, entry.count - deployedCount);
-                for (int copyIndex = 0; copyIndex < count; copyIndex++)
-                {
-                    string pseudoInstanceId = $"{entry.abilityDefId}#{copyIndex}";
-                    cards.Add(new BattleAbilityCardView.BindData(
-                        pseudoInstanceId,
-                        def.id,
-                        BuildAbilityTooltip(def),
-                        abilityType,
-                        Mathf.Max(0, def.ResolvePower()),
-                        abilityType == AbilityType.Attack));
-                }
-            }
-
-            return cards
-                .OrderBy(bindData => bindData.abilityType == AbilityType.Attack ? 0 : 1)
-                .ThenBy(bindData => bindData.title, StringComparer.Ordinal)
-                .ToList();
-        }
-
-        static Dictionary<string, int> BuildOpponentDeployedCountsByDefId(DuelState duelState)
-        {
-            var counts = new Dictionary<string, int>(StringComparer.Ordinal);
-            if (duelState?.combats == null || duelState.abilitiesById == null)
-            {
-                return counts;
-            }
-
-            for (int combatIndex = 0; combatIndex < duelState.combats.Count; combatIndex++)
-            {
-                CombatState combat = duelState.combats[combatIndex];
-                if (combat == null)
+                if (!TryResolveAbilityAndDef(duelState, database, abilityId, out AbilityInstance ability, out AbilityDef def))
                 {
                     continue;
                 }
 
-                combat.EnsureInitialized();
-                for (int i = 0; i < combat.opponentAbilityIds.Count; i++)
-                {
-                    string abilityInstanceId = combat.opponentAbilityIds[i];
-                    if (string.IsNullOrWhiteSpace(abilityInstanceId))
-                    {
-                        continue;
-                    }
-
-                    if (!duelState.abilitiesById.TryGetValue(abilityInstanceId, out AbilityInstance ability) ||
-                        ability == null ||
-                        string.IsNullOrWhiteSpace(ability.abilityDefId))
-                    {
-                        continue;
-                    }
-
-                    if (!counts.ContainsKey(ability.abilityDefId))
-                    {
-                        counts[ability.abilityDefId] = 0;
-                    }
-
-                    counts[ability.abilityDefId] += 1;
-                }
+                cards.Add(CreateBindData(abilityId, ability, def));
             }
 
-            return counts;
+            return cards;
         }
 
         static bool TryResolveAbilityAndDef(
@@ -1088,8 +1020,7 @@ namespace Game.Presentation.Battle
         static BattleAbilityCardView.BindData CreateBindData(
             string abilityId,
             AbilityInstance ability,
-            AbilityDef def,
-            DuelPhaseRunner phaseRunner)
+            AbilityDef def)
         {
             int displayPower = Mathf.Max(0, ability.power);
 
@@ -1099,7 +1030,9 @@ namespace Game.Presentation.Battle
                 BuildAbilityTooltip(def),
                 ability.abilityType,
                 displayPower,
-                ability.abilityType == AbilityType.Attack);
+                ability.abilityType == AbilityType.Attack,
+                ability.cooldownTurns,
+                ability.cooldownRemaining);
         }
 
         static string BuildAbilityTooltip(AbilityDef def)

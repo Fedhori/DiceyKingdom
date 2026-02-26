@@ -20,7 +20,7 @@ namespace Game.Infrastructure.Data
         public int buildCost;
 
         [JsonProperty("cooldown", Required = Required.Default)]
-        public int cooldown;
+        public int cooldown = 1;
 
         [JsonProperty("power", Required = Required.Always)]
         public int power;

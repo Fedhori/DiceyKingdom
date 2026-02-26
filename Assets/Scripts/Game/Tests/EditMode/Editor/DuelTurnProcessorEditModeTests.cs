@@ -48,7 +48,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void TryResolveAllCombats_AppliesTurnEndCooldown()
+        public void TryResolveAllCombats_AppliesUsedAbilityCooldownAfterTurnEndTick()
         {
             GameDatabase database = CreateDatabase();
 
@@ -61,7 +61,7 @@ namespace Game.Tests.EditMode
 
             state.abilitiesById["p0"] = CreateAbility("ability.player", 2);
             state.abilitiesById["p0"].cooldownTurns = 2;
-            state.abilitiesById["p0"].cooldownRemaining = 2;
+            state.abilitiesById["p0"].cooldownRemaining = 0;
             state.abilitiesById["e0"] = CreateAbility("ability.opponent", 2);
             state.combats[0].playerAbilityIds.Add("p0");
             state.combats[0].opponentAbilityIds.Add("e0");
@@ -80,6 +80,80 @@ namespace Game.Tests.EditMode
             Assert.IsTrue(success, failureMessage);
             Assert.AreEqual(1, state.abilitiesById["p0"].cooldownRemaining);
             Assert.AreEqual(1, result.cooldownUpdatedCount);
+        }
+
+        [Test]
+        public void TryResolveAllCombats_AppliesTurnEndTickToIdleLoadoutAbilities()
+        {
+            GameDatabase database = CreateDatabase();
+
+            var state = new DuelState
+            {
+                playerHealth = 5,
+                opponentHealth = 5
+            };
+            AddCombats(state, 1);
+
+            state.abilitiesById["p0"] = CreateAbility("ability.player", 2);
+            state.abilitiesById["p0"].cooldownTurns = 2;
+            state.abilitiesById["p0"].cooldownRemaining = 0;
+            state.abilitiesById["p1"] = CreateAbility("ability.player", 2);
+            state.abilitiesById["p1"].cooldownTurns = 2;
+            state.abilitiesById["p1"].cooldownRemaining = 2;
+            state.loadoutAbilityIds.Add("p1");
+            state.abilitiesById["e0"] = CreateAbility("ability.opponent", 2);
+            state.combats[0].playerAbilityIds.Add("p0");
+            state.combats[0].opponentAbilityIds.Add("e0");
+
+            var runner = new DuelPhaseRunner(state);
+            var processor = new DuelTurnProcessor(database);
+
+            AdvanceToResolve(runner);
+
+            bool success = processor.TryResolveAllCombats(
+                state,
+                runner,
+                out DuelCombatResolveResult result,
+                out string failureMessage);
+
+            Assert.IsTrue(success, failureMessage);
+            Assert.AreEqual(1, state.abilitiesById["p0"].cooldownRemaining);
+            Assert.AreEqual(1, state.abilitiesById["p1"].cooldownRemaining);
+            Assert.GreaterOrEqual(result.cooldownUpdatedCount, 2);
+        }
+
+        [Test]
+        public void TryResolveAllCombats_CooldownOne_IsAvailableOnNextTurn()
+        {
+            GameDatabase database = CreateDatabase();
+
+            var state = new DuelState
+            {
+                playerHealth = 5,
+                opponentHealth = 5
+            };
+            AddCombats(state, 1);
+
+            state.abilitiesById["p0"] = CreateAbility("ability.player", 2);
+            state.abilitiesById["p0"].cooldownTurns = 1;
+            state.abilitiesById["p0"].cooldownRemaining = 0;
+            state.abilitiesById["e0"] = CreateAbility("ability.opponent", 2);
+            state.combats[0].playerAbilityIds.Add("p0");
+            state.combats[0].opponentAbilityIds.Add("e0");
+
+            var runner = new DuelPhaseRunner(state);
+            var processor = new DuelTurnProcessor(database);
+
+            AdvanceToResolve(runner);
+
+            bool success = processor.TryResolveAllCombats(
+                state,
+                runner,
+                out DuelCombatResolveResult _,
+                out string failureMessage);
+
+            Assert.IsTrue(success, failureMessage);
+            Assert.AreEqual(0, state.abilitiesById["p0"].cooldownRemaining);
         }
 
         [Test]
@@ -198,7 +272,7 @@ namespace Game.Tests.EditMode
             {
                 duelConfig = new DuelConfigDef
                 {
-                    cooldownTickPerTurn = -1,
+                    cooldownTickPerTurn = 1,
                     powerResultMin = 1,
                     p0Rules = new P0RulesDef
                     {
@@ -215,7 +289,7 @@ namespace Game.Tests.EditMode
                 type = AbilityType.Attack.ToString(),
                 power = 1,
                 buildCost = 0,
-                cooldown = 0,
+                cooldown = 1,
                 effects = new List<TimedEffectDef>()
             };
 
@@ -228,7 +302,7 @@ namespace Game.Tests.EditMode
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
-                cooldown = 0,
+                cooldown = 1,
                 power = 1,
                 effects = new List<TimedEffectDef>
                 {
@@ -260,7 +334,7 @@ namespace Game.Tests.EditMode
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 1,
-                cooldown = 0,
+                cooldown = 1,
                 power = 10,
                 effects = new List<TimedEffectDef>
                 {
@@ -292,6 +366,8 @@ namespace Game.Tests.EditMode
             {
                 abilityDefId = abilityDefId,
                 abilityType = AbilityType.Attack,
+                cooldownTurns = 1,
+                cooldownRemaining = 0,
                 power = 6,
                 baseRoll = powerResult,
                 powerResult = powerResult
