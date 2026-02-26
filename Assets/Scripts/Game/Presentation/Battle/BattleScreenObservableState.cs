@@ -163,7 +163,7 @@ namespace Game.Presentation.Battle
         }
     }
 
-    public sealed class BattleScreenObservableState
+    public class DuelScreenObservableState
     {
         readonly ObservableValue<BattleTopBarState> topBarState = new(new BattleTopBarState(0));
         readonly ObservableValue<BattleHealthState> healthState = new(new BattleHealthState(0, 1, 0, 1));
@@ -188,8 +188,8 @@ namespace Game.Presentation.Battle
         public IReadOnlyObservableValue<BattleRevealState> RevealState => revealState;
 
         public void Publish(
-            BattleSessionRunner sessionRunner,
-            BattleSelectionState selectionState,
+            DuelSessionRunner sessionRunner,
+            DuelSelectionState selectionState,
             bool isFlowRunning,
             bool publishBoard = true)
         {

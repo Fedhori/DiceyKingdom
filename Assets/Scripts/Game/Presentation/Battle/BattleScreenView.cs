@@ -12,7 +12,7 @@ using UnityEngine.UI;
 
 namespace Game.Presentation.Battle
 {
-    public sealed class BattleScreenView
+    public class DuelScreenView
     {
         const int expectedCombatCount = 3;
         const int maxLoadoutCardCount = 12;
@@ -46,7 +46,7 @@ namespace Game.Presentation.Battle
         int cachedMaxPlayerHealth = 1;
         int cachedMaxOpponentHealth = 1;
 
-        public BattleScreenView(
+        public DuelScreenView(
             Image backgroundImage,
             Image topBarImage,
             TMP_Text turnText,

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Game.Presentation.Battle
 {
-    public sealed class BattleSessionRunner
+    public class DuelSessionRunner
     {
         DuelSessionBuilder sessionBuilder;
         DuelTurnProcessor turnProcessor;

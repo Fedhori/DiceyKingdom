@@ -5,7 +5,7 @@ using Game.Infrastructure.Data;
 
 namespace Game.Presentation.Battle
 {
-    public sealed class BattleSelectionState
+    public class DuelSelectionState
     {
         readonly DuelAbilityPlacementService placementService = new();
 

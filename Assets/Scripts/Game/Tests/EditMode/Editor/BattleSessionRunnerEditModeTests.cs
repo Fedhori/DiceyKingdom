@@ -14,7 +14,7 @@ namespace Game.Tests.EditMode
         public void TryInitialize_WithAdvanceToPlayerSetup_EntersPlayerSetupAndDeploysOpponent()
         {
             GameDatabase database = CreateDatabase(startingHonor: 1);
-            var sessionRunner = new BattleSessionRunner();
+            var sessionRunner = new DuelSessionRunner();
 
             bool success = sessionRunner.TryInitialize(
                 database,
@@ -44,7 +44,7 @@ namespace Game.Tests.EditMode
         public void TryEnsureReadyForCombatStart_FromReset_AutoAdvancesToPlayerSetup()
         {
             GameDatabase database = CreateDatabase(startingHonor: 1);
-            var sessionRunner = new BattleSessionRunner();
+            var sessionRunner = new DuelSessionRunner();
 
             Assert.IsTrue(sessionRunner.TryInitialize(
                 database,
@@ -64,7 +64,7 @@ namespace Game.Tests.EditMode
         public void TryEnterOpponentSetup_FailsWhenCurrentPhaseIsNotReset()
         {
             GameDatabase database = CreateDatabase(startingHonor: 1);
-            var sessionRunner = new BattleSessionRunner();
+            var sessionRunner = new DuelSessionRunner();
 
             Assert.IsTrue(sessionRunner.TryInitialize(
                 database,
@@ -86,7 +86,7 @@ namespace Game.Tests.EditMode
         public void TrySurrender_InPlayerSetupWithHonor_SucceedsAndConsumesHonor()
         {
             GameDatabase database = CreateDatabase(startingHonor: 1);
-            var sessionRunner = new BattleSessionRunner();
+            var sessionRunner = new DuelSessionRunner();
 
             Assert.IsTrue(sessionRunner.TryInitialize(
                 database,

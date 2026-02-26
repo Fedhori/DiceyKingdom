@@ -37,14 +37,14 @@ namespace Game.Presentation.Battle
         [SerializeField] Image tooltipBackgroundImage;
         [SerializeField] BattleAnimationConfig animationConfig;
 
-        readonly BattleSessionRunner sessionRunner = new();
-        readonly BattleSelectionState selectionState = new();
-        readonly BattleScreenObservableState observableState = new();
-        readonly BattleAbilityIconCache abilityIconCache = new();
+        readonly DuelSessionRunner sessionRunner = new();
+        readonly DuelSelectionState selectionState = new();
+        readonly DuelScreenObservableState observableState = new();
+        readonly DuelAbilityIconCache abilityIconCache = new();
         readonly List<IDisposable> uiSubscriptions = new();
         readonly System.Random revealRandom = new();
 
-        BattleScreenView view;
+        DuelScreenView view;
         bool isFlowRunning;
         BattleAnimationConfig runtimeAnimationConfig;
         bool isCardDragActive;
@@ -115,7 +115,7 @@ namespace Game.Presentation.Battle
 
         void RebuildView()
         {
-            view = new BattleScreenView(
+            view = new DuelScreenView(
                 backgroundImage,
                 topBarImage,
                 turnText,

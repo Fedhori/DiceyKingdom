@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Game.Presentation.Battle
 {
-    public sealed class BattleAbilityIconCache : IDisposable
+    public class DuelAbilityIconCache : IDisposable
     {
         readonly Dictionary<string, Sprite> spritesByIconId = new(StringComparer.Ordinal);
         readonly HashSet<string> missingLogGuard = new(StringComparer.Ordinal);
