@@ -1,23 +1,9 @@
-using UnityEngine;
+using System;
 
 namespace Game.Presentation.Battle
 {
-    [CreateAssetMenu(
-        fileName = "DuelAnimationConfig",
-        menuName = "Game/Duel/Duel Animation Config",
-        order = 1000)]
-    public sealed class BattleAnimationConfig : ScriptableObject
+    [Obsolete("Use DuelAnimationConfig instead.")]
+    public sealed class BattleAnimationConfig : DuelAnimationConfig
     {
-        [Min(0f)]
-        public float rollDuration = 0.35f;
-
-        [Min(0f)]
-        public float cardRollDuration = 0.5f;
-
-        [Min(0f)]
-        public float resolvePerCombatDuration = 0.55f;
-
-        [Min(0f)]
-        public float resolveCombatGap = 0.15f;
     }
 }

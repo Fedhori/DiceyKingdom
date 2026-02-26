@@ -32,15 +32,15 @@ namespace Game.Presentation.Battle
         readonly Button surrenderButton;
         readonly RectTransform enemyLoadoutRow;
         readonly RectTransform playerLoadoutRow;
-        readonly BattleCombatZoneView[] combatZones;
+        readonly DuelCombatZoneView[] combatZones;
         readonly TMP_Text tooltipText;
         readonly Image tooltipBackgroundImage;
         readonly Func<string, Sprite> resolveAbilityIcon;
 
-        readonly List<BattleAbilityCardView> pooledCardViews = new();
-        readonly List<BattleAbilityCardView> enemyLoadoutCardViews = new();
-        readonly List<BattleAbilityCardView> playerLoadoutCardViews = new();
-        readonly Dictionary<string, BattleAbilityCardView> visibleCardsByInstanceId =
+        readonly List<DuelAbilityCardView> pooledCardViews = new();
+        readonly List<DuelAbilityCardView> enemyLoadoutCardViews = new();
+        readonly List<DuelAbilityCardView> playerLoadoutCardViews = new();
+        readonly Dictionary<string, DuelAbilityCardView> visibleCardsByInstanceId =
             new(StringComparer.Ordinal);
         BattleRevealState currentRevealState = BattleRevealState.Empty;
         int cachedMaxPlayerHealth = 1;
@@ -56,8 +56,8 @@ namespace Game.Presentation.Battle
             Button surrenderButton,
             RectTransform enemyLoadoutRow,
             RectTransform playerLoadoutRow,
-            BattleCombatZoneView[] combatZones,
-            BattleAbilityCardView _,
+            DuelCombatZoneView[] combatZones,
+            DuelAbilityCardView _,
             TMP_Text tooltipText,
             Image tooltipBackgroundImage,
             Func<string, Sprite> resolveAbilityIcon)
@@ -71,7 +71,7 @@ namespace Game.Presentation.Battle
             this.surrenderButton = surrenderButton;
             this.enemyLoadoutRow = enemyLoadoutRow;
             this.playerLoadoutRow = playerLoadoutRow;
-            this.combatZones = combatZones ?? Array.Empty<BattleCombatZoneView>();
+            this.combatZones = combatZones ?? Array.Empty<DuelCombatZoneView>();
             this.tooltipText = tooltipText;
             this.tooltipBackgroundImage = tooltipBackgroundImage;
             this.resolveAbilityIcon = resolveAbilityIcon;
@@ -81,7 +81,7 @@ namespace Game.Presentation.Battle
         {
             for (int i = 0; i < combatZones.Length; i++)
             {
-                BattleCombatZoneView zone = combatZones[i];
+                DuelCombatZoneView zone = combatZones[i];
                 if (zone == null)
                 {
                     continue;
@@ -139,10 +139,10 @@ namespace Game.Presentation.Battle
         public void RenderBoard(
             BattleBoardState state,
             Action<string> onPlayerAbilityClicked,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragStart,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragMove,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragEnd,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext> onCardRightClick)
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragStart,
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragMove,
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragEnd,
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext> onCardRightClick)
         {
             CacheCardPools();
             HideAllCardViews();
@@ -182,7 +182,7 @@ namespace Game.Presentation.Battle
             ApplyRevealState(revealState);
         }
 
-        public IEnumerator AnimateRoll(BattleAnimationConfig animationConfig)
+        public IEnumerator AnimateRoll(DuelAnimationConfig animationConfig)
         {
             float duration = animationConfig == null ? 0f : animationConfig.rollDuration;
             if (duration <= 0f)
@@ -197,13 +197,13 @@ namespace Game.Presentation.Battle
 
                 for (int zoneIndex = 0; zoneIndex < combatZones.Length; zoneIndex++)
                 {
-                    BattleCombatZoneView zone = combatZones[zoneIndex];
+                    DuelCombatZoneView zone = combatZones[zoneIndex];
                     zone?.SetRollPulse(normalized);
                 }
 
                 for (int i = 0; i < pooledCardViews.Count; i++)
                 {
-                    BattleAbilityCardView card = pooledCardViews[i];
+                    DuelAbilityCardView card = pooledCardViews[i];
                     if (card == null || !card.gameObject.activeInHierarchy)
                     {
                         continue;
@@ -218,13 +218,13 @@ namespace Game.Presentation.Battle
 
             for (int zoneIndex = 0; zoneIndex < combatZones.Length; zoneIndex++)
             {
-                BattleCombatZoneView zone = combatZones[zoneIndex];
+                DuelCombatZoneView zone = combatZones[zoneIndex];
                 zone?.RestoreBaseVisual();
             }
 
             for (int i = 0; i < pooledCardViews.Count; i++)
             {
-                BattleAbilityCardView card = pooledCardViews[i];
+                DuelAbilityCardView card = pooledCardViews[i];
                 if (card == null || !card.gameObject.activeInHierarchy)
                 {
                     continue;
@@ -236,7 +236,7 @@ namespace Game.Presentation.Battle
 
         public IEnumerator AnimateResolve(
             DuelCombatResolveResult resolveResult,
-            BattleAnimationConfig animationConfig)
+            DuelAnimationConfig animationConfig)
         {
             if (resolveResult == null || animationConfig == null)
             {
@@ -253,7 +253,7 @@ namespace Game.Presentation.Battle
                     continue;
                 }
 
-                BattleCombatZoneView zone = combatZones[step.combatIndex];
+                DuelCombatZoneView zone = combatZones[step.combatIndex];
                 if (zone == null)
                 {
                     continue;
@@ -271,14 +271,14 @@ namespace Game.Presentation.Battle
         public IEnumerator AnimateResolveSingleCombat(
             int combatIndex,
             DuelOutcome outcome,
-            BattleAnimationConfig animationConfig)
+            DuelAnimationConfig animationConfig)
         {
             if (animationConfig == null || combatIndex < 0 || combatIndex >= combatZones.Length)
             {
                 yield break;
             }
 
-            BattleCombatZoneView zone = combatZones[combatIndex];
+            DuelCombatZoneView zone = combatZones[combatIndex];
             if (zone == null)
             {
                 yield break;
@@ -335,17 +335,17 @@ namespace Game.Presentation.Battle
             string selectedAbilityId,
             bool isFlowRunning,
             Action<string> onPlayerAbilityClicked,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragStart,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragMove,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragEnd,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext> onCardRightClick)
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragStart,
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragMove,
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragEnd,
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext> onCardRightClick)
         {
             if (duelState == null || database == null)
             {
                 return;
             }
 
-            List<BattleAbilityCardView.BindData> enemyCards = ExpandOpponentLoadoutCards(duelState, database);
+            List<DuelAbilityCardView.BindData> enemyCards = ExpandOpponentLoadoutCards(duelState, database);
             if (enemyCards.Count > maxLoadoutCardCount)
             {
                 UnityEngine.Debug.LogWarning(
@@ -355,7 +355,7 @@ namespace Game.Presentation.Battle
             int enemyVisibleCount = Mathf.Min(maxLoadoutCardCount, enemyCards.Count);
             for (int i = 0; i < enemyLoadoutCardViews.Count; i++)
             {
-                BattleAbilityCardView card = enemyLoadoutCardViews[i];
+                DuelAbilityCardView card = enemyLoadoutCardViews[i];
                 if (card == null)
                 {
                     continue;
@@ -375,7 +375,7 @@ namespace Game.Presentation.Battle
                     null,
                     ShowTooltip,
                     HideTooltip,
-                    BattleAbilityCardView.InteractionContext.None,
+                    DuelAbilityCardView.InteractionContext.None,
                     null,
                     null,
                     null,
@@ -394,7 +394,7 @@ namespace Game.Presentation.Battle
             int playerVisibleCount = Mathf.Min(maxLoadoutCardCount, playerLoadoutAbilityIds.Count);
             for (int i = 0; i < playerLoadoutCardViews.Count; i++)
             {
-                BattleAbilityCardView card = playerLoadoutCardViews[i];
+                DuelAbilityCardView card = playerLoadoutCardViews[i];
                 if (card == null)
                 {
                     continue;
@@ -421,7 +421,7 @@ namespace Game.Presentation.Battle
                     ability.abilityType == AbilityType.Attack &&
                     ability.cooldownRemaining <= 0;
                 bool isSelected = string.Equals(selectedAbilityId, abilityId, StringComparison.Ordinal);
-                BattleAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def);
+                DuelAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def);
 
                 card.Bind(
                     bindData,
@@ -430,7 +430,7 @@ namespace Game.Presentation.Battle
                     onPlayerAbilityClicked,
                     ShowTooltip,
                     HideTooltip,
-                    BattleAbilityCardView.InteractionContext.Loadout,
+                    DuelAbilityCardView.InteractionContext.Loadout,
                     onCardDragStart,
                     onCardDragMove,
                     onCardDragEnd,
@@ -445,10 +445,10 @@ namespace Game.Presentation.Battle
             string selectedAbilityId,
             bool isFlowRunning,
             Action<string> onPlayerAbilityClicked,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragStart,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragMove,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragEnd,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext> onCardRightClick)
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragStart,
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragMove,
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragEnd,
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext> onCardRightClick)
         {
             if (combatZones == null || combatZones.Length <= 0)
             {
@@ -457,7 +457,7 @@ namespace Game.Presentation.Battle
 
             for (int zoneIndex = 0; zoneIndex < combatZones.Length; zoneIndex++)
             {
-                BattleCombatZoneView zone = combatZones[zoneIndex];
+                DuelCombatZoneView zone = combatZones[zoneIndex];
                 if (zone == null)
                 {
                     continue;
@@ -547,10 +547,10 @@ namespace Game.Presentation.Battle
             bool isPlayerSide,
             int combatIndex,
             Action<string> onClick,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragStart,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragMove,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext, Vector2, Camera> onCardDragEnd,
-            Action<BattleAbilityCardView, string, BattleAbilityCardView.InteractionContext> onCardRightClick)
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragStart,
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragMove,
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext, Vector2, Camera> onCardDragEnd,
+            Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext> onCardRightClick)
         {
             if (slots == null)
             {
@@ -567,7 +567,7 @@ namespace Game.Presentation.Battle
             for (int slotIndex = 0; slotIndex < slots.Count; slotIndex++)
             {
                 RectTransform slot = slots[slotIndex];
-                BattleAbilityCardView card = ResolveCardInSlot(slot);
+                DuelAbilityCardView card = ResolveCardInSlot(slot);
                 if (card == null)
                 {
                     continue;
@@ -596,11 +596,11 @@ namespace Game.Presentation.Battle
                     phaseRunner.currentPhase == DuelPhase.PlayerSetup &&
                     ability.abilityType == AbilityType.Attack &&
                     ability.cooldownRemaining <= 0;
-                BattleAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def);
+                DuelAbilityCardView.BindData bindData = CreateBindData(abilityId, ability, def);
 
-                BattleAbilityCardView.InteractionContext context = isPlayerSide
-                    ? BattleAbilityCardView.InteractionContext.Combat(combatIndex)
-                    : BattleAbilityCardView.InteractionContext.None;
+                DuelAbilityCardView.InteractionContext context = isPlayerSide
+                    ? DuelAbilityCardView.InteractionContext.Combat(combatIndex)
+                    : DuelAbilityCardView.InteractionContext.None;
                 card.Bind(
                     bindData,
                     isSelected,
@@ -673,7 +673,7 @@ namespace Game.Presentation.Battle
             visibleCardsByInstanceId.Clear();
             for (int i = 0; i < pooledCardViews.Count; i++)
             {
-                BattleAbilityCardView card = pooledCardViews[i];
+                DuelAbilityCardView card = pooledCardViews[i];
                 if (card == null || !card.gameObject.activeInHierarchy)
                 {
                     continue;
@@ -703,7 +703,7 @@ namespace Game.Presentation.Battle
 
         void ApplyRollOverlayState(BattleRevealState revealState)
         {
-            foreach (KeyValuePair<string, BattleAbilityCardView> pair in visibleCardsByInstanceId)
+            foreach (KeyValuePair<string, DuelAbilityCardView> pair in visibleCardsByInstanceId)
             {
                 pair.Value?.HideRollOverlay();
             }
@@ -713,7 +713,7 @@ namespace Game.Presentation.Battle
                 return;
             }
 
-            foreach (KeyValuePair<string, BattleAbilityCardView> pair in visibleCardsByInstanceId)
+            foreach (KeyValuePair<string, DuelAbilityCardView> pair in visibleCardsByInstanceId)
             {
                 if (pair.Value == null)
                 {
@@ -751,7 +751,7 @@ namespace Game.Presentation.Battle
 
             for (int zoneIndex = 0; zoneIndex < combatZones.Length; zoneIndex++)
             {
-                BattleCombatZoneView zone = combatZones[zoneIndex];
+                DuelCombatZoneView zone = combatZones[zoneIndex];
                 if (zone == null)
                 {
                     continue;
@@ -780,7 +780,7 @@ namespace Game.Presentation.Battle
 
             for (int zoneIndex = 0; zoneIndex < combatZones.Length; zoneIndex++)
             {
-                BattleCombatZoneView zone = combatZones[zoneIndex];
+                DuelCombatZoneView zone = combatZones[zoneIndex];
                 if (zone == null)
                 {
                     continue;
@@ -797,7 +797,7 @@ namespace Game.Presentation.Battle
         {
             for (int i = 0; i < pooledCardViews.Count; i++)
             {
-                BattleAbilityCardView card = pooledCardViews[i];
+                DuelAbilityCardView card = pooledCardViews[i];
                 if (card == null)
                 {
                     continue;
@@ -807,7 +807,7 @@ namespace Game.Presentation.Battle
             }
         }
 
-        static void CollectCardViews(RectTransform root, List<BattleAbilityCardView> buffer)
+        static void CollectCardViews(RectTransform root, List<DuelAbilityCardView> buffer)
         {
             buffer.Clear();
             if (root == null)
@@ -815,14 +815,14 @@ namespace Game.Presentation.Battle
                 return;
             }
 
-            IEnumerable<BattleAbilityCardView> cards = root
-                .GetComponentsInChildren<BattleAbilityCardView>(true)
+            IEnumerable<DuelAbilityCardView> cards = root
+                .GetComponentsInChildren<DuelAbilityCardView>(true)
                 .OrderBy(card => card == null || card.transform.parent == null
                     ? int.MaxValue
                     : card.transform.parent.GetSiblingIndex())
                 .ThenBy(card => card == null ? int.MaxValue : card.transform.GetSiblingIndex());
 
-            foreach (BattleAbilityCardView card in cards)
+            foreach (DuelAbilityCardView card in cards)
             {
                 if (card == null)
                 {
@@ -852,7 +852,7 @@ namespace Game.Presentation.Battle
             }
         }
 
-        void AddCardsToPool(IReadOnlyList<BattleAbilityCardView> cards)
+        void AddCardsToPool(IReadOnlyList<DuelAbilityCardView> cards)
         {
             if (cards == null)
             {
@@ -878,7 +878,7 @@ namespace Game.Presentation.Battle
             }
         }
 
-        void AddCardToPool(BattleAbilityCardView card)
+        void AddCardToPool(DuelAbilityCardView card)
         {
             if (card == null || pooledCardViews.Contains(card))
             {
@@ -897,7 +897,7 @@ namespace Game.Presentation.Battle
 
             for (int i = 0; i < slots.Count; i++)
             {
-                BattleAbilityCardView card = ResolveCardInSlot(slots[i]);
+                DuelAbilityCardView card = ResolveCardInSlot(slots[i]);
                 if (card != null)
                 {
                     card.gameObject.SetActive(false);
@@ -923,14 +923,14 @@ namespace Game.Presentation.Battle
             return true;
         }
 
-        static BattleAbilityCardView ResolveCardInSlot(RectTransform slot)
+        static DuelAbilityCardView ResolveCardInSlot(RectTransform slot)
         {
             if (slot == null)
             {
                 return null;
             }
 
-            return slot.GetComponentInChildren<BattleAbilityCardView>(true);
+            return slot.GetComponentInChildren<DuelAbilityCardView>(true);
         }
 
         static string BuildHeartText(int currentHealth, int maxHealth)
@@ -955,11 +955,11 @@ namespace Game.Presentation.Battle
             return builder.ToString();
         }
 
-        List<BattleAbilityCardView.BindData> ExpandOpponentLoadoutCards(
+        List<DuelAbilityCardView.BindData> ExpandOpponentLoadoutCards(
             DuelState duelState,
             GameDatabase database)
         {
-            var cards = new List<BattleAbilityCardView.BindData>();
+            var cards = new List<DuelAbilityCardView.BindData>();
 
             if (duelState?.opponentLoadoutAbilityIds == null || database?.abilitiesById == null)
             {
@@ -1020,7 +1020,7 @@ namespace Game.Presentation.Battle
             return true;
         }
 
-        BattleAbilityCardView.BindData CreateBindData(
+        DuelAbilityCardView.BindData CreateBindData(
             string abilityId,
             AbilityInstance ability,
             AbilityDef def)
@@ -1030,7 +1030,7 @@ namespace Game.Presentation.Battle
                 ? null
                 : resolveAbilityIcon.Invoke(def.iconId);
 
-            return new BattleAbilityCardView.BindData(
+            return new DuelAbilityCardView.BindData(
                 abilityId,
                 def.id,
                 BuildAbilityTooltip(def),
@@ -1134,3 +1134,4 @@ namespace Game.Presentation.Battle
         }
     }
 }
+
