@@ -309,9 +309,9 @@ namespace Game.Application.Duel
 
             if (state.abilitiesById == null)
             {
-                state.abilitiesById = new Dictionary<string, AbilityInstance>();
-                Debug.LogWarning("[DuelTurnProcessor] abilitiesById was null and has been auto-initialized.");
-                return 0;
+                const string message = "[DuelTurnProcessor] Invalid state: abilitiesById is null.";
+                Debug.LogError(message);
+                throw new InvalidOperationException(message);
             }
 
             int cooldownUpdatedCount = 0;

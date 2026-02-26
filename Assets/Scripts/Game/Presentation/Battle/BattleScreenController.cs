@@ -53,7 +53,12 @@ namespace Game.Presentation.Battle
 
         void Awake()
         {
-            CollectCombatZonesIfNeeded();
+            if (!ValidateCombatZonesSerialized("Awake"))
+            {
+                enabled = false;
+                return;
+            }
+
             RebuildView();
             view.ApplyStaticVisuals();
             WireCallbacks();
@@ -69,14 +74,22 @@ namespace Game.Presentation.Battle
                 return;
             }
 
-            CollectCombatZonesIfNeeded();
+            if (!ValidateCombatZonesSerialized("OnEnable"))
+            {
+                return;
+            }
+
             RebuildView();
             view.ApplyStaticVisuals();
         }
 
         void OnValidate()
         {
-            CollectCombatZonesIfNeeded();
+            if (!ValidateCombatZonesSerialized("OnValidate"))
+            {
+                return;
+            }
+
             RebuildView();
             view.ApplyStaticVisuals();
         }
@@ -116,32 +129,22 @@ namespace Game.Presentation.Battle
                 tooltipBackgroundImage);
         }
 
-        void CollectCombatZonesIfNeeded()
+        bool ValidateCombatZonesSerialized(string stage)
         {
             bool hasValidZones = combatZones != null &&
                 combatZones.Length == 3 &&
                 combatZones.All(zone => zone != null);
             if (hasValidZones)
             {
-                return;
+                return true;
             }
 
-            BattleCombatZoneView[] found = GetComponentsInChildren<BattleCombatZoneView>(true)
-                .OrderBy(zone =>
-                {
-                    if (zone == null || zone.transform == null)
-                    {
-                        return int.MaxValue;
-                    }
-
-                    Transform parent = zone.transform.parent;
-                    return parent == null ? int.MaxValue : parent.GetSiblingIndex();
-                })
-                .ThenBy(zone => zone == null || zone.transform == null ? int.MaxValue : zone.transform.GetSiblingIndex())
-                .Take(3)
-                .ToArray();
-
-            combatZones = found;
+            int length = combatZones == null ? 0 : combatZones.Length;
+            Debug.LogError(
+                $"[BattleScreenController] Invalid combatZones at {stage}. " +
+                $"Expected 3 assigned zones, actual length={length}. Auto-assignment is disabled.",
+                this);
+            return false;
         }
 
         void WireCallbacks()

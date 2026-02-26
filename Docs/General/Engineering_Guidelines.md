@@ -2,7 +2,7 @@
 
 **Role:** Repository-wide engineering rules and conventions (coding style, safety rules, and change-management).
 
-**Last updated:** 2026-02-25
+**Last updated:** 2026-02-26
 
 ## 1) Code style
 
@@ -77,6 +77,12 @@ Minimum rule:
 - Do not silently fix invalid data.
 - If auto-correction is unavoidable, emit at least a warning and keep the correction auditable.
 - Validation failures should be visible and actionable.
+
+### 6.1 Fail-fast policy (Ensure/Cache patterns)
+
+- Do not use `Ensure*`, `Cache*IfNeeded`, or similar patterns to silently repair invalid state at runtime.
+- Validation code must not assign missing references or recreate null collections behind the scenes.
+- For invalid state, emit an **error log** with clear context and fail fast (e.g., stop initialization or throw) instead of continuing with hidden corrections.
 
 ## 7) UI rules
 

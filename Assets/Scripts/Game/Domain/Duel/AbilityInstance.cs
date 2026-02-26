@@ -24,36 +24,41 @@ namespace Game.Domain.Duel
 
         public void EnsureInitialized()
         {
+            var errors = new List<string>();
+
             if (string.IsNullOrWhiteSpace(instanceId))
             {
-                instanceId = Guid.NewGuid().ToString("N");
-                Debug.LogWarning("[AbilityInstance] instanceId was empty and has been regenerated.");
+                errors.Add("instanceId is empty.");
             }
 
             if (cooldownTurns < 0)
             {
-                cooldownTurns = 0;
-                Debug.LogWarning("[AbilityInstance] cooldownTurns was negative and has been clamped to 0.");
+                errors.Add($"cooldownTurns({cooldownTurns}) is negative.");
             }
 
             if (cooldownRemaining < 0)
             {
-                cooldownRemaining = 0;
-                Debug.LogWarning("[AbilityInstance] cooldownRemaining was negative and has been clamped to 0.");
+                errors.Add($"cooldownRemaining({cooldownRemaining}) is negative.");
             }
 
             if (powerModifiers == null)
             {
-                powerModifiers = new List<NumericModifier>();
-                Debug.LogWarning("[AbilityInstance] powerModifiers was null and has been auto-initialized.");
+                errors.Add("powerModifiers is null.");
             }
 
             if (powerResultModifiers == null)
             {
-                powerResultModifiers = new List<NumericModifier>();
-                Debug.LogWarning("[AbilityInstance] powerResultModifiers was null and has been auto-initialized.");
+                errors.Add("powerResultModifiers is null.");
             }
 
+            if (errors.Count == 0)
+            {
+                return;
+            }
+
+            string message = $"[AbilityInstance] Invalid state: {string.Join(" ", errors)}";
+            Debug.LogError(message);
+            throw new InvalidOperationException(message);
         }
     }
 }

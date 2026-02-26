@@ -46,7 +46,12 @@ namespace Game.Presentation.Battle
 
         void Awake()
         {
-            CacheReferencesIfNeeded();
+            if (!ValidateRequiredReferences("Awake"))
+            {
+                enabled = false;
+                return;
+            }
+
             EnsureRowsAndSlots();
             ApplyStaticVisuals();
 
@@ -67,50 +72,61 @@ namespace Game.Presentation.Battle
 
         void OnValidate()
         {
-            CacheReferencesIfNeeded();
+            ValidateRequiredReferences("OnValidate");
         }
 
-        void CacheReferencesIfNeeded()
+        bool ValidateRequiredReferences(string stage)
         {
+            var missing = new List<string>();
             if (zoneButton == null)
             {
-                zoneButton = GetComponent<Button>();
+                missing.Add(nameof(zoneButton));
             }
 
             if (zoneBackgroundImage == null)
             {
-                zoneBackgroundImage = GetComponent<Image>();
+                missing.Add(nameof(zoneBackgroundImage));
             }
 
             if (zoneBorderOutline == null)
             {
-                zoneBorderOutline = GetComponent<Outline>();
+                missing.Add(nameof(zoneBorderOutline));
             }
 
             if (enemySlotsRow == null)
             {
-                enemySlotsRow = ResolveRect("EnemySlotsRow");
+                missing.Add(nameof(enemySlotsRow));
             }
 
             if (playerSlotsRow == null)
             {
-                playerSlotsRow = ResolveRect("PlayerSlotsRow");
+                missing.Add(nameof(playerSlotsRow));
             }
 
             if (enemyTotalText == null)
             {
-                enemyTotalText = ResolveText("EnemyTotalText");
+                missing.Add(nameof(enemyTotalText));
             }
 
             if (playerTotalText == null)
             {
-                playerTotalText = ResolveText("PlayerTotalText");
+                missing.Add(nameof(playerTotalText));
             }
 
             if (dividerImage == null)
             {
-                dividerImage = ResolveImage("MiddleDivider");
+                missing.Add(nameof(dividerImage));
             }
+
+            if (missing.Count == 0)
+            {
+                return true;
+            }
+
+            Debug.LogError(
+                $"[BattleCombatZoneView] Missing serialized references at {stage} on '{name}': {string.Join(", ", missing)}",
+                this);
+            return false;
         }
 
         public void SetCombatIndex(int index)
@@ -282,47 +298,5 @@ namespace Game.Presentation.Battle
             clickHandler?.Invoke(combatIndex);
         }
 
-        RectTransform ResolveRect(string childName)
-        {
-            Transform child = transform.Find(childName);
-            if (child is RectTransform rect)
-            {
-                return rect;
-            }
-
-            return null;
-        }
-
-        Image ResolveImage(string childName)
-        {
-            Transform child = transform.Find(childName);
-            if (child == null)
-            {
-                return null;
-            }
-
-            if (child.TryGetComponent(out Image image))
-            {
-                return image;
-            }
-
-            return null;
-        }
-
-        TMP_Text ResolveText(string childName)
-        {
-            Transform child = transform.Find(childName);
-            if (child == null)
-            {
-                return null;
-            }
-
-            if (child.TryGetComponent(out TMP_Text text))
-            {
-                return text;
-            }
-
-            return null;
-        }
     }
 }

@@ -19,17 +19,25 @@ namespace Game.Domain.Duel
 
         public void EnsureInitialized()
         {
+            var errors = new List<string>();
             if (playerAbilityIds == null)
             {
-                playerAbilityIds = new List<string>();
-                Debug.LogWarning("[CombatState] playerAbilityIds was null and has been auto-initialized.");
+                errors.Add("playerAbilityIds is null.");
             }
 
             if (opponentAbilityIds == null)
             {
-                opponentAbilityIds = new List<string>();
-                Debug.LogWarning("[CombatState] opponentAbilityIds was null and has been auto-initialized.");
+                errors.Add("opponentAbilityIds is null.");
             }
+
+            if (errors.Count == 0)
+            {
+                return;
+            }
+
+            string message = $"[CombatState] Invalid state: {string.Join(" ", errors)}";
+            Debug.LogError(message);
+            throw new InvalidOperationException(message);
         }
     }
 }

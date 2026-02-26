@@ -26,36 +26,41 @@ namespace Game.Domain.Duel
 
         public void EnsureInitialized()
         {
+            var errors = new List<string>();
             if (combats == null)
             {
-                combats = new List<CombatState>();
-                Debug.LogWarning("[DuelState] combats was null and has been auto-initialized.");
+                errors.Add("combats is null.");
             }
 
             if (abilitiesById == null)
             {
-                abilitiesById = new Dictionary<string, AbilityInstance>();
-                Debug.LogWarning("[DuelState] abilitiesById was null and has been auto-initialized.");
+                errors.Add("abilitiesById is null.");
             }
 
             if (loadoutAbilityIds == null)
             {
-                loadoutAbilityIds = new List<string>();
-                Debug.LogWarning("[DuelState] loadoutAbilityIds was null and has been auto-initialized.");
+                errors.Add("loadoutAbilityIds is null.");
             }
 
             if (opponentLoadoutEntries == null)
             {
-                opponentLoadoutEntries = new List<OpponentLoadoutEntry>();
-                Debug.LogWarning("[DuelState] opponentLoadoutEntries was null and has been auto-initialized.");
+                errors.Add("opponentLoadoutEntries is null.");
+            }
+
+            if (errors.Count > 0)
+            {
+                string message = $"[DuelState] Invalid state: {string.Join(" ", errors)}";
+                Debug.LogError(message);
+                throw new InvalidOperationException(message);
             }
 
             for (int i = 0; i < combats.Count; i++)
             {
                 if (combats[i] == null)
                 {
-                    combats[i] = new CombatState();
-                    Debug.LogWarning($"[DuelState] combats[{i}] was null and has been replaced.");
+                    string message = $"[DuelState] Invalid state: combats[{i}] is null.";
+                    Debug.LogError(message);
+                    throw new InvalidOperationException(message);
                 }
 
                 combats[i].EnsureInitialized();

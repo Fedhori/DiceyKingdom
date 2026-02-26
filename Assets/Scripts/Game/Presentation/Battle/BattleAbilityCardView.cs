@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Game.Infrastructure.Data;
 using TMPro;
 using UnityEngine;
@@ -78,8 +79,6 @@ namespace Game.Presentation.Battle
         static readonly Color defaultIconFill = Colors.Primitive.Bone300;
         static readonly Color defaultPowerBadgeBackground = Colors.Semantic.SurfaceSecondary;
         static readonly Color defaultPowerText = Colors.Semantic.TextPrimary;
-        static readonly Color defaultRollOverlayText = Colors.Semantic.TextPrimary;
-        static readonly Color finalRollOverlayText = Colors.Semantic.StatePositive;
         static readonly Color defaultAttackBorder = Colors.Semantic.StateDanger;
         static readonly Color defaultSkillBorder = Colors.Semantic.StateInfo;
         static readonly Color defaultDisabledOverlay = Colors.Semantic.DisabledTint;
@@ -119,13 +118,18 @@ namespace Game.Presentation.Battle
 
         void Awake()
         {
-            CacheReferencesIfNeeded();
+            if (!ValidateRequiredReferences("Awake"))
+            {
+                enabled = false;
+                return;
+            }
+
             HideRollOverlay();
         }
 
         void OnValidate()
         {
-            CacheReferencesIfNeeded();
+            ValidateRequiredReferences("OnValidate");
             if (rollOverlayText != null && !UnityEngine.Application.isPlaying)
             {
                 rollOverlayText.gameObject.SetActive(false);
@@ -362,8 +366,8 @@ namespace Game.Presentation.Battle
                 return;
             }
 
+            _ = isFinal;
             rollOverlayText.text = value.ToString();
-            rollOverlayText.color = isFinal ? finalRollOverlayText : defaultRollOverlayText;
             rollOverlayText.gameObject.SetActive(true);
         }
 
@@ -393,38 +397,6 @@ namespace Game.Presentation.Battle
             clickHandler?.Invoke(instanceId);
         }
 
-        Image ResolveImage(string childName)
-        {
-            Transform child = transform.Find(childName);
-            if (child == null)
-            {
-                return null;
-            }
-
-            if (child.TryGetComponent(out Image image))
-            {
-                return image;
-            }
-
-            return null;
-        }
-
-        TMP_Text ResolveText(string childName)
-        {
-            Transform child = transform.Find(childName);
-            if (child == null)
-            {
-                return null;
-            }
-
-            if (child.TryGetComponent(out TMP_Text text))
-            {
-                return text;
-            }
-
-            return null;
-        }
-
         bool CanStartDrag(PointerEventData eventData)
         {
             if (eventData == null ||
@@ -449,47 +421,58 @@ namespace Game.Presentation.Battle
             return true;
         }
 
-        void CacheReferencesIfNeeded()
+        bool ValidateRequiredReferences(string stage)
         {
+            var missing = new List<string>();
             if (clickButton == null)
             {
-                clickButton = GetComponent<Button>();
+                missing.Add(nameof(clickButton));
             }
 
             if (cardBackgroundImage == null)
             {
-                cardBackgroundImage = GetComponent<Image>();
+                missing.Add(nameof(cardBackgroundImage));
             }
 
             if (iconImage == null)
             {
-                iconImage = ResolveImage("Icon");
+                missing.Add(nameof(iconImage));
             }
 
             if (powerBadgeImage == null)
             {
-                powerBadgeImage = ResolveImage("PowerBadge");
+                missing.Add(nameof(powerBadgeImage));
             }
 
             if (powerBadgeText == null)
             {
-                powerBadgeText = ResolveText("PowerText");
+                missing.Add(nameof(powerBadgeText));
             }
 
             if (rollOverlayText == null)
             {
-                rollOverlayText = ResolveText("RollOverlayText");
+                missing.Add(nameof(rollOverlayText));
             }
 
             if (borderOutline == null)
             {
-                borderOutline = GetComponent<Outline>();
+                missing.Add(nameof(borderOutline));
             }
 
             if (disabledOverlayImage == null)
             {
-                disabledOverlayImage = ResolveImage("DisabledOverlay");
+                missing.Add(nameof(disabledOverlayImage));
             }
+
+            if (missing.Count == 0)
+            {
+                return true;
+            }
+
+            Debug.LogError(
+                $"[BattleAbilityCardView] Missing serialized references at {stage} on '{name}': {string.Join(", ", missing)}",
+                this);
+            return false;
         }
 
         void ApplyBackgroundColorForCurrentState()
