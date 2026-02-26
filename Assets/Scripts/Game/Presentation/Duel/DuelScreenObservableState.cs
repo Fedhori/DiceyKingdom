@@ -213,7 +213,8 @@ namespace Game.Presentation.Duel
             bool canCombatStart = !isFlowRunning &&
                 duelState != null &&
                 phaseRunner != null &&
-                !duelState.isDuelEnded;
+                !duelState.isDuelEnded &&
+                phaseRunner.currentPhase == DuelPhase.PlayerSetup;
             bool canSurrender = !isFlowRunning &&
                 duelState != null &&
                 phaseRunner != null &&

@@ -19,6 +19,12 @@ namespace Game.Presentation.Duel
 
         [Min(0f)]
         public float resolveCombatGap = 0.15f;
+
+        [Min(0f)]
+        public float opponentDeployCardDuration = 2.0f;
+
+        [Min(0f)]
+        public float opponentDeployCardGap = 0.5f;
     }
 }
 

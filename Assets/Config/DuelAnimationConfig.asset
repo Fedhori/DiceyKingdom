@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65cf27b519f016149a5e7a4b0f3116cc, type: 3}
+  m_Name: DuelAnimationConfig
+  m_EditorClassIdentifier: Game.Runtime::Game.Presentation.Duel.DuelAnimationConfig
+  rollDuration: 0.35
+  cardRollDuration: 0.5
+  resolvePerCombatDuration: 0.55
+  resolveCombatGap: 0.15
+  opponentDeployCardDuration: 0.5
+  opponentDeployCardGap: 0.1

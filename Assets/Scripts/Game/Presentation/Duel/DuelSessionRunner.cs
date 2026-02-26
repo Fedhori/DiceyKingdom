@@ -112,6 +112,69 @@ namespace Game.Presentation.Duel
             return true;
         }
 
+        public bool TryPrepareOpponentSetupForCurrentTurn(
+            out OpponentSetupBuildResult deployPlan,
+            out string failureMessage)
+        {
+            deployPlan = new OpponentSetupBuildResult(0, 0);
+            failureMessage = string.Empty;
+
+            if (!TryValidateStarted(out failureMessage))
+            {
+                return false;
+            }
+
+            if (DuelState.isDuelEnded)
+            {
+                failureMessage = "duel already ended.";
+                return false;
+            }
+
+            if (PhaseRunner.currentPhase == DuelPhase.Reset)
+            {
+                if (!PhaseRunner.AdvanceToNextPhase())
+                {
+                    failureMessage = $"failed to enter OpponentSetup ({PhaseRunner.LastFailureReason}).";
+                    return false;
+                }
+            }
+
+            if (PhaseRunner.currentPhase != DuelPhase.OpponentSetup)
+            {
+                failureMessage = $"current phase is {PhaseRunner.currentPhase}, required phase is {DuelPhase.OpponentSetup}.";
+                return false;
+            }
+
+            deployPlan = sessionBuilder.BuildOpponentDeployPlan(DuelState);
+            return true;
+        }
+
+        public bool TryApplyOpponentDeployStep(
+            DuelOpponentDeployStep step,
+            out string failureMessage)
+        {
+            failureMessage = string.Empty;
+
+            if (!TryValidateStarted(out failureMessage))
+            {
+                return false;
+            }
+
+            if (PhaseRunner.currentPhase != DuelPhase.OpponentSetup)
+            {
+                failureMessage = $"current phase is {PhaseRunner.currentPhase}, required phase is {DuelPhase.OpponentSetup}.";
+                return false;
+            }
+
+            if (!sessionBuilder.TryApplyOpponentDeployStep(DuelState, step, out failureMessage))
+            {
+                return false;
+            }
+
+            ApplyDeployTimedEffectsForSingleAbility(step.abilityId);
+            return true;
+        }
+
         public bool TryEnterPlayerSetup(out string failureMessage)
         {
             failureMessage = string.Empty;
@@ -130,6 +193,30 @@ namespace Game.Presentation.Duel
             if (!PhaseRunner.AdvanceToNextPhase())
             {
                 failureMessage = $"failed to enter PlayerSetup ({PhaseRunner.LastFailureReason}).";
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool TryValidatePlayerSetupForCombatStart(out string failureMessage)
+        {
+            failureMessage = string.Empty;
+
+            if (!TryValidateStarted(out failureMessage))
+            {
+                return false;
+            }
+
+            if (DuelState.isDuelEnded)
+            {
+                failureMessage = "duel already ended.";
+                return false;
+            }
+
+            if (PhaseRunner.currentPhase != DuelPhase.PlayerSetup)
+            {
+                failureMessage = $"current phase is {PhaseRunner.currentPhase}, required phase is {DuelPhase.PlayerSetup}.";
                 return false;
             }
 
@@ -175,35 +262,32 @@ namespace Game.Presentation.Duel
                 return false;
             }
 
-            if (PhaseRunner.currentPhase == DuelPhase.Reset)
+            if (PhaseRunner.currentPhase == DuelPhase.PlayerSetup)
             {
-                if (!PhaseRunner.AdvanceToNextPhase())
+                return true;
+            }
+
+            if (!TryPrepareOpponentSetupForCurrentTurn(out OpponentSetupBuildResult deployPlan, out failureMessage))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < deployPlan.steps.Count; i++)
+            {
+                if (!TryApplyOpponentDeployStep(deployPlan.steps[i], out string applyFailure))
                 {
-                    failureMessage = $"failed to enter OpponentSetup ({PhaseRunner.LastFailureReason}).";
+                    failureMessage = $"failed to apply opponent deploy step[{i}] ({applyFailure}).";
                     return false;
                 }
             }
 
-            if (PhaseRunner.currentPhase == DuelPhase.OpponentSetup)
+            if (deployPlan.skippedCount > 0)
             {
-                OpponentSetupBuildResult deployResult = sessionBuilder.AutoDeployOpponentCombat(DuelState);
-                ApplyDeployTimedEffects(deployResult.deployedAbilityIds);
-                if (deployResult.skippedCount > 0)
-                {
-                    UnityEngine.Debug.LogWarning(
-                        $"[DuelSessionRunner] Opponent deploy skipped abilities: {deployResult.skippedCount}");
-                }
-
-                if (!PhaseRunner.AdvanceToNextPhase())
-                {
-                    failureMessage = $"failed to enter PlayerSetup ({PhaseRunner.LastFailureReason}).";
-                    return false;
-                }
+                Debug.LogWarning($"[DuelSessionRunner] Opponent deploy skipped abilities: {deployPlan.skippedCount}");
             }
 
-            if (PhaseRunner.currentPhase != DuelPhase.PlayerSetup)
+            if (!TryEnterPlayerSetup(out failureMessage))
             {
-                failureMessage = $"phase is {PhaseRunner.currentPhase}, expected {DuelPhase.PlayerSetup}.";
                 return false;
             }
 
@@ -307,6 +391,19 @@ namespace Game.Presentation.Duel
             return true;
         }
 
+        void ApplyDeployTimedEffectsForSingleAbility(string abilityId)
+        {
+            if (string.IsNullOrWhiteSpace(abilityId))
+            {
+                return;
+            }
+
+            singleAbilityBuffer.Clear();
+            singleAbilityBuffer.Add(abilityId);
+            ApplyDeployTimedEffects(singleAbilityBuffer);
+            singleAbilityBuffer.Clear();
+        }
+
         void ApplyDeployTimedEffects(IReadOnlyCollection<string> deployedAbilityIds)
         {
             if (!IsInitialized || deployedAbilityIds == null || deployedAbilityIds.Count <= 0)
@@ -321,4 +418,3 @@ namespace Game.Presentation.Duel
         }
     }
 }
-

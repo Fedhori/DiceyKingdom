@@ -84,6 +84,45 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
+        public void TryPrepareOpponentSetupForCurrentTurn_BuildsPlanWithoutImmediateMutation()
+        {
+            GameDatabase database = CreateDatabase(startingHonor: 1);
+            var sessionRunner = new DuelSessionRunner();
+
+            Assert.IsTrue(sessionRunner.TryInitialize(
+                database,
+                "enemy.test",
+                advanceToPlayerSetup: false,
+                out string initializeFailure),
+                initializeFailure);
+            Assert.AreEqual(DuelPhase.Reset, sessionRunner.PhaseRunner.currentPhase);
+
+            bool prepared = sessionRunner.TryPrepareOpponentSetupForCurrentTurn(
+                out OpponentSetupBuildResult plan,
+                out string prepareFailure);
+
+            Assert.IsTrue(prepared, prepareFailure);
+            Assert.AreEqual(DuelPhase.OpponentSetup, sessionRunner.PhaseRunner.currentPhase);
+            Assert.GreaterOrEqual(plan.steps.Count, 1);
+            Assert.IsTrue(sessionRunner.DuelState.opponentLoadoutAbilityIds.Count >= 1);
+
+            bool applied = sessionRunner.TryApplyOpponentDeployStep(plan.steps[0], out string applyFailure);
+            Assert.IsTrue(applied, applyFailure);
+
+            int deployedCount = sessionRunner.DuelState.combats.Sum(combat =>
+            {
+                if (combat == null || combat.opponentAbilityIds == null)
+                {
+                    return 0;
+                }
+
+                return combat.opponentAbilityIds.Count;
+            });
+
+            Assert.AreEqual(1, deployedCount);
+        }
+
+        [Test]
         public void TrySurrender_InPlayerSetupWithHonor_SucceedsAndConsumesHonor()
         {
             GameDatabase database = CreateDatabase(startingHonor: 1);

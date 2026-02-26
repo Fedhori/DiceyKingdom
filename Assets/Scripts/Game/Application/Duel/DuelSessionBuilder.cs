@@ -11,15 +11,18 @@ namespace Game.Application.Duel
         public int deployedCount { get; }
         public int skippedCount { get; }
         public IReadOnlyList<string> deployedAbilityIds { get; }
+        public IReadOnlyList<DuelOpponentDeployStep> steps { get; }
 
         public OpponentSetupBuildResult(
             int deployedCount,
             int skippedCount,
-            IReadOnlyList<string> deployedAbilityIds = null)
+            IReadOnlyList<string> deployedAbilityIds = null,
+            IReadOnlyList<DuelOpponentDeployStep> steps = null)
         {
             this.deployedCount = deployedCount;
             this.skippedCount = skippedCount;
             this.deployedAbilityIds = deployedAbilityIds ?? Array.Empty<string>();
+            this.steps = steps ?? Array.Empty<DuelOpponentDeployStep>();
         }
     }
 
@@ -135,7 +138,54 @@ namespace Game.Application.Duel
             return new OpponentSetupBuildResult(
                 result.deployedCount,
                 result.skippedCount,
-                result.deployedAbilityIds);
+                result.deployedAbilityIds,
+                result.steps);
+        }
+
+        public OpponentSetupBuildResult BuildOpponentDeployPlan(DuelState state)
+        {
+            if (state == null)
+            {
+                return new OpponentSetupBuildResult(0, 0);
+            }
+
+            state.EnsureInitialized();
+
+            if (database.abilitiesById == null)
+            {
+                int skipped = state.opponentLoadoutAbilityIds == null ? 0 : state.opponentLoadoutAbilityIds.Count;
+                Debug.LogWarning("[DuelSessionBuilder] Opponent deploy plan skipped: abilities table is missing.");
+                return new OpponentSetupBuildResult(0, skipped);
+            }
+
+            if (state.combats == null || state.combats.Count <= 0)
+            {
+                int skipped = state.opponentLoadoutAbilityIds == null ? 0 : state.opponentLoadoutAbilityIds.Count;
+                Debug.LogWarning("[DuelSessionBuilder] Opponent deploy plan skipped: combat slots are missing.");
+                return new OpponentSetupBuildResult(0, skipped);
+            }
+
+            DuelAutoDeployResult plan = placementService.PlanAutoDeployRandomFromLoadout(
+                state,
+                DuelSide.Opponent,
+                random);
+            return new OpponentSetupBuildResult(
+                plan.deployedCount,
+                plan.skippedCount,
+                plan.deployedAbilityIds,
+                plan.steps);
+        }
+
+        public bool TryApplyOpponentDeployStep(
+            DuelState state,
+            DuelOpponentDeployStep step,
+            out string failureMessage)
+        {
+            return placementService.TryApplyDeployStep(
+                state,
+                DuelSide.Opponent,
+                step,
+                out failureMessage);
         }
 
         DuelState CreateInitialDuelState(EnemyDef enemyDef)

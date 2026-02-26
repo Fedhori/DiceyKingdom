@@ -32,20 +32,43 @@ namespace Game.Application.Duel
         }
     }
 
+    public readonly struct DuelOpponentDeployStep
+    {
+        public string abilityId { get; }
+        public int combatIndex { get; }
+        public int slotIndex { get; }
+        public int deployOrder { get; }
+
+        public DuelOpponentDeployStep(
+            string abilityId,
+            int combatIndex,
+            int slotIndex,
+            int deployOrder)
+        {
+            this.abilityId = abilityId ?? string.Empty;
+            this.combatIndex = combatIndex;
+            this.slotIndex = slotIndex;
+            this.deployOrder = deployOrder;
+        }
+    }
+
     public readonly struct DuelAutoDeployResult
     {
         public int deployedCount { get; }
         public int skippedCount { get; }
         public IReadOnlyList<string> deployedAbilityIds { get; }
+        public IReadOnlyList<DuelOpponentDeployStep> steps { get; }
 
         public DuelAutoDeployResult(
             int deployedCount,
             int skippedCount,
-            IReadOnlyList<string> deployedAbilityIds = null)
+            IReadOnlyList<string> deployedAbilityIds = null,
+            IReadOnlyList<DuelOpponentDeployStep> steps = null)
         {
             this.deployedCount = deployedCount;
             this.skippedCount = skippedCount;
             this.deployedAbilityIds = deployedAbilityIds ?? Array.Empty<string>();
+            this.steps = steps ?? Array.Empty<DuelOpponentDeployStep>();
         }
     }
 
@@ -146,7 +169,7 @@ namespace Game.Application.Duel
             return true;
         }
 
-        public DuelAutoDeployResult AutoDeployRandomFromLoadout(
+        public DuelAutoDeployResult PlanAutoDeployRandomFromLoadout(
             DuelState state,
             DuelSide side,
             System.Random random)
@@ -169,10 +192,37 @@ namespace Game.Application.Duel
                 return new DuelAutoDeployResult(0, 0);
             }
 
+            var steps = new List<DuelOpponentDeployStep>();
+            var deployedAbilityIds = new List<string>();
             int deployedCount = 0;
             int skippedCount = 0;
-            var deployedAbilityIds = new List<string>();
+            int deployOrder = 0;
+
+            IReadOnlyList<CombatState> combats = state.combats;
+            int combatCount = combats == null ? 0 : combats.Count;
+            bool[] combatExists = new bool[combatCount];
+            int[] occupancyByCombat = new int[combatCount];
+            int?[] maxAssignmentsByCombat = new int?[combatCount];
+
+            for (int combatIndex = 0; combatIndex < combatCount; combatIndex++)
+            {
+                CombatState combat = combats[combatIndex];
+                if (combat == null)
+                {
+                    continue;
+                }
+
+                combat.EnsureInitialized();
+                combatExists[combatIndex] = true;
+                List<string> sideAbilityIds = GetCombatAbilityIds(combat, side);
+                occupancyByCombat[combatIndex] = sideAbilityIds.Count;
+                maxAssignmentsByCombat[combatIndex] = side == DuelSide.Player
+                    ? combat.maxPlayerAssignments
+                    : combat.maxOpponentAssignments;
+            }
+
             var pendingAbilityIds = new List<string>(loadout);
+            var candidateCombats = new List<int>(combatCount);
             for (int i = 0; i < pendingAbilityIds.Count; i++)
             {
                 string abilityId = pendingAbilityIds[i];
@@ -195,7 +245,22 @@ namespace Game.Application.Duel
                     continue;
                 }
 
-                List<int> candidateCombats = CollectCombatIndicesWithSpace(state.combats, side);
+                candidateCombats.Clear();
+                for (int combatIndex = 0; combatIndex < combatCount; combatIndex++)
+                {
+                    if (!combatExists[combatIndex])
+                    {
+                        continue;
+                    }
+
+                    if (!HasSpaceForCount(occupancyByCombat[combatIndex], maxAssignmentsByCombat[combatIndex]))
+                    {
+                        continue;
+                    }
+
+                    candidateCombats.Add(combatIndex);
+                }
+
                 if (candidateCombats.Count <= 0)
                 {
                     skippedCount += 1;
@@ -203,18 +268,122 @@ namespace Game.Application.Duel
                 }
 
                 int randomIndex = random.Next(0, candidateCombats.Count);
-                int combatIndex = candidateCombats[randomIndex];
-                if (!TryMoveAbilityToCombat(state, abilityId, combatIndex, side, out _))
+                int selectedCombatIndex = candidateCombats[randomIndex];
+                int targetSlotIndex = occupancyByCombat[selectedCombatIndex];
+
+                steps.Add(new DuelOpponentDeployStep(
+                    abilityId,
+                    selectedCombatIndex,
+                    targetSlotIndex,
+                    deployOrder));
+                deployedAbilityIds.Add(abilityId);
+                deployOrder += 1;
+                deployedCount += 1;
+                occupancyByCombat[selectedCombatIndex] += 1;
+            }
+
+            return new DuelAutoDeployResult(
+                deployedCount,
+                skippedCount,
+                deployedAbilityIds,
+                steps);
+        }
+
+        public DuelAutoDeployResult AutoDeployRandomFromLoadout(
+            DuelState state,
+            DuelSide side,
+            System.Random random)
+        {
+            DuelAutoDeployResult plan = PlanAutoDeployRandomFromLoadout(state, side, random);
+            if (state == null || plan.steps.Count <= 0)
+            {
+                return plan;
+            }
+
+            int failedApplyCount = 0;
+            var appliedAbilityIds = new List<string>(plan.steps.Count);
+            var appliedSteps = new List<DuelOpponentDeployStep>(plan.steps.Count);
+            for (int i = 0; i < plan.steps.Count; i++)
+            {
+                DuelOpponentDeployStep step = plan.steps[i];
+                if (!TryApplyDeployStep(state, side, step, out _))
                 {
-                    skippedCount += 1;
+                    failedApplyCount += 1;
                     continue;
                 }
 
-                deployedCount += 1;
-                deployedAbilityIds.Add(abilityId);
+                appliedAbilityIds.Add(step.abilityId);
+                appliedSteps.Add(step);
             }
 
-            return new DuelAutoDeployResult(deployedCount, skippedCount, deployedAbilityIds);
+            return new DuelAutoDeployResult(
+                appliedSteps.Count,
+                plan.skippedCount + failedApplyCount,
+                appliedAbilityIds,
+                appliedSteps);
+        }
+
+        public bool TryApplyDeployStep(
+            DuelState state,
+            DuelSide side,
+            DuelOpponentDeployStep step,
+            out string failureMessage)
+        {
+            failureMessage = string.Empty;
+
+            if (state == null)
+            {
+                failureMessage = "duel state is null.";
+                return false;
+            }
+
+            state.EnsureInitialized();
+
+            if (string.IsNullOrWhiteSpace(step.abilityId))
+            {
+                failureMessage = "deploy step abilityId is empty.";
+                return false;
+            }
+
+            if (state.combats == null ||
+                step.combatIndex < 0 ||
+                step.combatIndex >= state.combats.Count)
+            {
+                failureMessage = $"deploy step combatIndex({step.combatIndex}) is out of range.";
+                return false;
+            }
+
+            CombatState targetCombat = state.combats[step.combatIndex];
+            if (targetCombat == null)
+            {
+                failureMessage = $"target combat({step.combatIndex}) is null.";
+                return false;
+            }
+
+            targetCombat.EnsureInitialized();
+            List<string> targetList = GetCombatAbilityIds(targetCombat, side);
+            int expectedSlotIndex = targetList.Count;
+            if (expectedSlotIndex != step.slotIndex)
+            {
+                failureMessage =
+                    $"deploy step slot mismatch for ability({step.abilityId}): expectedSlotIndex={expectedSlotIndex}, stepSlotIndex={step.slotIndex}.";
+                return false;
+            }
+
+            if (!TryMoveAbilityToCombat(state, step.abilityId, step.combatIndex, side, out failureMessage))
+            {
+                return false;
+            }
+
+            int appliedSlotIndex = targetList.IndexOf(step.abilityId);
+            if (appliedSlotIndex != step.slotIndex)
+            {
+                failureMessage =
+                    $"applied slot mismatch for ability({step.abilityId}): expected={step.slotIndex}, actual={appliedSlotIndex}.";
+                return false;
+            }
+
+            return true;
         }
 
         public int ReturnAllDeployedAbilitiesToLoadout(DuelState state)
@@ -403,34 +572,6 @@ namespace Game.Application.Duel
             sideAbilityIds.Remove(abilityId);
         }
 
-        static List<int> CollectCombatIndicesWithSpace(
-            IReadOnlyList<CombatState> combats,
-            DuelSide side)
-        {
-            var indices = new List<int>();
-            if (combats == null)
-            {
-                return indices;
-            }
-
-            for (int combatIndex = 0; combatIndex < combats.Count; combatIndex++)
-            {
-                CombatState combat = combats[combatIndex];
-                if (combat == null)
-                {
-                    continue;
-                }
-
-                combat.EnsureInitialized();
-                if (HasSpaceForSide(combat, side))
-                {
-                    indices.Add(combatIndex);
-                }
-            }
-
-            return indices;
-        }
-
         static int ReturnSideToLoadout(
             DuelState state,
             List<string> deployedAbilityIds,
@@ -504,9 +645,14 @@ namespace Game.Application.Duel
             int? maxAssignments = side == DuelSide.Player
                 ? combat.maxPlayerAssignments
                 : combat.maxOpponentAssignments;
+            return HasSpaceForCount(abilityIds.Count, maxAssignments);
+        }
+
+        static bool HasSpaceForCount(int currentCount, int? maxAssignments)
+        {
             return !maxAssignments.HasValue ||
                    maxAssignments.Value <= 0 ||
-                   abilityIds.Count < maxAssignments.Value;
+                   currentCount < maxAssignments.Value;
         }
     }
 }

@@ -188,6 +188,92 @@ namespace Game.Presentation.Duel
             ApplyRevealState(revealState);
         }
 
+        public bool TryGetVisibleCardView(string abilityId, out DuelAbilityCardView cardView)
+        {
+            cardView = null;
+            if (string.IsNullOrWhiteSpace(abilityId))
+            {
+                return false;
+            }
+
+            CacheVisibleCardsByInstanceId();
+            if (!visibleCardsByInstanceId.TryGetValue(abilityId, out DuelAbilityCardView visibleCard) ||
+                visibleCard == null ||
+                !visibleCard.gameObject.activeInHierarchy)
+            {
+                return false;
+            }
+
+            cardView = visibleCard;
+            return true;
+        }
+
+        public bool TryGetVisibleCardScreenCenter(string abilityId, out Vector2 screenCenter)
+        {
+            screenCenter = Vector2.zero;
+            if (!TryGetVisibleCardView(abilityId, out DuelAbilityCardView card))
+            {
+                return false;
+            }
+
+            RectTransform cardRect = card.transform as RectTransform;
+            return TryGetRectScreenCenter(cardRect, out screenCenter);
+        }
+
+        public bool SetCardVisible(string abilityId, bool isVisible)
+        {
+            if (string.IsNullOrWhiteSpace(abilityId))
+            {
+                return false;
+            }
+
+            if (!cardViewsByInstanceId.TryGetValue(abilityId, out DuelAbilityCardView card) ||
+                card == null)
+            {
+                if (!TryGetVisibleCardView(abilityId, out card))
+                {
+                    return false;
+                }
+            }
+
+            card.gameObject.SetActive(isVisible);
+            return true;
+        }
+
+        public bool TryGetCombatSlotScreenCenter(
+            int combatIndex,
+            bool isPlayerSide,
+            int slotIndex,
+            out Vector2 screenCenter)
+        {
+            screenCenter = Vector2.zero;
+
+            if (combatZones == null ||
+                combatIndex < 0 ||
+                combatIndex >= combatZones.Length ||
+                slotIndex < 0)
+            {
+                return false;
+            }
+
+            DuelCombatZoneView zone = combatZones[combatIndex];
+            if (zone == null)
+            {
+                return false;
+            }
+
+            zone.EnsureRowsAndSlots();
+            IReadOnlyList<RectTransform> slots = isPlayerSide
+                ? zone.PlayerSlots
+                : zone.EnemySlots;
+            if (slots == null || slotIndex >= slots.Count)
+            {
+                return false;
+            }
+
+            return TryGetRectScreenCenter(slots[slotIndex], out screenCenter);
+        }
+
         public IEnumerator AnimateRoll(DuelAnimationConfig animationConfig)
         {
             float duration = animationConfig == null ? 0f : animationConfig.rollDuration;
@@ -1222,6 +1308,23 @@ namespace Game.Presentation.Duel
             {
                 LayoutRebuilder.ForceRebuildLayoutImmediate(playerPassiveRow);
             }
+        }
+
+        static bool TryGetRectScreenCenter(RectTransform rectTransform, out Vector2 screenCenter)
+        {
+            screenCenter = Vector2.zero;
+            if (rectTransform == null)
+            {
+                return false;
+            }
+
+            Canvas canvas = rectTransform.GetComponentInParent<Canvas>();
+            Camera canvasCamera = canvas == null || canvas.renderMode == RenderMode.ScreenSpaceOverlay
+                ? null
+                : canvas.worldCamera;
+            Vector3 worldCenter = rectTransform.TransformPoint(rectTransform.rect.center);
+            screenCenter = RectTransformUtility.WorldToScreenPoint(canvasCamera, worldCenter);
+            return true;
         }
     }
 }

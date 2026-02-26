@@ -17,6 +17,9 @@ namespace Game.Presentation.Duel
         const string DefaultEnemyId = "enemy.northern.footman";
         const float dragGhostAlpha = 0.85f;
         const float defaultCardRollDuration = 0.5f;
+        const float defaultOpponentDeployCardDuration = 0.25f;
+        const float defaultOpponentDeployCardGap = 0.06f;
+        const float opponentDeployGhostAlpha = 0.95f;
 
         [Header("Duel Data")]
         [SerializeField] string enemyId = DefaultEnemyId;
@@ -68,6 +71,7 @@ namespace Game.Presentation.Duel
             WireObservableBindings();
             InitializeDuelOrWarn();
             PublishObservableState();
+            TryStartOpponentSetupFlow();
         }
 
         void OnEnable()
@@ -184,7 +188,7 @@ namespace Game.Presentation.Duel
 
             abilityIconCache.Rebuild(database);
 
-            if (!sessionRunner.TryInitialize(database, enemyId, advanceToPlayerSetup: true, out string failureMessage))
+            if (!sessionRunner.TryInitialize(database, enemyId, advanceToPlayerSetup: false, out string failureMessage))
             {
                 Debug.LogWarning($"[DuelScreenController] Failed to initialize duel: {failureMessage}");
                 return;
@@ -238,6 +242,16 @@ namespace Game.Presentation.Duel
         void PublishObservableState(bool publishBoard = true)
         {
             observableState.Publish(sessionRunner, selectionState, isFlowRunning, publishBoard);
+        }
+
+        void TryStartOpponentSetupFlow()
+        {
+            if (!UnityEngine.Application.isPlaying || !sessionRunner.IsInitialized || isFlowRunning)
+            {
+                return;
+            }
+
+            StartCoroutine(RunOpponentSetupFlowIfNeeded());
         }
 
         void HandleCombatStartClicked()
@@ -431,7 +445,7 @@ namespace Game.Presentation.Duel
 
         IEnumerator RunCombatStartFlow()
         {
-            if (!sessionRunner.TryEnsureReadyForCombatStart(out string ensureFailure))
+            if (!sessionRunner.TryValidatePlayerSetupForCombatStart(out string ensureFailure))
             {
                 Debug.LogWarning($"[DuelScreenController] Combat start rejected: {ensureFailure}");
                 yield break;
@@ -472,17 +486,175 @@ namespace Game.Presentation.Duel
 
             if (!sessionRunner.DuelState.isDuelEnded)
             {
-                if (!sessionRunner.TryAdvanceToPlayerSetupForCurrentTurn(out string advanceFailure))
-                {
-                    Debug.LogWarning(
-                        $"[DuelScreenController] Failed to advance to PlayerSetup after resolve: {advanceFailure}");
-                }
+                yield return RunOpponentSetupFlowIfNeeded();
             }
 
             selectionState.ClearAbility();
             isFlowRunning = false;
             observableState.ClearReveal();
             PublishObservableState();
+        }
+
+        IEnumerator RunOpponentSetupFlowIfNeeded()
+        {
+            if (!sessionRunner.IsInitialized ||
+                sessionRunner.DuelState == null ||
+                sessionRunner.PhaseRunner == null ||
+                sessionRunner.DuelState.isDuelEnded ||
+                sessionRunner.PhaseRunner.currentPhase == DuelPhase.PlayerSetup)
+            {
+                yield break;
+            }
+
+            bool ownsFlowLock = !isFlowRunning;
+            if (ownsFlowLock)
+            {
+                isFlowRunning = true;
+                selectionState.ClearAbility();
+            }
+
+            observableState.ClearReveal();
+            PublishObservableState();
+
+            if (!sessionRunner.TryPrepareOpponentSetupForCurrentTurn(
+                    out OpponentSetupBuildResult deployPlan,
+                    out string prepareFailure))
+            {
+                Debug.LogWarning($"[DuelScreenController] Opponent setup preparation failed: {prepareFailure}");
+                if (ownsFlowLock)
+                {
+                    isFlowRunning = false;
+                    PublishObservableState();
+                }
+
+                yield break;
+            }
+
+            PublishObservableState();
+
+            DuelAnimationConfig config = ResolveAnimationConfig();
+            yield return WaitForUiLayoutReady();
+            for (int i = 0; i < deployPlan.steps.Count; i++)
+            {
+                Canvas.ForceUpdateCanvases();
+                DuelOpponentDeployStep step = deployPlan.steps[i];
+                yield return AnimateAndApplyOpponentDeployStep(step, config);
+
+                if (i < deployPlan.steps.Count - 1)
+                {
+                    float cardGap = ResolveOpponentDeployCardGap(config);
+                    if (cardGap > 0f)
+                    {
+                        yield return new WaitForSecondsRealtime(cardGap);
+                    }
+                }
+            }
+
+            if (deployPlan.skippedCount > 0)
+            {
+                Debug.LogWarning($"[DuelScreenController] Opponent setup skipped abilities: {deployPlan.skippedCount}");
+            }
+
+            if (!sessionRunner.TryEnterPlayerSetup(out string playerSetupFailure))
+            {
+                Debug.LogWarning($"[DuelScreenController] Failed to enter PlayerSetup: {playerSetupFailure}");
+            }
+
+            selectionState.ClearAbility();
+            PublishObservableState();
+
+            if (ownsFlowLock)
+            {
+                isFlowRunning = false;
+                PublishObservableState();
+            }
+        }
+
+        IEnumerator AnimateAndApplyOpponentDeployStep(
+            DuelOpponentDeployStep step,
+            DuelAnimationConfig config)
+        {
+            if (view == null)
+            {
+                yield break;
+            }
+
+            bool hasSourceCard = view.TryGetVisibleCardView(step.abilityId, out DuelAbilityCardView sourceCard);
+            bool hasSourceCenter = view.TryGetVisibleCardScreenCenter(step.abilityId, out Vector2 sourceScreenCenter);
+            bool hasTargetCenter = view.TryGetCombatSlotScreenCenter(
+                step.combatIndex,
+                isPlayerSide: false,
+                step.slotIndex,
+                out Vector2 targetScreenCenter);
+
+            if (!hasSourceCard || !hasSourceCenter || !hasTargetCenter)
+            {
+                Debug.LogWarning(
+                    $"[DuelScreenController] Opponent deploy animation fallback for ability({step.abilityId}) " +
+                    $"combat({step.combatIndex}) slot({step.slotIndex}).");
+                if (TryApplyOpponentDeployStepWithLogging(step))
+                {
+                    PublishObservableState();
+                }
+
+                yield break;
+            }
+
+            view.SetCardVisible(step.abilityId, false);
+            RectTransform ghostRect = CreateOpponentDeployGhost(sourceCard);
+            if (ghostRect == null ||
+                !TrySetRectPositionFromScreenPoint(ghostRect, sourceScreenCenter))
+            {
+                Debug.LogWarning(
+                    $"[DuelScreenController] Failed to create opponent deploy ghost for ability({step.abilityId}).");
+                DestroyTransientGhost(ghostRect);
+                if (!TryApplyOpponentDeployStepWithLogging(step))
+                {
+                    view.SetCardVisible(step.abilityId, true);
+                    PublishObservableState();
+                    yield break;
+                }
+
+                PublishObservableState();
+                yield break;
+            }
+
+            yield return AnimateRectToScreenPoint(
+                ghostRect,
+                sourceScreenCenter,
+                targetScreenCenter,
+                ResolveOpponentDeployCardDuration(config));
+
+            DestroyTransientGhost(ghostRect);
+
+            if (!TryApplyOpponentDeployStepWithLogging(step))
+            {
+                view.SetCardVisible(step.abilityId, true);
+                PublishObservableState();
+                yield break;
+            }
+
+            PublishObservableState();
+        }
+
+        bool TryApplyOpponentDeployStepWithLogging(DuelOpponentDeployStep step)
+        {
+            if (sessionRunner.TryApplyOpponentDeployStep(step, out string applyFailure))
+            {
+                return true;
+            }
+
+            Debug.LogWarning(
+                $"[DuelScreenController] Opponent deploy apply failed for ability({step.abilityId}) " +
+                $"combat({step.combatIndex}) slot({step.slotIndex}): {applyFailure}");
+            return false;
+        }
+
+        static IEnumerator WaitForUiLayoutReady()
+        {
+            Canvas.ForceUpdateCanvases();
+            yield return null;
+            Canvas.ForceUpdateCanvases();
         }
 
         IEnumerator PlayRollAndResolveRevealSequence(
@@ -792,9 +964,208 @@ namespace Game.Presentation.Duel
                 runtimeAnimationConfig.cardRollDuration = defaultCardRollDuration;
                 runtimeAnimationConfig.resolvePerCombatDuration = 0.55f;
                 runtimeAnimationConfig.resolveCombatGap = 0.15f;
+                runtimeAnimationConfig.opponentDeployCardDuration = defaultOpponentDeployCardDuration;
+                runtimeAnimationConfig.opponentDeployCardGap = defaultOpponentDeployCardGap;
             }
 
             return runtimeAnimationConfig;
+        }
+
+        float ResolveOpponentDeployCardDuration(DuelAnimationConfig config)
+        {
+            if (config == null || config.opponentDeployCardDuration <= 0f)
+            {
+                return defaultOpponentDeployCardDuration;
+            }
+
+            return config.opponentDeployCardDuration;
+        }
+
+        float ResolveOpponentDeployCardGap(DuelAnimationConfig config)
+        {
+            if (config == null || config.opponentDeployCardGap <= 0f)
+            {
+                return defaultOpponentDeployCardGap;
+            }
+
+            return config.opponentDeployCardGap;
+        }
+
+        RectTransform CreateOpponentDeployGhost(DuelAbilityCardView sourceCard)
+        {
+            if (sourceCard == null || !TryResolveCanvasContext(out RectTransform canvasRect, out _))
+            {
+                return null;
+            }
+
+            GameObject ghostObject = Instantiate(sourceCard.gameObject, canvasRect, false);
+            ghostObject.name = "OpponentDeployGhost";
+            ghostObject.SetActive(true);
+
+            if (ghostObject.TryGetComponent(out DuelAbilityCardView ghostCard))
+            {
+                ghostCard.enabled = false;
+            }
+
+            if (ghostObject.TryGetComponent(out Button ghostButton))
+            {
+                ghostButton.interactable = false;
+                ghostButton.enabled = false;
+            }
+
+            Graphic[] graphics = ghostObject.GetComponentsInChildren<Graphic>(true);
+            for (int i = 0; i < graphics.Length; i++)
+            {
+                Graphic graphic = graphics[i];
+                if (graphic == null)
+                {
+                    continue;
+                }
+
+                Color color = graphic.color;
+                color.a *= opponentDeployGhostAlpha;
+                graphic.color = color;
+                graphic.raycastTarget = false;
+            }
+
+            if (!(ghostObject.transform is RectTransform ghostRect))
+            {
+                if (UnityEngine.Application.isPlaying)
+                {
+                    Destroy(ghostObject);
+                }
+                else
+                {
+                    DestroyImmediate(ghostObject);
+                }
+
+                return null;
+            }
+
+            if (sourceCard.transform is RectTransform sourceRect)
+            {
+                ghostRect.anchorMin = new Vector2(0.5f, 0.5f);
+                ghostRect.anchorMax = new Vector2(0.5f, 0.5f);
+                ghostRect.pivot = new Vector2(0.5f, 0.5f);
+                ghostRect.sizeDelta = sourceRect.rect.size;
+                ghostRect.localScale = Vector3.one;
+            }
+
+            ghostRect.SetAsLastSibling();
+            return ghostRect;
+        }
+
+        IEnumerator AnimateRectToScreenPoint(
+            RectTransform rectTransform,
+            Vector2 fromScreenPoint,
+            Vector2 toScreenPoint,
+            float duration)
+        {
+            if (rectTransform == null)
+            {
+                yield break;
+            }
+
+            if (!TryScreenPointToCanvasLocalPoint(fromScreenPoint, out Vector2 startLocalPoint) ||
+                !TryScreenPointToCanvasLocalPoint(toScreenPoint, out Vector2 endLocalPoint))
+            {
+                yield break;
+            }
+
+            if (duration <= 0f)
+            {
+                rectTransform.anchoredPosition = endLocalPoint;
+                yield break;
+            }
+
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                float t = Mathf.Clamp01(elapsed / duration);
+                float eased = 1f - Mathf.Pow(1f - t, 3f);
+                rectTransform.anchoredPosition = Vector2.LerpUnclamped(startLocalPoint, endLocalPoint, eased);
+                elapsed += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            rectTransform.anchoredPosition = endLocalPoint;
+        }
+
+        bool TrySetRectPositionFromScreenPoint(RectTransform rectTransform, Vector2 screenPoint)
+        {
+            if (rectTransform == null || !TryScreenPointToCanvasLocalPoint(screenPoint, out Vector2 localPoint))
+            {
+                return false;
+            }
+
+            rectTransform.anchoredPosition = localPoint;
+            return true;
+        }
+
+        bool TryScreenPointToCanvasLocalPoint(Vector2 screenPoint, out Vector2 localPoint)
+        {
+            localPoint = Vector2.zero;
+
+            if (!TryResolveCanvasContext(out RectTransform canvasRect, out Camera canvasCamera))
+            {
+                return false;
+            }
+
+            return RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvasRect,
+                screenPoint,
+                canvasCamera,
+                out localPoint);
+        }
+
+        bool TryResolveCanvasContext(out RectTransform canvasRect, out Camera canvasCamera)
+        {
+            canvasRect = null;
+            canvasCamera = null;
+
+            Canvas canvas = ResolveCanvas();
+            if (canvas == null || !(canvas.transform is RectTransform canvasRootRect))
+            {
+                return false;
+            }
+
+            canvasRect = canvasRootRect;
+            canvasCamera = ResolveCanvasCamera(canvas);
+            return true;
+        }
+
+        Canvas ResolveCanvas()
+        {
+            return backgroundImage == null
+                ? GetComponentInParent<Canvas>()
+                : backgroundImage.canvas;
+        }
+
+        static Camera ResolveCanvasCamera(Canvas canvas)
+        {
+            if (canvas == null || canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+            {
+                return null;
+            }
+
+            return canvas.worldCamera;
+        }
+
+        void DestroyTransientGhost(RectTransform ghostRect)
+        {
+            if (ghostRect == null)
+            {
+                return;
+            }
+
+            if (UnityEngine.Application.isPlaying)
+            {
+                Destroy(ghostRect.gameObject);
+            }
+            else
+            {
+                DestroyImmediate(ghostRect.gameObject);
+            }
         }
 
         bool CanUseCardInteractions(string abilityId)
