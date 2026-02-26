@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Game.Application.Duel;
 using Game.Common;
 using Game.Domain.Duel;
@@ -73,6 +75,94 @@ namespace Game.Presentation.Battle
         }
     }
 
+    public readonly struct BattleRollOverlayValue
+    {
+        public bool isVisible { get; }
+        public int value { get; }
+        public bool isFinal { get; }
+
+        public BattleRollOverlayValue(bool isVisible, int value, bool isFinal)
+        {
+            this.isVisible = isVisible;
+            this.value = value;
+            this.isFinal = isFinal;
+        }
+    }
+
+    public readonly struct BattleRevealState
+    {
+        readonly int[] opponentTotals;
+        readonly int[] playerTotals;
+        readonly IReadOnlyDictionary<string, BattleRollOverlayValue> rollOverlayLookup;
+
+        public bool isRunning { get; }
+        public int displayOpponentHealth { get; }
+        public int displayPlayerHealth { get; }
+        public int revision { get; }
+
+        public static BattleRevealState Empty =>
+            new(
+                false,
+                Array.Empty<int>(),
+                Array.Empty<int>(),
+                -1,
+                -1,
+                null,
+                0);
+
+        public BattleRevealState(
+            bool isRunning,
+            int[] opponentTotals,
+            int[] playerTotals,
+            int displayOpponentHealth,
+            int displayPlayerHealth,
+            IReadOnlyDictionary<string, BattleRollOverlayValue> rollOverlayByAbilityId,
+            int revision)
+        {
+            this.isRunning = isRunning;
+            this.opponentTotals = opponentTotals == null
+                ? Array.Empty<int>()
+                : (int[])opponentTotals.Clone();
+            this.playerTotals = playerTotals == null
+                ? Array.Empty<int>()
+                : (int[])playerTotals.Clone();
+            this.displayOpponentHealth = displayOpponentHealth;
+            this.displayPlayerHealth = displayPlayerHealth;
+            rollOverlayLookup = rollOverlayByAbilityId == null
+                ? new Dictionary<string, BattleRollOverlayValue>(StringComparer.Ordinal)
+                : new Dictionary<string, BattleRollOverlayValue>(rollOverlayByAbilityId, StringComparer.Ordinal);
+            this.revision = revision;
+        }
+
+        public bool TryGetZoneTotals(int combatIndex, out int opponentTotal, out int playerTotal)
+        {
+            opponentTotal = 0;
+            playerTotal = 0;
+
+            if (combatIndex < 0 ||
+                combatIndex >= opponentTotals.Length ||
+                combatIndex >= playerTotals.Length)
+            {
+                return false;
+            }
+
+            opponentTotal = opponentTotals[combatIndex];
+            playerTotal = playerTotals[combatIndex];
+            return true;
+        }
+
+        public bool TryGetOverlay(string abilityId, out BattleRollOverlayValue overlay)
+        {
+            overlay = default;
+            if (string.IsNullOrWhiteSpace(abilityId) || rollOverlayLookup == null)
+            {
+                return false;
+            }
+
+            return rollOverlayLookup.TryGetValue(abilityId, out overlay);
+        }
+    }
+
     public sealed class BattleScreenObservableState
     {
         readonly ObservableValue<BattleTopBarState> topBarState = new(new BattleTopBarState(0));
@@ -86,15 +176,22 @@ namespace Game.Presentation.Battle
                 string.Empty,
                 false,
                 0));
+        readonly ObservableValue<BattleRevealState> revealState = new(BattleRevealState.Empty);
 
         int boardRevision;
+        int revealRevision;
 
         public IReadOnlyObservableValue<BattleTopBarState> TopBarState => topBarState;
         public IReadOnlyObservableValue<BattleHealthState> HealthState => healthState;
         public IReadOnlyObservableValue<BattleButtonState> ButtonState => buttonState;
         public IReadOnlyObservableValue<BattleBoardState> BoardState => boardState;
+        public IReadOnlyObservableValue<BattleRevealState> RevealState => revealState;
 
-        public void Publish(BattleSessionRunner sessionRunner, BattleSelectionState selectionState, bool isFlowRunning)
+        public void Publish(
+            BattleSessionRunner sessionRunner,
+            BattleSelectionState selectionState,
+            bool isFlowRunning,
+            bool publishBoard = true)
         {
             DuelState duelState = sessionRunner == null ? null : sessionRunner.DuelState;
             DuelPhaseRunner phaseRunner = sessionRunner == null ? null : sessionRunner.PhaseRunner;
@@ -125,6 +222,11 @@ namespace Game.Presentation.Battle
                 duelState.honor > 0;
             buttonState.Value = new BattleButtonState(canCombatStart, canSurrender);
 
+            if (!publishBoard)
+            {
+                return;
+            }
+
             boardRevision += 1;
             boardState.Value = new BattleBoardState(
                 duelState,
@@ -133,6 +235,38 @@ namespace Game.Presentation.Battle
                 selectionState == null ? string.Empty : selectionState.SelectedAbilityId,
                 isFlowRunning,
                 boardRevision);
+        }
+
+        public void PublishReveal(
+            bool isRunning,
+            int[] opponentTotals,
+            int[] playerTotals,
+            int displayOpponentHealth,
+            int displayPlayerHealth,
+            IReadOnlyDictionary<string, BattleRollOverlayValue> rollOverlayByAbilityId)
+        {
+            revealRevision += 1;
+            revealState.Value = new BattleRevealState(
+                isRunning,
+                opponentTotals,
+                playerTotals,
+                displayOpponentHealth,
+                displayPlayerHealth,
+                rollOverlayByAbilityId,
+                revealRevision);
+        }
+
+        public void ClearReveal()
+        {
+            revealRevision += 1;
+            revealState.Value = new BattleRevealState(
+                false,
+                Array.Empty<int>(),
+                Array.Empty<int>(),
+                -1,
+                -1,
+                null,
+                revealRevision);
         }
     }
 }

@@ -78,6 +78,8 @@ namespace Game.Presentation.Battle
         static readonly Color defaultIconFill = Colors.Primitive.Bone300;
         static readonly Color defaultPowerBadgeBackground = Colors.Semantic.SurfaceSecondary;
         static readonly Color defaultPowerText = Colors.Semantic.TextPrimary;
+        static readonly Color defaultRollOverlayText = Colors.Semantic.TextPrimary;
+        static readonly Color finalRollOverlayText = Colors.Semantic.StatePositive;
         static readonly Color defaultAttackBorder = Colors.Semantic.StateDanger;
         static readonly Color defaultSkillBorder = Colors.Semantic.StateInfo;
         static readonly Color defaultDisabledOverlay = Colors.Semantic.DisabledTint;
@@ -91,6 +93,7 @@ namespace Game.Presentation.Battle
         [SerializeField] Image iconImage;
         [SerializeField] Image powerBadgeImage;
         [SerializeField] TMP_Text powerBadgeText;
+        [SerializeField] TMP_Text rollOverlayText;
         [SerializeField] Outline borderOutline;
         [SerializeField] Image disabledOverlayImage;
 
@@ -111,6 +114,23 @@ namespace Game.Presentation.Battle
         InteractionContext interactionContext = InteractionContext.None;
         Color currentBackgroundColor = defaultCardBackground;
         Coroutine invalidFeedbackRoutine;
+
+        public string InstanceId => instanceId;
+
+        void Awake()
+        {
+            CacheReferencesIfNeeded();
+            HideRollOverlay();
+        }
+
+        void OnValidate()
+        {
+            CacheReferencesIfNeeded();
+            if (rollOverlayText != null && !UnityEngine.Application.isPlaying)
+            {
+                rollOverlayText.gameObject.SetActive(false);
+            }
+        }
 
         public void Bind(
             BindData bindData,
@@ -179,6 +199,8 @@ namespace Game.Presentation.Battle
                 disabledOverlayImage.gameObject.SetActive(!isInteractable);
                 disabledOverlayImage.color = defaultDisabledOverlay;
             }
+
+            HideRollOverlay();
         }
 
         public void PlayInvalidDropFeedback()
@@ -333,6 +355,29 @@ namespace Game.Presentation.Battle
             }
         }
 
+        public void SetRollOverlayValue(int value, bool isFinal)
+        {
+            if (rollOverlayText == null)
+            {
+                return;
+            }
+
+            rollOverlayText.text = value.ToString();
+            rollOverlayText.color = isFinal ? finalRollOverlayText : defaultRollOverlayText;
+            rollOverlayText.gameObject.SetActive(true);
+        }
+
+        public void HideRollOverlay()
+        {
+            if (rollOverlayText == null)
+            {
+                return;
+            }
+
+            rollOverlayText.text = string.Empty;
+            rollOverlayText.gameObject.SetActive(false);
+        }
+
         void HandleClick()
         {
             if (isDragging)
@@ -402,6 +447,49 @@ namespace Game.Presentation.Battle
             }
 
             return true;
+        }
+
+        void CacheReferencesIfNeeded()
+        {
+            if (clickButton == null)
+            {
+                clickButton = GetComponent<Button>();
+            }
+
+            if (cardBackgroundImage == null)
+            {
+                cardBackgroundImage = GetComponent<Image>();
+            }
+
+            if (iconImage == null)
+            {
+                iconImage = ResolveImage("Icon");
+            }
+
+            if (powerBadgeImage == null)
+            {
+                powerBadgeImage = ResolveImage("PowerBadge");
+            }
+
+            if (powerBadgeText == null)
+            {
+                powerBadgeText = ResolveText("PowerText");
+            }
+
+            if (rollOverlayText == null)
+            {
+                rollOverlayText = ResolveText("RollOverlayText");
+            }
+
+            if (borderOutline == null)
+            {
+                borderOutline = GetComponent<Outline>();
+            }
+
+            if (disabledOverlayImage == null)
+            {
+                disabledOverlayImage = ResolveImage("DisabledOverlay");
+            }
         }
 
         void ApplyBackgroundColorForCurrentState()

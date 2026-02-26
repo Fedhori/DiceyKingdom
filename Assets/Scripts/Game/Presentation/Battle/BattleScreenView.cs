@@ -39,6 +39,11 @@ namespace Game.Presentation.Battle
         readonly List<BattleAbilityCardView> pooledCardViews = new();
         readonly List<BattleAbilityCardView> enemyLoadoutCardViews = new();
         readonly List<BattleAbilityCardView> playerLoadoutCardViews = new();
+        readonly Dictionary<string, BattleAbilityCardView> visibleCardsByInstanceId =
+            new(StringComparer.Ordinal);
+        BattleRevealState currentRevealState = BattleRevealState.Empty;
+        int cachedMaxPlayerHealth = 1;
+        int cachedMaxOpponentHealth = 1;
 
         public BattleScreenView(
             Image backgroundImage,
@@ -163,6 +168,15 @@ namespace Game.Presentation.Battle
                 onCardDragMove,
                 onCardDragEnd,
                 onCardRightClick);
+            CacheVisibleCardsByInstanceId();
+            ApplyRevealState(currentRevealState);
+        }
+
+        public void RenderReveal(BattleRevealState revealState)
+        {
+            currentRevealState = revealState;
+            CacheVisibleCardsByInstanceId();
+            ApplyRevealState(revealState);
         }
 
         public IEnumerator AnimateRoll(BattleAnimationConfig animationConfig)
@@ -226,7 +240,6 @@ namespace Game.Presentation.Battle
                 yield break;
             }
 
-            float duration = animationConfig.resolvePerCombatDuration;
             float gap = animationConfig.resolveCombatGap;
 
             for (int stepIndex = 0; stepIndex < resolveResult.steps.Count; stepIndex++)
@@ -243,17 +256,7 @@ namespace Game.Presentation.Battle
                     continue;
                 }
 
-                float elapsed = 0f;
-                while (elapsed < duration)
-                {
-                    float normalized = Mathf.PingPong(elapsed * 4f, 1f);
-                    zone.SetResolveHighlight(step.outcome, normalized);
-
-                    elapsed += Time.unscaledDeltaTime;
-                    yield return null;
-                }
-
-                zone.RestoreBaseVisual();
+                yield return AnimateResolveSingleCombat(step.combatIndex, step.outcome, animationConfig);
 
                 if (gap > 0f && stepIndex < resolveResult.steps.Count - 1)
                 {
@@ -262,33 +265,34 @@ namespace Game.Presentation.Battle
             }
         }
 
-        public IEnumerator AnimateTurnTransition(BattleAnimationConfig animationConfig)
+        public IEnumerator AnimateResolveSingleCombat(
+            int combatIndex,
+            DuelOutcome outcome,
+            BattleAnimationConfig animationConfig)
         {
-            float duration = animationConfig == null ? 0f : animationConfig.turnTransitionDuration;
-            if (topBarImage == null || duration <= 0f)
+            if (animationConfig == null || combatIndex < 0 || combatIndex >= combatZones.Length)
             {
-                if (duration > 0f)
-                {
-                    yield return new WaitForSecondsRealtime(duration);
-                }
-
                 yield break;
             }
 
-            Color baseColor = topBarImage.color;
-            Color pulseColor = Colors.Semantic.ActionSecondaryBgHover;
+            BattleCombatZoneView zone = combatZones[combatIndex];
+            if (zone == null)
+            {
+                yield break;
+            }
 
+            float duration = animationConfig.resolvePerCombatDuration;
             float elapsed = 0f;
             while (elapsed < duration)
             {
-                float normalized = Mathf.PingPong(elapsed * 5f, 1f);
-                topBarImage.color = Color.Lerp(baseColor, pulseColor, normalized);
+                float normalized = Mathf.PingPong(elapsed * 4f, 1f);
+                zone.SetResolveHighlight(outcome, normalized);
 
                 elapsed += Time.unscaledDeltaTime;
                 yield return null;
             }
 
-            topBarImage.color = baseColor;
+            zone.RestoreBaseVisual();
         }
 
         void UpdateTopBar(int turnIndex)
@@ -307,14 +311,17 @@ namespace Game.Presentation.Battle
             int opponentHealth,
             int maxOpponentHealth)
         {
+            cachedMaxPlayerHealth = Mathf.Max(1, maxPlayerHealth);
+            cachedMaxOpponentHealth = Mathf.Max(1, maxOpponentHealth);
+
             if (enemyHealthText != null)
             {
-                enemyHealthText.text = BuildHeartText(opponentHealth, maxOpponentHealth);
+                enemyHealthText.text = BuildHeartText(opponentHealth, cachedMaxOpponentHealth);
             }
 
             if (playerHealthText != null)
             {
-                playerHealthText.text = BuildHeartText(playerHealth, maxPlayerHealth);
+                playerHealthText.text = BuildHeartText(playerHealth, cachedMaxPlayerHealth);
             }
         }
 
@@ -653,6 +660,104 @@ namespace Game.Presentation.Battle
             if (tooltipBackgroundImage != null)
             {
                 tooltipBackgroundImage.gameObject.SetActive(false);
+            }
+        }
+
+        void CacheVisibleCardsByInstanceId()
+        {
+            visibleCardsByInstanceId.Clear();
+            for (int i = 0; i < pooledCardViews.Count; i++)
+            {
+                BattleAbilityCardView card = pooledCardViews[i];
+                if (card == null || !card.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                string abilityId = card.InstanceId;
+                if (string.IsNullOrWhiteSpace(abilityId) || visibleCardsByInstanceId.ContainsKey(abilityId))
+                {
+                    continue;
+                }
+
+                visibleCardsByInstanceId.Add(abilityId, card);
+            }
+        }
+
+        void ApplyRevealState(BattleRevealState revealState)
+        {
+            ApplyRollOverlayState(revealState);
+            if (!revealState.isRunning)
+            {
+                return;
+            }
+
+            ApplyRevealHealthState(revealState);
+            ApplyRevealZoneTotals(revealState);
+        }
+
+        void ApplyRollOverlayState(BattleRevealState revealState)
+        {
+            foreach (KeyValuePair<string, BattleAbilityCardView> pair in visibleCardsByInstanceId)
+            {
+                pair.Value?.HideRollOverlay();
+            }
+
+            if (!revealState.isRunning)
+            {
+                return;
+            }
+
+            foreach (KeyValuePair<string, BattleAbilityCardView> pair in visibleCardsByInstanceId)
+            {
+                if (pair.Value == null)
+                {
+                    continue;
+                }
+
+                if (!revealState.TryGetOverlay(pair.Key, out BattleRollOverlayValue overlay) || !overlay.isVisible)
+                {
+                    continue;
+                }
+
+                pair.Value.SetRollOverlayValue(overlay.value, overlay.isFinal);
+            }
+        }
+
+        void ApplyRevealHealthState(BattleRevealState revealState)
+        {
+            if (revealState.displayOpponentHealth >= 0 && enemyHealthText != null)
+            {
+                enemyHealthText.text = BuildHeartText(revealState.displayOpponentHealth, cachedMaxOpponentHealth);
+            }
+
+            if (revealState.displayPlayerHealth >= 0 && playerHealthText != null)
+            {
+                playerHealthText.text = BuildHeartText(revealState.displayPlayerHealth, cachedMaxPlayerHealth);
+            }
+        }
+
+        void ApplyRevealZoneTotals(BattleRevealState revealState)
+        {
+            if (combatZones == null)
+            {
+                return;
+            }
+
+            for (int zoneIndex = 0; zoneIndex < combatZones.Length; zoneIndex++)
+            {
+                BattleCombatZoneView zone = combatZones[zoneIndex];
+                if (zone == null)
+                {
+                    continue;
+                }
+
+                if (!revealState.TryGetZoneTotals(zoneIndex, out int opponentTotal, out int playerTotal))
+                {
+                    continue;
+                }
+
+                zone.SetTotals(opponentTotal, playerTotal);
             }
         }
 

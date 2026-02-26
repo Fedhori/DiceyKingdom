@@ -16,6 +16,7 @@ namespace Game.Presentation.Battle
     {
         const string DefaultEnemyId = "enemy.northern.footman";
         const float dragGhostAlpha = 0.85f;
+        const float defaultCardRollDuration = 0.5f;
 
         [Header("Battle Data")]
         [SerializeField] string enemyId = DefaultEnemyId;
@@ -40,6 +41,7 @@ namespace Game.Presentation.Battle
         readonly BattleSelectionState selectionState = new();
         readonly BattleScreenObservableState observableState = new();
         readonly List<IDisposable> uiSubscriptions = new();
+        readonly System.Random revealRandom = new();
 
         BattleScreenView view;
         bool isFlowRunning;
@@ -190,6 +192,7 @@ namespace Game.Presentation.Battle
             uiSubscriptions.Add(observableState.HealthState.Subscribe(view.RenderHealth));
             uiSubscriptions.Add(observableState.ButtonState.Subscribe(view.RenderButtons));
             uiSubscriptions.Add(observableState.BoardState.Subscribe(HandleBoardStateChanged));
+            uiSubscriptions.Add(observableState.RevealState.Subscribe(HandleRevealStateChanged));
         }
 
         void UnwireObservableBindings()
@@ -213,9 +216,14 @@ namespace Game.Presentation.Battle
                 HandleCardRightClicked);
         }
 
-        void PublishObservableState()
+        void HandleRevealStateChanged(BattleRevealState revealState)
         {
-            observableState.Publish(sessionRunner, selectionState, isFlowRunning);
+            view.RenderReveal(revealState);
+        }
+
+        void PublishObservableState(bool publishBoard = true)
+        {
+            observableState.Publish(sessionRunner, selectionState, isFlowRunning, publishBoard);
         }
 
         void HandleCombatStartClicked()
@@ -414,34 +422,40 @@ namespace Game.Presentation.Battle
             }
 
             isFlowRunning = true;
+            observableState.ClearReveal();
             PublishObservableState();
 
             if (!sessionRunner.TryRoll(out DuelRollResult _, out string rollFailure))
             {
                 Debug.LogWarning($"[BattleScreenController] Roll failed: {rollFailure}");
                 isFlowRunning = false;
+                observableState.ClearReveal();
                 PublishObservableState();
                 yield break;
             }
 
-            yield return view.AnimateRoll(ResolveAnimationConfig());
-            PublishObservableState();
+            List<CombatRevealSnapshot> revealSnapshots = CaptureCombatRevealSnapshots(sessionRunner.DuelState);
+            int displayPlayerHealth = sessionRunner.DuelState.playerHealth;
+            int displayOpponentHealth = sessionRunner.DuelState.opponentHealth;
 
             if (!sessionRunner.TryResolve(out DuelCombatResolveResult resolveResult, out string resolveFailure))
             {
                 Debug.LogWarning($"[BattleScreenController] Resolve failed: {resolveFailure}");
                 isFlowRunning = false;
+                observableState.ClearReveal();
                 PublishObservableState();
                 yield break;
             }
 
-            yield return view.AnimateResolve(resolveResult, ResolveAnimationConfig());
-            PublishObservableState();
+            yield return PlayRollAndResolveRevealSequence(
+                revealSnapshots,
+                resolveResult,
+                displayPlayerHealth,
+                displayOpponentHealth,
+                ResolveAnimationConfig());
 
             if (!sessionRunner.DuelState.isDuelEnded)
             {
-                yield return view.AnimateTurnTransition(ResolveAnimationConfig());
-
                 if (!sessionRunner.TryAdvanceToPlayerSetupForCurrentTurn(out string advanceFailure))
                 {
                     Debug.LogWarning(
@@ -451,7 +465,300 @@ namespace Game.Presentation.Battle
 
             selectionState.ClearAbility();
             isFlowRunning = false;
+            observableState.ClearReveal();
             PublishObservableState();
+        }
+
+        IEnumerator PlayRollAndResolveRevealSequence(
+            IReadOnlyList<CombatRevealSnapshot> revealSnapshots,
+            DuelCombatResolveResult resolveResult,
+            int displayPlayerHealth,
+            int displayOpponentHealth,
+            BattleAnimationConfig config)
+        {
+            if (resolveResult == null || revealSnapshots == null || revealSnapshots.Count <= 0)
+            {
+                yield break;
+            }
+
+            int combatCount = combatZones == null ? 3 : combatZones.Length;
+            int[] opponentTotals = new int[combatCount];
+            int[] playerTotals = new int[combatCount];
+            var overlayByAbilityId = new Dictionary<string, BattleRollOverlayValue>(StringComparer.Ordinal);
+
+            for (int i = 0; i < revealSnapshots.Count; i++)
+            {
+                CombatRevealSnapshot snapshot = revealSnapshots[i];
+                if (snapshot.combatIndex < 0 || snapshot.combatIndex >= combatCount)
+                {
+                    continue;
+                }
+
+                opponentTotals[snapshot.combatIndex] = snapshot.opponentBaseTotal;
+                playerTotals[snapshot.combatIndex] = snapshot.playerBaseTotal;
+            }
+
+            void PublishReveal()
+            {
+                observableState.PublishReveal(
+                    true,
+                    opponentTotals,
+                    playerTotals,
+                    displayOpponentHealth,
+                    displayPlayerHealth,
+                    overlayByAbilityId);
+            }
+
+            PublishReveal();
+
+            Dictionary<int, DuelCombatResolveStepResult> stepsByCombatIndex = BuildStepLookup(resolveResult);
+
+            for (int i = 0; i < revealSnapshots.Count; i++)
+            {
+                CombatRevealSnapshot snapshot = revealSnapshots[i];
+                if (!stepsByCombatIndex.TryGetValue(snapshot.combatIndex, out DuelCombatResolveStepResult step))
+                {
+                    break;
+                }
+
+                for (int enemyIndex = 0; enemyIndex < snapshot.opponentAbilityIds.Count; enemyIndex++)
+                {
+                    string abilityId = snapshot.opponentAbilityIds[enemyIndex];
+                    int finalValue = ResolveAbilityFinalPower(abilityId);
+                    int rouletteMax = ResolveAbilityRouletteMax(abilityId, finalValue);
+                    yield return AnimateAbilityRoulette(
+                        abilityId,
+                        rouletteMax,
+                        finalValue,
+                        config,
+                        overlayByAbilityId,
+                        PublishReveal);
+                    opponentTotals[snapshot.combatIndex] += Mathf.Max(0, finalValue);
+                    PublishReveal();
+                }
+
+                for (int playerIndex = 0; playerIndex < snapshot.playerAbilityIds.Count; playerIndex++)
+                {
+                    string abilityId = snapshot.playerAbilityIds[playerIndex];
+                    int finalValue = ResolveAbilityFinalPower(abilityId);
+                    int rouletteMax = ResolveAbilityRouletteMax(abilityId, finalValue);
+                    yield return AnimateAbilityRoulette(
+                        abilityId,
+                        rouletteMax,
+                        finalValue,
+                        config,
+                        overlayByAbilityId,
+                        PublishReveal);
+                    playerTotals[snapshot.combatIndex] += Mathf.Max(0, finalValue);
+                    PublishReveal();
+                }
+
+                opponentTotals[snapshot.combatIndex] = Mathf.Max(0, step.opponentTotalPower);
+                playerTotals[snapshot.combatIndex] = Mathf.Max(0, step.playerTotalPower);
+                PublishReveal();
+
+                yield return view.AnimateResolveSingleCombat(
+                    snapshot.combatIndex,
+                    step.outcome,
+                    config);
+
+                if (step.appliedDamage > 0)
+                {
+                    if (step.outcome == DuelOutcome.Victory)
+                    {
+                        displayOpponentHealth = Mathf.Max(0, displayOpponentHealth - step.appliedDamage);
+                    }
+                    else if (step.outcome == DuelOutcome.Defeat)
+                    {
+                        displayPlayerHealth = Mathf.Max(0, displayPlayerHealth - step.appliedDamage);
+                    }
+
+                    PublishReveal();
+                }
+
+                if (config != null && config.resolveCombatGap > 0f && i < revealSnapshots.Count - 1)
+                {
+                    yield return new WaitForSecondsRealtime(config.resolveCombatGap);
+                }
+            }
+        }
+
+        IEnumerator AnimateAbilityRoulette(
+            string abilityId,
+            int rouletteMax,
+            int finalValue,
+            BattleAnimationConfig config,
+            IDictionary<string, BattleRollOverlayValue> overlayByAbilityId,
+            Action onFrameChanged)
+        {
+            if (string.IsNullOrWhiteSpace(abilityId) || overlayByAbilityId == null)
+            {
+                yield break;
+            }
+
+            float duration = config == null
+                ? defaultCardRollDuration
+                : config.cardRollDuration;
+            if (duration <= 0f)
+            {
+                duration = defaultCardRollDuration;
+            }
+
+            if (duration > 0f)
+            {
+                float elapsed = 0f;
+                while (elapsed < duration)
+                {
+                    int rouletteValue = revealRandom.Next(1, Mathf.Max(2, rouletteMax + 1));
+                    overlayByAbilityId[abilityId] = new BattleRollOverlayValue(true, rouletteValue, false);
+                    onFrameChanged?.Invoke();
+                    elapsed += Time.unscaledDeltaTime;
+                    yield return null;
+                }
+            }
+
+            overlayByAbilityId[abilityId] = new BattleRollOverlayValue(true, Mathf.Max(0, finalValue), true);
+            onFrameChanged?.Invoke();
+        }
+
+        List<CombatRevealSnapshot> CaptureCombatRevealSnapshots(DuelState duelState)
+        {
+            var snapshots = new List<CombatRevealSnapshot>();
+            if (duelState?.combats == null)
+            {
+                return snapshots;
+            }
+
+            for (int combatIndex = 0; combatIndex < duelState.combats.Count; combatIndex++)
+            {
+                CombatState combat = duelState.combats[combatIndex];
+                if (combat == null)
+                {
+                    continue;
+                }
+
+                combat.EnsureInitialized();
+                List<string> opponentAttackIds = FilterAttackAbilityIds(duelState, combat.opponentAbilityIds);
+                List<string> playerAttackIds = FilterAttackAbilityIds(duelState, combat.playerAbilityIds);
+                snapshots.Add(new CombatRevealSnapshot(
+                    combatIndex,
+                    Mathf.Max(0, combat.totalPowerBonusOpponent),
+                    Mathf.Max(0, combat.totalPowerBonusPlayer),
+                    opponentAttackIds,
+                    playerAttackIds));
+            }
+
+            return snapshots.OrderBy(snapshot => snapshot.combatIndex).ToList();
+        }
+
+        static List<string> FilterAttackAbilityIds(DuelState duelState, List<string> abilityIds)
+        {
+            var result = new List<string>();
+            if (duelState?.abilitiesById == null || abilityIds == null)
+            {
+                return result;
+            }
+
+            for (int i = 0; i < abilityIds.Count; i++)
+            {
+                string abilityId = abilityIds[i];
+                if (string.IsNullOrWhiteSpace(abilityId))
+                {
+                    continue;
+                }
+
+                if (!duelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) || ability == null)
+                {
+                    continue;
+                }
+
+                if (ability.abilityType != AbilityType.Attack)
+                {
+                    continue;
+                }
+
+                result.Add(abilityId);
+            }
+
+            return result;
+        }
+
+        static Dictionary<int, DuelCombatResolveStepResult> BuildStepLookup(DuelCombatResolveResult resolveResult)
+        {
+            var lookup = new Dictionary<int, DuelCombatResolveStepResult>();
+            if (resolveResult?.steps == null)
+            {
+                return lookup;
+            }
+
+            for (int i = 0; i < resolveResult.steps.Count; i++)
+            {
+                DuelCombatResolveStepResult step = resolveResult.steps[i];
+                if (lookup.ContainsKey(step.combatIndex))
+                {
+                    continue;
+                }
+
+                lookup.Add(step.combatIndex, step);
+            }
+
+            return lookup;
+        }
+
+        int ResolveAbilityFinalPower(string abilityId)
+        {
+            if (sessionRunner.DuelState?.abilitiesById == null ||
+                string.IsNullOrWhiteSpace(abilityId) ||
+                !sessionRunner.DuelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) ||
+                ability == null)
+            {
+                return 0;
+            }
+
+            if (ability.abilityType != AbilityType.Attack)
+            {
+                return 0;
+            }
+
+            return ability.powerResult > 0
+                ? ability.powerResult
+                : Mathf.Max(0, ability.power);
+        }
+
+        int ResolveAbilityRouletteMax(string abilityId, int finalValue)
+        {
+            if (sessionRunner.DuelState?.abilitiesById == null ||
+                string.IsNullOrWhiteSpace(abilityId) ||
+                !sessionRunner.DuelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) ||
+                ability == null)
+            {
+                return Mathf.Max(1, finalValue);
+            }
+
+            return Mathf.Max(1, ability.power, finalValue);
+        }
+
+        readonly struct CombatRevealSnapshot
+        {
+            public int combatIndex { get; }
+            public int opponentBaseTotal { get; }
+            public int playerBaseTotal { get; }
+            public List<string> opponentAbilityIds { get; }
+            public List<string> playerAbilityIds { get; }
+
+            public CombatRevealSnapshot(
+                int combatIndex,
+                int opponentBaseTotal,
+                int playerBaseTotal,
+                List<string> opponentAbilityIds,
+                List<string> playerAbilityIds)
+            {
+                this.combatIndex = combatIndex;
+                this.opponentBaseTotal = opponentBaseTotal;
+                this.playerBaseTotal = playerBaseTotal;
+                this.opponentAbilityIds = opponentAbilityIds ?? new List<string>();
+                this.playerAbilityIds = playerAbilityIds ?? new List<string>();
+            }
         }
 
         BattleAnimationConfig ResolveAnimationConfig()
@@ -466,9 +773,9 @@ namespace Game.Presentation.Battle
                 runtimeAnimationConfig = ScriptableObject.CreateInstance<BattleAnimationConfig>();
                 runtimeAnimationConfig.hideFlags = HideFlags.HideAndDontSave;
                 runtimeAnimationConfig.rollDuration = 0.35f;
+                runtimeAnimationConfig.cardRollDuration = defaultCardRollDuration;
                 runtimeAnimationConfig.resolvePerCombatDuration = 0.55f;
                 runtimeAnimationConfig.resolveCombatGap = 0.15f;
-                runtimeAnimationConfig.turnTransitionDuration = 0.30f;
             }
 
             return runtimeAnimationConfig;
