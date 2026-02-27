@@ -5,12 +5,16 @@
 	"tier": "Normal",
 	"abilityLoadout": [
 		{
-			"abilityId": "ability.slash_sword",
-			"count": 3
+			"abilityId": "ability.enemy_basic_attack",
+			"count": 3,
+			"power": 5,
+			"cooldown": 1
 		},
 		{
-			"abilityId": "ability.crossbow",
-			"count": 1
+			"abilityId": "ability.enemy_basic_attack",
+			"count": 1,
+			"power": 12,
+			"cooldown": 2
 		}
 	]
 }
