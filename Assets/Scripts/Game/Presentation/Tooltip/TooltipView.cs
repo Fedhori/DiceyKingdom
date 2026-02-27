@@ -37,8 +37,6 @@ namespace Game.UI.Tooltip
                 nameImageDefaultColor = nameImage.color;
                 hasNameImageDefaultColor = true;
             }
-
-            gameObject.SetActive(false);
         }
 
         public void Show(TooltipModel model)

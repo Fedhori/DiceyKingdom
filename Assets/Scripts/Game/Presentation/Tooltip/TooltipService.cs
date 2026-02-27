@@ -58,6 +58,7 @@ namespace Game.UI.Tooltip
                 () => SceneManager.activeSceneChanged += OnActiveSceneChanged,
                 () => SceneManager.activeSceneChanged -= OnActiveSceneChanged));
             UpdateWorldCamera();
+            ResetStateAndHide();
         }
 
         void Update()
