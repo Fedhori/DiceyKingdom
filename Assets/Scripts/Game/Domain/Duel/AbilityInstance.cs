@@ -18,6 +18,7 @@ namespace Game.Domain.Duel
         public int power;
         public int baseRoll;
         public int powerResult;
+        public int rollMinPercent;
 
         public List<NumericModifier> powerModifiers = new();
         public List<NumericModifier> powerResultModifiers = new();
@@ -41,6 +42,11 @@ namespace Game.Domain.Duel
             if (cooldownRemaining < 0)
             {
                 errors.Add($"cooldownRemaining({cooldownRemaining}) is negative.");
+            }
+
+            if (rollMinPercent < 0 || rollMinPercent > 100)
+            {
+                errors.Add($"rollMinPercent({rollMinPercent}) must be in range 0..100.");
             }
 
             if (powerModifiers == null)

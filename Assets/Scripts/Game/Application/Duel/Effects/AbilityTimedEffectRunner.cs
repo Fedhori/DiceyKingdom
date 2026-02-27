@@ -444,6 +444,23 @@ namespace Game.Application.Duel.Effects
                 command.amount = amount;
             }
 
+            if (opCode == DuelEffectOpCode.PowerMinPercent)
+            {
+                if (!opDef.TryGetAmount(out int amount))
+                {
+                    warningMessage = $"Missing amount for op '{opDef.op}'.";
+                    return false;
+                }
+
+                if (amount < 0 || amount > 100)
+                {
+                    warningMessage = $"Invalid amount '{amount}' for op '{opDef.op}'.";
+                    return false;
+                }
+
+                command.amount = amount;
+            }
+
             if (opCode == DuelEffectOpCode.AddPowerModifier)
             {
                 if (!TryParseModifierLayer(opDef.layer, out ModifierLayer layer))
@@ -581,6 +598,7 @@ namespace Game.Application.Duel.Effects
                 }
 
                 ability.EnsureInitialized();
+                ability.rollMinPercent = 0;
                 RemoveSourcePrefixedModifiers(ability.powerModifiers, rollSourcePrefix);
                 RemoveSourcePrefixedModifiers(ability.powerResultModifiers, rollSourcePrefix);
             }

@@ -111,6 +111,24 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
+        public void RollAbility_AppliesRollMinPercentAsUniformLowerBound()
+        {
+            var ability = new AbilityInstance
+            {
+                power = 12,
+                rollMinPercent = 50
+            };
+            var fakeRollSource = new FakeRollSource(6);
+
+            DuelSimulator.RollAbility(ability, fakeRollSource);
+
+            Assert.AreEqual(6, fakeRollSource.lastMinInclusive);
+            Assert.AreEqual(12, fakeRollSource.lastMaxInclusive);
+            Assert.AreEqual(6, ability.baseRoll);
+            Assert.AreEqual(6, ability.powerResult);
+        }
+
+        [Test]
         public void ComputeTotalPower_UsesPowerResultSumPlusCombatBonus()
         {
             var combat = new CombatState

@@ -31,8 +31,17 @@ namespace Game.Domain.Duel
                 maxPower = 1;
             }
 
+            int minPower = 1;
+            if (ability.rollMinPercent > 0)
+            {
+                minPower = Mathf.Max(
+                    1,
+                    Mathf.FloorToInt(maxPower * (ability.rollMinPercent / 100f)));
+                minPower = Mathf.Min(minPower, maxPower);
+            }
+
             IRollSource source = rollSource ?? defaultRollSource;
-            ability.baseRoll = source.Next(1, maxPower);
+            ability.baseRoll = source.Next(minPower, maxPower);
             ApplyRollFinalization(ability);
         }
 

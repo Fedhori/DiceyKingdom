@@ -71,6 +71,14 @@ MonoBehaviour:
     m_Localized: If this ability loses its combat, it is destroyed.
     m_Metadata:
       m_Items: []
+  - m_Id: 9000000000017
+    m_Localized: <style=attack>Sword and Shield</style>
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9000000000018
+    m_Localized: Result minimum is 50% of current Power (rounded down).
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
@@ -78,4 +86,4 @@ MonoBehaviour:
       type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
         m_Entries: 
-        m_SharedEntries:
+        m_SharedEntries: []

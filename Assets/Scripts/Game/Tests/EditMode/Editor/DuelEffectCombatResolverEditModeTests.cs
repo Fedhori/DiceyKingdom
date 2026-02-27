@@ -71,6 +71,33 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
+        public void PowerMinPercent_SetsRollMinPercent()
+        {
+            var state = CreateDuelState();
+            state.abilitiesById["p1"] = new AbilityInstance
+            {
+                abilityDefId = "p1",
+                abilityType = AbilityType.Attack,
+                power = 12,
+                baseRoll = 4,
+                powerResult = 4
+            };
+
+            var resolver = new DuelEffectCombatResolver();
+            DuelEffectResult result = resolver.Apply(
+                state,
+                new DuelEffectCommand
+                {
+                    opCode = DuelEffectOpCode.PowerMinPercent,
+                    abilityId = "p1",
+                    amount = 50
+                });
+
+            Assert.IsTrue(result.isSuccess);
+            Assert.AreEqual(50, state.abilitiesById["p1"].rollMinPercent);
+        }
+
+        [Test]
         public void MoveAbility_Succeeds_WhenTargetHasSpace()
         {
             var state = CreateDuelState();

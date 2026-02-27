@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Game.Domain.Duel;
 using Game.Domain.Modifiers;
+using Game.Infrastructure.Data;
 using Game.Infrastructure.Data.Effects;
 using UnityEngine;
 
@@ -22,6 +23,7 @@ namespace Game.Application.Duel.Effects
             Register(new PreventOutgoingDamageOnWinEffectHandler());
             Register(new DestroyAbilityEffectHandler());
             Register(new ModifyOutgoingDamageOnWinEffectHandler());
+            Register(new PowerMinPercentEffectHandler());
         }
 
         public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context = null)
@@ -335,6 +337,47 @@ namespace Game.Application.Duel.Effects
                         ability.baseRoll,
                         ability.powerResultModifiers);
                 }
+
+                return DuelEffectResult.Success();
+            }
+        }
+
+        sealed class PowerMinPercentEffectHandler : IDuelEffectHandler
+        {
+            public DuelEffectOpCode opCode => DuelEffectOpCode.PowerMinPercent;
+
+            public DuelEffectResult Apply(DuelState state, DuelEffectCommand command, DuelEffectContext context)
+            {
+                if (string.IsNullOrWhiteSpace(command.abilityId))
+                {
+                    return DuelEffectResult.Fail(
+                        DuelEffectFailureReason.MissingField,
+                        "abilityId is required.");
+                }
+
+                if (command.amount < 0 || command.amount > 100)
+                {
+                    return DuelEffectResult.Fail(
+                        DuelEffectFailureReason.InvalidTarget,
+                        $"amount({command.amount}) must be in range 0..100.");
+                }
+
+                if (!state.abilitiesById.TryGetValue(command.abilityId, out AbilityInstance ability) || ability == null)
+                {
+                    return DuelEffectResult.Fail(
+                        DuelEffectFailureReason.InvalidTarget,
+                        $"abilityId({command.abilityId}) does not exist.");
+                }
+
+                if (ability.abilityType != AbilityType.Attack)
+                {
+                    return DuelEffectResult.Fail(
+                        DuelEffectFailureReason.InvalidTarget,
+                        $"abilityId({command.abilityId}) is not Attack type.");
+                }
+
+                ability.EnsureInitialized();
+                ability.rollMinPercent = Mathf.Max(ability.rollMinPercent, command.amount);
 
                 return DuelEffectResult.Success();
             }

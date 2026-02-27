@@ -150,6 +150,11 @@ namespace Game.Application.Duel
                 return false;
             }
 
+            AbilityTimedEffectRunResult timedResult = timedEffectRunner.ApplyForTiming(
+                state,
+                DuelEffectTiming.Roll,
+                deployedAbilityIds);
+
             int rolledCount = 0;
             foreach (string abilityId in deployedAbilityIds)
             {
@@ -178,8 +183,6 @@ namespace Game.Application.Duel
                 failureMessage = "all deployed abilities were invalid.";
                 return false;
             }
-
-            AbilityTimedEffectRunResult timedResult = timedEffectRunner.ApplyForTiming(state, DuelEffectTiming.Roll);
 
             if (!phaseRunner.AdvanceToNextPhase())
             {

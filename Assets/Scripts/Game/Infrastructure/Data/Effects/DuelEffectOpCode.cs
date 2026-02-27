@@ -10,6 +10,7 @@ namespace Game.Infrastructure.Data.Effects
         AddPowerModifier = 5,
         PreventOutgoingDamageOnWin = 6,
         DestroyAbility = 7,
-        ModifyOutgoingDamageOnWin = 8
+        ModifyOutgoingDamageOnWin = 8,
+        PowerMinPercent = 9
     }
 }

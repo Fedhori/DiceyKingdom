@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.sword_and_shield",
+  "type": "Attack",
+  "buildCost": 2,
+  "cooldown": 1,
+  "power": 12,
+  "nameLocKey": "ability.sword_and_shield.name",
+  "descLocKey": "ability.sword_and_shield.desc",
+  "isPlayerObtainable": true,
+  "iconId": "icon.default",
+  "effects": [
+    {
+      "timing": "Roll",
+      "condition": {
+        "type": "Always"
+      },
+      "ops": [
+        {
+          "op": "PowerMinPercent",
+          "scope": "Self",
+          "value": 50
+        }
+      ]
+    }
+  ]
+}

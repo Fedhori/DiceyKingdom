@@ -18,7 +18,8 @@ namespace Game.Infrastructure.Data
             nameof(DuelEffectOpCode.AddPowerModifier),
             nameof(DuelEffectOpCode.PreventOutgoingDamageOnWin),
             nameof(DuelEffectOpCode.DestroyAbility),
-            nameof(DuelEffectOpCode.ModifyOutgoingDamageOnWin)
+            nameof(DuelEffectOpCode.ModifyOutgoingDamageOnWin),
+            nameof(DuelEffectOpCode.PowerMinPercent)
         };
 
         static readonly HashSet<string> allowedConditionTypes = new(StringComparer.Ordinal)
@@ -632,6 +633,11 @@ namespace Game.Infrastructure.Data
                     ValidateOptionalSide(opDef, path, ownerId, context, report);
                     ValidateAmount(opDef, path, ownerId, context, report);
                     break;
+                case nameof(DuelEffectOpCode.PowerMinPercent):
+                    ValidateAmount(opDef, path, ownerId, context, report);
+                    ValidateAmountMin(opDef, 0, path, ownerId, context, report);
+                    ValidateAmountMax(opDef, 100, path, ownerId, context, report);
+                    break;
             }
         }
 
@@ -683,6 +689,56 @@ namespace Game.Infrastructure.Data
                     ownerId,
                     $"{context}: numeric amount is required (value/amount/delta).");
             }
+        }
+
+        void ValidateAmountMin(
+            EffectOpDef opDef,
+            int minInclusive,
+            string path,
+            string ownerId,
+            string context,
+            GameDataValidationReport report)
+        {
+            if (!opDef.TryGetAmount(out int amount))
+            {
+                return;
+            }
+
+            if (amount >= minInclusive)
+            {
+                return;
+            }
+
+            report.AddError(
+                GameDataErrorCode.InvalidValue,
+                path,
+                ownerId,
+                $"{context}: amount must be greater than or equal to {minInclusive}.");
+        }
+
+        void ValidateAmountMax(
+            EffectOpDef opDef,
+            int maxInclusive,
+            string path,
+            string ownerId,
+            string context,
+            GameDataValidationReport report)
+        {
+            if (!opDef.TryGetAmount(out int amount))
+            {
+                return;
+            }
+
+            if (amount <= maxInclusive)
+            {
+                return;
+            }
+
+            report.AddError(
+                GameDataErrorCode.InvalidValue,
+                path,
+                ownerId,
+                $"{context}: amount must be less than or equal to {maxInclusive}.");
         }
     }
 }

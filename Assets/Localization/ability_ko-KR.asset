@@ -75,6 +75,15 @@ MonoBehaviour:
     m_Localized: "\uD328\uBC30\uD558\uBA74 \uD30C\uAD34\uB429\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
+  - m_Id: 9000000000017
+    m_Localized: "<style=attack>\uAC80\uACFC \uBC29\uD328</style>"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9000000000018
+    m_Localized: "\uCD5C\uC18C\uAC12\uC774 \uD604\uC7AC \uD30C\uC6CC\uC758 50%\uC785\uB2C8\uB2E4.
+      (\uBC84\uB9BC)"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
@@ -82,4 +91,4 @@ MonoBehaviour:
       type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
       data:
         m_Entries: 
-        m_SharedEntries:
+        m_SharedEntries: []
