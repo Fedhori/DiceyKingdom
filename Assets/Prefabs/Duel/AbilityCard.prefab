@@ -785,6 +785,8 @@ GameObject:
   - component: {fileID: 3141867400666184952}
   - component: {fileID: 6764027904508452285}
   - component: {fileID: 5318962482360783948}
+  - component: {fileID: 8688173906389048454}
+  - component: {fileID: 6753540402595251183}
   m_Layer: 0
   m_Name: AbilityCard
   m_TagString: Untagged
@@ -937,6 +939,42 @@ MonoBehaviour:
   cooldownOverlayText: {fileID: 7577136260398098464}
   borderOutline: {fileID: 6764027904508452285}
   disabledOverlayImage: {fileID: 4009926487067558152}
+  tooltipProvider: {fileID: 6753540402595251183}
+  tooltipTarget: {fileID: 8688173906389048454}
+--- !u!114 &8688173906389048454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5766181574712087549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2defcb1dd81c1a04f96a78bc0101cf5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Runtime::Game.UI.Tooltip.TooltipTarget
+  tooltipService: {fileID: 0}
+  contentProvider: {fileID: 6753540402595251183}
+  anchorRect: {fileID: 0}
+  anchorType: 1
+  useShowDelayOverride: 0
+  showDelayOverride: 0.2
+  useScreenOffsetOverride: 0
+  screenOffsetOverride: {x: 16, y: 0}
+  useEdgePaddingOverride: 0
+  edgePaddingOverride: 8
+--- !u!114 &6753540402595251183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5766181574712087549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d4f14de00aeb84478c4c1272c183fa0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Runtime::Game.Presentation.Duel.AbilityCardTooltipProvider
 --- !u!1 &7305377960499291188
 GameObject:
   m_ObjectHideFlags: 0
@@ -1088,4 +1126,3 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
-

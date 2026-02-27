@@ -17,8 +17,6 @@ namespace Game.Presentation.Duel
         static readonly Color defaultCombatStartButtonColor = Colors.Semantic.StateInfo;
         static readonly Color defaultSurrenderButtonColor = Colors.Semantic.StateDanger;
         static readonly Color defaultButtonDisabledColor = Colors.Semantic.ActionSecondaryBgDisabled;
-        static readonly Color defaultTooltipBackgroundColor = Colors.Semantic.SurfaceSecondary;
-        static readonly Color defaultTooltipTextColor = Colors.Semantic.TextPrimary;
 
         readonly Image backgroundImage;
         readonly Image topBarImage;
@@ -32,8 +30,6 @@ namespace Game.Presentation.Duel
         readonly RectTransform enemyPassiveRow;
         readonly RectTransform playerPassiveRow;
         readonly DuelCombatZoneView[] combatZones;
-        readonly TMP_Text tooltipText;
-        readonly Image tooltipBackgroundImage;
         readonly DuelAbilityCardView abilityCardPrefab;
         readonly Func<string, Sprite> resolveAbilityIcon;
         readonly DuelAbilityTextFormatter abilityTextFormatter;
@@ -62,8 +58,6 @@ namespace Game.Presentation.Duel
             RectTransform playerPassiveRow,
             DuelCombatZoneView[] combatZones,
             DuelAbilityCardView abilityCardPrefab,
-            TMP_Text tooltipText,
-            Image tooltipBackgroundImage,
             Func<string, Sprite> resolveAbilityIcon)
         {
             this.backgroundImage = backgroundImage;
@@ -79,8 +73,6 @@ namespace Game.Presentation.Duel
             this.playerPassiveRow = playerPassiveRow;
             this.combatZones = combatZones ?? Array.Empty<DuelCombatZoneView>();
             this.abilityCardPrefab = abilityCardPrefab;
-            this.tooltipText = tooltipText;
-            this.tooltipBackgroundImage = tooltipBackgroundImage;
             this.resolveAbilityIcon = resolveAbilityIcon;
             abilityTextFormatter = new DuelAbilityTextFormatter(new UnityLocalizedTextResolver());
         }
@@ -121,7 +113,6 @@ namespace Game.Presentation.Duel
             HideDirectChildren(enemyPassiveRow);
             HideDirectChildren(playerPassiveRow);
             ReleaseAllActiveCards();
-            HideTooltip();
         }
 
         public void RenderTopBar(DuelTopBarState state)
@@ -152,7 +143,6 @@ namespace Game.Presentation.Duel
             Action<DuelAbilityCardView, string, DuelAbilityCardView.InteractionContext> onCardRightClick)
         {
             ReleaseAllActiveCards();
-            HideTooltip();
 
             RenderLoadoutRows(
                 state.duelState,
@@ -458,8 +448,6 @@ namespace Game.Presentation.Duel
                     false,
                     false,
                     null,
-                    ShowTooltip,
-                    HideTooltip,
                     DuelAbilityCardView.InteractionContext.None,
                     null,
                     null,
@@ -498,8 +486,6 @@ namespace Game.Presentation.Duel
                     isSelected,
                     isInteractable,
                     onPlayerAbilityClicked,
-                    ShowTooltip,
-                    HideTooltip,
                     DuelAbilityCardView.InteractionContext.Loadout,
                     onCardDragStart,
                     onCardDragMove,
@@ -631,8 +617,6 @@ namespace Game.Presentation.Duel
                     false,
                     false,
                     null,
-                    ShowTooltip,
-                    HideTooltip,
                     DuelAbilityCardView.InteractionContext.None,
                     null,
                     null,
@@ -664,8 +648,6 @@ namespace Game.Presentation.Duel
                     false,
                     false,
                     null,
-                    ShowTooltip,
-                    HideTooltip,
                     DuelAbilityCardView.InteractionContext.None,
                     null,
                     null,
@@ -741,8 +723,6 @@ namespace Game.Presentation.Duel
                     isSelected,
                     isInteractable,
                     onClick,
-                    ShowTooltip,
-                    HideTooltip,
                     context,
                     onCardDragStart,
                     onCardDragMove,
@@ -771,35 +751,6 @@ namespace Game.Presentation.Duel
                     canSurrender
                         ? defaultSurrenderButtonColor
                         : defaultButtonDisabledColor);
-            }
-        }
-
-        void ShowTooltip(string message)
-        {
-            if (tooltipText == null || tooltipBackgroundImage == null)
-            {
-                return;
-            }
-
-            tooltipText.text = string.IsNullOrWhiteSpace(message) ? "-" : message;
-            tooltipText.color = defaultTooltipTextColor;
-            tooltipText.gameObject.SetActive(true);
-
-            tooltipBackgroundImage.color = defaultTooltipBackgroundColor;
-            tooltipBackgroundImage.gameObject.SetActive(true);
-        }
-
-        void HideTooltip()
-        {
-            if (tooltipText != null)
-            {
-                tooltipText.text = string.Empty;
-                tooltipText.gameObject.SetActive(false);
-            }
-
-            if (tooltipBackgroundImage != null)
-            {
-                tooltipBackgroundImage.gameObject.SetActive(false);
             }
         }
 
@@ -1197,7 +1148,7 @@ namespace Game.Presentation.Duel
         {
             int displayPower = Mathf.Max(0, ability.power);
             string localizedTitle = abilityTextFormatter.FormatName(def);
-            string localizedTooltip = abilityTextFormatter.FormatTooltip(def, ability);
+            string localizedBody = abilityTextFormatter.FormatDescription(def, ability);
             Sprite iconSprite = resolveAbilityIcon == null
                 ? null
                 : resolveAbilityIcon.Invoke(def.iconId);
@@ -1205,7 +1156,7 @@ namespace Game.Presentation.Duel
             return new DuelAbilityCardView.BindData(
                 abilityId,
                 localizedTitle,
-                localizedTooltip,
+                localizedBody,
                 ability.abilityType,
                 iconSprite,
                 displayPower,

@@ -379,9 +379,9 @@ MonoBehaviour:
   tooltipCanvas: {fileID: 798601534}
   tooltipView: {fileID: 5216947745534751642}
   worldCamera: {fileID: 1362406954}
-  screenOffset: {x: 16, y: 0}
-  edgePadding: 8
-  showDelaySeconds: 0.2
+  defaultScreenOffset: {x: 16, y: 0}
+  defaultEdgePadding: 8
+  defaultShowDelaySeconds: 0.2
 --- !u!1 &138075226
 GameObject:
   m_ObjectHideFlags: 0
@@ -1451,7 +1451,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
   m_UiScaleMode: 1
-  m_ReferencePixelsPerUnit: 1
+  m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1080, y: 1920}
   m_ScreenMatchMode: 1
@@ -1827,7 +1827,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
   m_UiScaleMode: 1
-  m_ReferencePixelsPerUnit: 1
+  m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1080, y: 1920}
   m_ScreenMatchMode: 1
@@ -2225,7 +2225,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
   m_UiScaleMode: 1
-  m_ReferencePixelsPerUnit: 1
+  m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1080, y: 1920}
   m_ScreenMatchMode: 1
@@ -2326,9 +2326,9 @@ MonoBehaviour:
   quitGameButton: {fileID: 2046723263}
   returnToMainMenuButton: {fileID: 1884766968}
   bgmSlider: {fileID: 1800521313}
-  bgmManager: {fileID: 0}
-  gameSpeedManager: {fileID: 0}
-  modalManager: {fileID: 0}
+  bgmService: {fileID: 0}
+  gameSpeedService: {fileID: 0}
+  modalService: {fileID: 0}
   optionPanelSlide: {fileID: 0}
   optionOverlayFader: {fileID: 905322271}
 --- !u!1 &1312260796
@@ -3393,7 +3393,7 @@ MonoBehaviour:
   option: {fileID: 1228544523}
   floatingText: {fileID: 2000097298}
   toast: {fileID: 1017751264}
-  audioManager: {fileID: 784719081}
+  audioService: {fileID: 0}
   bgm: {fileID: 296615733}
   input: {fileID: 169657405}
   gameSpeed: {fileID: 2034824236}
@@ -4199,7 +4199,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1e636de56a2e4e4196eda2dcee6cc5a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PinTooltipView
+  m_EditorClassIdentifier: Game.Runtime::Game.UI.Tooltip.TooltipView
 --- !u!224 &7034255424747963546 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5496593966321125991, guid: 2f97a1354c5eef940a1482f19d4aa2dd, type: 3}

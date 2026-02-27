@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Game.Infrastructure.Data;
+using Game.UI.Tooltip;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -51,8 +52,8 @@ namespace Game.Presentation.Duel
         public readonly struct BindData
         {
             public string instanceId { get; }
-            public string title { get; }
-            public string tooltipText { get; }
+            public string tooltipTitle { get; }
+            public string tooltipBody { get; }
             public AbilityType abilityType { get; }
             public Sprite iconSprite { get; }
             public int power { get; }
@@ -62,8 +63,8 @@ namespace Game.Presentation.Duel
 
             public BindData(
                 string instanceId,
-                string title,
-                string tooltipText,
+                string tooltipTitle,
+                string tooltipBody,
                 AbilityType abilityType,
                 Sprite iconSprite,
                 int power,
@@ -72,8 +73,8 @@ namespace Game.Presentation.Duel
                 int cooldownRemaining)
             {
                 this.instanceId = instanceId ?? string.Empty;
-                this.title = title ?? string.Empty;
-                this.tooltipText = tooltipText ?? string.Empty;
+                this.tooltipTitle = tooltipTitle ?? string.Empty;
+                this.tooltipBody = tooltipBody ?? string.Empty;
                 this.abilityType = abilityType;
                 this.iconSprite = iconSprite;
                 this.power = power;
@@ -108,18 +109,16 @@ namespace Game.Presentation.Duel
         [SerializeField] TMP_Text cooldownOverlayText;
         [SerializeField] Outline borderOutline;
         [SerializeField] Image disabledOverlayImage;
+        [SerializeField] AbilityCardTooltipProvider tooltipProvider;
+        [SerializeField] TooltipTarget tooltipTarget;
 
         Action<string> clickHandler;
-        Action<string> tooltipEnterHandler;
-        Action tooltipExitHandler;
         Action<DuelAbilityCardView, string, InteractionContext, Vector2, Camera> dragStartHandler;
         Action<DuelAbilityCardView, string, InteractionContext, Vector2, Camera> dragMoveHandler;
         Action<DuelAbilityCardView, string, InteractionContext, Vector2, Camera> dragEndHandler;
         Action<DuelAbilityCardView, string, InteractionContext> rightClickHandler;
 
         string instanceId = string.Empty;
-        string tooltipText = string.Empty;
-        bool isHoverable;
         bool isInteractable;
         bool isDragging;
         bool isLeftPointerDown;
@@ -160,8 +159,6 @@ namespace Game.Presentation.Duel
             bool isSelected,
             bool isInteractable,
             Action<string> onClick,
-            Action<string> onTooltipEnter,
-            Action onTooltipExit,
             InteractionContext context,
             Action<DuelAbilityCardView, string, InteractionContext, Vector2, Camera> onDragStart,
             Action<DuelAbilityCardView, string, InteractionContext, Vector2, Camera> onDragMove,
@@ -169,17 +166,17 @@ namespace Game.Presentation.Duel
             Action<DuelAbilityCardView, string, InteractionContext> onRightClick)
         {
             instanceId = bindData.instanceId;
-            tooltipText = bindData.tooltipText;
             this.isInteractable = isInteractable;
             interactionContext = context;
             clickHandler = onClick;
-            tooltipEnterHandler = onTooltipEnter;
-            tooltipExitHandler = onTooltipExit;
             dragStartHandler = onDragStart;
             dragMoveHandler = onDragMove;
             dragEndHandler = onDragEnd;
             rightClickHandler = onRightClick;
-            isHoverable = !string.IsNullOrWhiteSpace(tooltipText);
+            if (tooltipProvider != null)
+            {
+                tooltipProvider.SetContent(bindData.tooltipTitle, bindData.tooltipBody);
+            }
 
             currentBackgroundColor = isSelected
                 ? defaultCardBackgroundSelected
@@ -272,17 +269,10 @@ namespace Game.Presentation.Duel
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (!isHoverable)
-            {
-                return;
-            }
-
-            tooltipEnterHandler?.Invoke(tooltipText);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            tooltipExitHandler?.Invoke();
         }
 
         public void OnPointerDown(PointerEventData eventData)
@@ -485,6 +475,16 @@ namespace Game.Presentation.Duel
             if (disabledOverlayImage == null)
             {
                 missing.Add(nameof(disabledOverlayImage));
+            }
+
+            if (tooltipProvider == null)
+            {
+                missing.Add(nameof(tooltipProvider));
+            }
+
+            if (tooltipTarget == null)
+            {
+                missing.Add(nameof(tooltipTarget));
             }
 
             if (missing.Count == 0)

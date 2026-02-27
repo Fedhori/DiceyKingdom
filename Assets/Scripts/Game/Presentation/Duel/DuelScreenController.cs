@@ -38,8 +38,6 @@ namespace Game.Presentation.Duel
         [SerializeField] RectTransform playerPassiveRow;
         [SerializeField] DuelCombatZoneView[] combatZones = Array.Empty<DuelCombatZoneView>();
         [SerializeField] DuelAbilityCardView abilityCardPrefab;
-        [SerializeField] TMP_Text tooltipText;
-        [SerializeField] Image tooltipBackgroundImage;
         [SerializeField] DuelAnimationConfig animationConfig;
 
         readonly DuelSessionRunner sessionRunner = new();
@@ -135,8 +133,6 @@ namespace Game.Presentation.Duel
                 playerPassiveRow,
                 combatZones,
                 abilityCardPrefab,
-                tooltipText,
-                tooltipBackgroundImage,
                 abilityIconCache.ResolveOrDefault);
         }
 

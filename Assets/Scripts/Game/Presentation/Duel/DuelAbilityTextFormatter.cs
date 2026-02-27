@@ -50,7 +50,7 @@ namespace Game.Presentation.Duel
             return $"{localizedName}\n{localizedDescription}";
         }
 
-        string FormatDescription(AbilityDef def, AbilityInstance ability)
+        public string FormatDescription(AbilityDef def, AbilityInstance ability)
         {
             if (def == null)
             {
