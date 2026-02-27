@@ -31,76 +31,12 @@ MonoBehaviour:
     m_Key: modal.quitgame.message
     m_Metadata:
       m_Items: []
-  - m_Id: 4468386867986432
-    m_Key: modal.sellitem.message
-    m_Metadata:
-      m_Items: []
-  - m_Id: 4468441343606784
-    m_Key: modal.sellitem.title
-    m_Metadata:
-      m_Items: []
   - m_Id: 6894173151571968
     m_Key: modal.mainmenu.title
     m_Metadata:
       m_Items: []
   - m_Id: 6894197600169984
     m_Key: modal.mainmenu.desc
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7651726059909120
-    m_Key: modal.restart.title
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7651769194131456
-    m_Key: modal.restart.desc
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7651769194131457
-    m_Key: modal.upgradeReplace.title
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7651769194131458
-    m_Key: modal.upgradeReplace.body
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7651769194131459
-    m_Key: modal.upgradeSell.title
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7651769194131460
-    m_Key: modal.upgradeSell.message
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7651769194131461
-    m_Key: modal.saveFailed.title
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7651769194131462
-    m_Key: modal.saveFailed.message
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7651769194131463
-    m_Key: modal.loadFailed.title
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7651769194131464
-    m_Key: modal.loadFailed.message
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7651769194131465
-    m_Key: modal.loadBackup.title
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7651769194131466
-    m_Key: modal.loadBackup.message
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7651769194131467
-    m_Key: modal.newRunOverwrite.title
-    m_Metadata:
-      m_Items: []
-  - m_Id: 7651769194131468
-    m_Key: modal.newRunOverwrite.message
     m_Metadata:
       m_Items: []
   - m_Id: 23620127789953024

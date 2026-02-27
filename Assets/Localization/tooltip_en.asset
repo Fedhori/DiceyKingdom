@@ -18,45 +18,7 @@ MonoBehaviour:
   m_Metadata:
     m_Items:
     - rid: 1113825116433678411
-  m_TableData:
-  - m_Id: 9134393871839232
-    m_Localized: 
-    m_Metadata:
-      m_Items:
-      - rid: 1113825116433678411
-  - m_Id: 9134255610802176
-    m_Localized: 'Damage : {damage} (x{multiplier})'
-    m_Metadata:
-      m_Items:
-      - rid: 1113825116433678411
-  - m_Id: 10581387094011904
-    m_Localized: 'Pierce : {value}'
-    m_Metadata:
-      m_Items:
-      - rid: 1113825116433678411
-  - m_Id: 10581387094011905
-    m_Localized: 'Status: Freeze'
-    m_Metadata:
-      m_Items:
-      - rid: 1113825116433678411
-  - m_Id: 10581387094011921
-    m_Localized: 'Explosion {value}'
-    m_Metadata:
-      m_Items:
-      - rid: 1113825116433678411
-  - m_Id: 10581387094011922
-    m_Localized: 
-    m_Metadata:
-      m_Items: []
-  - m_Id: 10581387094011923
-    m_Localized: 
-    m_Metadata:
-      m_Items: []
-  - m_Id: 10581387094011924
-    m_Localized: 'Lifetime: {value}'
-    m_Metadata:
-      m_Items:
-      - rid: 1113825116433678411
+  m_TableData: []
   references:
     version: 2
     RefIds:
@@ -65,11 +27,3 @@ MonoBehaviour:
       data:
         m_Entries: 
         m_SharedEntries:
-        - id: 9134393871839232
-        - id: 9134255610802176
-        - id: 10581387094011904
-        - id: 10581387094011905
-        - id: 10581387094011921
-        - id: 10581387094011922
-        - id: 10581387094011923
-        - id: 10581387094011924
