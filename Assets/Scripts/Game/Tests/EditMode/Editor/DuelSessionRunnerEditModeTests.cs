@@ -242,6 +242,30 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(1, totalBonus);
         }
 
+        [Test]
+        public void TryInitialize_AppliesEnemyLoadoutPowerAndCooldownOverridesToInstances()
+        {
+            GameDatabase database = CreateDatabase(startingHonor: 1);
+            database.enemiesById["enemy.test"].abilityLoadout[0].power = 11;
+            database.enemiesById["enemy.test"].abilityLoadout[0].cooldown = 3;
+
+            var sessionRunner = new DuelSessionRunner();
+            bool success = sessionRunner.TryInitialize(
+                database,
+                "enemy.test",
+                advanceToPlayerSetup: false,
+                out string failureMessage);
+
+            Assert.IsTrue(success, failureMessage);
+            Assert.AreEqual(DuelPhase.Reset, sessionRunner.PhaseRunner.currentPhase);
+            Assert.AreEqual(1, sessionRunner.DuelState.opponentLoadoutAbilityIds.Count);
+
+            string instanceId = sessionRunner.DuelState.opponentLoadoutAbilityIds[0];
+            AbilityInstance ability = sessionRunner.DuelState.abilitiesById[instanceId];
+            Assert.AreEqual(11, ability.power);
+            Assert.AreEqual(3, ability.cooldownTurns);
+        }
+
         static GameDatabase CreateDatabase(int startingHonor)
         {
             var database = new GameDatabase
@@ -288,9 +312,9 @@ namespace Game.Tests.EditMode
             database.enemiesById["enemy.test"] = new EnemyDef
             {
                 health = 8,
-                abilityLoadout = new List<SummonAbilityRefDef>
+                abilityLoadout = new List<AbilityLoadoutEntryDef>
                 {
-                    new SummonAbilityRefDef
+                    new AbilityLoadoutEntryDef
                     {
                         abilityId = "ability.enemy",
                         count = 1

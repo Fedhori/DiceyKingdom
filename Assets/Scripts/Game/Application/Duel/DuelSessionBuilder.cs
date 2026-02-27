@@ -250,7 +250,7 @@ namespace Game.Application.Duel
 
             for (int loadoutIndex = 0; loadoutIndex < enemyDef.abilityLoadout.Count; loadoutIndex++)
             {
-                SummonAbilityRefDef abilityRef = enemyDef.abilityLoadout[loadoutIndex];
+                AbilityLoadoutEntryDef abilityRef = enemyDef.abilityLoadout[loadoutIndex];
                 if (abilityRef == null || abilityRef.count <= 0 || string.IsNullOrWhiteSpace(abilityRef.abilityId))
                 {
                     continue;
@@ -266,7 +266,11 @@ namespace Game.Application.Duel
                 int requestedCount = Mathf.Max(0, abilityRef.count);
                 for (int copyIndex = 0; copyIndex < requestedCount; copyIndex++)
                 {
-                    AbilityInstance abilityInstance = CreateAbilityInstance(abilityRef.abilityId, abilityDef);
+                    AbilityInstance abilityInstance = CreateAbilityInstance(
+                        abilityRef.abilityId,
+                        abilityDef,
+                        abilityRef.power,
+                        abilityRef.cooldown);
                     state.abilitiesById[abilityInstance.instanceId] = abilityInstance;
                     state.opponentLoadoutAbilityIds.Add(abilityInstance.instanceId);
                 }
@@ -310,7 +314,11 @@ namespace Game.Application.Duel
             }
         }
 
-        static AbilityInstance CreateAbilityInstance(string abilityDefId, AbilityDef abilityDef)
+        static AbilityInstance CreateAbilityInstance(
+            string abilityDefId,
+            AbilityDef abilityDef,
+            int? powerOverride = null,
+            int? cooldownOverride = null)
         {
             AbilityType abilityType = AbilityType.Attack;
             if (!abilityDef.TryGetAbilityType(out abilityType))
@@ -320,8 +328,25 @@ namespace Game.Application.Duel
                 abilityType = AbilityType.Attack;
             }
 
-            int resolvedPower = Mathf.Max(0, abilityDef.ResolvePower());
-            int cooldownTurns = abilityDef.ResolveCooldownTurns(abilityType);
+            int resolvedPower = powerOverride ?? abilityDef.ResolvePower();
+            int cooldownTurns = cooldownOverride ?? abilityDef.ResolveCooldownTurns(abilityType);
+
+            if (abilityType == AbilityType.Attack && resolvedPower <= 0)
+            {
+                string message =
+                    $"[DuelSessionBuilder] Invalid power({resolvedPower}) for '{abilityDefId}' type({abilityType}).";
+                Debug.LogError(message);
+                throw new InvalidOperationException(message);
+            }
+
+            if (abilityType != AbilityType.Attack && resolvedPower != 0)
+            {
+                string message =
+                    $"[DuelSessionBuilder] Invalid power({resolvedPower}) for '{abilityDefId}' type({abilityType}). Non-Attack must be 0.";
+                Debug.LogError(message);
+                throw new InvalidOperationException(message);
+            }
+
             int minCooldown = AbilityDef.GetMinimumCooldownTurns(abilityType);
             if (cooldownTurns < minCooldown)
             {
@@ -356,7 +381,7 @@ namespace Game.Application.Duel
             int total = 0;
             for (int i = 0; i < enemyDef.abilityLoadout.Count; i++)
             {
-                SummonAbilityRefDef entry = enemyDef.abilityLoadout[i];
+                AbilityLoadoutEntryDef entry = enemyDef.abilityLoadout[i];
                 if (entry == null || entry.count <= 0)
                 {
                     continue;

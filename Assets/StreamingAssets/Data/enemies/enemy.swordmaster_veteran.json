@@ -9,8 +9,10 @@
       "count": 1
     },
     {
-      "abilityId": "ability.swordmaster_steady_slash",
-      "count": 2
+      "abilityId": "ability.enemy_basic_attack",
+      "count": 2,
+      "power": 10,
+      "cooldown": 1
     }
   ]
 }

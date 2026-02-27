@@ -385,7 +385,7 @@ namespace Game.Infrastructure.Data
 
                 for (int loadoutIndex = 0; loadoutIndex < enemyDef.abilityLoadout.Count; loadoutIndex++)
                 {
-                    SummonAbilityRefDef abilityRef = enemyDef.abilityLoadout[loadoutIndex];
+                    AbilityLoadoutEntryDef abilityRef = enemyDef.abilityLoadout[loadoutIndex];
                     if (abilityRef == null)
                     {
                         report.AddError(
@@ -421,12 +421,54 @@ namespace Game.Infrastructure.Data
                             id,
                             $"abilityLoadout[{loadoutIndex}].count must be greater than or equal to 0.");
                     }
+
+                    if (!database.abilitiesById.TryGetValue(abilityRef.abilityId, out AbilityDef abilityDef) ||
+                        abilityDef == null ||
+                        !abilityDef.TryGetAbilityType(out AbilityType abilityType))
+                    {
+                        continue;
+                    }
+
+                    if (abilityRef.power.HasValue)
+                    {
+                        int overridePower = abilityRef.power.Value;
+                        if (abilityType == AbilityType.Attack && overridePower <= 0)
+                        {
+                            report.AddError(
+                                GameDataErrorCode.InvalidValue,
+                                path,
+                                id,
+                                $"abilityLoadout[{loadoutIndex}].power must be greater than 0 for Attack.");
+                        }
+
+                        if (abilityType != AbilityType.Attack && overridePower != 0)
+                        {
+                            report.AddError(
+                                GameDataErrorCode.InvalidValue,
+                                path,
+                                id,
+                                $"abilityLoadout[{loadoutIndex}].power must be 0 for {abilityType}.");
+                        }
+                    }
+
+                    if (abilityRef.cooldown.HasValue)
+                    {
+                        int minCooldown = AbilityDef.GetMinimumCooldownTurns(abilityType);
+                        if (abilityRef.cooldown.Value < minCooldown)
+                        {
+                            report.AddError(
+                                GameDataErrorCode.InvalidValue,
+                                path,
+                                id,
+                                $"abilityLoadout[{loadoutIndex}].cooldown must be greater than or equal to {minCooldown} for {abilityType}.");
+                        }
+                    }
                 }
 
                 int totalCount = 0;
                 for (int loadoutIndex = 0; loadoutIndex < enemyDef.abilityLoadout.Count; loadoutIndex++)
                 {
-                    SummonAbilityRefDef abilityRef = enemyDef.abilityLoadout[loadoutIndex];
+                    AbilityLoadoutEntryDef abilityRef = enemyDef.abilityLoadout[loadoutIndex];
                     if (abilityRef == null || abilityRef.count <= 0)
                     {
                         continue;

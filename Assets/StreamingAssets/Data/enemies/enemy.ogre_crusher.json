@@ -5,12 +5,16 @@
   "tier": "Elite",
   "abilityLoadout": [
     {
-      "abilityId": "ability.ogre_crush",
-      "count": 1
+      "abilityId": "ability.enemy_basic_attack",
+      "count": 1,
+      "power": 30,
+      "cooldown": 3
     },
     {
-      "abilityId": "ability.ogre_swing",
-      "count": 2
+      "abilityId": "ability.enemy_basic_attack",
+      "count": 2,
+      "power": 10,
+      "cooldown": 1
     }
   ]
 }

@@ -9,8 +9,10 @@
       "count": 1
     },
     {
-      "abilityId": "ability.slime_sticky_mucus",
-      "count": 3
+      "abilityId": "ability.enemy_basic_attack",
+      "count": 3,
+      "power": 5,
+      "cooldown": 1
     }
   ]
 }

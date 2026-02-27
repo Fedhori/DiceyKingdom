@@ -9,6 +9,7 @@
     "Data/abilities/ability.slash_sword.json",
     "Data/abilities/ability.shield_up.json",
     "Data/abilities/ability.crossbow.json",
+    "Data/abilities/ability.enemy_basic_attack.json",
     "Data/abilities/ability.passive_regen.json",
     "Data/abilities/ability.goblin_sneaky_strike.json",
     "Data/abilities/ability.nomad_sharp_scimitar.json",

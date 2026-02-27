@@ -20,7 +20,7 @@ namespace Game.Infrastructure.Data
         public string tier = EnemyTier.Normal.ToString();
 
         [JsonProperty("abilityLoadout", Required = Required.Always)]
-        public List<SummonAbilityRefDef> abilityLoadout = new();
+        public List<AbilityLoadoutEntryDef> abilityLoadout = new();
 
         public bool TryGetTier(out EnemyTier enemyTier)
         {

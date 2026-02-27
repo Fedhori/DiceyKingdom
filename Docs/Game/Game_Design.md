@@ -43,7 +43,10 @@ flowchart TD
 
 ### 3.3 OpponentSetup (enemy deployment)
 
-- The enemy has an `abilityLoadout` (abilityId + count).
+- The enemy has an `abilityLoadout` entry list:
+  - required: `abilityId`, `count`
+  - optional overrides: `power`, `cooldown`
+- If overrides are omitted, runtime uses values from the referenced `AbilityDef`.
 - Enemy and player abilities use the same runtime interaction rules.
 - Difference: enemy placement is driven by AI random assignment.
 - During OpponentSetup, deployable enemy abilities are assigned to random `combatIndex` in **0..2**.

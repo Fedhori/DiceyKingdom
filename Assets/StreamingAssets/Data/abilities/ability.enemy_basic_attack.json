@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.enemy_basic_attack",
+  "type": "Attack",
+  "buildCost": 1,
+  "cooldown": 1,
+  "power": 1,
+  "nameLocKey": "ability.enemy_basic_attack_name",
+  "descLocKey": "ability.enemy_basic_attack_desc",
+  "isPlayerObtainable": false,
+  "iconId": "icon.default",
+  "effects": []
+}

@@ -213,6 +213,152 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
+        public void Load_SucceedsWhenEnemyLoadoutUsesPowerAndCooldownOverrides()
+        {
+            Dictionary<string, string> files = CreateValidDataSet();
+            files["Data/enemies/enemy.test_1.json"] =
+@"{
+  ""schemaVersion"": 2,
+  ""id"": ""enemy.test_1"",
+  ""health"": 10,
+  ""tier"": ""Normal"",
+  ""abilityLoadout"": [
+    { ""abilityId"": ""ability.test_1"", ""count"": 1, ""power"": 9, ""cooldown"": 3 }
+  ]
+}";
+
+            var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
+            GameDataBuildResult result = loader.Load(new GameDataLoadOptions
+            {
+                dataIndexPath = "Data/DataIndex.json",
+                mode = GameDataBuildMode.Development
+            });
+
+            Assert.IsTrue(result.isSuccess);
+            EnemyDef enemy = result.database.enemiesById["enemy.test_1"];
+            Assert.IsTrue(enemy.abilityLoadout[0].power.HasValue);
+            Assert.IsTrue(enemy.abilityLoadout[0].cooldown.HasValue);
+            Assert.AreEqual(9, enemy.abilityLoadout[0].power.Value);
+            Assert.AreEqual(3, enemy.abilityLoadout[0].cooldown.Value);
+        }
+
+        [Test]
+        public void Load_FailsWhenEnemyLoadoutAttackPowerOverrideIsNonPositive()
+        {
+            Dictionary<string, string> files = CreateValidDataSet();
+            files["Data/enemies/enemy.test_1.json"] =
+@"{
+  ""schemaVersion"": 2,
+  ""id"": ""enemy.test_1"",
+  ""health"": 10,
+  ""tier"": ""Normal"",
+  ""abilityLoadout"": [
+    { ""abilityId"": ""ability.test_1"", ""count"": 1, ""power"": 0 }
+  ]
+}";
+
+            var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
+            LogAssert.ignoreFailingMessages = true;
+            try
+            {
+                GameDataBuildResult result = loader.Load(new GameDataLoadOptions
+                {
+                    dataIndexPath = "Data/DataIndex.json",
+                    mode = GameDataBuildMode.Development
+                });
+
+                Assert.IsFalse(result.isSuccess);
+                Assert.IsTrue(result.report.Errors.Any(e => e.code == GameDataErrorCode.InvalidValue));
+            }
+            finally
+            {
+                LogAssert.ignoreFailingMessages = false;
+            }
+        }
+
+        [Test]
+        public void Load_FailsWhenEnemyLoadoutCooldownOverrideIsBelowMinimum()
+        {
+            Dictionary<string, string> files = CreateValidDataSet();
+            files["Data/enemies/enemy.test_1.json"] =
+@"{
+  ""schemaVersion"": 2,
+  ""id"": ""enemy.test_1"",
+  ""health"": 10,
+  ""tier"": ""Normal"",
+  ""abilityLoadout"": [
+    { ""abilityId"": ""ability.test_1"", ""count"": 1, ""cooldown"": 0 }
+  ]
+}";
+
+            var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
+            LogAssert.ignoreFailingMessages = true;
+            try
+            {
+                GameDataBuildResult result = loader.Load(new GameDataLoadOptions
+                {
+                    dataIndexPath = "Data/DataIndex.json",
+                    mode = GameDataBuildMode.Development
+                });
+
+                Assert.IsFalse(result.isSuccess);
+                Assert.IsTrue(result.report.Errors.Any(e => e.code == GameDataErrorCode.InvalidValue));
+            }
+            finally
+            {
+                LogAssert.ignoreFailingMessages = false;
+            }
+        }
+
+        [Test]
+        public void Load_FailsWhenEnemyLoadoutNonAttackPowerOverrideIsNonZero()
+        {
+            Dictionary<string, string> files = CreateValidDataSet();
+            files["Data/abilities/ability.test_1.json"] =
+@"{
+  ""schemaVersion"": 2,
+  ""id"": ""ability.test_1"",
+  ""type"": ""Passive"",
+  ""buildCost"": 0,
+  ""cooldown"": 0,
+  ""power"": 0,
+  ""nameLocKey"": ""ability.test_1_name"",
+  ""descLocKey"": ""ability.test_1_desc"",
+  ""isPlayerObtainable"": true,
+  ""iconId"": ""ability.test_1"",
+  ""effects"": []
+}";
+            files["Data/enemies/enemy.test_1.json"] =
+@"{
+  ""schemaVersion"": 2,
+  ""id"": ""enemy.test_1"",
+  ""health"": 10,
+  ""tier"": ""Normal"",
+  ""abilityLoadout"": [
+    { ""abilityId"": ""ability.test_1"", ""count"": 1, ""power"": 1 }
+  ]
+}";
+
+            var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
+            LogAssert.ignoreFailingMessages = true;
+            try
+            {
+                GameDataBuildResult result = loader.Load(new GameDataLoadOptions
+                {
+                    dataIndexPath = "Data/DataIndex.json",
+                    mode = GameDataBuildMode.Development
+                });
+
+                Assert.IsFalse(result.isSuccess);
+                Assert.IsTrue(result.report.Errors.Any(e => e.code == GameDataErrorCode.InvalidValue));
+            }
+            finally
+            {
+                LogAssert.ignoreFailingMessages = false;
+            }
+        }
+
+        [Test]
         public void Load_FailsWhenAbilityIconFileIsMissing()
         {
             Dictionary<string, string> files = CreateValidDataSet();

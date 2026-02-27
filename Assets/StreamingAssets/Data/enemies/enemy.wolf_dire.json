@@ -5,8 +5,10 @@
   "tier": "Normal",
   "abilityLoadout": [
     {
-      "abilityId": "ability.wolf_bite",
-      "count": 8
+      "abilityId": "ability.enemy_basic_attack",
+      "count": 8,
+      "power": 3,
+      "cooldown": 1
     }
   ]
 }
