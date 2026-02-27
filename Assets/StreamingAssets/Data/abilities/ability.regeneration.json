@@ -5,8 +5,8 @@
   "buildCost": 0,
   "cooldown": 0,
   "power": 0,
-  "nameLocKey": "ability.regeneration_name",
-  "descLocKey": "ability.regeneration_desc",
+  "nameLocKey": "ability.regeneration.name",
+  "descLocKey": "ability.regeneration.desc",
   "isPlayerObtainable": true,
   "iconId": "icon.default",
   "effects": [

@@ -69,8 +69,8 @@ namespace Game.Tests.EditMode
   ""buildCost"": 0,
   ""cooldown"": 1,
   ""power"": 2,
-  ""nameLocKey"": ""ability.test_1_name"",
-  ""descLocKey"": ""ability.test_1_desc"",
+  ""nameLocKey"": ""ability.test_1.name"",
+  ""descLocKey"": ""ability.test_1.desc"",
   ""isPlayerObtainable"": true,
   ""iconId"": ""ability.test_1"",
   ""effects"": [],
@@ -97,7 +97,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void Load_FailsWhenModifierLayerIsNotCaseSensitiveMatch()
+        public void Load_FailsWhenNameLocKeyDoesNotMatchAbilityIdPattern()
         {
             Dictionary<string, string> files = CreateValidDataSet();
             files["Data/abilities/ability.test_1.json"] =
@@ -109,7 +109,85 @@ namespace Game.Tests.EditMode
   ""cooldown"": 1,
   ""power"": 2,
   ""nameLocKey"": ""ability.test_1_name"",
+  ""descLocKey"": ""ability.test_1.desc"",
+  ""isPlayerObtainable"": true,
+  ""iconId"": ""ability.test_1"",
+  ""effects"": []
+}";
+
+            var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
+            LogAssert.ignoreFailingMessages = true;
+            try
+            {
+                GameDataBuildResult result = loader.Load(new GameDataLoadOptions
+                {
+                    dataIndexPath = "Data/DataIndex.json",
+                    mode = GameDataBuildMode.Development
+                });
+
+                Assert.IsFalse(result.isSuccess);
+                Assert.IsTrue(result.report.Errors.Any(e => e.code == GameDataErrorCode.InvalidValue));
+                Assert.IsTrue(result.report.Errors.Any(e => e.message.Contains("nameLocKey must be 'ability.test_1.name'")));
+            }
+            finally
+            {
+                LogAssert.ignoreFailingMessages = false;
+            }
+        }
+
+        [Test]
+        public void Load_FailsWhenDescLocKeyDoesNotMatchAbilityIdPattern()
+        {
+            Dictionary<string, string> files = CreateValidDataSet();
+            files["Data/abilities/ability.test_1.json"] =
+@"{
+  ""schemaVersion"": 2,
+  ""id"": ""ability.test_1"",
+  ""type"": ""Attack"",
+  ""buildCost"": 0,
+  ""cooldown"": 1,
+  ""power"": 2,
+  ""nameLocKey"": ""ability.test_1.name"",
   ""descLocKey"": ""ability.test_1_desc"",
+  ""isPlayerObtainable"": true,
+  ""iconId"": ""ability.test_1"",
+  ""effects"": []
+}";
+
+            var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
+            LogAssert.ignoreFailingMessages = true;
+            try
+            {
+                GameDataBuildResult result = loader.Load(new GameDataLoadOptions
+                {
+                    dataIndexPath = "Data/DataIndex.json",
+                    mode = GameDataBuildMode.Development
+                });
+
+                Assert.IsFalse(result.isSuccess);
+                Assert.IsTrue(result.report.Errors.Any(e => e.code == GameDataErrorCode.InvalidValue));
+                Assert.IsTrue(result.report.Errors.Any(e => e.message.Contains("descLocKey must be 'ability.test_1.desc'")));
+            }
+            finally
+            {
+                LogAssert.ignoreFailingMessages = false;
+            }
+        }
+
+        [Test]
+        public void Load_FailsWhenModifierLayerIsNotCaseSensitiveMatch()
+        {
+            Dictionary<string, string> files = CreateValidDataSet();
+            files["Data/abilities/ability.test_1.json"] =
+@"{
+  ""schemaVersion"": 2,
+  ""id"": ""ability.test_1"",
+  ""type"": ""Attack"",
+  ""buildCost"": 0,
+  ""cooldown"": 1,
+  ""power"": 2,
+  ""nameLocKey"": ""ability.test_1.name"",
+  ""descLocKey"": ""ability.test_1.desc"",
   ""isPlayerObtainable"": true,
   ""iconId"": ""ability.test_1"",
   ""effects"": [
@@ -322,8 +400,8 @@ namespace Game.Tests.EditMode
   ""buildCost"": 0,
   ""cooldown"": 0,
   ""power"": 0,
-  ""nameLocKey"": ""ability.test_1_name"",
-  ""descLocKey"": ""ability.test_1_desc"",
+  ""nameLocKey"": ""ability.test_1.name"",
+  ""descLocKey"": ""ability.test_1.desc"",
   ""isPlayerObtainable"": true,
   ""iconId"": ""ability.test_1"",
   ""effects"": []
@@ -395,8 +473,8 @@ namespace Game.Tests.EditMode
   ""buildCost"": 0,
   ""cooldown"": 1,
   ""power"": 2,
-  ""nameLocKey"": ""ability.test_1_name"",
-  ""descLocKey"": ""ability.test_1_desc"",
+  ""nameLocKey"": ""ability.test_1.name"",
+  ""descLocKey"": ""ability.test_1.desc"",
   ""isPlayerObtainable"": true,
   ""effects"": []
 }";
@@ -431,8 +509,8 @@ namespace Game.Tests.EditMode
   ""type"": ""Passive"",
   ""buildCost"": 0,
   ""power"": 0,
-  ""nameLocKey"": ""ability.test_1_name"",
-  ""descLocKey"": ""ability.test_1_desc"",
+  ""nameLocKey"": ""ability.test_1.name"",
+  ""descLocKey"": ""ability.test_1.desc"",
   ""isPlayerObtainable"": true,
   ""iconId"": ""ability.test_1"",
   ""effects"": []
@@ -460,8 +538,8 @@ namespace Game.Tests.EditMode
   ""type"": ""Passive"",
   ""buildCost"": 0,
   ""power"": 3,
-  ""nameLocKey"": ""ability.test_1_name"",
-  ""descLocKey"": ""ability.test_1_desc"",
+  ""nameLocKey"": ""ability.test_1.name"",
+  ""descLocKey"": ""ability.test_1.desc"",
   ""isPlayerObtainable"": true,
   ""iconId"": ""ability.test_1"",
   ""effects"": []
@@ -498,8 +576,8 @@ namespace Game.Tests.EditMode
   ""buildCost"": 0,
   ""cooldown"": 0,
   ""power"": 0,
-  ""nameLocKey"": ""ability.test_1_name"",
-  ""descLocKey"": ""ability.test_1_desc"",
+  ""nameLocKey"": ""ability.test_1.name"",
+  ""descLocKey"": ""ability.test_1.desc"",
   ""isPlayerObtainable"": true,
   ""iconId"": ""ability.test_1"",
   ""effects"": [
@@ -536,8 +614,8 @@ namespace Game.Tests.EditMode
   ""buildCost"": 0,
   ""cooldown"": 0,
   ""power"": 0,
-  ""nameLocKey"": ""ability.test_1_name"",
-  ""descLocKey"": ""ability.test_1_desc"",
+  ""nameLocKey"": ""ability.test_1.name"",
+  ""descLocKey"": ""ability.test_1.desc"",
   ""isPlayerObtainable"": true,
   ""iconId"": ""ability.test_1"",
   ""effects"": [
@@ -615,8 +693,8 @@ namespace Game.Tests.EditMode
   ""buildCost"": 0,
   ""cooldown"": 1,
   ""power"": 2,
-  ""nameLocKey"": ""ability.test_1_name"",
-  ""descLocKey"": ""ability.test_1_desc"",
+  ""nameLocKey"": ""ability.test_1.name"",
+  ""descLocKey"": ""ability.test_1.desc"",
   ""isPlayerObtainable"": true,
   ""iconId"": ""ability.test_1"",
   ""effects"": []

@@ -5,8 +5,8 @@
   "buildCost": 1,
   "cooldown": 1,
   "power": 1,
-  "nameLocKey": "ability.enemy_basic_attack_name",
-  "descLocKey": "ability.enemy_basic_attack_desc",
+  "nameLocKey": "ability.enemy_basic_attack.name",
+  "descLocKey": "ability.enemy_basic_attack.desc",
   "isPlayerObtainable": false,
   "iconId": "icon.default",
   "effects": []

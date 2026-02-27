@@ -5,8 +5,8 @@
   "buildCost": 1,
   "cooldown": 1,
   "power": 4,
-  "nameLocKey": "ability.sneaky_strike_name",
-  "descLocKey": "ability.sneaky_strike_desc",
+  "nameLocKey": "ability.sneaky_strike.name",
+  "descLocKey": "ability.sneaky_strike.desc",
   "isPlayerObtainable": false,
   "iconId": "icon.default",
   "effects": [

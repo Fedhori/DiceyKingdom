@@ -5,8 +5,8 @@
   "buildCost": 1,
   "cooldown": 1,
   "power": 4,
-  "nameLocKey": "ability.sharp_scimitar_name",
-  "descLocKey": "ability.sharp_scimitar_desc",
+  "nameLocKey": "ability.sharp_scimitar.name",
+  "descLocKey": "ability.sharp_scimitar.desc",
   "isPlayerObtainable": false,
   "iconId": "icon.default",
   "effects": [

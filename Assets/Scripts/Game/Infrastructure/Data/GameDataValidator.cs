@@ -237,6 +237,8 @@ namespace Game.Infrastructure.Data
                     continue;
                 }
 
+                ValidateAbilityLocalizationKeys(def, path, id, report);
+
                 if (def.buildCost < 0)
                 {
                     report.AddError(
@@ -294,6 +296,49 @@ namespace Game.Infrastructure.Data
                 }
 
                 ValidateTimedEffectConditions(def, path, id, report);
+            }
+        }
+
+        static void ValidateAbilityLocalizationKeys(
+            AbilityDef abilityDef,
+            string path,
+            string ownerId,
+            GameDataValidationReport report)
+        {
+            string expectedNameLocKey = $"{ownerId}.name";
+            if (string.IsNullOrWhiteSpace(abilityDef.nameLocKey))
+            {
+                report.AddError(
+                    GameDataErrorCode.InvalidValue,
+                    path,
+                    ownerId,
+                    "nameLocKey must not be empty.");
+            }
+            else if (!string.Equals(abilityDef.nameLocKey, expectedNameLocKey, StringComparison.Ordinal))
+            {
+                report.AddError(
+                    GameDataErrorCode.InvalidValue,
+                    path,
+                    ownerId,
+                    $"nameLocKey must be '{expectedNameLocKey}' (actual: '{abilityDef.nameLocKey}').");
+            }
+
+            string expectedDescLocKey = $"{ownerId}.desc";
+            if (string.IsNullOrWhiteSpace(abilityDef.descLocKey))
+            {
+                report.AddError(
+                    GameDataErrorCode.InvalidValue,
+                    path,
+                    ownerId,
+                    "descLocKey must not be empty.");
+            }
+            else if (!string.Equals(abilityDef.descLocKey, expectedDescLocKey, StringComparison.Ordinal))
+            {
+                report.AddError(
+                    GameDataErrorCode.InvalidValue,
+                    path,
+                    ownerId,
+                    $"descLocKey must be '{expectedDescLocKey}' (actual: '{abilityDef.descLocKey}').");
             }
         }
 

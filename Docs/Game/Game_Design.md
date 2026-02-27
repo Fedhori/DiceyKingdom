@@ -167,6 +167,21 @@ Effects:
 - `ModifyHealth` is capped by `maxPlayerHealth` / `maxOpponentHealth` stored in `DuelState`.
 - This cap applies equally to player and opponent.
 
+### 4.6 Ability localization keys
+
+- Every ability definition must include:
+  - `nameLocKey`
+  - `descLocKey`
+- Key format is fixed:
+  - `nameLocKey = <abilityId>.name`
+  - `descLocKey = <abilityId>.desc`
+- Multi-effect description lines use suffix keys in the same table:
+  - first line: `<abilityId>.desc`
+  - second line: `<abilityId>.desc.2`
+  - third line: `<abilityId>.desc.3`
+- Ability UI text resolves from localization table `ability`.
+- Missing localization entries must be visible and actionable (error log + explicit missing marker), not silently ignored.
+
 ## 5) Enemy data
 
 - `EnemyDef.tier` is required.

@@ -5,8 +5,8 @@
   "buildCost": 1,
   "cooldown": 1,
   "power": 5,
-  "nameLocKey": "ability.slash_sword_name",
-  "descLocKey": "ability.slash_sword_desc",
+  "nameLocKey": "ability.slash_sword.name",
+  "descLocKey": "ability.slash_sword.desc",
   "isPlayerObtainable": true,
   "iconId": "ability.slash_sword",
   "effects": []

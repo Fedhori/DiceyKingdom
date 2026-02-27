@@ -5,6 +5,7 @@ using System.Text;
 using Game.Application.Duel;
 using Game.Domain.Duel;
 using Game.Infrastructure.Data;
+using Game.Presentation.Localization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -35,6 +36,7 @@ namespace Game.Presentation.Duel
         readonly Image tooltipBackgroundImage;
         readonly DuelAbilityCardView abilityCardPrefab;
         readonly Func<string, Sprite> resolveAbilityIcon;
+        readonly DuelAbilityTextFormatter abilityTextFormatter;
 
         readonly List<DuelAbilityCardView> reusableCardViews = new();
         readonly List<DuelAbilityCardView> activeCardViews = new();
@@ -80,6 +82,7 @@ namespace Game.Presentation.Duel
             this.tooltipText = tooltipText;
             this.tooltipBackgroundImage = tooltipBackgroundImage;
             this.resolveAbilityIcon = resolveAbilityIcon;
+            abilityTextFormatter = new DuelAbilityTextFormatter(new UnityLocalizedTextResolver());
         }
 
         public void WireZoneCallbacks(Action<int> onZoneClicked)
@@ -1193,36 +1196,22 @@ namespace Game.Presentation.Duel
             AbilityDef def)
         {
             int displayPower = Mathf.Max(0, ability.power);
+            string localizedTitle = abilityTextFormatter.FormatName(def);
+            string localizedTooltip = abilityTextFormatter.FormatTooltip(def, ability);
             Sprite iconSprite = resolveAbilityIcon == null
                 ? null
                 : resolveAbilityIcon.Invoke(def.iconId);
 
             return new DuelAbilityCardView.BindData(
                 abilityId,
-                def.id,
-                BuildAbilityTooltip(def),
+                localizedTitle,
+                localizedTooltip,
                 ability.abilityType,
                 iconSprite,
                 displayPower,
                 ability.abilityType == AbilityType.Attack,
                 ability.cooldownTurns,
                 ability.cooldownRemaining);
-        }
-
-        static string BuildAbilityTooltip(AbilityDef def)
-        {
-            if (def == null)
-            {
-                return string.Empty;
-            }
-
-            string line1 = def.id;
-            string line2 = string.IsNullOrWhiteSpace(def.descLocKey)
-                ? string.Empty
-                : def.descLocKey;
-            return string.IsNullOrWhiteSpace(line2)
-                ? line1
-                : $"{line1}\n{line2}";
         }
 
         static void ApplyButtonVisual(Button button, Color backgroundColor)

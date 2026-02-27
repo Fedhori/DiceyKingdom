@@ -5,8 +5,8 @@
   "buildCost": 1,
   "cooldown": 1,
   "power": 10,
-  "nameLocKey": "ability.skilled_thrust_name",
-  "descLocKey": "ability.skilled_thrust_desc",
+  "nameLocKey": "ability.skilled_thrust.name",
+  "descLocKey": "ability.skilled_thrust.desc",
   "isPlayerObtainable": false,
   "iconId": "icon.default",
   "effects": [
