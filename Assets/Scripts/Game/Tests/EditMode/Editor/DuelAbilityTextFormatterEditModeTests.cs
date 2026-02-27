@@ -99,7 +99,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void FormatTooltip_MissingDescDotIndex_ReturnsMissingMarker()
+        public void FormatTooltip_MissingDescDotIndex_IsIgnored()
         {
             var resolver = new FakeLocalizedTextResolver(new Dictionary<string, string>
             {
@@ -140,7 +140,23 @@ namespace Game.Tests.EditMode
 
             string tooltip = formatter.FormatTooltip(def, ability: null);
 
-            Assert.AreEqual("복합 능력\n효과1 +2\n[missing:ability.multi.desc.2]", tooltip);
+            Assert.AreEqual("복합 능력\n효과1 +2", tooltip);
+        }
+
+        [Test]
+        public void FormatTooltip_NoEffects_MissingDesc_IsNotAnErrorPath()
+        {
+            var resolver = new FakeLocalizedTextResolver(new Dictionary<string, string>
+            {
+                ["ability:ability.empty.name"] = "빈 능력"
+            });
+            var formatter = new DuelAbilityTextFormatter(resolver);
+
+            AbilityDef def = CreateAbilityDef("ability.empty", effects: new List<TimedEffectDef>());
+
+            string tooltip = formatter.FormatTooltip(def, ability: null);
+
+            Assert.AreEqual("빈 능력", tooltip);
         }
 
         static AbilityDef CreateAbilityDef(string id, List<TimedEffectDef> effects)
@@ -168,13 +184,28 @@ namespace Game.Tests.EditMode
                 this.entriesByKey = entriesByKey ?? new Dictionary<string, string>();
             }
 
-            public string Resolve(string tableName, string key, object arguments = null)
+            public string ResolveRequired(string tableName, string key, object arguments = null)
             {
                 if (!entriesByKey.TryGetValue($"{tableName}:{key}", out string template))
                 {
                     return $"[missing:{key}]";
                 }
 
+                return ReplaceArguments(template, arguments);
+            }
+
+            public string ResolveOptional(string tableName, string key, object arguments = null, bool warnIfMissing = false)
+            {
+                if (!entriesByKey.TryGetValue($"{tableName}:{key}", out string template))
+                {
+                    return string.Empty;
+                }
+
+                return ReplaceArguments(template, arguments);
+            }
+
+            static string ReplaceArguments(string template, object arguments)
+            {
                 if (arguments == null)
                 {
                     return template;

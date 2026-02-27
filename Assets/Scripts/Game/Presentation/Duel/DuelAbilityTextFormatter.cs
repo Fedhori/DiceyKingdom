@@ -25,7 +25,7 @@ namespace Game.Presentation.Duel
                 return string.Empty;
             }
 
-            return localizedTextResolver.Resolve(abilityTableName, def.nameLocKey);
+            return localizedTextResolver.ResolveRequired(abilityTableName, def.nameLocKey);
         }
 
         public string FormatTooltip(AbilityDef def, AbilityInstance ability)
@@ -60,8 +60,11 @@ namespace Game.Presentation.Duel
             List<TimedEffectDef> effects = def.effects;
             if (effects == null || effects.Count <= 0)
             {
-                AbilityLocArgs args = BuildArgs(def, ability, 0);
-                return localizedTextResolver.Resolve(abilityTableName, def.descLocKey, args);
+                return localizedTextResolver.ResolveOptional(
+                    abilityTableName,
+                    def.descLocKey,
+                    arguments: null,
+                    warnIfMissing: false);
             }
 
             var lines = new List<string>(effects.Count);
@@ -71,7 +74,8 @@ namespace Game.Presentation.Duel
                     ? def.descLocKey
                     : $"{def.descLocKey}.{effectIndex + 1}";
                 AbilityLocArgs args = BuildArgs(def, ability, effectIndex);
-                string line = localizedTextResolver.Resolve(abilityTableName, key, args);
+                bool warnIfMissing = effectIndex == 0;
+                string line = localizedTextResolver.ResolveOptional(abilityTableName, key, args, warnIfMissing);
                 if (string.IsNullOrWhiteSpace(line))
                 {
                     continue;

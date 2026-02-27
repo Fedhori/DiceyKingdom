@@ -180,7 +180,13 @@ Effects:
   - second line: `<abilityId>.desc.2`
   - third line: `<abilityId>.desc.3`
 - Ability UI text resolves from localization table `ability`.
-- Missing localization entries must be visible and actionable (error log + explicit missing marker), not silently ignored.
+- Missing policy:
+  - missing `name` key: error log + explicit missing marker
+  - missing `desc` key when ability has no effects: no error (silent empty description)
+  - missing first `desc` key when ability has effects: warning log
+  - missing `desc.2+` keys: optional (no error)
+- Any localized entry that uses runtime arguments (for example `{0.power}`, `{0.amount}`) must be configured with Smart Format metadata.
+- Smart Format misconfiguration should be surfaced as warning-level diagnostics, not as hard validation errors.
 
 ## 5) Enemy data
 

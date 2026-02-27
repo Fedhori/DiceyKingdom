@@ -16,7 +16,8 @@ MonoBehaviour:
     m_Code: en
   m_SharedData: {fileID: 11400000, guid: 7f289f0b48514f4ca3645cac4203ff17, type: 2}
   m_Metadata:
-    m_Items: []
+    m_Items:
+    - rid: 6012000000000000001
   m_TableData:
   - m_Id: 9000000000001
     m_Localized: "<style=attack>Crossbow</style>"
@@ -84,4 +85,9 @@ MonoBehaviour:
       m_Items: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 6012000000000000001
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 
+        m_SharedEntries:

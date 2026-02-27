@@ -2,6 +2,7 @@ namespace Game.Presentation.Localization
 {
     public interface ILocalizedTextResolver
     {
-        string Resolve(string tableName, string key, object arguments = null);
+        string ResolveRequired(string tableName, string key, object arguments = null);
+        string ResolveOptional(string tableName, string key, object arguments = null, bool warnIfMissing = false);
     }
 }
