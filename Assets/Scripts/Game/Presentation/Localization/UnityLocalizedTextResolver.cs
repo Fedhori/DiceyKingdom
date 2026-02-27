@@ -55,6 +55,11 @@ namespace Game.Presentation.Localization
                     return string.Empty;
                 }
 
+                if (!returnMissingMarker)
+                {
+                    return string.Empty;
+                }
+
                 Debug.LogError(
                     $"[Localization] Failed to resolve localized text. table='{tableName}', key='{key}', reason='{exception.Message}'");
                 return returnMissingMarker ? $"[missing:{key}]" : string.Empty;
@@ -63,6 +68,11 @@ namespace Game.Presentation.Localization
             if (warnIfMissing)
             {
                 Debug.LogWarning($"[Localization] Optional localized text is missing. table='{tableName}', key='{key}'");
+                return string.Empty;
+            }
+
+            if (!returnMissingMarker)
+            {
                 return string.Empty;
             }
 
