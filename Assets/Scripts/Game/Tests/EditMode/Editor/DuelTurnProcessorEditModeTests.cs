@@ -168,7 +168,7 @@ namespace Game.Tests.EditMode
         public void TryResolveAllCombats_TurnEndPassiveCooldownTwo_TriggersEveryOtherTurn()
         {
             GameDatabase database = CreateDatabase();
-            database.abilitiesById["ability.passive.regen"] = CreatePassiveRegenAbilityDef(cooldown: 2, healAmount: 1);
+            database.abilitiesById["ability.passive_regen"] = CreatePassiveRegenAbilityDef(cooldown: 2, healAmount: 1);
 
             var state = new DuelState
             {
@@ -180,7 +180,7 @@ namespace Game.Tests.EditMode
             AddCombats(state, 1);
             state.abilitiesById["passive0"] = new AbilityInstance
             {
-                abilityDefId = "ability.passive.regen",
+                abilityDefId = "ability.passive_regen",
                 abilityType = AbilityType.Passive,
                 cooldownTurns = 2,
                 cooldownRemaining = 0,
@@ -222,8 +222,8 @@ namespace Game.Tests.EditMode
             };
             AddCombats(state, 1);
 
-            database.abilitiesById["ability.shield.up"] = CreateShieldUpEffectAbilityDef();
-            state.abilitiesById["p0"] = CreateAbility("ability.shield.up", 5);
+            database.abilitiesById["ability.shield_up"] = CreateShieldUpEffectAbilityDef();
+            state.abilitiesById["p0"] = CreateAbility("ability.shield_up", 5);
             state.abilitiesById["e0"] = CreateAbility("ability.opponent", 1);
             state.combats[0].playerAbilityIds.Add("p0");
             state.combats[0].opponentAbilityIds.Add("e0");
@@ -249,7 +249,7 @@ namespace Game.Tests.EditMode
         public void TryResolveAllCombats_AfterCombatWinBonus_IncreasesAppliedDamage()
         {
             GameDatabase database = CreateDatabase();
-            database.abilitiesById["ability.win.damage.plus"] = CreateWinDamagePlusEffectAbilityDef();
+            database.abilitiesById["ability.win_damage_plus"] = CreateWinDamagePlusEffectAbilityDef();
 
             var state = new DuelState
             {
@@ -260,7 +260,7 @@ namespace Game.Tests.EditMode
             };
             AddCombats(state, 1);
 
-            state.abilitiesById["p0"] = CreateAbility("ability.win.damage.plus", 8);
+            state.abilitiesById["p0"] = CreateAbility("ability.win_damage_plus", 8);
             state.abilitiesById["e0"] = CreateAbility("ability.opponent", 1);
             state.combats[0].playerAbilityIds.Add("p0");
             state.combats[0].opponentAbilityIds.Add("e0");
@@ -284,7 +284,7 @@ namespace Game.Tests.EditMode
         public void TryResolveAllCombats_AfterCombatDefeatDestroy_RemovesAbilityInstance()
         {
             GameDatabase database = CreateDatabase();
-            database.abilitiesById["ability.lose.destroy"] = CreateLoseDestroyEffectAbilityDef();
+            database.abilitiesById["ability.lose_destroy"] = CreateLoseDestroyEffectAbilityDef();
 
             var state = new DuelState
             {
@@ -296,7 +296,7 @@ namespace Game.Tests.EditMode
             AddCombats(state, 1);
 
             state.abilitiesById["p0"] = CreateAbility("ability.player", 9);
-            state.abilitiesById["e0"] = CreateAbility("ability.lose.destroy", 1);
+            state.abilitiesById["e0"] = CreateAbility("ability.lose_destroy", 1);
             state.combats[0].playerAbilityIds.Add("p0");
             state.combats[0].opponentAbilityIds.Add("e0");
 

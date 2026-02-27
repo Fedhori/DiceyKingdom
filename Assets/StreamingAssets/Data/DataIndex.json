@@ -6,27 +6,27 @@
     "Data/player.start.json"
   ],
   "abilities": [
-    "Data/abilities/ability.slash.sword.json",
-    "Data/abilities/ability.shield.up.json",
+    "Data/abilities/ability.slash_sword.json",
+    "Data/abilities/ability.shield_up.json",
     "Data/abilities/ability.crossbow.json",
-    "Data/abilities/ability.passive.regen.json",
-    "Data/abilities/ability.goblin.sneaky.strike.json",
-    "Data/abilities/ability.nomad.sharp.scimitar.json",
-    "Data/abilities/ability.passive.slime.regeneration.json",
-    "Data/abilities/ability.slime.sticky.mucus.json",
-    "Data/abilities/ability.wolf.bite.json",
-    "Data/abilities/ability.ogre.crush.json",
-    "Data/abilities/ability.ogre.swing.json",
-    "Data/abilities/ability.swordmaster.skilled.thrust.json",
-    "Data/abilities/ability.swordmaster.steady.slash.json"
+    "Data/abilities/ability.passive_regen.json",
+    "Data/abilities/ability.goblin_sneaky_strike.json",
+    "Data/abilities/ability.nomad_sharp_scimitar.json",
+    "Data/abilities/ability.passive_slime_regeneration.json",
+    "Data/abilities/ability.slime_sticky_mucus.json",
+    "Data/abilities/ability.wolf_bite.json",
+    "Data/abilities/ability.ogre_crush.json",
+    "Data/abilities/ability.ogre_swing.json",
+    "Data/abilities/ability.swordmaster_skilled_thrust.json",
+    "Data/abilities/ability.swordmaster_steady_slash.json"
   ],
   "enemies": [
-    "Data/enemies/enemy.northern.footman.json",
-    "Data/enemies/enemy.goblin.horde.json",
-    "Data/enemies/enemy.nomad.scimitar.json",
-    "Data/enemies/enemy.slime.regenerator.json",
-    "Data/enemies/enemy.wolf.dire.json",
-    "Data/enemies/enemy.ogre.crusher.json",
-    "Data/enemies/enemy.swordmaster.veteran.json"
+    "Data/enemies/enemy.northern_footman.json",
+    "Data/enemies/enemy.goblin_horde.json",
+    "Data/enemies/enemy.nomad_scimitar.json",
+    "Data/enemies/enemy.slime_regenerator.json",
+    "Data/enemies/enemy.wolf_dire.json",
+    "Data/enemies/enemy.ogre_crusher.json",
+    "Data/enemies/enemy.swordmaster_veteran.json"
   ]
 }

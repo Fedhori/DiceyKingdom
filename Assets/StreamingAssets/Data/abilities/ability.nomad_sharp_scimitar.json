@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "id": "ability.nomad.sharp.scimitar",
+  "id": "ability.nomad_sharp_scimitar",
   "type": "Attack",
   "buildCost": 1,
   "cooldown": 1,
   "power": 4,
-  "nameLocKey": "ability.nomad.sharp.scimitar_name",
-  "descLocKey": "ability.nomad.sharp.scimitar_desc",
+  "nameLocKey": "ability.nomad_sharp_scimitar_name",
+  "descLocKey": "ability.nomad_sharp_scimitar_desc",
   "isPlayerObtainable": false,
   "iconId": "icon.default",
   "effects": [

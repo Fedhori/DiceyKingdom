@@ -14,7 +14,7 @@ namespace Game.Presentation.Duel
     [ExecuteAlways]
     public class DuelScreenController : MonoBehaviour
     {
-        const string DefaultEnemyId = "enemy.northern.footman";
+        const string DefaultEnemyId = "enemy.northern_footman";
         const float dragGhostAlpha = 0.85f;
         const float defaultCardRollDuration = 0.5f;
         const float defaultOpponentDeployCardDuration = 0.25f;

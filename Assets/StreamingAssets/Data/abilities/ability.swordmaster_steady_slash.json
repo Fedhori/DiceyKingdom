@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "id": "ability.swordmaster.steady.slash",
+  "id": "ability.swordmaster_steady_slash",
   "type": "Attack",
   "buildCost": 1,
   "cooldown": 1,
   "power": 10,
-  "nameLocKey": "ability.swordmaster.steady.slash_name",
-  "descLocKey": "ability.swordmaster.steady.slash_desc",
+  "nameLocKey": "ability.swordmaster_steady_slash_name",
+  "descLocKey": "ability.swordmaster_steady_slash_desc",
   "isPlayerObtainable": false,
   "iconId": "icon.default",
   "effects": []

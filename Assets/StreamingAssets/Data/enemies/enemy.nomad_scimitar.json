@@ -1,11 +1,11 @@
 {
   "schemaVersion": 2,
-  "id": "enemy.nomad.scimitar",
+  "id": "enemy.nomad_scimitar",
   "health": 4,
   "tier": "Normal",
   "abilityLoadout": [
     {
-      "abilityId": "ability.nomad.sharp.scimitar",
+      "abilityId": "ability.nomad_sharp_scimitar",
       "count": 4
     }
   ]

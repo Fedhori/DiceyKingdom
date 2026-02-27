@@ -4,11 +4,11 @@
 	"startingHonor": 3,
 	"startingPlayerHealth": 10,
 	"startingLoadoutAbilityIds": [
-		"ability.slash.sword",
-		"ability.slash.sword",
-		"ability.slash.sword",
-		"ability.shield.up",
+		"ability.slash_sword",
+		"ability.slash_sword",
+		"ability.slash_sword",
+		"ability.shield_up",
 		"ability.crossbow",
-		"ability.passive.regen"
+		"ability.passive_regen"
 	]
 }

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "id": "ability.swordmaster.skilled.thrust",
+  "id": "ability.swordmaster_skilled_thrust",
   "type": "Attack",
   "buildCost": 1,
   "cooldown": 1,
   "power": 10,
-  "nameLocKey": "ability.swordmaster.skilled.thrust_name",
-  "descLocKey": "ability.swordmaster.skilled.thrust_desc",
+  "nameLocKey": "ability.swordmaster_skilled_thrust_name",
+  "descLocKey": "ability.swordmaster_skilled_thrust_desc",
   "isPlayerObtainable": false,
   "iconId": "icon.default",
   "effects": [

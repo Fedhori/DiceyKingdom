@@ -1,11 +1,11 @@
 {
 	"schemaVersion": 2,
-	"id": "enemy.northern.footman",
+	"id": "enemy.northern_footman",
 	"health": 10,
 	"tier": "Normal",
 	"abilityLoadout": [
 		{
-			"abilityId": "ability.slash.sword",
+			"abilityId": "ability.slash_sword",
 			"count": 3
 		},
 		{

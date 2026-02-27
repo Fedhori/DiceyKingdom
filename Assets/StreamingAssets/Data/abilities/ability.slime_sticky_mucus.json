@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "id": "ability.ogre.swing",
+  "id": "ability.slime_sticky_mucus",
   "type": "Attack",
   "buildCost": 1,
   "cooldown": 1,
-  "power": 10,
-  "nameLocKey": "ability.ogre.swing_name",
-  "descLocKey": "ability.ogre.swing_desc",
+  "power": 5,
+  "nameLocKey": "ability.slime_sticky_mucus_name",
+  "descLocKey": "ability.slime_sticky_mucus_desc",
   "isPlayerObtainable": false,
   "iconId": "icon.default",
   "effects": []

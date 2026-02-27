@@ -18,7 +18,7 @@ namespace Game.Tests.EditMode
             state.abilitiesById["p_miko"] = new AbilityInstance
             {
                 instanceId = "p_miko",
-                abilityDefId = "ability.miko.assassin",
+                abilityDefId = "ability.miko_assassin",
                 abilityType = AbilityType.Attack,
                 power = 4,
                 baseRoll = 4,
@@ -53,7 +53,7 @@ namespace Game.Tests.EditMode
             state.abilitiesById["p_miko"] = new AbilityInstance
             {
                 instanceId = "p_miko",
-                abilityDefId = "ability.miko.assassin",
+                abilityDefId = "ability.miko_assassin",
                 abilityType = AbilityType.Attack,
                 power = 4,
                 baseRoll = 4,
@@ -88,7 +88,7 @@ namespace Game.Tests.EditMode
             state.abilitiesById["p_dwarf"] = new AbilityInstance
             {
                 instanceId = "p_dwarf",
-                abilityDefId = "ability.dwarf.cannon",
+                abilityDefId = "ability.dwarf_cannon",
                 abilityType = AbilityType.Attack,
                 power = 4,
                 baseRoll = 3,
@@ -159,7 +159,7 @@ namespace Game.Tests.EditMode
             state.abilitiesById["p_deploy"] = new AbilityInstance
             {
                 instanceId = "p_deploy",
-                abilityDefId = "ability.deploy.banner",
+                abilityDefId = "ability.deploy_banner",
                 abilityType = AbilityType.Attack,
                 power = 2,
                 baseRoll = 0,
@@ -168,7 +168,7 @@ namespace Game.Tests.EditMode
             state.abilitiesById["p_other"] = new AbilityInstance
             {
                 instanceId = "p_other",
-                abilityDefId = "ability.deploy.banner",
+                abilityDefId = "ability.deploy_banner",
                 abilityType = AbilityType.Attack,
                 power = 2,
                 baseRoll = 0,
@@ -199,7 +199,7 @@ namespace Game.Tests.EditMode
             state.abilitiesById["p_loadout"] = new AbilityInstance
             {
                 instanceId = "p_loadout",
-                abilityDefId = "ability.loadout.totalpower.invalid",
+                abilityDefId = "ability.loadout_totalpower_invalid",
                 abilityType = AbilityType.Passive,
                 cooldownTurns = 0,
                 cooldownRemaining = 0,
@@ -228,7 +228,7 @@ namespace Game.Tests.EditMode
             state.abilitiesById["p_passive"] = new AbilityInstance
             {
                 instanceId = "p_passive",
-                abilityDefId = "ability.passive.self.heal",
+                abilityDefId = "ability.passive_self_heal",
                 abilityType = AbilityType.Passive,
                 cooldownTurns = 0,
                 cooldownRemaining = 0,
@@ -239,7 +239,7 @@ namespace Game.Tests.EditMode
             state.abilitiesById["e_passive"] = new AbilityInstance
             {
                 instanceId = "e_passive",
-                abilityDefId = "ability.passive.self.heal",
+                abilityDefId = "ability.passive_self_heal",
                 abilityType = AbilityType.Passive,
                 cooldownTurns = 0,
                 cooldownRemaining = 0,
@@ -262,7 +262,7 @@ namespace Game.Tests.EditMode
         static GameDatabase CreateDatabase()
         {
             var database = new GameDatabase();
-            database.abilitiesById["ability.miko.assassin"] = new AbilityDef
+            database.abilitiesById["ability.miko_assassin"] = new AbilityDef
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
@@ -292,7 +292,7 @@ namespace Game.Tests.EditMode
                 }
             };
 
-            database.abilitiesById["ability.dwarf.cannon"] = new AbilityDef
+            database.abilitiesById["ability.dwarf_cannon"] = new AbilityDef
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
@@ -361,7 +361,7 @@ namespace Game.Tests.EditMode
                 effects = new List<TimedEffectDef>()
             };
 
-            database.abilitiesById["ability.deploy.banner"] = new AbilityDef
+            database.abilitiesById["ability.deploy_banner"] = new AbilityDef
             {
                 type = AbilityType.Attack.ToString(),
                 buildCost = 0,
@@ -390,7 +390,7 @@ namespace Game.Tests.EditMode
                 }
             };
 
-            database.abilitiesById["ability.loadout.totalpower.invalid"] = new AbilityDef
+            database.abilitiesById["ability.loadout_totalpower_invalid"] = new AbilityDef
             {
                 type = AbilityType.Passive.ToString(),
                 buildCost = 0,
@@ -419,7 +419,7 @@ namespace Game.Tests.EditMode
                 }
             };
 
-            database.abilitiesById["ability.passive.self.heal"] = new AbilityDef
+            database.abilitiesById["ability.passive_self_heal"] = new AbilityDef
             {
                 type = AbilityType.Passive.ToString(),
                 buildCost = 0,

@@ -146,7 +146,7 @@ namespace Game.Tests.EditMode
         public void TryInitialize_AppliesDuelStartTimedEffects()
         {
             GameDatabase database = CreateDatabase(startingHonor: 1);
-            database.abilitiesById["ability.passive.duelstart.heal"] = new AbilityDef
+            database.abilitiesById["ability.passive_duelstart_heal"] = new AbilityDef
             {
                 type = AbilityType.Passive.ToString(),
                 buildCost = 0,
@@ -174,7 +174,7 @@ namespace Game.Tests.EditMode
                     }
                 }
             };
-            database.playerStart.startingLoadoutAbilityIds.Add("ability.passive.duelstart.heal");
+            database.playerStart.startingLoadoutAbilityIds.Add("ability.passive_duelstart_heal");
 
             var sessionRunner = new DuelSessionRunner();
             bool success = sessionRunner.TryInitialize(

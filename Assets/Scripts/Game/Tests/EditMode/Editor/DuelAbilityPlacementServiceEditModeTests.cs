@@ -95,8 +95,8 @@ namespace Game.Tests.EditMode
             state.combats.Add(new CombatState());
             state.combats.Add(new CombatState());
 
-            state.abilitiesById["e0"] = CreateAttack("ability.enemy.0", cooldownRemaining: 0);
-            state.abilitiesById["e1"] = CreateAttack("ability.enemy.1", cooldownRemaining: 2);
+            state.abilitiesById["e0"] = CreateAttack("ability.enemy_0", cooldownRemaining: 0);
+            state.abilitiesById["e1"] = CreateAttack("ability.enemy_1", cooldownRemaining: 2);
             state.opponentLoadoutAbilityIds.Add("e0");
             state.opponentLoadoutAbilityIds.Add("e1");
 
@@ -120,8 +120,8 @@ namespace Game.Tests.EditMode
             state.combats.Add(new CombatState());
             state.combats.Add(new CombatState());
 
-            state.abilitiesById["e0"] = CreateAttack("ability.enemy.0", cooldownRemaining: 0);
-            state.abilitiesById["e1"] = CreateAttack("ability.enemy.1", cooldownRemaining: 0);
+            state.abilitiesById["e0"] = CreateAttack("ability.enemy_0", cooldownRemaining: 0);
+            state.abilitiesById["e1"] = CreateAttack("ability.enemy_1", cooldownRemaining: 0);
             state.opponentLoadoutAbilityIds.Add("e0");
             state.opponentLoadoutAbilityIds.Add("e1");
 
@@ -145,7 +145,7 @@ namespace Game.Tests.EditMode
             var state = new DuelState();
             state.combats.Add(new CombatState());
 
-            state.abilitiesById["e0"] = CreateAttack("ability.enemy.0", cooldownRemaining: 0);
+            state.abilitiesById["e0"] = CreateAttack("ability.enemy_0", cooldownRemaining: 0);
             state.opponentLoadoutAbilityIds.Add("e0");
 
             var staleStep = new DuelOpponentDeployStep("e0", combatIndex: 0, slotIndex: 1, deployOrder: 0);

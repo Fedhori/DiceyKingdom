@@ -1,14 +1,14 @@
 {
   "schemaVersion": 2,
-  "id": "ability.shield.up",
+  "id": "ability.shield_up",
   "type": "Attack",
   "buildCost": 1,
   "cooldown": 1,
   "power": 10,
-  "nameLocKey": "ability.shield.up_name",
-  "descLocKey": "ability.shield.up_desc",
+  "nameLocKey": "ability.shield_up_name",
+  "descLocKey": "ability.shield_up_desc",
   "isPlayerObtainable": true,
-  "iconId": "ability.shield.up",
+  "iconId": "ability.shield_up",
   "effects": [
     {
       "timing": "Resolve",

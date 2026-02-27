@@ -2,7 +2,7 @@
 
 **Role:** The single source of truth for implemented gameplay rules and the intended near-term design.
 
-**Last updated:** 2026-02-26
+**Last updated:** 2026-02-27
 
 **Terminology:** See `Docs/Game/Glossary.md`.
 
@@ -33,11 +33,12 @@ The turn proceeds through phases in this order:
 3. PlayerSetup
 4. Roll
 5. Resolve
-6. TurnEnd (internal processing)
+6. AfterCombat (internal processing per combat)
+7. TurnEnd (internal processing)
 
 ```mermaid
 flowchart TD
-    Reset --> OpponentSetup --> PlayerSetup --> Roll --> Resolve --> TurnEnd --> Reset
+    Reset --> OpponentSetup --> PlayerSetup --> Roll --> Resolve --> AfterCombat --> TurnEnd --> Reset
 ```
 
 ### 3.3 OpponentSetup (enemy deployment)
@@ -167,6 +168,14 @@ Effects:
 
 - `EnemyDef.tier` is required.
 - Allowed values: `Normal`, `Elite`, `Boss`.
+
+## 5.1) Data ID naming convention
+
+- IDs use dot-separated domains with snake_case terms.
+- Canonical pattern:
+  - `ability.<snake_case_slug>`
+  - `enemy.<snake_case_slug>`
+- Do not use extra dot segmentation for word splitting (e.g., `ability.sharp.scimitar` is invalid).
 
 ## 6) Key invariants (must remain true unless explicitly changed)
 

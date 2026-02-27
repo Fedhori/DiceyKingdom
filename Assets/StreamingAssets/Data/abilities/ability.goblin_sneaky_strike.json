@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "id": "ability.goblin.sneaky.strike",
+  "id": "ability.goblin_sneaky_strike",
   "type": "Attack",
   "buildCost": 1,
   "cooldown": 1,
   "power": 4,
-  "nameLocKey": "ability.goblin.sneaky.strike_name",
-  "descLocKey": "ability.goblin.sneaky.strike_desc",
+  "nameLocKey": "ability.goblin_sneaky_strike_name",
+  "descLocKey": "ability.goblin_sneaky_strike_desc",
   "isPlayerObtainable": false,
   "iconId": "icon.default",
   "effects": [

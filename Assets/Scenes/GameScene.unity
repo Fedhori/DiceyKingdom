@@ -1420,7 +1420,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u2665\u2665\u2665\u2665\u2665\u2665\u2665\u2665\u2665\u2665"
+  m_text: "\u2661"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 746f86218c845bb49a98169d005126fe, type: 2}
   m_sharedMaterial: {fileID: -8383589127567067901, guid: 746f86218c845bb49a98169d005126fe, type: 2}
@@ -1752,7 +1752,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d568b1533b2e914b974d27ec066231b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game.Runtime::Game.Presentation.Duel.DuelScreenController
-  enemyId: enemy.northern.footman
+  enemyId: enemy.northern_footman
   backgroundImage: {fileID: 539586211}
   topBarImage: {fileID: 196441786}
   turnText: {fileID: 640447762}
@@ -3195,7 +3195,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u2665\u2665\u2665\u2665\u2665\u2665\u2665\u2665\u2665\u2665"
+  m_text: "\u2661"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 746f86218c845bb49a98169d005126fe, type: 2}
   m_sharedMaterial: {fileID: -8383589127567067901, guid: 746f86218c845bb49a98169d005126fe, type: 2}

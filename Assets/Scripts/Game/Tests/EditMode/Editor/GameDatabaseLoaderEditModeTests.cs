@@ -27,10 +27,10 @@ namespace Game.Tests.EditMode
         public void Load_FailsWhenEnemyAbilityReferenceIsMissing()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/enemies/enemy.1.json"] =
+            files["Data/enemies/enemy.test_1.json"] =
 @"{
   ""schemaVersion"": 2,
-  ""id"": ""enemy.1"",
+  ""id"": ""enemy.test_1"",
   ""health"": 10,
   ""tier"": ""Normal"",
   ""abilityLoadout"": [
@@ -61,18 +61,18 @@ namespace Game.Tests.EditMode
         public void Load_FailsWhenUnknownFieldExists()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/abilities/ability.1.json"] =
+            files["Data/abilities/ability.test_1.json"] =
 @"{
   ""schemaVersion"": 2,
-  ""id"": ""ability.1"",
+  ""id"": ""ability.test_1"",
   ""type"": ""Attack"",
   ""buildCost"": 0,
   ""cooldown"": 1,
   ""power"": 2,
-  ""nameLocKey"": ""ability.1_name"",
-  ""descLocKey"": ""ability.1_desc"",
+  ""nameLocKey"": ""ability.test_1_name"",
+  ""descLocKey"": ""ability.test_1_desc"",
   ""isPlayerObtainable"": true,
-  ""iconId"": ""ability.1"",
+  ""iconId"": ""ability.test_1"",
   ""effects"": [],
   ""unknownField"": 999
 }";
@@ -100,18 +100,18 @@ namespace Game.Tests.EditMode
         public void Load_FailsWhenModifierLayerIsNotCaseSensitiveMatch()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/abilities/ability.1.json"] =
+            files["Data/abilities/ability.test_1.json"] =
 @"{
   ""schemaVersion"": 2,
-  ""id"": ""ability.1"",
+  ""id"": ""ability.test_1"",
   ""type"": ""Attack"",
   ""buildCost"": 0,
   ""cooldown"": 1,
   ""power"": 2,
-  ""nameLocKey"": ""ability.1_name"",
-  ""descLocKey"": ""ability.1_desc"",
+  ""nameLocKey"": ""ability.test_1_name"",
+  ""descLocKey"": ""ability.test_1_desc"",
   ""isPlayerObtainable"": true,
-  ""iconId"": ""ability.1"",
+  ""iconId"": ""ability.test_1"",
   ""effects"": [
     {
       ""timing"": ""TurnEnd"",
@@ -153,9 +153,9 @@ namespace Game.Tests.EditMode
   ""startingHonor"": 3,
   ""startingPlayerHealth"": 10,
   ""startingLoadoutAbilityIds"": [
-    ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"",
-    ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"",
-    ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1"", ""ability.1""
+    ""ability.test_1"", ""ability.test_1"", ""ability.test_1"", ""ability.test_1"", ""ability.test_1"", ""ability.test_1"",
+    ""ability.test_1"", ""ability.test_1"", ""ability.test_1"", ""ability.test_1"", ""ability.test_1"", ""ability.test_1"",
+    ""ability.test_1"", ""ability.test_1"", ""ability.test_1"", ""ability.test_1"", ""ability.test_1""
   ]
 }";
 
@@ -182,14 +182,14 @@ namespace Game.Tests.EditMode
         public void Load_FailsWhenEnemyLoadoutExceedsMaxCount()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/enemies/enemy.1.json"] =
+            files["Data/enemies/enemy.test_1.json"] =
 @"{
   ""schemaVersion"": 2,
-  ""id"": ""enemy.1"",
+  ""id"": ""enemy.test_1"",
   ""health"": 10,
   ""tier"": ""Normal"",
   ""abilityLoadout"": [
-    { ""abilityId"": ""ability.1"", ""count"": 17 }
+    { ""abilityId"": ""ability.test_1"", ""count"": 17 }
   ]
 }";
 
@@ -216,7 +216,7 @@ namespace Game.Tests.EditMode
         public void Load_FailsWhenAbilityIconFileIsMissing()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files.Remove("Data/icons/ability.1.png");
+            files.Remove("Data/icons/ability.test_1.png");
 
             var loader = new GameDatabaseLoader(new InMemoryGameDataSource(files));
             LogAssert.ignoreFailingMessages = true;
@@ -241,16 +241,16 @@ namespace Game.Tests.EditMode
         public void Load_FailsWhenAbilityIconIdIsMissing()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/abilities/ability.1.json"] =
+            files["Data/abilities/ability.test_1.json"] =
 @"{
   ""schemaVersion"": 2,
-  ""id"": ""ability.1"",
+  ""id"": ""ability.test_1"",
   ""type"": ""Attack"",
   ""buildCost"": 0,
   ""cooldown"": 1,
   ""power"": 2,
-  ""nameLocKey"": ""ability.1_name"",
-  ""descLocKey"": ""ability.1_desc"",
+  ""nameLocKey"": ""ability.test_1_name"",
+  ""descLocKey"": ""ability.test_1_desc"",
   ""isPlayerObtainable"": true,
   ""effects"": []
 }";
@@ -278,17 +278,17 @@ namespace Game.Tests.EditMode
         public void Load_SucceedsWhenPassiveCooldownIsOmitted()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/abilities/ability.1.json"] =
+            files["Data/abilities/ability.test_1.json"] =
 @"{
   ""schemaVersion"": 2,
-  ""id"": ""ability.1"",
+  ""id"": ""ability.test_1"",
   ""type"": ""Passive"",
   ""buildCost"": 0,
   ""power"": 0,
-  ""nameLocKey"": ""ability.1_name"",
-  ""descLocKey"": ""ability.1_desc"",
+  ""nameLocKey"": ""ability.test_1_name"",
+  ""descLocKey"": ""ability.test_1_desc"",
   ""isPlayerObtainable"": true,
-  ""iconId"": ""ability.1"",
+  ""iconId"": ""ability.test_1"",
   ""effects"": []
 }";
 
@@ -307,17 +307,17 @@ namespace Game.Tests.EditMode
         public void Load_FailsWhenPassiveDefinesPositivePower()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/abilities/ability.1.json"] =
+            files["Data/abilities/ability.test_1.json"] =
 @"{
   ""schemaVersion"": 2,
-  ""id"": ""ability.1"",
+  ""id"": ""ability.test_1"",
   ""type"": ""Passive"",
   ""buildCost"": 0,
   ""power"": 3,
-  ""nameLocKey"": ""ability.1_name"",
-  ""descLocKey"": ""ability.1_desc"",
+  ""nameLocKey"": ""ability.test_1_name"",
+  ""descLocKey"": ""ability.test_1_desc"",
   ""isPlayerObtainable"": true,
-  ""iconId"": ""ability.1"",
+  ""iconId"": ""ability.test_1"",
   ""effects"": []
 }";
 
@@ -344,18 +344,18 @@ namespace Game.Tests.EditMode
         public void Load_SucceedsWhenModifyHealthSideIsOmitted()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/abilities/ability.1.json"] =
+            files["Data/abilities/ability.test_1.json"] =
 @"{
   ""schemaVersion"": 2,
-  ""id"": ""ability.1"",
+  ""id"": ""ability.test_1"",
   ""type"": ""Passive"",
   ""buildCost"": 0,
   ""cooldown"": 0,
   ""power"": 0,
-  ""nameLocKey"": ""ability.1_name"",
-  ""descLocKey"": ""ability.1_desc"",
+  ""nameLocKey"": ""ability.test_1_name"",
+  ""descLocKey"": ""ability.test_1_desc"",
   ""isPlayerObtainable"": true,
-  ""iconId"": ""ability.1"",
+  ""iconId"": ""ability.test_1"",
   ""effects"": [
     {
       ""timing"": ""TurnEnd"",
@@ -382,18 +382,18 @@ namespace Game.Tests.EditMode
         public void Load_FailsWhenModifyHealthSideIsInvalidEnum()
         {
             Dictionary<string, string> files = CreateValidDataSet();
-            files["Data/abilities/ability.1.json"] =
+            files["Data/abilities/ability.test_1.json"] =
 @"{
   ""schemaVersion"": 2,
-  ""id"": ""ability.1"",
+  ""id"": ""ability.test_1"",
   ""type"": ""Passive"",
   ""buildCost"": 0,
   ""cooldown"": 0,
   ""power"": 0,
-  ""nameLocKey"": ""ability.1_name"",
-  ""descLocKey"": ""ability.1_desc"",
+  ""nameLocKey"": ""ability.test_1_name"",
+  ""descLocKey"": ""ability.test_1_desc"",
   ""isPlayerObtainable"": true,
-  ""iconId"": ""ability.1"",
+  ""iconId"": ""ability.test_1"",
   ""effects"": [
     {
       ""timing"": ""TurnEnd"",
@@ -432,8 +432,8 @@ namespace Game.Tests.EditMode
 @"{
   ""schemaVersion"": 2,
   ""configs"": [""Data/duel.config.json"", ""Data/run.config.json"", ""Data/player.start.json""],
-  ""abilities"": [""Data/abilities/ability.1.json""],
-  ""enemies"": [""Data/enemies/enemy.1.json""]
+  ""abilities"": [""Data/abilities/ability.test_1.json""],
+  ""enemies"": [""Data/enemies/enemy.test_1.json""]
 }",
                 ["Data/duel.config.json"] =
 @"{
@@ -459,32 +459,32 @@ namespace Game.Tests.EditMode
   ""id"": ""player.start"",
   ""startingHonor"": 3,
   ""startingPlayerHealth"": 10,
-  ""startingLoadoutAbilityIds"": [""ability.1""]
+  ""startingLoadoutAbilityIds"": [""ability.test_1""]
 }",
-                ["Data/abilities/ability.1.json"] =
+                ["Data/abilities/ability.test_1.json"] =
 @"{
   ""schemaVersion"": 2,
-  ""id"": ""ability.1"",
+  ""id"": ""ability.test_1"",
   ""type"": ""Attack"",
   ""buildCost"": 0,
   ""cooldown"": 1,
   ""power"": 2,
-  ""nameLocKey"": ""ability.1_name"",
-  ""descLocKey"": ""ability.1_desc"",
+  ""nameLocKey"": ""ability.test_1_name"",
+  ""descLocKey"": ""ability.test_1_desc"",
   ""isPlayerObtainable"": true,
-  ""iconId"": ""ability.1"",
+  ""iconId"": ""ability.test_1"",
   ""effects"": []
 }",
                 ["Data/icons/icon.default.png"] = "png",
-                ["Data/icons/ability.1.png"] = "png",
-                ["Data/enemies/enemy.1.json"] =
+                ["Data/icons/ability.test_1.png"] = "png",
+                ["Data/enemies/enemy.test_1.json"] =
 @"{
   ""schemaVersion"": 2,
-  ""id"": ""enemy.1"",
+  ""id"": ""enemy.test_1"",
   ""health"": 10,
   ""tier"": ""Normal"",
   ""abilityLoadout"": [
-    { ""abilityId"": ""ability.1"", ""count"": 1 }
+    { ""abilityId"": ""ability.test_1"", ""count"": 1 }
   ]
 }"
             };

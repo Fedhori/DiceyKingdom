@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "id": "ability.passive.slime.regeneration",
+  "id": "ability.passive_slime_regeneration",
   "type": "Passive",
   "buildCost": 0,
   "cooldown": 0,
   "power": 0,
-  "nameLocKey": "ability.passive.slime.regeneration_name",
-  "descLocKey": "ability.passive.slime.regeneration_desc",
+  "nameLocKey": "ability.passive_slime_regeneration_name",
+  "descLocKey": "ability.passive_slime_regeneration_desc",
   "isPlayerObtainable": false,
   "iconId": "icon.default",
   "effects": [

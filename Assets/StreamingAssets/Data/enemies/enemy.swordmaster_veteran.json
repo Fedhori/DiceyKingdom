@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 2,
+  "id": "enemy.swordmaster_veteran",
+  "health": 6,
+  "tier": "Elite",
+  "abilityLoadout": [
+    {
+      "abilityId": "ability.swordmaster_skilled_thrust",
+      "count": 1
+    },
+    {
+      "abilityId": "ability.swordmaster_steady_slash",
+      "count": 2
+    }
+  ]
+}

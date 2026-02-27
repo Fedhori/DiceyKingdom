@@ -1,11 +1,11 @@
 {
   "schemaVersion": 2,
-  "id": "enemy.goblin.horde",
+  "id": "enemy.wolf_dire",
   "health": 5,
   "tier": "Normal",
   "abilityLoadout": [
     {
-      "abilityId": "ability.goblin.sneaky.strike",
+      "abilityId": "ability.wolf_bite",
       "count": 8
     }
   ]
