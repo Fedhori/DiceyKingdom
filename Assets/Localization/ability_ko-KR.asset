@@ -20,67 +20,59 @@ MonoBehaviour:
     - rid: 6012000000000000002
   m_TableData:
   - m_Id: 9000000000001
-    m_Localized: "<style=attack>석궁</style>"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 9000000000002
-    m_Localized: "기본 파워 <style=value>{0.power}</style>, 쿨다운 <style=cooldown>{0.cooldown}</style>."
+    m_Localized: "<style=attack>\uC11D\uAD81</style>"
     m_Metadata:
       m_Items: []
   - m_Id: 9000000000003
-    m_Localized: "<style=attack>기본 공격</style>"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 9000000000004
-    m_Localized: "기본 파워 <style=value>{0.power}</style>, 쿨다운 <style=cooldown>{0.cooldown}</style>."
+    m_Localized: "<style=attack>\uAE30\uBCF8 \uACF5\uACA9</style>"
     m_Metadata:
       m_Items: []
   - m_Id: 9000000000005
-    m_Localized: "<style=passive>재생력</style>"
+    m_Localized: "<style=passive>\uC7AC\uC0DD\uB825</style>"
     m_Metadata:
       m_Items: []
   - m_Id: 9000000000006
-    m_Localized: "턴 종료 시 체력을 <style=value_bonus>+{0.amount}</style> 회복합니다."
+    m_Localized: "\uD134 \uC885\uB8CC \uC2DC \uCCB4\uB825\uC744 <style=value_bonus>+{0.amount}</style>
+      \uD68C\uBCF5\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
   - m_Id: 9000000000007
-    m_Localized: "<style=attack>날카로운 곡도</style>"
+    m_Localized: "<style=attack>\uB0A0\uCE74\uB85C\uC6B4 \uACE1\uB3C4</style>"
     m_Metadata:
       m_Items: []
   - m_Id: 9000000000008
-    m_Localized: "턴 종료 시 영구 파워가 <style=value_bonus>+{0.amount}</style> 증가합니다."
+    m_Localized: "\uD134 \uC885\uB8CC \uC2DC \uD30C\uC6CC\uAC00 <style=value_bonus>+{0.amount}</style>
+      \uC99D\uAC00\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
   - m_Id: 9000000000009
-    m_Localized: "<style=attack>방패 올리기</style>"
+    m_Localized: "<style=attack>\uBC29\uD328 \uC62C\uB9AC\uAE30</style>"
     m_Metadata:
       m_Items: []
   - m_Id: 9000000000010
-    m_Localized: "Resolve 시 해당 전장에서 승리해도 주는 피해를 0으로 만듭니다."
+    m_Localized: "\uD574\uB2F9 \uC804\uC7A5\uC5D0\uC11C \uC2B9\uB9AC\uD574\uB3C4
+      \uD53C\uD574\uB97C \uC904 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
   - m_Id: 9000000000011
-    m_Localized: "<style=attack>숙련된 찌르기</style>"
+    m_Localized: "<style=attack>\uC219\uB828\uB41C \uCC0C\uB974\uAE30</style>"
     m_Metadata:
       m_Items: []
   - m_Id: 9000000000012
-    m_Localized: "승리 시 해당 전장의 주는 피해가 <style=value_bonus>+{0.amount}</style> 증가합니다."
+    m_Localized: "\uC2B9\uB9AC \uC2DC \uC8FC\uB294 \uD53C\uD574\uAC00 <style=value_bonus>{0.amount}</style>
+      \uC99D\uAC00\uD569\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
   - m_Id: 9000000000013
-    m_Localized: "<style=attack>검 베기</style>"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 9000000000014
-    m_Localized: "기본 파워 <style=value>{0.power}</style>, 쿨다운 <style=cooldown>{0.cooldown}</style>."
+    m_Localized: "<style=attack>\uAC80 \uBCA0\uAE30</style>"
     m_Metadata:
       m_Items: []
   - m_Id: 9000000000015
-    m_Localized: "<style=attack>비열한 공격</style>"
+    m_Localized: "<style=attack>\uBE44\uC5F4\uD55C \uACF5\uACA9</style>"
     m_Metadata:
       m_Items: []
   - m_Id: 9000000000016
-    m_Localized: "이 능력이 전장에서 패배하면 파괴됩니다."
+    m_Localized: "\uD328\uBC30\uD558\uBA74 \uD30C\uAD34\uB429\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
   references:

@@ -19,16 +19,8 @@ MonoBehaviour:
     m_Key: ability.crossbow.name
     m_Metadata:
       m_Items: []
-  - m_Id: 9000000000002
-    m_Key: ability.crossbow.desc
-    m_Metadata:
-      m_Items: []
   - m_Id: 9000000000003
     m_Key: ability.enemy_basic_attack.name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 9000000000004
-    m_Key: ability.enemy_basic_attack.desc
     m_Metadata:
       m_Items: []
   - m_Id: 9000000000005
@@ -65,10 +57,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 9000000000013
     m_Key: ability.slash_sword.name
-    m_Metadata:
-      m_Items: []
-  - m_Id: 9000000000014
-    m_Key: ability.slash_sword.desc
     m_Metadata:
       m_Items: []
   - m_Id: 9000000000015
