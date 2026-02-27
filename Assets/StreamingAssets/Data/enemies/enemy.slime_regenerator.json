@@ -5,7 +5,7 @@
   "tier": "Normal",
   "abilityLoadout": [
     {
-      "abilityId": "ability.passive_slime_regeneration",
+      "abilityId": "ability.regeneration",
       "count": 1
     },
     {

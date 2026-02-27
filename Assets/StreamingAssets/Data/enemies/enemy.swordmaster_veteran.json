@@ -5,7 +5,7 @@
   "tier": "Elite",
   "abilityLoadout": [
     {
-      "abilityId": "ability.swordmaster_skilled_thrust",
+      "abilityId": "ability.skilled_thrust",
       "count": 1
     },
     {

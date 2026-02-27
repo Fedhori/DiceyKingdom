@@ -168,7 +168,7 @@ namespace Game.Tests.EditMode
         public void TryResolveAllCombats_TurnEndPassiveCooldownTwo_TriggersEveryOtherTurn()
         {
             GameDatabase database = CreateDatabase();
-            database.abilitiesById["ability.passive_regen"] = CreatePassiveRegenAbilityDef(cooldown: 2, healAmount: 1);
+            database.abilitiesById["ability.regeneration"] = CreatePassiveRegenAbilityDef(cooldown: 2, healAmount: 1);
 
             var state = new DuelState
             {
@@ -180,7 +180,7 @@ namespace Game.Tests.EditMode
             AddCombats(state, 1);
             state.abilitiesById["passive0"] = new AbilityInstance
             {
-                abilityDefId = "ability.passive_regen",
+                abilityDefId = "ability.regeneration",
                 abilityType = AbilityType.Passive,
                 cooldownTurns = 2,
                 cooldownRemaining = 0,

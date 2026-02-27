@@ -10,16 +10,10 @@
     "Data/abilities/ability.shield_up.json",
     "Data/abilities/ability.crossbow.json",
     "Data/abilities/ability.enemy_basic_attack.json",
-    "Data/abilities/ability.passive_regen.json",
-    "Data/abilities/ability.goblin_sneaky_strike.json",
-    "Data/abilities/ability.nomad_sharp_scimitar.json",
-    "Data/abilities/ability.passive_slime_regeneration.json",
-    "Data/abilities/ability.slime_sticky_mucus.json",
-    "Data/abilities/ability.wolf_bite.json",
-    "Data/abilities/ability.ogre_crush.json",
-    "Data/abilities/ability.ogre_swing.json",
-    "Data/abilities/ability.swordmaster_skilled_thrust.json",
-    "Data/abilities/ability.swordmaster_steady_slash.json"
+    "Data/abilities/ability.regeneration.json",
+    "Data/abilities/ability.sneaky_strike.json",
+    "Data/abilities/ability.sharp_scimitar.json",
+    "Data/abilities/ability.skilled_thrust.json"
   ],
   "enemies": [
     "Data/enemies/enemy.northern_footman.json",

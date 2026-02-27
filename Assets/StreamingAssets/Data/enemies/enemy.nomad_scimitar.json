@@ -5,7 +5,7 @@
   "tier": "Normal",
   "abilityLoadout": [
     {
-      "abilityId": "ability.nomad_sharp_scimitar",
+      "abilityId": "ability.sharp_scimitar",
       "count": 4
     }
   ]

@@ -5,7 +5,7 @@
   "tier": "Normal",
   "abilityLoadout": [
     {
-      "abilityId": "ability.goblin_sneaky_strike",
+      "abilityId": "ability.sneaky_strike",
       "count": 8
     }
   ]
