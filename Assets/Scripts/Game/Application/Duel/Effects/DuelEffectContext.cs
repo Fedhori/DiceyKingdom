@@ -9,5 +9,7 @@ namespace Game.Application.Duel.Effects
         public bool hasHealthLost;
         public bool healthLostIsPlayerSide;
         public int healthLostAmount;
+        public bool hasResolveProgress;
+        public int currentResolvedCombatIndex = -1;
     }
 }

@@ -670,6 +670,7 @@ namespace Game.Presentation.Duel
             int[] opponentTotals = new int[combatCount];
             int[] playerTotals = new int[combatCount];
             var overlayByAbilityId = new Dictionary<string, DuelRollOverlayValue>(StringComparer.Ordinal);
+            IReadOnlyDictionary<string, int> powerBadgeByAbilityId = null;
 
             for (int i = 0; i < revealSnapshots.Count; i++)
             {
@@ -691,7 +692,8 @@ namespace Game.Presentation.Duel
                     playerTotals,
                     displayOpponentHealth,
                     displayPlayerHealth,
-                    overlayByAbilityId);
+                    overlayByAbilityId,
+                    powerBadgeByAbilityId);
             }
 
             PublishReveal();
@@ -747,19 +749,10 @@ namespace Game.Presentation.Duel
                     step.outcome,
                     config);
 
-                if (step.appliedDamage > 0)
-                {
-                    if (step.outcome == DuelOutcome.Victory)
-                    {
-                        displayOpponentHealth = Mathf.Max(0, displayOpponentHealth - step.appliedDamage);
-                    }
-                    else if (step.outcome == DuelOutcome.Defeat)
-                    {
-                        displayPlayerHealth = Mathf.Max(0, displayPlayerHealth - step.appliedDamage);
-                    }
-
-                    PublishReveal();
-                }
+                displayOpponentHealth = Mathf.Max(0, step.opponentHealthAfterStep);
+                displayPlayerHealth = Mathf.Max(0, step.playerHealthAfterStep);
+                powerBadgeByAbilityId = step.abilityPowerAfterStep;
+                PublishReveal();
 
                 if (config != null && config.resolveCombatGap > 0f && i < revealSnapshots.Count - 1)
                 {

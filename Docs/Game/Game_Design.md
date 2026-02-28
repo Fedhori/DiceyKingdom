@@ -148,6 +148,8 @@ Effects:
 - Source-side rule:
   - only abilities owned by the side that lost Health are evaluated for this timing.
 - `HealthLost` ignores deploy location (loadout/combat) and cooldown gate.
+- During `Resolve`, if `HealthLost` applies `AddPowerModifier(target=Power)` to an Attack that is already rolled and placed in a combat slot that has not been resolved yet, its current-turn `powerResult` is immediately adjusted by the effective power delta.
+- Already resolved combats are not recalculated.
 
 ### 4.1 Talent
 

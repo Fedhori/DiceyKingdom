@@ -363,6 +363,65 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
+        public void TryResolveAllCombats_HealthLostTiming_ImmediatelyAffectsUnresolvedCombatResults()
+        {
+            GameDatabase database = CreateDatabase();
+            database.abilitiesById["ability.berserk"] = CreateBerserkAbilityDef();
+
+            var state = new DuelState
+            {
+                playerHealth = 10,
+                opponentHealth = 10,
+                maxPlayerHealth = 10,
+                maxOpponentHealth = 10
+            };
+            AddCombats(state, 2);
+
+            state.abilitiesById["p0"] = CreateAbility("ability.player", 1);
+            state.abilitiesById["e0"] = CreateAbility("ability.opponent", 5);
+            state.combats[0].playerAbilityIds.Add("p0");
+            state.combats[0].opponentAbilityIds.Add("e0");
+
+            state.abilitiesById["p_berserk"] = CreateAbility("ability.berserk", 4);
+            state.abilitiesById["p_berserk"].cooldownTurns = 1;
+            state.abilitiesById["p_berserk"].cooldownRemaining = 1;
+            state.abilitiesById["e1"] = CreateAbility("ability.opponent", 6);
+            state.combats[1].playerAbilityIds.Add("p_berserk");
+            state.combats[1].opponentAbilityIds.Add("e1");
+
+            var runner = new DuelPhaseRunner(state);
+            var processor = new DuelTurnProcessor(database);
+            AdvanceToResolve(runner);
+
+            bool success = processor.TryResolveAllCombats(
+                state,
+                runner,
+                out DuelCombatResolveResult result,
+                out string failureMessage);
+
+            Assert.IsTrue(success, failureMessage);
+            Assert.AreEqual(2, result.steps.Count);
+
+            Assert.AreEqual(DuelOutcome.Defeat, result.steps[0].outcome);
+            Assert.AreEqual(9, result.steps[0].playerHealthAfterStep);
+            Assert.AreEqual(10, result.steps[0].opponentHealthAfterStep);
+            Assert.IsTrue(result.steps[0].abilityPowerAfterStep.TryGetValue("p_berserk", out int step0BerserkPower));
+            Assert.AreEqual(9, step0BerserkPower);
+
+            Assert.AreEqual(7, state.abilitiesById["p_berserk"].powerResult);
+            Assert.AreEqual(1, state.abilitiesById["p_berserk"].powerModifiers.Count);
+            Assert.AreEqual(3, state.abilitiesById["p_berserk"].powerModifiers[0].value);
+
+            Assert.AreEqual(DuelOutcome.Victory, result.steps[1].outcome);
+            Assert.AreEqual(9, result.steps[1].playerHealthAfterStep);
+            Assert.AreEqual(9, result.steps[1].opponentHealthAfterStep);
+            Assert.IsTrue(result.steps[1].abilityPowerAfterStep.TryGetValue("p_berserk", out int step1BerserkPower));
+            Assert.AreEqual(9, step1BerserkPower);
+            Assert.AreEqual(9, state.playerHealth);
+            Assert.AreEqual(9, state.opponentHealth);
+        }
+
+        [Test]
         public void TryResolveAllCombats_FailsWhenNoCombatsExist()
         {
             GameDatabase database = CreateDatabase();

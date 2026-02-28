@@ -142,10 +142,28 @@ namespace Game.Application.Duel.Effects
                                 continue;
                             }
 
+                            bool shouldSyncPowerResultOnHealthLost = ShouldSyncPowerResultOnHealthLost(
+                                timing,
+                                resolvedEffectContext,
+                                command,
+                                targetContext);
+                            int effectivePowerBefore = 0;
+                            if (shouldSyncPowerResultOnHealthLost)
+                            {
+                                effectivePowerBefore = ComputeEffectivePower(targetContext.ability);
+                            }
+
                             DuelEffectResult result = resolver.Apply(state, command, resolvedEffectContext);
                             if (result.isSuccess)
                             {
                                 appliedCount += 1;
+
+                                if (shouldSyncPowerResultOnHealthLost)
+                                {
+                                    TrySyncPowerResultWithPowerDelta(
+                                        targetContext.ability,
+                                        effectivePowerBefore);
+                                }
 
                                 if (command.opCode == DuelEffectOpCode.ModifyHealth &&
                                     command.amount < 0 &&
@@ -159,7 +177,9 @@ namespace Game.Application.Duel.Effects
                                         {
                                             hasHealthLost = true,
                                             healthLostIsPlayerSide = command.isPlayerSide,
-                                            healthLostAmount = -command.amount
+                                            healthLostAmount = -command.amount,
+                                            hasResolveProgress = resolvedEffectContext.hasResolveProgress,
+                                            currentResolvedCombatIndex = resolvedEffectContext.currentResolvedCombatIndex
                                         });
                                 }
 
@@ -235,6 +255,71 @@ namespace Game.Application.Duel.Effects
             }
 
             return sourceContext.isPlayerSide == effectContext.healthLostIsPlayerSide;
+        }
+
+        static bool ShouldSyncPowerResultOnHealthLost(
+            DuelEffectTiming timing,
+            DuelEffectContext effectContext,
+            DuelEffectCommand command,
+            AbilityRuntimeContext targetContext)
+        {
+            if (timing != DuelEffectTiming.HealthLost ||
+                effectContext == null ||
+                !effectContext.hasResolveProgress ||
+                command == null ||
+                command.opCode != DuelEffectOpCode.AddPowerModifier ||
+                command.modifierTarget != DuelModifierTarget.Power ||
+                targetContext.ability == null)
+            {
+                return false;
+            }
+
+            if (targetContext.combatIndex < 0 ||
+                targetContext.combatIndex <= effectContext.currentResolvedCombatIndex)
+            {
+                return false;
+            }
+
+            targetContext.ability.EnsureInitialized();
+            return targetContext.ability.baseRoll > 0;
+        }
+
+        static int ComputeEffectivePower(AbilityInstance ability)
+        {
+            if (ability == null)
+            {
+                return 0;
+            }
+
+            ability.EnsureInitialized();
+            return NumericModifierCalculator.Apply(
+                ability.power,
+                ability.powerModifiers,
+                minValue: 0,
+                logContext: "AbilityTimedEffectRunner.ComputeEffectivePower");
+        }
+
+        static void TrySyncPowerResultWithPowerDelta(AbilityInstance ability, int effectivePowerBefore)
+        {
+            if (ability == null)
+            {
+                return;
+            }
+
+            ability.EnsureInitialized();
+            if (ability.baseRoll <= 0)
+            {
+                return;
+            }
+
+            int effectivePowerAfter = ComputeEffectivePower(ability);
+            int delta = effectivePowerAfter - effectivePowerBefore;
+            if (delta == 0)
+            {
+                return;
+            }
+
+            ability.powerResult = Mathf.Max(1, ability.powerResult + delta);
         }
 
         static bool ShouldConsumeSourceCooldown(AbilityRuntimeContext sourceContext)

@@ -395,6 +395,16 @@ namespace Game.Presentation.Duel
             rollOverlayText.gameObject.SetActive(false);
         }
 
+        public void SetPowerBadgeValue(int powerValue)
+        {
+            if (powerBadgeText == null || powerBadgeImage == null || !powerBadgeImage.gameObject.activeSelf)
+            {
+                return;
+            }
+
+            powerBadgeText.text = Mathf.Max(0, powerValue).ToString();
+        }
+
         void HandleClick()
         {
             if (isDragging)

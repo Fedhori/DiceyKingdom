@@ -786,6 +786,7 @@ namespace Game.Presentation.Duel
 
             ApplyRevealHealthState(revealState);
             ApplyRevealZoneTotals(revealState);
+            ApplyRevealPowerBadges(revealState);
         }
 
         void ApplyRollOverlayState(DuelRevealState revealState)
@@ -850,6 +851,25 @@ namespace Game.Presentation.Duel
                 }
 
                 zone.SetTotals(opponentTotal, playerTotal);
+            }
+        }
+
+        void ApplyRevealPowerBadges(DuelRevealState revealState)
+        {
+            foreach (KeyValuePair<string, DuelAbilityCardView> pair in visibleCardsByInstanceId)
+            {
+                DuelAbilityCardView card = pair.Value;
+                if (card == null)
+                {
+                    continue;
+                }
+
+                if (!revealState.TryGetPowerBadge(pair.Key, out int powerValue))
+                {
+                    continue;
+                }
+
+                card.SetPowerBadgeValue(powerValue);
             }
         }
 

@@ -30,19 +30,30 @@ namespace Game.Application.Duel
         public int playerTotalPower { get; }
         public int opponentTotalPower { get; }
         public int appliedDamage { get; }
+        public int playerHealthAfterStep { get; }
+        public int opponentHealthAfterStep { get; }
+        public IReadOnlyDictionary<string, int> abilityPowerAfterStep { get; }
 
         public DuelCombatResolveStepResult(
             int combatIndex,
             DuelOutcome outcome,
             int playerTotalPower,
             int opponentTotalPower,
-            int appliedDamage)
+            int appliedDamage,
+            int playerHealthAfterStep,
+            int opponentHealthAfterStep,
+            IReadOnlyDictionary<string, int> abilityPowerAfterStep)
         {
             this.combatIndex = combatIndex;
             this.outcome = outcome;
             this.playerTotalPower = playerTotalPower;
             this.opponentTotalPower = opponentTotalPower;
             this.appliedDamage = appliedDamage;
+            this.playerHealthAfterStep = playerHealthAfterStep;
+            this.opponentHealthAfterStep = opponentHealthAfterStep;
+            this.abilityPowerAfterStep = abilityPowerAfterStep == null
+                ? new Dictionary<string, int>(StringComparer.Ordinal)
+                : new Dictionary<string, int>(abilityPowerAfterStep, StringComparer.Ordinal);
         }
     }
 
@@ -280,7 +291,9 @@ namespace Game.Application.Duel
                     new DuelEffectContext
                     {
                         hasOutcome = true,
-                        outcome = outcome
+                        outcome = outcome,
+                        hasResolveProgress = true,
+                        currentResolvedCombatIndex = combatIndex
                     });
                 int appliedDamage = state.isDuelEnded
                     ? 0
@@ -288,7 +301,7 @@ namespace Game.Application.Duel
                 if (appliedDamage > 0)
                 {
                     bool healthLostIsPlayerSide = outcome == DuelOutcome.Defeat;
-                    TriggerHealthLostTimedEffects(state, healthLostIsPlayerSide, appliedDamage);
+                    TriggerHealthLostTimedEffects(state, healthLostIsPlayerSide, appliedDamage, combatIndex);
                 }
 
                 if (state.playerHealth <= 0 || state.opponentHealth <= 0)
@@ -296,13 +309,17 @@ namespace Game.Application.Duel
                     state.isDuelEnded = true;
                     DuelSimulator.ClearModifierLayer(state, ModifierLayer.Duel);
                 }
+                Dictionary<string, int> abilityPowerSnapshot = CaptureAttackEffectivePowerSnapshot(state);
 
                 steps.Add(new DuelCombatResolveStepResult(
                     combatIndex,
                     outcome,
                     playerTotalPower,
                     opponentTotalPower,
-                    appliedDamage));
+                    appliedDamage,
+                    state.playerHealth,
+                    state.opponentHealth,
+                    abilityPowerSnapshot));
 
                 if (state.isDuelEnded)
                 {
@@ -458,7 +475,11 @@ namespace Game.Application.Duel
             return damage;
         }
 
-        void TriggerHealthLostTimedEffects(DuelState state, bool healthLostIsPlayerSide, int healthLostAmount)
+        void TriggerHealthLostTimedEffects(
+            DuelState state,
+            bool healthLostIsPlayerSide,
+            int healthLostAmount,
+            int currentResolvedCombatIndex)
         {
             if (state == null || healthLostAmount <= 0 || state.isDuelEnded)
             {
@@ -473,7 +494,9 @@ namespace Game.Application.Duel
                 {
                     hasHealthLost = true,
                     healthLostIsPlayerSide = healthLostIsPlayerSide,
-                    healthLostAmount = healthLostAmount
+                    healthLostAmount = healthLostAmount,
+                    hasResolveProgress = true,
+                    currentResolvedCombatIndex = currentResolvedCombatIndex
                 });
         }
 
@@ -562,6 +585,37 @@ namespace Game.Application.Duel
             }
 
             return abilityIds;
+        }
+
+        static Dictionary<string, int> CaptureAttackEffectivePowerSnapshot(DuelState state)
+        {
+            var snapshot = new Dictionary<string, int>(StringComparer.Ordinal);
+            if (state?.abilitiesById == null)
+            {
+                return snapshot;
+            }
+
+            foreach (KeyValuePair<string, AbilityInstance> pair in state.abilitiesById)
+            {
+                string abilityId = pair.Key;
+                AbilityInstance ability = pair.Value;
+                if (string.IsNullOrWhiteSpace(abilityId) ||
+                    ability == null ||
+                    ability.abilityType != AbilityType.Attack)
+                {
+                    continue;
+                }
+
+                ability.EnsureInitialized();
+                int effectivePower = NumericModifierCalculator.Apply(
+                    ability.power,
+                    ability.powerModifiers,
+                    minValue: 0,
+                    logContext: "DuelTurnProcessor.CaptureAttackEffectivePowerSnapshot");
+                snapshot[abilityId] = Mathf.Max(0, effectivePower);
+            }
+
+            return snapshot;
         }
 
         static HashSet<string> CollectDeployedAbilityIds(DuelState state)
