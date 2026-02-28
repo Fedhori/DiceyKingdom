@@ -2,13 +2,14 @@
 
 **Role:** Repository-wide engineering rules and conventions (coding style, safety rules, and change-management).
 
-**Last updated:** 2026-02-26
+**Last updated:** 2026-02-28
 
-## 1) Code style
+## Code style
 
-- Indentation: **4 spaces**
-- Braces: **Allman style**
-- Avoid excessive inline comments; prefer clear naming and small functions.
+- Indentation: 4 spaces (no tabs).
+- Braces: Allman style for block statements.
+- Enforce via `.editorconfig` and formatting tools. Do not rely on manual consistency.
+- Keep methods small and single-purpose; prefer extracting helpers over deep nesting.
 
 ## 2) Naming and file structure
 
@@ -46,6 +47,7 @@
 Changing the namespace of a `MonoBehaviour` / `ScriptableObject` can break references in scenes and prefabs.
 
 **Required procedure for namespace moves:**
+
 - Do it in an isolated change set.
 - Open all relevant scenes/prefabs and fix any missing scripts.
 - Do not merge until the Console has **0 Missing Script** issues.
@@ -63,6 +65,7 @@ Avoid designs that silently depend on Unity execution order. If order matters, m
 `async void` may be unavoidable in Unity event-style methods (e.g., `Awake`), but it is risk-prone.
 
 Minimum rule:
+
 - Always wrap awaited logic in `try/catch`.
 - Log the stage that failed.
 - Define whether the application should stop or continue after a failure.
@@ -83,6 +86,12 @@ Minimum rule:
 - Do not use `Ensure*`, `Cache*IfNeeded`, or similar patterns to silently repair invalid state at runtime.
 - Validation code must not assign missing references or recreate null collections behind the scenes.
 - For invalid state, emit an **error log** with clear context and fail fast (e.g., stop initialization or throw) instead of continuing with hidden corrections.
+- Runtime read/write methods (e.g., increment/add/apply/update) must not hide missing state with fallbacks such as `x ?? new ...`; missing prerequisites must fail explicitly.
+- State creation is allowed only at explicit lifecycle entry points (`Initialize*`, `Create*`, `Build*`) and must be visible in call flow.
+- Lazy creation is an exception-only pattern. If absolutely required:
+  - method name must explicitly use `GetOrCreate*`
+  - call sites must intentionally choose that method (no implicit fallback in unrelated methods)
+  - behavior and reason must be documented in the same change set
 
 ## 7) UI rules
 
@@ -104,6 +113,7 @@ Minimum rule:
 ## 8) Tests and verification
 
 Minimum expectation for refactors:
+
 - Project compiles.
 - Automated tests (EditMode) pass.
 - Any data validation tooling still succeeds (if available).
@@ -116,3 +126,10 @@ Minimum expectation for refactors:
   - Update all references
   - Verify build and runtime behavior
   - Update documentation paths and examples
+
+## Layer dependency matrix (must)
+
+- Presentation may depend on: Application, Domain (read-only models), Common.
+- Application may depend on: Domain, Infrastructure, Common.
+- Infrastructure may depend on: Domain/Contracts, Common. Must not depend on Application/Presentation.
+- Domain may depend on: Common only (avoid UnityEngine when feasible).
