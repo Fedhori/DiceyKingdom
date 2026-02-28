@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
-using Game.Domain.Duel;
-using Game.Domain.Modifiers;
-using Game.Infrastructure.Data;
+using Game.Application.Duel;
 using Game.Presentation.Localization;
-using UnityEngine;
+using System.Collections.Generic;
 
 namespace Game.Presentation.Duel
 {
@@ -19,25 +16,20 @@ namespace Game.Presentation.Duel
             this.localizedTextResolver = localizedTextResolver ?? throw new ArgumentNullException(nameof(localizedTextResolver));
         }
 
-        public string FormatName(AbilityDef def)
+        public string FormatName(DuelUiAbilityData abilityData)
         {
-            if (def == null)
+            if (string.IsNullOrWhiteSpace(abilityData.nameLocKey))
             {
                 return string.Empty;
             }
 
-            return localizedTextResolver.ResolveRequired(abilityTableName, def.nameLocKey);
+            return localizedTextResolver.ResolveRequired(abilityTableName, abilityData.nameLocKey);
         }
 
-        public string FormatTooltip(AbilityDef def, AbilityInstance ability)
+        public string FormatTooltip(DuelUiAbilityData abilityData)
         {
-            if (def == null)
-            {
-                return string.Empty;
-            }
-
-            string localizedName = FormatName(def);
-            string localizedDescription = FormatDescription(def, ability);
+            string localizedName = FormatName(abilityData);
+            string localizedDescription = FormatDescription(abilityData);
             if (string.IsNullOrWhiteSpace(localizedDescription))
             {
                 return localizedName;
@@ -51,30 +43,29 @@ namespace Game.Presentation.Duel
             return $"{localizedName}\n{localizedDescription}";
         }
 
-        public string FormatDescription(AbilityDef def, AbilityInstance ability)
+        public string FormatDescription(DuelUiAbilityData abilityData)
         {
-            if (def == null)
+            if (string.IsNullOrWhiteSpace(abilityData.descLocKey))
             {
                 return string.Empty;
             }
 
-            List<TimedEffectDef> effects = def.effects;
-            if (effects == null || effects.Count <= 0)
+            if (!abilityData.hasEffects)
             {
                 return localizedTextResolver.ResolveOptional(
                     abilityTableName,
-                    def.descLocKey,
+                    abilityData.descLocKey,
                     arguments: null,
                     warnIfMissing: false);
             }
 
-            var lines = new List<string>(effects.Count);
-            for (int effectIndex = 0; effectIndex < effects.Count; effectIndex++)
+            var lines = new List<string>(abilityData.effects.Count);
+            for (int effectIndex = 0; effectIndex < abilityData.effects.Count; effectIndex++)
             {
                 string key = effectIndex == 0
-                    ? def.descLocKey
-                    : $"{def.descLocKey}.{effectIndex + 1}";
-                AbilityLocArgs args = BuildArgs(def, ability, effectIndex);
+                    ? abilityData.descLocKey
+                    : $"{abilityData.descLocKey}.{effectIndex + 1}";
+                AbilityLocArgs args = BuildArgs(abilityData, effectIndex);
                 bool warnIfMissing = effectIndex == 0;
                 string line = localizedTextResolver.ResolveOptional(abilityTableName, key, args, warnIfMissing);
                 if (string.IsNullOrWhiteSpace(line))
@@ -88,95 +79,24 @@ namespace Game.Presentation.Duel
             return string.Join("\n", lines);
         }
 
-        static AbilityLocArgs BuildArgs(AbilityDef def, AbilityInstance ability, int effectIndex)
+        static AbilityLocArgs BuildArgs(DuelUiAbilityData abilityData, int effectIndex)
         {
-            int power = ability == null
-                ? Mathf.Max(0, def.ResolvePower())
-                : NumericModifierCalculator.Apply(
-                    ability.power,
-                    ability.powerModifiers,
-                    minValue: 0,
-                    logContext: "DuelAbilityTextFormatter.BuildArgs");
-            int cooldown = ResolveCooldownTurns(def, ability);
-            int cooldownRemaining = ability == null
-                ? 0
-                : Mathf.Max(0, ability.cooldownRemaining);
-            int amount = ResolveAmount(def, effectIndex);
-            string op = ResolveOp(def, effectIndex);
+            int amount = 0;
+            string op = string.Empty;
+            if (abilityData.effects != null && effectIndex >= 0 && effectIndex < abilityData.effects.Count)
+            {
+                DuelUiEffectLineData effectLine = abilityData.effects[effectIndex];
+                amount = effectLine.amount;
+                op = effectLine.op;
+            }
 
             return new AbilityLocArgs(
                 amount,
-                power,
-                cooldown,
-                cooldownRemaining,
+                abilityData.power,
+                abilityData.cooldownTurns,
+                abilityData.cooldownRemaining,
                 op,
                 effectIndex + 1);
-        }
-
-        static int ResolveCooldownTurns(AbilityDef def, AbilityInstance ability)
-        {
-            if (ability != null)
-            {
-                return Mathf.Max(0, ability.cooldownTurns);
-            }
-
-            AbilityType abilityType = AbilityType.Attack;
-            if (!def.TryGetAbilityType(out abilityType))
-            {
-                abilityType = AbilityType.Attack;
-            }
-
-            return Mathf.Max(0, def.ResolveCooldownTurns(abilityType));
-        }
-
-        static int ResolveAmount(AbilityDef def, int effectIndex)
-        {
-            if (def?.effects == null || effectIndex < 0 || effectIndex >= def.effects.Count)
-            {
-                return 0;
-            }
-
-            TimedEffectDef effect = def.effects[effectIndex];
-            if (effect?.ops == null || effect.ops.Count <= 0)
-            {
-                return 0;
-            }
-
-            for (int opIndex = 0; opIndex < effect.ops.Count; opIndex++)
-            {
-                EffectOpDef opDef = effect.ops[opIndex];
-                if (opDef != null && opDef.TryGetAmount(out int amount))
-                {
-                    return amount;
-                }
-            }
-
-            return 0;
-        }
-
-        static string ResolveOp(AbilityDef def, int effectIndex)
-        {
-            if (def?.effects == null || effectIndex < 0 || effectIndex >= def.effects.Count)
-            {
-                return string.Empty;
-            }
-
-            TimedEffectDef effect = def.effects[effectIndex];
-            if (effect?.ops == null || effect.ops.Count <= 0)
-            {
-                return string.Empty;
-            }
-
-            for (int opIndex = 0; opIndex < effect.ops.Count; opIndex++)
-            {
-                EffectOpDef opDef = effect.ops[opIndex];
-                if (opDef != null && !string.IsNullOrWhiteSpace(opDef.op))
-                {
-                    return opDef.op;
-                }
-            }
-
-            return string.Empty;
         }
 
         sealed class AbilityLocArgs

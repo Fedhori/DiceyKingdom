@@ -155,6 +155,25 @@ namespace Game.Application.Duel
             return timedEffectRunner.ApplyForTiming(state, timing, sourceAbilityIds);
         }
 
+        public AbilityTimedEffectRunResult ApplyDuelStartTimedEffects(DuelState state)
+        {
+            return ApplyTimedEffects(state, DuelEffectTiming.DuelStart);
+        }
+
+        public AbilityTimedEffectRunResult ApplyDeployTimedEffects(
+            DuelState state,
+            IReadOnlyCollection<string> sourceAbilityIds)
+        {
+            return ApplyTimedEffects(state, DuelEffectTiming.Deploy, sourceAbilityIds);
+        }
+
+        public AbilityTimedEffectRunResult ApplySkillTimedEffects(
+            DuelState state,
+            IReadOnlyCollection<string> sourceAbilityIds = null)
+        {
+            return ApplyTimedEffects(state, DuelEffectTiming.Skill, sourceAbilityIds);
+        }
+
         public bool TryRollAllDeployedAbilities(
             DuelState state,
             DuelPhaseRunner phaseRunner,

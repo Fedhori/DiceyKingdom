@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection;
+using Game.Application.Duel;
 using Game.Domain.Duel;
-using Game.Infrastructure.Data;
 using Game.Presentation.Duel;
 using Game.Presentation.Localization;
 using NUnit.Framework;
@@ -20,34 +20,15 @@ namespace Game.Tests.EditMode
             });
             var formatter = new DuelAbilityTextFormatter(resolver);
 
-            AbilityDef def = CreateAbilityDef(
+            DuelUiAbilityData abilityData = CreateAbilityData(
                 "ability.regeneration",
-                new List<TimedEffectDef>
-                {
-                    new TimedEffectDef
-                    {
-                        timing = "TurnEnd",
-                        ops = new List<EffectOpDef>
-                        {
-                            new EffectOpDef
-                            {
-                                op = "ModifyHealth",
-                                value = 1
-                            }
-                        }
-                    }
-                });
+                DuelUiAbilityType.Passive,
+                0,
+                0,
+                0,
+                new DuelUiEffectLineData(1, "ModifyHealth"));
 
-            var ability = new AbilityInstance
-            {
-                abilityDefId = def.id,
-                abilityType = AbilityType.Passive,
-                power = 0,
-                cooldownTurns = 0,
-                cooldownRemaining = 0
-            };
-
-            string tooltip = formatter.FormatTooltip(def, ability);
+            string tooltip = formatter.FormatTooltip(abilityData);
 
             Assert.AreEqual("재생력\n턴 종료 시 체력 +1", tooltip);
         }
@@ -63,37 +44,16 @@ namespace Game.Tests.EditMode
             });
             var formatter = new DuelAbilityTextFormatter(resolver);
 
-            AbilityDef def = CreateAbilityDef(
+            DuelUiAbilityData abilityData = CreateAbilityData(
                 "ability.multi",
-                new List<TimedEffectDef>
-                {
-                    new TimedEffectDef
-                    {
-                        timing = "TurnEnd",
-                        ops = new List<EffectOpDef>
-                        {
-                            new EffectOpDef
-                            {
-                                op = "ModifyHealth",
-                                value = 2
-                            }
-                        }
-                    },
-                    new TimedEffectDef
-                    {
-                        timing = "TurnEnd",
-                        ops = new List<EffectOpDef>
-                        {
-                            new EffectOpDef
-                            {
-                                op = "ModifyHealth",
-                                value = 3
-                            }
-                        }
-                    }
-                });
+                DuelUiAbilityType.Passive,
+                0,
+                0,
+                0,
+                new DuelUiEffectLineData(2, "ModifyHealth"),
+                new DuelUiEffectLineData(3, "ModifyHealth"));
 
-            string tooltip = formatter.FormatTooltip(def, ability: null);
+            string tooltip = formatter.FormatTooltip(abilityData);
 
             Assert.AreEqual("복합 능력\n효과1 +2\n효과2 +3", tooltip);
         }
@@ -108,37 +68,16 @@ namespace Game.Tests.EditMode
             });
             var formatter = new DuelAbilityTextFormatter(resolver);
 
-            AbilityDef def = CreateAbilityDef(
+            DuelUiAbilityData abilityData = CreateAbilityData(
                 "ability.multi",
-                new List<TimedEffectDef>
-                {
-                    new TimedEffectDef
-                    {
-                        timing = "TurnEnd",
-                        ops = new List<EffectOpDef>
-                        {
-                            new EffectOpDef
-                            {
-                                op = "ModifyHealth",
-                                value = 2
-                            }
-                        }
-                    },
-                    new TimedEffectDef
-                    {
-                        timing = "TurnEnd",
-                        ops = new List<EffectOpDef>
-                        {
-                            new EffectOpDef
-                            {
-                                op = "ModifyHealth",
-                                value = 3
-                            }
-                        }
-                    }
-                });
+                DuelUiAbilityType.Passive,
+                0,
+                0,
+                0,
+                new DuelUiEffectLineData(2, "ModifyHealth"),
+                new DuelUiEffectLineData(3, "ModifyHealth"));
 
-            string tooltip = formatter.FormatTooltip(def, ability: null);
+            string tooltip = formatter.FormatTooltip(abilityData);
 
             Assert.AreEqual("복합 능력\n효과1 +2", tooltip);
         }
@@ -152,27 +91,41 @@ namespace Game.Tests.EditMode
             });
             var formatter = new DuelAbilityTextFormatter(resolver);
 
-            AbilityDef def = CreateAbilityDef("ability.empty", effects: new List<TimedEffectDef>());
+            DuelUiAbilityData abilityData = CreateAbilityData(
+                "ability.empty",
+                DuelUiAbilityType.Passive,
+                0,
+                0,
+                0);
 
-            string tooltip = formatter.FormatTooltip(def, ability: null);
+            string tooltip = formatter.FormatTooltip(abilityData);
 
             Assert.AreEqual("빈 능력", tooltip);
         }
 
-        static AbilityDef CreateAbilityDef(string id, List<TimedEffectDef> effects)
+        static DuelUiAbilityData CreateAbilityData(
+            string id,
+            DuelUiAbilityType abilityType,
+            int power,
+            int cooldownTurns,
+            int cooldownRemaining,
+            params DuelUiEffectLineData[] effects)
         {
-            return new AbilityDef
-            {
-                type = AbilityType.Passive.ToString(),
-                buildCost = 0,
-                cooldown = 0,
-                power = 0,
-                nameLocKey = $"{id}.name",
-                descLocKey = $"{id}.desc",
-                isPlayerObtainable = true,
-                iconId = "icon.default",
-                effects = effects ?? new List<TimedEffectDef>()
-            };
+            IReadOnlyList<DuelUiEffectLineData> effectLines = effects == null
+                ? new List<DuelUiEffectLineData>()
+                : new List<DuelUiEffectLineData>(effects);
+            return new DuelUiAbilityData(
+                id,
+                id,
+                abilityType,
+                power,
+                cooldownTurns,
+                cooldownRemaining,
+                $"{id}.name",
+                $"{id}.desc",
+                "icon.default",
+                "Data/icons/icon.default.png",
+                effectLines);
         }
 
         sealed class FakeLocalizedTextResolver : ILocalizedTextResolver

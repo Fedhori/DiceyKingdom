@@ -15,10 +15,11 @@ namespace Game.Tests.EditMode
         public void TryInitialize_WithAdvanceToPlayerSetup_EntersPlayerSetupAndDeploysOpponent()
         {
             GameDatabase database = CreateDatabase(startingHonor: 1);
+            DuelUiQueryService queryService = CreateQueryService(database);
             var sessionRunner = new DuelSessionRunner();
 
             bool success = sessionRunner.TryInitialize(
-                database,
+                queryService,
                 "enemy.test",
                 advanceToPlayerSetup: true,
                 out string failureMessage);
@@ -45,10 +46,11 @@ namespace Game.Tests.EditMode
         public void TryEnsureReadyForCombatStart_FromReset_AutoAdvancesToPlayerSetup()
         {
             GameDatabase database = CreateDatabase(startingHonor: 1);
+            DuelUiQueryService queryService = CreateQueryService(database);
             var sessionRunner = new DuelSessionRunner();
 
             Assert.IsTrue(sessionRunner.TryInitialize(
-                database,
+                queryService,
                 "enemy.test",
                 advanceToPlayerSetup: false,
                 out string initializeFailure),
@@ -65,10 +67,11 @@ namespace Game.Tests.EditMode
         public void TryEnterOpponentSetup_FailsWhenCurrentPhaseIsNotReset()
         {
             GameDatabase database = CreateDatabase(startingHonor: 1);
+            DuelUiQueryService queryService = CreateQueryService(database);
             var sessionRunner = new DuelSessionRunner();
 
             Assert.IsTrue(sessionRunner.TryInitialize(
-                database,
+                queryService,
                 "enemy.test",
                 advanceToPlayerSetup: true,
                 out string initializeFailure),
@@ -87,10 +90,11 @@ namespace Game.Tests.EditMode
         public void TryPrepareOpponentSetupForCurrentTurn_BuildsPlanWithoutImmediateMutation()
         {
             GameDatabase database = CreateDatabase(startingHonor: 1);
+            DuelUiQueryService queryService = CreateQueryService(database);
             var sessionRunner = new DuelSessionRunner();
 
             Assert.IsTrue(sessionRunner.TryInitialize(
-                database,
+                queryService,
                 "enemy.test",
                 advanceToPlayerSetup: false,
                 out string initializeFailure),
@@ -126,10 +130,11 @@ namespace Game.Tests.EditMode
         public void TrySurrender_InPlayerSetupWithHonor_SucceedsAndConsumesHonor()
         {
             GameDatabase database = CreateDatabase(startingHonor: 1);
+            DuelUiQueryService queryService = CreateQueryService(database);
             var sessionRunner = new DuelSessionRunner();
 
             Assert.IsTrue(sessionRunner.TryInitialize(
-                database,
+                queryService,
                 "enemy.test",
                 advanceToPlayerSetup: true,
                 out string initializeFailure),
@@ -176,9 +181,10 @@ namespace Game.Tests.EditMode
             };
             database.playerStart.startingLoadoutAbilityIds.Add("ability.passive_duelstart_heal");
 
+            DuelUiQueryService queryService = CreateQueryService(database);
             var sessionRunner = new DuelSessionRunner();
             bool success = sessionRunner.TryInitialize(
-                database,
+                queryService,
                 "enemy.test",
                 advanceToPlayerSetup: true,
                 out string failureMessage);
@@ -220,9 +226,10 @@ namespace Game.Tests.EditMode
                 }
             };
 
+            DuelUiQueryService queryService = CreateQueryService(database);
             var sessionRunner = new DuelSessionRunner();
             bool success = sessionRunner.TryInitialize(
-                database,
+                queryService,
                 "enemy.test",
                 advanceToPlayerSetup: true,
                 out string failureMessage);
@@ -249,9 +256,10 @@ namespace Game.Tests.EditMode
             database.enemiesById["enemy.test"].abilityLoadout[0].power = 11;
             database.enemiesById["enemy.test"].abilityLoadout[0].cooldown = 3;
 
+            DuelUiQueryService queryService = CreateQueryService(database);
             var sessionRunner = new DuelSessionRunner();
             bool success = sessionRunner.TryInitialize(
-                database,
+                queryService,
                 "enemy.test",
                 advanceToPlayerSetup: false,
                 out string failureMessage);
@@ -323,6 +331,14 @@ namespace Game.Tests.EditMode
             };
 
             return database;
+        }
+
+        static DuelUiQueryService CreateQueryService(GameDatabase database)
+        {
+            var queryService = new DuelUiQueryService();
+            bool bindSuccess = queryService.TryBindDatabase(database, out string failureMessage);
+            Assert.IsTrue(bindSuccess, failureMessage);
+            return queryService;
         }
     }
 }

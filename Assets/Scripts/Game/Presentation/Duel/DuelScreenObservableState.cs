@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Game.Application.Duel;
 using Game.Common;
 using Game.Domain.Duel;
-using Game.Infrastructure.Data;
 
 namespace Game.Presentation.Duel
 {
@@ -53,23 +52,20 @@ namespace Game.Presentation.Duel
     {
         public DuelState duelState { get; }
         public DuelPhaseRunner phaseRunner { get; }
-        public GameDatabase database { get; }
-        public string selectedAbilityId { get; }
+        public string selectedAbilityInstanceId { get; }
         public bool isFlowRunning { get; }
         public int revision { get; }
 
         public DuelBoardState(
             DuelState duelState,
             DuelPhaseRunner phaseRunner,
-            GameDatabase database,
-            string selectedAbilityId,
+            string selectedAbilityInstanceId,
             bool isFlowRunning,
             int revision)
         {
             this.duelState = duelState;
             this.phaseRunner = phaseRunner;
-            this.database = database;
-            this.selectedAbilityId = selectedAbilityId;
+            this.selectedAbilityInstanceId = selectedAbilityInstanceId;
             this.isFlowRunning = isFlowRunning;
             this.revision = revision;
         }
@@ -181,7 +177,6 @@ namespace Game.Presentation.Duel
             new DuelBoardState(
                 null,
                 null,
-                null,
                 string.Empty,
                 false,
                 0));
@@ -204,7 +199,6 @@ namespace Game.Presentation.Duel
         {
             DuelState duelState = sessionRunner == null ? null : sessionRunner.DuelState;
             DuelPhaseRunner phaseRunner = sessionRunner == null ? null : sessionRunner.PhaseRunner;
-            GameDatabase database = sessionRunner == null ? null : sessionRunner.Database;
 
             int turnIndex = duelState == null ? 0 : duelState.turnIndex;
             topBarState.Value = new DuelTopBarState(turnIndex);
@@ -241,8 +235,7 @@ namespace Game.Presentation.Duel
             boardState.Value = new DuelBoardState(
                 duelState,
                 phaseRunner,
-                database,
-                selectionState == null ? string.Empty : selectionState.SelectedAbilityId,
+                selectionState == null ? string.Empty : selectionState.SelectedAbilityInstanceId,
                 isFlowRunning,
                 boardRevision);
         }

@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Game.Infrastructure.Data;
+using Game.Application.Duel;
 using Game.UI.Tooltip;
 using TMPro;
 using UnityEngine;
@@ -54,7 +54,7 @@ namespace Game.Presentation.Duel
             public string instanceId { get; }
             public string tooltipTitle { get; }
             public string tooltipBody { get; }
-            public AbilityType abilityType { get; }
+            public DuelUiAbilityType abilityType { get; }
             public Sprite iconSprite { get; }
             public int power { get; }
             public bool showPower { get; }
@@ -65,7 +65,7 @@ namespace Game.Presentation.Duel
                 string instanceId,
                 string tooltipTitle,
                 string tooltipBody,
-                AbilityType abilityType,
+                DuelUiAbilityType abilityType,
                 Sprite iconSprite,
                 int power,
                 bool showPower,
@@ -579,15 +579,15 @@ namespace Game.Presentation.Duel
             invalidFeedbackRoutine = null;
         }
 
-        static Color ResolveBorderColor(AbilityType abilityType)
+        static Color ResolveBorderColor(DuelUiAbilityType abilityType)
         {
             switch (abilityType)
             {
-                case AbilityType.Attack:
+                case DuelUiAbilityType.Attack:
                     return defaultAttackBorder;
-                case AbilityType.Skill:
+                case DuelUiAbilityType.Skill:
                     return defaultSkillBorder;
-                case AbilityType.Passive:
+                case DuelUiAbilityType.Passive:
                     return defaultPassiveBorder;
                 default:
                     return defaultAttackBorder;

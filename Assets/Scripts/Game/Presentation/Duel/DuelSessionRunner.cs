@@ -2,14 +2,13 @@ using System.Collections.Generic;
 using Game.Application.Duel;
 using Game.Application.Duel.Effects;
 using Game.Domain.Duel;
-using Game.Infrastructure.Data;
-using Game.Infrastructure.Data.Effects;
 using UnityEngine;
 
 namespace Game.Presentation.Duel
 {
     public class DuelSessionRunner
     {
+        DuelUiQueryService uiQueryService;
         DuelSessionBuilder sessionBuilder;
         DuelTurnProcessor turnProcessor;
         DuelResolveSession activeResolveSession;
@@ -17,7 +16,7 @@ namespace Game.Presentation.Duel
 
         public DuelState DuelState { get; private set; }
         public DuelPhaseRunner PhaseRunner { get; private set; }
-        public GameDatabase Database { get; private set; }
+        public DuelUiQueryService UiQueryService => uiQueryService;
         public int MaxPlayerHealth { get; private set; } = 1;
         public int MaxOpponentHealth { get; private set; } = 1;
 
@@ -28,22 +27,25 @@ namespace Game.Presentation.Duel
             turnProcessor != null;
 
         public bool TryInitialize(
-            GameDatabase database,
+            DuelUiQueryService uiQueryService,
             string enemyId,
             bool advanceToPlayerSetup,
             out string failureMessage)
         {
             failureMessage = string.Empty;
 
-            if (database == null)
+            if (uiQueryService == null)
             {
-                failureMessage = "database is null.";
+                failureMessage = "query service is null.";
                 return false;
             }
 
-            Database = database;
-            sessionBuilder = new DuelSessionBuilder(database);
-            turnProcessor = new DuelTurnProcessor(database);
+            if (!uiQueryService.TryCreateSessionSystems(out sessionBuilder, out turnProcessor, out failureMessage))
+            {
+                return false;
+            }
+
+            this.uiQueryService = uiQueryService;
             activeResolveSession = null;
 
             if (!sessionBuilder.TryCreateInitialState(enemyId, out DuelState state, out failureMessage))
@@ -62,7 +64,7 @@ namespace Game.Presentation.Duel
 
             MaxPlayerHealth = Mathf.Max(1, DuelState.maxPlayerHealth);
             MaxOpponentHealth = Mathf.Max(1, DuelState.maxOpponentHealth);
-            turnProcessor.ApplyTimedEffects(DuelState, DuelEffectTiming.DuelStart);
+            turnProcessor.ApplyDuelStartTimedEffects(DuelState);
 
             if (!advanceToPlayerSetup)
             {
@@ -421,15 +423,15 @@ namespace Game.Presentation.Duel
             return false;
         }
 
-        public void NotifyPlayerAbilityDeployed(string abilityId)
+        public void NotifyPlayerAbilityDeployed(string abilityInstanceId)
         {
-            if (!IsInitialized || string.IsNullOrWhiteSpace(abilityId))
+            if (!IsInitialized || string.IsNullOrWhiteSpace(abilityInstanceId))
             {
                 return;
             }
 
             singleAbilityBuffer.Clear();
-            singleAbilityBuffer.Add(abilityId);
+            singleAbilityBuffer.Add(abilityInstanceId);
             ApplyDeployTimedEffects(singleAbilityBuffer);
             singleAbilityBuffer.Clear();
         }
@@ -441,10 +443,7 @@ namespace Game.Presentation.Duel
                 return new AbilityTimedEffectRunResult(0, 0, 0);
             }
 
-            return turnProcessor.ApplyTimedEffects(
-                DuelState,
-                DuelEffectTiming.Skill,
-                sourceAbilityIds);
+            return turnProcessor.ApplySkillTimedEffects(DuelState, sourceAbilityIds);
         }
 
         bool TryValidateStarted(out string failureMessage)
@@ -466,15 +465,15 @@ namespace Game.Presentation.Duel
             return true;
         }
 
-        void ApplyDeployTimedEffectsForSingleAbility(string abilityId)
+        void ApplyDeployTimedEffectsForSingleAbility(string abilityInstanceId)
         {
-            if (string.IsNullOrWhiteSpace(abilityId))
+            if (string.IsNullOrWhiteSpace(abilityInstanceId))
             {
                 return;
             }
 
             singleAbilityBuffer.Clear();
-            singleAbilityBuffer.Add(abilityId);
+            singleAbilityBuffer.Add(abilityInstanceId);
             ApplyDeployTimedEffects(singleAbilityBuffer);
             singleAbilityBuffer.Clear();
         }
@@ -486,10 +485,7 @@ namespace Game.Presentation.Duel
                 return;
             }
 
-            turnProcessor.ApplyTimedEffects(
-                DuelState,
-                DuelEffectTiming.Deploy,
-                deployedAbilityIds);
+            turnProcessor.ApplyDeployTimedEffects(DuelState, deployedAbilityIds);
         }
     }
 }

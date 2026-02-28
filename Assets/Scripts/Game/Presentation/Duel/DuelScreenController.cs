@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Game.Application.Duel;
 using Game.Domain.Duel;
-using Game.Domain.Modifiers;
-using Game.Infrastructure.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -45,6 +43,7 @@ namespace Game.Presentation.Duel
         readonly DuelSelectionState selectionState = new();
         readonly DuelScreenObservableState observableState = new();
         readonly DuelAbilityIconCache abilityIconCache = new();
+        readonly DuelUiQueryService uiQueryService = new();
         readonly List<IDisposable> uiSubscriptions = new();
         readonly System.Random revealRandom = new();
 
@@ -52,7 +51,7 @@ namespace Game.Presentation.Duel
         bool isFlowRunning;
         DuelAnimationConfig runtimeAnimationConfig;
         bool isCardDragActive;
-        string dragAbilityId = string.Empty;
+        string dragAbilityInstanceId = string.Empty;
         RectTransform dragGhostRect;
         DuelCombatZoneView hoveredDropZone;
 
@@ -134,6 +133,7 @@ namespace Game.Presentation.Duel
                 playerPassiveRow,
                 combatZones,
                 abilityCardPrefab,
+                uiQueryService,
                 abilityIconCache.ResolveOrDefault);
         }
 
@@ -176,16 +176,15 @@ namespace Game.Presentation.Duel
 
         void InitializeDuelOrWarn()
         {
-            GameDatabase database = GameDataRuntime.CurrentDatabase;
-            if (database == null)
+            if (!uiQueryService.TryBindRuntimeData(out string bindFailure))
             {
-                Debug.LogWarning("[DuelScreenController] GameDataRuntime.CurrentDatabase is null.");
+                Debug.LogWarning($"[DuelScreenController] Failed to bind duel query service: {bindFailure}");
                 return;
             }
 
-            abilityIconCache.Rebuild(database);
+            abilityIconCache.Rebuild(uiQueryService);
 
-            if (!sessionRunner.TryInitialize(database, enemyId, advanceToPlayerSetup: false, out string failureMessage))
+            if (!sessionRunner.TryInitialize(uiQueryService, enemyId, advanceToPlayerSetup: false, out string failureMessage))
             {
                 Debug.LogWarning($"[DuelScreenController] Failed to initialize duel: {failureMessage}");
                 return;
@@ -278,7 +277,7 @@ namespace Game.Presentation.Duel
             PublishObservableState();
         }
 
-        void HandlePlayerAbilityCardClicked(string abilityId)
+        void HandlePlayerAbilityCardClicked(string abilityInstanceId)
         {
             if (isFlowRunning || !sessionRunner.IsInitialized || isCardDragActive)
             {
@@ -288,7 +287,8 @@ namespace Game.Presentation.Duel
             if (!selectionState.TryToggleAttackSelection(
                     sessionRunner.DuelState,
                     sessionRunner.PhaseRunner,
-                    abilityId,
+                    uiQueryService,
+                    abilityInstanceId,
                     out _))
             {
                 return;
@@ -299,12 +299,12 @@ namespace Game.Presentation.Duel
 
         void HandleCardDragStarted(
             DuelAbilityCardView cardView,
-            string abilityId,
+            string abilityInstanceId,
             DuelAbilityCardView.InteractionContext context,
             Vector2 screenPosition,
             Camera eventCamera)
         {
-            if (!CanUseCardInteractions(abilityId))
+            if (!CanUseCardInteractions(abilityInstanceId))
             {
                 return;
             }
@@ -315,7 +315,7 @@ namespace Game.Presentation.Duel
             }
 
             isCardDragActive = true;
-            dragAbilityId = abilityId;
+            dragAbilityInstanceId = abilityInstanceId;
 
             CreateDragGhost(cardView, screenPosition, eventCamera);
             UpdateDropZoneHover(screenPosition, eventCamera);
@@ -323,12 +323,12 @@ namespace Game.Presentation.Duel
 
         void HandleCardDragMoved(
             DuelAbilityCardView cardView,
-            string abilityId,
+            string abilityInstanceId,
             DuelAbilityCardView.InteractionContext context,
             Vector2 screenPosition,
             Camera eventCamera)
         {
-            if (!isCardDragActive || !string.Equals(dragAbilityId, abilityId, StringComparison.Ordinal))
+            if (!isCardDragActive || !string.Equals(dragAbilityInstanceId, abilityInstanceId, StringComparison.Ordinal))
             {
                 return;
             }
@@ -339,19 +339,19 @@ namespace Game.Presentation.Duel
 
         void HandleCardDragEnded(
             DuelAbilityCardView cardView,
-            string abilityId,
+            string abilityInstanceId,
             DuelAbilityCardView.InteractionContext context,
             Vector2 screenPosition,
             Camera eventCamera)
         {
-            if (!isCardDragActive || !string.Equals(dragAbilityId, abilityId, StringComparison.Ordinal))
+            if (!isCardDragActive || !string.Equals(dragAbilityInstanceId, abilityInstanceId, StringComparison.Ordinal))
             {
                 return;
             }
 
             bool shouldPublishState = false;
             bool isDropFailure = false;
-            if (CanUseCardInteractions(abilityId) &&
+            if (CanUseCardInteractions(abilityInstanceId) &&
                 TryFindDropCombatIndex(screenPosition, eventCamera, out int targetCombatIndex))
             {
                 bool isNoOp = context.isCombat && context.combatIndex == targetCombatIndex;
@@ -360,11 +360,11 @@ namespace Game.Presentation.Duel
                     if (selectionState.TryMovePlayerAbilityToCombat(
                             sessionRunner.DuelState,
                             sessionRunner.PhaseRunner,
-                            abilityId,
+                            abilityInstanceId,
                             targetCombatIndex,
                             out string failureMessage))
                     {
-                        sessionRunner.NotifyPlayerAbilityDeployed(abilityId);
+                        sessionRunner.NotifyPlayerAbilityDeployed(abilityInstanceId);
                         shouldPublishState = true;
                     }
                     else
@@ -394,10 +394,10 @@ namespace Game.Presentation.Duel
 
         void HandleCardRightClicked(
             DuelAbilityCardView cardView,
-            string abilityId,
+            string abilityInstanceId,
             DuelAbilityCardView.InteractionContext context)
         {
-            if (!context.isCombat || !CanUseCardInteractions(abilityId))
+            if (!context.isCombat || !CanUseCardInteractions(abilityInstanceId))
             {
                 return;
             }
@@ -405,7 +405,7 @@ namespace Game.Presentation.Duel
             if (!selectionState.TryReturnPlayerAbilityToLoadout(
                     sessionRunner.DuelState,
                     sessionRunner.PhaseRunner,
-                    abilityId,
+                    abilityInstanceId,
                     out string failureMessage))
             {
                 Debug.LogWarning($"[DuelScreenController] Return to loadout rejected: {failureMessage}");
@@ -420,7 +420,7 @@ namespace Game.Presentation.Duel
             if (isFlowRunning ||
                 !sessionRunner.IsInitialized ||
                 sessionRunner.PhaseRunner.currentPhase != DuelPhase.PlayerSetup ||
-                string.IsNullOrWhiteSpace(selectionState.SelectedAbilityId))
+                string.IsNullOrWhiteSpace(selectionState.SelectedAbilityInstanceId))
             {
                 return;
             }
@@ -428,7 +428,7 @@ namespace Game.Presentation.Duel
             if (!selectionState.TryMovePlayerAbilityToCombat(
                     sessionRunner.DuelState,
                     sessionRunner.PhaseRunner,
-                    selectionState.SelectedAbilityId,
+                    selectionState.SelectedAbilityInstanceId,
                     combatIndex,
                     out string failureMessage))
             {
@@ -436,7 +436,7 @@ namespace Game.Presentation.Duel
                 return;
             }
 
-            sessionRunner.NotifyPlayerAbilityDeployed(selectionState.SelectedAbilityId);
+            sessionRunner.NotifyPlayerAbilityDeployed(selectionState.SelectedAbilityInstanceId);
             PublishObservableState();
         }
 
@@ -772,14 +772,14 @@ namespace Game.Presentation.Duel
         }
 
         IEnumerator AnimateAbilityRoulette(
-            string abilityId,
+            string abilityInstanceId,
             int rouletteMax,
             int finalValue,
             DuelAnimationConfig config,
             IDictionary<string, DuelRollOverlayValue> overlayByAbilityId,
             Action onFrameChanged)
         {
-            if (string.IsNullOrWhiteSpace(abilityId) || overlayByAbilityId == null)
+            if (string.IsNullOrWhiteSpace(abilityInstanceId) || overlayByAbilityId == null)
             {
                 yield break;
             }
@@ -798,14 +798,14 @@ namespace Game.Presentation.Duel
                 while (elapsed < duration)
                 {
                     int rouletteValue = revealRandom.Next(1, Mathf.Max(2, rouletteMax + 1));
-                    overlayByAbilityId[abilityId] = new DuelRollOverlayValue(true, rouletteValue, false);
+                    overlayByAbilityId[abilityInstanceId] = new DuelRollOverlayValue(true, rouletteValue, false);
                     onFrameChanged?.Invoke();
                     elapsed += Time.unscaledDeltaTime;
                     yield return null;
                 }
             }
 
-            overlayByAbilityId[abilityId] = new DuelRollOverlayValue(true, Mathf.Max(0, finalValue), true);
+            overlayByAbilityId[abilityInstanceId] = new DuelRollOverlayValue(true, Mathf.Max(0, finalValue), true);
             onFrameChanged?.Invoke();
         }
 
@@ -839,7 +839,7 @@ namespace Game.Presentation.Duel
             return snapshots.OrderBy(snapshot => snapshot.combatIndex).ToList();
         }
 
-        static List<string> FilterAttackAbilityIds(DuelState duelState, List<string> abilityIds)
+        List<string> FilterAttackAbilityIds(DuelState duelState, List<string> abilityIds)
         {
             var result = new List<string>();
             if (duelState?.abilitiesById == null || abilityIds == null)
@@ -860,7 +860,7 @@ namespace Game.Presentation.Duel
                     continue;
                 }
 
-                if (ability.abilityType != AbilityType.Attack)
+                if (!uiQueryService.IsAttackAbility(ability))
                 {
                     continue;
                 }
@@ -871,11 +871,11 @@ namespace Game.Presentation.Duel
             return result;
         }
 
-        static int ResolveAbilityFinalPower(DuelCombatResolveStepResult step, string abilityId)
+        static int ResolveAbilityFinalPower(DuelCombatResolveStepResult step, string abilityInstanceId)
         {
-            if (string.IsNullOrWhiteSpace(abilityId) ||
+            if (string.IsNullOrWhiteSpace(abilityInstanceId) ||
                 step.rolledPowerByAbilityId == null ||
-                !step.rolledPowerByAbilityId.TryGetValue(abilityId, out int rolledPower))
+                !step.rolledPowerByAbilityId.TryGetValue(abilityInstanceId, out int rolledPower))
             {
                 return 0;
             }
@@ -883,32 +883,17 @@ namespace Game.Presentation.Duel
             return Mathf.Max(0, rolledPower);
         }
 
-        int ResolveAbilityRouletteMax(string abilityId, int finalValue)
+        int ResolveAbilityRouletteMax(string abilityInstanceId, int finalValue)
         {
             if (sessionRunner.DuelState?.abilitiesById == null ||
-                string.IsNullOrWhiteSpace(abilityId) ||
-                !sessionRunner.DuelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) ||
+                string.IsNullOrWhiteSpace(abilityInstanceId) ||
+                !sessionRunner.DuelState.abilitiesById.TryGetValue(abilityInstanceId, out AbilityInstance ability) ||
                 ability == null)
             {
                 return Mathf.Max(1, finalValue);
             }
 
-            return Mathf.Max(1, ResolveEffectivePower(ability), finalValue);
-        }
-
-        static int ResolveEffectivePower(AbilityInstance ability)
-        {
-            if (ability == null)
-            {
-                return 0;
-            }
-
-            ability.EnsureInitialized();
-            return NumericModifierCalculator.Apply(
-                ability.power,
-                ability.powerModifiers,
-                minValue: 0,
-                logContext: "DuelScreenController.ResolveEffectivePower");
+            return Mathf.Max(1, uiQueryService.ResolveEffectivePower(ability), finalValue);
         }
 
         readonly struct CombatRevealSnapshot
@@ -1153,7 +1138,7 @@ namespace Game.Presentation.Duel
             }
         }
 
-        bool CanUseCardInteractions(string abilityId)
+        bool CanUseCardInteractions(string abilityInstanceId)
         {
             if (isFlowRunning ||
                 !sessionRunner.IsInitialized ||
@@ -1161,18 +1146,18 @@ namespace Game.Presentation.Duel
                 sessionRunner.PhaseRunner == null ||
                 sessionRunner.DuelState.isDuelEnded ||
                 sessionRunner.PhaseRunner.currentPhase != DuelPhase.PlayerSetup ||
-                string.IsNullOrWhiteSpace(abilityId))
+                string.IsNullOrWhiteSpace(abilityInstanceId))
             {
                 return false;
             }
 
-            if (!sessionRunner.DuelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) ||
+            if (!sessionRunner.DuelState.abilitiesById.TryGetValue(abilityInstanceId, out AbilityInstance ability) ||
                 ability == null)
             {
                 return false;
             }
 
-            return ability.abilityType == AbilityType.Attack && ability.cooldownRemaining <= 0;
+            return uiQueryService.IsAttackDeployable(sessionRunner.DuelState, abilityInstanceId);
         }
 
         bool TryFindDropCombatIndex(Vector2 screenPosition, Camera eventCamera, out int combatIndex)
@@ -1340,7 +1325,7 @@ namespace Game.Presentation.Duel
             DestroyDragGhost();
 
             isCardDragActive = false;
-            dragAbilityId = string.Empty;
+            dragAbilityInstanceId = string.Empty;
         }
 
         void DestroyDragGhost()

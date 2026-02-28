@@ -1,7 +1,6 @@
 using System;
 using Game.Application.Duel;
 using Game.Domain.Duel;
-using Game.Infrastructure.Data;
 
 namespace Game.Presentation.Duel
 {
@@ -9,18 +8,18 @@ namespace Game.Presentation.Duel
     {
         readonly DuelAbilityPlacementService placementService = new();
 
-        public string SelectedAbilityId { get; private set; } = string.Empty;
+        public string SelectedAbilityInstanceId { get; private set; } = string.Empty;
         public int SelectedCombatIndex { get; private set; } = -1;
 
         public void ClearAll()
         {
-            SelectedAbilityId = string.Empty;
+            SelectedAbilityInstanceId = string.Empty;
             SelectedCombatIndex = -1;
         }
 
         public void ClearAbility()
         {
-            SelectedAbilityId = string.Empty;
+            SelectedAbilityInstanceId = string.Empty;
         }
 
         public bool TrySetSelectedCombat(DuelState duelState, int combatIndex, out string failureMessage)
@@ -44,7 +43,7 @@ namespace Game.Presentation.Duel
             return true;
         }
 
-        public bool TrySelectAbility(DuelState duelState, string abilityId, out string failureMessage)
+        public bool TrySelectAbility(DuelState duelState, string abilityInstanceId, out string failureMessage)
         {
             failureMessage = string.Empty;
 
@@ -56,21 +55,21 @@ namespace Game.Presentation.Duel
 
             duelState.EnsureInitialized();
 
-            if (string.IsNullOrWhiteSpace(abilityId))
+            if (string.IsNullOrWhiteSpace(abilityInstanceId))
             {
-                failureMessage = "abilityId is empty.";
+                failureMessage = "abilityInstanceId is empty.";
                 return false;
             }
 
-            if (!duelState.abilitiesById.ContainsKey(abilityId))
+            if (!duelState.abilitiesById.ContainsKey(abilityInstanceId))
             {
-                failureMessage = $"abilityId({abilityId}) does not exist.";
+                failureMessage = $"abilityInstanceId({abilityInstanceId}) does not exist.";
                 return false;
             }
 
             if (!placementService.TryFindAbilityLocation(
                     duelState,
-                    abilityId,
+                    abilityInstanceId,
                     DuelSide.Player,
                     out DuelAbilityLocation location,
                     out failureMessage))
@@ -78,7 +77,7 @@ namespace Game.Presentation.Duel
                 return false;
             }
 
-            SelectedAbilityId = abilityId;
+            SelectedAbilityInstanceId = abilityInstanceId;
             if (location.isCombat)
             {
                 SelectedCombatIndex = location.combatIndex;
@@ -90,12 +89,13 @@ namespace Game.Presentation.Duel
         public bool TryToggleAttackSelection(
             DuelState duelState,
             DuelPhaseRunner phaseRunner,
-            string abilityId,
+            DuelUiQueryService uiQueryService,
+            string abilityInstanceId,
             out string failureMessage)
         {
             failureMessage = string.Empty;
 
-            if (duelState == null || phaseRunner == null)
+            if (duelState == null || phaseRunner == null || uiQueryService == null)
             {
                 return false;
             }
@@ -107,29 +107,19 @@ namespace Game.Presentation.Duel
 
             duelState.EnsureInitialized();
 
-            if (string.IsNullOrWhiteSpace(abilityId))
+            if (string.IsNullOrWhiteSpace(abilityInstanceId))
             {
                 return false;
             }
 
-            if (!duelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) || ability == null)
-            {
-                return false;
-            }
-
-            if (ability.abilityType != AbilityType.Attack)
-            {
-                return false;
-            }
-
-            if (ability.cooldownRemaining > 0)
+            if (!uiQueryService.IsAttackDeployable(duelState, abilityInstanceId))
             {
                 return false;
             }
 
             if (!placementService.TryFindAbilityLocation(
                     duelState,
-                    abilityId,
+                    abilityInstanceId,
                     DuelSide.Player,
                     out DuelAbilityLocation location,
                     out _))
@@ -137,11 +127,11 @@ namespace Game.Presentation.Duel
                 return false;
             }
 
-            SelectedAbilityId = string.Equals(SelectedAbilityId, abilityId, StringComparison.Ordinal)
+            SelectedAbilityInstanceId = string.Equals(SelectedAbilityInstanceId, abilityInstanceId, StringComparison.Ordinal)
                 ? string.Empty
-                : abilityId;
+                : abilityInstanceId;
 
-            if (!string.IsNullOrWhiteSpace(SelectedAbilityId) &&
+            if (!string.IsNullOrWhiteSpace(SelectedAbilityInstanceId) &&
                 location.isCombat)
             {
                 SelectedCombatIndex = location.combatIndex;
@@ -153,7 +143,7 @@ namespace Game.Presentation.Duel
         public bool TryMovePlayerAbilityToCombat(
             DuelState duelState,
             DuelPhaseRunner phaseRunner,
-            string abilityId,
+            string abilityInstanceId,
             int targetCombatIndex,
             out string failureMessage)
         {
@@ -173,7 +163,7 @@ namespace Game.Presentation.Duel
 
             if (!placementService.TryMoveAbilityToCombat(
                 duelState,
-                abilityId,
+                abilityInstanceId,
                 targetCombatIndex,
                 DuelSide.Player,
                 out failureMessage))
@@ -181,7 +171,7 @@ namespace Game.Presentation.Duel
                 return false;
             }
 
-            SelectedAbilityId = abilityId;
+            SelectedAbilityInstanceId = abilityInstanceId;
             SelectedCombatIndex = targetCombatIndex;
             return true;
         }
@@ -189,7 +179,7 @@ namespace Game.Presentation.Duel
         public bool TryReturnPlayerAbilityToLoadout(
             DuelState duelState,
             DuelPhaseRunner phaseRunner,
-            string abilityId,
+            string abilityInstanceId,
             out string failureMessage)
         {
             failureMessage = string.Empty;
@@ -208,14 +198,14 @@ namespace Game.Presentation.Duel
 
             if (!placementService.TryReturnAbilityToLoadout(
                     duelState,
-                    abilityId,
+                    abilityInstanceId,
                     DuelSide.Player,
                     out failureMessage))
             {
                 return false;
             }
 
-            SelectedAbilityId = string.Empty;
+            SelectedAbilityInstanceId = string.Empty;
             SelectedCombatIndex = -1;
             return true;
         }

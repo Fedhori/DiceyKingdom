@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Game.Infrastructure.Data;
+using Game.Application.Duel;
 using UnityEngine;
 
 namespace Game.Presentation.Duel
@@ -15,55 +15,61 @@ namespace Game.Presentation.Duel
 
         Sprite defaultSprite;
 
-        public void Rebuild(GameDatabase database)
+        public void Rebuild(DuelUiQueryService queryService)
         {
             Clear();
 
-            defaultSprite = TryLoadSprite(AbilityIconPathPolicy.DefaultIconPath, AbilityIconPathPolicy.DefaultIconId);
+            string defaultIconPath = queryService == null
+                ? string.Empty
+                : queryService.DefaultIconPath;
+            string defaultIconId = queryService == null
+                ? "icon.default"
+                : queryService.DefaultIconId;
+
+            defaultSprite = TryLoadSprite(defaultIconPath, defaultIconId);
             if (defaultSprite == null)
             {
                 Debug.LogError(
-                    $"[DuelAbilityIconCache] Missing default icon file: {AbilityIconPathPolicy.DefaultIconPath}. Fallback texture will be used.");
+                    $"[DuelAbilityIconCache] Missing default icon file: {defaultIconPath}. Fallback texture will be used.");
                 defaultSprite = CreateGeneratedFallbackSprite();
             }
 
-            spritesByIconId[AbilityIconPathPolicy.DefaultIconId] = defaultSprite;
+            spritesByIconId[defaultIconId] = defaultSprite;
 
-            if (database?.abilitiesById == null)
+            if (queryService == null)
             {
+                Debug.LogError("[DuelAbilityIconCache] queryService is null.");
                 return;
             }
 
-            foreach (KeyValuePair<string, AbilityDef> pair in database.abilitiesById)
+            if (!queryService.TryGetIconDefinitions(out IReadOnlyList<DuelUiIconDefinition> iconDefinitions, out string failureMessage))
             {
-                AbilityDef abilityDef = pair.Value;
-                if (abilityDef == null || string.IsNullOrWhiteSpace(abilityDef.iconId))
+                Debug.LogError($"[DuelAbilityIconCache] Failed to read icon definitions: {failureMessage}");
+                return;
+            }
+
+            for (int i = 0; i < iconDefinitions.Count; i++)
+            {
+                DuelUiIconDefinition iconDefinition = iconDefinitions[i];
+                if (string.IsNullOrWhiteSpace(iconDefinition.iconId))
                 {
                     continue;
                 }
 
-                if (spritesByIconId.ContainsKey(abilityDef.iconId))
+                if (spritesByIconId.ContainsKey(iconDefinition.iconId))
                 {
                     continue;
                 }
 
-                if (!AbilityIconPathPolicy.TryBuildPath(abilityDef.iconId, out string iconPath))
-                {
-                    Debug.LogError(
-                        $"[DuelAbilityIconCache] Invalid iconId('{abilityDef.iconId}') on ability('{pair.Key}').");
-                    spritesByIconId[abilityDef.iconId] = defaultSprite;
-                    continue;
-                }
-
-                Sprite sprite = TryLoadSprite(iconPath, abilityDef.iconId);
+                Sprite sprite = TryLoadSprite(iconDefinition.path, iconDefinition.iconId);
                 if (sprite == null)
                 {
                     Debug.LogError(
-                        $"[DuelAbilityIconCache] Failed to load icon file for iconId('{abilityDef.iconId}') path('{iconPath}'). Default icon will be used.");
+                        $"[DuelAbilityIconCache] Failed to load icon file for iconId('{iconDefinition.iconId}') path('{iconDefinition.path}'). Default icon will be used.");
                     sprite = defaultSprite;
                 }
 
-                spritesByIconId[abilityDef.iconId] = sprite;
+                spritesByIconId[iconDefinition.iconId] = sprite;
             }
         }
 
