@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Game.Domain.Duel;
 using Newtonsoft.Json;
 
 namespace Game.Infrastructure.Data
@@ -52,16 +53,12 @@ namespace Game.Infrastructure.Data
 
         public static int GetDefaultCooldownTurns(AbilityType abilityType)
         {
-            return abilityType == AbilityType.Passive
-                ? 0
-                : 1;
+            return AbilityRules.GetDefaultCooldownTurns(abilityType);
         }
 
         public static int GetMinimumCooldownTurns(AbilityType abilityType)
         {
-            return abilityType == AbilityType.Passive
-                ? 0
-                : 1;
+            return AbilityRules.GetMinimumCooldownTurns(abilityType);
         }
 
         public int ResolveCooldownTurns(AbilityType abilityType)

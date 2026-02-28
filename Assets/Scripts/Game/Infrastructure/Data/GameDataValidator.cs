@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Game.Domain.Duel;
 using Game.Infrastructure.Data.Effects;
 
 namespace Game.Infrastructure.Data

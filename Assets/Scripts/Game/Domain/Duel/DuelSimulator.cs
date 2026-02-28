@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Game.Domain.Modifiers;
-using Game.Infrastructure.Data;
 using UnityEngine;
 
 namespace Game.Domain.Duel

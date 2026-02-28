@@ -1,0 +1,16 @@
+{
+    "name": "Game.Domain.Runtime",
+    "rootNamespace": "Game.Domain",
+    "references": [
+        "Game.Common.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

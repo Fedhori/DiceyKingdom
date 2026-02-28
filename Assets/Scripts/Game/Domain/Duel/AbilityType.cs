@@ -1,4 +1,4 @@
-namespace Game.Infrastructure.Data
+namespace Game.Domain.Duel
 {
     public enum AbilityType
     {

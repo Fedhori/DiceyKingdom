@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Game.Domain.Modifiers;
-using Game.Infrastructure.Data;
 using UnityEngine;
 
 namespace Game.Domain.Duel
@@ -32,7 +31,7 @@ namespace Game.Domain.Duel
                 errors.Add("instanceId is empty.");
             }
 
-            int minimumCooldownTurns = AbilityDef.GetMinimumCooldownTurns(abilityType);
+            int minimumCooldownTurns = AbilityRules.GetMinimumCooldownTurns(abilityType);
             if (cooldownTurns < minimumCooldownTurns)
             {
                 errors.Add(

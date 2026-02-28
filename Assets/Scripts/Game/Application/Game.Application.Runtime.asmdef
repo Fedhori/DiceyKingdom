@@ -1,14 +1,10 @@
 {
-    "name": "App.Runtime",
-    "rootNamespace": "Game",
+    "name": "Game.Application.Runtime",
+    "rootNamespace": "Game.Application",
     "references": [
-        "GUID:75469ad4d38634e559750d17036d5f7c",
-        "GUID:eec0964c48f6f4e40bc3ec2257ccf8c5",
         "Game.Common.Runtime",
-        "Game.Infrastructure.Runtime",
-        "Game.Presentation.Runtime",
-        "LeanTween.Runtime",
-        "Unity.TextMeshPro"
+        "Game.Domain.Runtime",
+        "Game.Infrastructure.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

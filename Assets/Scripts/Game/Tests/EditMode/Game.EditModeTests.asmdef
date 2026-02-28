@@ -2,7 +2,11 @@
     "name": "Game.EditModeTests",
     "rootNamespace": "Game.Tests.EditMode",
     "references": [
-        "Game.Runtime"
+        "Game.Common.Runtime",
+        "Game.Domain.Runtime",
+        "Game.Infrastructure.Runtime",
+        "Game.Application.Runtime",
+        "Game.Presentation.Runtime"
     ],
     "includePlatforms": [
         "Editor"
