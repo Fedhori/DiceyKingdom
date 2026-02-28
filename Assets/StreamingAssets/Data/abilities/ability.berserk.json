@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.berserk",
+  "type": "Attack",
+  "buildCost": 1,
+  "cooldown": 1,
+  "power": 6,
+  "nameLocKey": "ability.berserk.name",
+  "descLocKey": "ability.berserk.desc",
+  "isPlayerObtainable": true,
+  "iconId": "ability.berserk",
+  "effects": [
+    {
+      "timing": "HealthLost",
+      "condition": {
+        "type": "Always"
+      },
+      "ops": [
+        {
+          "op": "AddPowerModifier",
+          "scope": "Self",
+          "target": "Power",
+          "layer": "Duel",
+          "mode": "Add",
+          "value": 3
+        }
+      ]
+    }
+  ]
+}

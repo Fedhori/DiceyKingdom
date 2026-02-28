@@ -40,7 +40,8 @@ namespace Game.Infrastructure.Data
             nameof(DuelEffectTiming.Skill),
             nameof(DuelEffectTiming.Resolve),
             nameof(DuelEffectTiming.AfterCombat),
-            nameof(DuelEffectTiming.TurnEnd)
+            nameof(DuelEffectTiming.TurnEnd),
+            nameof(DuelEffectTiming.HealthLost)
         };
 
         public void Validate(GameDatabase database, DataIndexDef dataIndex, GameDataValidationReport report)

@@ -316,6 +316,53 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
+        public void TryResolveAllCombats_HealthLostTiming_TriggersForLoadoutAbilityIgnoringCooldown()
+        {
+            GameDatabase database = CreateDatabase();
+            database.abilitiesById["ability.berserk"] = CreateBerserkAbilityDef();
+
+            var state = new DuelState
+            {
+                playerHealth = 10,
+                opponentHealth = 10,
+                maxPlayerHealth = 10,
+                maxOpponentHealth = 10
+            };
+            AddCombats(state, 1);
+
+            state.abilitiesById["p_berserk"] = new AbilityInstance
+            {
+                abilityDefId = "ability.berserk",
+                abilityType = AbilityType.Attack,
+                cooldownTurns = 1,
+                cooldownRemaining = 1,
+                power = 6
+            };
+            state.loadoutAbilityIds.Add("p_berserk");
+
+            state.abilitiesById["p0"] = CreateAbility("ability.player", 1);
+            state.abilitiesById["e0"] = CreateAbility("ability.opponent", 5);
+            state.combats[0].playerAbilityIds.Add("p0");
+            state.combats[0].opponentAbilityIds.Add("e0");
+
+            var runner = new DuelPhaseRunner(state);
+            var processor = new DuelTurnProcessor(database);
+            AdvanceToResolve(runner);
+
+            bool success = processor.TryResolveAllCombats(
+                state,
+                runner,
+                out DuelCombatResolveResult result,
+                out string failureMessage);
+
+            Assert.IsTrue(success, failureMessage);
+            Assert.AreEqual(9, state.playerHealth);
+            Assert.AreEqual(DuelOutcome.Defeat, result.steps[0].outcome);
+            Assert.AreEqual(1, state.abilitiesById["p_berserk"].powerModifiers.Count);
+            Assert.AreEqual(3, state.abilitiesById["p_berserk"].powerModifiers[0].value);
+        }
+
+        [Test]
         public void TryResolveAllCombats_FailsWhenNoCombatsExist()
         {
             GameDatabase database = CreateDatabase();
@@ -571,6 +618,40 @@ namespace Game.Tests.EditMode
                             {
                                 op = "DestroyAbility",
                                 scope = "Self"
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        static AbilityDef CreateBerserkAbilityDef()
+        {
+            return new AbilityDef
+            {
+                type = AbilityType.Attack.ToString(),
+                buildCost = 1,
+                cooldown = 1,
+                power = 6,
+                effects = new List<TimedEffectDef>
+                {
+                    new TimedEffectDef
+                    {
+                        timing = "HealthLost",
+                        condition = new ConditionDef
+                        {
+                            type = "Always"
+                        },
+                        ops = new List<EffectOpDef>
+                        {
+                            new EffectOpDef
+                            {
+                                op = "AddPowerModifier",
+                                scope = "Self",
+                                target = "Power",
+                                layer = "Duel",
+                                mode = "Add",
+                                value = 3
                             }
                         }
                     }

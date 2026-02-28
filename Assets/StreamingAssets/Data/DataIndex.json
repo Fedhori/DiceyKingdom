@@ -14,7 +14,8 @@
     "Data/abilities/ability.sneaky_strike.json",
     "Data/abilities/ability.sharp_scimitar.json",
     "Data/abilities/ability.skilled_thrust.json",
-    "Data/abilities/ability.sword_and_shield.json"
+    "Data/abilities/ability.sword_and_shield.json",
+    "Data/abilities/ability.berserk.json"
   ],
   "enemies": [
     "Data/enemies/enemy.northern_footman.json",

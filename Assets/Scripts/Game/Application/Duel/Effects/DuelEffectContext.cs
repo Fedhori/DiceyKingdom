@@ -6,5 +6,8 @@ namespace Game.Application.Duel.Effects
     {
         public bool hasOutcome;
         public DuelOutcome outcome = DuelOutcome.Draw;
+        public bool hasHealthLost;
+        public bool healthLostIsPlayerSide;
+        public int healthLostAmount;
     }
 }

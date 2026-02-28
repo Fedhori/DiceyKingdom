@@ -129,7 +129,7 @@ Effects:
 
 - Skill:
   - Cannot be deployed into Combat slots
-  - May trigger on specific timings (e.g., Resolve, Skill, TurnEnd)
+  - May trigger on specific timings (e.g., Resolve, Skill, TurnEnd, HealthLost)
   - Exact behavior is driven by effect definitions
 
 - Passive:
@@ -137,6 +137,17 @@ Effects:
   - Stays in passive panel and triggers by timing/condition/ops
   - Can have cooldown and follows the same cooldown decrement rule
   - `power` must be `0`
+
+### 4.7 HealthLost timing
+
+- `HealthLost` is an internal effect timing emitted immediately when either side loses Health.
+- Emission scope:
+  - combat damage application
+  - `ModifyHealth` ops with negative amount
+- `HealthLost` is emitted once per health-loss event (not per lost HP).
+- Source-side rule:
+  - only abilities owned by the side that lost Health are evaluated for this timing.
+- `HealthLost` ignores deploy location (loadout/combat) and cooldown gate.
 
 ### 4.1 Talent
 

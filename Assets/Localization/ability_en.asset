@@ -79,6 +79,14 @@ MonoBehaviour:
     m_Localized: Result minimum is 50% of current Power (rounded down).
     m_Metadata:
       m_Items: []
+  - m_Id: 9000000000019
+    m_Localized: <style=attack>Berserk</style>
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9000000000020
+    m_Localized: Whenever this takes damage, gain <style=value_bonus>+3</style> Power for this duel.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

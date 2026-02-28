@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using Game.Application.Duel;
 using Game.Domain.Duel;
+using Game.Domain.Modifiers;
 using Game.Infrastructure.Data;
 using Game.Presentation.Localization;
 using TMPro;
@@ -1146,7 +1147,7 @@ namespace Game.Presentation.Duel
             AbilityInstance ability,
             AbilityDef def)
         {
-            int displayPower = Mathf.Max(0, ability.power);
+            int displayPower = ResolveDisplayedPower(ability);
             string localizedTitle = abilityTextFormatter.FormatName(def);
             string localizedBody = abilityTextFormatter.FormatDescription(def, ability);
             Sprite iconSprite = resolveAbilityIcon == null
@@ -1218,13 +1219,29 @@ namespace Game.Presentation.Duel
                     continue;
                 }
 
+                int displayedPower = ResolveDisplayedPower(ability);
                 int value = usePowerResult && ability.powerResult > 0
                     ? ability.powerResult
-                    : ability.power;
+                    : displayedPower;
                 total += Mathf.Max(0, value);
             }
 
             return total;
+        }
+
+        static int ResolveDisplayedPower(AbilityInstance ability)
+        {
+            if (ability == null)
+            {
+                return 0;
+            }
+
+            ability.EnsureInitialized();
+            return NumericModifierCalculator.Apply(
+                ability.power,
+                ability.powerModifiers,
+                minValue: 0,
+                logContext: "DuelScreenView.ResolveDisplayedPower");
         }
 
         void ForceRebuildLoadoutLayouts()

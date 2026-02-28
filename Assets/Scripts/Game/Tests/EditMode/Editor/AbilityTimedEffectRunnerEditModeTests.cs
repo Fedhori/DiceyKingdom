@@ -259,6 +259,44 @@ namespace Game.Tests.EditMode
             Assert.AreEqual(8, state.opponentHealth);
         }
 
+        [Test]
+        public void ApplyForTiming_ModifyHealthDamage_EmitsHealthLostAndTriggersBerserk()
+        {
+            GameDatabase database = CreateDatabase();
+            DuelState state = CreateDuelState();
+
+            state.playerHealth = 10;
+            state.abilitiesById["p_berserk"] = new AbilityInstance
+            {
+                instanceId = "p_berserk",
+                abilityDefId = "ability.berserk",
+                abilityType = AbilityType.Attack,
+                cooldownTurns = 1,
+                cooldownRemaining = 1,
+                power = 6
+            };
+            state.abilitiesById["p_blood_tax"] = new AbilityInstance
+            {
+                instanceId = "p_blood_tax",
+                abilityDefId = "ability.blood_tax",
+                abilityType = AbilityType.Passive,
+                cooldownTurns = 0,
+                cooldownRemaining = 0,
+                power = 0
+            };
+            state.loadoutAbilityIds.Add("p_berserk");
+            state.loadoutAbilityIds.Add("p_blood_tax");
+
+            var runner = new AbilityTimedEffectRunner(database);
+            AbilityTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.TurnEnd);
+
+            Assert.AreEqual(1, result.appliedCount);
+            Assert.AreEqual(0, result.failedCount);
+            Assert.AreEqual(9, state.playerHealth);
+            Assert.AreEqual(1, state.abilitiesById["p_berserk"].powerModifiers.Count);
+            Assert.AreEqual(3, state.abilitiesById["p_berserk"].powerModifiers[0].value);
+        }
+
         static GameDatabase CreateDatabase()
         {
             var database = new GameDatabase();
@@ -441,6 +479,65 @@ namespace Game.Tests.EditMode
                                 op = "ModifyHealth",
                                 scope = "Self",
                                 value = 1
+                            }
+                        }
+                    }
+                }
+            };
+
+            database.abilitiesById["ability.berserk"] = new AbilityDef
+            {
+                type = AbilityType.Attack.ToString(),
+                buildCost = 1,
+                cooldown = 1,
+                power = 6,
+                effects = new List<TimedEffectDef>
+                {
+                    new TimedEffectDef
+                    {
+                        timing = "HealthLost",
+                        condition = new ConditionDef
+                        {
+                            type = "Always"
+                        },
+                        ops = new List<EffectOpDef>
+                        {
+                            new EffectOpDef
+                            {
+                                op = "AddPowerModifier",
+                                scope = "Self",
+                                target = "Power",
+                                layer = "Duel",
+                                mode = "Add",
+                                value = 3
+                            }
+                        }
+                    }
+                }
+            };
+
+            database.abilitiesById["ability.blood_tax"] = new AbilityDef
+            {
+                type = AbilityType.Passive.ToString(),
+                buildCost = 0,
+                cooldown = 0,
+                power = 0,
+                effects = new List<TimedEffectDef>
+                {
+                    new TimedEffectDef
+                    {
+                        timing = "TurnEnd",
+                        condition = new ConditionDef
+                        {
+                            type = "Always"
+                        },
+                        ops = new List<EffectOpDef>
+                        {
+                            new EffectOpDef
+                            {
+                                op = "ModifyHealth",
+                                scope = "Self",
+                                value = -1
                             }
                         }
                     }

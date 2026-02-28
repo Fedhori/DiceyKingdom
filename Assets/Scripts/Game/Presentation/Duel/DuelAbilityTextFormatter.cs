@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Game.Domain.Duel;
+using Game.Domain.Modifiers;
 using Game.Infrastructure.Data;
 using Game.Presentation.Localization;
 using UnityEngine;
@@ -91,7 +92,11 @@ namespace Game.Presentation.Duel
         {
             int power = ability == null
                 ? Mathf.Max(0, def.ResolvePower())
-                : Mathf.Max(0, ability.power);
+                : NumericModifierCalculator.Apply(
+                    ability.power,
+                    ability.powerModifiers,
+                    minValue: 0,
+                    logContext: "DuelAbilityTextFormatter.BuildArgs");
             int cooldown = ResolveCooldownTurns(def, ability);
             int cooldownRemaining = ability == null
                 ? 0

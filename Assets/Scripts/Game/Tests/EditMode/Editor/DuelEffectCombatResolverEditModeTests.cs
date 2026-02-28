@@ -216,7 +216,7 @@ namespace Game.Tests.EditMode
         }
 
         [Test]
-        public void ModifyHealth_EndsDuelAndClearsDuelLayerModifiers()
+        public void ModifyHealth_OnlyAppliesHealthChange()
         {
             var state = CreateDuelState();
             state.playerHealth = 1;
@@ -254,10 +254,9 @@ namespace Game.Tests.EditMode
                 });
 
             Assert.IsTrue(result.isSuccess);
-            Assert.IsTrue(state.isDuelEnded);
+            Assert.IsFalse(state.isDuelEnded);
             Assert.AreEqual(-1, state.playerHealth);
-            Assert.AreEqual(1, state.abilitiesById["p1"].powerModifiers.Count);
-            Assert.AreEqual(ModifierLayer.Permanent, state.abilitiesById["p1"].powerModifiers[0].layer);
+            Assert.AreEqual(2, state.abilitiesById["p1"].powerModifiers.Count);
         }
 
         [Test]

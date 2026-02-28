@@ -33,7 +33,7 @@
 ## 허용 값(현재 검증 기준)
 
 - timing:
-  - `DuelStart`, `Deploy`, `Roll`, `Skill`, `Resolve`, `AfterCombat`, `TurnEnd`
+  - `DuelStart`, `Deploy`, `Roll`, `Skill`, `Resolve`, `AfterCombat`, `TurnEnd`, `HealthLost`
 - condition.type:
   - `Always`, `IsInLoadout`, `OpponentCountEquals`, `OutcomeIsVictory`, `OutcomeIsDefeat`, `OutcomeIsDraw`
 - op:
@@ -126,6 +126,25 @@
       "op": "PowerMinPercent",
       "scope": "Self",
       "value": 50
+    }
+  ]
+}
+```
+
+### 6) 체력 감소 이벤트 1회당 파워 증가
+
+```json
+{
+  "timing": "HealthLost",
+  "condition": { "type": "Always" },
+  "ops": [
+    {
+      "op": "AddPowerModifier",
+      "scope": "Self",
+      "target": "Power",
+      "layer": "Duel",
+      "mode": "Add",
+      "value": 3
     }
   ]
 }

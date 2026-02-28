@@ -84,6 +84,15 @@ MonoBehaviour:
       (\uBC84\uB9BC)"
     m_Metadata:
       m_Items: []
+  - m_Id: 9000000000019
+    m_Localized: "<style=attack>\uAD11\uB780</style>"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9000000000020
+    m_Localized: "\uD53C\uD574\uB97C \uBC1B\uC744 \uB54C\uB9C8\uB2E4 \uC774\uBC88
+      \uACB0\uD22C \uB3D9\uC548 \uD30C\uC6CC\uAC00 <style=value_bonus>+3</style> \uC99D\uAC00\uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

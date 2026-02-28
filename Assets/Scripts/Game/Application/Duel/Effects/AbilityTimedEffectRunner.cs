@@ -75,6 +75,13 @@ namespace Game.Application.Duel.Effects
                     continue;
                 }
 
+                if (timing == DuelEffectTiming.HealthLost &&
+                    !IsHealthLostSideMatch(sourceContext, resolvedEffectContext))
+                {
+                    skippedCount += 1;
+                    continue;
+                }
+
                 if (sourceContext.abilityDef == null || sourceContext.abilityDef.effects == null)
                 {
                     continue;
@@ -139,6 +146,24 @@ namespace Game.Application.Duel.Effects
                             if (result.isSuccess)
                             {
                                 appliedCount += 1;
+
+                                if (command.opCode == DuelEffectOpCode.ModifyHealth &&
+                                    command.amount < 0 &&
+                                    timing != DuelEffectTiming.HealthLost)
+                                {
+                                    ApplyForTiming(
+                                        state,
+                                        DuelEffectTiming.HealthLost,
+                                        null,
+                                        new DuelEffectContext
+                                        {
+                                            hasHealthLost = true,
+                                            healthLostIsPlayerSide = command.isPlayerSide,
+                                            healthLostAmount = -command.amount
+                                        });
+                                }
+
+                                FinalizeDuelEndedIfNeeded(state);
                             }
                             else
                             {
@@ -188,7 +213,8 @@ namespace Game.Application.Duel.Effects
             }
 
             ability.EnsureInitialized();
-            if (ability.cooldownRemaining > 0)
+            if (timing != DuelEffectTiming.HealthLost &&
+                ability.cooldownRemaining > 0)
             {
                 return false;
             }
@@ -199,6 +225,16 @@ namespace Game.Application.Duel.Effects
             }
 
             return true;
+        }
+
+        static bool IsHealthLostSideMatch(AbilityRuntimeContext sourceContext, DuelEffectContext effectContext)
+        {
+            if (effectContext == null || !effectContext.hasHealthLost)
+            {
+                return false;
+            }
+
+            return sourceContext.isPlayerSide == effectContext.healthLostIsPlayerSide;
         }
 
         static bool ShouldConsumeSourceCooldown(AbilityRuntimeContext sourceContext)
@@ -626,6 +662,22 @@ namespace Game.Application.Duel.Effects
 
                 modifiers.RemoveAt(i);
             }
+        }
+
+        static void FinalizeDuelEndedIfNeeded(DuelState state)
+        {
+            if (state == null)
+            {
+                return;
+            }
+
+            if (state.playerHealth > 0 && state.opponentHealth > 0)
+            {
+                return;
+            }
+
+            state.isDuelEnded = true;
+            DuelSimulator.ClearModifierLayer(state, ModifierLayer.Duel);
         }
 
         List<AbilityRuntimeContext> BuildAbilityContexts(DuelState state)

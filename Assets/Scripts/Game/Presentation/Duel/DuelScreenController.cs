@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Game.Application.Duel;
 using Game.Domain.Duel;
+using Game.Domain.Modifiers;
 using Game.Infrastructure.Data;
 using TMPro;
 using UnityEngine;
@@ -906,7 +907,7 @@ namespace Game.Presentation.Duel
 
             return ability.powerResult > 0
                 ? ability.powerResult
-                : Mathf.Max(0, ability.power);
+                : ResolveEffectivePower(ability);
         }
 
         int ResolveAbilityRouletteMax(string abilityId, int finalValue)
@@ -919,7 +920,22 @@ namespace Game.Presentation.Duel
                 return Mathf.Max(1, finalValue);
             }
 
-            return Mathf.Max(1, ability.power, finalValue);
+            return Mathf.Max(1, ResolveEffectivePower(ability), finalValue);
+        }
+
+        static int ResolveEffectivePower(AbilityInstance ability)
+        {
+            if (ability == null)
+            {
+                return 0;
+            }
+
+            ability.EnsureInitialized();
+            return NumericModifierCalculator.Apply(
+                ability.power,
+                ability.powerModifiers,
+                minValue: 0,
+                logContext: "DuelScreenController.ResolveEffectivePower");
         }
 
         readonly struct CombatRevealSnapshot

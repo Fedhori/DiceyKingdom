@@ -285,6 +285,11 @@ namespace Game.Application.Duel
                 int appliedDamage = state.isDuelEnded
                     ? 0
                     : ApplyCombatOutcomeDamage(state, combat, playerTotalPower, opponentTotalPower);
+                if (appliedDamage > 0)
+                {
+                    bool healthLostIsPlayerSide = outcome == DuelOutcome.Defeat;
+                    TriggerHealthLostTimedEffects(state, healthLostIsPlayerSide, appliedDamage);
+                }
 
                 if (state.playerHealth <= 0 || state.opponentHealth <= 0)
                 {
@@ -451,6 +456,25 @@ namespace Game.Application.Duel
             }
 
             return damage;
+        }
+
+        void TriggerHealthLostTimedEffects(DuelState state, bool healthLostIsPlayerSide, int healthLostAmount)
+        {
+            if (state == null || healthLostAmount <= 0 || state.isDuelEnded)
+            {
+                return;
+            }
+
+            timedEffectRunner.ApplyForTiming(
+                state,
+                DuelEffectTiming.HealthLost,
+                null,
+                new DuelEffectContext
+                {
+                    hasHealthLost = true,
+                    healthLostIsPlayerSide = healthLostIsPlayerSide,
+                    healthLostAmount = healthLostAmount
+                });
         }
 
         static bool IsOutgoingDamagePreventedOnWin(CombatState combat, bool isPlayerSide)

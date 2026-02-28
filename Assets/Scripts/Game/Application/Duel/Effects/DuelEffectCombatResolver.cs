@@ -449,12 +449,6 @@ namespace Game.Application.Duel.Effects
                     state.opponentHealth = Mathf.Min(state.opponentHealth, Mathf.Max(1, state.maxOpponentHealth));
                 }
 
-                if (state.playerHealth <= 0 || state.opponentHealth <= 0)
-                {
-                    state.isDuelEnded = true;
-                    DuelSimulator.ClearModifierLayer(state, ModifierLayer.Duel);
-                }
-
                 return DuelEffectResult.Success();
             }
         }
