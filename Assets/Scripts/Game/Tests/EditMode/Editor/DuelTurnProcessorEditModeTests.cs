@@ -32,7 +32,7 @@ namespace Game.Tests.EditMode
 
             AdvanceToResolve(runner);
 
-            bool success = processor.TryResolveAllCombats(
+            bool success = TryResolveAllCombats(processor,
                 state,
                 runner,
                 out DuelCombatResolveResult result,
@@ -75,7 +75,7 @@ namespace Game.Tests.EditMode
 
             AdvanceToResolve(runner);
 
-            bool success = processor.TryResolveAllCombats(
+            bool success = TryResolveAllCombats(processor,
                 state,
                 runner,
                 out DuelCombatResolveResult result,
@@ -116,7 +116,7 @@ namespace Game.Tests.EditMode
 
             AdvanceToResolve(runner);
 
-            bool success = processor.TryResolveAllCombats(
+            bool success = TryResolveAllCombats(processor,
                 state,
                 runner,
                 out DuelCombatResolveResult result,
@@ -154,7 +154,7 @@ namespace Game.Tests.EditMode
 
             AdvanceToResolve(runner);
 
-            bool success = processor.TryResolveAllCombats(
+            bool success = TryResolveAllCombats(processor,
                 state,
                 runner,
                 out DuelCombatResolveResult _,
@@ -233,7 +233,7 @@ namespace Game.Tests.EditMode
 
             AdvanceToResolve(runner);
 
-            bool success = processor.TryResolveAllCombats(
+            bool success = TryResolveAllCombats(processor,
                 state,
                 runner,
                 out DuelCombatResolveResult result,
@@ -269,7 +269,7 @@ namespace Game.Tests.EditMode
             var processor = new DuelTurnProcessor(database);
             AdvanceToResolve(runner);
 
-            bool success = processor.TryResolveAllCombats(
+            bool success = TryResolveAllCombats(processor,
                 state,
                 runner,
                 out DuelCombatResolveResult result,
@@ -304,7 +304,7 @@ namespace Game.Tests.EditMode
             var processor = new DuelTurnProcessor(database);
             AdvanceToResolve(runner);
 
-            bool success = processor.TryResolveAllCombats(
+            bool success = TryResolveAllCombats(processor,
                 state,
                 runner,
                 out DuelCombatResolveResult _,
@@ -349,7 +349,7 @@ namespace Game.Tests.EditMode
             var processor = new DuelTurnProcessor(database);
             AdvanceToResolve(runner);
 
-            bool success = processor.TryResolveAllCombats(
+            bool success = TryResolveAllCombats(processor,
                 state,
                 runner,
                 out DuelCombatResolveResult result,
@@ -393,7 +393,7 @@ namespace Game.Tests.EditMode
             var processor = new DuelTurnProcessor(database);
             AdvanceToResolve(runner);
 
-            bool success = processor.TryResolveAllCombats(
+            bool success = TryResolveAllCombats(processor,
                 state,
                 runner,
                 out DuelCombatResolveResult result,
@@ -438,7 +438,7 @@ namespace Game.Tests.EditMode
 
             AdvanceToResolve(runner);
 
-            bool success = processor.TryResolveAllCombats(
+            bool success = TryResolveAllCombats(processor,
                 state,
                 runner,
                 out DuelCombatResolveResult _,
@@ -743,6 +743,43 @@ namespace Game.Tests.EditMode
             }
         }
 
+        static bool TryResolveAllCombats(
+            DuelTurnProcessor processor,
+            DuelState state,
+            DuelPhaseRunner runner,
+            out DuelCombatResolveResult result,
+            out string failureMessage)
+        {
+            result = new DuelCombatResolveResult(System.Array.Empty<DuelCombatResolveStepResult>(), default, 0);
+            failureMessage = string.Empty;
+
+            if (!processor.TryBeginResolve(state, runner, out DuelResolveSession session, out failureMessage))
+            {
+                return false;
+            }
+
+            bool hasRemainingCombats = true;
+            while (hasRemainingCombats)
+            {
+                if (!processor.TryResolveNextCombat(
+                        state,
+                        session,
+                        out DuelCombatResolveStepResult _,
+                        out hasRemainingCombats,
+                        out failureMessage))
+                {
+                    return false;
+                }
+            }
+
+            return processor.TryFinalizeResolve(
+                state,
+                runner,
+                session,
+                out result,
+                out failureMessage);
+        }
+
         static void RunTurnToResolve(
             DuelTurnProcessor processor,
             DuelState state,
@@ -756,7 +793,7 @@ namespace Game.Tests.EditMode
             Assert.IsTrue(runner.AdvanceToNextPhase());
             Assert.IsTrue(runner.AdvanceToNextPhase());
 
-            bool success = processor.TryResolveAllCombats(
+            bool success = TryResolveAllCombats(processor,
                 state,
                 runner,
                 out DuelCombatResolveResult _,

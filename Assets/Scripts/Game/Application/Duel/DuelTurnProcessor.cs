@@ -33,6 +33,7 @@ namespace Game.Application.Duel
         public int playerHealthAfterStep { get; }
         public int opponentHealthAfterStep { get; }
         public IReadOnlyDictionary<string, int> abilityPowerAfterStep { get; }
+        public IReadOnlyDictionary<string, int> rolledPowerByAbilityId { get; }
 
         public DuelCombatResolveStepResult(
             int combatIndex,
@@ -42,7 +43,8 @@ namespace Game.Application.Duel
             int appliedDamage,
             int playerHealthAfterStep,
             int opponentHealthAfterStep,
-            IReadOnlyDictionary<string, int> abilityPowerAfterStep)
+            IReadOnlyDictionary<string, int> abilityPowerAfterStep,
+            IReadOnlyDictionary<string, int> rolledPowerByAbilityId)
         {
             this.combatIndex = combatIndex;
             this.outcome = outcome;
@@ -54,6 +56,9 @@ namespace Game.Application.Duel
             this.abilityPowerAfterStep = abilityPowerAfterStep == null
                 ? new Dictionary<string, int>(StringComparer.Ordinal)
                 : new Dictionary<string, int>(abilityPowerAfterStep, StringComparer.Ordinal);
+            this.rolledPowerByAbilityId = rolledPowerByAbilityId == null
+                ? new Dictionary<string, int>(StringComparer.Ordinal)
+                : new Dictionary<string, int>(rolledPowerByAbilityId, StringComparer.Ordinal);
         }
     }
 
@@ -71,6 +76,52 @@ namespace Game.Application.Duel
             this.steps = steps ?? Array.Empty<DuelCombatResolveStepResult>();
             this.turnEndTimedEffectResult = turnEndTimedEffectResult;
             this.cooldownUpdatedCount = cooldownUpdatedCount;
+        }
+    }
+
+    public sealed class DuelResolveSession
+    {
+        readonly List<int> resolveCombatIndices;
+        readonly List<DuelCombatResolveStepResult> resolvedSteps = new();
+        int nextStepIndex;
+
+        public IReadOnlyList<DuelCombatResolveStepResult> steps => resolvedSteps;
+        public bool hasRemainingCombats => nextStepIndex < resolveCombatIndices.Count;
+        public bool isFinalized { get; private set; }
+
+        internal DuelResolveSession(IReadOnlyList<int> resolveCombatIndices)
+        {
+            this.resolveCombatIndices = resolveCombatIndices == null
+                ? new List<int>()
+                : new List<int>(resolveCombatIndices);
+        }
+
+        internal bool TryTakeNextCombatIndex(out int combatIndex)
+        {
+            combatIndex = -1;
+            if (!hasRemainingCombats)
+            {
+                return false;
+            }
+
+            combatIndex = resolveCombatIndices[nextStepIndex];
+            return true;
+        }
+
+        internal void AddResolvedStep(DuelCombatResolveStepResult step)
+        {
+            resolvedSteps.Add(step);
+            nextStepIndex += 1;
+        }
+
+        internal void MarkAllResolved()
+        {
+            nextStepIndex = resolveCombatIndices.Count;
+        }
+
+        internal void MarkFinalized()
+        {
+            isFinalized = true;
         }
     }
 
@@ -205,16 +256,13 @@ namespace Game.Application.Duel
             return true;
         }
 
-        public bool TryResolveAllCombats(
+        public bool TryBeginResolve(
             DuelState state,
             DuelPhaseRunner phaseRunner,
-            out DuelCombatResolveResult result,
+            out DuelResolveSession session,
             out string failureMessage)
         {
-            result = new DuelCombatResolveResult(
-                Array.Empty<DuelCombatResolveStepResult>(),
-                new AbilityTimedEffectRunResult(0, 0, 0),
-                0);
+            session = null;
             failureMessage = string.Empty;
 
             if (state == null)
@@ -258,78 +306,192 @@ namespace Game.Application.Duel
                 return false;
             }
 
-            ClearResolveCombatFlags(state);
-            timedEffectRunner.ApplyForTiming(state, DuelEffectTiming.Resolve);
-
-            var steps = new List<DuelCombatResolveStepResult>(state.combats.Count);
-
-            for (int combatIndex = 0; combatIndex < state.combats.Count; combatIndex++)
-            {
-                CombatState combat = state.combats[combatIndex];
-                if (combat == null)
-                {
-                    Debug.LogWarning($"[DuelTurnProcessor] Resolve warning: combats[{combatIndex}] is null.");
-                    continue;
-                }
-
-                combat.EnsureInitialized();
-
-                int playerTotalPower = DuelSimulator.ComputeTotalPower(
-                    combat,
-                    state.abilitiesById,
-                    true);
-                int opponentTotalPower = DuelSimulator.ComputeTotalPower(
-                    combat,
-                    state.abilitiesById,
-                    false);
-                DuelOutcome outcome = DuelSimulator.ComputeOutcome(playerTotalPower, opponentTotalPower);
-                IReadOnlyCollection<string> combatAbilityIds = CollectCombatAbilityIds(combat);
-                timedEffectRunner.ApplyForTiming(
-                    state,
-                    DuelEffectTiming.AfterCombat,
-                    combatAbilityIds,
-                    new DuelEffectContext
-                    {
-                        hasOutcome = true,
-                        outcome = outcome,
-                        hasResolveProgress = true,
-                        currentResolvedCombatIndex = combatIndex
-                    });
-                int appliedDamage = state.isDuelEnded
-                    ? 0
-                    : ApplyCombatOutcomeDamage(state, combat, playerTotalPower, opponentTotalPower);
-                if (appliedDamage > 0)
-                {
-                    bool healthLostIsPlayerSide = outcome == DuelOutcome.Defeat;
-                    TriggerHealthLostTimedEffects(state, healthLostIsPlayerSide, appliedDamage, combatIndex);
-                }
-
-                if (state.playerHealth <= 0 || state.opponentHealth <= 0)
-                {
-                    state.isDuelEnded = true;
-                    DuelSimulator.ClearModifierLayer(state, ModifierLayer.Duel);
-                }
-                Dictionary<string, int> abilityPowerSnapshot = CaptureAttackEffectivePowerSnapshot(state);
-
-                steps.Add(new DuelCombatResolveStepResult(
-                    combatIndex,
-                    outcome,
-                    playerTotalPower,
-                    opponentTotalPower,
-                    appliedDamage,
-                    state.playerHealth,
-                    state.opponentHealth,
-                    abilityPowerSnapshot));
-
-                if (state.isDuelEnded)
-                {
-                    break;
-                }
-            }
-
-            if (steps.Count <= 0)
+            List<int> resolveCombatIndices = CollectResolvableCombatIndices(state);
+            if (resolveCombatIndices.Count <= 0)
             {
                 failureMessage = "no combats were resolved.";
+                return false;
+            }
+
+            ClearResolveCombatFlags(state);
+            timedEffectRunner.ApplyForTiming(state, DuelEffectTiming.Resolve);
+            session = new DuelResolveSession(resolveCombatIndices);
+            return true;
+        }
+
+        public bool TryResolveNextCombat(
+            DuelState state,
+            DuelResolveSession session,
+            out DuelCombatResolveStepResult step,
+            out bool hasRemainingCombats,
+            out string failureMessage)
+        {
+            step = default;
+            hasRemainingCombats = false;
+            failureMessage = string.Empty;
+
+            if (state == null)
+            {
+                failureMessage = "duel state is null.";
+                return false;
+            }
+
+            if (session == null)
+            {
+                failureMessage = "resolve session is null.";
+                return false;
+            }
+
+            if (session.isFinalized)
+            {
+                failureMessage = "resolve session already finalized.";
+                return false;
+            }
+
+            state.EnsureInitialized();
+
+            if (!session.TryTakeNextCombatIndex(out int combatIndex))
+            {
+                hasRemainingCombats = false;
+                return true;
+            }
+
+            if (combatIndex < 0 || combatIndex >= state.combats.Count)
+            {
+                failureMessage = $"resolve combat index({combatIndex}) is out of range.";
+                return false;
+            }
+
+            CombatState combat = state.combats[combatIndex];
+            if (combat == null)
+            {
+                failureMessage = $"resolve combat({combatIndex}) is null.";
+                return false;
+            }
+
+            combat.EnsureInitialized();
+            Dictionary<string, int> rolledPowerByAbilityId = CaptureCombatRolledPowerSnapshot(
+                combat,
+                state.abilitiesById);
+
+            int playerTotalPower = DuelSimulator.ComputeTotalPower(
+                combat,
+                state.abilitiesById,
+                true);
+            int opponentTotalPower = DuelSimulator.ComputeTotalPower(
+                combat,
+                state.abilitiesById,
+                false);
+            DuelOutcome outcome = DuelSimulator.ComputeOutcome(playerTotalPower, opponentTotalPower);
+            IReadOnlyCollection<string> combatAbilityIds = CollectCombatAbilityIds(combat);
+            timedEffectRunner.ApplyForTiming(
+                state,
+                DuelEffectTiming.AfterCombat,
+                combatAbilityIds,
+                new DuelEffectContext
+                {
+                    hasOutcome = true,
+                    outcome = outcome,
+                    hasResolveProgress = true,
+                    currentResolvedCombatIndex = combatIndex
+                });
+            int appliedDamage = state.isDuelEnded
+                ? 0
+                : ApplyCombatOutcomeDamage(state, combat, playerTotalPower, opponentTotalPower);
+            if (appliedDamage > 0)
+            {
+                bool healthLostIsPlayerSide = outcome == DuelOutcome.Defeat;
+                TriggerHealthLostTimedEffects(state, healthLostIsPlayerSide, appliedDamage, combatIndex);
+            }
+
+            if (state.playerHealth <= 0 || state.opponentHealth <= 0)
+            {
+                state.isDuelEnded = true;
+                DuelSimulator.ClearModifierLayer(state, ModifierLayer.Duel);
+            }
+
+            Dictionary<string, int> abilityPowerSnapshot = CaptureAttackEffectivePowerSnapshot(state);
+            step = new DuelCombatResolveStepResult(
+                combatIndex,
+                outcome,
+                playerTotalPower,
+                opponentTotalPower,
+                appliedDamage,
+                state.playerHealth,
+                state.opponentHealth,
+                abilityPowerSnapshot,
+                rolledPowerByAbilityId);
+            session.AddResolvedStep(step);
+
+            if (state.isDuelEnded)
+            {
+                session.MarkAllResolved();
+            }
+
+            hasRemainingCombats = session.hasRemainingCombats && !state.isDuelEnded;
+            return true;
+        }
+
+        public bool TryFinalizeResolve(
+            DuelState state,
+            DuelPhaseRunner phaseRunner,
+            DuelResolveSession session,
+            out DuelCombatResolveResult result,
+            out string failureMessage)
+        {
+            result = new DuelCombatResolveResult(
+                Array.Empty<DuelCombatResolveStepResult>(),
+                new AbilityTimedEffectRunResult(0, 0, 0),
+                0);
+            failureMessage = string.Empty;
+
+            if (state == null)
+            {
+                failureMessage = "duel state is null.";
+                return false;
+            }
+
+            if (phaseRunner == null)
+            {
+                failureMessage = "phase runner is null.";
+                return false;
+            }
+
+            if (session == null)
+            {
+                failureMessage = "resolve session is null.";
+                return false;
+            }
+
+            if (session.isFinalized)
+            {
+                failureMessage = "resolve session already finalized.";
+                return false;
+            }
+
+            state.EnsureInitialized();
+
+            if (!phaseRunner.isStarted)
+            {
+                failureMessage = "duel is not started.";
+                return false;
+            }
+
+            if (phaseRunner.currentPhase != DuelPhase.Resolve)
+            {
+                failureMessage = $"current phase is {phaseRunner.currentPhase}, required phase is {DuelPhase.Resolve}.";
+                return false;
+            }
+
+            if (session.steps.Count <= 0)
+            {
+                failureMessage = "no combats were resolved.";
+                return false;
+            }
+
+            if (session.hasRemainingCombats && !state.isDuelEnded)
+            {
+                failureMessage = "resolve session has unresolved combats.";
                 return false;
             }
 
@@ -351,8 +513,9 @@ namespace Game.Application.Duel
                     $"[DuelTurnProcessor] Resolve warning: failed to move to next phase ({phaseRunner.LastFailureReason}).");
             }
 
+            session.MarkFinalized();
             result = new DuelCombatResolveResult(
-                steps,
+                session.steps,
                 turnEndTimedEffects,
                 cooldownUpdatedCount);
             return true;
@@ -587,6 +750,48 @@ namespace Game.Application.Duel
             return abilityIds;
         }
 
+        static Dictionary<string, int> CaptureCombatRolledPowerSnapshot(
+            CombatState combat,
+            IReadOnlyDictionary<string, AbilityInstance> abilitiesById)
+        {
+            var snapshot = new Dictionary<string, int>(StringComparer.Ordinal);
+            if (combat == null || abilitiesById == null)
+            {
+                return snapshot;
+            }
+
+            CaptureCombatSideRolledPowerSnapshot(combat.playerAbilityIds, abilitiesById, snapshot);
+            CaptureCombatSideRolledPowerSnapshot(combat.opponentAbilityIds, abilitiesById, snapshot);
+            return snapshot;
+        }
+
+        static void CaptureCombatSideRolledPowerSnapshot(
+            IReadOnlyList<string> abilityIds,
+            IReadOnlyDictionary<string, AbilityInstance> abilitiesById,
+            Dictionary<string, int> snapshot)
+        {
+            if (abilityIds == null || abilitiesById == null || snapshot == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < abilityIds.Count; i++)
+            {
+                string abilityId = abilityIds[i];
+                if (string.IsNullOrWhiteSpace(abilityId) ||
+                    snapshot.ContainsKey(abilityId) ||
+                    !abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) ||
+                    ability == null ||
+                    ability.abilityType != AbilityType.Attack)
+                {
+                    continue;
+                }
+
+                ability.EnsureInitialized();
+                snapshot[abilityId] = Mathf.Max(0, ability.powerResult);
+            }
+        }
+
         static Dictionary<string, int> CaptureAttackEffectivePowerSnapshot(DuelState state)
         {
             var snapshot = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -616,6 +821,29 @@ namespace Game.Application.Duel
             }
 
             return snapshot;
+        }
+
+        static List<int> CollectResolvableCombatIndices(DuelState state)
+        {
+            var indices = new List<int>();
+            if (state?.combats == null)
+            {
+                return indices;
+            }
+
+            for (int combatIndex = 0; combatIndex < state.combats.Count; combatIndex++)
+            {
+                CombatState combat = state.combats[combatIndex];
+                if (combat == null)
+                {
+                    Debug.LogWarning($"[DuelTurnProcessor] Resolve warning: combats[{combatIndex}] is null.");
+                    continue;
+                }
+
+                indices.Add(combatIndex);
+            }
+
+            return indices;
         }
 
         static HashSet<string> CollectDeployedAbilityIds(DuelState state)

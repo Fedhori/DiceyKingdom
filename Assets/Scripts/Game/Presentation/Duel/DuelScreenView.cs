@@ -784,7 +784,6 @@ namespace Game.Presentation.Duel
                 return;
             }
 
-            ApplyRevealHealthState(revealState);
             ApplyRevealZoneTotals(revealState);
             ApplyRevealPowerBadges(revealState);
         }
@@ -814,19 +813,6 @@ namespace Game.Presentation.Duel
                 }
 
                 pair.Value.SetRollOverlayValue(overlay.value, overlay.isFinal);
-            }
-        }
-
-        void ApplyRevealHealthState(DuelRevealState revealState)
-        {
-            if (revealState.displayOpponentHealth >= 0 && enemyHealthText != null)
-            {
-                enemyHealthText.text = BuildHeartText(revealState.displayOpponentHealth, cachedMaxOpponentHealth);
-            }
-
-            if (revealState.displayPlayerHealth >= 0 && playerHealthText != null)
-            {
-                playerHealthText.text = BuildHeartText(revealState.displayPlayerHealth, cachedMaxPlayerHealth);
             }
         }
 

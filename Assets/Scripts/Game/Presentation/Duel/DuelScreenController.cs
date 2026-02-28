@@ -462,12 +462,9 @@ namespace Game.Presentation.Duel
             }
 
             List<CombatRevealSnapshot> revealSnapshots = CaptureCombatRevealSnapshots(sessionRunner.DuelState);
-            int displayPlayerHealth = sessionRunner.DuelState.playerHealth;
-            int displayOpponentHealth = sessionRunner.DuelState.opponentHealth;
-
-            if (!sessionRunner.TryResolve(out DuelCombatResolveResult resolveResult, out string resolveFailure))
+            if (!sessionRunner.TryBeginResolve(out string beginResolveFailure))
             {
-                Debug.LogWarning($"[DuelScreenController] Resolve failed: {resolveFailure}");
+                Debug.LogWarning($"[DuelScreenController] Resolve begin failed: {beginResolveFailure}");
                 isFlowRunning = false;
                 observableState.ClearReveal();
                 PublishObservableState();
@@ -476,10 +473,16 @@ namespace Game.Presentation.Duel
 
             yield return PlayRollAndResolveRevealSequence(
                 revealSnapshots,
-                resolveResult,
-                displayPlayerHealth,
-                displayOpponentHealth,
                 ResolveAnimationConfig());
+
+            if (!sessionRunner.TryFinalizeResolve(out DuelCombatResolveResult _, out string finalizeResolveFailure))
+            {
+                Debug.LogWarning($"[DuelScreenController] Resolve finalize failed: {finalizeResolveFailure}");
+                isFlowRunning = false;
+                observableState.ClearReveal();
+                PublishObservableState();
+                yield break;
+            }
 
             if (!sessionRunner.DuelState.isDuelEnded)
             {
@@ -656,12 +659,9 @@ namespace Game.Presentation.Duel
 
         IEnumerator PlayRollAndResolveRevealSequence(
             IReadOnlyList<CombatRevealSnapshot> revealSnapshots,
-            DuelCombatResolveResult resolveResult,
-            int displayPlayerHealth,
-            int displayOpponentHealth,
             DuelAnimationConfig config)
         {
-            if (resolveResult == null || revealSnapshots == null || revealSnapshots.Count <= 0)
+            if (revealSnapshots == null || revealSnapshots.Count <= 0)
             {
                 yield break;
             }
@@ -671,6 +671,7 @@ namespace Game.Presentation.Duel
             int[] playerTotals = new int[combatCount];
             var overlayByAbilityId = new Dictionary<string, DuelRollOverlayValue>(StringComparer.Ordinal);
             IReadOnlyDictionary<string, int> powerBadgeByAbilityId = null;
+            var snapshotsByCombatIndex = new Dictionary<int, CombatRevealSnapshot>();
 
             for (int i = 0; i < revealSnapshots.Count; i++)
             {
@@ -682,6 +683,7 @@ namespace Game.Presentation.Duel
 
                 opponentTotals[snapshot.combatIndex] = snapshot.opponentBaseTotal;
                 playerTotals[snapshot.combatIndex] = snapshot.playerBaseTotal;
+                snapshotsByCombatIndex[snapshot.combatIndex] = snapshot;
             }
 
             void PublishReveal()
@@ -690,28 +692,38 @@ namespace Game.Presentation.Duel
                     true,
                     opponentTotals,
                     playerTotals,
-                    displayOpponentHealth,
-                    displayPlayerHealth,
                     overlayByAbilityId,
                     powerBadgeByAbilityId);
             }
 
             PublishReveal();
 
-            Dictionary<int, DuelCombatResolveStepResult> stepsByCombatIndex = BuildStepLookup(resolveResult);
-
-            for (int i = 0; i < revealSnapshots.Count; i++)
+            bool hasRemainingCombats = true;
+            while (hasRemainingCombats)
             {
-                CombatRevealSnapshot snapshot = revealSnapshots[i];
-                if (!stepsByCombatIndex.TryGetValue(snapshot.combatIndex, out DuelCombatResolveStepResult step))
+                if (!sessionRunner.TryResolveNextCombat(
+                        out DuelCombatResolveStepResult step,
+                        out hasRemainingCombats,
+                        out string resolveStepFailure))
                 {
+                    Debug.LogWarning($"[DuelScreenController] Resolve step failed: {resolveStepFailure}");
                     break;
                 }
+
+                PublishObservableState(publishBoard: false);
+                CombatRevealSnapshot snapshot = snapshotsByCombatIndex.TryGetValue(step.combatIndex, out CombatRevealSnapshot foundSnapshot)
+                    ? foundSnapshot
+                    : new CombatRevealSnapshot(
+                        step.combatIndex,
+                        0,
+                        0,
+                        new List<string>(),
+                        new List<string>());
 
                 for (int enemyIndex = 0; enemyIndex < snapshot.opponentAbilityIds.Count; enemyIndex++)
                 {
                     string abilityId = snapshot.opponentAbilityIds[enemyIndex];
-                    int finalValue = ResolveAbilityFinalPower(abilityId);
+                    int finalValue = ResolveAbilityFinalPower(step, abilityId);
                     int rouletteMax = ResolveAbilityRouletteMax(abilityId, finalValue);
                     yield return AnimateAbilityRoulette(
                         abilityId,
@@ -727,7 +739,7 @@ namespace Game.Presentation.Duel
                 for (int playerIndex = 0; playerIndex < snapshot.playerAbilityIds.Count; playerIndex++)
                 {
                     string abilityId = snapshot.playerAbilityIds[playerIndex];
-                    int finalValue = ResolveAbilityFinalPower(abilityId);
+                    int finalValue = ResolveAbilityFinalPower(step, abilityId);
                     int rouletteMax = ResolveAbilityRouletteMax(abilityId, finalValue);
                     yield return AnimateAbilityRoulette(
                         abilityId,
@@ -749,12 +761,10 @@ namespace Game.Presentation.Duel
                     step.outcome,
                     config);
 
-                displayOpponentHealth = Mathf.Max(0, step.opponentHealthAfterStep);
-                displayPlayerHealth = Mathf.Max(0, step.playerHealthAfterStep);
                 powerBadgeByAbilityId = step.abilityPowerAfterStep;
                 PublishReveal();
 
-                if (config != null && config.resolveCombatGap > 0f && i < revealSnapshots.Count - 1)
+                if (config != null && config.resolveCombatGap > 0f && hasRemainingCombats)
                 {
                     yield return new WaitForSecondsRealtime(config.resolveCombatGap);
                 }
@@ -861,46 +871,16 @@ namespace Game.Presentation.Duel
             return result;
         }
 
-        static Dictionary<int, DuelCombatResolveStepResult> BuildStepLookup(DuelCombatResolveResult resolveResult)
+        static int ResolveAbilityFinalPower(DuelCombatResolveStepResult step, string abilityId)
         {
-            var lookup = new Dictionary<int, DuelCombatResolveStepResult>();
-            if (resolveResult?.steps == null)
-            {
-                return lookup;
-            }
-
-            for (int i = 0; i < resolveResult.steps.Count; i++)
-            {
-                DuelCombatResolveStepResult step = resolveResult.steps[i];
-                if (lookup.ContainsKey(step.combatIndex))
-                {
-                    continue;
-                }
-
-                lookup.Add(step.combatIndex, step);
-            }
-
-            return lookup;
-        }
-
-        int ResolveAbilityFinalPower(string abilityId)
-        {
-            if (sessionRunner.DuelState?.abilitiesById == null ||
-                string.IsNullOrWhiteSpace(abilityId) ||
-                !sessionRunner.DuelState.abilitiesById.TryGetValue(abilityId, out AbilityInstance ability) ||
-                ability == null)
+            if (string.IsNullOrWhiteSpace(abilityId) ||
+                step.rolledPowerByAbilityId == null ||
+                !step.rolledPowerByAbilityId.TryGetValue(abilityId, out int rolledPower))
             {
                 return 0;
             }
 
-            if (ability.abilityType != AbilityType.Attack)
-            {
-                return 0;
-            }
-
-            return ability.powerResult > 0
-                ? ability.powerResult
-                : ResolveEffectivePower(ability);
+            return Mathf.Max(0, rolledPower);
         }
 
         int ResolveAbilityRouletteMax(string abilityId, int finalValue)

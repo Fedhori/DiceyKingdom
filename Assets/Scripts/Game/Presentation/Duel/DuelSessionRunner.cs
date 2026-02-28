@@ -12,6 +12,7 @@ namespace Game.Presentation.Duel
     {
         DuelSessionBuilder sessionBuilder;
         DuelTurnProcessor turnProcessor;
+        DuelResolveSession activeResolveSession;
         readonly List<string> singleAbilityBuffer = new(1);
 
         public DuelState DuelState { get; private set; }
@@ -43,6 +44,7 @@ namespace Game.Presentation.Duel
             Database = database;
             sessionBuilder = new DuelSessionBuilder(database);
             turnProcessor = new DuelTurnProcessor(database);
+            activeResolveSession = null;
 
             if (!sessionBuilder.TryCreateInitialState(enemyId, out DuelState state, out failureMessage))
             {
@@ -311,7 +313,64 @@ namespace Game.Presentation.Duel
                 out failureMessage);
         }
 
-        public bool TryResolve(out DuelCombatResolveResult result, out string failureMessage)
+        public bool TryBeginResolve(out string failureMessage)
+        {
+            failureMessage = string.Empty;
+
+            if (!TryValidateStarted(out failureMessage))
+            {
+                return false;
+            }
+
+            if (activeResolveSession != null)
+            {
+                failureMessage = "resolve session is already active.";
+                return false;
+            }
+
+            bool success = turnProcessor.TryBeginResolve(
+                DuelState,
+                PhaseRunner,
+                out DuelResolveSession session,
+                out failureMessage);
+            if (!success)
+            {
+                return false;
+            }
+
+            activeResolveSession = session;
+            return true;
+        }
+
+        public bool TryResolveNextCombat(
+            out DuelCombatResolveStepResult step,
+            out bool hasRemainingCombats,
+            out string failureMessage)
+        {
+            step = default;
+            hasRemainingCombats = false;
+            failureMessage = string.Empty;
+
+            if (!TryValidateStarted(out failureMessage))
+            {
+                return false;
+            }
+
+            if (activeResolveSession == null)
+            {
+                failureMessage = "resolve session is not active.";
+                return false;
+            }
+
+            return turnProcessor.TryResolveNextCombat(
+                DuelState,
+                activeResolveSession,
+                out step,
+                out hasRemainingCombats,
+                out failureMessage);
+        }
+
+        public bool TryFinalizeResolve(out DuelCombatResolveResult result, out string failureMessage)
         {
             result = new DuelCombatResolveResult(System.Array.Empty<DuelCombatResolveStepResult>(), default, 0);
             failureMessage = string.Empty;
@@ -321,11 +380,26 @@ namespace Game.Presentation.Duel
                 return false;
             }
 
-            return turnProcessor.TryResolveAllCombats(
+            if (activeResolveSession == null)
+            {
+                failureMessage = "resolve session is not active.";
+                return false;
+            }
+
+            bool success = turnProcessor.TryFinalizeResolve(
                 DuelState,
                 PhaseRunner,
+                activeResolveSession,
                 out result,
                 out failureMessage);
+            if (!success)
+            {
+                activeResolveSession = null;
+                return false;
+            }
+
+            activeResolveSession = null;
+            return true;
         }
 
         public bool TrySurrender(out string failureMessage)
@@ -339,6 +413,7 @@ namespace Game.Presentation.Duel
 
             if (PhaseRunner.TrySurrender())
             {
+                activeResolveSession = null;
                 return true;
             }
 

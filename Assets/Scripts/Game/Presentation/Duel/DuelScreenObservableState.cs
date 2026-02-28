@@ -97,8 +97,6 @@ namespace Game.Presentation.Duel
         readonly IReadOnlyDictionary<string, int> powerBadgeLookup;
 
         public bool isRunning { get; }
-        public int displayOpponentHealth { get; }
-        public int displayPlayerHealth { get; }
         public int revision { get; }
 
         public static DuelRevealState Empty =>
@@ -106,8 +104,6 @@ namespace Game.Presentation.Duel
                 false,
                 Array.Empty<int>(),
                 Array.Empty<int>(),
-                -1,
-                -1,
                 null,
                 null,
                 0);
@@ -116,8 +112,6 @@ namespace Game.Presentation.Duel
             bool isRunning,
             int[] opponentTotals,
             int[] playerTotals,
-            int displayOpponentHealth,
-            int displayPlayerHealth,
             IReadOnlyDictionary<string, DuelRollOverlayValue> rollOverlayByAbilityId,
             IReadOnlyDictionary<string, int> powerBadgeByAbilityId,
             int revision)
@@ -129,8 +123,6 @@ namespace Game.Presentation.Duel
             this.playerTotals = playerTotals == null
                 ? Array.Empty<int>()
                 : (int[])playerTotals.Clone();
-            this.displayOpponentHealth = displayOpponentHealth;
-            this.displayPlayerHealth = displayPlayerHealth;
             rollOverlayLookup = rollOverlayByAbilityId == null
                 ? new Dictionary<string, DuelRollOverlayValue>(StringComparer.Ordinal)
                 : new Dictionary<string, DuelRollOverlayValue>(rollOverlayByAbilityId, StringComparer.Ordinal);
@@ -259,8 +251,6 @@ namespace Game.Presentation.Duel
             bool isRunning,
             int[] opponentTotals,
             int[] playerTotals,
-            int displayOpponentHealth,
-            int displayPlayerHealth,
             IReadOnlyDictionary<string, DuelRollOverlayValue> rollOverlayByAbilityId,
             IReadOnlyDictionary<string, int> powerBadgeByAbilityId)
         {
@@ -269,8 +259,6 @@ namespace Game.Presentation.Duel
                 isRunning,
                 opponentTotals,
                 playerTotals,
-                displayOpponentHealth,
-                displayPlayerHealth,
                 rollOverlayByAbilityId,
                 powerBadgeByAbilityId,
                 revealRevision);
@@ -283,8 +271,6 @@ namespace Game.Presentation.Duel
                 false,
                 Array.Empty<int>(),
                 Array.Empty<int>(),
-                -1,
-                -1,
                 null,
                 null,
                 revealRevision);
