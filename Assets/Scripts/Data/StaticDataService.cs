@@ -8,75 +8,75 @@ using UnityEngine;
 
 namespace Game.Data
 {
-public sealed class StaticDataService : MonoBehaviour
-{
-    [Serializable]
-    
-    
-    
-    public sealed class JsonEntry
+    public sealed class StaticDataService : MonoBehaviour
     {
-        public string key;
-        public string relativePath;
-    }
-
-    [SerializeField] private List<JsonEntry> entries = new();
-
-    readonly Dictionary<string, string> jsonCache = new(StringComparer.OrdinalIgnoreCase);
-
-    public IReadOnlyDictionary<string, string> JsonCache => jsonCache;
-
-    void Awake()
-    {
-        LoadAll();
-    }
-
-    public void LoadAll()
-    {
-        jsonCache.Clear();
-        for (int i = 0; i < entries.Count; i++)
+        [Serializable]
+        
+        
+        
+        public sealed class JsonEntry
         {
-            var entry = entries[i];
-            if (entry == null || string.IsNullOrEmpty(entry.relativePath))
-                continue;
-
-            var key = string.IsNullOrEmpty(entry.key) ? entry.relativePath : entry.key;
-            TryLoad(entry.relativePath, key);
-        }
-    }
-
-    public bool TryGetJson(string key, out string json)
-    {
-        if (string.IsNullOrEmpty(key))
-        {
-            json = string.Empty;
-            return false;
+            public string key;
+            public string relativePath;
         }
 
-        return jsonCache.TryGetValue(key, out json);
-    }
+        [SerializeField] private List<JsonEntry> entries = new();
 
-    bool TryLoad(string relativePath, string key)
-    {
-        try
+        readonly Dictionary<string, string> jsonCache = new(StringComparer.OrdinalIgnoreCase);
+
+        public IReadOnlyDictionary<string, string> JsonCache => jsonCache;
+
+        void Awake()
         {
-            string json = SaCache.ReadText(relativePath);
-            if (string.IsNullOrEmpty(json))
+            LoadAll();
+        }
+
+        public void LoadAll()
+        {
+            jsonCache.Clear();
+            for (int i = 0; i < entries.Count; i++)
             {
-                Debug.LogWarning($"[StaticDataService] Empty json: {relativePath}");
+                var entry = entries[i];
+                if (entry == null || string.IsNullOrEmpty(entry.relativePath))
+                    continue;
+
+                var key = string.IsNullOrEmpty(entry.key) ? entry.relativePath : entry.key;
+                TryLoad(entry.relativePath, key);
+            }
+        }
+
+        public bool TryGetJson(string key, out string json)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                json = string.Empty;
                 return false;
             }
 
-            jsonCache[key] = json;
-            return true;
+            return jsonCache.TryGetValue(key, out json);
         }
-        catch (IOException e)
+
+        bool TryLoad(string relativePath, string key)
         {
-            Debug.LogWarning($"[StaticDataService] Read failed: {relativePath} ({e.Message})");
-            return false;
+            try
+            {
+                string json = SaCache.ReadText(relativePath);
+                if (string.IsNullOrEmpty(json))
+                {
+                    Debug.LogWarning($"[StaticDataService] Empty json: {relativePath}");
+                    return false;
+                }
+
+                jsonCache[key] = json;
+                return true;
+            }
+            catch (IOException e)
+            {
+                Debug.LogWarning($"[StaticDataService] Read failed: {relativePath} ({e.Message})");
+                return false;
+            }
         }
     }
-}
 
 
 }

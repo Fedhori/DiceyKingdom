@@ -3,15 +3,15 @@ using UnityEngine;
 
 namespace Game.App
 {
-[Serializable]
+    [Serializable]
 
 
 
-public sealed class GameSceneRefs
-{
-    [SerializeField] Transform sceneRoot;
+    public sealed class GameSceneRefs
+    {
+        [SerializeField] Transform sceneRoot;
 
-    public Transform SceneRoot => sceneRoot;
-}
+        public Transform SceneRoot => sceneRoot;
+    }
 
 }

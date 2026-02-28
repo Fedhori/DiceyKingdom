@@ -1,0 +1,25 @@
+root = true
+
+[*.{cs,csx}]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+tab_width = 4
+
+# Keep namespace blocks explicit to match repository style.
+csharp_style_namespace_declarations = block_scoped:error
+
+# Allman braces
+csharp_new_line_before_open_brace = all
+
+# Prefer explicit and stable formatting for multiline constructs.
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+
+[*.md]
+trim_trailing_whitespace = true
+insert_final_newline = true

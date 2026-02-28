@@ -5,86 +5,89 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 
-
-
-
 namespace Game.Data
 {
-public static class GameConfigProvider
-{
-    public const string RelativePath = "Data/GameConfig.json";
-
-    static GameConfigData current;
-
-    public static bool IsLoaded => current != null;
-
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    static void ResetStatic()
+    public static class GameConfigProvider
     {
-        current = null;
-    }
+        public const string RelativePath = "Data/GameConfig.json";
 
-    public static GameConfigData Current
-    {
-        get
+        static GameConfigData current;
+
+        public static bool IsLoaded => current != null;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetStatic()
         {
-            if (current == null)
-            {
-                const string message = "[GameConfigProvider] Game config not loaded. Bootstrap must load config before access.";
-                Debug.LogError(message);
-                throw new InvalidOperationException(message);
-            }
-
-            return current;
+            current = null;
         }
-    }
 
-    public static async Task<bool> LoadFromStreamingAssetsAsync()
-    {
-        try
+        public static GameConfigData Current
         {
-            string json = await ReadStreamingAssetTextAsync(RelativePath);
-            if (string.IsNullOrWhiteSpace(json))
+            get
             {
-                Debug.LogError($"[GameConfigProvider] Empty config json: {RelativePath}");
+                if (current == null)
+                {
+                    const string message =
+                        "[GameConfigProvider] Game config not loaded. Bootstrap must load config before access.";
+                    Debug.LogError(message);
+                    throw new InvalidOperationException(message);
+                }
+
+                return current;
+            }
+        }
+
+        public static async Task<bool> LoadFromStreamingAssetsAsync()
+        {
+            try
+            {
+                string json = await ReadStreamingAssetTextAsync(RelativePath);
+                if (string.IsNullOrWhiteSpace(json))
+                {
+                    Debug.LogError($"[GameConfigProvider] Empty config json: {RelativePath}");
+                    return false;
+                }
+
+                GameConfigData parsed = JsonConvert.DeserializeObject<GameConfigData>(json);
+                if (parsed == null)
+                {
+                    Debug.LogError($"[GameConfigProvider] Failed to parse config json: {RelativePath}");
+                    return false;
+                }
+
+                current = parsed;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[GameConfigProvider] Load failed: {RelativePath}\n{ex}");
                 return false;
             }
+        }
 
-            var parsed = JsonConvert.DeserializeObject<GameConfigData>(json);
-            if (parsed == null)
+        static async Task<string> ReadStreamingAssetTextAsync(string relativePath)
+        {
+            string sourcePath = Path
+                .Combine(UnityEngine.Application.streamingAssetsPath, relativePath)
+                .Replace("\\", "/");
+            if (sourcePath.Contains("://") || sourcePath.Contains("jar:"))
             {
-                Debug.LogError($"[GameConfigProvider] Failed to parse config json: {RelativePath}");
-                return false;
+                using UnityWebRequest request = UnityWebRequest.Get(sourcePath);
+                UnityWebRequestAsyncOperation operation = request.SendWebRequest();
+                while (!operation.isDone)
+                {
+                    await Task.Yield();
+                }
+
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    throw new IOException($"UnityWebRequest failed ({request.error})");
+                }
+
+                return request.downloadHandler.text;
             }
 
-            current = parsed;
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"[GameConfigProvider] Load failed: {RelativePath}\n{ex}");
-            return false;
+            return File.ReadAllText(sourcePath);
         }
     }
-
-    static async Task<string> ReadStreamingAssetTextAsync(string relativePath)
-    {
-        string sourcePath = Path.Combine(UnityEngine.Application.streamingAssetsPath, relativePath).Replace("\\", "/");
-        if (sourcePath.Contains("://") || sourcePath.Contains("jar:"))
-        {
-            using var request = UnityWebRequest.Get(sourcePath);
-            var op = request.SendWebRequest();
-            while (!op.isDone)
-                await Task.Yield();
-
-            if (request.result != UnityWebRequest.Result.Success)
-                throw new IOException($"UnityWebRequest failed ({request.error})");
-
-            return request.downloadHandler.text;
-        }
-
-        return File.ReadAllText(sourcePath);
-    }
-}
-
 }

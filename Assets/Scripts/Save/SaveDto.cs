@@ -2,28 +2,28 @@ using System;
 
 namespace Game.Save
 {
-[Serializable]
+    [Serializable]
 
 
 
-public sealed class SaveData
-{
-    public SaveMeta meta = new();
-    public string payloadJson = "{}";
-}
+    public sealed class SaveData
+    {
+        public SaveMeta meta = new();
+        public string payloadJson = "{}";
+    }
 
-[Serializable]
+    [Serializable]
 
 
 
-public sealed class SaveMeta
-{
-    public const int CurrentSchemaVersion = 1;
+    public sealed class SaveMeta
+    {
+        public const int CurrentSchemaVersion = 1;
 
-    public int schemaVersion = CurrentSchemaVersion;
-    public string appVersion = string.Empty;
-    public long timestampUtc;
-    public string checksum = string.Empty;
-}
+        public int schemaVersion = CurrentSchemaVersion;
+        public string appVersion = string.Empty;
+        public long timestampUtc;
+        public string checksum = string.Empty;
+    }
 
 }

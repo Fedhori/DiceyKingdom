@@ -6,22 +6,22 @@ using UnityEngine.InputSystem;
 
 namespace Game.App
 {
-public class InputService : MonoBehaviour
-{
-    [SerializeField] private PlayerInput playerInput;
-
-    public InputAction GetAction(string actionName)
+    public class InputService : MonoBehaviour
     {
-        if (playerInput == null || string.IsNullOrEmpty(actionName))
-            return null;
+        [SerializeField] private PlayerInput playerInput;
 
-        return playerInput.actions.FindAction(actionName, throwIfNotFound: false);
-    }
+        public InputAction GetAction(string actionName)
+        {
+            if (playerInput == null || string.IsNullOrEmpty(actionName))
+                return null;
 
-    void OnMenu()
-    {
+            return playerInput.actions.FindAction(actionName, throwIfNotFound: false);
+        }
+
+        void OnMenu()
+        {
+        }
     }
-}
 
 
 }

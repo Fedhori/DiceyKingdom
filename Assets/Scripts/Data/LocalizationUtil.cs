@@ -6,26 +6,26 @@ using UnityEngine.Localization;
 
 namespace Game.Data
 {
-public static class LocalizationUtil
-{
-    public static string Get(string table, string key, Dictionary<string, object> args = null)
+    public static class LocalizationUtil
     {
-        if (string.IsNullOrEmpty(table) || string.IsNullOrEmpty(key))
-            return string.Empty;
+        public static string Get(string table, string key, Dictionary<string, object> args = null)
+        {
+            if (string.IsNullOrEmpty(table) || string.IsNullOrEmpty(key))
+                return string.Empty;
 
-        var reference = new LocalizedString(table, key);
-        if (args != null)
-            reference.Arguments = new object[] { args };
-        return reference.GetLocalizedString();
-    }
+            var reference = new LocalizedString(table, key);
+            if (args != null)
+                reference.Arguments = new object[] { args };
+            return reference.GetLocalizedString();
+        }
 
-    public static LocalizedString Build(string table, string key, Dictionary<string, object> args = null)
-    {
-        var reference = new LocalizedString(table, key);
-        if (args != null)
-            reference.Arguments = new object[] { args };
-        return reference;
+        public static LocalizedString Build(string table, string key, Dictionary<string, object> args = null)
+        {
+            var reference = new LocalizedString(table, key);
+            if (args != null)
+                reference.Arguments = new object[] { args };
+            return reference;
+        }
     }
-}
 
 }

@@ -8,7 +8,9 @@
 
 - Indentation: 4 spaces (no tabs).
 - Braces: Allman style for block statements.
-- Enforce via `.editorconfig` and formatting tools. Do not rely on manual consistency.
+- Single source of truth: `.editorconfig` at repository root.
+- Apply style by formatter/editor settings first. Do not rely on manual consistency.
+- Rationale: stable diffs, lower review noise, and safer large refactors.
 - Keep methods small and single-purpose; prefer extracting helpers over deep nesting.
 
 ## 2) Naming and file structure
