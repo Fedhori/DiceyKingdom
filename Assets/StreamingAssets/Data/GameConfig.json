@@ -1,4 +1,5 @@
 {
+  "schemaVersion": 2,
   "templateName": "TemplateProject",
   "defaultRunSeed": 1001,
   "startingPrimaryValue": 10,

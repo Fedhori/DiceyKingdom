@@ -55,6 +55,14 @@ namespace Game.Data
                     return false;
                 }
 
+                if (parsed.schemaVersion != GameConfigData.CurrentSchemaVersion)
+                {
+                    Debug.LogError(
+                        $"[GameConfigProvider] Invalid schemaVersion({parsed.schemaVersion}) in {RelativePath}. " +
+                        $"Expected {GameConfigData.CurrentSchemaVersion}.");
+                    return false;
+                }
+
                 current = parsed;
                 return true;
             }

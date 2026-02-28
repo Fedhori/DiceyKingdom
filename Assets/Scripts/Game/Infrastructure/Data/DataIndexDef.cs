@@ -3,6 +3,14 @@ using Newtonsoft.Json;
 
 namespace Game.Infrastructure.Data
 {
+    /// <summary>
+    /// Index for duel runtime game data loaded by <see cref="GameDatabaseLoader"/>.
+    /// Includes only:
+    /// - configs (duel.config / run.config / player.start)
+    /// - abilities
+    /// - enemies
+    /// Excludes app bootstrap config: Data/GameConfig.json.
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public sealed class DataIndexDef
     {

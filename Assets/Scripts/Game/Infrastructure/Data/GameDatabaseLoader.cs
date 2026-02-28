@@ -79,6 +79,17 @@ namespace Game.Infrastructure.Data
             for (int i = 0; i < configPaths.Count; i++)
             {
                 string path = configPaths[i];
+                if (string.Equals(path, GameDataConstants.AppGameConfigPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    report.AddError(
+                        GameDataErrorCode.InvalidValue,
+                        GameDataConstants.DefaultDataIndexPath,
+                        "data_index.configs",
+                        $"'{GameDataConstants.AppGameConfigPath}' must not be listed in DataIndex.configs. " +
+                        "App config is loaded separately by GameConfigProvider.");
+                    continue;
+                }
+
                 if (!TryReadJson(path, report, string.Empty, out string json))
                 {
                     continue;

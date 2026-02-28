@@ -222,3 +222,4 @@ Effects:
 - Player and enemy ability interaction rules are symmetric (AI random assignment is the only behavior difference).
 - Per-side loadout max count is **16**.
 - Invalid data is not silently fixed (validation must be visible).
+- `Data/DataIndex.json` covers duel runtime data only (`configs`, `abilities`, `enemies`), and `Data/GameConfig.json` is loaded separately by `GameConfigProvider`.

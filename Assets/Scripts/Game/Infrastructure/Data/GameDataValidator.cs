@@ -61,11 +61,36 @@ namespace Game.Infrastructure.Data
                 throw new ArgumentNullException(nameof(report));
             }
 
+            ValidateDataIndexRole(dataIndex, report);
             ValidateRequiredConfigs(database, report);
             ValidateConfigValues(database, report);
             ValidateAbilityDefs(database, report);
             ValidateEnemyDefs(database, report);
             ValidateEffectOps(database, report);
+        }
+
+        static void ValidateDataIndexRole(DataIndexDef dataIndex, GameDataValidationReport report)
+        {
+            if (dataIndex.configs == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < dataIndex.configs.Count; i++)
+            {
+                string path = dataIndex.configs[i];
+                if (!string.Equals(path, GameDataConstants.AppGameConfigPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                report.AddError(
+                    GameDataErrorCode.InvalidValue,
+                    GameDataConstants.DefaultDataIndexPath,
+                    "data_index.configs",
+                    $"'{GameDataConstants.AppGameConfigPath}' must not be listed in DataIndex.configs. " +
+                    "App config is loaded separately by GameConfigProvider.");
+            }
         }
 
         void ValidateRequiredConfigs(GameDatabase database, GameDataValidationReport report)
