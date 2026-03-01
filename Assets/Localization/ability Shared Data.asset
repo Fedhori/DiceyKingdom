@@ -99,6 +99,14 @@ MonoBehaviour:
     m_Key: ability.obsidian_blade.desc
     m_Metadata:
       m_Items: []
+  - m_Id: 9000000000025
+    m_Key: ability.vengeance.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9000000000026
+    m_Key: ability.vengeance.desc
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

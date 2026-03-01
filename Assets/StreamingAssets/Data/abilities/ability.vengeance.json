@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.vengeance",
+  "type": "Attack",
+  "buildCost": 2,
+  "cooldown": 1,
+  "power": 10,
+  "nameLocKey": "ability.vengeance.name",
+  "descLocKey": "ability.vengeance.desc",
+  "isPlayerObtainable": true,
+  "iconId": "vengeance",
+  "effects": [
+    {
+      "timing": "AfterCombat",
+      "condition": {
+        "type": "OutcomeIsDefeat"
+      },
+      "ops": [
+        {
+          "op": "AddPowerModifier",
+          "scope": "Self",
+          "target": "Power",
+          "layer": "Duel",
+          "mode": "Add",
+          "value": 10
+        }
+      ]
+    }
+  ]
+}

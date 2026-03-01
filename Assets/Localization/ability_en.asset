@@ -103,6 +103,14 @@ MonoBehaviour:
     m_Localized: At turn end, Power decreases by <style=value_penalty>-2</style> for this duel.
     m_Metadata:
       m_Items: []
+  - m_Id: 9000000000025
+    m_Localized: <style=attack>Vengeance</style>
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9000000000026
+    m_Localized: Whenever this loses its combat, gain <style=value_bonus>+10</style> Power for this duel.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
