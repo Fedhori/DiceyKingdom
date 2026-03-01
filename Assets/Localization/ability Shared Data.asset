@@ -83,6 +83,14 @@ MonoBehaviour:
     m_Key: ability.berserk.desc
     m_Metadata:
       m_Items: []
+  - m_Id: 9000000000021
+    m_Key: ability.arrogance.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9000000000022
+    m_Key: ability.arrogance.desc
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
