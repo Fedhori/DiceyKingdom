@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.obsidian_blade",
+  "type": "Attack",
+  "buildCost": 1,
+  "cooldown": 1,
+  "power": 12,
+  "nameLocKey": "ability.obsidian_blade.name",
+  "descLocKey": "ability.obsidian_blade.desc",
+  "isPlayerObtainable": true,
+  "iconId": "obsidian_blade",
+  "effects": [
+    {
+      "timing": "TurnEnd",
+      "condition": {
+        "type": "Always"
+      },
+      "ops": [
+        {
+          "op": "AddPowerModifier",
+          "scope": "Self",
+          "target": "Power",
+          "layer": "Duel",
+          "mode": "Add",
+          "value": -2
+        }
+      ]
+    }
+  ]
+}

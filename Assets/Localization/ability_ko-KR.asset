@@ -101,6 +101,14 @@ MonoBehaviour:
     m_Localized: "\uD328\uBC30\uD558\uBA74 \uC774\uBC88 \uACB0\uD22C\uC5D0\uC11C \uD30C\uAD34\uB429\uB2C8\uB2E4."
     m_Metadata:
       m_Items: []
+  - m_Id: 9000000000023
+    m_Localized: "<style=attack>\uD751\uC694\uC11D \uCE7C</style>"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9000000000024
+    m_Localized: "\uD134 \uC885\uB8CC \uC2DC \uC774\uBC88 \uACB0\uD22C \uB3D9\uC548 \uD30C\uC6CC\uAC00 <style=value_penalty>-2</style> \uAC10\uC18C\uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

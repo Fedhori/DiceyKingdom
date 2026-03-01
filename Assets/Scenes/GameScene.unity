@@ -1231,7 +1231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d568b1533b2e914b974d27ec066231b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game.Runtime::Game.Presentation.Duel.DuelScreenController
-  enemyId: enemy.northern_footman
+  enemyId: enemy.goblin_horde
   backgroundImage: {fileID: 539586211}
   topBarImage: {fileID: 196441786}
   turnText: {fileID: 640447762}
