@@ -107,6 +107,14 @@ MonoBehaviour:
     m_Key: ability.vengeance.desc
     m_Metadata:
       m_Items: []
+  - m_Id: 9000000000027
+    m_Key: ability.underdog.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9000000000028
+    m_Key: ability.underdog.desc
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

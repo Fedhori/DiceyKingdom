@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 2,
+  "id": "ability.underdog",
+  "type": "Attack",
+  "buildCost": 1,
+  "cooldown": 1,
+  "power": 5,
+  "nameLocKey": "ability.underdog.name",
+  "descLocKey": "ability.underdog.desc",
+  "isPlayerObtainable": true,
+  "iconId": "underdog",
+  "effects": [
+    {
+      "timing": "Formation",
+      "condition": {
+        "type": "OpponentCountGreaterThanSelf"
+      },
+      "ops": [
+        {
+          "op": "AddPowerModifier",
+          "scope": "Self",
+          "target": "Power",
+          "layer": "Duel",
+          "mode": "PercentBonus",
+          "value": 100
+        }
+      ]
+    }
+  ]
+}

@@ -86,6 +86,7 @@ namespace Game.Presentation.Duel
 
             deployResult = sessionBuilder.AutoDeployOpponentCombat(DuelState);
             ApplyDeployTimedEffects(deployResult.deployedAbilityIds);
+            NotifyBoardCompositionChanged();
             return true;
         }
 
@@ -113,6 +114,7 @@ namespace Game.Presentation.Duel
 
             deployResult = sessionBuilder.AutoDeployOpponentCombat(DuelState);
             ApplyDeployTimedEffects(deployResult.deployedAbilityIds);
+            NotifyBoardCompositionChanged();
             return true;
         }
 
@@ -176,6 +178,7 @@ namespace Game.Presentation.Duel
             }
 
             ApplyDeployTimedEffectsForSingleAbility(step.abilityId);
+            NotifyBoardCompositionChanged();
             return true;
         }
 
@@ -434,6 +437,17 @@ namespace Game.Presentation.Duel
             singleAbilityBuffer.Add(abilityInstanceId);
             ApplyDeployTimedEffects(singleAbilityBuffer);
             singleAbilityBuffer.Clear();
+            NotifyBoardCompositionChanged();
+        }
+
+        public void NotifyBoardCompositionChanged()
+        {
+            if (!IsInitialized || DuelState == null || DuelState.isDuelEnded)
+            {
+                return;
+            }
+
+            turnProcessor.ApplyFormationTimedEffects(DuelState);
         }
 
         public AbilityTimedEffectRunResult TriggerSkillTiming(IReadOnlyCollection<string> sourceAbilityIds = null)

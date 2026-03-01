@@ -111,6 +111,14 @@ MonoBehaviour:
     m_Localized: Whenever this loses its combat, gain <style=value_bonus>+10</style> Power for this duel.
     m_Metadata:
       m_Items: []
+  - m_Id: 9000000000027
+    m_Localized: <style=attack>Underdog</style>
+    m_Metadata:
+      m_Items: []
+  - m_Id: 9000000000028
+    m_Localized: If this combat has more opponents than allies, gain <style=value_bonus>+100%</style> Power this roll.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

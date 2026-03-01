@@ -2,7 +2,7 @@
 
 **Role:** The single source of truth for implemented gameplay rules and the intended near-term design.
 
-**Last updated:** 2026-02-27
+**Last updated:** 2026-03-01
 
 **Terminology:** See `Docs/Game/Glossary.md`.
 
@@ -150,6 +150,19 @@ Effects:
 - `HealthLost` ignores deploy location (loadout/combat) and cooldown gate.
 - During `Resolve`, if `HealthLost` applies `AddPowerModifier(target=Power)` to an Attack that is already rolled and placed in a combat slot that has not been resolved yet, its current-turn `powerResult` is immediately adjusted by the effective power delta.
 - Already resolved combats are not recalculated.
+
+### 4.8 Formation timing
+
+- `Formation` is an internal effect timing used for board-composition-dependent effects.
+- Trigger points:
+  - when an ability is deployed to a combat slot
+  - when a deployed ability is moved to another combat slot
+  - when a deployed ability is returned to loadout
+- Evaluation scope:
+  - applies only to abilities currently in combat slots (`combatIndex >= 0`)
+  - cooldown gate is the same as other timings (`cooldownRemaining == 0`)
+- Re-evaluation rule:
+  - before applying `Formation`, previous `Formation`-origin modifiers are cleared, then current board state is re-applied.
 
 ### 4.1 Talent
 

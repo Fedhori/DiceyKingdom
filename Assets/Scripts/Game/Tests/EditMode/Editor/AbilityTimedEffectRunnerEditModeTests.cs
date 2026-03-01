@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Game.Application.Duel.Effects;
 using Game.Domain.Duel;
+using Game.Domain.Modifiers;
 using Game.Infrastructure.Data;
 using Game.Infrastructure.Data.Effects;
 using NUnit.Framework;
@@ -77,6 +78,115 @@ namespace Game.Tests.EditMode
             runner.ApplyForTiming(state, DuelEffectTiming.Roll);
 
             Assert.AreEqual(8, state.abilitiesById["p_miko"].powerResult);
+        }
+
+        [Test]
+        public void ApplyForTiming_Formation_Underdog_GainsPowerPercentBonus_WhenOpponentCountIsGreaterThanSelf()
+        {
+            GameDatabase database = CreateDatabase();
+            DuelState state = CreateDuelState();
+
+            state.abilitiesById["p_underdog"] = new AbilityInstance
+            {
+                instanceId = "p_underdog",
+                abilityDefId = "ability.underdog_test",
+                abilityType = AbilityType.Attack,
+                power = 5,
+                baseRoll = 0,
+                powerResult = 0
+            };
+            state.abilitiesById["e_a"] = new AbilityInstance
+            {
+                instanceId = "e_a",
+                abilityDefId = "ability.ratkin",
+                abilityType = AbilityType.Attack,
+                power = 2,
+                baseRoll = 0,
+                powerResult = 0
+            };
+            state.abilitiesById["e_b"] = new AbilityInstance
+            {
+                instanceId = "e_b",
+                abilityDefId = "ability.ratkin",
+                abilityType = AbilityType.Attack,
+                power = 2,
+                baseRoll = 0,
+                powerResult = 0
+            };
+
+            state.combats[0].playerAbilityIds.Add("p_underdog");
+            state.combats[0].opponentAbilityIds.Add("e_a");
+            state.combats[0].opponentAbilityIds.Add("e_b");
+
+            var runner = new AbilityTimedEffectRunner(database);
+            AbilityTimedEffectRunResult result = runner.ApplyForTiming(state, DuelEffectTiming.Formation);
+
+            Assert.AreEqual(1, result.appliedCount);
+            Assert.AreEqual(0, result.failedCount);
+            Assert.AreEqual(1, state.abilitiesById["p_underdog"].powerModifiers.Count);
+            NumericModifier modifier = state.abilitiesById["p_underdog"].powerModifiers[0];
+            Assert.AreEqual(NumericModifierOperation.PercentBonus, modifier.operation);
+            Assert.AreEqual(100, modifier.value);
+        }
+
+        [Test]
+        public void ApplyForTiming_Formation_Underdog_ReevaluatesAndRemovesPreviousModifier_WhenConditionChanges()
+        {
+            GameDatabase database = CreateDatabase();
+            DuelState state = CreateDuelState();
+
+            state.abilitiesById["p_underdog"] = new AbilityInstance
+            {
+                instanceId = "p_underdog",
+                abilityDefId = "ability.underdog_test",
+                abilityType = AbilityType.Attack,
+                power = 5,
+                baseRoll = 0,
+                powerResult = 0
+            };
+            state.abilitiesById["p_ally"] = new AbilityInstance
+            {
+                instanceId = "p_ally",
+                abilityDefId = "ability.ratkin",
+                abilityType = AbilityType.Attack,
+                power = 2,
+                baseRoll = 0,
+                powerResult = 0
+            };
+            state.abilitiesById["e_a"] = new AbilityInstance
+            {
+                instanceId = "e_a",
+                abilityDefId = "ability.ratkin",
+                abilityType = AbilityType.Attack,
+                power = 2,
+                baseRoll = 0,
+                powerResult = 0
+            };
+            state.abilitiesById["e_b"] = new AbilityInstance
+            {
+                instanceId = "e_b",
+                abilityDefId = "ability.ratkin",
+                abilityType = AbilityType.Attack,
+                power = 2,
+                baseRoll = 0,
+                powerResult = 0
+            };
+
+            state.combats[0].playerAbilityIds.Add("p_underdog");
+            state.combats[0].opponentAbilityIds.Add("e_a");
+            state.combats[0].opponentAbilityIds.Add("e_b");
+
+            var runner = new AbilityTimedEffectRunner(database);
+            runner.ApplyForTiming(state, DuelEffectTiming.Formation);
+            Assert.AreEqual(1, state.abilitiesById["p_underdog"].powerModifiers.Count);
+
+            state.combats[0].playerAbilityIds.Add("p_ally");
+            runner.ApplyForTiming(state, DuelEffectTiming.Formation);
+            Assert.AreEqual(0, state.abilitiesById["p_underdog"].powerModifiers.Count);
+
+            state.combats[0].playerAbilityIds.Remove("p_ally");
+            runner.ApplyForTiming(state, DuelEffectTiming.Formation);
+            Assert.AreEqual(1, state.abilitiesById["p_underdog"].powerModifiers.Count);
         }
 
         [Test]
@@ -354,6 +464,37 @@ namespace Game.Tests.EditMode
                                 side = "Opponent",
                                 mode = "Add",
                                 value = -1
+                            }
+                        }
+                    }
+                }
+            };
+
+            database.abilitiesById["ability.underdog_test"] = new AbilityDef
+            {
+                type = AbilityType.Attack.ToString(),
+                buildCost = 0,
+                cooldown = 1,
+                power = 5,
+                effects = new List<TimedEffectDef>
+                {
+                    new TimedEffectDef
+                    {
+                        timing = "Formation",
+                        condition = new ConditionDef
+                        {
+                            type = "OpponentCountGreaterThanSelf"
+                        },
+                        ops = new List<EffectOpDef>
+                        {
+                            new EffectOpDef
+                            {
+                                op = "AddPowerModifier",
+                                scope = "Self",
+                                target = "Power",
+                                layer = "Duel",
+                                mode = "PercentBonus",
+                                value = 100
                             }
                         }
                     }

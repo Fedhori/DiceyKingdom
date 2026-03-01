@@ -2,7 +2,7 @@
 
 **Role:** Ability 효과를 데이터(`effects`)로 추가할 때 반복 입력을 줄이기 위한 표준 레시피 문서. 구현 코드 변경 없이 데이터만으로 조합 가능한 범위를 정의한다.
 
-**Last updated:** 2026-02-27
+**Last updated:** 2026-03-01
 
 **Canonical refs:** `Docs/Game/Game_Design.md`, `Docs/Game/Glossary.md`
 
@@ -33,9 +33,10 @@
 ## 허용 값(현재 검증 기준)
 
 - timing:
-  - `DuelStart`, `Deploy`, `Roll`, `Skill`, `Resolve`, `AfterCombat`, `TurnEnd`, `HealthLost`
+  - `DuelStart`, `Deploy`, `Formation`, `Roll`, `Skill`, `Resolve`, `AfterCombat`, `TurnEnd`, `HealthLost`
 - condition.type:
   - `Always`, `IsInLoadout`, `OpponentCountEquals`, `OutcomeIsVictory`, `OutcomeIsDefeat`, `OutcomeIsDraw`
+  - `OpponentCountGreaterThanSelf`
 - op:
   - `ModifyPowerResult`
   - `MoveAbility`
@@ -145,6 +146,25 @@
       "layer": "Duel",
       "mode": "Add",
       "value": 3
+    }
+  ]
+}
+```
+
+### 7) 상대 수가 더 많을 때 파워 배율 증가
+
+```json
+{
+  "timing": "Formation",
+  "condition": { "type": "OpponentCountGreaterThanSelf" },
+  "ops": [
+    {
+      "op": "AddPowerModifier",
+      "scope": "Self",
+      "target": "Power",
+      "layer": "Duel",
+      "mode": "PercentBonus",
+      "value": 100
     }
   ]
 }

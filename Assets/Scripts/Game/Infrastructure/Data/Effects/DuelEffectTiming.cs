@@ -9,6 +9,7 @@ namespace Game.Infrastructure.Data.Effects
         Resolve = 4,
         AfterCombat = 5,
         TurnEnd = 6,
-        HealthLost = 7
+        HealthLost = 7,
+        Formation = 8
     }
 }

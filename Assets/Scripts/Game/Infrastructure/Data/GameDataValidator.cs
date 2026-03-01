@@ -28,6 +28,7 @@ namespace Game.Infrastructure.Data
             "Always",
             "IsInLoadout",
             "OpponentCountEquals",
+            "OpponentCountGreaterThanSelf",
             "OutcomeIsVictory",
             "OutcomeIsDefeat",
             "OutcomeIsDraw"
@@ -37,6 +38,7 @@ namespace Game.Infrastructure.Data
         {
             nameof(DuelEffectTiming.DuelStart),
             nameof(DuelEffectTiming.Deploy),
+            nameof(DuelEffectTiming.Formation),
             nameof(DuelEffectTiming.Roll),
             nameof(DuelEffectTiming.Skill),
             nameof(DuelEffectTiming.Resolve),

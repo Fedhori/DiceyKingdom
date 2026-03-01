@@ -167,6 +167,11 @@ namespace Game.Application.Duel
             return ApplyTimedEffects(state, DuelEffectTiming.Deploy, sourceAbilityIds);
         }
 
+        public AbilityTimedEffectRunResult ApplyFormationTimedEffects(DuelState state)
+        {
+            return ApplyTimedEffects(state, DuelEffectTiming.Formation);
+        }
+
         public AbilityTimedEffectRunResult ApplySkillTimedEffects(
             DuelState state,
             IReadOnlyCollection<string> sourceAbilityIds = null)

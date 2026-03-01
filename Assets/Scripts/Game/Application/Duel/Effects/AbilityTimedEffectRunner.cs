@@ -11,6 +11,7 @@ namespace Game.Application.Duel.Effects
     public sealed class AbilityTimedEffectRunner
     {
         const string timedSourcePrefix = "Timed";
+        const string formationSourcePrefix = "Timed:Formation:";
         const string rollSourcePrefix = "Timed:Roll:";
 
         readonly GameDatabase database;
@@ -48,7 +49,11 @@ namespace Game.Application.Duel.Effects
 
             state.EnsureInitialized();
 
-            if (timing == DuelEffectTiming.Roll)
+            if (timing == DuelEffectTiming.Formation)
+            {
+                ClearPreviousFormationTimedModifiers(state);
+            }
+            else if (timing == DuelEffectTiming.Roll)
             {
                 ClearPreviousRollTimedModifiers(state);
             }
@@ -239,7 +244,9 @@ namespace Game.Application.Duel.Effects
                 return false;
             }
 
-            if (timing == DuelEffectTiming.Deploy || timing == DuelEffectTiming.AfterCombat)
+            if (timing == DuelEffectTiming.Deploy ||
+                timing == DuelEffectTiming.Formation ||
+                timing == DuelEffectTiming.AfterCombat)
             {
                 return sourceContext.combatIndex >= 0;
             }
@@ -389,6 +396,35 @@ namespace Game.Application.Duel.Effects
                     }
 
                     return opponentCount == expectedCount;
+                }
+                case "OpponentCountGreaterThanSelf":
+                {
+                    if (sourceContext.combatIndex < 0)
+                    {
+                        return false;
+                    }
+
+                    int opponentCount = 0;
+                    int selfCount = 0;
+                    for (int i = 0; i < allContexts.Count; i++)
+                    {
+                        AbilityRuntimeContext target = allContexts[i];
+                        if (target.combatIndex != sourceContext.combatIndex)
+                        {
+                            continue;
+                        }
+
+                        if (target.isPlayerSide == sourceContext.isPlayerSide)
+                        {
+                            selfCount += 1;
+                        }
+                        else
+                        {
+                            opponentCount += 1;
+                        }
+                    }
+
+                    return opponentCount > selfCount;
                 }
                 case "OutcomeIsVictory":
                     return IsOutcomeMatch(effectContext, sourceContext.isPlayerSide, DuelOutcome.Victory);
@@ -722,6 +758,22 @@ namespace Game.Application.Duel.Effects
                 ability.rollMinPercent = 0;
                 RemoveSourcePrefixedModifiers(ability.powerModifiers, rollSourcePrefix);
                 RemoveSourcePrefixedModifiers(ability.powerResultModifiers, rollSourcePrefix);
+            }
+        }
+
+        static void ClearPreviousFormationTimedModifiers(DuelState state)
+        {
+            foreach (KeyValuePair<string, AbilityInstance> pair in state.abilitiesById)
+            {
+                AbilityInstance ability = pair.Value;
+                if (ability == null)
+                {
+                    continue;
+                }
+
+                ability.EnsureInitialized();
+                RemoveSourcePrefixedModifiers(ability.powerModifiers, formationSourcePrefix);
+                RemoveSourcePrefixedModifiers(ability.powerResultModifiers, formationSourcePrefix);
             }
         }
 

@@ -165,6 +165,7 @@ namespace Game.Presentation.Duel
                 return;
             }
 
+            sessionRunner.NotifyBoardCompositionChanged();
             publishState.Invoke();
         }
 
