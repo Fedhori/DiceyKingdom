@@ -5,8 +5,8 @@
 	"startingPlayerHealth": 10,
 	"startingLoadoutAbilityIds": [
 		"ability.slash_sword",
-		"ability.slash_sword",
-		"ability.slash_sword",
+		"ability.vengeance",
+		"ability.obsidian_blade",
 		"ability.underdog"
 	]
 }
